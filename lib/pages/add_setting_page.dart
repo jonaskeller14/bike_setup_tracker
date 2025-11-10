@@ -88,14 +88,12 @@ class _AddSettingPageState extends State<AddSettingPage> {
             const SizedBox(height: 16),
             Align(
               alignment: Alignment.centerLeft,
-              child: GestureDetector(
-                onTap: _pickDateTime,
-                child: Chip(
-                  avatar: const Icon(Icons.calendar_today, size: 20),
-                  label: Text(DateFormat('yyyy-MM-dd HH:mm').format(_selectedDateTime)),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  backgroundColor: Colors.blue.shade50,
-                ),
+              child: ActionChip(
+                avatar: const Icon(Icons.calendar_today, size: 20),
+                label: Text(DateFormat('yyyy-MM-dd HH:mm').format(_selectedDateTime),),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                backgroundColor: Colors.blue.shade50,
+                onPressed: _pickDateTime,
               ),
             ),
           ],

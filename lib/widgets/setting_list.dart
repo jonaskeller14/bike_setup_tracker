@@ -13,7 +13,7 @@ class SettingList extends StatelessWidget {
       itemBuilder: (context, index) {
         final setting = settings[index];
         return ListTile(
-          title: Text('Setting: ${setting.name}'),
+          title: Text('Setting: ${setting.name} || ${setting.datetime.toIso8601String()}'),
         );
       },
     );

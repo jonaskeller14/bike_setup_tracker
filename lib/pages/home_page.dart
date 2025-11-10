@@ -71,7 +71,6 @@ void initState() {
     await prefs.setStringList('settings', settings.map((s) => jsonEncode(s.toJson())).toList(),);
   }
 
-  // --- Add a new component
   Future<void> _addComponent() async {
     final result = await Navigator.push<String>(
       context,
@@ -81,21 +80,20 @@ void initState() {
       setState(() {
         components.add(Component(name: result));
       });
-      _saveData(); // ⬅️ Save immediately after adding
+      _saveData();
     }
   }
 
-  // --- Add a new setting
   Future<void> _addSetting() async {
-    final result = await Navigator.push<String>(
+    final result = await Navigator.push<Map<String, dynamic>>(
       context,
       MaterialPageRoute(builder: (context) => const AddSettingPage()),
     );
     if (result != null) {
       setState(() {
-        settings.add(Setting(name: result));
+        settings.add(Setting(name: result["name"], datetime: result["datetime"]));
       });
-      _saveData(); // ⬅️ Save immediately after adding
+      _saveData();
     }
   }
 

@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/component_list.dart';
 import '../widgets/setting_list.dart';
 import 'add_component_page.dart';
 import 'add_setting_page.dart';
+import '../models/component.dart';
+import '../models/setting.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
@@ -14,35 +18,57 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<String> components = [];
-  final List<String> settings = [];
+  final List<Component> components = [];
+  final List<Setting> settings = [];
 
-  @override
-  void initState() {
-    super.initState();
-    _loadData(); // ⬅️ Load saved data when app starts
+@override
+void initState() {
+  super.initState();
+  clearAllData();
+    _loadData();
+  }
+
+  Future<void> clearAllData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
+
+  Future<void> clearAndReloadAllData() async {
+    clearAllData();
+
+    setState(() {
+      components.clear();
+      settings.clear();
+    });
   }
 
   // --- Load data from SharedPreferences
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
+
     final savedComponents = prefs.getStringList('components') ?? [];
     final savedSettings = prefs.getStringList('settings') ?? [];
 
-    print('Loaded components: $savedComponents');
-    print('Loaded settings: $savedSettings');
+    // Convert JSON strings to model objects
+    final loadedComponents = savedComponents
+        .map((c) => Component.fromJson(jsonDecode(c)))
+        .toList();
+
+    final loadedSettings = savedSettings
+        .map((s) => Setting.fromJson(jsonDecode(s)))
+        .toList();
 
     setState(() {
-      components.addAll(savedComponents);
-      settings.addAll(savedSettings);
+      components.addAll(loadedComponents);
+      settings.addAll(loadedSettings);
     });
   }
 
   // --- Save data to SharedPreferences
   Future<void> _saveData() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('components', components);
-    await prefs.setStringList('settings', settings);
+    await prefs.setStringList('components', components.map((s) => jsonEncode(s.toJson())).toList(),);
+    await prefs.setStringList('settings', settings.map((s) => jsonEncode(s.toJson())).toList(),);
   }
 
   // --- Add a new component
@@ -53,7 +79,7 @@ class _HomePageState extends State<HomePage> {
     );
     if (result != null) {
       setState(() {
-        components.add(result);
+        components.add(Component(name: result));
       });
       _saveData(); // ⬅️ Save immediately after adding
     }
@@ -67,7 +93,7 @@ class _HomePageState extends State<HomePage> {
     );
     if (result != null) {
       setState(() {
-        settings.add(result);
+        settings.add(Setting(name: result));
       });
       _saveData(); // ⬅️ Save immediately after adding
     }
@@ -104,6 +130,13 @@ class _HomePageState extends State<HomePage> {
               tooltip: 'Add Setting',
               label: const Text('Add Setting'),
               icon: const Icon(Icons.add),
+            ),
+            const SizedBox(height: 10),
+            FloatingActionButton.extended(
+              onPressed: clearAndReloadAllData,
+              tooltip: 'Clear All Data',
+              label: const Text('#TODO Clear All Data'),
+              icon: const Icon(Icons.delete),
             ),
           ],
         ),

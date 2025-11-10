@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import '../models/component.dart';
 
 class ComponentList extends StatelessWidget {
-  final List<String> components;
+  final List<Component> components;
 
   const ComponentList({super.key, required this.components});
 
@@ -10,8 +11,9 @@ class ComponentList extends StatelessWidget {
     return ListView.builder(
       itemCount: components.length,
       itemBuilder: (context, index) {
+        final component = components[index];
         return ListTile(
-          title: Text('Component: ${components[index]}'),
+          title: Text('Component: ${component.name}'),
         );
       },
     );

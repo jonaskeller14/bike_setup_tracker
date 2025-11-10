@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/component_list.dart';
 import '../widgets/setting_list.dart';
 import 'add_component_page.dart';
@@ -16,23 +17,59 @@ class _HomePageState extends State<HomePage> {
   final List<String> components = [];
   final List<String> settings = [];
 
+  @override
+  void initState() {
+    super.initState();
+    _loadData(); // ⬅️ Load saved data when app starts
+  }
+
+  // --- Load data from SharedPreferences
+  Future<void> _loadData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedComponents = prefs.getStringList('components') ?? [];
+    final savedSettings = prefs.getStringList('settings') ?? [];
+
+    print('Loaded components: $savedComponents');
+    print('Loaded settings: $savedSettings');
+
+    setState(() {
+      components.addAll(savedComponents);
+      settings.addAll(savedSettings);
+    });
+  }
+
+  // --- Save data to SharedPreferences
+  Future<void> _saveData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('components', components);
+    await prefs.setStringList('settings', settings);
+  }
+
+  // --- Add a new component
   Future<void> _addComponent() async {
     final result = await Navigator.push<String>(
       context,
       MaterialPageRoute(builder: (context) => const AddComponentPage()),
     );
     if (result != null) {
-      setState(() => components.add(result));
+      setState(() {
+        components.add(result);
+      });
+      _saveData(); // ⬅️ Save immediately after adding
     }
   }
 
+  // --- Add a new setting
   Future<void> _addSetting() async {
     final result = await Navigator.push<String>(
       context,
       MaterialPageRoute(builder: (context) => const AddSettingPage()),
     );
     if (result != null) {
-      setState(() => settings.add(result));
+      setState(() {
+        settings.add(result);
+      });
+      _saveData(); // ⬅️ Save immediately after adding
     }
   }
 

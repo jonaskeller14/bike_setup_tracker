@@ -2,16 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/setting.dart';
 
-class AddSettingPage extends StatefulWidget {
-  const AddSettingPage({super.key});
+class EditSettingPage extends StatefulWidget {
+  final Setting setting;
+
+  const EditSettingPage({super.key, required this.setting});
 
   @override
-  State<AddSettingPage> createState() => _AddSettingPageState();
+  State<EditSettingPage> createState() => _EditSettingPageState();
 }
 
-class _AddSettingPageState extends State<AddSettingPage> {
-  final TextEditingController _nameController = TextEditingController();
-  DateTime _selectedDateTime = DateTime.now();
+class _EditSettingPageState extends State<EditSettingPage> {
+  late TextEditingController _nameController;
+  late DateTime _selectedDateTime;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with existing setting values
+    _nameController = TextEditingController(text: widget.setting.name);
+    _selectedDateTime = widget.setting.datetime;
+  }
 
   @override
   void dispose() {
@@ -65,7 +75,7 @@ class _AddSettingPageState extends State<AddSettingPage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Add Setting'),
+        title: const Text('Edit Setting'),
         actions: [
           IconButton(icon: const Icon(Icons.check), onPressed: _saveSetting),
         ],

@@ -5,7 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/component_list.dart';
 import '../widgets/setting_list.dart';
 import 'add_component_page.dart';
+import 'edit_component_page.dart';
 import 'add_setting_page.dart';
+import 'edit_setting_page.dart';
 import '../models/component.dart';
 import '../models/setting.dart';
 
@@ -21,10 +23,10 @@ class _HomePageState extends State<HomePage> {
   final List<Component> components = [];
   final List<Setting> settings = [];
 
-@override
-void initState() {
-  super.initState();
-  clearAllData();
+  @override
+  void initState() {
+    super.initState();
+    clearAllData();
     _loadData();
   }
 
@@ -55,7 +57,7 @@ void initState() {
     });
     _saveData();
   }
-  
+
   // --- Load data from SharedPreferences
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
@@ -81,31 +83,73 @@ void initState() {
   // --- Save data to SharedPreferences
   Future<void> _saveData() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('components', components.map((s) => jsonEncode(s.toJson())).toList(),);
-    await prefs.setStringList('settings', settings.map((s) => jsonEncode(s.toJson())).toList(),);
+    await prefs.setStringList(
+      'components',
+      components.map((s) => jsonEncode(s.toJson())).toList(),
+    );
+    await prefs.setStringList(
+      'settings',
+      settings.map((s) => jsonEncode(s.toJson())).toList(),
+    );
   }
 
   Future<void> _addComponent() async {
-    final result = await Navigator.push<String>(
+    final component = await Navigator.push<Component>(
       context,
       MaterialPageRoute(builder: (context) => const AddComponentPage()),
     );
-    if (result != null) {
+    if (component != null) {
       setState(() {
-        components.add(Component(name: result));
+        components.add(component);
+      });
+      _saveData();
+    }
+  }
+
+  Future<void> editComponent(Component component) async {
+    final editedComponent = await Navigator.push<Component>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditComponentPage(component: component),
+      ),
+    );
+    if (editedComponent != null) {
+      setState(() {
+        final index = components.indexOf(component);
+        if (index != -1) {
+          components[index] = editedComponent;
+        }
       });
       _saveData();
     }
   }
 
   Future<void> _addSetting() async {
-    final result = await Navigator.push<Map<String, dynamic>>(
+    final setting = await Navigator.push<Setting>(
       context,
       MaterialPageRoute(builder: (context) => const AddSettingPage()),
     );
-    if (result != null) {
+    if (setting != null) {
       setState(() {
-        settings.add(Setting(name: result["name"], datetime: result["datetime"]));
+        settings.add(setting);
+      });
+      _saveData();
+    }
+  }
+
+  Future<void> editSetting(Setting setting) async {
+    final editedSetting = await Navigator.push<Setting>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditSettingPage(setting: setting),
+      ),
+    );
+    if (editedSetting != null) {
+      setState(() {
+        final index = settings.indexOf(setting);
+        if (index != -1) {
+          settings[index] = editedSetting;
+        }
       });
       _saveData();
     }
@@ -123,12 +167,14 @@ void initState() {
           Expanded(
             child: ComponentList(
               components: components,
+              editComponent: editComponent,
               removeComponent: removeComponent,
             ),
           ),
           Expanded(
             child: SettingList(
               settings: settings,
+              editSetting: editSetting,
               removeSetting: removeSetting,
             ),
           ),

@@ -4,13 +4,13 @@ import '../models/setting.dart';
 
 class SettingList extends StatelessWidget {
   final List<Setting> settings;
-  final void Function(int index)? onEdit; //TODO
+  final void Function(Setting setting) editSetting;
   final void Function(Setting setting) removeSetting;
 
   const SettingList({
     super.key,
     required this.settings,
-    this.onEdit,
+    required this.editSetting,
     required this.removeSetting,
   });
 
@@ -28,7 +28,10 @@ class SettingList extends StatelessWidget {
             side: BorderSide(color: Colors.grey.shade300, width: 1),
           ),
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
             title: Text(
               setting.name,
               style: const TextStyle(fontWeight: FontWeight.bold),
@@ -40,16 +43,13 @@ class SettingList extends StatelessWidget {
             trailing: PopupMenuButton<String>(
               onSelected: (value) {
                 if (value == 'edit') {
-                  if (onEdit != null) onEdit!(index);
+                  editSetting(setting);
                 } else if (value == 'remove') {
                   removeSetting(setting);
                 }
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                const PopupMenuItem<String>(
-                  value: 'edit',
-                  child: Text('Edit'),
-                ),
+                const PopupMenuItem<String>(value: 'edit', child: Text('Edit')),
                 const PopupMenuItem<String>(
                   value: 'remove',
                   child: Text('Remove'),

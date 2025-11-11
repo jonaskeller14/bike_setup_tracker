@@ -3,13 +3,13 @@ import '../models/component.dart';
 
 class ComponentList extends StatelessWidget {
   final List<Component> components;
-  final void Function(int index)? onEdit;
+  final void Function(Component component) editComponent;
   final void Function(Component component) removeComponent;
 
   const ComponentList({
     super.key,
     required this.components,
-    this.onEdit,
+    required this.editComponent,
     required this.removeComponent,
   });
 
@@ -27,7 +27,10 @@ class ComponentList extends StatelessWidget {
             side: BorderSide(color: Colors.grey.shade300, width: 1),
           ),
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
             title: Text(
               component.name,
               style: const TextStyle(fontWeight: FontWeight.bold),
@@ -35,16 +38,13 @@ class ComponentList extends StatelessWidget {
             trailing: PopupMenuButton<String>(
               onSelected: (value) {
                 if (value == 'edit') {
-                  if (onEdit != null) onEdit!(index);
+                  editComponent(component);
                 } else if (value == 'remove') {
                   removeComponent(component);
                 }
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                const PopupMenuItem<String>(
-                  value: 'edit',
-                  child: Text('Edit'),
-                ),
+                const PopupMenuItem<String>(value: 'edit', child: Text('Edit')),
                 const PopupMenuItem<String>(
                   value: 'remove',
                   child: Text('Remove'),

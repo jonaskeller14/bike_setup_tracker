@@ -26,8 +26,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    clearAllData();
-    _loadData();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    await clearAllData();
+    await _loadData();
   }
 
   Future<void> clearAllData() async {

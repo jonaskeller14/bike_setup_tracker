@@ -5,13 +5,13 @@ import '../models/setting.dart';
 class SettingList extends StatelessWidget {
   final List<Setting> settings;
   final void Function(int index)? onEdit; //TODO
-  final void Function(int index)? onRemove; //TODO
+  final void Function(Setting setting) removeSetting;
 
   const SettingList({
     super.key,
     required this.settings,
     this.onEdit,
-    this.onRemove,
+    required this.removeSetting,
   });
 
   @override
@@ -42,7 +42,7 @@ class SettingList extends StatelessWidget {
                 if (value == 'edit') {
                   if (onEdit != null) onEdit!(index);
                 } else if (value == 'remove') {
-                  if (onRemove != null) onRemove!(index);
+                  removeSetting(setting);
                 }
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[

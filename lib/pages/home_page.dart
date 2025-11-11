@@ -42,6 +42,20 @@ void initState() {
     });
   }
 
+  Future<void> removeSetting(Setting setting) async {
+    setState(() {
+      settings.remove(setting);
+    });
+    _saveData();
+  }
+
+  Future<void> removeComponent(Component component) async {
+    setState(() {
+      components.remove(component);
+    });
+    _saveData();
+  }
+  
   // --- Load data from SharedPreferences
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
@@ -106,8 +120,18 @@ void initState() {
       ),
       body: Column(
         children: [
-          Expanded(child: ComponentList(components: components)),
-          Expanded(child: SettingList(settings: settings)),
+          Expanded(
+            child: ComponentList(
+              components: components,
+              removeComponent: removeComponent,
+            ),
+          ),
+          Expanded(
+            child: SettingList(
+              settings: settings,
+              removeSetting: removeSetting,
+            ),
+          ),
         ],
       ),
       floatingActionButton: Padding(

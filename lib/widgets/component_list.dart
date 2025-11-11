@@ -4,13 +4,13 @@ import '../models/component.dart';
 class ComponentList extends StatelessWidget {
   final List<Component> components;
   final void Function(int index)? onEdit;
-  final void Function(int index)? onRemove;
+  final void Function(Component component) removeComponent;
 
   const ComponentList({
     super.key,
     required this.components,
     this.onEdit,
-    this.onRemove,
+    required this.removeComponent,
   });
 
   @override
@@ -37,7 +37,7 @@ class ComponentList extends StatelessWidget {
                 if (value == 'edit') {
                   if (onEdit != null) onEdit!(index);
                 } else if (value == 'remove') {
-                  if (onRemove != null) onRemove!(index);
+                  removeComponent(component);
                 }
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[

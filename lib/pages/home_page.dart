@@ -117,6 +117,7 @@ void initState() {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             FloatingActionButton.extended(
+              heroTag: "addComponent",
               onPressed: _addComponent,
               tooltip: 'Add Component',
               label: const Text('Add Component'),
@@ -124,6 +125,7 @@ void initState() {
             ),
             const SizedBox(height: 10),
             FloatingActionButton.extended(
+              heroTag: "addSetting",
               onPressed: _addSetting,
               tooltip: 'Add Setting',
               label: const Text('Add Setting'),
@@ -131,6 +133,7 @@ void initState() {
             ),
             const SizedBox(height: 10),
             FloatingActionButton.extended(
+              heroTag: "clearAndReloadAllData",
               onPressed: clearAndReloadAllData,
               tooltip: 'Clear All Data',
               label: const Text('#TODO Clear All Data'),

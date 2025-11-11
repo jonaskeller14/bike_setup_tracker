@@ -166,21 +166,31 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Column(
+      body: ListView(
+        padding: const EdgeInsets.all(16.0),
         children: [
-          Expanded(
-            child: ComponentList(
-              components: components,
-              editComponent: editComponent,
-              removeComponent: removeComponent,
-            ),
+          const Text(
+            'Components',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          Expanded(
-            child: SettingList(
-              settings: settings,
-              editSetting: editSetting,
-              removeSetting: removeSetting,
-            ),
+          const SizedBox(height: 8),
+
+          ComponentList(
+            components: components,
+            editComponent: editComponent,
+            removeComponent: removeComponent,
+          ),
+
+          const Text(
+            'Log',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+
+          SettingList(
+            settings: settings,
+            editSetting: editSetting,
+            removeSetting: removeSetting,
           ),
         ],
       ),

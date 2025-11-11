@@ -13,6 +13,7 @@ class EditSettingPage extends StatefulWidget {
 
 class _EditSettingPageState extends State<EditSettingPage> {
   late TextEditingController _nameController;
+  late TextEditingController _notesController;
   late DateTime _selectedDateTime;
 
   @override
@@ -20,12 +21,14 @@ class _EditSettingPageState extends State<EditSettingPage> {
     super.initState();
     // Initialize with existing setting values
     _nameController = TextEditingController(text: widget.setting.name);
+    _notesController = TextEditingController(text: widget.setting.notes ?? '');
     _selectedDateTime = widget.setting.datetime;
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -63,8 +66,14 @@ class _EditSettingPageState extends State<EditSettingPage> {
     final name = _nameController.text.trim();
     if (name.isEmpty) return;
 
+    final notesText = _notesController.text.trim();
+    final notes = notesText.isEmpty ? null : notesText;
+
     // Return updated setting to previous screen
-    Navigator.pop(context, Setting(name: name, datetime: _selectedDateTime));
+    Navigator.pop(
+      context,
+      Setting(name: name, datetime: _selectedDateTime, notes: notes),
+    );
   }
 
   @override
@@ -91,6 +100,16 @@ class _EditSettingPageState extends State<EditSettingPage> {
                 labelText: 'Setting Name',
                 border: OutlineInputBorder(),
                 hintText: 'Enter setting name',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _notesController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Notes (optional)',
+                border: OutlineInputBorder(),
+                hintText: 'Add notes (optional)',
               ),
             ),
             const SizedBox(height: 16),

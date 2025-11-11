@@ -11,11 +11,13 @@ class AddSettingPage extends StatefulWidget {
 
 class _AddSettingPageState extends State<AddSettingPage> {
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _notesController = TextEditingController();
   DateTime _selectedDateTime = DateTime.now();
 
   @override
   void dispose() {
     _nameController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -53,8 +55,14 @@ class _AddSettingPageState extends State<AddSettingPage> {
     final name = _nameController.text.trim();
     if (name.isEmpty) return;
 
+    final notesText = _notesController.text.trim();
+    final notes = notesText.isEmpty ? null : notesText;
+
     // Return updated setting to previous screen
-    Navigator.pop(context, Setting(name: name, datetime: _selectedDateTime));
+    Navigator.pop(
+      context,
+      Setting(name: name, datetime: _selectedDateTime, notes: notes),
+    );
   }
 
   @override
@@ -81,6 +89,16 @@ class _AddSettingPageState extends State<AddSettingPage> {
                 labelText: 'Setting Name',
                 border: OutlineInputBorder(),
                 hintText: 'Enter setting name',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _notesController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Notes (optional)',
+                border: OutlineInputBorder(),
+                hintText: 'Add notes (optional)',
               ),
             ),
             const SizedBox(height: 16),

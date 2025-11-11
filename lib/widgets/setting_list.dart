@@ -38,9 +38,22 @@ class SettingList extends StatelessWidget {
               setting.name,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: Text(
-              DateFormat('yyyy-MM-dd HH:mm').format(setting.datetime),
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  DateFormat('yyyy-MM-dd HH:mm').format(setting.datetime),
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                ),
+                if (setting.notes != null && setting.notes!.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    setting.notes!,
+                    style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                  ),
+                ],
+              ],
             ),
             trailing: PopupMenuButton<String>(
               onSelected: (value) {
@@ -52,9 +65,7 @@ class SettingList extends StatelessWidget {
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
                 const PopupMenuItem<String>(value: 'edit', child: Text('Edit')),
-                const PopupMenuItem<String>(
-                  value: 'remove',
-                  child: Text('Remove'),
+                const PopupMenuItem<String>(value: 'remove', child: Text('Remove'),
                 ),
               ],
             ),

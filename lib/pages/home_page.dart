@@ -102,6 +102,7 @@ class _HomePageState extends State<HomePage> {
       context,
       MaterialPageRoute(builder: (context) => const AddComponentPage()),
     );
+    
     if (component != null) {
       setState(() {
         components.add(component);

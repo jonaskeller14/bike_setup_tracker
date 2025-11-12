@@ -22,6 +22,10 @@ class ComponentList extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       itemBuilder: (context, index) {
         final component = components[index];
+        final adjustmentNames = component.adjustments.isNotEmpty
+            ? component.adjustments.map((a) => a.name).join(', ')
+            : null;
+
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 4.0),
           shape: RoundedRectangleBorder(
@@ -37,6 +41,14 @@ class ComponentList extends StatelessWidget {
               component.name,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
+            subtitle: adjustmentNames != null
+                ? Text(
+                    adjustmentNames,
+                    style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  )
+                : null,
             trailing: PopupMenuButton<String>(
               onSelected: (value) {
                 if (value == 'edit') {

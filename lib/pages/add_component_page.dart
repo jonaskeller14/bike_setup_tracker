@@ -5,6 +5,7 @@ import 'add_adjustment/add_boolean_adjustment_page.dart';
 import 'add_adjustment/add_numerical_adjustment_page.dart';
 import 'add_adjustment/add_step_adjustment_page.dart';
 import 'add_adjustment/add_categorical_adjustment_page.dart';
+import '../widgets/adjustment_edit_list.dart';
 
 
 class AddComponentPage extends StatefulWidget {
@@ -72,6 +73,12 @@ class _AddComponentPageState extends State<AddComponentPage> {
     }
   }
 
+  Future<void> removeAdjustment(Adjustment adjustment) async {
+    setState(() {
+      adjustments.remove(adjustment);
+    });
+  }
+
   void _saveComponent() {
     final name = _nameController.text.trim();
     if (name.isEmpty) return;
@@ -116,20 +123,10 @@ class _AddComponentPageState extends State<AddComponentPage> {
                         style: TextStyle(color: Colors.grey.shade600),
                       ),
                     )
-                  : ListView.separated(
-                      itemCount: adjustments.length,
-                      separatorBuilder: (_, __) => const Divider(height: 1),
-                      itemBuilder: (context, index) {
-                        final adj = adjustments[index];
-                        return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          title: Text(
-                            adj.name,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                        );
-                      },
+                  : AdjustmentEditList(
+                      adjustments: adjustments,
+                      // editAdjustment: () => {},
+                      removeAdjustment: removeAdjustment,
                     ),
             ),
           ],

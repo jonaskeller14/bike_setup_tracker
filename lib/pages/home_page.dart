@@ -132,7 +132,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _addSetting() async {
     final setting = await Navigator.push<Setting>(
       context,
-      MaterialPageRoute(builder: (context) => const AddSettingPage()),
+      MaterialPageRoute(builder: (context) => AddSettingPage(components: components)),
     );
     if (setting != null) {
       setState(() {

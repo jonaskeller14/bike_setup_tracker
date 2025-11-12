@@ -65,6 +65,7 @@ class ComponentList extends StatelessWidget {
                 ),
               ],
             ),
+            leading: const Icon(Icons.casino),
           ),
         );
       },

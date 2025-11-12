@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/setting.dart';
+import '../models/component.dart';
 
 class AddSettingPage extends StatefulWidget {
-  const AddSettingPage({super.key});
+  final List<Component> components;
+
+  const AddSettingPage({super.key, required this.components});
 
   @override
   State<AddSettingPage> createState() => _AddSettingPageState();
@@ -113,6 +116,32 @@ class _AddSettingPageState extends State<AddSettingPage> {
                 backgroundColor: Colors.blue.shade50,
                 onPressed: _pickDateTime,
               ),
+            ),
+            const SizedBox(height: 24),
+            Expanded(
+              child: widget.components.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'No components available.',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: widget.components.length,
+                      itemBuilder: (context, index) {
+                        final component = widget.components[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          child: ListTile(
+                            title: Text(component.name),
+                            subtitle: Text(
+                              '${component.adjustments.length} adjustments',
+                            ),
+                            leading: const Icon(Icons.casino),
+                          ),
+                        );
+                      },
+                    ),
             ),
           ],
         ),

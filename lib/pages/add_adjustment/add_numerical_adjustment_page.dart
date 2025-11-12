@@ -62,7 +62,7 @@ class _AddNumericalAdjustmentPageState extends State<AddNumericalAdjustmentPage>
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Add On/Off Adjustment'),
+        title: const Text('Add Numerical Adjustment'),
         actions: [
           IconButton(icon: const Icon(Icons.check), onPressed: _saveNumericalAdjustment),
         ],

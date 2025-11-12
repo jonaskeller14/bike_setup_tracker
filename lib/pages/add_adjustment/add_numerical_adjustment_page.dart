@@ -1,59 +1,7 @@
 import 'package:flutter/services.dart';
-import '../models/adjustment.dart';
+import '../../models/adjustment.dart';
 import 'package:flutter/material.dart';
 
-
-class AddBooleanAdjustmentPage extends StatefulWidget {
-  const AddBooleanAdjustmentPage({super.key});
-
-  @override
-  State<AddBooleanAdjustmentPage> createState() => _AddBooleanAdjustmentPageState();
-}
-
-class _AddBooleanAdjustmentPageState extends State<AddBooleanAdjustmentPage> {
-  final TextEditingController _nameController = TextEditingController();
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
-  }
-
-  void _saveBooleanAdjustment() {
-    final name = _nameController.text.trim();
-    if (name.isEmpty) return;
-
-    Navigator.pop(context, BooleanAdjustment(name: name));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text('Add On/Off Adjustment'),
-        actions: [
-          IconButton(icon: const Icon(Icons.check), onPressed: _saveBooleanAdjustment),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: TextField(
-          controller: _nameController,
-          autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'Adjustment Name',
-            border: OutlineInputBorder(),
-            hintText: 'Enter Adjustment Name',
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class AddNumericalAdjustmentPage extends StatefulWidget {
   const AddNumericalAdjustmentPage({super.key});
@@ -68,6 +16,9 @@ class _AddNumericalAdjustmentPageState extends State<AddNumericalAdjustmentPage>
   final TextEditingController _maxController = TextEditingController();
   final TextEditingController _unitController = TextEditingController();
 
+  bool _showNameError = false;
+  bool _showMinError = false;
+  bool _showMaxError = false;
 
   @override
   void dispose() {
@@ -80,20 +31,27 @@ class _AddNumericalAdjustmentPageState extends State<AddNumericalAdjustmentPage>
 
   void _saveNumericalAdjustment() {
     final name = _nameController.text.trim();
-    if (name.isEmpty) return;
+    if (name.isEmpty) {
+      setState(() => _showNameError = true);
+      return;
+    }
 
     final minText = _minController.text.trim();
-    final maxText = _maxController.text.trim();
-    final unitText = _unitController.text.trim();
-
     final min = minText.isNotEmpty ? double.tryParse(minText) : null;
+    
+
+    final maxText = _maxController.text.trim();
     final max = maxText.isNotEmpty ? double.tryParse(maxText) : null;
+    
+    if (min != null && max != null && max <= min) {
+      setState(() => _showMaxError = true);
+      return;
+    }
+
+    final unitText = _unitController.text.trim();
     final unit = unitText.isNotEmpty ? unitText : null;
 
-    Navigator.pop(
-      context,
-      NumericalAdjustment(name: name, min: min, max: max, unit: unit),
-    );
+    Navigator.pop(context, NumericalAdjustment(name: name, min: min, max: max, unit: unit));
   }
 
   @override
@@ -117,32 +75,65 @@ class _AddNumericalAdjustmentPageState extends State<AddNumericalAdjustmentPage>
               TextField(
                 controller: _nameController,
                 autofocus: true,
-                decoration: const InputDecoration(
+                onChanged: (_) {
+                  if (_showNameError && _nameController.text.isNotEmpty) {
+                    setState(() => _showNameError = false);
+                  }
+                },
+                decoration: InputDecoration(
                   labelText: 'Adjustment Name',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: _showNameError ? Colors.red : Colors.grey,
+                      width: _showNameError ? 2 : 1,
+                    ),
+                  ),
                   hintText: 'Enter Adjustment Name',
+                  errorText: _showNameError ? 'Name is required' : null,
                 ),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _minController,
+                onChanged: (_) {
+                  if (_showMinError && _minController.text.isNotEmpty) {
+                    setState(() => _showMinError = false);
+                  }
+                },
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*$')),],
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Min Value (optional)',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: _showMinError ? Colors.red : Colors.grey,
+                      width: _showMinError ? 2 : 1,
+                    ),
+                  ),
                   hintText: 'Enter minimum value',
+                  errorText: _showMinError ? 'Valid min value is required' : null,
                 ),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _maxController,
+                onChanged: (_) {
+                  if (_showMaxError && _maxController.text.isNotEmpty) {
+                    setState(() => _showMaxError = false);
+                  }
+                },
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*$')),],
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Max Value (optional)',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: _showMaxError ? Colors.red : Colors.grey,
+                      width: _showMaxError ? 2 : 1,
+                    ),
+                  ),
                   hintText: 'Enter maximum value',
+                  errorText: _showMaxError ? 'Valid max value greater than min value is required' : null,
                 ),
               ),
               const SizedBox(height: 12),

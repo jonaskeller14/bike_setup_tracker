@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/component.dart';
 import '../models/adjustment.dart';
-import 'add_adjustment_page.dart';
+import 'add_adjustment/add_boolean_adjustment_page.dart';
+import 'add_adjustment/add_numerical_adjustment_page.dart';
+import 'add_adjustment/add_step_adjustment_page.dart';
+import 'add_adjustment/add_categorical_adjustment_page.dart';
 
 
 class AddComponentPage extends StatefulWidget {
@@ -37,6 +40,30 @@ class _AddComponentPageState extends State<AddComponentPage> {
     final adjustment = await Navigator.push<NumericalAdjustment>(
       context,
       MaterialPageRoute(builder: (context) => const AddNumericalAdjustmentPage()),
+    );
+    if (adjustment != null) {
+      setState(() {
+        adjustments.add(adjustment);
+      });
+    }
+  }
+
+  Future<void> _addStepAdjustment() async {
+    final adjustment = await Navigator.push<StepAdjustment>(
+      context,
+      MaterialPageRoute(builder: (context) => const AddStepAdjustmentPage()),
+    );
+    if (adjustment != null) {
+      setState(() {
+        adjustments.add(adjustment);
+      });
+    }
+  }
+
+  Future<void> _addCategoricalAdjustment() async {
+    final adjustment = await Navigator.push<CategoricalAdjustment>(
+      context,
+      MaterialPageRoute(builder: (context) => const AddCategoricalAdjustmentPage()),
     );
     if (adjustment != null) {
       setState(() {
@@ -124,7 +151,7 @@ class _AddComponentPageState extends State<AddComponentPage> {
             const SizedBox(height: 10),
             FloatingActionButton.extended(
               heroTag: "add CategorialAdjustment",
-              onPressed: () => {},
+              onPressed: _addCategoricalAdjustment,
               tooltip: 'Add Categorical Adjustment',
               label: const Text('Add Categorical Adjustment'),
               icon: const Icon(Icons.add),
@@ -132,7 +159,7 @@ class _AddComponentPageState extends State<AddComponentPage> {
             const SizedBox(height: 10),
             FloatingActionButton.extended(
               heroTag: "add StepAdjustment",
-              onPressed: () => {},
+              onPressed: _addStepAdjustment,
               tooltip: 'Add Step Adjustment',
               label: const Text('Add Step Adjustment'),
               icon: const Icon(Icons.add),

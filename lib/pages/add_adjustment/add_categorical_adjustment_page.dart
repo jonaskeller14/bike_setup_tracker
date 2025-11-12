@@ -36,7 +36,17 @@ class _AddCategoricalAdjustmentPageState extends State<AddCategoricalAdjustmentP
     setState(() {
       _optionControllers[index].dispose();
       _optionControllers.removeAt(index);
+      _showOptionsError = false;
     });
+  }
+
+  bool _hasDuplicateOptions(List<String> options) {
+    final seen = <String>{};
+    for (final option in options) {
+      if (seen.contains(option)) return true;
+      seen.add(option);
+    }
+    return false;
   }
 
   void _saveCategoricalAdjustment() {
@@ -51,7 +61,7 @@ class _AddCategoricalAdjustmentPageState extends State<AddCategoricalAdjustmentP
         .where((s) => s.isNotEmpty)
         .toList();
     
-    if (options.isEmpty) {
+    if (options.isEmpty || _hasDuplicateOptions(options)) {
       setState(() => _showOptionsError = true);
       return;
     }

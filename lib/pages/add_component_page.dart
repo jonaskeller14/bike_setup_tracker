@@ -33,6 +33,18 @@ class _AddComponentPageState extends State<AddComponentPage> {
     }
   }
 
+  Future<void> _addNumericalAdjustment() async {
+    final adjustment = await Navigator.push<NumericalAdjustment>(
+      context,
+      MaterialPageRoute(builder: (context) => const AddNumericalAdjustmentPage()),
+    );
+    if (adjustment != null) {
+      setState(() {
+        adjustments.add(adjustment);
+      });
+    }
+  }
+
   void _saveComponent() {
     final name = _nameController.text.trim();
     if (name.isEmpty) return;
@@ -105,8 +117,32 @@ class _AddComponentPageState extends State<AddComponentPage> {
             FloatingActionButton.extended(
               heroTag: "add BooleanAdjustment",
               onPressed: _addBooleanAdjustment,
-              tooltip: 'Add BooleanAdjustment',
+              tooltip: 'Add On/Off Adjustment',
               label: const Text('Add On/Off Adjustment'),
+              icon: const Icon(Icons.add),
+            ),
+            const SizedBox(height: 10),
+            FloatingActionButton.extended(
+              heroTag: "add CategorialAdjustment",
+              onPressed: () => {},
+              tooltip: 'Add Categorical Adjustment',
+              label: const Text('Add Categorical Adjustment'),
+              icon: const Icon(Icons.add),
+            ),
+            const SizedBox(height: 10),
+            FloatingActionButton.extended(
+              heroTag: "add StepAdjustment",
+              onPressed: () => {},
+              tooltip: 'Add Step Adjustment',
+              label: const Text('Add Step Adjustment'),
+              icon: const Icon(Icons.add),
+            ),
+            const SizedBox(height: 10),
+            FloatingActionButton.extended(
+              heroTag: "add NumericalAdjustment",
+              onPressed: _addNumericalAdjustment,
+              tooltip: 'Add Numerical Adjustment',
+              label: const Text('Add Numerical Adjustment'),
               icon: const Icon(Icons.add),
             ),
           ],

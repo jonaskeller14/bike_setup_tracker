@@ -139,7 +139,7 @@ class _AddCategoricalAdjustmentPageState extends State<AddCategoricalAdjustmentP
                                 ),
                               ),
                             hintText: 'Enter option value',
-                            errorText: _showOptionsError ? 'At least one option is required' : null,
+                            errorText: _showOptionsError ? 'At least one option is required. No Duplicates.' : null,
                             ),
                           ),
                         ),

@@ -1,7 +1,9 @@
+import 'package:bike_setup_tracker/models/adjustment.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/setting.dart';
 import '../models/component.dart';
+import '../widgets/adjustment_set_list.dart';
 
 class AddSettingPage extends StatefulWidget {
   final List<Component> components;
@@ -81,70 +83,72 @@ class _AddSettingPageState extends State<AddSettingPage> {
           IconButton(icon: const Icon(Icons.check), onPressed: _saveSetting),
         ],
       ),
-      body: Padding(
+      body: ListView(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _nameController,
-              autofocus: true,
-              decoration: const InputDecoration(
-                labelText: 'Setting Name',
-                border: OutlineInputBorder(),
-                hintText: 'Enter setting name',
-              ),
+        children: [
+          TextField(
+            controller: _nameController,
+            autofocus: true,
+            decoration: const InputDecoration(
+              labelText: 'Setting Name',
+              border: OutlineInputBorder(),
+              hintText: 'Enter setting name',
             ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _notesController,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Notes (optional)',
-                border: OutlineInputBorder(),
-                hintText: 'Add notes (optional)',
-              ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _notesController,
+            maxLines: 3,
+            decoration: const InputDecoration(
+              labelText: 'Notes (optional)',
+              border: OutlineInputBorder(),
+              hintText: 'Add notes (optional)',
             ),
-            const SizedBox(height: 16),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: ActionChip(
-                avatar: const Icon(Icons.calendar_today, size: 20),
-                label: Text(
-                  DateFormat('yyyy-MM-dd HH:mm').format(_selectedDateTime),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                backgroundColor: Colors.blue.shade50,
-                onPressed: _pickDateTime,
+          ),
+          const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ActionChip(
+              avatar: const Icon(Icons.calendar_today, size: 20),
+              label: Text(
+                DateFormat('yyyy-MM-dd HH:mm').format(_selectedDateTime),
               ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              backgroundColor: Colors.blue.shade50,
+              onPressed: _pickDateTime,
             ),
-            const SizedBox(height: 24),
-            Expanded(
-              child: widget.components.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'No components available.',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: widget.components.length,
-                      itemBuilder: (context, index) {
-                        final component = widget.components[index];
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          child: ListTile(
-                            title: Text(component.name),
-                            subtitle: Text(
-                              '${component.adjustments.length} adjustments',
-                            ),
-                            leading: const Icon(Icons.casino),
-                          ),
-                        );
-                      },
+          ),
+          const SizedBox(height: 24),
+          if (widget.components.isEmpty)
+            const Center(
+              child: Text(
+                'No components available.',
+                style: TextStyle(color: Colors.grey),
+              ),
+            )
+          else
+            ...widget.components.map((component) {
+              return Card(
+                margin: const EdgeInsets.symmetric(vertical: 4),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      title: Text(component.name),
+                      subtitle: Text('${component.adjustments.length} adjustments'),
+                      leading: const Icon(Icons.casino),
                     ),
-            ),
-          ],
-        ),
+                    AdjustmentSetList(
+                      adjustments: component.adjustments,
+                      initialAdjustmentValues: <Adjustment, dynamic>{},
+                      onAdjustmentValueChanged:
+                          (Adjustment adjustment, dynamic newValue) => {},  //FIXME
+                    ),
+                  ],
+                ),
+              );
+            }),
+        ],
       ),
     );
   }

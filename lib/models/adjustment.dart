@@ -1,8 +1,13 @@
+import 'package:uuid/uuid.dart';
+
 abstract class Adjustment<T> {
+  final String id;
   final String name;
   final Type valueType;
 
-  Adjustment({required this.name}) : valueType = T;
+  Adjustment({String? id, required this.name})
+    : valueType = T,
+      id = id ?? const Uuid().v4();
 
   bool isValidValue(T value);
   Map<String, dynamic> toJson();
@@ -11,14 +16,16 @@ abstract class Adjustment<T> {
     final type = json['type'];
     switch (type) {
       case 'boolean':
-        return BooleanAdjustment(name: json['name']);
+        return BooleanAdjustment(id: json["id"], name: json['name']);
       case 'categorical':
         return CategoricalAdjustment(
+          id: json["id"],
           name: json['name'],
           options: List<String>.from(json['options']),
         );
       case 'step':
         return StepAdjustment(
+          id: json["id"],
           name: json['name'],
           step: json['step'],
           min: json['min'],
@@ -26,6 +33,7 @@ abstract class Adjustment<T> {
         );
       case 'numerical':
         return NumericalAdjustment(
+          id: json["id"],
           name: json['name'],
           min: (json['min'] as num?)?.toDouble(),
           max: (json['max'] as num?)?.toDouble(),
@@ -40,7 +48,7 @@ abstract class Adjustment<T> {
 class CategoricalAdjustment extends Adjustment<String> {
   final List<String> options;
 
-  CategoricalAdjustment({required super.name, required this.options});
+  CategoricalAdjustment({super.id, required super.name, required this.options});
 
   @override
   bool isValidValue(String value) {
@@ -49,6 +57,7 @@ class CategoricalAdjustment extends Adjustment<String> {
 
   @override
   Map<String, dynamic> toJson() => {
+    'id': id,
     'name': name,
     'type': 'step',
     'valueType': valueType.toString(),
@@ -62,6 +71,7 @@ class StepAdjustment extends Adjustment<int> {
   final int max;
 
   StepAdjustment({
+    super.id,
     required super.name,
     required this.step,
     required this.min,
@@ -75,6 +85,7 @@ class StepAdjustment extends Adjustment<int> {
 
   @override
   Map<String, dynamic> toJson() => {
+    'id': id,
     'name': name,
     'type': 'step',
     'valueType': valueType.toString(),
@@ -90,6 +101,7 @@ class NumericalAdjustment extends Adjustment<double> {
   final String? unit;
 
   NumericalAdjustment({
+    super.id,
     required super.name,
     double? min,
     double? max,
@@ -104,6 +116,7 @@ class NumericalAdjustment extends Adjustment<double> {
 
   @override
   Map<String, dynamic> toJson() => {
+    'id': id,
     'name': name,
     'type': 'numerical',
     'valueType': valueType.toString(),
@@ -114,7 +127,7 @@ class NumericalAdjustment extends Adjustment<double> {
 }
 
 class BooleanAdjustment extends Adjustment<bool> {
-  BooleanAdjustment({required super.name});
+  BooleanAdjustment({super.id, required super.name});
 
   @override
   bool isValidValue(bool value) {
@@ -123,6 +136,7 @@ class BooleanAdjustment extends Adjustment<bool> {
 
   @override
   Map<String, dynamic> toJson() => {
+    'id': id,
     'name': name,
     'type': 'boolean',
     'valueType': valueType.toString(),

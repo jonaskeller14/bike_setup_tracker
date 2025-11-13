@@ -35,7 +35,7 @@ class _EditComponentPageState extends State<EditComponentPage> {
     if (name.isEmpty) return;
 
     // Return updated setting to previous screen
-    Navigator.pop(context, Component(name: name, adjustments: adjustments));
+    Navigator.pop(context, Component(id: widget.component.id, name: name, adjustments: adjustments, currentSetting: widget.component.currentSetting));
   }
 
   @override

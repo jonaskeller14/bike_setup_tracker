@@ -131,9 +131,9 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
                   label: adjustmentValues[adjustment].toString(),
                   onChanged: (double newValue) {
                     setState(() {
-                      adjustmentValues[adjustment] = newValue.round();
+                      adjustmentValues[adjustment] = newValue.toInt();
                     });
-                    widget.onAdjustmentValueChanged(adjustment, newValue);
+                    widget.onAdjustmentValueChanged(adjustment, newValue.toInt());
                   },
                   ),
                 ),

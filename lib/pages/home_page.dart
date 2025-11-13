@@ -51,6 +51,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> removeSetting(Setting setting) async {
+    //TODO: Update componet.currentSetting if this is a current Setting 
     setState(() {
       settings.remove(setting);
     });

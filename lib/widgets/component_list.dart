@@ -23,7 +23,7 @@ class ComponentList extends StatelessWidget {
       itemBuilder: (context, index) {
         final component = components[index];
         final adjustmentNames = component.adjustments.isNotEmpty
-            ? component.adjustments.map((a) => a.name).join(', ')
+            ? component.adjustments.map((a) => '${a.name}=${component.currentSetting?.adjustmentValues[a]}').join(', ')
             : null;
 
         return Card(

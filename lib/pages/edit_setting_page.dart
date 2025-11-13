@@ -72,7 +72,13 @@ class _EditSettingPageState extends State<EditSettingPage> {
     // Return updated setting to previous screen
     Navigator.pop(
       context,
-      Setting(name: name, datetime: _selectedDateTime, notes: notes),
+      Setting(
+        id: widget.setting.id,
+        name: name,
+        datetime: _selectedDateTime,
+        notes: notes,
+        adjustmentValues: widget.setting.adjustmentValues,
+      ),
     );
   }
 

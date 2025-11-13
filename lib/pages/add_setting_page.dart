@@ -18,6 +18,20 @@ class _AddSettingPageState extends State<AddSettingPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
   DateTime _selectedDateTime = DateTime.now();
+  Map<Adjustment, dynamic> adjustmentValues = {};
+
+  @override
+  void initState() {
+    for (final component in widget.components) {
+      if (component.currentSetting == null) continue;
+      final componentAdjustmentValues = component.currentSetting?.adjustmentValues;
+      if (componentAdjustmentValues == null) continue;
+      for (final adjustmentValue in componentAdjustmentValues.entries) {
+        adjustmentValues[adjustmentValue.key] = adjustmentValue.value;
+      }
+    }
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -63,11 +77,17 @@ class _AddSettingPageState extends State<AddSettingPage> {
     final notesText = _notesController.text.trim();
     final notes = notesText.isEmpty ? null : notesText;
 
+    //TODO: Check if at least one value has changed from current setting. Or set adjustmentValues
+
     // Return updated setting to previous screen
     Navigator.pop(
       context,
-      Setting(name: name, datetime: _selectedDateTime, notes: notes),
+      Setting(name: name, datetime: _selectedDateTime, notes: notes, adjustmentValues: adjustmentValues),
     );
+  }
+
+  void _onAdjustmentValueChanged(Adjustment adjustment, dynamic newValue) {
+    adjustmentValues[adjustment] = newValue;
   }
 
   @override
@@ -140,9 +160,8 @@ class _AddSettingPageState extends State<AddSettingPage> {
                     ),
                     AdjustmentSetList(
                       adjustments: component.adjustments,
-                      initialAdjustmentValues: <Adjustment, dynamic>{},
-                      onAdjustmentValueChanged:
-                          (Adjustment adjustment, dynamic newValue) => {},  //FIXME
+                      initialAdjustmentValues: component.currentSetting?.adjustmentValues ?? <Adjustment, dynamic>{},
+                      onAdjustmentValueChanged: _onAdjustmentValueChanged,
                     ),
                   ],
                 ),

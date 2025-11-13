@@ -22,7 +22,7 @@ class SettingList extends StatelessWidget {
       itemCount: settings.length,
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       itemBuilder: (context, index) {
-        final setting = settings[index];
+        final setting = settings[settings.length - 1 - index];
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 4.0),
           shape: RoundedRectangleBorder(
@@ -53,6 +53,10 @@ class SettingList extends StatelessWidget {
                     style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
                   ),
                 ],
+                const SizedBox(height: 6.0),
+                Text(
+                  setting.adjustmentValues.entries.map((entry) => '${entry.key.name}=${entry.value}').join(', ')
+                ),
               ],
             ),
             trailing: PopupMenuButton<String>(

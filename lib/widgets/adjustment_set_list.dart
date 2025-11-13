@@ -57,18 +57,26 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Icon(Icons.toggle_on),
+                SizedBox(width: 10.0),
                 Text(
                   adjustment.name,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
-                Switch(
-                  value: adjustmentValues[adjustment],
-                  onChanged: (newValue) {
-                    setState(() {
-                      adjustmentValues[adjustment] = newValue;
-                    });
-                    widget.onAdjustmentValueChanged(adjustment, newValue);
-                  },
+                SizedBox(width: 30.0),
+                Expanded(
+                  child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Switch(
+                    value: adjustmentValues[adjustment],
+                    onChanged: (newValue) {
+                      setState(() {
+                        adjustmentValues[adjustment] = newValue;
+                      });
+                      widget.onAdjustmentValueChanged(adjustment, newValue);
+                      },
+                  ),
+                ),  
                 ),
               ],
             ),
@@ -80,12 +88,14 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Icon(Icons.numbers),
+                SizedBox(width: 10.0),
                 Text(
                   adjustment.name,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
-                SizedBox(
-                  width: 200,
+                SizedBox(width: 30.0),
+                Expanded(
                   child: TextField(
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],
@@ -119,10 +129,13 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Icon(Icons.format_list_numbered),
+                SizedBox(width: 10.0),
                 Text(
                   adjustment.name,
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
+                SizedBox(width: 30.0),
                 Expanded(child: Slider(
                   value: adjustmentValues[adjustment].toDouble(),
                   max: sliderMax,
@@ -147,12 +160,13 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
-                Expanded(
-                  child: Text(
-                    adjustment.name,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
+                Icon(Icons.category),
+                SizedBox(width: 10.0),
+                Text(
+                  adjustment.name,
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
+                SizedBox(width: 30.0),
                 Expanded(child: DropdownButton<String>(
                   isExpanded: true,
                   value: adjustmentValues[adjustment],

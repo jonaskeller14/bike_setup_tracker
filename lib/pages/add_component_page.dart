@@ -7,7 +7,6 @@ import 'add_adjustment/add_step_adjustment_page.dart';
 import 'add_adjustment/add_categorical_adjustment_page.dart';
 import '../widgets/adjustment_edit_list.dart';
 
-
 class AddComponentPage extends StatefulWidget {
   const AddComponentPage({super.key});
 
@@ -103,6 +102,7 @@ class _AddComponentPageState extends State<AddComponentPage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
               controller: _nameController,
@@ -114,7 +114,34 @@ class _AddComponentPageState extends State<AddComponentPage> {
               ),
             ),
             const SizedBox(height: 12),
-            // adjustments list
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 4.0,
+              children: [
+                ActionChip(
+                  avatar: Icon(Icons.add),
+                  label: const Text('Add On/Off Adjustment'),
+                  onPressed: _addBooleanAdjustment,
+                ),
+                ActionChip(
+                  avatar: Icon(Icons.add),
+                  label: const Text('Add Categorical Adjustment'),
+                  onPressed: _addCategoricalAdjustment,
+                ),
+                ActionChip(
+                  avatar: Icon(Icons.add),
+                  label: const Text('Add Step Adjustment'),
+                  onPressed: _addStepAdjustment,
+                ),
+                ActionChip(
+                  avatar: Icon(Icons.add),
+                  label: const Text('Add Numerical Adjustment'),
+                  onPressed: _addNumericalAdjustment,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Adjustments list
             Expanded(
               child: adjustments.isEmpty
                   ? Center(
@@ -128,46 +155,6 @@ class _AddComponentPageState extends State<AddComponentPage> {
                       // editAdjustment: () => {},
                       removeAdjustment: removeAdjustment,
                     ),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            FloatingActionButton.extended(
-              heroTag: "add BooleanAdjustment",
-              onPressed: _addBooleanAdjustment,
-              tooltip: 'Add On/Off Adjustment',
-              label: const Text('Add On/Off Adjustment'),
-              icon: const Icon(Icons.add),
-            ),
-            const SizedBox(height: 10),
-            FloatingActionButton.extended(
-              heroTag: "add CategorialAdjustment",
-              onPressed: _addCategoricalAdjustment,
-              tooltip: 'Add Categorical Adjustment',
-              label: const Text('Add Categorical Adjustment'),
-              icon: const Icon(Icons.add),
-            ),
-            const SizedBox(height: 10),
-            FloatingActionButton.extended(
-              heroTag: "add StepAdjustment",
-              onPressed: _addStepAdjustment,
-              tooltip: 'Add Step Adjustment',
-              label: const Text('Add Step Adjustment'),
-              icon: const Icon(Icons.add),
-            ),
-            const SizedBox(height: 10),
-            FloatingActionButton.extended(
-              heroTag: "add NumericalAdjustment",
-              onPressed: _addNumericalAdjustment,
-              tooltip: 'Add Numerical Adjustment',
-              label: const Text('Add Numerical Adjustment'),
-              icon: const Icon(Icons.add),
             ),
           ],
         ),

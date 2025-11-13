@@ -23,14 +23,19 @@ class AdjustmentEditList extends StatelessWidget {
       itemBuilder: (context, index) {
         final adjustment = adjustments[index];
         String? adjustmentProperties;
+        Icon? icon;
         if (adjustment is BooleanAdjustment) {
+          icon = Icon(Icons.toggle_on);
           adjustmentProperties = "(On/Off)";
         } else if (adjustment is NumericalAdjustment) {
-          adjustmentProperties = "(Range ${adjustment.min} - ${adjustment.max}, Unit: ${adjustment.unit ?? 'none'})";
+          icon = Icon(Icons.numbers);
+          adjustmentProperties = "Range ${adjustment.min}..${adjustment.max} [${adjustment.unit ?? ''}]";
         } else if (adjustment is StepAdjustment) {
-          adjustmentProperties = "(Range ${adjustment.min} - ${adjustment.max}, Step ${adjustment.step})";
+          icon = Icon(Icons.format_list_numbered);
+          adjustmentProperties = "Range ${adjustment.min}..${adjustment.max}, Step ${adjustment.step}";
         } else if (adjustment is CategoricalAdjustment) {
-          adjustmentProperties = "(${adjustment.options.join('/')})";
+          icon = Icon(Icons.category);
+          adjustmentProperties = adjustment.options.join('/');
         } else {
           adjustmentProperties = null;
         }
@@ -42,6 +47,7 @@ class AdjustmentEditList extends StatelessWidget {
             side: BorderSide(color: Colors.grey.shade300, width: 1),
           ),
           child: ListTile(
+            leading: icon,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 8,

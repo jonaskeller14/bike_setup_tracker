@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/component_list.dart';
@@ -8,8 +7,9 @@ import 'add_component_page.dart';
 import 'edit_component_page.dart';
 import 'add_setting_page.dart';
 import 'edit_setting_page.dart';
-import '../models/component.dart';
+import '../models/adjustment.dart';
 import '../models/setting.dart';
+import '../models/component.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
@@ -20,8 +20,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<Component> components = [];
+  final List<Adjustment> adjustments = [];
   final List<Setting> settings = [];
+  final List<Component> components = [];
 
   @override
   void initState() {
@@ -43,8 +44,9 @@ class _HomePageState extends State<HomePage> {
     clearAllData();
 
     setState(() {
-      components.clear();
+      adjustments.clear();
       settings.clear();
+      components.clear();
     });
   }
 
@@ -57,6 +59,9 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> removeComponent(Component component) async {
     setState(() {
+      for (var adjustment in component.adjustments) {
+        adjustments.remove(adjustment);
+      }
       components.remove(component);
     });
     _saveData();
@@ -66,21 +71,27 @@ class _HomePageState extends State<HomePage> {
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
 
-    final savedComponents = prefs.getStringList('components') ?? [];
+    final savedAdjustments = prefs.getStringList('adjustments') ?? [];
     final savedSettings = prefs.getStringList('settings') ?? [];
+    final savedComponents = prefs.getStringList('components') ?? [];
 
     // Convert JSON strings to model objects
-    final loadedComponents = savedComponents
-        .map((c) => Component.fromJson(jsonDecode(c)))
+    final loadedAdjustments = savedAdjustments
+        .map((a) => Adjustment.fromJson(jsonDecode(a)))
         .toList();
 
     final loadedSettings = savedSettings
-        .map((s) => Setting.fromJson(jsonDecode(s)))
+        .map((s) => Setting.fromJson(jsonDecode(s), loadedAdjustments))
+        .toList();
+
+    final loadedComponents = savedComponents
+        .map((c) => Component.fromJson(jsonDecode(c), loadedAdjustments, loadedSettings))
         .toList();
 
     setState(() {
-      components.addAll(loadedComponents);
+      adjustments.addAll(loadedAdjustments);
       settings.addAll(loadedSettings);
+      components.addAll(loadedComponents);
     });
   }
 
@@ -136,6 +147,9 @@ class _HomePageState extends State<HomePage> {
     );
     if (setting != null) {
       setState(() {
+        for (var component in components) {
+          component.currentSetting = setting;
+        }
         settings.add(setting);
       });
       _saveData();

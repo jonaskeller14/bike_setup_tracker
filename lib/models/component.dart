@@ -19,7 +19,7 @@ class Component {
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
-    'adjustment': adjustments.map((a) => a.id).toList(),
+    'adjustments': adjustments.map((a) => a.id).toList(),
     'currentSetting': currentSetting?.id,
   };
 

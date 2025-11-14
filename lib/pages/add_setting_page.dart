@@ -4,6 +4,9 @@ import 'package:intl/intl.dart';
 import '../models/setting.dart';
 import '../models/component.dart';
 import '../widgets/adjustment_set_list.dart';
+import 'dart:async';
+import 'package:location/location.dart';
+import 'package:geocoding/geocoding.dart' as geo;
 
 class AddSettingPage extends StatefulWidget {
   final List<Component> components;
@@ -20,6 +23,10 @@ class _AddSettingPageState extends State<AddSettingPage> {
   DateTime _selectedDateTime = DateTime.now();
   Map<Adjustment, dynamic> adjustmentValues = {};
 
+  Location location = Location();
+  LocationData? _currentPosition;
+  geo.Placemark? _currentPlace;  
+
   @override
   void initState() {
     for (final component in widget.components) {
@@ -30,7 +37,52 @@ class _AddSettingPageState extends State<AddSettingPage> {
         adjustmentValues[adjustmentValue.key] = adjustmentValue.value;
       }
     }
+
+    fetchLocation();
+
     super.initState();
+  }
+
+  fetchLocation() async {
+    bool serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) return;
+    }
+
+    PermissionStatus permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) return;
+    }
+
+    _currentPosition = await location.getLocation();
+    if (_currentPosition != null) {
+      updateAddress(_currentPosition!.latitude!, _currentPosition!.longitude!);
+    }
+
+    location.onLocationChanged.listen((LocationData currentLocation) {
+      setState(() {
+        _currentPosition = currentLocation;
+      });
+
+      if (currentLocation.latitude != null && currentLocation.longitude != null) {
+        updateAddress(currentLocation.latitude!, currentLocation.longitude!);
+      }
+    });
+  }
+
+  Future<void> updateAddress(double lat, double lng) async {
+    try {
+      List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(lat, lng);
+      if (placemarks.isNotEmpty) {
+        setState(() {
+          _currentPlace = placemarks.first;
+        });
+      }
+    } catch (e) {
+      debugPrint("Failed to get address: $e");
+    }
   }
 
   @override
@@ -79,10 +131,16 @@ class _AddSettingPageState extends State<AddSettingPage> {
 
     //TODO: Check if at least one value has changed from current setting. Or set adjustmentValues
 
-    // Return updated setting to previous screen
     Navigator.pop(
       context,
-      Setting(name: name, datetime: _selectedDateTime, notes: notes, adjustmentValues: adjustmentValues),
+      Setting(
+        name: name,
+        datetime: _selectedDateTime,
+        notes: notes,
+        adjustmentValues: adjustmentValues,
+        position: _currentPosition,
+        place: _currentPlace,
+      ),
     );
   }
 
@@ -126,17 +184,22 @@ class _AddSettingPageState extends State<AddSettingPage> {
             ),
           ),
           const SizedBox(height: 16),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ActionChip(
-              avatar: const Icon(Icons.calendar_today, size: 20),
-              label: Text(
-                DateFormat('yyyy-MM-dd HH:mm').format(_selectedDateTime),
+          Wrap(
+            spacing: 8.0,
+            runSpacing: 4.0,
+            children: [
+              ActionChip(
+                avatar: const Icon(Icons.calendar_today),
+                label: Text(
+                  DateFormat('yyyy-MM-dd HH:mm').format(_selectedDateTime),
+                ),
+                onPressed: _pickDateTime,
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              backgroundColor: Colors.blue.shade50,
-              onPressed: _pickDateTime,
-            ),
+              Chip(
+                avatar: _currentPlace == null ? Icon(Icons.location_disabled) : Icon(Icons.my_location),
+                label: _currentPlace == null ? Text("Finding Location...") : Text("${_currentPlace?.street}, ${_currentPlace?.locality}, ${_currentPlace?.country}"),
+              )
+            ],
           ),
           const SizedBox(height: 24),
           if (widget.components.isEmpty)

@@ -46,7 +46,15 @@ class SettingList extends StatelessWidget {
                 Text(
                   DateFormat('yyyy-MM-dd HH:mm').format(setting.datetime),
                   style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                  overflow: TextOverflow.ellipsis,
                 ),
+                if (setting.place != null) ... [
+                  Text(
+                    "${setting.place?.street}, ${setting.place?.locality}, ${setting.place?.country}",
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
                 if (setting.notes != null && setting.notes!.isNotEmpty) ...[
                   const SizedBox(height: 6),
                   Text(

@@ -78,6 +78,8 @@ class _EditSettingPageState extends State<EditSettingPage> {
         datetime: _selectedDateTime,
         notes: notes,
         adjustmentValues: widget.setting.adjustmentValues,
+        position: widget.setting.position,
+        place: widget.setting.place,
       ),
     );
   }

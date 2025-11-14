@@ -24,6 +24,11 @@ class ComponentList extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       itemBuilder: (context, index) {
         final component = components[index];
+        final componentAdjustmentValues = Map.fromEntries(
+          (component.currentSetting?.adjustmentValues ?? {})
+              .entries
+              .where((e) => component.adjustments.contains(e.key)),
+        );
 
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 4.0),
@@ -41,7 +46,7 @@ class ComponentList extends StatelessWidget {
               component.name,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: AdjustmentDisplayList(adjustmentValues: component.currentSetting?.adjustmentValues ?? <Adjustment, dynamic>{}),
+            subtitle: AdjustmentDisplayList(adjustmentValues: componentAdjustmentValues),
             trailing: PopupMenuButton<String>(
               onSelected: (value) {
                 if (value == 'edit') {

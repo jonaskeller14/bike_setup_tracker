@@ -45,9 +45,9 @@ abstract class Adjustment<T> {
         return StepAdjustment(
           id: json["id"],
           name: json['name'],
-          step: json['step'],
-          min: json['min'],
-          max: json['max'],
+          step: (json['step'] as num).toInt(),
+          min: (json['min'] as num).toInt(),
+          max: (json['max'] as num).toInt(),
         );
       case 'numerical':
         return NumericalAdjustment(
@@ -77,7 +77,7 @@ class CategoricalAdjustment extends Adjustment<String> {
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
-    'type': 'step',
+    'type': 'categorical',
     'valueType': valueType.toString(),
     'options': options,
   };

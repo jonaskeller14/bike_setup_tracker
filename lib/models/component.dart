@@ -28,7 +28,9 @@ class Component {
     List<Adjustment> allAdjustments,
     List<Setting> allSettings,
   ) {
-    final adjustmentIDs = json["adjustments"] as List<String>? ?? [];
+    final adjustmentIDs = (json["adjustments"] as List<dynamic>?)
+      ?.map((e) => e.toString())
+      .toList() ?? [];
 
     final List<Adjustment> adjustments = [];
     for (var adjustmentID in adjustmentIDs) {
@@ -40,15 +42,12 @@ class Component {
     }
 
     final settingID = json["currentSetting"];
-    final Setting? currentSetting;
-    if (settingID != null) {
-      currentSetting = allSettings.firstWhere(
-        (s) => s.id == settingID,
-        orElse: () => throw Exception('Setting with id $settingID not found'),
-      );
-    } else {
-      currentSetting = null;
-    }
+    final Setting? currentSetting = settingID != null
+        ? allSettings.firstWhere(
+            (s) => s.id == settingID,
+            orElse: () => throw Exception('Setting with id $settingID not found'),
+          )
+        : null;
 
     return Component(
       id: json["id"],

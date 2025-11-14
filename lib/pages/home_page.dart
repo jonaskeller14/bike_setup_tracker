@@ -123,12 +123,14 @@ class _HomePageState extends State<HomePage> {
     if (component != null) {
       setState(() {
         components.add(component);
+        adjustments.addAll(component.adjustments);
       });
       _saveData();
     }
   }
 
   Future<void> editComponent(Component component) async {
+    //TODO: Update adjustments?
     final editedComponent = await Navigator.push<Component>(
       context,
       MaterialPageRoute(

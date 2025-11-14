@@ -40,10 +40,15 @@ class Component {
     }
 
     final settingID = json["currentSetting"];
-    final currentSetting = allSettings.firstWhere(
-      (s) => s.id == settingID,
-      orElse: () => throw Exception('Setting with id $settingID not found'),
-    );
+    final Setting? currentSetting;
+    if (settingID != null) {
+      currentSetting = allSettings.firstWhere(
+        (s) => s.id == settingID,
+        orElse: () => throw Exception('Setting with id $settingID not found'),
+      );
+    } else {
+      currentSetting = null;
+    }
 
     return Component(
       id: json["id"],

@@ -80,7 +80,7 @@ class Setting {
       'heading': json['heading'],
       'speed': json['speed'],
       'speed_accuracy': json['speedAccuracy'], // Note: key expected by LocationData.fromMap
-      'time': json['time'] != null ? DateTime.parse(json['time']).millisecondsSinceEpoch : null,
+      'time': json['time'] != null ? DateTime.parse(json['time']).millisecondsSinceEpoch.toDouble() : null,
     });
   }
 

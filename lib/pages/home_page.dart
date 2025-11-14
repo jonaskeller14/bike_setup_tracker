@@ -208,6 +208,8 @@ class _HomePageState extends State<HomePage> {
             editSetting: editSetting,
             removeSetting: removeSetting,
           ),
+
+          const SizedBox(height: 200),
         ],
       ),
       floatingActionButton: Padding(

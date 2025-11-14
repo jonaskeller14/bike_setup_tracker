@@ -27,21 +27,17 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _initialize();
+    // loadData();
   }
 
-  Future<void> _initialize() async {
-    await clearAllData();
+  Future<void> loadData() async {
     await _loadData();
+    setState(() {});
   }
 
-  Future<void> clearAllData() async {
+  Future<void> clearData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
-  }
-
-  Future<void> clearAndReloadAllData() async {
-    clearAllData();
 
     setState(() {
       adjustments.clear();
@@ -235,11 +231,17 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 10),
             FloatingActionButton.extended(
-              heroTag: "clearAndReloadAllData",
-              onPressed: clearAndReloadAllData,
-              tooltip: 'Clear All Data',
-              label: const Text('#TODO Clear All Data'),
+              heroTag: "clearData",
+              onPressed: clearData,
+              label: const Text('#TODO Clear Data'),
               icon: const Icon(Icons.delete),
+            ),
+            const SizedBox(height: 10),
+            FloatingActionButton.extended(
+              heroTag: "loadData",
+              onPressed: loadData,
+              label: const Text('#TODO Load Data'),
+              icon: const Icon(Icons.file_upload),
             ),
           ],
         ),

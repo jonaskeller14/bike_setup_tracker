@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/component.dart';
+import '../widgets/adjustment_display_list.dart';
+import '../models/adjustment.dart';
 
 class ComponentList extends StatelessWidget {
   final List<Component> components;
@@ -22,9 +24,6 @@ class ComponentList extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       itemBuilder: (context, index) {
         final component = components[index];
-        final adjustmentNames = component.adjustments.isNotEmpty
-            ? component.adjustments.map((a) => '${a.name}=${component.currentSetting?.adjustmentValues[a]}').join(', ')
-            : null;
 
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 4.0),
@@ -33,6 +32,7 @@ class ComponentList extends StatelessWidget {
             side: BorderSide(color: Colors.grey.shade300, width: 1),
           ),
           child: ListTile(
+            leading: const Icon(Icons.casino),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 8,
@@ -41,14 +41,7 @@ class ComponentList extends StatelessWidget {
               component.name,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: adjustmentNames != null
-                ? Text(
-                    adjustmentNames,
-                    style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  )
-                : null,
+            subtitle: AdjustmentDisplayList(adjustmentValues: component.currentSetting?.adjustmentValues ?? <Adjustment, dynamic>{}),
             trailing: PopupMenuButton<String>(
               onSelected: (value) {
                 if (value == 'edit') {
@@ -65,7 +58,6 @@ class ComponentList extends StatelessWidget {
                 ),
               ],
             ),
-            leading: const Icon(Icons.casino),
           ),
         );
       },

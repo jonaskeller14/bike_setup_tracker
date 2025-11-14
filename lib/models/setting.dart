@@ -6,7 +6,7 @@ class Setting {
   final String name;
   final DateTime datetime;
   final String? notes;
-  Map<Adjustment, dynamic> adjustmentValues = {};
+  Map<Adjustment, dynamic> adjustmentValues;
 
   Setting({
     String? id,

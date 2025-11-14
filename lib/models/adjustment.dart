@@ -12,6 +12,24 @@ abstract class Adjustment<T> {
   bool isValidValue(T value);
   Map<String, dynamic> toJson();
 
+  static String formatValue(dynamic value) {
+    if (value is String) {
+      return value;
+    } else if (value is bool) {
+      return value ? 'On' : 'Off';
+    } else if (value is double) {
+      if (value.toInt().toDouble() == value) {
+        return value.toInt().toString();
+      } else {
+        return value.toString();
+      }
+    } else if (value is int) {
+      return value.toString();
+    } else {
+      return value.toString();
+    }
+  }
+
   static Adjustment fromJson(Map<String, dynamic> json) {
     final type = json['type'];
     switch (type) {

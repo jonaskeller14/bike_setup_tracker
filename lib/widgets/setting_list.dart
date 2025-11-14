@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/setting.dart';
+import '../widgets/adjustment_display_list.dart';
 
 class SettingList extends StatelessWidget {
   final List<Setting> settings;
@@ -54,9 +55,7 @@ class SettingList extends StatelessWidget {
                   ),
                 ],
                 const SizedBox(height: 6.0),
-                Text(
-                  setting.adjustmentValues.entries.map((entry) => '${entry.key.name}=${entry.value}').join(', ')
-                ),
+                AdjustmentDisplayList(adjustmentValues: setting.adjustmentValues),
               ],
             ),
             trailing: PopupMenuButton<String>(

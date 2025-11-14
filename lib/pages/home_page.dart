@@ -32,7 +32,6 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> loadData() async {
     await _loadData();
-    setState(() {});
   }
 
   Future<void> clearData() async {
@@ -86,9 +85,15 @@ class _HomePageState extends State<HomePage> {
         .toList();
 
     setState(() {
-      adjustments.addAll(loadedAdjustments);
-      settings.addAll(loadedSettings);
-      components.addAll(loadedComponents);
+      adjustments
+        ..clear()
+        ..addAll(loadedAdjustments);
+      settings
+        ..clear()
+        ..addAll(loadedSettings);
+      components
+        ..clear()
+        ..addAll(loadedComponents);
     });
   }
 
@@ -96,12 +101,16 @@ class _HomePageState extends State<HomePage> {
   Future<void> _saveData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
-      'components',
-      components.map((s) => jsonEncode(s.toJson())).toList(),
+      'adjustments',
+      adjustments.map((a) => jsonEncode(a.toJson())).toList(),
     );
     await prefs.setStringList(
       'settings',
       settings.map((s) => jsonEncode(s.toJson())).toList(),
+    );
+    await prefs.setStringList(
+      'components',
+      components.map((c) => jsonEncode(c.toJson())).toList(),
     );
   }
 

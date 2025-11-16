@@ -50,7 +50,7 @@ class SettingList extends StatelessWidget {
                 ),
                 if (setting.place != null) ... [
                   Text(
-                    "${setting.place?.street}, ${setting.place?.locality}, ${setting.place?.country}",
+                    "${setting.place?.thoroughfare} ${setting.place?.subThoroughfare}, ${setting.place?.locality}, ${setting.place?.country}",
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                     overflow: TextOverflow.ellipsis,
                   ),

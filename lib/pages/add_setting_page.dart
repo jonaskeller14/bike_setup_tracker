@@ -8,6 +8,13 @@ import 'dart:async';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 
+enum LocationStatus {
+  findingLocation,
+  noService,
+  noPermission,
+  locationFound,
+}
+
 class AddSettingPage extends StatefulWidget {
   final List<Component> components;
 
@@ -23,6 +30,7 @@ class _AddSettingPageState extends State<AddSettingPage> {
   DateTime _selectedDateTime = DateTime.now();
   Map<Adjustment, dynamic> adjustmentValues = {};
 
+  LocationStatus _locationStatus = LocationStatus.findingLocation;
   Location location = Location();
   LocationData? _currentPosition;
   geo.Placemark? _currentPlace;  
@@ -47,29 +55,26 @@ class _AddSettingPageState extends State<AddSettingPage> {
     bool serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await location.requestService();
-      if (!serviceEnabled) return;
+      if (!serviceEnabled) {
+        _locationStatus = LocationStatus.noService;
+        return;
+      }
     }
 
     PermissionStatus permissionGranted = await location.hasPermission();
     if (permissionGranted == PermissionStatus.denied) {
       permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) return;
+      if (permissionGranted != PermissionStatus.granted) {
+        _locationStatus = LocationStatus.noPermission;
+        return;
+      }
     }
 
     _currentPosition = await location.getLocation();
     if (_currentPosition != null) {
       updateAddress(_currentPosition!.latitude!, _currentPosition!.longitude!);
+      _locationStatus = LocationStatus.locationFound;
     }
-
-    location.onLocationChanged.listen((LocationData currentLocation) {
-      setState(() {
-        _currentPosition = currentLocation;
-      });
-
-      if (currentLocation.latitude != null && currentLocation.longitude != null) {
-        updateAddress(currentLocation.latitude!, currentLocation.longitude!);
-      }
-    });
   }
 
   Future<void> updateAddress(double lat, double lng) async {
@@ -196,9 +201,21 @@ class _AddSettingPageState extends State<AddSettingPage> {
                 onPressed: _pickDateTime,
               ),
               Chip(
-                avatar: _currentPlace == null ? Icon(Icons.location_disabled) : Icon(Icons.my_location),
-                label: _currentPlace == null ? Text("Finding Location...") : Text("${_currentPlace?.street}, ${_currentPlace?.locality}, ${_currentPlace?.country}"),
-              )
+                avatar: _locationStatus == LocationStatus.locationFound
+                    ? Icon(Icons.my_location)
+                    : (_locationStatus == LocationStatus.findingLocation
+                          ? Icon(Icons.location_searching)
+                          : Icon(Icons.location_disabled)),
+                label: _locationStatus == LocationStatus.locationFound
+                    ? Text("${_currentPlace?.thoroughfare} ${_currentPlace?.subThoroughfare}, ${_currentPlace?.locality}, ${_currentPlace?.country}")
+                    : (_locationStatus == LocationStatus.findingLocation
+                          ? Text("Finding Location...")
+                          : (_locationStatus == LocationStatus.noPermission
+                                ? Text("No location permision")
+                                : (_locationStatus == LocationStatus.noService
+                                      ? Text("No location service")
+                                      : Text("Error")))),
+              ),
             ],
           ),
           const SizedBox(height: 24),

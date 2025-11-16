@@ -10,7 +10,7 @@ class Setting {
   final String? notes;
   Map<Adjustment, dynamic> adjustmentValues;
   final LocationData? position;
-  final geo.Placemark? place;  
+  final geo.Placemark? place;
 
   Setting({
     String? id,

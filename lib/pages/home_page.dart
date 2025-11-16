@@ -42,6 +42,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> clearData() async {
+    final confirmed = await showConfirmationDialog(context);
+    if (!confirmed) {
+      return;
+    }
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
 
@@ -53,6 +58,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> removeSetting(Setting setting) async {
+    final confirmed = await showConfirmationDialog(context);
+    if (!confirmed) {
+      return;
+    }
+
     //TODO: Update componet.currentSetting if this is a current Setting 
     setState(() {
       settings.remove(setting);
@@ -61,6 +71,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> removeComponent(Component component) async {
+    final confirmed = await showConfirmationDialog(context);
+    if (!confirmed) {
+      return;
+    }
+
     setState(() {
       for (var adjustment in component.adjustments) {
         adjustments.remove(adjustment);
@@ -187,6 +202,29 @@ class _HomePageState extends State<HomePage> {
       });
       _saveData();
     }
+  }
+
+  Future<bool> showConfirmationDialog(BuildContext context) async {
+    return await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Are you sure?"),
+          content: const Text("This action cannot be undone."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text("Continue"),
+            ),
+          ],
+        );
+      },
+    ) ?? false;
   }
 
   @override

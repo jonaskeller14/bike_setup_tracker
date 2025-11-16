@@ -30,8 +30,15 @@ class _HomePageState extends State<HomePage> {
     // loadData();
   }
 
-  Future<void> loadData() async {
-    await _loadData();
+  void loadData() {
+    try {
+      _loadData();
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Data successfully loaded!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context,
+      ).showSnackBar(SnackBar(content: Text('Failed to load data: $e')));
+    }
   }
 
   Future<void> clearData() async {

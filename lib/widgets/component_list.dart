@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/component.dart';
 import '../widgets/adjustment_display_list.dart';
-import '../models/adjustment.dart';
 
 class ComponentList extends StatelessWidget {
   final List<Component> components;

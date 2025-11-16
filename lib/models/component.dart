@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'adjustment.dart';
 import 'setting.dart';
@@ -42,12 +43,15 @@ class Component {
     }
 
     final settingID = json["currentSetting"];
-    final Setting? currentSetting = settingID != null
-        ? allSettings.firstWhere(
-            (s) => s.id == settingID,
-            orElse: () => throw Exception('Setting with id $settingID not found'),
-          )
-        : null;
+    Setting? currentSetting;
+
+    if (settingID != null) {
+      currentSetting = allSettings.where((s) => s.id == settingID).firstOrNull;
+
+      if (currentSetting == null) {
+        debugPrint('⚠️ Warning: Setting with id $settingID not found.');
+      }
+    }
 
     return Component(
       id: json["id"],

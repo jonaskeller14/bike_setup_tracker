@@ -45,7 +45,18 @@ class ComponentList extends StatelessWidget {
               component.name,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: AdjustmentDisplayList(adjustmentValues: componentAdjustmentValues),
+            subtitle: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Text('${component.adjustments.length} adjustments'),
+                ),
+                AdjustmentDisplayList(
+                  adjustmentValues: componentAdjustmentValues,
+                ),
+              ],
+            ),
             trailing: PopupMenuButton<String>(
               onSelected: (value) {
                 if (value == 'edit') {

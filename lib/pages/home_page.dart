@@ -31,14 +31,25 @@ class _HomePageState extends State<HomePage> {
     // loadData();
   }
 
-  void loadData() {
+  Future<void> loadData() async {
     try {
-      _loadData();
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Data successfully loaded!')),
+      await _loadData();
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Data successfully loaded!')),
       );
-    } catch (e) {
-      ScaffoldMessenger.of(context,
-      ).showSnackBar(SnackBar(content: Text('Failed to load data: $e')));
+    } catch (e, st) {
+      // Log stacktrace to console to help debugging
+      // (you can remove the print in production)
+      debugPrint('Error loading data: $e\n$st');
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load data: $e')),
+      );
     }
   }
 
@@ -64,11 +75,16 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    //TODO: Update componet.currentSetting if this is a current Setting 
     setState(() {
       settings.remove(setting);
+      // Also ensure components don't hold dangling references
+      for (var c in components) {
+        if (c.currentSetting == setting) {
+          c.currentSetting = null;
+        }
+      }
     });
-    _saveData();
+    await _saveData();
   }
 
   Future<void> removeComponent(Component component) async {
@@ -83,16 +99,16 @@ class _HomePageState extends State<HomePage> {
       }
       components.remove(component);
     });
-    _saveData();
+    await _saveData();
   }
 
   // --- Load data from SharedPreferences
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
 
-    final savedAdjustments = prefs.getStringList('adjustments') ?? [];
-    final savedSettings = prefs.getStringList('settings') ?? [];
-    final savedComponents = prefs.getStringList('components') ?? [];
+    final savedAdjustments = prefs.getStringList('adjustments') ?? <String>[];
+    final savedSettings = prefs.getStringList('settings') ?? <String>[];
+    final savedComponents = prefs.getStringList('components') ?? <String>[];
 
     // Convert JSON strings to model objects
     final loadedAdjustments = savedAdjustments
@@ -110,6 +126,8 @@ class _HomePageState extends State<HomePage> {
         .map((c) => Component.fromJson(jsonDecode(c), loadedAdjustments, loadedSettings))
         .toList();
 
+    // Finally update state
+    if (!mounted) return;
     setState(() {
       adjustments
         ..clear()
@@ -145,13 +163,13 @@ class _HomePageState extends State<HomePage> {
       context,
       MaterialPageRoute(builder: (context) => const AddComponentPage()),
     );
-    
+
     if (component != null) {
       setState(() {
         components.add(component);
         adjustments.addAll(component.adjustments);
       });
-      _saveData();
+      await _saveData();
     }
   }
 
@@ -170,7 +188,7 @@ class _HomePageState extends State<HomePage> {
           components[index] = editedComponent;
         }
       });
-      _saveData();
+      await _saveData();
     }
   }
 
@@ -186,7 +204,7 @@ class _HomePageState extends State<HomePage> {
         }
         settings.add(setting);
       });
-      _saveData();
+      await _saveData();
     }
   }
 
@@ -204,7 +222,7 @@ class _HomePageState extends State<HomePage> {
           settings[index] = editedSetting;
         }
       });
-      _saveData();
+      await _saveData();
     }
   }
 
@@ -231,47 +249,56 @@ class _HomePageState extends State<HomePage> {
     ) ?? false;
   }
 
-void downloadJson() {
-  final scaffoldMessenger = ScaffoldMessenger.of(context);
+  void downloadJson() {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-  _downloadJson().then((result) {
-    if (!mounted) return;
+    _downloadJson().then((result) {
+      if (!mounted) return;
 
-    if (result == null || result.path == null) {
-      scaffoldMessenger.showSnackBar(
-        const SnackBar(content: Text("Export failed")),
+      if (result == null || result.path == null) {
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text("Export failed")),
+        );
+      } else {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text("Saved to: ${result.path}")),
+        );
+      }
+    }).catchError((e, st) {
+      debugPrint('Export failed: $e\n$st');
+      if (!mounted) return;
+      scaffoldMessenger.showSnackBar(SnackBar(content: Text('Export failed: $e')));
+    });
+  }
+
+  Future<FileSaveResult?> _downloadJson() async {
+    try {
+      final exportData = {
+        'adjustments': adjustments.map((a) => a.toJson()).toList(),
+        'settings': settings.map((s) => s.toJson()).toList(),
+        'components': components.map((c) => c.toJson()).toList(),
+      };
+
+      final jsonString = const JsonEncoder.withIndent('  ').convert(exportData);
+      final bytes = utf8.encode(jsonString);
+
+      final now = DateTime.now();
+      final timestamp =
+          '${now.year.toString().padLeft(4, '0')}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_'
+          '${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
+
+      final result = await FileSaveDirectory.instance.saveFile(
+        fileName: '${timestamp}_export.json',
+        fileBytes: bytes,
+        location: SaveLocation.downloads,
+        openAfterSave: false,
       );
-    } else {
-      scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text("Saved to: ${result.path}")),
-      );
+      return result;
+    } catch (e, st) {
+      debugPrint('Error while exporting JSON: $e\n$st');
+      return null;
     }
-  });
-}
-
-Future<FileSaveResult?> _downloadJson() async {
-  final exportData = {
-    'adjustments': adjustments.map((a) => a.toJson()).toList(),
-    'settings': settings.map((s) => s.toJson()).toList(),
-    'components': components.map((c) => c.toJson()).toList(),
-  };
-
-  final jsonString = const JsonEncoder.withIndent('  ').convert(exportData);
-  final bytes = utf8.encode(jsonString);
-
-  final now = DateTime.now();
-  final timestamp =
-      '${now.year.toString().padLeft(4, '0')}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_'
-      '${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
-
-  final result = await FileSaveDirectory.instance.saveFile(
-    fileName: '${timestamp}_export.json',
-    fileBytes: bytes,
-    location: SaveLocation.downloads,
-    openAfterSave: false,
-  );
-  return result;
-}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -279,7 +306,7 @@ Future<FileSaveResult?> _downloadJson() async {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
-        actions: [IconButton(onPressed: downloadJson, icon: Icon(Icons.download))],
+        actions: [IconButton(onPressed: downloadJson, icon: const Icon(Icons.download))],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),

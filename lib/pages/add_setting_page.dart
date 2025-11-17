@@ -261,6 +261,12 @@ class _AddSettingPageState extends State<AddSettingPage> {
                                       ? Text("No location service")
                                       : Text("Error")))),
               ),
+              if (_locationStatus == LocationStatus.locationFound) ... [
+                Chip(
+                  avatar: Icon(Icons.arrow_upward),
+                  label: Text("Altitude: ${_currentPosition!.altitude!} m"),
+                ),
+              ],
               Chip(
                 avatar: Icon(Icons.thermostat), 
                 label: temperature == null ? Text("Fetching temperature...") : Text("$temperature °C")

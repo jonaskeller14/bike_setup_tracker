@@ -1,21 +1,15 @@
-import 'package:bike_setup_tracker/models/adjustment.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../models/setting.dart';
-import '../models/component.dart';
-import '../widgets/adjustment_set_list.dart';
-import 'dart:async';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
-enum LocationStatus {
-  findingLocation,
-  noService,
-  noPermission,
-  locationFound,
-}
+import '../models/setting.dart';
+import '../models/component.dart';
+import '../models/adjustment.dart';
+import '../services/weather_service.dart';
+import '../services/address_service.dart';
+import '../services/location_service.dart';
+import '../widgets/adjustment_set_list.dart';
 
 class AddSettingPage extends StatefulWidget {
   final List<Component> components;
@@ -32,15 +26,19 @@ class _AddSettingPageState extends State<AddSettingPage> {
   DateTime _selectedDateTime = DateTime.now();
   Map<Adjustment, dynamic> adjustmentValues = {};
 
-  LocationStatus _locationStatus = LocationStatus.findingLocation;
-  Location location = Location();
-  LocationData? _currentPosition;
+  final LocationService _locationService = LocationService();
+  LocationData? _currentLocation;
+
+  final AddressService _addressService = AddressService();
   geo.Placemark? _currentPlace;
 
+  final WeatherService _weatherService = WeatherService(apiKey: const String.fromEnvironment("OWM_KEY"));
   double? temperature;
 
   @override
   void initState() {
+    super.initState();
+
     for (final component in widget.components) {
       if (component.currentSetting == null) continue;
       final componentAdjustmentValues = component.currentSetting?.adjustmentValues;
@@ -50,49 +48,54 @@ class _AddSettingPageState extends State<AddSettingPage> {
       }
     }
 
-    fetchLocation();
-
-    super.initState();
+    fetchLocationAddressWeather();
   }
 
-  fetchLocation() async {
-    bool serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        setState(() => _locationStatus = LocationStatus.noService);
-        return;
-      }
+  Future<void> fetchLocationAddressWeather() async {
+    setState(() {
+      _locationService.status = LocationStatus.findingLocation;
+    });
+
+    // 1 Fetch location
+    final location = await _locationService.fetchLocation();
+    
+    if (!mounted) return;
+
+    if (location == null) {
+      setState(() {});
+      return;
     }
 
-    PermissionStatus permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        setState(() => _locationStatus = LocationStatus.noPermission);
-        return;
-      }
-    }
+    setState(() {
+      _currentLocation = location;
+    });
 
-    _currentPosition = await location.getLocation();
-    if (_currentPosition != null) {
-      await updateAddress(_currentPosition!.latitude!, _currentPosition!.longitude!);
-      setState(() => _locationStatus = LocationStatus.locationFound);
+    // 2 Fetch temperature (can run immediately)
+    final tempFuture = _weatherService.fetchTemperature(
+      location.latitude!,
+      location.longitude!,
+    );
 
-      fetchTemperature();
-    }
-  }
+    // 3 Fetch address (can run immediately)
+    final placemarkFuture = _addressService.getPlacemark(
+      lat: location.latitude!,
+      lon: location.longitude!,
+    );
 
-  Future<void> updateAddress(double lat, double lng) async {
-    try {
-      List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(lat, lng);
-      if (placemarks.isNotEmpty) {
-        setState(() {
-          _currentPlace = placemarks.first;
-        });
-      }
-    } catch (e) {
-      debugPrint("Failed to get address: $e");
+    // Wait for both futures
+    final results = await Future.wait([tempFuture, placemarkFuture]);
+
+    if (!mounted) return;
+
+    setState(() {
+      temperature = results[0] as double?;
+      _currentPlace = results[1] as geo.Placemark?;
+    });
+
+    if (temperature == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error fetching temperature.')),
+      );
     }
   }
 
@@ -149,7 +152,7 @@ class _AddSettingPageState extends State<AddSettingPage> {
         datetime: _selectedDateTime,
         notes: notes,
         adjustmentValues: adjustmentValues,
-        position: _currentPosition,
+        position: _currentLocation,
         place: _currentPlace,
         temperature: temperature,
       ),
@@ -158,44 +161,6 @@ class _AddSettingPageState extends State<AddSettingPage> {
 
   void _onAdjustmentValueChanged(Adjustment adjustment, dynamic newValue) {
     adjustmentValues[adjustment] = newValue;
-  }
-
-  Future<void> fetchTemperature() async {
-    if (_locationStatus != LocationStatus.locationFound) return;
-
-    final result = await _fetchTemperature(
-      _currentPosition!.latitude!,
-      _currentPosition!.longitude!,
-    );
-
-    if (!mounted) return;
-
-    setState(() {
-      if (result == null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error fetching temperature.')));
-      } else {
-        temperature = result;
-      }
-    });
-  }
-
-  Future<double?> _fetchTemperature(double lat, double lon, {int counter = 1}) async {
-    const String apiKey = String.fromEnvironment("OWM_KEY");
-
-    final url = Uri.parse("https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$apiKey&units=metric");
-
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['main']['temp']?.toDouble();
-    } else if (response.statusCode == 429 && counter <= 2) {
-      debugPrint("Error: OWM API limit reached. Trying again after 10s.");
-      await Future.delayed(Duration(seconds: 10));
-      return _fetchTemperature(lat, lon, counter: counter + 1);
-    } else {
-      return null;
-    }
   }
 
   @override
@@ -246,25 +211,25 @@ class _AddSettingPageState extends State<AddSettingPage> {
                 onPressed: _pickDateTime,
               ),
               Chip(
-                avatar: _locationStatus == LocationStatus.locationFound
+                avatar: _locationService.status == LocationStatus.locationFound
                     ? Icon(Icons.my_location)
-                    : (_locationStatus == LocationStatus.findingLocation
+                    : (_locationService.status == LocationStatus.findingLocation
                           ? Icon(Icons.location_searching)
                           : Icon(Icons.location_disabled)),
-                label: _locationStatus == LocationStatus.locationFound
+                label: _locationService.status == LocationStatus.locationFound
                     ? Text("${_currentPlace?.thoroughfare} ${_currentPlace?.subThoroughfare}, ${_currentPlace?.locality}, ${_currentPlace?.country}")
-                    : (_locationStatus == LocationStatus.findingLocation
+                    : (_locationService.status == LocationStatus.findingLocation
                           ? Text("Finding Location...")
-                          : (_locationStatus == LocationStatus.noPermission
+                          : (_locationService.status == LocationStatus.noPermission
                                 ? Text("No location permision")
-                                : (_locationStatus == LocationStatus.noService
+                                : (_locationService.status == LocationStatus.noService
                                       ? Text("No location service")
                                       : Text("Error")))),
               ),
-              if (_locationStatus == LocationStatus.locationFound) ... [
+              if (_locationService.status == LocationStatus.locationFound) ... [
                 Chip(
                   avatar: Icon(Icons.arrow_upward),
-                  label: Text("Altitude: ${_currentPosition!.altitude!.round()} m"),
+                  label: Text("Altitude: ${_currentLocation!.altitude!.round()} m"),
                 ),
               ],
               Chip(

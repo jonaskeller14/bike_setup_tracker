@@ -1,0 +1,37 @@
+import 'package:location/location.dart';
+
+enum LocationStatus {
+  findingLocation,
+  noService,
+  noPermission,
+  locationFound,
+}
+
+class LocationService {
+  final Location _location = Location();
+  LocationStatus status = LocationStatus.findingLocation;
+
+  Future<LocationData?> fetchLocation() async {
+    bool serviceEnabled = await _location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await _location.requestService();
+      if (!serviceEnabled) {
+        status = LocationStatus.noService;
+        return null;
+      }
+    }
+
+    PermissionStatus permissionGranted = await _location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await _location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        status = LocationStatus.noPermission;
+        return null;
+      }
+    }
+
+    final location = await _location.getLocation();
+    status = LocationStatus.locationFound;
+    return location;
+  }
+}

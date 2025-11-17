@@ -7,6 +7,8 @@ import '../widgets/adjustment_set_list.dart';
 import 'dart:async';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 enum LocationStatus {
   findingLocation,
@@ -33,7 +35,9 @@ class _AddSettingPageState extends State<AddSettingPage> {
   LocationStatus _locationStatus = LocationStatus.findingLocation;
   Location location = Location();
   LocationData? _currentPosition;
-  geo.Placemark? _currentPlace;  
+  geo.Placemark? _currentPlace;
+
+  double? temperature;
 
   @override
   void initState() {
@@ -56,7 +60,7 @@ class _AddSettingPageState extends State<AddSettingPage> {
     if (!serviceEnabled) {
       serviceEnabled = await location.requestService();
       if (!serviceEnabled) {
-        _locationStatus = LocationStatus.noService;
+        setState(() => _locationStatus = LocationStatus.noService);
         return;
       }
     }
@@ -65,15 +69,17 @@ class _AddSettingPageState extends State<AddSettingPage> {
     if (permissionGranted == PermissionStatus.denied) {
       permissionGranted = await location.requestPermission();
       if (permissionGranted != PermissionStatus.granted) {
-        _locationStatus = LocationStatus.noPermission;
+        setState(() => _locationStatus = LocationStatus.noPermission);
         return;
       }
     }
 
     _currentPosition = await location.getLocation();
     if (_currentPosition != null) {
-      updateAddress(_currentPosition!.latitude!, _currentPosition!.longitude!);
-      _locationStatus = LocationStatus.locationFound;
+      await updateAddress(_currentPosition!.latitude!, _currentPosition!.longitude!);
+      setState(() => _locationStatus = LocationStatus.locationFound);
+
+      fetchTemperature();
     }
   }
 
@@ -145,12 +151,51 @@ class _AddSettingPageState extends State<AddSettingPage> {
         adjustmentValues: adjustmentValues,
         position: _currentPosition,
         place: _currentPlace,
+        temperature: temperature,
       ),
     );
   }
 
   void _onAdjustmentValueChanged(Adjustment adjustment, dynamic newValue) {
     adjustmentValues[adjustment] = newValue;
+  }
+
+  Future<void> fetchTemperature() async {
+    if (_locationStatus != LocationStatus.locationFound) return;
+
+    final result = await _fetchTemperature(
+      _currentPosition!.latitude!,
+      _currentPosition!.longitude!,
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      if (result == null) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error fetching temperature.')));
+      } else {
+        temperature = result;
+      }
+    });
+  }
+
+  Future<double?> _fetchTemperature(double lat, double lon, {int counter = 1}) async {
+    const apiKey = String.fromEnvironment("OWM_KEY");
+
+    final url = Uri.parse("https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$apiKey&units=metric");
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['main']['temp']?.toDouble();
+    } else if (response.statusCode == 429 && counter <= 2) {
+      debugPrint("Error: OWM API limit reached. Trying again after 10s.");
+      await Future.delayed(Duration(seconds: 10));
+      return _fetchTemperature(lat, lon, counter: counter + 1);
+    } else {
+      return null;
+    }
   }
 
   @override
@@ -215,6 +260,10 @@ class _AddSettingPageState extends State<AddSettingPage> {
                                 : (_locationStatus == LocationStatus.noService
                                       ? Text("No location service")
                                       : Text("Error")))),
+              ),
+              Chip(
+                avatar: Icon(Icons.thermostat), 
+                label: temperature == null ? Text("Fetching temperature...") : Text("$temperature °C")
               ),
             ],
           ),

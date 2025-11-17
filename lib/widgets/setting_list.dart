@@ -55,6 +55,13 @@ class SettingList extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
+                if (setting.temperature != null) ...[
+                  Text(
+                    "${setting.temperature!.round()} °C",
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
                 if (setting.notes != null && setting.notes!.isNotEmpty) ...[
                   const SizedBox(height: 6),
                   Text(

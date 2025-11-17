@@ -11,6 +11,7 @@ class Setting {
   Map<Adjustment, dynamic> adjustmentValues;
   final LocationData? position;
   final geo.Placemark? place;
+  final double? temperature;
   Setting? previousSetting;
 
   Setting({
@@ -21,6 +22,7 @@ class Setting {
     required this.adjustmentValues,
     this.place,
     this.position,
+    this.temperature,
     this.previousSetting,
   }): id = id ?? const Uuid().v4();
 
@@ -35,6 +37,7 @@ class Setting {
     },
     'position': position != null ? _locationDataToJson(position!) : null,
     'place': place != null ? _placemarkToJson(place!) : null,
+    'temperature': temperature,
     'previousSetting': previousSetting?.id,
   };
 
@@ -58,6 +61,7 @@ class Setting {
       adjustmentValues: adjustmentValues,
       position: json['position'] != null ? _locationDataFromJson(json['position']) : null,
       place: json['place'] != null ? _placemarkFromJson(json['place']) : null,
+      temperature: json['temperature'],
       previousSetting: null, //TODO
     );
   }

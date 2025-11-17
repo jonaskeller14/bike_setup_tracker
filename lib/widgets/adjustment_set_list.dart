@@ -100,23 +100,21 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],
                     controller: controller,
-                    onTap: controller.clear,
-                    onChanged: (newValue) { //FIXME: cursor jumps to the front when typing after first character
+                    onTap: () {controller.clear();},
+                    onChanged: (newValue) {
                       final parsedValue = double.tryParse(newValue);
                       if (parsedValue != null) {
-                        setState(() {
-                          adjustmentValues[adjustment] = parsedValue;
-                        });
+                        adjustmentValues[adjustment] = parsedValue;
                         widget.onAdjustmentValueChanged(adjustment, parsedValue);
                       }
                     },
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       isDense: true,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                      suffixText: adjustment.unit != null ? ' ${adjustment.unit}': null,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                      suffixText: adjustment.unit != null ? ' ${adjustment.unit}' : null,
                     ),
-                  ),
+                  )
                 ),
               ],
             )

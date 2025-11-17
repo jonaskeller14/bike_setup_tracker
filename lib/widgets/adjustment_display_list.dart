@@ -65,7 +65,7 @@ class _AdjustmentTableCell extends StatelessWidget {
     if (valueHasChanged) {
       if (value is String || value is bool) {
         isCrossed = true;
-        change = previousValue.toString();
+        change = Adjustment.formatValue(previousValue);
       } else {
         dynamic changeValue = value - previousValue;
         change = changeValue > 0? "+${Adjustment.formatValue(changeValue)}" : Adjustment.formatValue(changeValue);

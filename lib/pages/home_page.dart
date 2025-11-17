@@ -197,15 +197,16 @@ class _HomePageState extends State<HomePage> {
       context,
       MaterialPageRoute(builder: (context) => AddSettingPage(components: components)),
     );
-    if (setting != null) {
-      setState(() {
-        for (var component in components) {
-          component.currentSetting = setting;
-        }
-        settings.add(setting);
-      });
-      await _saveData();
-    }
+    if (setting == null) return;
+    
+    setState(() {
+      setting.previousSetting = components.firstOrNull?.currentSetting;  //FIXME
+      for (var component in components) {
+        component.currentSetting = setting;
+      }
+      settings.add(setting);
+    });
+    await _saveData();
   }
 
   Future<void> editSetting(Setting setting) async {

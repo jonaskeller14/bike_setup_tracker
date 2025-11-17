@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 
 class AdjustmentDisplayList extends StatelessWidget {
   final Map<Adjustment, dynamic> adjustmentValues;
+  final Map<Adjustment, dynamic> previousAdjustmentValues;
 
-  const AdjustmentDisplayList({
+  AdjustmentDisplayList({
     super.key,
     required this.adjustmentValues,
-  });
+    Map<Adjustment, dynamic>? previousAdjustmentValues,
+  }) : previousAdjustmentValues = previousAdjustmentValues ?? {};
 
   @override
   Widget build(BuildContext context) {
@@ -18,11 +20,13 @@ class AdjustmentDisplayList extends StatelessWidget {
       final entry = items[index];
       final adjustment = entry.key;
       final value = entry.value;
+      final previousValue = previousAdjustmentValues[adjustment];
 
       children.add(
         _AdjustmentTableCell(
-          title: adjustment.name,
-          value: _formatValue(adjustment, value),
+          adjustment: adjustment,
+          value: value,
+          previousValue: previousValue,
         ),
       );
 
@@ -38,47 +42,74 @@ class AdjustmentDisplayList extends StatelessWidget {
       children: children,
     );
   }
-
-  String _formatValue(Adjustment adjustment, dynamic value) {
-    String unit = "";
-
-    try {
-      final dyn = adjustment as dynamic;
-      final possibleUnit = dyn.unit;
-      if (possibleUnit != null) unit = possibleUnit.toString();
-    // ignore: empty_catches
-    } catch (e) {}
-
-    final valText = value == null ? '' : Adjustment.formatValue(value);
-    return unit.isNotEmpty ? '$valText $unit' : valText;
-  }
 }
 
 class _AdjustmentTableCell extends StatelessWidget {
-  final String title;
-  final String value;
+  final Adjustment adjustment;
+  final dynamic value;
+  final dynamic previousValue;
 
   const _AdjustmentTableCell({
-    required this.title,
+    required this.adjustment,
     required this.value,
+    required this.previousValue,
   });
+
+
 
   @override
   Widget build(BuildContext context) {
+    final bool valueHasChanged = previousValue == null ? false : value != previousValue;
+    bool isCrossed = false;
+    String change = "";
+    if (valueHasChanged) {
+      if (value is String || value is bool) {
+        isCrossed = true;
+        change = previousValue.toString();
+      } else {
+        dynamic changeValue = value - previousValue;
+        change = changeValue > 0? "+${Adjustment.formatValue(changeValue)}" : Adjustment.formatValue(changeValue);
+      }
+    }
+
     return Container(
       padding: const EdgeInsets.all(8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            title,
-            style: const TextStyle(
+            adjustment.name,
+            style: TextStyle(
               fontWeight: FontWeight.bold,
             ),
           ),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 14),
+          Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(text: Adjustment.formatValue(value)),
+                if (valueHasChanged) ... [
+                  TextSpan(text: " "),
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.top,
+                    child: Transform.translate(
+                      offset: const Offset(0, -6),
+                      child: Text(
+                        change,
+                        style: TextStyle(
+                          fontSize: 12, 
+                          color: valueHasChanged ? Colors.red : Colors.grey,
+                          decoration: isCrossed ? TextDecoration.lineThrough : TextDecoration.none,
+                          decorationColor: Colors.red,
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+                if (adjustment.unit != null) ... [
+                  TextSpan(text: " ${adjustment.unit}"),
+                ]
+              ]
+            )
           ),
         ],
       ),

@@ -77,7 +77,11 @@ class SettingList extends StatelessWidget {
                   ),
                 ],
                 const SizedBox(height: 6.0),
-                AdjustmentDisplayList(adjustmentValues: setting.adjustmentValues),
+                AdjustmentDisplayList(
+                  adjustmentValues: setting.adjustmentValues,
+                  previousAdjustmentValues:
+                      setting.previousSetting?.adjustmentValues,
+                ),
               ],
             ),
             trailing: PopupMenuButton<String>(

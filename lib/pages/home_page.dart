@@ -103,7 +103,10 @@ class _HomePageState extends State<HomePage> {
     final loadedSettings = savedSettings
         .map((s) => Setting.fromJson(jsonDecode(s), loadedAdjustments))
         .toList();
-
+    for (int i = 0; i < loadedSettings.length; i++) {
+      loadedSettings[i].previousSettingFromJson(jsonDecode(savedSettings[i]), loadedSettings);
+    }
+    
     final loadedComponents = savedComponents
         .map((c) => Component.fromJson(jsonDecode(c), loadedAdjustments, loadedSettings))
         .toList();

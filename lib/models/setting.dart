@@ -11,6 +11,7 @@ class Setting {
   Map<Adjustment, dynamic> adjustmentValues;
   final LocationData? position;
   final geo.Placemark? place;
+  Setting? previousSetting;
 
   Setting({
     String? id,
@@ -20,6 +21,7 @@ class Setting {
     required this.adjustmentValues,
     this.place,
     this.position,
+    this.previousSetting,
   }): id = id ?? const Uuid().v4();
 
   Map<String, dynamic> toJson() => {
@@ -33,6 +35,7 @@ class Setting {
     },
     'position': position != null ? _locationDataToJson(position!) : null,
     'place': place != null ? _placemarkToJson(place!) : null,
+    'previousSetting': previousSetting?.id,
   };
 
   factory Setting.fromJson(Map<String, dynamic> json, List<Adjustment> allAdjustments) {
@@ -55,7 +58,15 @@ class Setting {
       adjustmentValues: adjustmentValues,
       position: json['position'] != null ? _locationDataFromJson(json['position']) : null,
       place: json['place'] != null ? _placemarkFromJson(json['place']) : null,
+      previousSetting: null, //TODO
     );
+  }
+
+  void previousSettingFromJson(Map<String, dynamic> json, List<Setting> allSettings) {
+    previousSetting = allSettings.firstWhere(
+      (a) => a.id == json["previousSetting"], 
+      orElse: () => throw Exception('Setting with id ${json["previousSetting"]} not found'), 
+      );
   }
 
   static Map<String, dynamic> _locationDataToJson(LocationData data) => {

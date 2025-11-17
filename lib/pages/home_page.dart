@@ -1,16 +1,16 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:file_save_directory/file_save_directory.dart';
-import '../widgets/component_list.dart';
-import '../widgets/setting_list.dart';
+import '../models/adjustment.dart';
+import '../models/setting.dart';
+import '../models/component.dart';
 import 'add_component_page.dart';
 import 'edit_component_page.dart';
 import 'add_setting_page.dart';
 import 'edit_setting_page.dart';
-import '../models/adjustment.dart';
-import '../models/setting.dart';
-import '../models/component.dart';
+import '../utils/file_export.dart';
+import '../widgets/component_list.dart';
+import '../widgets/setting_list.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
@@ -250,64 +250,26 @@ class _HomePageState extends State<HomePage> {
     ) ?? false;
   }
 
-  void downloadJson() {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-
-    _downloadJson().then((result) {
-      if (!mounted) return;
-
-      if (result == null || result.path == null) {
-        scaffoldMessenger.showSnackBar(
-          const SnackBar(content: Text("Export failed")),
-        );
-      } else {
-        scaffoldMessenger.showSnackBar(
-          SnackBar(content: Text("Saved to: ${result.path}")),
-        );
-      }
-    }).catchError((e, st) {
-      debugPrint('Export failed: $e\n$st');
-      if (!mounted) return;
-      scaffoldMessenger.showSnackBar(SnackBar(content: Text('Export failed: $e')));
-    });
-  }
-
-  Future<FileSaveResult?> _downloadJson() async {
-    try {
-      final exportData = {
-        'adjustments': adjustments.map((a) => a.toJson()).toList(),
-        'settings': settings.map((s) => s.toJson()).toList(),
-        'components': components.map((c) => c.toJson()).toList(),
-      };
-
-      final jsonString = const JsonEncoder.withIndent('  ').convert(exportData);
-      final bytes = utf8.encode(jsonString);
-
-      final now = DateTime.now();
-      final timestamp =
-          '${now.year.toString().padLeft(4, '0')}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_'
-          '${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
-
-      final result = await FileSaveDirectory.instance.saveFile(
-        fileName: '${timestamp}_export.json',
-        fileBytes: bytes,
-        location: SaveLocation.downloads,
-        openAfterSave: false,
-      );
-      return result;
-    } catch (e, st) {
-      debugPrint('Error while exporting JSON: $e\n$st');
-      return null;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
-        actions: [IconButton(onPressed: downloadJson, icon: const Icon(Icons.download))],
+        actions: [
+          //TODO IconButton(onPressed: () {}, icon: Icon(Icons.upload)), 
+          IconButton(
+            onPressed: () {
+              FileExport.downloadJson(
+                context: context,
+                adjustments: adjustments,
+                settings: settings,
+                components: components,
+              );
+            },
+            icon: const Icon(Icons.download),
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),

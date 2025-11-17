@@ -180,7 +180,7 @@ class _AddSettingPageState extends State<AddSettingPage> {
   }
 
   Future<double?> _fetchTemperature(double lat, double lon, {int counter = 1}) async {
-    const apiKey = String.fromEnvironment("OWM_KEY");
+    const String apiKey = String.fromEnvironment("OWM_KEY");
 
     final url = Uri.parse("https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$apiKey&units=metric");
 
@@ -264,12 +264,12 @@ class _AddSettingPageState extends State<AddSettingPage> {
               if (_locationStatus == LocationStatus.locationFound) ... [
                 Chip(
                   avatar: Icon(Icons.arrow_upward),
-                  label: Text("Altitude: ${_currentPosition!.altitude!} m"),
+                  label: Text("Altitude: ${_currentPosition!.altitude!.round()} m"),
                 ),
               ],
               Chip(
                 avatar: Icon(Icons.thermostat), 
-                label: temperature == null ? Text("Fetching temperature...") : Text("$temperature °C")
+                label: temperature == null ? const Text("Fetching temperature...") : Text("${temperature!.toStringAsFixed(1)} °C")
               ),
             ],
           ),

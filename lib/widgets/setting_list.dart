@@ -57,14 +57,14 @@ class SettingList extends StatelessWidget {
                 ],
                 if (setting.position != null) ... [
                   Text(
-                    "↑ Altitude: ${setting.position!.altitude} m",
+                    "↑ Altitude: ${setting.position!.altitude!.round()} m",
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
                 if (setting.temperature != null) ...[
                   Text(
-                    "${setting.temperature!.round()} °C",
+                    "${setting.temperature!.toStringAsFixed(1)} °C",
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                     overflow: TextOverflow.ellipsis,
                   ),

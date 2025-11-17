@@ -67,6 +67,8 @@ class Setting {
   }
 
   void previousSettingFromJson(Map<String, dynamic> json, List<Setting> allSettings) {
+    if (json["previousSetting"] == null) return; 
+
     previousSetting = allSettings.firstWhere(
       (a) => a.id == json["previousSetting"], 
       orElse: () => throw Exception('Setting with id ${json["previousSetting"]} not found'), 

@@ -66,7 +66,7 @@ class _AddCategoricalAdjustmentPageState extends State<AddCategoricalAdjustmentP
       return;
     }
       
-    Navigator.pop(context, CategoricalAdjustment(name: name, options: options));
+    Navigator.pop(context, CategoricalAdjustment(name: name, unit: null, options: options));
   }
 
   @override

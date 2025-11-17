@@ -58,7 +58,7 @@ class _AddStepAdjustmentPageState extends State<AddStepAdjustmentPage> {
       return;
     }
     
-    Navigator.pop(context, StepAdjustment(name: name, step: step, min: min, max: max));
+    Navigator.pop(context, StepAdjustment(name: name, unit: null, step: step, min: min, max: max));
   }
 
   @override

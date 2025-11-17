@@ -4,8 +4,9 @@ abstract class Adjustment<T> {
   final String id;
   final String name;
   final Type valueType;
+  final String? unit;
 
-  Adjustment({String? id, required this.name})
+  Adjustment({String? id, required this.name, required this.unit})
     : valueType = T,
       id = id ?? const Uuid().v4();
 
@@ -34,17 +35,19 @@ abstract class Adjustment<T> {
     final type = json['type'];
     switch (type) {
       case 'boolean':
-        return BooleanAdjustment(id: json["id"], name: json['name']);
+        return BooleanAdjustment(id: json["id"], name: json['name'], unit: json['unit'] as String?);
       case 'categorical':
         return CategoricalAdjustment(
           id: json["id"],
           name: json['name'],
+          unit: json['unit'] as String?,
           options: List<String>.from(json['options']),
         );
       case 'step':
         return StepAdjustment(
           id: json["id"],
           name: json['name'],
+          unit: json['unit'] as String?,
           step: (json['step'] as num).toInt(),
           min: (json['min'] as num).toInt(),
           max: (json['max'] as num).toInt(),
@@ -53,9 +56,9 @@ abstract class Adjustment<T> {
         return NumericalAdjustment(
           id: json["id"],
           name: json['name'],
+          unit: json['unit'] as String?,
           min: (json['min'] as num?)?.toDouble(),
           max: (json['max'] as num?)?.toDouble(),
-          unit: json['unit'] as String?, // read unit from JSON
         );
       default:
         throw Exception('Unknown adjustment type: $type');
@@ -66,7 +69,7 @@ abstract class Adjustment<T> {
 class CategoricalAdjustment extends Adjustment<String> {
   final List<String> options;
 
-  CategoricalAdjustment({super.id, required super.name, required this.options});
+  CategoricalAdjustment({super.id, required super.name, required super.unit, required this.options});
 
   @override
   bool isValidValue(String value) {
@@ -79,6 +82,7 @@ class CategoricalAdjustment extends Adjustment<String> {
     'name': name,
     'type': 'categorical',
     'valueType': valueType.toString(),
+    'unit': unit,
     'options': options,
   };
 }
@@ -91,6 +95,7 @@ class StepAdjustment extends Adjustment<int> {
   StepAdjustment({
     super.id,
     required super.name,
+    required super.unit,
     required this.step,
     required this.min,
     required this.max,
@@ -107,6 +112,7 @@ class StepAdjustment extends Adjustment<int> {
     'name': name,
     'type': 'step',
     'valueType': valueType.toString(),
+    'unit': unit,
     'step': step,
     'min': min,
     'max': max,
@@ -116,14 +122,13 @@ class StepAdjustment extends Adjustment<int> {
 class NumericalAdjustment extends Adjustment<double> {
   final double min;
   final double max;
-  final String? unit;
 
   NumericalAdjustment({
     super.id,
     required super.name,
+    required super.unit,
     double? min,
     double? max,
-    this.unit,
   }) : min = min ?? double.negativeInfinity,
        max = max ?? double.infinity;
 
@@ -138,14 +143,14 @@ class NumericalAdjustment extends Adjustment<double> {
     'name': name,
     'type': 'numerical',
     'valueType': valueType.toString(),
+    'unit': unit,
     'min': min.isFinite ? min : null,
     'max': max.isFinite ? max : null,
-    'unit': unit,
   };
 }
 
 class BooleanAdjustment extends Adjustment<bool> {
-  BooleanAdjustment({super.id, required super.name});
+  BooleanAdjustment({super.id, required super.name, required super.unit});
 
   @override
   bool isValidValue(bool value) {
@@ -158,5 +163,6 @@ class BooleanAdjustment extends Adjustment<bool> {
     'name': name,
     'type': 'boolean',
     'valueType': valueType.toString(),
+    'unit': unit,
   };
 }

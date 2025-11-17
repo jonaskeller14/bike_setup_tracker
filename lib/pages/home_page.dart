@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:file_save_directory/file_save_directory.dart';
-import 'dart:convert';
 import '../widgets/component_list.dart';
 import '../widgets/setting_list.dart';
 import 'add_component_page.dart';

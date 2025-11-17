@@ -27,7 +27,7 @@ class _AddBooleanAdjustmentPageState extends State<AddBooleanAdjustmentPage> {
       return;
     }
 
-    Navigator.pop(context, BooleanAdjustment(name: name));
+    Navigator.pop(context, BooleanAdjustment(name: name, unit: null));
   }
 
   @override

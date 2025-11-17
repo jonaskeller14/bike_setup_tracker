@@ -55,8 +55,6 @@ class _AdjustmentTableCell extends StatelessWidget {
     required this.previousValue,
   });
 
-
-
   @override
   Widget build(BuildContext context) {
     final bool valueHasChanged = previousValue == null ? false : value != previousValue;

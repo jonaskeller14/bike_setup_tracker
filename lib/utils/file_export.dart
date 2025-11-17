@@ -1,12 +1,25 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:file_save_directory/file_save_directory.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/adjustment.dart';
 import '../models/setting.dart';
 import '../models/component.dart';
 
 
 class FileExport {
+  static Future<void> saveData({required List<Adjustment> adjustments, required List<Setting> settings, required List<Component> components}) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final jsonData = jsonEncode({
+      'adjustments': adjustments.map((a) => a.toJson()).toList(),
+      'settings': settings.map((s) => s.toJson()).toList(),
+      'components': components.map((c) => c.toJson()).toList(),
+    });
+
+    await prefs.setString('data', jsonData);
+  }
+
   static Future<void> downloadJson({
     required BuildContext context,
     required List<Adjustment> adjustments,

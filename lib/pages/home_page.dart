@@ -9,6 +9,7 @@ import 'edit_component_page.dart';
 import 'add_setting_page.dart';
 import 'edit_setting_page.dart';
 import '../utils/file_export.dart';
+import '../utils/file_import.dart';
 import '../widgets/component_list.dart';
 import '../widgets/setting_list.dart';
 
@@ -28,29 +29,84 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    // loadData();
+    loadData();
   }
 
   Future<void> loadData() async {
-    try {
-      await _loadData();
+    final data = await FileImport.readData(context);
+    if (data == null) return;
 
-      if (!mounted) return;
+    if (!mounted) return;
+    setState(() {
+      adjustments
+        ..clear()
+        ..addAll(data.adjustments);
+      settings
+        ..clear()
+        ..addAll(data.settings);
+      components
+        ..clear()
+        ..addAll(data.components);
+    });
+    await FileExport.saveData(adjustments: adjustments, settings: settings, components: components);
+  }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Data successfully loaded!')),
-      );
-    } catch (e, st) {
-      // Log stacktrace to console to help debugging
-      // (you can remove the print in production)
-      debugPrint('Error loading data: $e\n$st');
+  Future<void> loadJsonFileData() async {
+    final data = await FileImport.readJsonFileData(context);
+    if (data == null) return;
 
-      if (!mounted) return;
+    if (!mounted) return;
+    final choice = await FileImport.showImportChoiceDialog(context);
+    if (choice == 'cancel' || choice == null) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load data: $e')),
-      );
+    if (choice == 'overwrite') {
+      setState(() {
+        adjustments
+          ..clear()
+          ..addAll(data.adjustments);
+
+        settings
+          ..clear()
+          ..addAll(data.settings);
+
+        components
+          ..clear()
+          ..addAll(data.components);
+      });
+    } else if (choice == 'merge') {
+      setState(() {
+        for (var a in data.adjustments) {
+          if (!adjustments.any((x) => x.id == a.id)) {
+            adjustments.add(a);
+          }
+        }
+
+        for (var s in data.settings) {
+          if (!settings.any((x) => x.id == s.id)) {
+            settings.add(s);
+          }
+        }
+
+        for (var c in data.components) {
+          if (!components.any((x) => x.id == c.id)) {
+            components.add(c);
+          }
+        }
+      });
     }
+
+    await FileExport.saveData(
+      adjustments: adjustments,
+      settings: settings,
+      components: components,
+    );
+    
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(choice == 'overwrite'
+          ? 'Data overwritten successfully'
+          : 'Data merged successfully')),
+    );
   }
 
   Future<void> clearData() async {
@@ -84,7 +140,7 @@ class _HomePageState extends State<HomePage> {
         }
       }
     });
-    await _saveData();
+    await FileExport.saveData(adjustments: adjustments, settings: settings, components: components);
   }
 
   Future<void> removeComponent(Component component) async {
@@ -99,63 +155,7 @@ class _HomePageState extends State<HomePage> {
       }
       components.remove(component);
     });
-    await _saveData();
-  }
-
-  // --- Load data from SharedPreferences
-  Future<void> _loadData() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final savedAdjustments = prefs.getStringList('adjustments') ?? <String>[];
-    final savedSettings = prefs.getStringList('settings') ?? <String>[];
-    final savedComponents = prefs.getStringList('components') ?? <String>[];
-
-    // Convert JSON strings to model objects
-    final loadedAdjustments = savedAdjustments
-        .map((a) => Adjustment.fromJson(jsonDecode(a)))
-        .toList();
-
-    final loadedSettings = savedSettings
-        .map((s) => Setting.fromJson(jsonDecode(s), loadedAdjustments))
-        .toList();
-    for (int i = 0; i < loadedSettings.length; i++) {
-      loadedSettings[i].previousSettingFromJson(jsonDecode(savedSettings[i]), loadedSettings);
-    }
-    
-    final loadedComponents = savedComponents
-        .map((c) => Component.fromJson(jsonDecode(c), loadedAdjustments, loadedSettings))
-        .toList();
-
-    // Finally update state
-    if (!mounted) return;
-    setState(() {
-      adjustments
-        ..clear()
-        ..addAll(loadedAdjustments);
-      settings
-        ..clear()
-        ..addAll(loadedSettings);
-      components
-        ..clear()
-        ..addAll(loadedComponents);
-    });
-  }
-
-  // --- Save data to SharedPreferences
-  Future<void> _saveData() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(
-      'adjustments',
-      adjustments.map((a) => jsonEncode(a.toJson())).toList(),
-    );
-    await prefs.setStringList(
-      'settings',
-      settings.map((s) => jsonEncode(s.toJson())).toList(),
-    );
-    await prefs.setStringList(
-      'components',
-      components.map((c) => jsonEncode(c.toJson())).toList(),
-    );
+    await FileExport.saveData(adjustments: adjustments, settings: settings, components: components);
   }
 
   Future<void> _addComponent() async {
@@ -163,14 +163,13 @@ class _HomePageState extends State<HomePage> {
       context,
       MaterialPageRoute(builder: (context) => const AddComponentPage()),
     );
-
-    if (component != null) {
-      setState(() {
-        components.add(component);
-        adjustments.addAll(component.adjustments);
-      });
-      await _saveData();
-    }
+    if (component == null) return;
+  
+    setState(() {
+      components.add(component);
+      adjustments.addAll(component.adjustments);
+    });
+    await FileExport.saveData(adjustments: adjustments, settings: settings, components: components);
   }
 
   Future<void> editComponent(Component component) async {
@@ -188,7 +187,7 @@ class _HomePageState extends State<HomePage> {
           components[index] = editedComponent;
         }
       });
-      await _saveData();
+      await FileExport.saveData(adjustments: adjustments, settings: settings, components: components);
     }
   }
 
@@ -206,7 +205,7 @@ class _HomePageState extends State<HomePage> {
       }
       settings.add(setting);
     });
-    await _saveData();
+    await FileExport.saveData(adjustments: adjustments, settings: settings, components: components);
   }
 
   Future<void> editSetting(Setting setting) async {
@@ -223,7 +222,7 @@ class _HomePageState extends State<HomePage> {
           settings[index] = editedSetting;
         }
       });
-      await _saveData();
+      await FileExport.saveData(adjustments: adjustments, settings: settings, components: components);
     }
   }
 
@@ -257,7 +256,10 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
         actions: [
-          //TODO IconButton(onPressed: () {}, icon: Icon(Icons.upload)), 
+          IconButton(
+            onPressed: loadJsonFileData,
+            icon: Icon(Icons.file_upload),
+          ),
           IconButton(
             onPressed: () {
               FileExport.downloadJson(
@@ -267,7 +269,7 @@ class _HomePageState extends State<HomePage> {
                 components: components,
               );
             },
-            icon: const Icon(Icons.download),
+            icon: const Icon(Icons.file_download),
           ),
         ],
       ),

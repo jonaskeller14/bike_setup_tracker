@@ -50,7 +50,8 @@ class _HomePageState extends State<HomePage> {
         ..addAll(data.adjustments);
       settings
         ..clear()
-        ..addAll(data.settings);
+        ..addAll(data.settings)
+        ..sort((a, b) => a.datetime.compareTo(b.datetime));
       components
         ..clear()
         ..addAll(data.components);
@@ -76,7 +77,8 @@ class _HomePageState extends State<HomePage> {
           ..addAll(data.adjustments);
         settings
           ..clear()
-          ..addAll(data.settings);
+          ..addAll(data.settings)
+          ..sort((a, b) => a.datetime.compareTo(b.datetime));
         components
           ..clear()
           ..addAll(data.components);
@@ -100,6 +102,7 @@ class _HomePageState extends State<HomePage> {
             settings.add(s);
           }
         }
+        settings.sort((a, b) => a.datetime.compareTo(b.datetime));
 
         for (var c in data.components) {
           if (!components.any((x) => x.id == c.id)) {
@@ -296,6 +299,7 @@ class _HomePageState extends State<HomePage> {
         component.currentSetting = setting;
       }
       settings.add(setting);
+      settings.sort((a, b) => a.datetime.compareTo(b.datetime));
     });
     await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
   }
@@ -319,6 +323,7 @@ class _HomePageState extends State<HomePage> {
         if (index != -1) {
           settings[index] = editedSetting;
         }
+        settings.sort((a, b) => a.datetime.compareTo(b.datetime));
       });
       await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
     }

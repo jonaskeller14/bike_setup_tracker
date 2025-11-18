@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/adjustment.dart';
 import 'add_adjustment/add_boolean_adjustment_page.dart';
@@ -8,7 +9,9 @@ import 'add_adjustment/add_categorical_adjustment_page.dart';
 import '../widgets/adjustment_edit_list.dart';
 
 class AddComponentPage extends StatefulWidget {
-  const AddComponentPage({super.key});
+  final List<Bike> bikes;
+
+  const AddComponentPage({super.key, required this.bikes});
 
   @override
   State<AddComponentPage> createState() => _AddComponentPageState();
@@ -17,6 +20,13 @@ class AddComponentPage extends StatefulWidget {
 class _AddComponentPageState extends State<AddComponentPage> {
   final TextEditingController _nameController = TextEditingController();
   final List<Adjustment> adjustments = [];
+  late Bike bike;
+
+  @override
+  void initState() {
+    super.initState();
+    bike = widget.bikes.first;
+  }
 
   @override
   void dispose() {
@@ -83,7 +93,7 @@ class _AddComponentPageState extends State<AddComponentPage> {
     if (name.isEmpty) return;
 
     // Return updated setting to previous screen
-    Navigator.pop(context, Component(name: name, adjustments: adjustments));
+    Navigator.pop(context, Component(name: name, bike: bike, adjustments: adjustments));
   }
 
   @override
@@ -113,6 +123,28 @@ class _AddComponentPageState extends State<AddComponentPage> {
                 hintText: 'Enter component name',
               ),
             ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<Bike>(
+                initialValue: bike,
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  labelText: 'Bike',
+                  border: OutlineInputBorder(),
+                  hintText: "Choose a bike for this component",
+                ),
+                items: widget.bikes.map((b) {
+                  return DropdownMenuItem<Bike>(
+                    value: b,
+                    child: Text(b.name, overflow: TextOverflow.ellipsis),
+                  );
+                }).toList(),
+                onChanged: (Bike? newBike) {
+                  if (newBike == null) return;
+                  setState(() {
+                    bike = newBike;
+                  });
+                },
+              ),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8.0,

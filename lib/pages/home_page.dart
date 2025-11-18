@@ -203,7 +203,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _addComponent() async {
     final component = await Navigator.push<Component>(
       context,
-      MaterialPageRoute(builder: (context) => const AddComponentPage()),
+      MaterialPageRoute(builder: (context) => AddComponentPage(bikes: bikes)),
     );
     if (component == null) return;
   

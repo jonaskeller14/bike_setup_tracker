@@ -2,16 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'adjustment.dart';
 import 'setting.dart';
+import 'bike.dart';
 
 class Component {
   final String id;
   final String name;
   final List<Adjustment> adjustments;
+  Bike bike;
   Setting? currentSetting;
 
   Component({
     String? id,
     required this.name,
+    required this.bike,
     this.currentSetting,
     List<Adjustment>? adjustments,
   }) : adjustments = adjustments ?? [],
@@ -20,15 +23,21 @@ class Component {
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
+    'bike': bike.id,
     'adjustments': adjustments.map((a) => a.id).toList(),
     'currentSetting': currentSetting?.id,
   };
 
-  factory Component.fromJson(
-    Map<String, dynamic> json,
-    List<Adjustment> allAdjustments,
-    List<Setting> allSettings,
-  ) {
+  factory Component.fromJson({
+    required Map<String, dynamic> json,
+    required List<Bike> bikes,
+    required List<Adjustment> allAdjustments,
+    required List<Setting> allSettings,
+  }) {
+    final bike = bikes.firstWhere(
+      (b) => b.id == json["bike"]
+    );
+
     final adjustmentIDs = (json["adjustments"] as List<dynamic>?)
       ?.map((e) => e.toString())
       .toList() ?? [];
@@ -56,6 +65,7 @@ class Component {
     return Component(
       id: json["id"],
       name: json['name'],
+      bike: bike,
       adjustments: adjustments,
       currentSetting: currentSetting,
     );

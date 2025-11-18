@@ -52,6 +52,10 @@ class ComponentList extends StatelessWidget {
                   alignment: Alignment.topLeft,
                   child: Text('${component.adjustments.length} adjustments'),
                 ),
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Text("Bike: ${component.bike.name}", overflow: TextOverflow.ellipsis),
+                ),
                 AdjustmentDisplayList(
                   adjustmentValues: componentAdjustmentValues,
                 ),

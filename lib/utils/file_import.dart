@@ -55,7 +55,7 @@ class FileImport {
 
     // parse components
     final loadedComponents = (jsonData['components'] as List)
-        .map((c) => Component.fromJson(c, loadedAdjustments, loadedSettings))
+        .map((c) => Component.fromJson(json: c, allAdjustments: loadedAdjustments, allSettings: loadedSettings, bikes: loadedBikes))
         .toList();
     
     return Data(

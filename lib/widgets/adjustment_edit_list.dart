@@ -76,7 +76,13 @@ class AdjustmentEditList extends StatelessWidget {
                 // const PopupMenuItem<String>(value: 'edit', child: Text('Edit')),
                 const PopupMenuItem<String>(
                   value: 'remove',
-                  child: Text('Remove'),
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, size: 20),
+                      SizedBox(width: 10),
+                      Text('Remove'),
+                    ],
+                  ),
                 ),
               ],
             ),

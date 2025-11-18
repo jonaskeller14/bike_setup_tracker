@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
+import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/adjustment.dart';
-
+import 'add_adjustment/add_boolean_adjustment_page.dart';
+import 'add_adjustment/add_numerical_adjustment_page.dart';
+import 'add_adjustment/add_step_adjustment_page.dart';
+import 'add_adjustment/add_categorical_adjustment_page.dart';
+import '../widgets/adjustment_edit_list.dart';
 
 class EditComponentPage extends StatefulWidget {
   final Component component;
+  final List<Bike> bikes;
 
-  const EditComponentPage({super.key, required this.component});
+  const EditComponentPage({super.key, required this.component, required this.bikes});
 
   @override
   State<EditComponentPage> createState() => _EditComponentPageState();
@@ -15,6 +21,7 @@ class EditComponentPage extends StatefulWidget {
 class _EditComponentPageState extends State<EditComponentPage> {
   late TextEditingController _nameController;
   late List<Adjustment> adjustments;
+  late Bike bike;
 
   @override
   void initState() {
@@ -22,12 +29,67 @@ class _EditComponentPageState extends State<EditComponentPage> {
     // Initialize with existing setting values
     _nameController = TextEditingController(text: widget.component.name);
     adjustments = widget.component.adjustments;
+    bike = widget.component.bike;
   }
 
   @override
   void dispose() {
     _nameController.dispose();
     super.dispose();
+  }
+
+  Future<void> _addBooleanAdjustment() async {
+    final adjustment = await Navigator.push<BooleanAdjustment>(
+      context,
+      MaterialPageRoute(builder: (context) => const AddBooleanAdjustmentPage()),
+    );
+    if (adjustment != null) {
+      setState(() {
+        adjustments.add(adjustment);
+      });
+    }
+  }
+
+  Future<void> _addNumericalAdjustment() async {
+    final adjustment = await Navigator.push<NumericalAdjustment>(
+      context,
+      MaterialPageRoute(builder: (context) => const AddNumericalAdjustmentPage()),
+    );
+    if (adjustment != null) {
+      setState(() {
+        adjustments.add(adjustment);
+      });
+    }
+  }
+
+  Future<void> _addStepAdjustment() async {
+    final adjustment = await Navigator.push<StepAdjustment>(
+      context,
+      MaterialPageRoute(builder: (context) => const AddStepAdjustmentPage()),
+    );
+    if (adjustment != null) {
+      setState(() {
+        adjustments.add(adjustment);
+      });
+    }
+  }
+
+  Future<void> _addCategoricalAdjustment() async {
+    final adjustment = await Navigator.push<CategoricalAdjustment>(
+      context,
+      MaterialPageRoute(builder: (context) => const AddCategoricalAdjustmentPage()),
+    );
+    if (adjustment != null) {
+      setState(() {
+        adjustments.add(adjustment);
+      });
+    }
+  }
+
+  Future<void> removeAdjustment(Adjustment adjustment) async {
+    setState(() {
+      adjustments.remove(adjustment);
+    });
   }
 
   void _saveComponent() {
@@ -40,7 +102,7 @@ class _EditComponentPageState extends State<EditComponentPage> {
       Component(
         id: widget.component.id,
         name: name,
-        bike: widget.component.bike,
+        bike: bike,
         adjustments: adjustments,
         currentSetting: widget.component.currentSetting,
       ),
@@ -63,6 +125,7 @@ class _EditComponentPageState extends State<EditComponentPage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
           controller: _nameController,
@@ -74,7 +137,56 @@ class _EditComponentPageState extends State<EditComponentPage> {
           ),
             ),
             const SizedBox(height: 12),
-            // adjustments list
+            DropdownButtonFormField<Bike>(
+                initialValue: bike,
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  labelText: 'Bike',
+                  border: OutlineInputBorder(),
+                  hintText: "Choose a bike for this component",
+                ),
+                items: widget.bikes.map((b) {
+                  return DropdownMenuItem<Bike>(
+                    value: b,
+                    child: Text(b.name, overflow: TextOverflow.ellipsis),
+                  );
+                }).toList(),
+                onChanged: (Bike? newBike) {
+                  if (newBike == null) return;
+                  setState(() {
+                    bike = newBike;
+                  });
+                },
+              ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 4.0,
+              children: [
+                ActionChip(
+                  avatar: Icon(Icons.add),
+                  label: const Text('Add On/Off Adjustment'),
+                  onPressed: _addBooleanAdjustment,
+                ),
+                ActionChip(
+                  avatar: Icon(Icons.add),
+                  label: const Text('Add Categorical Adjustment'),
+                  onPressed: _addCategoricalAdjustment,
+                ),
+                ActionChip(
+                  avatar: Icon(Icons.add),
+                  label: const Text('Add Step Adjustment'),
+                  onPressed: _addStepAdjustment,
+                ),
+                ActionChip(
+                  avatar: Icon(Icons.add),
+                  label: const Text('Add Numerical Adjustment'),
+                  onPressed: _addNumericalAdjustment,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Adjustments list
             Expanded(
               child: adjustments.isEmpty
                   ? Center(
@@ -83,20 +195,10 @@ class _EditComponentPageState extends State<EditComponentPage> {
                         style: TextStyle(color: Colors.grey.shade600),
                       ),
                     )
-                  : ListView.separated(
-                      itemCount: adjustments.length,
-                      separatorBuilder: (_, __) => const Divider(height: 1),
-                      itemBuilder: (context, index) {
-                        final adj = adjustments[index];
-                        return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          title: Text(
-                            adj.name,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                        );
-                      },
+                  : AdjustmentEditList(
+                      adjustments: adjustments,
+                      // editAdjustment: () => {},
+                      removeAdjustment: removeAdjustment,
                     ),
             ),
           ],

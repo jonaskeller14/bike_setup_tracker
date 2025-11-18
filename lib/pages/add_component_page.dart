@@ -93,7 +93,10 @@ class _AddComponentPageState extends State<AddComponentPage> {
     if (name.isEmpty) return;
 
     // Return updated setting to previous screen
-    Navigator.pop(context, Component(name: name, bike: bike, adjustments: adjustments));
+    Navigator.pop(
+      context,
+      Component(name: name, bike: bike, adjustments: adjustments),
+    );
   }
 
   @override

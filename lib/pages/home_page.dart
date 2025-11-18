@@ -237,7 +237,7 @@ class _HomePageState extends State<HomePage> {
     final editedComponent = await Navigator.push<Component>(
       context,
       MaterialPageRoute(
-        builder: (context) => EditComponentPage(component: component),
+        builder: (context) => EditComponentPage(component: component, bikes: bikes),
       ),
     );
     if (editedComponent != null) {

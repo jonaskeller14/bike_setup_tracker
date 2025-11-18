@@ -4,8 +4,8 @@ import '../models/bike.dart';
 import '../models/adjustment.dart';
 import '../models/setting.dart';
 import '../models/component.dart';
-import 'add_bike.dart';
-import 'edit_bike.dart';
+import 'add_bike_page.dart';
+import 'edit_bike_page.dart';
 import 'add_component_page.dart';
 import 'edit_component_page.dart';
 import 'add_setting_page.dart';
@@ -187,6 +187,19 @@ class _HomePageState extends State<HomePage> {
     await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
   }
 
+  Future<void> _addBike() async {
+    final bike = await Navigator.push<Bike>(
+      context,
+      MaterialPageRoute(builder: (context) => const AddBikePage()),
+    );
+    if (bike == null) return;
+  
+    setState(() {
+      bikes.add(bike);
+    });
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+  }
+
   Future<void> _addComponent() async {
     final component = await Navigator.push<Component>(
       context,
@@ -328,7 +341,7 @@ class _HomePageState extends State<HomePage> {
             title: Text("Bikes", style: Theme.of(context).textTheme.headlineSmall),
             trailing: IconButton(
               icon: const Icon(Icons.add),
-              onPressed: () {},
+              onPressed: _addBike,
             ),
             contentPadding: EdgeInsets.zero,
           ),

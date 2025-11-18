@@ -25,11 +25,7 @@ class SettingList extends StatelessWidget {
       itemBuilder: (context, index) {
         final setting = settings[settings.length - 1 - index];
         return Card(
-          margin: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 4.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: Colors.grey.shade300, width: 1),
-          ),
+          margin: const EdgeInsets.symmetric(vertical: 4.0),
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,

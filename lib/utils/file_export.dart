@@ -2,16 +2,18 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:file_save_directory/file_save_directory.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/bike.dart';
 import '../models/adjustment.dart';
 import '../models/setting.dart';
 import '../models/component.dart';
 
 
 class FileExport {
-  static Future<void> saveData({required List<Adjustment> adjustments, required List<Setting> settings, required List<Component> components}) async {
+  static Future<void> saveData({required List<Bike> bikes, required List<Adjustment> adjustments, required List<Setting> settings, required List<Component> components}) async {
     final prefs = await SharedPreferences.getInstance();
 
     final jsonData = jsonEncode({
+      'bikes': bikes.map((b) => b.toJson()).toList(),
       'adjustments': adjustments.map((a) => a.toJson()).toList(),
       'settings': settings.map((s) => s.toJson()).toList(),
       'components': components.map((c) => c.toJson()).toList(),
@@ -22,13 +24,14 @@ class FileExport {
 
   static Future<void> downloadJson({
     required BuildContext context,
+    required List<Bike> bikes,
     required List<Adjustment> adjustments,
     required List<Setting> settings,
     required List<Component> components,
   }) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-    _downloadJson(adjustments, settings, components).then((result) {
+    _downloadJson(bikes, adjustments, settings, components).then((result) {
         if (result == null || result.path == null) {
           scaffoldMessenger.showSnackBar(
             const SnackBar(content: Text("Export failed")),
@@ -45,12 +48,14 @@ class FileExport {
     }
 
   static Future<FileSaveResult?> _downloadJson(
+    List<Bike> bikes,
     List<Adjustment> adjustments,
     List<Setting> settings,
     List<Component> components,
   ) async {
     try {
       final exportData = {
+        'bikes': bikes.map((b) => b.toJson()).toList(),
         'adjustments': adjustments.map((a) => a.toJson()).toList(),
         'settings': settings.map((s) => s.toJson()).toList(),
         'components': components.map((c) => c.toJson()).toList(),

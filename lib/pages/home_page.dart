@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/bike.dart';
 import '../models/adjustment.dart';
 import '../models/setting.dart';
 import '../models/component.dart';
@@ -21,6 +22,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final List<Bike> bikes = [];
   final List<Adjustment> adjustments = [];
   final List<Setting> settings = [];
   final List<Component> components = [];
@@ -37,6 +39,9 @@ class _HomePageState extends State<HomePage> {
 
     if (!mounted) return;
     setState(() {
+      bikes
+        ..clear()
+        ..addAll(data.bikes);
       adjustments
         ..clear()
         ..addAll(data.adjustments);
@@ -47,7 +52,7 @@ class _HomePageState extends State<HomePage> {
         ..clear()
         ..addAll(data.components);
     });
-    await FileExport.saveData(adjustments: adjustments, settings: settings, components: components);
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
   }
 
   Future<void> loadJsonFileData() async {
@@ -60,20 +65,27 @@ class _HomePageState extends State<HomePage> {
 
     if (choice == 'overwrite') {
       setState(() {
+        bikes
+          ..clear()
+          ..addAll(data.bikes);
         adjustments
           ..clear()
           ..addAll(data.adjustments);
-
         settings
           ..clear()
           ..addAll(data.settings);
-
         components
           ..clear()
           ..addAll(data.components);
       });
     } else if (choice == 'merge') {
       setState(() {
+        for (var b in data.bikes) {
+          if (!bikes.any((x) => x.id == b.id)) {
+            bikes.add(b);
+          }
+        }
+
         for (var a in data.adjustments) {
           if (!adjustments.any((x) => x.id == a.id)) {
             adjustments.add(a);
@@ -95,6 +107,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     await FileExport.saveData(
+      bikes: bikes, 
       adjustments: adjustments,
       settings: settings,
       components: components,
@@ -139,7 +152,7 @@ class _HomePageState extends State<HomePage> {
         }
       }
     });
-    await FileExport.saveData(adjustments: adjustments, settings: settings, components: components);
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
   }
 
   Future<void> removeComponent(Component component) async {
@@ -154,7 +167,7 @@ class _HomePageState extends State<HomePage> {
       }
       components.remove(component);
     });
-    await FileExport.saveData(adjustments: adjustments, settings: settings, components: components);
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
   }
 
   Future<void> _addComponent() async {
@@ -168,7 +181,7 @@ class _HomePageState extends State<HomePage> {
       components.add(component);
       adjustments.addAll(component.adjustments);
     });
-    await FileExport.saveData(adjustments: adjustments, settings: settings, components: components);
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
   }
 
   Future<void> editComponent(Component component) async {
@@ -186,7 +199,7 @@ class _HomePageState extends State<HomePage> {
           components[index] = editedComponent;
         }
       });
-      await FileExport.saveData(adjustments: adjustments, settings: settings, components: components);
+      await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
     }
   }
 
@@ -204,7 +217,7 @@ class _HomePageState extends State<HomePage> {
       }
       settings.add(setting);
     });
-    await FileExport.saveData(adjustments: adjustments, settings: settings, components: components);
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
   }
 
   Future<void> editSetting(Setting setting) async {
@@ -221,7 +234,7 @@ class _HomePageState extends State<HomePage> {
           settings[index] = editedSetting;
         }
       });
-      await FileExport.saveData(adjustments: adjustments, settings: settings, components: components);
+      await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
     }
   }
 
@@ -263,6 +276,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {
               FileExport.downloadJson(
                 context: context,
+                bikes: bikes,
                 adjustments: adjustments,
                 settings: settings,
                 components: components,

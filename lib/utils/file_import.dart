@@ -4,21 +4,11 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/bike.dart';
 import '../models/adjustment.dart';
 import '../models/setting.dart';
 import '../models/component.dart';
-
-class Data {
-  final List<Adjustment> adjustments;
-  final List<Setting> settings;
-  final List<Component> components;
-
-  Data({
-    required this.adjustments,
-    required this.settings,
-    required this.components,
-  });
-}
+import 'data.dart';
 
 class FileImport {
   static Future<Data?> readData(BuildContext context) async {
@@ -39,6 +29,11 @@ class FileImport {
   }
 
   static Future<Data> parseJson({required Map<String, dynamic> jsonData}) async {
+    //parse bikes
+    final loadedBikes = (jsonData['bikes'] as List)
+        .map((a) => Bike.fromJson(a))
+        .toList();
+    
     // parse adjustments
     final loadedAdjustments = (jsonData['adjustments'] as List)
         .map((a) => Adjustment.fromJson(a))
@@ -64,6 +59,7 @@ class FileImport {
         .toList();
     
     return Data(
+      bikes: loadedBikes,
       adjustments: loadedAdjustments,
       settings: loadedSettings,
       components: loadedComponents,
@@ -99,7 +95,8 @@ class FileImport {
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
 
       // Step 3 — validate structure
-      if (!jsonData.containsKey('adjustments') ||
+      if (!jsonData.containsKey('bikes') ||
+          !jsonData.containsKey('adjustments') ||
           !jsonData.containsKey('settings') ||
           !jsonData.containsKey('components')) {
         scaffold.showSnackBar(

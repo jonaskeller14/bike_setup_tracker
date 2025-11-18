@@ -48,10 +48,25 @@ class BikeList extends StatelessWidget {
                 }
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                const PopupMenuItem<String>(value: 'edit', child: Text('Edit')),
+                const PopupMenuItem<String>(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, size: 20),
+                      SizedBox(width: 10),
+                      Text('Edit'),
+                    ],
+                  ),
+                ),
                 const PopupMenuItem<String>(
                   value: 'remove',
-                  child: Text('Remove'),
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, size: 20),
+                      SizedBox(width: 10),
+                      Text('Remove'),
+                    ],
+                  ),
                 ),
               ],
             ),

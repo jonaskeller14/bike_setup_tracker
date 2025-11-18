@@ -432,17 +432,10 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             FloatingActionButton.extended(
-              heroTag: "clearData",
-              onPressed: clearData,
-              label: const Text('#TODO Clear Data'),
-              icon: const Icon(Icons.delete),
-            ),
-            const SizedBox(height: 10),
-            FloatingActionButton.extended(
-              heroTag: "loadData",
-              onPressed: loadData,
-              label: const Text('#TODO Load Data'),
-              icon: const Icon(Icons.file_upload),
+              heroTag: "addSetting",
+              onPressed: _addSetting,
+              label: const Text('Add Setting'),
+              icon: const Icon(Icons.add),
             ),
           ],
         ),

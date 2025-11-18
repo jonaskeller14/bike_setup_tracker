@@ -259,7 +259,7 @@ class _HomePageState extends State<HomePage> {
     if (setting == null) return;
     
     setState(() {
-      setting.previousSetting = components.firstOrNull?.currentSetting;  //FIXME
+      setting.previousSetting = components.firstOrNull?.currentSetting;  //FIXME: wrong if past date is set manually
       for (var component in components) {
         component.currentSetting = setting;
       }
@@ -272,11 +272,17 @@ class _HomePageState extends State<HomePage> {
     final editedSetting = await Navigator.push<Setting>(
       context,
       MaterialPageRoute(
-        builder: (context) => EditSettingPage(setting: setting),
+        builder: (context) => EditSettingPage(setting: setting, components: components),
       ),
     );
     if (editedSetting != null) {
       setState(() {
+        editedSetting.previousSetting = setting.previousSetting;  // FIXME: wrong if date edited
+        for (var component in components) {
+          if (component.currentSetting == setting) {
+            component.currentSetting = editedSetting;
+          }
+        }
         final index = settings.indexOf(setting);
         if (index != -1) {
           settings[index] = editedSetting;

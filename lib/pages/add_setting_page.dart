@@ -39,6 +39,7 @@ class _AddSettingPageState extends State<AddSettingPage> {
   void initState() {
     super.initState();
 
+    // Set initial values by reading currentSetting
     for (final component in widget.components) {
       if (component.currentSetting == null) continue;
       final componentAdjustmentValues = component.currentSetting?.adjustmentValues;
@@ -143,8 +144,6 @@ class _AddSettingPageState extends State<AddSettingPage> {
     final notesText = _notesController.text.trim();
     final notes = notesText.isEmpty ? null : notesText;
 
-    //TODO: Check if at least one value has changed from current setting. Or set adjustmentValues
-
     Navigator.pop(
       context,
       Setting(
@@ -229,12 +228,12 @@ class _AddSettingPageState extends State<AddSettingPage> {
               if (_locationService.status == LocationStatus.locationFound) ... [
                 Chip(
                   avatar: Icon(Icons.arrow_upward),
-                  label: Text("Altitude: ${_currentLocation!.altitude!.round()} m"),
+                  label: Text("Altitude: ${_currentLocation?.altitude?.round()} m"),
                 ),
               ],
               Chip(
                 avatar: Icon(Icons.thermostat), 
-                label: temperature == null ? const Text("Fetching temperature...") : Text("${temperature!.toStringAsFixed(1)} °C")
+                label: temperature == null ? const Text("Fetching temperature...") : Text("${temperature?.toStringAsFixed(1)} °C")
               ),
             ],
           ),

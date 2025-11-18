@@ -4,12 +4,15 @@ import '../models/bike.dart';
 import '../models/adjustment.dart';
 import '../models/setting.dart';
 import '../models/component.dart';
+import 'add_bike.dart';
+import 'edit_bike.dart';
 import 'add_component_page.dart';
 import 'edit_component_page.dart';
 import 'add_setting_page.dart';
 import 'edit_setting_page.dart';
 import '../utils/file_export.dart';
 import '../utils/file_import.dart';
+import '../widgets/bike_list.dart';
 import '../widgets/component_list.dart';
 import '../widgets/setting_list.dart';
 
@@ -137,6 +140,20 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> removeBike(Bike bike) async {
+    //TODO: Check --> At least one bike needs to exist
+    final confirmed = await showConfirmationDialog(context);
+    if (!confirmed) {
+      return;
+    }
+
+    setState(() {
+      bikes.remove(bike);
+      //TODO: remove components of this bike
+    });
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+  }
+
   Future<void> removeSetting(Setting setting) async {
     final confirmed = await showConfirmationDialog(context);
     if (!confirmed) {
@@ -182,6 +199,24 @@ class _HomePageState extends State<HomePage> {
       adjustments.addAll(component.adjustments);
     });
     await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+  }
+
+  Future<void> editBike(Bike bike) async {
+    final editedBike = await Navigator.push<Bike>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditBikePage(bike: bike),
+      ),
+    );
+    if (editedBike != null) {
+      setState(() {
+        final index = bikes.indexOf(bike);
+        if (index != -1) {
+          bikes[index] = editedBike;
+        }
+      });
+      await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+    }
   }
 
   Future<void> editComponent(Component component) async {
@@ -289,11 +324,25 @@ class _HomePageState extends State<HomePage> {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          const Text(
-            'Components',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ListTile(
+            title: Text("Bikes", style: Theme.of(context).textTheme.headlineSmall),
+            trailing: IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () {},
+            ),
+            contentPadding: EdgeInsets.zero,
           ),
-          const SizedBox(height: 8),
+          BikeList(bikes: bikes, editBike: editBike, removeBike: removeBike),
+
+          ListTile(
+            title: Text("Components", style: Theme.of(context).textTheme.headlineSmall),
+            trailing: IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: _addComponent,
+              tooltip: 'Add Component',
+            ),
+            contentPadding: EdgeInsets.zero,
+          ),
 
           ComponentList(
             components: components,
@@ -301,11 +350,15 @@ class _HomePageState extends State<HomePage> {
             removeComponent: removeComponent,
           ),
 
-          const Text(
-            'Log',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ListTile(
+            title: Text("Setting History", style: Theme.of(context).textTheme.headlineSmall),
+            trailing: IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: _addSetting,
+              tooltip: 'Add Setting',
+            ),
+            contentPadding: EdgeInsets.zero,
           ),
-          const SizedBox(height: 8),
 
           SettingList(
             settings: settings,
@@ -322,14 +375,6 @@ class _HomePageState extends State<HomePage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            FloatingActionButton.extended(
-              heroTag: "addComponent",
-              onPressed: _addComponent,
-              tooltip: 'Add Component',
-              label: const Text('Add Component'),
-              icon: const Icon(Icons.add),
-            ),
-            const SizedBox(height: 10),
             FloatingActionButton.extended(
               heroTag: "addSetting",
               onPressed: _addSetting,

@@ -141,16 +141,20 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> removeBike(Bike bike) async {
-    //TODO: Check --> At least one bike needs to exist
     final confirmed = await showConfirmationDialog(context);
     if (!confirmed) {
       return;
     }
 
+    final obsoleteComponents = components.where((c) => c.bike == bike).toList();
+
     setState(() {
       bikes.remove(bike);
-      //TODO: remove components of this bike
     });
+
+    removeComponents(obsoleteComponents, confirm: false);
+    //TODO removeSettings
+
     await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
   }
 
@@ -173,20 +177,34 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> removeComponent(Component component) async {
-    final confirmed = await showConfirmationDialog(context);
-    if (!confirmed) {
-      return;
+    removeComponents([component]);
+  }
+
+  Future<void> removeComponents(List<Component> toRemove, {bool confirm = true}) async {
+    if (toRemove.isEmpty) return;
+
+    if (confirm) {
+      final confirmed = await showConfirmationDialog(context);
+      if (!confirmed) return;
     }
 
     setState(() {
-      for (var adjustment in component.adjustments) {
-        adjustments.remove(adjustment);
+      for (var component in toRemove) {
+        for (var adjustment in component.adjustments) {
+          adjustments.remove(adjustment);
+        }
+        components.remove(component);
       }
-      components.remove(component);
     });
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
-  }
 
+    await FileExport.saveData(
+      bikes: bikes,
+      adjustments: adjustments,
+      settings: settings,
+      components: components,
+    );
+  }
+  
   Future<void> _addBike() async {
     final bike = await Navigator.push<Bike>(
       context,
@@ -201,6 +219,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _addComponent() async {
+    if (bikes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Add a bike first"), backgroundColor: Theme.of(context).colorScheme.error));
+      return;
+    }
+
     final component = await Navigator.push<Component>(
       context,
       MaterialPageRoute(builder: (context) => AddComponentPage(bikes: bikes)),
@@ -252,6 +275,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _addSetting() async {
+    if (bikes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Add a bike first"), backgroundColor: Theme.of(context).colorScheme.error));
+      return;
+    }
+    if (components.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Add a component first"), backgroundColor: Theme.of(context).colorScheme.error));
+      return;
+    }
+
     final setting = await Navigator.push<Setting>(
       context,
       MaterialPageRoute(builder: (context) => AddSettingPage(components: components)),

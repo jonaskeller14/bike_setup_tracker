@@ -30,11 +30,12 @@ class FileExport {
     required List<Component> components,
   }) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final errorColor = Theme.of(context).colorScheme.error;
 
     _downloadJson(bikes, adjustments, settings, components).then((result) {
         if (result == null || result.path == null) {
           scaffoldMessenger.showSnackBar(
-            const SnackBar(content: Text("Export failed")),
+            SnackBar(content: Text("Export failed"), backgroundColor: errorColor),
           );
         } else {
           scaffoldMessenger.showSnackBar(
@@ -43,7 +44,7 @@ class FileExport {
         }
       }).catchError((e, st) {
         debugPrint('Export failed: $e\n$st');
-        scaffoldMessenger.showSnackBar(SnackBar(content: Text('Export failed: $e')));
+        scaffoldMessenger.showSnackBar(SnackBar(content: Text('Export failed: $e'), backgroundColor: errorColor,));
       });
     }
 

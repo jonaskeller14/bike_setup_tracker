@@ -13,6 +13,7 @@ import 'data.dart';
 class FileImport {
   static Future<Data?> readData(BuildContext context) async {
     final scaffold = ScaffoldMessenger.of(context);
+    final errorColor = Theme.of(context).colorScheme.error;
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonString = prefs.getString("data") ?? "{}";
@@ -23,7 +24,7 @@ class FileImport {
       return data;
     } catch (e, st) {
       debugPrint("Loading data failed: $e\n$st");
-      scaffold.showSnackBar(SnackBar(content: Text("Loading data failed: $e")));
+      scaffold.showSnackBar(SnackBar(content: Text("Loading data failed: $e"), backgroundColor: errorColor,));
       return null;
     }
   }
@@ -68,6 +69,7 @@ class FileImport {
 
   static Future<Data?> readJsonFileData(BuildContext context) async {
     final scaffold = ScaffoldMessenger.of(context);
+    final errorColor = Theme.of(context).colorScheme.error;
 
     try {
       // Step 1 — pick a file
@@ -86,7 +88,7 @@ class FileImport {
         // Works in Android / iOS
         fileBytes = await File(picked.files.single.path!).readAsBytes();
       } else {
-        scaffold.showSnackBar(const SnackBar(content: Text("Cannot read file!")));
+        scaffold.showSnackBar(SnackBar(content: Text("Cannot read file!"), backgroundColor: errorColor));
         return null;
       }
 
@@ -110,7 +112,7 @@ class FileImport {
       return data;
     } catch (e, st) {
       debugPrint("Import failed: $e\n$st");
-      scaffold.showSnackBar(SnackBar(content: Text("Import failed: $e")));
+      scaffold.showSnackBar(SnackBar(content: Text("Import failed: $e"), backgroundColor: errorColor,));
       return null;
     }
   }

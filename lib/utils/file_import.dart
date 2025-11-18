@@ -42,7 +42,7 @@ class FileImport {
 
     // parse settings (first pass)
     final loadedSettings = (jsonData['settings'] as List)
-        .map((s) => Setting.fromJson(s, loadedAdjustments))
+        .map((s) => Setting.fromJson(s, loadedAdjustments, loadedBikes))
         .toList();
 
     // fix previousSetting links (second pass)

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
+import '../models/bike.dart';
 import '../models/setting.dart';
 import '../models/component.dart';
 import '../models/adjustment.dart';
@@ -10,8 +11,9 @@ import '../widgets/adjustment_set_list.dart';
 class EditSettingPage extends StatefulWidget {
   final Setting setting;
   final List<Component> components;
+  final List<Bike> bikes;
 
-  const EditSettingPage({super.key, required this.setting, required this.components});
+  const EditSettingPage({super.key, required this.setting, required this.components, required this.bikes});
 
   @override
   State<EditSettingPage> createState() => _EditSettingPageState();
@@ -20,6 +22,8 @@ class EditSettingPage extends StatefulWidget {
 class _EditSettingPageState extends State<EditSettingPage> {
   late TextEditingController _nameController;
   late TextEditingController _notesController;
+  late Bike bike;
+  List<Component> bikeComponents = [];
   late DateTime _selectedDateTime;
   Map<Adjustment, dynamic> adjustmentValues = {};
 
@@ -32,20 +36,8 @@ class _EditSettingPageState extends State<EditSettingPage> {
   @override
   void initState() {
     super.initState();
-    
-    //TODO Set initial values by reading currentSetting
-    // for (final component in widget.components) {
-    //   if (component.currentSetting == null) continue;
-    //   final componentAdjustmentValues = component.currentSetting?.adjustmentValues;
-    //   if (componentAdjustmentValues == null) continue;
-    //   for (final adjustmentValue in componentAdjustmentValues.entries) {
-    //     adjustmentValues[adjustmentValue.key] = adjustmentValue.value;
-    //   }
-    // }
-    // Set initial values by reading setting
-    for (final adjustmentValue in widget.setting.adjustmentValues.entries) {
-      adjustmentValues[adjustmentValue.key] = adjustmentValue.value;
-    }
+    bike = widget.setting.bike;
+    onBikeChange();
 
     // Initialize with existing setting values
     _nameController = TextEditingController(text: widget.setting.name);
@@ -54,6 +46,28 @@ class _EditSettingPageState extends State<EditSettingPage> {
     _currentLocation = widget.setting.position;
     _currentPlace = widget.setting.place;
     temperature = widget.setting.temperature;
+  }
+
+  void onBikeChange () {
+    bikeComponents = widget.components.where((c) => c.bike == bike).toList();
+
+    // Set initial values by reading currentSetting
+    adjustmentValues.clear();
+    if (widget.setting.bike == bike) {
+      for (final adjustmentValue in widget.setting.adjustmentValues.entries) {
+        adjustmentValues[adjustmentValue.key] = adjustmentValue.value;
+      }
+    } else {
+      for (final component in bikeComponents) {
+        if (component.currentSetting == null) continue;
+        final componentAdjustmentValues = component.currentSetting?.adjustmentValues;
+        if (componentAdjustmentValues == null) continue;
+        for (final adjustmentValue in componentAdjustmentValues.entries) {
+          adjustmentValues[adjustmentValue.key] = adjustmentValue.value;
+        }
+      }
+    }
+
   }
 
   @override
@@ -107,6 +121,7 @@ class _EditSettingPageState extends State<EditSettingPage> {
         name: name,
         datetime: _selectedDateTime,
         notes: notes,
+        bike: bike,
         adjustmentValues: adjustmentValues,
         position: widget.setting.position,
         place: widget.setting.place,
@@ -154,7 +169,7 @@ class _EditSettingPageState extends State<EditSettingPage> {
               hintText: 'Add notes (optional)',
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Wrap(
             spacing: 8.0,
             runSpacing: 4.0,
@@ -180,8 +195,31 @@ class _EditSettingPageState extends State<EditSettingPage> {
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<Bike>(
+            initialValue: bike,
+            isExpanded: true,
+            decoration: const InputDecoration(
+              labelText: 'Bike',
+              border: OutlineInputBorder(),
+              hintText: "Choose a bike for this component",
+            ),
+            items: widget.bikes.map((b) {
+              return DropdownMenuItem<Bike>(
+                value: b,
+                child: Text(b.name, overflow: TextOverflow.ellipsis),
+              );
+            }).toList(),
+            onChanged: (Bike? newBike) {
+              if (newBike == null) return;
+              setState(() {
+                bike = newBike;
+                onBikeChange();
+              });
+            },
+          ),
           const SizedBox(height: 24),
-          if (widget.components.isEmpty)
+          if (bikeComponents.isEmpty)
             const Center(
               child: Text(
                 'No components available.',
@@ -189,24 +227,25 @@ class _EditSettingPageState extends State<EditSettingPage> {
               ),
             )
           else
-            ...widget.components.map((component) {
+            ...bikeComponents.map((bikeComponent) {
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 4),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     ListTile(
-                      title: Text(component.name),
-                      subtitle: Text('${component.adjustments.length} adjustments'),
+                      title: Text(bikeComponent.name),
+                      subtitle: Text('${bikeComponent.adjustments.length} adjustments'),
                       leading: const Icon(Icons.casino),
                     ),
                     AdjustmentSetList(
-                      adjustments: component.adjustments,
-                      initialAdjustmentValues: component.currentSetting?.adjustmentValues ?? <Adjustment, dynamic>{},
+                      key: ValueKey(bikeComponent.id),
+                      adjustments: bikeComponent.adjustments,
+                      initialAdjustmentValues: bikeComponent.currentSetting?.adjustmentValues ?? <Adjustment, dynamic>{},
                       onAdjustmentValueChanged: _onAdjustmentValueChanged,
-            ),
-          ],
-        ),
+                    ),
+                  ],
+                ),
               );
             }),
         ],

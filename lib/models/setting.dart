@@ -1,4 +1,5 @@
 import 'package:uuid/uuid.dart';
+import 'bike.dart';
 import "adjustment.dart";
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
@@ -8,6 +9,7 @@ class Setting {
   final String name;
   final DateTime datetime;
   final String? notes;
+  Bike bike;
   Map<Adjustment, dynamic> adjustmentValues;
   final LocationData? position;
   final geo.Placemark? place;
@@ -19,6 +21,7 @@ class Setting {
     required this.name,
     required this.datetime,
     this.notes,
+    required this.bike,
     required this.adjustmentValues,
     this.place,
     this.position,
@@ -31,6 +34,7 @@ class Setting {
     'name': name,
     'datetime': datetime.toIso8601String(),
     'notes': notes,
+    'bike': bike.id,
     'adjustmentValues': {
       for (var entry in adjustmentValues.entries)
         entry.key.id: entry.value,
@@ -41,7 +45,7 @@ class Setting {
     'previousSetting': previousSetting?.id,
   };
 
-  factory Setting.fromJson(Map<String, dynamic> json, List<Adjustment> allAdjustments) {
+  factory Setting.fromJson(Map<String, dynamic> json, List<Adjustment> allAdjustments, List<Bike> allBikes) {
     final adjustmentIDValues = json['adjustmentValues'] as Map<String, dynamic>? ?? {};
 
     final Map<Adjustment, dynamic> adjustmentValues = {};
@@ -53,11 +57,15 @@ class Setting {
       adjustmentValues[adjustment] = entry.value;
     }
 
+    final bikeID = json['bike'];
+    final bike = allBikes.firstWhere((b) => b.id == bikeID, orElse: () => throw Exception('Bike with id $bikeID not found'));
+
     return Setting(
       id: json['id'],
       name: json['name'],
       datetime: DateTime.parse(json['datetime']),
       notes: json['notes'] != null ? json['notes'] as String : null,
+      bike: bike,
       adjustmentValues: adjustmentValues,
       position: json['position'] != null ? _locationDataFromJson(json['position']) : null,
       place: json['place'] != null ? _placemarkFromJson(json['place']) : null,

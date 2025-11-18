@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
+import '../models/bike.dart';
 import '../models/setting.dart';
 import '../models/component.dart';
 import '../models/adjustment.dart';
@@ -13,8 +14,9 @@ import '../widgets/adjustment_set_list.dart';
 
 class AddSettingPage extends StatefulWidget {
   final List<Component> components;
+  final List<Bike> bikes;
 
-  const AddSettingPage({super.key, required this.components});
+  const AddSettingPage({super.key, required this.components, required this.bikes});
 
   @override
   State<AddSettingPage> createState() => _AddSettingPageState();
@@ -23,6 +25,8 @@ class AddSettingPage extends StatefulWidget {
 class _AddSettingPageState extends State<AddSettingPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
+  late Bike bike;
+  List<Component> bikeComponents = [];
   DateTime _selectedDateTime = DateTime.now();
   Map<Adjustment, dynamic> adjustmentValues = {};
 
@@ -38,9 +42,17 @@ class _AddSettingPageState extends State<AddSettingPage> {
   @override
   void initState() {
     super.initState();
+    bike = widget.bikes.first;
+    onBikeChange();
+    fetchLocationAddressWeather();
+  }
+
+  void onBikeChange () {
+    bikeComponents = widget.components.where((c) => c.bike == bike).toList();
 
     // Set initial values by reading currentSetting
-    for (final component in widget.components) {
+    adjustmentValues.clear();
+    for (final component in bikeComponents) {
       if (component.currentSetting == null) continue;
       final componentAdjustmentValues = component.currentSetting?.adjustmentValues;
       if (componentAdjustmentValues == null) continue;
@@ -48,8 +60,6 @@ class _AddSettingPageState extends State<AddSettingPage> {
         adjustmentValues[adjustmentValue.key] = adjustmentValue.value;
       }
     }
-
-    fetchLocationAddressWeather();
   }
 
   Future<void> fetchLocationAddressWeather() async {
@@ -150,6 +160,7 @@ class _AddSettingPageState extends State<AddSettingPage> {
         name: name,
         datetime: _selectedDateTime,
         notes: notes,
+        bike: bike,
         adjustmentValues: adjustmentValues,
         position: _currentLocation,
         place: _currentPlace,
@@ -197,7 +208,7 @@ class _AddSettingPageState extends State<AddSettingPage> {
               hintText: 'Add notes (optional)',
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Wrap(
             spacing: 8.0,
             runSpacing: 4.0,
@@ -237,8 +248,31 @@ class _AddSettingPageState extends State<AddSettingPage> {
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<Bike>(
+            initialValue: bike,
+            isExpanded: true,
+            decoration: const InputDecoration(
+              labelText: 'Bike',
+              border: OutlineInputBorder(),
+              hintText: "Choose a bike for this component",
+            ),
+            items: widget.bikes.map((b) {
+              return DropdownMenuItem<Bike>(
+                value: b,
+                child: Text(b.name, overflow: TextOverflow.ellipsis),
+              );
+            }).toList(),
+            onChanged: (Bike? newBike) {
+              if (newBike == null) return;
+              setState(() {
+                bike = newBike;
+                onBikeChange();
+              });
+            },
+          ),
           const SizedBox(height: 24),
-          if (widget.components.isEmpty)
+          if (bikeComponents.isEmpty)
             const Center(
               child: Text(
                 'No components available.',
@@ -246,20 +280,21 @@ class _AddSettingPageState extends State<AddSettingPage> {
               ),
             )
           else
-            ...widget.components.map((component) {
+            ...bikeComponents.map((bikeComponent) {
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 4),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     ListTile(
-                      title: Text(component.name),
-                      subtitle: Text('${component.adjustments.length} adjustments'),
+                      title: Text(bikeComponent.name),
+                      subtitle: Text('${bikeComponent.adjustments.length} adjustments'),
                       leading: const Icon(Icons.casino),
                     ),
                     AdjustmentSetList(
-                      adjustments: component.adjustments,
-                      initialAdjustmentValues: component.currentSetting?.adjustmentValues ?? <Adjustment, dynamic>{},
+                      key: ValueKey(bikeComponent.id),
+                      adjustments: bikeComponent.adjustments,
+                      initialAdjustmentValues: bikeComponent.currentSetting?.adjustmentValues ?? <Adjustment, dynamic>{},
                       onAdjustmentValueChanged: _onAdjustmentValueChanged,
                     ),
                   ],

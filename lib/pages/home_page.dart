@@ -286,13 +286,13 @@ class _HomePageState extends State<HomePage> {
 
     final setting = await Navigator.push<Setting>(
       context,
-      MaterialPageRoute(builder: (context) => AddSettingPage(components: components)),
+      MaterialPageRoute(builder: (context) => AddSettingPage(components: components, bikes: bikes)),
     );
     if (setting == null) return;
     
     setState(() {
-      setting.previousSetting = components.firstOrNull?.currentSetting;  //FIXME: wrong if past date is set manually
-      for (var component in components) {
+      setting.previousSetting = components.where((c) => c.bike == setting.bike).firstOrNull?.currentSetting;  //FIXME: wrong if past date is set manually
+      for (var component in components.where((c) => c.bike == setting.bike)) {  // FIXME: wrong if date edited
         component.currentSetting = setting;
       }
       settings.add(setting);
@@ -304,13 +304,13 @@ class _HomePageState extends State<HomePage> {
     final editedSetting = await Navigator.push<Setting>(
       context,
       MaterialPageRoute(
-        builder: (context) => EditSettingPage(setting: setting, components: components),
+        builder: (context) => EditSettingPage(setting: setting, components: components, bikes: bikes),
       ),
     );
     if (editedSetting != null) {
       setState(() {
         editedSetting.previousSetting = setting.previousSetting;  // FIXME: wrong if date edited
-        for (var component in components) {
+        for (var component in components) {  // FIXME: wrong if date edited
           if (component.currentSetting == setting) {
             component.currentSetting = editedSetting;
           }
@@ -426,14 +426,6 @@ class _HomePageState extends State<HomePage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            FloatingActionButton.extended(
-              heroTag: "addSetting",
-              onPressed: _addSetting,
-              tooltip: 'Add Setting',
-              label: const Text('Add Setting'),
-              icon: const Icon(Icons.add),
-            ),
-            const SizedBox(height: 10),
             FloatingActionButton.extended(
               heroTag: "clearData",
               onPressed: clearData,

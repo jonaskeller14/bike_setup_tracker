@@ -36,7 +36,7 @@ class _AddSettingPageState extends State<AddSettingPage> {
   final AddressService _addressService = AddressService();
   geo.Placemark? _currentPlace;
 
-  final WeatherService _weatherService = WeatherService(apiKey: const String.fromEnvironment("OWM_KEY"));
+  final WeatherService _weatherService = WeatherService();
   double? temperature;
 
   @override
@@ -248,6 +248,10 @@ class _AddSettingPageState extends State<AddSettingPage> {
                 label: temperature == null ? const Text("Fetching temperature...") : Text("${temperature?.toStringAsFixed(1)} °C")
               ),
             ],
+          ),
+          Text(
+            "Weather data by Open-Meteo.com",
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[400]),
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<Bike>(

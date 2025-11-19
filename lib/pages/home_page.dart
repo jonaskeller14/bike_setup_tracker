@@ -393,7 +393,7 @@ class _HomePageState extends State<HomePage> {
           ListTile(
             title: Text("Bikes", style: Theme.of(context).textTheme.headlineSmall),
             trailing: IconButton(
-              icon: const Icon(Icons.add),
+              icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
               onPressed: _addBike,
             ),
             contentPadding: EdgeInsets.zero,
@@ -403,7 +403,7 @@ class _HomePageState extends State<HomePage> {
           ListTile(
             title: Text("Components", style: Theme.of(context).textTheme.headlineSmall),
             trailing: IconButton(
-              icon: const Icon(Icons.add),
+              icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
               onPressed: _addComponent,
               tooltip: 'Add Component',
             ),
@@ -419,7 +419,7 @@ class _HomePageState extends State<HomePage> {
           ListTile(
             title: Text("Setting History", style: Theme.of(context).textTheme.headlineSmall),
             trailing: IconButton(
-              icon: const Icon(Icons.add),
+              icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
               onPressed: _addSetting,
               tooltip: 'Add Setting',
             ),

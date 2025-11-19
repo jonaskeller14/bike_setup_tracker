@@ -150,41 +150,24 @@ class _HomePageState extends State<HomePage> {
     }
 
     final obsoleteComponents = components.where((c) => c.bike == bike).toList();
+    final obsoleteSettings = settings.where((s) => s.bike == bike).toList();
 
     setState(() {
       bikes.remove(bike);
     });
 
     removeComponents(obsoleteComponents, confirm: false);
-    //TODO removeSettings
+    removeSettings(obsoleteSettings, confirm: false);
 
     await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
   }
 
-  Future<void> removeSetting(Setting setting) async {
-    final confirmed = await showConfirmationDialog(context);
-    if (!confirmed) {
-      return;
-    }
-
-    setState(() {
-      settings.remove(setting);
-      // Also ensure components don't hold dangling references
-      for (var c in components) {
-        if (c.currentSetting == setting) {
-          c.currentSetting = null;
-        }
-      }
-    });
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+  Future<void> removeSetting(Setting toRemoveSetting) async {
+    removeSettings([toRemoveSetting]);
   }
 
-  Future<void> removeComponent(Component component) async {
-    removeComponents([component]);
-  }
-
-  Future<void> removeComponents(List<Component> toRemove, {bool confirm = true}) async {
-    if (toRemove.isEmpty) return;
+  Future<void> removeSettings(List<Setting> toRemoveSettings, {bool confirm = true}) async {
+    if (toRemoveSettings.isEmpty) return;
 
     if (confirm) {
       final confirmed = await showConfirmationDialog(context);
@@ -192,7 +175,34 @@ class _HomePageState extends State<HomePage> {
     }
 
     setState(() {
-      for (var component in toRemove) {
+      for (var setting in toRemoveSettings) {
+        settings.remove(setting);
+
+        // Also ensure components don't hold dangling references
+        for (var c in components) {
+          if (c.currentSetting == setting) {
+            c.currentSetting = null;
+          }
+        }
+      }
+    });
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+  }
+
+  Future<void> removeComponent(Component toRemoveComponent) async {
+    removeComponents([toRemoveComponent]);
+  }
+
+  Future<void> removeComponents(List<Component> toRemoveComponents, {bool confirm = true}) async {
+    if (toRemoveComponents.isEmpty) return;
+
+    if (confirm) {
+      final confirmed = await showConfirmationDialog(context);
+      if (!confirmed) return;
+    }
+
+    setState(() {
+      for (var component in toRemoveComponents) {
         for (var adjustment in component.adjustments) {
           adjustments.remove(adjustment);
         }

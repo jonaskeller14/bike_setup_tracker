@@ -37,8 +37,6 @@ class AdjustmentDisplayList extends StatelessWidget {
 
     return Wrap(
       alignment: WrapAlignment.start,
-      spacing: 0,
-      runSpacing: 0,
       children: children,
     );
   }

@@ -126,6 +126,7 @@ class _EditSettingPageState extends State<EditSettingPage> {
         position: widget.setting.position,
         place: widget.setting.place,
         temperature: widget.setting.temperature,
+        isCurrent: false,
       ),
     );
   }

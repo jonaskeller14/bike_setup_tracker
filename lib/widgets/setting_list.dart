@@ -41,6 +41,15 @@ class _SettingListState extends State<SettingList> {
 
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 4.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: setting.isCurrent
+                    ? BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 2,
+                      )
+                    : BorderSide.none,
+              ),
               child: ListTile(
                 contentPadding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

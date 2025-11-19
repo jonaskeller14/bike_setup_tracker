@@ -165,6 +165,7 @@ class _AddSettingPageState extends State<AddSettingPage> {
         position: _currentLocation,
         place: _currentPlace,
         temperature: temperature,
+        isCurrent: false,
       ),
     );
   }

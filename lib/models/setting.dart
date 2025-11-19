@@ -15,6 +15,7 @@ class Setting {
   final geo.Placemark? place;
   final double? temperature;
   Setting? previousSetting;
+  bool isCurrent;
 
   Setting({
     String? id,
@@ -27,6 +28,7 @@ class Setting {
     this.position,
     this.temperature,
     this.previousSetting,
+    required this.isCurrent,
   }): id = id ?? const Uuid().v4();
 
   Map<String, dynamic> toJson() => {
@@ -43,6 +45,7 @@ class Setting {
     'place': place != null ? _placemarkToJson(place!) : null,
     'temperature': temperature,
     'previousSetting': previousSetting?.id,
+    'isCurrent': isCurrent,
   };
 
   factory Setting.fromJson(Map<String, dynamic> json, List<Adjustment> allAdjustments, List<Bike> allBikes) {
@@ -71,6 +74,7 @@ class Setting {
       place: json['place'] != null ? _placemarkFromJson(json['place']) : null,
       temperature: json['temperature'],
       previousSetting: null, //TODO
+      isCurrent: json['isCurrent'],
     );
   }
 

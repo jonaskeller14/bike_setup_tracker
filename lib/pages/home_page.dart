@@ -55,6 +55,7 @@ class _HomePageState extends State<HomePage> {
       components
         ..clear()
         ..addAll(data.components);
+      determineCurrentSettings();
     });
     await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
   }
@@ -79,6 +80,7 @@ class _HomePageState extends State<HomePage> {
           ..clear()
           ..addAll(data.settings)
           ..sort((a, b) => a.datetime.compareTo(b.datetime));
+        determineCurrentSettings();
         components
           ..clear()
           ..addAll(data.components);
@@ -103,6 +105,7 @@ class _HomePageState extends State<HomePage> {
           }
         }
         settings.sort((a, b) => a.datetime.compareTo(b.datetime));
+        determineCurrentSettings();
 
         for (var c in data.components) {
           if (!components.any((x) => x.id == c.id)) {
@@ -185,6 +188,7 @@ class _HomePageState extends State<HomePage> {
           }
         }
       }
+      determineCurrentSettings();
     });
     await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
   }
@@ -310,6 +314,7 @@ class _HomePageState extends State<HomePage> {
       }
       settings.add(setting);
       settings.sort((a, b) => a.datetime.compareTo(b.datetime));
+      determineCurrentSettings();
     });
     await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
   }
@@ -334,8 +339,23 @@ class _HomePageState extends State<HomePage> {
           settings[index] = editedSetting;
         }
         settings.sort((a, b) => a.datetime.compareTo(b.datetime));
+        determineCurrentSettings();
       });
       await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+    }
+  }
+
+  Future<void> determineCurrentSettings() async {
+    for (final setting in settings) {
+      setting.isCurrent = false;
+    }
+    final remainingBikes = Set.of(bikes);
+    for (final setting in settings.reversed) {
+      if (remainingBikes.contains(setting.bike)) {
+        setting.isCurrent = true;
+        remainingBikes.remove(setting.bike);
+        if (remainingBikes.isEmpty) break;
+      }
     }
   }
 

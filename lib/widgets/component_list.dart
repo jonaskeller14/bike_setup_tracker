@@ -56,6 +56,7 @@ class _ComponentListState extends State<ComponentList> {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Align(

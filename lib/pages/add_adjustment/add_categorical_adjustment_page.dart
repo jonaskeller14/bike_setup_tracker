@@ -10,11 +10,9 @@ class AddCategoricalAdjustmentPage extends StatefulWidget {
 }
 
 class _AddCategoricalAdjustmentPageState extends State<AddCategoricalAdjustmentPage> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final List<TextEditingController> _optionControllers = [TextEditingController()];
-
-  bool _showNameError = false;
-  bool _showOptionsError = false;
 
   @override
   void dispose() {
@@ -36,7 +34,6 @@ class _AddCategoricalAdjustmentPageState extends State<AddCategoricalAdjustmentP
     setState(() {
       _optionControllers[index].dispose();
       _optionControllers.removeAt(index);
-      _showOptionsError = false;
     });
   }
 
@@ -49,24 +46,24 @@ class _AddCategoricalAdjustmentPageState extends State<AddCategoricalAdjustmentP
     return false;
   }
 
-  void _saveCategoricalAdjustment() {
-    final name = _nameController.text.trim();
-    if (name.isEmpty) {
-      setState(() => _showNameError = true);
-      return;
-    }
+  String? _validateOptions() {
+    final options = _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList();
 
-    final options = _optionControllers
-        .map((c) => c.text.trim())
-        .where((s) => s.isNotEmpty)
-        .toList();
-    
-    if (options.isEmpty || _hasDuplicateOptions(options)) {
-      setState(() => _showOptionsError = true);
-      return;
-    }
-      
-    Navigator.pop(context, CategoricalAdjustment(name: name, unit: null, options: options));
+    if (options.isEmpty) return 'At least one option is required.';
+    if (_hasDuplicateOptions(options)) return 'Options must be unique.';
+    return null;
+  }
+
+  void _saveCategoricalAdjustment() {
+    if (!_formKey.currentState!.validate()) return;
+
+    final name = _nameController.text.trim();
+    final options = _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList();
+
+    Navigator.pop(
+      context,
+      CategoricalAdjustment(name: name, unit: null, options: options),
+    );
   }
 
   @override
@@ -85,78 +82,83 @@ class _AddCategoricalAdjustmentPageState extends State<AddCategoricalAdjustmentP
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              TextField(
-                controller: _nameController,
-                autofocus: true,
-                onChanged: (_) {
-                  if (_showNameError && _nameController.text.isNotEmpty) {
-                    setState(() => _showNameError = false);
-                  }
-                },
-                decoration: InputDecoration(
-                  labelText: 'Adjustment Name',
-                  border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: _showNameError ? Colors.red : Colors.grey,
-                    width: _showNameError ? 2 : 1,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  controller: _nameController,
+                  autofocus: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Adjustment Name',
+                    hintText: 'Enter Adjustment Name',
+                    border: OutlineInputBorder(),
                   ),
+                  validator: (value) =>
+                      value == null || value.trim().isEmpty
+                          ? 'Name is required'
+                          : null,
                 ),
-                hintText: 'Enter Adjustment Name',
-                errorText: _showNameError ? 'Name is required' : null,
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Options',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextButton.icon(
+                      onPressed: _addOptionField,
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add'),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Options', style: TextStyle(fontWeight: FontWeight.bold)),
-                  TextButton.icon(
-                    onPressed: _addOptionField,
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Column(
-                children: List.generate(_optionControllers.length, (index) {
-                  final controller = _optionControllers[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: controller,
-                            decoration: InputDecoration(
-                              labelText: 'Option ${index + 1}',
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: _showOptionsError ? Colors.red : Colors.grey,
-                                  width: _showOptionsError ? 2 : 1,
-                                ),
+                const SizedBox(height: 8),
+                Column(
+                  children: List.generate(_optionControllers.length, (index) {
+                    final controller = _optionControllers[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: controller,
+                              decoration: InputDecoration(
+                                labelText: 'Option ${index + 1}',
+                                hintText: 'Enter option value',
+                                border: const OutlineInputBorder(),
+                                errorText: _validateOptions(),
                               ),
-                            hintText: 'Enter option value',
-                            errorText: _showOptionsError ? 'At least one option is required. No Duplicates.' : null,
+                              // Individual field validator
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Option is required';
+                                }
+                                if (_hasDuplicateOptions(_optionControllers
+                                    .map((c) => c.text.trim())
+                                    .where((s) => s.isNotEmpty)
+                                    .toList())) {
+                                  return 'Options must be unique';
+                                }
+                                return null;
+                              },
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        // show remove button when more than one field
-                        if (_optionControllers.length > 1)
-                          IconButton(
-                            icon: const Icon(Icons.remove_circle, color: Colors.red),
-                            tooltip: 'Remove option',
-                            onPressed: () => _removeOptionField(index),
-                          ),
-                      ],
-                    ),
-                  );
-                }),
-              ),
-            ],
+                          const SizedBox(width: 8),
+                          if (_optionControllers.length > 1)
+                            IconButton(
+                              icon: const Icon(Icons.remove_circle, color: Colors.red),
+                              tooltip: 'Remove option',
+                              onPressed: () => _removeOptionField(index),
+                            ),
+                        ],
+                      ),
+                    );
+                  }),
+                ),
+              ],
+            ),
           ),
         ),
       ),

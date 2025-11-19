@@ -1,6 +1,5 @@
-import '../../models/adjustment.dart';
 import 'package:flutter/material.dart';
-
+import '../../models/adjustment.dart';
 
 class AddBooleanAdjustmentPage extends StatefulWidget {
   const AddBooleanAdjustmentPage({super.key});
@@ -10,9 +9,8 @@ class AddBooleanAdjustmentPage extends StatefulWidget {
 }
 
 class _AddBooleanAdjustmentPageState extends State<AddBooleanAdjustmentPage> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
-
-  bool _showNameError = false;
 
   @override
   void dispose() {
@@ -21,13 +19,17 @@ class _AddBooleanAdjustmentPageState extends State<AddBooleanAdjustmentPage> {
   }
 
   void _saveBooleanAdjustment() {
-    final name = _nameController.text.trim();
-    if (name.isEmpty) {
-      setState(() => _showNameError = true);
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
+    final name = _nameController.text.trim();
     Navigator.pop(context, BooleanAdjustment(name: name, unit: null));
+  }
+
+  String? _validateName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Name is required';
+    }
+    return null;
   }
 
   @override
@@ -46,29 +48,22 @@ class _AddBooleanAdjustmentPageState extends State<AddBooleanAdjustmentPage> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              TextField(
-                controller: _nameController,
-                autofocus: true,
-                onChanged: (_) {
-                  if (_showNameError && _nameController.text.isNotEmpty) {
-                    setState(() => _showNameError = false);
-                  }
-                },
-                decoration: InputDecoration(
-                labelText: 'Adjustment Name',
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: _showNameError ? Colors.red : Colors.grey,
-                    width: _showNameError ? 2 : 1,
-                  ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _nameController,
+                  autofocus: true,
+                      decoration: const InputDecoration(
+                      labelText: 'Adjustment Name',
+                      hintText: 'Enter Adjustment Name',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: _validateName,
                 ),
-                hintText: 'Enter Adjustment Name',
-                errorText: _showNameError ? 'Name is required' : null,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

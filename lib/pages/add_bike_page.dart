@@ -10,6 +10,7 @@ class AddBikePage extends StatefulWidget {
 
 class _AddBikePageState extends State<AddBikePage> {
   final TextEditingController _nameController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -18,9 +19,8 @@ class _AddBikePageState extends State<AddBikePage> {
   }
 
   void _saveBike() {
+    if (!_formKey.currentState!.validate()) return;
     final name = _nameController.text.trim();
-    if (name.isEmpty) return;
-
     Navigator.pop(context, Bike(name: name));
   }
 
@@ -39,19 +39,28 @@ class _AddBikePageState extends State<AddBikePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: _nameController,
-              autofocus: true,
-              decoration: const InputDecoration(
-                labelText: 'Bike Name',
-                border: OutlineInputBorder(),
-                hintText: 'Enter bike name',
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                controller: _nameController,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  labelText: 'Bike Name',
+                  border: OutlineInputBorder(),
+                  hintText: 'Enter bike name',
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter a bike name';
+                  }
+                  return null;
+                },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

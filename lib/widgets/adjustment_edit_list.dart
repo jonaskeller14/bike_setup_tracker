@@ -16,8 +16,6 @@ class AdjustmentEditList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
       itemCount: adjustments.length,
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       itemBuilder: (context, index) {

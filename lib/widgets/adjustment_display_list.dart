@@ -37,8 +37,8 @@ class AdjustmentDisplayList extends StatelessWidget {
 
     return Wrap(
       alignment: WrapAlignment.start,
-      spacing: 12,
-      runSpacing: 12,
+      spacing: 0,
+      runSpacing: 0,
       children: children,
     );
   }
@@ -71,7 +71,8 @@ class _AdjustmentTableCell extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.all(8),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -119,7 +120,7 @@ class _VerticalDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(8),
+      margin: const EdgeInsets.symmetric(vertical: 8),
       width: 1,
       height: 40,
       color: Colors.grey.shade400,

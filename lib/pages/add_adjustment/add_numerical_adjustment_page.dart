@@ -101,7 +101,7 @@ class _AddNumericalAdjustmentPageState extends State<AddNumericalAdjustmentPage>
                   }
                 },
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*$')),],
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
                 decoration: InputDecoration(
                   labelText: 'Min Value (optional)',
                   border: OutlineInputBorder(
@@ -123,7 +123,7 @@ class _AddNumericalAdjustmentPageState extends State<AddNumericalAdjustmentPage>
                   }
                 },
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*$')),],
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
                 decoration: InputDecoration(
                   labelText: 'Max Value (optional)',
                   border: OutlineInputBorder(

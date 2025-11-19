@@ -74,7 +74,7 @@ class Setting {
       place: json['place'] != null ? _placemarkFromJson(json['place']) : null,
       temperature: json['temperature'],
       previousSetting: null, //TODO
-      isCurrent: json['isCurrent'],
+      isCurrent: json['isCurrent'] ?? false,
     );
   }
 

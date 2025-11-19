@@ -96,9 +96,9 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
                 ),
                 SizedBox(width: 30.0),
                 Expanded(
-                  child: TextField(
+                  child: TextFormField(
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
                     controller: controller,
                     onTap: () {controller.clear();},
                     onChanged: (newValue) {
@@ -165,9 +165,12 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 SizedBox(width: 30.0),
-                Expanded(child: DropdownButton<String>(
+                Expanded(child: DropdownButtonFormField<String>(
                   isExpanded: true,
-                  value: adjustmentValues[adjustment],
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                  initialValue: adjustmentValues[adjustment],
                   items: options.map<DropdownMenuItem<String>>((option) {
                     return DropdownMenuItem<String>(
                       value: option,

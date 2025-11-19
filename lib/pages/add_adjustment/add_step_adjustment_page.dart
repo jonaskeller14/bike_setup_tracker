@@ -130,7 +130,7 @@ class _AddStepAdjustmentPageState extends State<AddStepAdjustmentPage> {
                   }
                 },
                 keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*$')),],
                 decoration: InputDecoration(
                   labelText: 'Min Value',
                   border: OutlineInputBorder(
@@ -152,7 +152,7 @@ class _AddStepAdjustmentPageState extends State<AddStepAdjustmentPage> {
                   }
                 },
                 keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*$')),],
                 decoration: InputDecoration(
                   labelText: 'Max Value',
                   border: OutlineInputBorder(

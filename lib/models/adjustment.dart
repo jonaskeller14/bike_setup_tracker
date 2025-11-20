@@ -11,6 +11,7 @@ abstract class Adjustment<T> {
     : valueType = T,
       id = id ?? const Uuid().v4();
 
+  Adjustment<T> deepCopy();
   bool isValidValue(T value);
   Map<String, dynamic> toJson();
   Icon getIcon({double? size, Color? color});
@@ -75,6 +76,11 @@ class CategoricalAdjustment extends Adjustment<String> {
   CategoricalAdjustment({super.id, required super.name, required super.unit, required this.options});
 
   @override
+  CategoricalAdjustment deepCopy() {
+    return CategoricalAdjustment(name: name, unit: unit, options: options);
+  }
+
+  @override
   bool isValidValue(String value) {
     return options.contains(value);
   }
@@ -113,6 +119,11 @@ class StepAdjustment extends Adjustment<int> {
     required this.min,
     required this.max,
   });
+
+  @override
+  StepAdjustment deepCopy() {
+    return StepAdjustment(name: name, unit: unit, step: step, min: min, max: max);
+  }
 
   @override
   bool isValidValue(int value) {
@@ -156,6 +167,11 @@ class NumericalAdjustment extends Adjustment<double> {
        max = max ?? double.infinity;
 
   @override
+  NumericalAdjustment deepCopy() {
+    return NumericalAdjustment(name: name, unit: unit, min: min, max: max);
+  }
+
+  @override
   bool isValidValue(double value) {
     return value >= min && value <= max;
   }
@@ -185,6 +201,11 @@ class NumericalAdjustment extends Adjustment<double> {
 class BooleanAdjustment extends Adjustment<bool> {
   BooleanAdjustment({super.id, required super.name, required super.unit});
 
+  @override
+  BooleanAdjustment deepCopy() {
+    return BooleanAdjustment(name: name, unit: unit);
+  }
+  
   @override
   bool isValidValue(bool value) {
     return true;

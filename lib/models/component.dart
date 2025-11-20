@@ -19,6 +19,15 @@ class Component {
     List<Adjustment>? adjustments,
   }) : adjustments = adjustments ?? [],
        id = id ?? const Uuid().v4();
+    
+  Component deepCopy() {
+    return Component(
+      name: name,
+      bike: bike,
+      currentSetting: currentSetting,
+      adjustments: adjustments.map((a) => a.deepCopy()).toList(),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     'id': id,

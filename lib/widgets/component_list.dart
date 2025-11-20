@@ -5,12 +5,14 @@ import '../widgets/adjustment_display_list.dart';
 class ComponentList extends StatefulWidget {
   final List<Component> components;
   final void Function(Component component) editComponent;
+  final void Function(Component component) duplicateComponent;
   final void Function(Component component) removeComponent;
 
   const ComponentList({
     super.key,
     required this.components,
     required this.editComponent,
+    required this.duplicateComponent,
     required this.removeComponent,
   });
 
@@ -93,6 +95,8 @@ class _ComponentListState extends State<ComponentList> {
                   onSelected: (value) {
                     if (value == 'edit') {
                       widget.editComponent(component);
+                    } else if (value == "duplicate") {
+                      widget.duplicateComponent(component);
                     } else if (value == 'remove') {
                       widget.removeComponent(component);
                     }
@@ -105,6 +109,16 @@ class _ComponentListState extends State<ComponentList> {
                           Icon(Icons.edit, size: 20),
                           SizedBox(width: 10),
                           Text('Edit'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'duplicate',
+                      child: Row(
+                        children: [
+                          Icon(Icons.copy, size: 20),
+                          SizedBox(width: 10),
+                          Text('Duplicate'),
                         ],
                       ),
                     ),

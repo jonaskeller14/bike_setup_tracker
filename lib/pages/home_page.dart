@@ -291,6 +291,16 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> duplicateComponent(Component component) async {
+    final newComponent = component.deepCopy();
+    setState(() {
+      components.add(newComponent);
+      adjustments.addAll(newComponent.adjustments);
+    });
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+    editComponent(newComponent);
+  }
+
   Future<void> _addSetting() async {
     if (bikes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Add a bike first"), backgroundColor: Theme.of(context).colorScheme.error));
@@ -433,6 +443,7 @@ class _HomePageState extends State<HomePage> {
           ComponentList(
             components: components,
             editComponent: editComponent,
+            duplicateComponent: duplicateComponent,
             removeComponent: removeComponent,
           ),
 

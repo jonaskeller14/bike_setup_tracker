@@ -2,19 +2,29 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import '../../models/adjustment.dart';
 
-class AddStepAdjustmentPage extends StatefulWidget {
-  const AddStepAdjustmentPage({super.key});
+class StepAdjustmentPage extends StatefulWidget {
+  final StepAdjustment? adjustment;
+  const StepAdjustmentPage({super.key, this.adjustment});
 
   @override
-  State<AddStepAdjustmentPage> createState() => _AddStepAdjustmentPageState();
+  State<StepAdjustmentPage> createState() => _StepAdjustmentPageState();
 }
 
-class _AddStepAdjustmentPageState extends State<AddStepAdjustmentPage> {
+class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _stepController = TextEditingController(text: '1');
-  final TextEditingController _minController = TextEditingController(text: '0');
-  final TextEditingController _maxController = TextEditingController();
+  late TextEditingController _nameController;
+  late TextEditingController _stepController;
+  late TextEditingController _minController;
+  late TextEditingController _maxController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.adjustment?.name);
+    _stepController = TextEditingController(text: widget.adjustment?.step.toString() ?? '1');
+    _minController = TextEditingController(text: widget.adjustment?.min.toString() ?? '0');
+    _maxController = TextEditingController(text: widget.adjustment?.max.toString());
+  }
 
   @override
   void dispose() {
@@ -33,10 +43,17 @@ class _AddStepAdjustmentPageState extends State<AddStepAdjustmentPage> {
     final min = int.parse(_minController.text.trim());
     final max = int.parse(_maxController.text.trim());
 
-    Navigator.pop(
-      context,
-      StepAdjustment(name: name, unit: null, step: step, min: min, max: max),
-    );
+    if (widget.adjustment == null) {
+      Navigator.pop(
+        context,
+        StepAdjustment(name: name, unit: null, step: step, min: min, max: max),
+      );
+    } else {
+      Navigator.pop(
+        context,
+        StepAdjustment(id: widget.adjustment?.id, name: name, unit: null, step: step, min: min, max: max),
+      );
+    }
   }
 
   String? _validateName(String? value) {
@@ -75,7 +92,7 @@ class _AddStepAdjustmentPageState extends State<AddStepAdjustmentPage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Add Step Adjustment'),
+        title: widget.adjustment == null ? const Text('Add Step Adjustment') : const Text('Edit Step Adjustment'),
         actions: [
           IconButton(icon: const Icon(Icons.check), onPressed: _saveStepAdjustment),
         ],
@@ -86,8 +103,8 @@ class _AddStepAdjustmentPageState extends State<AddStepAdjustmentPage> {
           child: Form(
             key: _formKey,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Adjustment Name
                 TextFormField(
                   controller: _nameController,
                   autofocus: true,
@@ -99,7 +116,6 @@ class _AddStepAdjustmentPageState extends State<AddStepAdjustmentPage> {
                   validator: _validateName,
                 ),
                 const SizedBox(height: 12),
-                // Step
                 TextFormField(
                   controller: _stepController,
                   keyboardType: TextInputType.number,
@@ -112,7 +128,6 @@ class _AddStepAdjustmentPageState extends State<AddStepAdjustmentPage> {
                   validator: _validateStep,
                 ),
                 const SizedBox(height: 12),
-                // Min
                 TextFormField(
                   controller: _minController,
                   keyboardType: TextInputType.number,
@@ -125,7 +140,6 @@ class _AddStepAdjustmentPageState extends State<AddStepAdjustmentPage> {
                   validator: _validateMin,
                 ),
                 const SizedBox(height: 12),
-                // Max
                 TextFormField(
                   controller: _maxController,
                   keyboardType: TextInputType.number,

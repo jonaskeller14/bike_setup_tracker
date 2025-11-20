@@ -261,15 +261,14 @@ class _HomePageState extends State<HomePage> {
         builder: (context) => EditBikePage(bike: bike),
       ),
     );
-    if (editedBike != null) {
-      setState(() {
-        final index = bikes.indexOf(bike);
-        if (index != -1) {
-          bikes[index] = editedBike;
-        }
-      });
-      await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
-    }
+    if (editedBike == null) return;
+    setState(() {
+      final index = bikes.indexOf(bike);
+      if (index != -1) {
+        bikes[index] = editedBike;
+      }
+    });
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
   }
 
   Future<void> editComponent(Component component) async {
@@ -280,15 +279,16 @@ class _HomePageState extends State<HomePage> {
         builder: (context) => EditComponentPage(component: component, bikes: bikes),
       ),
     );
-    if (editedComponent != null) {
-      setState(() {
-        final index = components.indexOf(component);
-        if (index != -1) {
-          components[index] = editedComponent;
-        }
-      });
-      await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
-    }
+    if (editedComponent == null) return;
+
+    setState(() {
+      final index = components.indexOf(component);
+      if (index != -1) {
+        components[index] = editedComponent;
+      }
+    });
+    await resetAdjustments();
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
   }
 
   Future<void> duplicateComponent(Component component) async {
@@ -299,6 +299,23 @@ class _HomePageState extends State<HomePage> {
     });
     await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
     editComponent(newComponent);
+  }
+
+  Future<void> resetAdjustments() async {
+    adjustments.clear();
+    for (final component in components) {
+      adjustments.addAll(component.adjustments);
+    }
+    
+    Set<Adjustment> toRemoveAdjustments = adjustments.toSet();
+    for (final component in components) {
+      for (final adjustment in component.adjustments) {
+        toRemoveAdjustments.remove(adjustment);
+      }
+    }
+    for (final toRemoveAdjustment in toRemoveAdjustments) {
+      adjustments.remove(toRemoveAdjustment);
+    }
   }
 
   Future<void> _addSetting() async {

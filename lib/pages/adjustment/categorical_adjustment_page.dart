@@ -2,17 +2,29 @@ import '../../models/adjustment.dart';
 import 'package:flutter/material.dart';
 
 
-class AddCategoricalAdjustmentPage extends StatefulWidget {
-  const AddCategoricalAdjustmentPage({super.key});
+class CategoricalAdjustmentPage extends StatefulWidget {
+  final CategoricalAdjustment? adjustment;
+  const CategoricalAdjustmentPage({super.key, this.adjustment});
 
   @override
-  State<AddCategoricalAdjustmentPage> createState() => _AddCategoricalAdjustmentPageState();
+  State<CategoricalAdjustmentPage> createState() => _CategoricalAdjustmentPageState();
 }
 
-class _AddCategoricalAdjustmentPageState extends State<AddCategoricalAdjustmentPage> {
+class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final List<TextEditingController> _optionControllers = [TextEditingController()];
+  late TextEditingController _nameController;
+  late List<TextEditingController> _optionControllers;
+  
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.adjustment?.name);
+    if (widget.adjustment == null) {
+      _optionControllers = [TextEditingController()];
+    } else {
+      _optionControllers = widget.adjustment!.options.map((option) => TextEditingController(text: option)).toList();
+    }
+  }
 
   @override
   void dispose() {
@@ -74,7 +86,7 @@ class _AddCategoricalAdjustmentPageState extends State<AddCategoricalAdjustmentP
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Add Categorical Adjustment'),
+        title: widget.adjustment == null ? const Text('Add Categorical Adjustment') : const Text('Edit Categorical Adjustment'),
         actions: [
           IconButton(icon: const Icon(Icons.check), onPressed: _saveCategoricalAdjustment),
         ],

@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import '../../models/adjustment.dart';
 
-class AddBooleanAdjustmentPage extends StatefulWidget {
-  const AddBooleanAdjustmentPage({super.key});
+class BooleanAdjustmentPage extends StatefulWidget {
+  final BooleanAdjustment? adjustment;
+  const BooleanAdjustmentPage({super.key, this.adjustment});
 
   @override
-  State<AddBooleanAdjustmentPage> createState() => _AddBooleanAdjustmentPageState();
+  State<BooleanAdjustmentPage> createState() => _BooleanAdjustmentPageState();
 }
 
-class _AddBooleanAdjustmentPageState extends State<AddBooleanAdjustmentPage> {
+class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
+  late TextEditingController _nameController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.adjustment?.name);
+  }
 
   @override
   void dispose() {
@@ -22,7 +29,11 @@ class _AddBooleanAdjustmentPageState extends State<AddBooleanAdjustmentPage> {
     if (!_formKey.currentState!.validate()) return;
 
     final name = _nameController.text.trim();
-    Navigator.pop(context, BooleanAdjustment(name: name, unit: null));
+    if (widget.adjustment == null) {
+      Navigator.pop(context, BooleanAdjustment(name: name, unit: null));
+    } else {
+      Navigator.pop(context, BooleanAdjustment(id: widget.adjustment?.id, name: name, unit: null));
+    }
   }
 
   String? _validateName(String? value) {
@@ -40,7 +51,7 @@ class _AddBooleanAdjustmentPageState extends State<AddBooleanAdjustmentPage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Add On/Off Adjustment'),
+        title: widget.adjustment == null ? const Text('Add On/Off Adjustment') : const Text('Edit On/Off Adjustment'),
         actions: [
           IconButton(icon: const Icon(Icons.check), onPressed: _saveBooleanAdjustment),
         ],
@@ -51,6 +62,7 @@ class _AddBooleanAdjustmentPageState extends State<AddBooleanAdjustmentPage> {
           child: Form(
             key: _formKey,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextFormField(
                   controller: _nameController,

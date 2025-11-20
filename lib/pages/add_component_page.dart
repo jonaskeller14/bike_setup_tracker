@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/adjustment.dart';
-import 'add_adjustment/add_boolean_adjustment_page.dart';
-import 'add_adjustment/add_numerical_adjustment_page.dart';
-import 'add_adjustment/add_step_adjustment_page.dart';
-import 'add_adjustment/add_categorical_adjustment_page.dart';
+import 'adjustment/boolean_adjustment_page.dart';
+import 'adjustment/numerical_adjustment_page.dart';
+import 'adjustment/step_adjustment_page.dart';
+import 'adjustment/categorical_adjustment_page.dart';
 import '../widgets/adjustment_edit_list.dart';
 
 class AddComponentPage extends StatefulWidget {
@@ -38,7 +38,7 @@ class _AddComponentPageState extends State<AddComponentPage> {
   Future<void> _addBooleanAdjustment() async {
     final adjustment = await Navigator.push<BooleanAdjustment>(
       context,
-      MaterialPageRoute(builder: (context) => const AddBooleanAdjustmentPage()),
+      MaterialPageRoute(builder: (context) => const BooleanAdjustmentPage()),
     );
     if (adjustment != null) {
       setState(() {
@@ -50,7 +50,7 @@ class _AddComponentPageState extends State<AddComponentPage> {
   Future<void> _addNumericalAdjustment() async {
     final adjustment = await Navigator.push<NumericalAdjustment>(
       context,
-      MaterialPageRoute(builder: (context) => const AddNumericalAdjustmentPage()),
+      MaterialPageRoute(builder: (context) => const NumericalAdjustmentPage()),
     );
     if (adjustment != null) {
       setState(() {
@@ -62,7 +62,7 @@ class _AddComponentPageState extends State<AddComponentPage> {
   Future<void> _addStepAdjustment() async {
     final adjustment = await Navigator.push<StepAdjustment>(
       context,
-      MaterialPageRoute(builder: (context) => const AddStepAdjustmentPage()),
+      MaterialPageRoute(builder: (context) => const StepAdjustmentPage()),
     );
     if (adjustment != null) {
       setState(() {
@@ -74,7 +74,7 @@ class _AddComponentPageState extends State<AddComponentPage> {
   Future<void> _addCategoricalAdjustment() async {
     final adjustment = await Navigator.push<CategoricalAdjustment>(
       context,
-      MaterialPageRoute(builder: (context) => const AddCategoricalAdjustmentPage()),
+      MaterialPageRoute(builder: (context) => const CategoricalAdjustmentPage()),
     );
     if (adjustment != null) {
       setState(() {
@@ -83,7 +83,83 @@ class _AddComponentPageState extends State<AddComponentPage> {
     }
   }
 
-  Future<void> removeAdjustment(Adjustment adjustment) async {
+  Future<void> _editAdjustment(Adjustment adjustment) async {
+    if (adjustment is BooleanAdjustment) {
+      return _editBooleanAdjustment(adjustment);
+    } else if (adjustment is CategoricalAdjustment) {
+      return _editCategoricalAdjustment(adjustment);
+    } else if (adjustment is StepAdjustment) {
+      return _editStepAdjustment(adjustment);
+    } else if (adjustment is NumericalAdjustment) {
+      return _editNumericalAdjustment(adjustment);
+    }
+  }
+
+  Future<void> _editBooleanAdjustment(BooleanAdjustment adjustment) async {
+    final editedAdjustment = await Navigator.push<BooleanAdjustment>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BooleanAdjustmentPage(adjustment: adjustment)
+      ),
+    );
+    if (editedAdjustment == null) return;
+    setState(() {
+      final index = adjustments.indexOf(adjustment);
+      if (index != -1) {
+        adjustments[index] = editedAdjustment;
+      }
+    });
+  }
+
+  Future<void> _editStepAdjustment(StepAdjustment adjustment) async {
+    final editedAdjustment = await Navigator.push<StepAdjustment>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => StepAdjustmentPage(adjustment: adjustment)
+      ),
+    );
+    if (editedAdjustment == null) return;
+    setState(() {
+      final index = adjustments.indexOf(adjustment);
+      if (index != -1) {
+        adjustments[index] = editedAdjustment;
+      }
+    });
+  }
+  
+  Future<void> _editCategoricalAdjustment(CategoricalAdjustment adjustment) async {
+    final editedAdjustment = await Navigator.push<CategoricalAdjustment>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CategoricalAdjustmentPage(adjustment: adjustment)
+      ),
+    );
+    if (editedAdjustment == null) return;
+    setState(() {
+      final index = adjustments.indexOf(adjustment);
+      if (index != -1) {
+        adjustments[index] = editedAdjustment;
+      }
+    });
+  }
+
+  Future<void> _editNumericalAdjustment(NumericalAdjustment adjustment) async {
+    final editedAdjustment = await Navigator.push<NumericalAdjustment>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => NumericalAdjustmentPage(adjustment: adjustment)
+      ),
+    );
+    if (editedAdjustment == null) return;
+    setState(() {
+      final index = adjustments.indexOf(adjustment);
+      if (index != -1) {
+        adjustments[index] = editedAdjustment;
+      }
+    });
+  }
+
+  Future<void> removeAdjustment(Adjustment adjustment) async { //TODO Remove Adjustment in HomePage by supply RemoveAdjustment Function as argument
     setState(() {
       adjustments.remove(adjustment);
     });
@@ -198,7 +274,7 @@ class _AddComponentPageState extends State<AddComponentPage> {
                     )
                   : AdjustmentEditList(
                       adjustments: adjustments,
-                      // editAdjustment: () => {},
+                      editAdjustment: _editAdjustment,
                       removeAdjustment: removeAdjustment,
                     ),
               ),

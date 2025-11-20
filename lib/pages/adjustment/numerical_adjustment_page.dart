@@ -2,19 +2,29 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import '../../models/adjustment.dart';
 
-class AddNumericalAdjustmentPage extends StatefulWidget {
-  const AddNumericalAdjustmentPage({super.key});
+class NumericalAdjustmentPage extends StatefulWidget {
+  final NumericalAdjustment? adjustment;
+  const NumericalAdjustmentPage({super.key, this.adjustment});
 
   @override
-  State<AddNumericalAdjustmentPage> createState() => _AddNumericalAdjustmentPageState();
+  State<NumericalAdjustmentPage> createState() => _NumericalAdjustmentPageState();
 }
 
-class _AddNumericalAdjustmentPageState extends State<AddNumericalAdjustmentPage> {
+class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _minController = TextEditingController();
-  final TextEditingController _maxController = TextEditingController();
-  final TextEditingController _unitController = TextEditingController();
+  late TextEditingController _nameController;
+  late TextEditingController _minController;
+  late TextEditingController _maxController;
+  late TextEditingController _unitController;
+  
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.adjustment?.name);
+    _minController = TextEditingController(text: widget.adjustment?.min == double.infinity || widget.adjustment?.min == double.negativeInfinity ? null : widget.adjustment?.min.toString());
+    _maxController = TextEditingController(text: widget.adjustment?.max == double.infinity || widget.adjustment?.max == double.negativeInfinity ? null : widget.adjustment?.max.toString());
+    _unitController = TextEditingController(text: widget.adjustment?.unit);
+  }
 
   @override
   void dispose() {
@@ -37,7 +47,11 @@ class _AddNumericalAdjustmentPageState extends State<AddNumericalAdjustmentPage>
     final max = maxText.isNotEmpty ? double.tryParse(maxText) : null;
     final unit = unitText.isNotEmpty ? unitText : null;
 
-    Navigator.pop(context, NumericalAdjustment(name: name, min: min, max: max, unit: unit));
+    if (widget.adjustment == null) {
+      Navigator.pop(context, NumericalAdjustment(name: name, min: min, max: max, unit: unit));
+    } else {
+      Navigator.pop(context, NumericalAdjustment(id: widget.adjustment?.id, name: name, min: min, max: max, unit: unit));
+    }
   }
 
   String? _validateName(String? value) {
@@ -72,7 +86,7 @@ class _AddNumericalAdjustmentPageState extends State<AddNumericalAdjustmentPage>
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Add Numerical Adjustment'),
+        title: widget.adjustment == null ? const Text('Add Numerical Adjustment') : const Text('Edit Numerical Adjustment'),
         actions: [
           IconButton(icon: const Icon(Icons.check), onPressed: _saveNumericalAdjustment),
         ],
@@ -83,6 +97,7 @@ class _AddNumericalAdjustmentPageState extends State<AddNumericalAdjustmentPage>
           child: Form(
             key: _formKey,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextFormField(
                   controller: _nameController,

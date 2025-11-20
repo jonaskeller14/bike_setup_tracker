@@ -3,13 +3,13 @@ import '../models/adjustment.dart';
 
 class AdjustmentEditList extends StatelessWidget {
   final List<Adjustment> adjustments;
-  // final void Function(Adjustment adjustment) editAdjustment;
+  final void Function(Adjustment adjustment) editAdjustment;
   final void Function(Adjustment adjustment) removeAdjustment;
 
   const AdjustmentEditList({
     super.key,
     required this.adjustments,
-    // required this.editAdjustment,
+    required this.editAdjustment,
     required this.removeAdjustment,
   });
 
@@ -43,13 +43,22 @@ class AdjustmentEditList extends StatelessWidget {
             trailing: PopupMenuButton<String>(
               onSelected: (value) {
                 if (value == 'edit') {
-                  // editAdjustment(adjustment);
+                  editAdjustment(adjustment);
                 } else if (value == 'remove') {
                   removeAdjustment(adjustment);
                 }
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                // const PopupMenuItem<String>(value: 'edit', child: Text('Edit')),
+                const PopupMenuItem<String>(
+                  value: 'edit', 
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, size: 20),
+                      SizedBox(width: 10),
+                      Text('Edit'),
+                    ],
+                  ),
+                ),
                 const PopupMenuItem<String>(
                   value: 'remove',
                   child: Row(

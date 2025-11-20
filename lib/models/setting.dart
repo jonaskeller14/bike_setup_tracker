@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 import 'package:uuid/uuid.dart';
 import 'bike.dart';
 import "adjustment.dart";
@@ -53,11 +55,15 @@ class Setting {
 
     final Map<Adjustment, dynamic> adjustmentValues = {};
     for (var entry in adjustmentIDValues.entries) {
-      final adjustment = allAdjustments.firstWhere(
-        (a) => a.id == entry.key,
-        orElse: () => throw Exception('Adjustment with id ${entry.key} not found'),
-      );
-      adjustmentValues[adjustment] = entry.value;
+      try {
+        final adjustment = allAdjustments.firstWhere(
+          (a) => a.id == entry.key,
+        );
+        adjustmentValues[adjustment] = entry.value;
+      } on StateError {
+        debugPrint('Adjustment with id ${entry.key} not found');
+        continue;
+      }
     }
 
     final bikeID = json['bike'];

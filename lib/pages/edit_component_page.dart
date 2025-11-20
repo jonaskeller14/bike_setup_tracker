@@ -19,6 +19,7 @@ class EditComponentPage extends StatefulWidget {
 }
 
 class _EditComponentPageState extends State<EditComponentPage> {
+  final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late List<Adjustment> adjustments;
   late Bike bike;
@@ -26,7 +27,6 @@ class _EditComponentPageState extends State<EditComponentPage> {
   @override
   void initState() {
     super.initState();
-    // Initialize with existing setting values
     _nameController = TextEditingController(text: widget.component.name);
     adjustments = widget.component.adjustments;
     bike = widget.component.bike;
@@ -93,10 +93,9 @@ class _EditComponentPageState extends State<EditComponentPage> {
   }
 
   void _saveComponent() {
+    if (!_formKey.currentState!.validate()) return;
     final name = _nameController.text.trim();
-    if (name.isEmpty) return;
 
-    // Return updated setting to previous screen
     Navigator.pop(
       context,
       Component(
@@ -122,22 +121,30 @@ class _EditComponentPageState extends State<EditComponentPage> {
           IconButton(icon: const Icon(Icons.check), onPressed: _saveComponent),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-          controller: _nameController,
-          autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'Component Name',
-            border: OutlineInputBorder(),
-            hintText: 'Enter component name',
-          ),
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<Bike>(
+      body: Form(
+        key: _formKey,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                controller: _nameController,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  labelText: 'Component Name',
+                  border: OutlineInputBorder(),
+                  hintText: 'Enter component name',
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Component name cannot be empty';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<Bike>(
                 initialValue: bike,
                 isExpanded: true,
                 decoration: const InputDecoration(
@@ -158,37 +165,36 @@ class _EditComponentPageState extends State<EditComponentPage> {
                   });
                 },
               ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8.0,
-              runSpacing: 4.0,
-              children: [
-                ActionChip(
-                  avatar: Icon(Icons.add),
-                  label: const Text('Add On/Off Adjustment'),
-                  onPressed: _addBooleanAdjustment,
-                ),
-                ActionChip(
-                  avatar: Icon(Icons.add),
-                  label: const Text('Add Categorical Adjustment'),
-                  onPressed: _addCategoricalAdjustment,
-                ),
-                ActionChip(
-                  avatar: Icon(Icons.add),
-                  label: const Text('Add Step Adjustment'),
-                  onPressed: _addStepAdjustment,
-                ),
-                ActionChip(
-                  avatar: Icon(Icons.add),
-                  label: const Text('Add Numerical Adjustment'),
-                  onPressed: _addNumericalAdjustment,
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // Adjustments list
-            Expanded(
-              child: adjustments.isEmpty
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8.0,
+                runSpacing: 4.0,
+                children: [
+                  ActionChip(
+                    avatar: Icon(Icons.add),
+                    label: const Text('Add On/Off Adjustment'),
+                    onPressed: _addBooleanAdjustment,
+                  ),
+                  ActionChip(
+                    avatar: Icon(Icons.add),
+                    label: const Text('Add Categorical Adjustment'),
+                    onPressed: _addCategoricalAdjustment,
+                  ),
+                  ActionChip(
+                    avatar: Icon(Icons.add),
+                    label: const Text('Add Step Adjustment'),
+                    onPressed: _addStepAdjustment,
+                  ),
+                  ActionChip(
+                    avatar: Icon(Icons.add),
+                    label: const Text('Add Numerical Adjustment'),
+                    onPressed: _addNumericalAdjustment,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: adjustments.isEmpty
                   ? Center(
                       child: Text(
                         'No adjustments yet',
@@ -200,8 +206,9 @@ class _EditComponentPageState extends State<EditComponentPage> {
                       // editAdjustment: () => {},
                       removeAdjustment: removeAdjustment,
                     ),
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );

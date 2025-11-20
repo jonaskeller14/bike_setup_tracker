@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
 import 'package:uuid/uuid.dart';
 import 'bike.dart';
 import "adjustment.dart";

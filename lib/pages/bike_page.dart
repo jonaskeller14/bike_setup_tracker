@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
 import '../models/bike.dart';
 
-class AddBikePage extends StatefulWidget {
-  const AddBikePage({super.key});
+class BikePage extends StatefulWidget {
+  final Bike? bike;
+
+  const BikePage({super.key, this.bike});
 
   @override
-  State<AddBikePage> createState() => _AddBikePageState();
+  State<BikePage> createState() => _BikePageState();
 }
 
-class _AddBikePageState extends State<AddBikePage> {
-  final TextEditingController _nameController = TextEditingController();
+class _BikePageState extends State<BikePage> {
+  late TextEditingController _nameController;
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.bike?.name);
+  }
 
   @override
   void dispose() {
@@ -21,7 +29,11 @@ class _AddBikePageState extends State<AddBikePage> {
   void _saveBike() {
     if (!_formKey.currentState!.validate()) return;
     final name = _nameController.text.trim();
-    Navigator.pop(context, Bike(name: name));
+    if (widget.bike == null) {
+      Navigator.pop(context, Bike(name: name));
+    } else {
+      Navigator.pop(context, Bike(id: widget.bike!.id, name: name));
+    }
   }
 
   @override
@@ -32,7 +44,7 @@ class _AddBikePageState extends State<AddBikePage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Add Bike'),
+        title: widget.bike == null ? const Text('Add Bike') : const Text('Edit Bike'),
         actions: [
           IconButton(icon: const Icon(Icons.check), onPressed: _saveBike),
         ],

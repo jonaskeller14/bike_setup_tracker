@@ -4,10 +4,8 @@ import '../models/bike.dart';
 import '../models/adjustment.dart';
 import '../models/setting.dart';
 import '../models/component.dart';
-import 'add_bike_page.dart';
-import 'edit_bike_page.dart';
-import 'add_component_page.dart';
-import 'edit_component_page.dart';
+import 'bike_page.dart';
+import 'component_page.dart';
 import 'add_setting_page.dart';
 import 'edit_setting_page.dart';
 import '../utils/file_export.dart';
@@ -225,7 +223,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _addBike() async {
     final bike = await Navigator.push<Bike>(
       context,
-      MaterialPageRoute(builder: (context) => const AddBikePage()),
+      MaterialPageRoute(builder: (context) => const BikePage()),
     );
     if (bike == null) return;
   
@@ -243,7 +241,7 @@ class _HomePageState extends State<HomePage> {
 
     final component = await Navigator.push<Component>(
       context,
-      MaterialPageRoute(builder: (context) => AddComponentPage(bikes: bikes)),
+      MaterialPageRoute(builder: (context) => ComponentPage(bikes: bikes)),
     );
     if (component == null) return;
   
@@ -258,7 +256,7 @@ class _HomePageState extends State<HomePage> {
     final editedBike = await Navigator.push<Bike>(
       context,
       MaterialPageRoute(
-        builder: (context) => EditBikePage(bike: bike),
+        builder: (context) => BikePage(bike: bike),
       ),
     );
     if (editedBike == null) return;
@@ -276,7 +274,7 @@ class _HomePageState extends State<HomePage> {
     final editedComponent = await Navigator.push<Component>(
       context,
       MaterialPageRoute(
-        builder: (context) => EditComponentPage(component: component, bikes: bikes),
+        builder: (context) => ComponentPage(component: component, bikes: bikes),
       ),
     );
     if (editedComponent == null) return;

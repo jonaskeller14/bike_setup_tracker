@@ -8,17 +8,17 @@ import 'adjustment/step_adjustment_page.dart';
 import 'adjustment/categorical_adjustment_page.dart';
 import '../widgets/adjustment_edit_list.dart';
 
-class EditComponentPage extends StatefulWidget {
-  final Component component;
+class ComponentPage extends StatefulWidget {
+  final Component? component;
   final List<Bike> bikes;
 
-  const EditComponentPage({super.key, required this.component, required this.bikes});
+  const ComponentPage({super.key, this.component, required this.bikes});
 
   @override
-  State<EditComponentPage> createState() => _EditComponentPageState();
+  State<ComponentPage> createState() => _ComponentPageState();
 }
 
-class _EditComponentPageState extends State<EditComponentPage> {
+class _ComponentPageState extends State<ComponentPage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late List<Adjustment> adjustments;
@@ -27,9 +27,9 @@ class _EditComponentPageState extends State<EditComponentPage> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.component.name);
-    adjustments = widget.component.adjustments;
-    bike = widget.component.bike;
+    _nameController = TextEditingController(text: widget.component?.name);
+    adjustments = widget.component?.adjustments ?? [];
+    bike = widget.component?.bike ?? widget.bikes.first;
   }
 
   @override
@@ -172,16 +172,28 @@ class _EditComponentPageState extends State<EditComponentPage> {
     if (!_formKey.currentState!.validate()) return;
     final name = _nameController.text.trim();
 
-    Navigator.pop(
-      context,
-      Component(
-        id: widget.component.id,
-        name: name,
-        bike: bike,
-        adjustments: adjustments,
-        currentSetting: widget.component.currentSetting,
-      ),
-    );
+    if (widget.component == null) {
+      Navigator.pop(
+        context,
+        Component(
+          name: name,
+          bike: bike,
+          adjustments: adjustments,
+        ),
+      );
+    } else {
+      Navigator.pop(
+        context,
+        Component(
+          id: widget.component!.id,
+          name: name,
+          bike: bike,
+          adjustments: adjustments,
+          currentSetting: widget.component!.currentSetting,
+        ),
+      );
+    }
+
   }
 
   @override
@@ -192,7 +204,7 @@ class _EditComponentPageState extends State<EditComponentPage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Edit Component'),
+        title: widget.component == null ? const Text('Add Component') : const Text('Edit Component'),
         actions: [
           IconButton(icon: const Icon(Icons.check), onPressed: _saveComponent),
         ],

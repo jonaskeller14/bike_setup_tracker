@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/setting.dart';
+import '../models/component.dart';
 import '../widgets/adjustment_display_list.dart';
 
 class SettingList extends StatefulWidget {
   final List<Setting> settings;
+  final List<Component> components;
   final void Function(Setting setting) editSetting;
   final void Function(Setting setting) restoreSetting;
   final void Function(Setting setting) removeSetting;
@@ -12,6 +14,7 @@ class SettingList extends StatefulWidget {
   const SettingList({
     super.key,
     required this.settings,
+    required this.components,
     required this.editSetting,
     required this.restoreSetting,
     required this.removeSetting,
@@ -58,7 +61,7 @@ class _SettingListState extends State<SettingList> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ListTile(
-                      contentPadding: const EdgeInsets.all(0.0),
+                      contentPadding: const EdgeInsets.all(0),
                       title: Text(
                         setting.name,
                         style: const TextStyle(fontWeight: FontWeight.bold),
@@ -137,20 +140,17 @@ class _SettingListState extends State<SettingList> {
                             ),
                           ),
                         ],
-                      )
+                      ),
                     ],
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Icon(Icons.pedal_bike, size: 13, color: Colors.grey.shade800),
                         const SizedBox(width: 2),
-                        Expanded(
-                          child: Text(
-                            setting.bike.name,
-                            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
+                        Text(
+                          setting.bike.name,
+                          style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -160,13 +160,11 @@ class _SettingListState extends State<SettingList> {
                         children: [
                           Icon(Icons.location_pin, size: 13, color: Colors.grey.shade800),
                           const SizedBox(width: 2),
-                          Expanded(
-                            child: Text(
-                              "${setting.place?.thoroughfare} ${setting.place?.subThoroughfare}, ${setting.place?.locality}, ${setting.place?.isoCountryCode}",
-                              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
+                          Text(
+                            "${setting.place?.thoroughfare} ${setting.place?.subThoroughfare}, ${setting.place?.locality}, ${setting.place?.isoCountryCode}",
+                            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ],
                       ),
@@ -206,10 +204,11 @@ class _SettingListState extends State<SettingList> {
                       ],
                     ),
                     AdjustmentDisplayList(
+                      components: widget.components,
                       adjustmentValues: setting.adjustmentValues,
                       previousAdjustmentValues: setting.previousSetting?.adjustmentValues,
                     ),
-                  ]
+                  ],
                 ),
               ),
             );

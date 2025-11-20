@@ -482,6 +482,7 @@ class _HomePageState extends State<HomePage> {
 
           SettingList(
             settings: settings,
+            components: components,
             editSetting: editSetting,
             restoreSetting: restoreSetting,
             removeSetting: removeSetting,

@@ -34,6 +34,7 @@ class BikeList extends StatelessWidget {
               bike.name,
               style: Theme.of(context).textTheme.titleMedium,
             ),
+            onTap: () => debugPrint("Bike clicked"),
             subtitle: null,
             trailing: PopupMenuButton<String>(
               onSelected: (value) {

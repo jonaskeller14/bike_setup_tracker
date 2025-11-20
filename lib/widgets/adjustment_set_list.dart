@@ -1,7 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../models/adjustment.dart';
+import 'set_adjustment/set_boolean_adjustment.dart';
+import 'set_adjustment/set_categorical_adjustment.dart';
+import 'set_adjustment/set_numerical_adjustment.dart';
+import 'set_adjustment/set_step_adjustment.dart';
 
 class AdjustmentSetList extends StatefulWidget {
   final List<Adjustment> adjustments;
@@ -20,18 +23,20 @@ class AdjustmentSetList extends StatefulWidget {
 }
 
 class _AdjustmentSetListState extends State<AdjustmentSetList> {
-  Map<Adjustment, dynamic> adjustmentValues = {};
+  Map<Adjustment, dynamic> adjustmentValues = {};  // Types differ from real Adjustment value types because parsing happens later
 
   @override
   void initState() {
     super.initState();
     for (final adjustment in widget.adjustments) {
       final initialValue = widget.initialAdjustmentValues[adjustment];
+      debugPrint("####");
+      debugPrint(initialValue.toString());
       if (initialValue == null) {
         if (adjustment is BooleanAdjustment) {
           adjustmentValues[adjustment] = false;
         } else if (adjustment is NumericalAdjustment) {
-          adjustmentValues[adjustment] = adjustment.min == double.negativeInfinity ? min(0.0, adjustment.max) : adjustment;
+          adjustmentValues[adjustment] = adjustment.min == double.negativeInfinity ? min(0.0, adjustment.max).toString() : (0.0).toString();
         } else if (adjustment is StepAdjustment) {
           adjustmentValues[adjustment] = adjustment.min;
         } else if (adjustment is CategoricalAdjustment) {
@@ -52,140 +57,58 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
       children: List.generate(widget.adjustments.length, (index) {
         final adjustment = widget.adjustments[index];
         if (adjustment is BooleanAdjustment) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Icon(Icons.toggle_on),
-                SizedBox(width: 10.0),
-                Text(
-                  adjustment.name,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                SizedBox(width: 30.0),
-                Expanded(
-                  child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Switch(
-                    value: adjustmentValues[adjustment],
-                    onChanged: (newValue) {
-                      setState(() {
-                        adjustmentValues[adjustment] = newValue;
-                      });
-                      widget.onAdjustmentValueChanged(adjustment, newValue);
-                      },
-                  ),
-                ),  
-                ),
-              ],
-            ),
+          return SetBooleanAdjustmentWidget(
+            key: ValueKey(adjustment),
+            adjustment: adjustment,
+            initialValue: widget.initialAdjustmentValues[adjustment],
+            value: adjustmentValues[adjustment],
+            onChanged: (newValue) {
+              setState(() => adjustmentValues[adjustment] = newValue);
+              widget.onAdjustmentValueChanged(adjustment, newValue);
+            },
           );
         } else if (adjustment is NumericalAdjustment) {
-          final controller = TextEditingController(text: adjustmentValues[adjustment].toString());
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Icon(Icons.numbers),
-                SizedBox(width: 10.0),
-                Text(
-                  adjustment.name,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                SizedBox(width: 30.0),
-                Expanded(
-                  child: TextFormField(
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
-                    controller: controller,
-                    onTap: () {controller.clear();},
-                    onChanged: (newValue) {
-                      final parsedValue = double.tryParse(newValue);
-                      if (parsedValue != null) {
-                        adjustmentValues[adjustment] = parsedValue;
-                        widget.onAdjustmentValueChanged(adjustment, parsedValue);
-                      }
-                    },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                      suffixText: adjustment.unit != null ? ' ${adjustment.unit}' : null,
-                    ),
-                  )
-                ),
-              ],
-            )
+          return SetNumericalAdjustmentWidget(
+            key: ValueKey(adjustment),
+            adjustment: adjustment,
+            initialValue: widget.initialAdjustmentValues[adjustment],
+            value: adjustmentValues[adjustment].toString(),
+            onChanged: (String newValue) {
+              setState(() => adjustmentValues[adjustment] = newValue);
+              final parsedValue = double.tryParse(newValue);
+              if (parsedValue != null) {                
+                widget.onAdjustmentValueChanged(adjustment, parsedValue);
+              }
+            },
           );
+          
         } else if (adjustment is StepAdjustment) {
-          final sliderDivisions = ((adjustment.max - adjustment.min) / adjustment.step).floor();
-          final sliderMax = (adjustment.min + sliderDivisions * adjustment.step).toDouble();
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Icon(Icons.format_list_numbered),
-                SizedBox(width: 10.0),
-                Text(
-                  adjustment.name,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                SizedBox(width: 30.0),
-                Expanded(child: Slider(
-                  value: adjustmentValues[adjustment].toDouble(),
-                  max: sliderMax,
-                  min: adjustment.min.toDouble(),
-                  divisions: sliderDivisions,
-                  label: adjustmentValues[adjustment].toString(),
-                  onChanged: (double newValue) {
-                    setState(() {
-                      adjustmentValues[adjustment] = newValue.toInt();
-                    });
-                    widget.onAdjustmentValueChanged(adjustment, newValue.toInt());
-                  },
-                  ),
-                ),
-              ],
-            ),
+          return SetStepAdjustmentWidget(
+            key: ValueKey(adjustment), 
+            adjustment: adjustment,
+            initialValue: widget.initialAdjustmentValues[adjustment]?.toDouble(),
+            value: adjustmentValues[adjustment].toDouble(), 
+            onChanged: (double newValue) {
+              setState(() {
+                adjustmentValues[adjustment] = newValue;
+              });
+            },
+            onChangedEnd: (double newValue) {
+              widget.onAdjustmentValueChanged(adjustment, newValue.toInt());
+            },
           );
         } else if (adjustment is CategoricalAdjustment) {
-          final options = adjustment.options;
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                Icon(Icons.category),
-                SizedBox(width: 10.0),
-                Text(
-                  adjustment.name,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                SizedBox(width: 30.0),
-                Expanded(child: DropdownButtonFormField<String>(
-                  isExpanded: true,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  ),
-                  initialValue: adjustmentValues[adjustment],
-                  items: options.map<DropdownMenuItem<String>>((option) {
-                    return DropdownMenuItem<String>(
-                      value: option,
-                      child: Text(option, overflow: TextOverflow.ellipsis,),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      adjustmentValues[adjustment] = newValue;
-                    });
-                    widget.onAdjustmentValueChanged(adjustment, newValue);
-                  },
-                ),)
-              ],
-            ),
+          return SetCategoricalAdjustmentWidget(
+            key: ValueKey(adjustment), 
+            adjustment: adjustment, 
+            initialValue: widget.initialAdjustmentValues[adjustment],
+            value: adjustmentValues[adjustment], 
+            onChanged: (String? newValue) {
+              setState(() {
+                adjustmentValues[adjustment] = newValue;
+              });
+              widget.onAdjustmentValueChanged(adjustment, newValue);
+            },
           );
         }
         throw Exception('Unknown adjustment type');

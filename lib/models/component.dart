@@ -8,7 +8,7 @@ class Component {
   final String id;
   final String name;
   final List<Adjustment> adjustments;
-  Bike bike;
+  final Bike bike;
   Setting? currentSetting;
 
   Component({

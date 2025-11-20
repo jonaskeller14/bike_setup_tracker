@@ -54,6 +54,7 @@ class _HomePageState extends State<HomePage> {
         ..clear()
         ..addAll(data.components);
       determineCurrentSettings();
+      determinePreviousSettings();
     });
     await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
   }
@@ -79,6 +80,7 @@ class _HomePageState extends State<HomePage> {
           ..addAll(data.settings)
           ..sort((a, b) => a.datetime.compareTo(b.datetime));
         determineCurrentSettings();
+        determinePreviousSettings();
         components
           ..clear()
           ..addAll(data.components);
@@ -104,6 +106,7 @@ class _HomePageState extends State<HomePage> {
         }
         settings.sort((a, b) => a.datetime.compareTo(b.datetime));
         determineCurrentSettings();
+        determinePreviousSettings();
 
         for (var c in data.components) {
           if (!components.any((x) => x.id == c.id)) {
@@ -187,6 +190,7 @@ class _HomePageState extends State<HomePage> {
         }
       }
       determineCurrentSettings();
+      determinePreviousSettings();
     });
     await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
   }
@@ -270,7 +274,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> editComponent(Component component) async {
-    //TODO: Update adjustments?
     final editedComponent = await Navigator.push<Component>(
       context,
       MaterialPageRoute(
@@ -333,13 +336,10 @@ class _HomePageState extends State<HomePage> {
     if (setting == null) return;
     
     setState(() {
-      setting.previousSetting = components.where((c) => c.bike == setting.bike).firstOrNull?.currentSetting;  //FIXME: wrong if past date is set manually
-      for (var component in components.where((c) => c.bike == setting.bike)) {  // FIXME: wrong if date edited
-        component.currentSetting = setting;
-      }
       settings.add(setting);
       settings.sort((a, b) => a.datetime.compareTo(b.datetime));
       determineCurrentSettings();
+      determinePreviousSettings();
     });
     await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
   }
@@ -353,18 +353,13 @@ class _HomePageState extends State<HomePage> {
     );
     if (editedSetting != null) {
       setState(() {
-        editedSetting.previousSetting = setting.previousSetting;  // FIXME: wrong if date edited
-        for (var component in components) {  // FIXME: wrong if date edited
-          if (component.currentSetting == setting) {
-            component.currentSetting = editedSetting;
-          }
-        }
         final index = settings.indexOf(setting);
         if (index != -1) {
           settings[index] = editedSetting;
         }
         settings.sort((a, b) => a.datetime.compareTo(b.datetime));
         determineCurrentSettings();
+        determinePreviousSettings();
       });
       await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
     }
@@ -380,13 +375,10 @@ class _HomePageState extends State<HomePage> {
     );  //FIXME: Location and waether data is null --> maybe add default constructor?
 
     setState(() {
-      newSetting.previousSetting = components.where((c) => c.bike == newSetting.bike).firstOrNull?.currentSetting;  //FIXME: wrong if past date is set manually
-      for (var component in components.where((c) => c.bike == newSetting.bike)) {  // FIXME: wrong if date edited
-        component.currentSetting = newSetting;
-      }
       settings.add(newSetting);
       settings.sort((a, b) => a.datetime.compareTo(b.datetime));
       determineCurrentSettings();
+      determinePreviousSettings();
     });
     await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
 
@@ -399,11 +391,25 @@ class _HomePageState extends State<HomePage> {
     }
     final remainingBikes = Set.of(bikes);
     for (final setting in settings.reversed) {
-      if (remainingBikes.contains(setting.bike)) {
+      final bike = setting.bike;
+      if (remainingBikes.contains(bike)) {
         setting.isCurrent = true;
-        remainingBikes.remove(setting.bike);
+        for (final component in components.where((c) => c.bike == bike)) {
+          component.currentSetting = setting;
+        }
+        remainingBikes.remove(bike);
         if (remainingBikes.isEmpty) break;
       }
+    }
+  }
+
+  Future<void> determinePreviousSettings() async {
+    Map<Bike, Setting> previousSettings = {}; 
+    for (final setting in settings) {
+      final bike = setting.bike;
+      final previousSetting = previousSettings[bike];
+      if (previousSetting != null) setting.previousSetting = previousSetting;
+      previousSettings[bike] = setting;
     }
   }
 

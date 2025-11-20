@@ -1,12 +1,56 @@
+import '../models/component.dart';
 import '../models/adjustment.dart';
 import 'package:flutter/material.dart';
 
 class AdjustmentDisplayList extends StatelessWidget {
+  final List<Component> components;
   final Map<Adjustment, dynamic> adjustmentValues;
   final Map<Adjustment, dynamic> previousAdjustmentValues;
 
   AdjustmentDisplayList({
     super.key,
+    required this.components,
+    required this.adjustmentValues,
+    Map<Adjustment, dynamic>? previousAdjustmentValues,
+  }) : previousAdjustmentValues = previousAdjustmentValues ?? {};
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> children = [];
+    int nonEmptyComponentsCounter = 0;
+    for (int index = 0; index < components.length; index++) {
+      final component = components[index];
+      final componentAdjustmentValues = Map.fromEntries(adjustmentValues.entries.where((entry) => component.adjustments.contains(entry.key)));
+
+      if (componentAdjustmentValues.isEmpty) continue;
+      
+      if (nonEmptyComponentsCounter > 0) {
+        children.add(const Divider(
+          height: 6, 
+          thickness: 1, 
+          indent: 0,
+          endIndent: 0,
+        ));
+      }
+
+      children.add(_AdjustmentTableRow(
+        component: component,
+        adjustmentValues: componentAdjustmentValues,
+        previousAdjustmentValues: previousAdjustmentValues,
+      ));
+      nonEmptyComponentsCounter++;
+    }
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: children);
+  }
+}
+
+class _AdjustmentTableRow extends StatelessWidget {
+  final Component component;
+  final Map<Adjustment, dynamic> adjustmentValues;
+  final Map<Adjustment, dynamic> previousAdjustmentValues;
+
+  _AdjustmentTableRow({
+    required this.component,
     required this.adjustmentValues,
     Map<Adjustment, dynamic>? previousAdjustmentValues,
   }) : previousAdjustmentValues = previousAdjustmentValues ?? {};
@@ -69,7 +113,6 @@ class _AdjustmentTableCell extends StatelessWidget {
     }
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -77,13 +120,17 @@ class _AdjustmentTableCell extends StatelessWidget {
           Text(
             adjustment.name,
             style: TextStyle(
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.normal,
+              fontSize: 12
             ),
           ),
           Text.rich(
             TextSpan(
               children: [
-                TextSpan(text: Adjustment.formatValue(value)),
+                TextSpan(
+                  text: Adjustment.formatValue(value),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
                 if (valueHasChanged) ... [
                   TextSpan(text: " "),
                   WidgetSpan(
@@ -118,7 +165,6 @@ class _VerticalDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
       width: 1,
       height: 40,
       color: Colors.grey.shade400,

@@ -30,8 +30,6 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
     super.initState();
     for (final adjustment in widget.adjustments) {
       final initialValue = widget.initialAdjustmentValues[adjustment];
-      debugPrint("####");
-      debugPrint(initialValue.toString());
       if (initialValue == null) {
         if (adjustment is BooleanAdjustment) {
           adjustmentValues[adjustment] = false;

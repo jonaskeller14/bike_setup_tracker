@@ -71,11 +71,18 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
 
     final name = _nameController.text.trim();
     final options = _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList();
-
-    Navigator.pop(
-      context,
-      CategoricalAdjustment(name: name, unit: null, options: options),
-    );
+    if (!mounted) return;
+    if (widget.adjustment == null) {
+      Navigator.pop(
+        context,
+        CategoricalAdjustment(name: name, unit: null, options: options),
+      );
+    } else {
+      Navigator.pop(
+        context,
+        CategoricalAdjustment(id: widget.adjustment!.id, name: name, unit: null, options: options),
+      );
+    }
   }
 
   @override

@@ -46,7 +46,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     final min = minText.isNotEmpty ? double.tryParse(minText) : null;
     final max = maxText.isNotEmpty ? double.tryParse(maxText) : null;
     final unit = unitText.isNotEmpty ? unitText : null;
-
+    if (!mounted) return;
     if (widget.adjustment == null) {
       Navigator.pop(context, NumericalAdjustment(name: name, min: min, max: max, unit: unit));
     } else {

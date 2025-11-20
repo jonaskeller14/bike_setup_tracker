@@ -311,7 +311,7 @@ class _AddSettingPageState extends State<AddSettingPage> {
                     ListTile(
                       title: Text(bikeComponent.name),
                       subtitle: Text('${bikeComponent.adjustments.length} adjustments'),
-                      leading: const Icon(Icons.casino),
+                      leading: const Icon(Icons.tune),
                     ),
                     AdjustmentSetList(
                       key: ValueKey(bikeComponent.id),

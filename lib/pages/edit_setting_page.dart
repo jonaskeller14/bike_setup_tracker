@@ -254,7 +254,7 @@ class _EditSettingPageState extends State<EditSettingPage> {
                     ListTile(
                       title: Text(bikeComponent.name),
                       subtitle: Text('${bikeComponent.adjustments.length} adjustments'),
-                      leading: const Icon(Icons.casino),
+                      leading: const Icon(Icons.tune),
                     ),
                     AdjustmentSetList(
                       key: ValueKey(bikeComponent.id),

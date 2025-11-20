@@ -48,7 +48,7 @@ class _ComponentListState extends State<ComponentList> {
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 4.0),
               child: ListTile(
-                leading: const Icon(Icons.casino),
+                leading: const Icon(Icons.tune),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 8,

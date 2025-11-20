@@ -59,13 +59,30 @@ class _ComponentListState extends State<ComponentList> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: Text('${component.adjustments.length} adjustments'),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(Icons.pedal_bike, size: 13, color: Colors.grey.shade800),
+                        const SizedBox(width: 2),
+                        Expanded(
+                          child: Text(
+                            component.bike.name,
+                            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                      ],
                     ),
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: Text("Bike: ${component.bike.name}", overflow: TextOverflow.ellipsis),
+                    Row(
+                      children: [
+                        Text('${component.adjustments.length} adjustments '),
+                        for (final adjustment in component.adjustments)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 4.0),
+                            child: adjustment.getIcon(size: 13, color: Colors.grey.shade800),
+                          ),
+                      ],
                     ),
                     AdjustmentDisplayList(
                       adjustmentValues: componentAdjustmentValues,

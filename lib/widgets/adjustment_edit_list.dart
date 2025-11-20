@@ -20,24 +20,8 @@ class AdjustmentEditList extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       itemBuilder: (context, index) {
         final adjustment = adjustments[index];
-        String? adjustmentProperties;
-        Icon? icon;
-        if (adjustment is BooleanAdjustment) {
-          icon = Icon(Icons.toggle_on);
-          adjustmentProperties = "(On/Off)";
-        } else if (adjustment is NumericalAdjustment) {
-          icon = Icon(Icons.numbers);
-          adjustmentProperties = "Range ${adjustment.min}..${adjustment.max} [${adjustment.unit ?? ''}]";
-        } else if (adjustment is StepAdjustment) {
-          icon = Icon(Icons.format_list_numbered);
-          adjustmentProperties = "Range ${adjustment.min}..${adjustment.max}, Step ${adjustment.step}";
-        } else if (adjustment is CategoricalAdjustment) {
-          icon = Icon(Icons.category);
-          adjustmentProperties = adjustment.options.join('/');
-        } else {
-          adjustmentProperties = null;
-        }
-
+        String adjustmentProperties = adjustment.getProperties();
+        Icon icon = adjustment.getIcon();
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 4.0),
           child: ListTile(
@@ -50,14 +34,12 @@ class AdjustmentEditList extends StatelessWidget {
               adjustment.name,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: adjustmentProperties != null
-                ? Text(
-                    adjustmentProperties,
-                    style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  )
-                : null,
+            subtitle: Text(
+              adjustmentProperties,
+              style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
             trailing: PopupMenuButton<String>(
               onSelected: (value) {
                 if (value == 'edit') {

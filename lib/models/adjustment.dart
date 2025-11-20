@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 abstract class Adjustment<T> {
@@ -12,6 +13,8 @@ abstract class Adjustment<T> {
 
   bool isValidValue(T value);
   Map<String, dynamic> toJson();
+  Icon getIcon({double? size, Color? color});
+  String getProperties();
 
   static String formatValue(dynamic value) {
     if (value is String) {
@@ -85,6 +88,16 @@ class CategoricalAdjustment extends Adjustment<String> {
     'unit': unit,
     'options': options,
   };
+
+  @override
+  Icon getIcon({double? size, Color? color}) {
+    return Icon(Icons.category, size: size, color: color,);
+  }
+
+  @override
+  String getProperties() {
+    return options.join('/');
+  }
 }
 
 class StepAdjustment extends Adjustment<int> {
@@ -117,6 +130,16 @@ class StepAdjustment extends Adjustment<int> {
     'min': min,
     'max': max,
   };
+
+  @override
+  Icon getIcon({double? size, Color? color}) {
+    return Icon(Icons.format_list_numbered, size: size, color: color);
+  }
+
+  @override
+  String getProperties() {
+    return "Range $min..$max, Step $step";
+  }
 }
 
 class NumericalAdjustment extends Adjustment<double> {
@@ -147,6 +170,16 @@ class NumericalAdjustment extends Adjustment<double> {
     'min': min.isFinite ? min : null,
     'max': max.isFinite ? max : null,
   };
+
+  @override
+  Icon getIcon({double? size, Color? color}) {
+    return Icon(Icons.numbers, size: size, color: color);
+  }
+
+  @override
+  String getProperties() {
+    return "Range $min..$max [${unit ?? ''}]";
+  }
 }
 
 class BooleanAdjustment extends Adjustment<bool> {
@@ -165,4 +198,14 @@ class BooleanAdjustment extends Adjustment<bool> {
     'valueType': valueType.toString(),
     'unit': unit,
   };
+
+  @override
+  Icon getIcon({double? size, Color? color}) {
+    return Icon(Icons.toggle_on, size: size, color: color);
+  }
+
+  @override
+  String getProperties() {
+    return "On/Off";
+  }
 }

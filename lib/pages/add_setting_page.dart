@@ -117,8 +117,7 @@ class _AddSettingPageState extends State<AddSettingPage> {
     super.dispose();
   }
 
-  Future<void> _pickDateTime() async {
-    // Pick date
+  Future<void> _pickDate() async {
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: _selectedDateTime,
@@ -128,7 +127,18 @@ class _AddSettingPageState extends State<AddSettingPage> {
 
     if (!mounted || pickedDate == null) return;
 
-    // Pick time
+    setState(() {
+      _selectedDateTime = DateTime(
+        pickedDate.year,
+        pickedDate.month,
+        pickedDate.day,
+        _selectedDateTime.hour,
+        _selectedDateTime.minute,
+      );
+    });
+  }
+
+  Future<void> _pickTime() async {
     final pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(_selectedDateTime),
@@ -138,9 +148,9 @@ class _AddSettingPageState extends State<AddSettingPage> {
 
     setState(() {
       _selectedDateTime = DateTime(
-        pickedDate.year,
-        pickedDate.month,
-        pickedDate.day,
+        _selectedDateTime.year,
+        _selectedDateTime.month,
+        _selectedDateTime.day,
         pickedTime.hour,
         pickedTime.minute,
       );
@@ -217,10 +227,17 @@ class _AddSettingPageState extends State<AddSettingPage> {
               ActionChip(
                 avatar: const Icon(Icons.calendar_today),
                 label: Text(
-                  DateFormat('yyyy-MM-dd HH:mm').format(_selectedDateTime),
+                  DateFormat('yyyy-MM-dd').format(_selectedDateTime),
                 ),
-                onPressed: _pickDateTime,
+                onPressed: _pickDate,
               ),
+              ActionChip(
+                avatar: const Icon(Icons.access_time),
+                label: Text(
+                  DateFormat('HH:mm').format(_selectedDateTime),
+                ),
+                onPressed: _pickTime,
+              ),              
               Chip(
                 avatar: _locationService.status == LocationStatus.locationFound
                     ? Icon(Icons.my_location)

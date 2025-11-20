@@ -126,7 +126,6 @@ class _AdjustmentTableCell extends StatelessWidget {
           ),
           Text.rich(
             TextSpan(
-              // style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               children: [
                 TextSpan(
                   text: Adjustment.formatValue(value),

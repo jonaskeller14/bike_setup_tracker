@@ -6,12 +6,14 @@ import '../widgets/adjustment_display_list.dart';
 class SettingList extends StatefulWidget {
   final List<Setting> settings;
   final void Function(Setting setting) editSetting;
+  final void Function(Setting setting) restoreSetting;
   final void Function(Setting setting) removeSetting;
 
   const SettingList({
     super.key,
     required this.settings,
     required this.editSetting,
+    required this.restoreSetting,
     required this.removeSetting,
   });
 
@@ -72,6 +74,8 @@ class _SettingListState extends State<SettingList> {
                         onSelected: (value) {
                           if (value == 'edit') {
                             widget.editSetting(setting);
+                          } else if (value == 'restore') {
+                            widget.restoreSetting(setting);
                           } else if (value == 'remove') {
                             widget.removeSetting(setting);
                           }
@@ -84,6 +88,16 @@ class _SettingListState extends State<SettingList> {
                                 Icon(Icons.edit, size: 20),
                                 SizedBox(width: 10),
                                 Text('Edit'),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'restore',
+                            child: Row(
+                              children: [
+                                Icon(Icons.restore, size: 20),
+                                SizedBox(width: 10),
+                                Text('Restore'),
                               ],
                             ),
                           ),

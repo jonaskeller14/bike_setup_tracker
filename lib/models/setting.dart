@@ -9,8 +9,8 @@ class Setting {
   final String name;
   final DateTime datetime;
   final String? notes;
-  Bike bike;
-  Map<Adjustment, dynamic> adjustmentValues;
+  final Bike bike;
+  final Map<Adjustment, dynamic> adjustmentValues;
   final LocationData? position;
   final geo.Placemark? place;
   final double? temperature;

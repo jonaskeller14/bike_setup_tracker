@@ -355,6 +355,29 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> restoreSetting(Setting setting) async {
+    final newSetting = Setting(
+      name: setting.name, 
+      bike: setting.bike,
+      datetime: DateTime.now(),
+      adjustmentValues: setting.adjustmentValues,
+      isCurrent: true,
+    );  //FIXME: Location and waether data is null --> maybe add default constructor?
+
+    setState(() {
+      newSetting.previousSetting = components.where((c) => c.bike == newSetting.bike).firstOrNull?.currentSetting;  //FIXME: wrong if past date is set manually
+      for (var component in components.where((c) => c.bike == newSetting.bike)) {  // FIXME: wrong if date edited
+        component.currentSetting = newSetting;
+      }
+      settings.add(newSetting);
+      settings.sort((a, b) => a.datetime.compareTo(b.datetime));
+      determineCurrentSettings();
+    });
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+
+    editSetting(newSetting);
+  }
+
   Future<void> determineCurrentSettings() async {
     for (final setting in settings) {
       setting.isCurrent = false;
@@ -460,6 +483,7 @@ class _HomePageState extends State<HomePage> {
           SettingList(
             settings: settings,
             editSetting: editSetting,
+            restoreSetting: restoreSetting,
             removeSetting: removeSetting,
           ),
 

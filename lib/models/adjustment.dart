@@ -26,7 +26,7 @@ abstract class Adjustment<T> {
       if (value.toInt().toDouble() == value) {
         return value.toInt().toString();
       } else {
-        return value.toString();
+        return value.toStringAsFixed(5).replaceAll(RegExp(r'([.]*0+)(?!.*\d)'), '');
       }
     } else if (value is int) {
       return value.toString();

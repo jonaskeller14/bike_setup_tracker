@@ -24,6 +24,7 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
+  final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _notesController;
   late Bike bike;
@@ -44,7 +45,7 @@ class _SettingPageState extends State<SettingPage> {
   void initState() {
     super.initState();
     bike = widget.setting?.bike ?? widget.bikes.first;
-    onBikeChange();
+    _onBikeChange();
     if (widget.setting == null) fetchLocationAddressWeather();
 
     _nameController = TextEditingController(text: widget.setting?.name);
@@ -55,11 +56,11 @@ class _SettingPageState extends State<SettingPage> {
     temperature = widget.setting?.temperature;
   }
 
-  Future<void> onBikeChange () async {
+  Future<void> _onBikeChange () async {
+    adjustmentValues.clear();    
     bikeComponents = widget.components.where((c) => c.bike == bike).toList();
 
     // Set initial values by reading currentSetting
-    adjustmentValues.clear();
     if (widget.setting?.bike == bike) {
       for (final adjustmentValue in widget.setting!.adjustmentValues.entries) {
         adjustmentValues[adjustmentValue.key] = adjustmentValue.value;
@@ -170,8 +171,8 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   void _saveSetting() {
+    if (!_formKey.currentState!.validate()) return;
     final name = _nameController.text.trim();
-    if (name.isEmpty) return;
 
     final notesText = _notesController.text.trim();
     final notes = notesText.isEmpty ? null : notesText;
@@ -210,8 +211,12 @@ class _SettingPageState extends State<SettingPage> {
     }
   }
 
-  void _onAdjustmentValueChanged(Adjustment adjustment, dynamic newValue) {
+  void _onAdjustmentValueChanged({required Adjustment adjustment, required dynamic newValue}) {
     adjustmentValues[adjustment] = newValue;
+  }
+
+  void _removeFromAdjustmentValues({required Adjustment adjustment}) {
+    adjustmentValues.remove(adjustment);
   }
 
   @override
@@ -227,135 +232,146 @@ class _SettingPageState extends State<SettingPage> {
           IconButton(icon: const Icon(Icons.check), onPressed: _saveSetting),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          TextField(
-            controller: _nameController,
-            autofocus: true,
-            decoration: const InputDecoration(
-              labelText: 'Setting Name',
-              border: OutlineInputBorder(),
-              hintText: 'Enter setting name',
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16.0),
+          children: [
+            TextFormField(
+              controller: _nameController,
+              autofocus: true,
+              decoration: const InputDecoration(
+                labelText: 'Setting Name',
+                border: OutlineInputBorder(),
+                hintText: 'Enter setting name',
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Please enter a name';
+                }
+                return null;
+              },            
             ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _notesController,
-            maxLines: 3,
-            decoration: const InputDecoration(
-              labelText: 'Notes (optional)',
-              border: OutlineInputBorder(),
-              hintText: 'Add notes (optional)',
+            const SizedBox(height: 12),
+            TextField(
+              controller: _notesController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Notes (optional)',
+                border: OutlineInputBorder(),
+                hintText: 'Add notes (optional)',
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8.0,
-            runSpacing: 4.0,
-            children: [
-              ActionChip(
-                avatar: const Icon(Icons.calendar_today),
-                label: Text(
-                  DateFormat('yyyy-MM-dd').format(_selectedDateTime),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 4.0,
+              children: [
+                ActionChip(
+                  avatar: const Icon(Icons.calendar_today),
+                  label: Text(
+                    DateFormat('yyyy-MM-dd').format(_selectedDateTime),
+                  ),
+                  onPressed: _pickDate,
                 ),
-                onPressed: _pickDate,
-              ),
-              ActionChip(
-                avatar: const Icon(Icons.access_time),
-                label: Text(
-                  DateFormat('HH:mm').format(_selectedDateTime),
+                ActionChip(
+                  avatar: const Icon(Icons.access_time),
+                  label: Text(
+                    DateFormat('HH:mm').format(_selectedDateTime),
+                  ),
+                  onPressed: _pickTime,
                 ),
-                onPressed: _pickTime,
-              ),
-              Chip(
-                avatar: _locationService.status == LocationStatus.locationFound
-                    ? Icon(Icons.my_location)
-                    : (_locationService.status == LocationStatus.findingLocation
-                          ? Icon(Icons.location_searching)
-                          : (_locationService.status == LocationStatus.idle
-                                ? Icon(Icons.location_searching)
-                                : Icon(Icons.location_disabled))),
-                label: _locationService.status == LocationStatus.locationFound
-                    ? Text("${_currentPlace?.thoroughfare} ${_currentPlace?.subThoroughfare}, ${_currentPlace?.locality}, ${_currentPlace?.country}")
-                    : (_locationService.status == LocationStatus.idle
-                          ? const Text("-")
-                          : (_locationService.status == LocationStatus.findingLocation
-                                ? const Text("Finding Location...")
-                                : (_locationService.status == LocationStatus.noPermission
-                                      ? const Text("No location permision")
-                                      : (_locationService.status == LocationStatus.noService
-                                            ? const Text("No location service")
-                                            : const Text("Error"))))),
-              ),
-              Chip(
-                avatar: Icon(Icons.arrow_upward),
-                label: _currentLocation?.altitude == null ? const Text("-") : Text("Altitude: ${_currentLocation?.altitude?.round()} m"),
-              ),
-              Chip(
-                avatar: Icon(Icons.thermostat), 
-                label: temperature == null ? const Text("-") : Text("${temperature?.toStringAsFixed(1)} °C")
-              ),
-            ],
-          ),
-          Text(
-            "Weather data by Open-Meteo.com",
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[400]),
-          ),
-          const SizedBox(height: 12),
-          DropdownButtonFormField<Bike>(
-            initialValue: bike,
-            isExpanded: true,
-            decoration: const InputDecoration(
-              labelText: 'Bike',
-              border: OutlineInputBorder(),
-              hintText: "Choose a bike for this component",
+                Chip(
+                  avatar: _locationService.status == LocationStatus.locationFound
+                      ? Icon(Icons.my_location)
+                      : (_locationService.status == LocationStatus.findingLocation
+                            ? Icon(Icons.location_searching)
+                            : (_locationService.status == LocationStatus.idle
+                                  ? Icon(Icons.location_searching)
+                                  : Icon(Icons.location_disabled))),
+                  label: _locationService.status == LocationStatus.locationFound
+                      ? Text("${_currentPlace?.thoroughfare} ${_currentPlace?.subThoroughfare}, ${_currentPlace?.locality}, ${_currentPlace?.country}")
+                      : (_locationService.status == LocationStatus.idle
+                            ? const Text("-")
+                            : (_locationService.status == LocationStatus.findingLocation
+                                  ? const Text("Finding Location...")
+                                  : (_locationService.status == LocationStatus.noPermission
+                                        ? const Text("No location permision")
+                                        : (_locationService.status == LocationStatus.noService
+                                              ? const Text("No location service")
+                                              : const Text("Error"))))),
+                ),
+                Chip(
+                  avatar: Icon(Icons.arrow_upward),
+                  label: _currentLocation?.altitude == null ? const Text("-") : Text("Altitude: ${_currentLocation?.altitude?.round()} m"),
+                ),
+                Chip(
+                  avatar: Icon(Icons.thermostat), 
+                  label: temperature == null ? const Text("-") : Text("${temperature?.toStringAsFixed(1)} °C")
+                ),
+              ],
             ),
-            items: widget.bikes.map((b) {
-              return DropdownMenuItem<Bike>(
-                value: b,
-                child: Text(b.name, overflow: TextOverflow.ellipsis),
-              );
-            }).toList(),
-            onChanged: (Bike? newBike) {
-              if (newBike == null) return;
-              setState(() {
-                bike = newBike;
-                onBikeChange();
-              });
-            },
-          ),
-          const SizedBox(height: 24),
-          if (bikeComponents.isEmpty)
-            const Center(
-              child: Text(
-                'No components available.',
-                style: TextStyle(color: Colors.grey),
+            Text(
+              "Weather data by Open-Meteo.com",
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[400]),
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<Bike>(
+              initialValue: bike,
+              isExpanded: true,
+              decoration: const InputDecoration(
+                labelText: 'Bike',
+                border: OutlineInputBorder(),
+                hintText: "Choose a bike for this component",
               ),
-            )
-          else
-            ...bikeComponents.map((bikeComponent) {
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ListTile(
-                      title: Text(bikeComponent.name),
-                      subtitle: Text('${bikeComponent.adjustments.length} adjustments'),
-                      leading: const Icon(Icons.tune),
-                    ),
-                    AdjustmentSetList(
-                      key: ValueKey(bikeComponent.id),
-                      adjustments: bikeComponent.adjustments,
-                      initialAdjustmentValues: bikeComponent.currentSetting?.adjustmentValues ?? <Adjustment, dynamic>{},
-                      onAdjustmentValueChanged: _onAdjustmentValueChanged,
-                    ),
-                  ],
+              items: widget.bikes.map((b) {
+                return DropdownMenuItem<Bike>(
+                  value: b,
+                  child: Text(b.name, overflow: TextOverflow.ellipsis),
+                );
+              }).toList(),
+              onChanged: (Bike? newBike) {
+                if (newBike == null) return;
+                setState(() {
+                  bike = newBike;
+                  _onBikeChange();
+                });
+              },
+            ),
+            const SizedBox(height: 24),
+            if (bikeComponents.isEmpty)
+              const Center(
+                child: Text(
+                  'No components available.',
+                  style: TextStyle(color: Colors.grey),
                 ),
-              );
-            }),
-        ],
+              )
+            else
+              ...bikeComponents.map((bikeComponent) {
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ListTile(
+                        title: Text(bikeComponent.name),
+                        subtitle: Text('${bikeComponent.adjustments.length} adjustments'),
+                        leading: const Icon(Icons.tune),
+                      ),
+                      AdjustmentSetList(
+                        key: ValueKey(bikeComponent.id),
+                        adjustments: bikeComponent.adjustments,
+                        initialAdjustmentValues: bikeComponent.currentSetting?.adjustmentValues ?? <Adjustment, dynamic>{},
+                        onAdjustmentValueChanged: _onAdjustmentValueChanged,
+                        removeFromAdjustmentValues: _removeFromAdjustmentValues,
+                        onBikeChange: _onBikeChange,
+                      ),
+                    ],
+                  ),
+                );
+              }),
+          ],
+        ),
       ),
     );
   }

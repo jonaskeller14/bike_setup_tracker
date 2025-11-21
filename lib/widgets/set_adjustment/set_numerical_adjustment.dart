@@ -5,7 +5,7 @@ import '../../models/adjustment.dart';
 class SetNumericalAdjustmentWidget extends StatefulWidget {
   final NumericalAdjustment adjustment;
   final double? initialValue;
-  final String value;
+  final String? value;
   final ValueChanged<String> onChanged;
 
   const SetNumericalAdjustmentWidget({
@@ -26,20 +26,19 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: widget.value.toString());
+    _controller = TextEditingController(text: widget.value ?? '');
   }
 
   @override
   void didUpdateWidget(SetNumericalAdjustmentWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.value != oldWidget.value) {
-      // Update text and keep the cursor at the end
-      final newText = widget.value.toString();
-      _controller.value = _controller.value.copyWith(
-        text: newText,
-        selection: TextSelection.collapsed(offset: newText.length),
-      );
-    }
+    if (widget.value == oldWidget.value) return;
+    // Update text and keep the cursor at the end
+    final newText = widget.value ?? '';
+    _controller.value = _controller.value.copyWith(
+      text: newText,
+      selection: TextSelection.collapsed(offset: newText.length),
+    );
   }
 
   @override
@@ -50,7 +49,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
 
   @override
   Widget build(BuildContext context) {
-    double? parsedValue = double.tryParse(widget.value);
+    double? parsedValue = double.tryParse(widget.value ?? '');
     final changed = parsedValue == null ? false : widget.initialValue != parsedValue;
     final highlightColor = changed ? Colors.orange : null;
 
@@ -75,12 +74,28 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
               inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
               controller: _controller,
               onChanged: widget.onChanged,
+              onFieldSubmitted: widget.onChanged,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 isDense: true,
+                hintText: 'Please enter',
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 suffixText: widget.adjustment.unit != null ? ' ${widget.adjustment.unit}' : null,
               ),
+              validator: (value) {
+                if ((value == null || value.trim().isEmpty) && widget.initialValue != null) {
+                  return 'Please enter a value';
+                }
+                if (value != null && value.trim().isNotEmpty) {
+                  final parsedValue = double.tryParse(value);
+                  if (parsedValue == null) return "Please enter valid number";
+                  final max = widget.adjustment.max;
+                  if (parsedValue > max) return "Value exceeds maximum of $max";
+                  final min = widget.adjustment.min;
+                  if (parsedValue < min) return "Value is below minimum of $min";
+                }
+                return null;
+              },   
             ),
           ),
         ],

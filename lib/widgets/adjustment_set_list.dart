@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import '../models/adjustment.dart';
 import 'set_adjustment/set_boolean_adjustment.dart';
@@ -9,13 +8,17 @@ import 'set_adjustment/set_step_adjustment.dart';
 class AdjustmentSetList extends StatefulWidget {
   final List<Adjustment> adjustments;
   final Map<Adjustment, dynamic> initialAdjustmentValues;
-  final void Function(Adjustment adjustment, dynamic newValue) onAdjustmentValueChanged;
+  final void Function({required Adjustment adjustment, required dynamic newValue}) onAdjustmentValueChanged;
+  final void Function({required Adjustment adjustment}) removeFromAdjustmentValues;
+  final void Function() onBikeChange;
 
   const AdjustmentSetList({
     super.key,
     required this.adjustments,
     required this.initialAdjustmentValues,
     required this.onAdjustmentValueChanged,
+    required this.removeFromAdjustmentValues,
+    required this.onBikeChange,
   });
 
   @override
@@ -23,27 +26,32 @@ class AdjustmentSetList extends StatefulWidget {
 }
 
 class _AdjustmentSetListState extends State<AdjustmentSetList> {
-  Map<Adjustment, dynamic> adjustmentValues = {};  // Types differ from real Adjustment value types because parsing happens later
+  final Map<Adjustment, dynamic> _adjustmentValues = {};  // Types differ from real Adjustment value types because parsing happens later
 
   @override
   void initState() {
     super.initState();
+
+    widget.onBikeChange();
+    
     for (final adjustment in widget.adjustments) {
       final initialValue = widget.initialAdjustmentValues[adjustment];
       if (initialValue == null) {
-        if (adjustment is BooleanAdjustment) {
-          adjustmentValues[adjustment] = false;
+        if (adjustment is BooleanAdjustment) { 
+          _adjustmentValues[adjustment] = false;
+          widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: false); // FormField with null does not exist
         } else if (adjustment is NumericalAdjustment) {
-          adjustmentValues[adjustment] = adjustment.min == double.negativeInfinity ? min(0.0, adjustment.max).toString() : (0.0).toString();
+          _adjustmentValues[adjustment] = null;
         } else if (adjustment is StepAdjustment) {
-          adjustmentValues[adjustment] = adjustment.min;
+          _adjustmentValues[adjustment] = adjustment.min;
+          widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: adjustment.min); // FormField with null does not exist
         } else if (adjustment is CategoricalAdjustment) {
-          adjustmentValues[adjustment] = adjustment.options[0];
+          _adjustmentValues[adjustment] = null;
         } else {
           throw Exception('Unknown adjustment type');
         }
       } else {
-        adjustmentValues[adjustment] = initialValue;
+        _adjustmentValues[adjustment] = initialValue;
       }
     }
   }
@@ -59,10 +67,10 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             key: ValueKey(adjustment),
             adjustment: adjustment,
             initialValue: widget.initialAdjustmentValues[adjustment],
-            value: adjustmentValues[adjustment],
+            value: _adjustmentValues[adjustment],
             onChanged: (newValue) {
-              setState(() => adjustmentValues[adjustment] = newValue);
-              widget.onAdjustmentValueChanged(adjustment, newValue);
+              setState(() => _adjustmentValues[adjustment] = newValue);
+              widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
             },
           );
         } else if (adjustment is NumericalAdjustment) {
@@ -70,12 +78,14 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             key: ValueKey(adjustment),
             adjustment: adjustment,
             initialValue: widget.initialAdjustmentValues[adjustment],
-            value: adjustmentValues[adjustment].toString(),
+            value: _adjustmentValues[adjustment]?.toString(),
             onChanged: (String newValue) {
-              setState(() => adjustmentValues[adjustment] = newValue);
+              setState(() => _adjustmentValues[adjustment] = newValue);
               final parsedValue = double.tryParse(newValue);
               if (parsedValue != null) {                
-                widget.onAdjustmentValueChanged(adjustment, parsedValue);
+                widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: parsedValue);
+              } else {
+                widget.removeFromAdjustmentValues(adjustment: adjustment);
               }
             },
           );
@@ -85,14 +95,14 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             key: ValueKey(adjustment), 
             adjustment: adjustment,
             initialValue: widget.initialAdjustmentValues[adjustment]?.toDouble(),
-            value: adjustmentValues[adjustment].toDouble(), 
+            value: _adjustmentValues[adjustment].toDouble(), 
             onChanged: (double newValue) {
               setState(() {
-                adjustmentValues[adjustment] = newValue;
+                _adjustmentValues[adjustment] = newValue;
               });
             },
             onChangedEnd: (double newValue) {
-              widget.onAdjustmentValueChanged(adjustment, newValue.toInt());
+              widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue.toInt());
             },
           );
         } else if (adjustment is CategoricalAdjustment) {
@@ -100,12 +110,12 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             key: ValueKey(adjustment), 
             adjustment: adjustment, 
             initialValue: widget.initialAdjustmentValues[adjustment],
-            value: adjustmentValues[adjustment], 
+            value: _adjustmentValues[adjustment], 
             onChanged: (String? newValue) {
               setState(() {
-                adjustmentValues[adjustment] = newValue;
+                _adjustmentValues[adjustment] = newValue;
               });
-              widget.onAdjustmentValueChanged(adjustment, newValue);
+              widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
             },
           );
         }

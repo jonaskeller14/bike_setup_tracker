@@ -4,7 +4,7 @@ import '../../models/adjustment.dart';
 class SetCategoricalAdjustmentWidget extends StatelessWidget {
   final CategoricalAdjustment adjustment;
   final String? initialValue;
-  final String value;
+  final String? value;
   final ValueChanged<String?> onChanged;
 
   const SetCategoricalAdjustmentWidget({
@@ -42,6 +42,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
               initialValue: value,
+              hint: const Text("Please select"),
               items: options.map<DropdownMenuItem<String>>((option) {
                 return DropdownMenuItem<String>(
                   value: option,

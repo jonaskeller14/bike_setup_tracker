@@ -160,19 +160,25 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> _pickTime() async {
-    final pickedTime = await showTimePicker(
+    TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(_selectedDateTime),
     );
-
     if (!mounted || pickedTime == null) return;
+    if (_selectedDateTime.copyWith(hour: pickedTime.hour, minute: pickedTime.minute).isAfter(DateTime.now())) {
+      pickedTime = TimeOfDay.now();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Date and Time must be in the past.')),
+      );
+    }
 
+    if (!mounted) return;
     setState(() {
       _selectedDateTime = DateTime(
         _selectedDateTime.year,
         _selectedDateTime.month,
         _selectedDateTime.day,
-        pickedTime.hour,
+        pickedTime!.hour,
         pickedTime.minute,
       );
     });

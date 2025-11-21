@@ -289,7 +289,7 @@ class _SettingPageState extends State<SettingPage> {
                             : (_locationService.status == LocationStatus.idle
                                   ? Icon(Icons.location_searching)
                                   : Icon(Icons.location_disabled))),
-                  label: _locationService.status == LocationStatus.locationFound
+                  label: _locationService.status == LocationStatus.locationFound || _currentPlace != null
                       ? Text("${_currentPlace?.thoroughfare} ${_currentPlace?.subThoroughfare}, ${_currentPlace?.locality}, ${_currentPlace?.country}")
                       : (_locationService.status == LocationStatus.idle
                             ? const Text("-")

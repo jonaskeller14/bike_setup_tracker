@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'bike.dart';
 import "adjustment.dart";
+import 'weather.dart';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 
@@ -14,7 +15,7 @@ class Setting {
   final Map<Adjustment, dynamic> adjustmentValues;
   final LocationData? position;
   final geo.Placemark? place;
-  final double? temperature;
+  final Weather? weather;
   Setting? previousSetting;
   bool isCurrent;
 
@@ -27,7 +28,7 @@ class Setting {
     required this.adjustmentValues,
     this.place,
     this.position,
-    this.temperature,
+    this.weather,
     this.previousSetting,
     required this.isCurrent,
   }): id = id ?? const Uuid().v4();
@@ -44,7 +45,7 @@ class Setting {
     },
     'position': position != null ? _locationDataToJson(position!) : null,
     'place': place != null ? _placemarkToJson(place!) : null,
-    'temperature': temperature,
+    'weather': weather?.toJson(),
     'previousSetting': previousSetting?.id,
     'isCurrent': isCurrent,
   };
@@ -77,8 +78,8 @@ class Setting {
       adjustmentValues: adjustmentValues,
       position: json['position'] != null ? _locationDataFromJson(json['position']) : null,
       place: json['place'] != null ? _placemarkFromJson(json['place']) : null,
-      temperature: json['temperature'],
-      previousSetting: null, //TODO
+      weather: json['weather'] != null ? Weather.fromJson(json['weather']) : null,
+      previousSetting: null,
       isCurrent: json['isCurrent'] ?? false,
     );
   }

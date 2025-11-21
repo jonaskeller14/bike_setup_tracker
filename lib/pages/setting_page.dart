@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
+import '../models/weather.dart';
 import '../models/bike.dart';
 import '../models/setting.dart';
 import '../models/component.dart';
@@ -39,7 +40,7 @@ class _SettingPageState extends State<SettingPage> {
   late geo.Placemark? _currentPlace;
 
   final WeatherService _weatherService = WeatherService();
-  late double? temperature;
+  Weather? _currentWeather;
 
   @override
   void initState() {
@@ -53,7 +54,7 @@ class _SettingPageState extends State<SettingPage> {
     _selectedDateTime = widget.setting?.datetime ?? DateTime.now();
     _currentLocation = widget.setting?.position;
     _currentPlace = widget.setting?.place;
-    temperature = widget.setting?.temperature;
+    _currentWeather = widget.setting?.weather;
   }
 
   Future<void> _onBikeChange () async {
@@ -96,7 +97,7 @@ class _SettingPageState extends State<SettingPage> {
       _currentLocation = location;
     });
 
-    final tempFuture = _weatherService.fetchTemperature(
+    final weatherFuture = _weatherService.fetchWeather(
       location.latitude!,
       location.longitude!,
     );
@@ -107,18 +108,18 @@ class _SettingPageState extends State<SettingPage> {
     );
 
     // Wait for both futures
-    final results = await Future.wait([tempFuture, placemarkFuture]);
+    final results = await Future.wait([weatherFuture, placemarkFuture]);
 
     if (!mounted) return;
 
     setState(() {
-      temperature = results[0] as double?;
+      _currentWeather = results[0] as Weather?;
       _currentPlace = results[1] as geo.Placemark?;
     });
 
-    if (temperature == null) {
+    if (_currentWeather == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error fetching temperature.')),
+        const SnackBar(content: Text('Error fetching weather.')),
       );
     }
   }
@@ -188,7 +189,7 @@ class _SettingPageState extends State<SettingPage> {
           adjustmentValues: adjustmentValues,
           position: _currentLocation,
           place: _currentPlace,
-          temperature: temperature,
+          weather: _currentWeather,
           isCurrent: false,
         ),
       );
@@ -204,7 +205,7 @@ class _SettingPageState extends State<SettingPage> {
           adjustmentValues: adjustmentValues,
           position: widget.setting!.position,
           place: widget.setting!.place,
-          temperature: widget.setting!.temperature,
+          weather: widget.setting!.weather,
           isCurrent: false,
         ),
       );
@@ -307,7 +308,7 @@ class _SettingPageState extends State<SettingPage> {
                 ),
                 Chip(
                   avatar: Icon(Icons.thermostat), 
-                  label: temperature == null ? const Text("-") : Text("${temperature?.toStringAsFixed(1)} °C")
+                  label: _currentWeather?.currentTemperature == null ? const Text("-") : Text("${_currentWeather?.currentTemperature?.toStringAsFixed(1)} °C")
                 ),
               ],
             ),

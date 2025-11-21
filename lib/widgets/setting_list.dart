@@ -187,7 +187,7 @@ class _SettingListState extends State<SettingList> {
                             ],
                           )
                         ],
-                        if (setting.temperature != null) ... [
+                        if (setting.weather?.currentTemperature != null) ... [
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -195,7 +195,7 @@ class _SettingListState extends State<SettingList> {
                               Icon(Icons.thermostat, size: 13, color: Colors.grey.shade800),
                               const SizedBox(width: 2),
                               Text(
-                                "${setting.temperature!.toStringAsFixed(1)} °C",
+                                "${setting.weather!.currentTemperature!.toStringAsFixed(1)} °C",
                                 style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                               ),
                             ],

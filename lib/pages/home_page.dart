@@ -6,8 +6,7 @@ import '../models/setting.dart';
 import '../models/component.dart';
 import 'bike_page.dart';
 import 'component_page.dart';
-import 'add_setting_page.dart';
-import 'edit_setting_page.dart';
+import 'setting_page.dart';
 import '../utils/file_export.dart';
 import '../utils/file_import.dart';
 import '../widgets/bike_list.dart';
@@ -331,7 +330,7 @@ class _HomePageState extends State<HomePage> {
 
     final setting = await Navigator.push<Setting>(
       context,
-      MaterialPageRoute(builder: (context) => AddSettingPage(components: components, bikes: bikes)),
+      MaterialPageRoute(builder: (context) => SettingPage(components: components, bikes: bikes)),
     );
     if (setting == null) return;
     
@@ -348,7 +347,7 @@ class _HomePageState extends State<HomePage> {
     final editedSetting = await Navigator.push<Setting>(
       context,
       MaterialPageRoute(
-        builder: (context) => EditSettingPage(setting: setting, components: components, bikes: bikes),
+        builder: (context) => SettingPage(setting: setting, components: components, bikes: bikes),
       ),
     );
     if (editedSetting != null) {

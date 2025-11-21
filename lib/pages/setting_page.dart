@@ -12,52 +12,66 @@ import '../services/address_service.dart';
 import '../services/location_service.dart';
 import '../widgets/adjustment_set_list.dart';
 
-class AddSettingPage extends StatefulWidget {
+class SettingPage extends StatefulWidget {
+  final Setting? setting;
   final List<Component> components;
   final List<Bike> bikes;
 
-  const AddSettingPage({super.key, required this.components, required this.bikes});
+  const SettingPage({super.key, required this.components, required this.bikes, this.setting});
 
   @override
-  State<AddSettingPage> createState() => _AddSettingPageState();
+  State<SettingPage> createState() => _SettingPageState();
 }
 
-class _AddSettingPageState extends State<AddSettingPage> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _notesController = TextEditingController();
+class _SettingPageState extends State<SettingPage> {
+  late TextEditingController _nameController;
+  late TextEditingController _notesController;
   late Bike bike;
   List<Component> bikeComponents = [];
-  DateTime _selectedDateTime = DateTime.now();
+  late DateTime _selectedDateTime;
   Map<Adjustment, dynamic> adjustmentValues = {};
 
   final LocationService _locationService = LocationService();
-  LocationData? _currentLocation;
+  late LocationData? _currentLocation;
 
   final AddressService _addressService = AddressService();
-  geo.Placemark? _currentPlace;
+  late geo.Placemark? _currentPlace;
 
   final WeatherService _weatherService = WeatherService();
-  double? temperature;
+  late double? temperature;
 
   @override
   void initState() {
     super.initState();
-    bike = widget.bikes.first;
+    bike = widget.setting?.bike ?? widget.bikes.first;
     onBikeChange();
-    fetchLocationAddressWeather();
+    if (widget.setting == null) fetchLocationAddressWeather();
+
+    _nameController = TextEditingController(text: widget.setting?.name);
+    _notesController = TextEditingController(text: widget.setting?.notes ?? '');
+    _selectedDateTime = widget.setting?.datetime ?? DateTime.now();
+    _currentLocation = widget.setting?.position;
+    _currentPlace = widget.setting?.place;
+    temperature = widget.setting?.temperature;
   }
 
-  void onBikeChange () {
+  Future<void> onBikeChange () async {
     bikeComponents = widget.components.where((c) => c.bike == bike).toList();
 
     // Set initial values by reading currentSetting
     adjustmentValues.clear();
-    for (final component in bikeComponents) {
-      if (component.currentSetting == null) continue;
-      final componentAdjustmentValues = component.currentSetting?.adjustmentValues;
-      if (componentAdjustmentValues == null) continue;
-      for (final adjustmentValue in componentAdjustmentValues.entries) {
+    if (widget.setting?.bike == bike) {
+      for (final adjustmentValue in widget.setting!.adjustmentValues.entries) {
         adjustmentValues[adjustmentValue.key] = adjustmentValue.value;
+      }
+    } else {
+      for (final component in bikeComponents) {
+        if (component.currentSetting == null) continue;
+        final componentAdjustmentValues = component.currentSetting?.adjustmentValues;
+        if (componentAdjustmentValues == null) continue;
+        for (final adjustmentValue in componentAdjustmentValues.entries) {
+          adjustmentValues[adjustmentValue.key] = adjustmentValue.value;
+        }
       }
     }
   }
@@ -81,13 +95,11 @@ class _AddSettingPageState extends State<AddSettingPage> {
       _currentLocation = location;
     });
 
-    // 2 Fetch temperature (can run immediately)
     final tempFuture = _weatherService.fetchTemperature(
       location.latitude!,
       location.longitude!,
     );
 
-    // 3 Fetch address (can run immediately)
     final placemarkFuture = _addressService.getPlacemark(
       lat: location.latitude!,
       lon: location.longitude!,
@@ -164,20 +176,38 @@ class _AddSettingPageState extends State<AddSettingPage> {
     final notesText = _notesController.text.trim();
     final notes = notesText.isEmpty ? null : notesText;
 
-    Navigator.pop(
-      context,
-      Setting(
-        name: name,
-        datetime: _selectedDateTime,
-        notes: notes,
-        bike: bike,
-        adjustmentValues: adjustmentValues,
-        position: _currentLocation,
-        place: _currentPlace,
-        temperature: temperature,
-        isCurrent: false,
-      ),
-    );
+    if (widget.setting == null) {
+      Navigator.pop(
+        context,
+        Setting(
+          name: name,
+          datetime: _selectedDateTime,
+          notes: notes,
+          bike: bike,
+          adjustmentValues: adjustmentValues,
+          position: _currentLocation,
+          place: _currentPlace,
+          temperature: temperature,
+          isCurrent: false,
+        ),
+      );
+    } else {
+      Navigator.pop(
+        context,
+        Setting(
+          id: widget.setting!.id,
+          name: name,
+          datetime: _selectedDateTime,
+          notes: notes,
+          bike: bike,
+          adjustmentValues: adjustmentValues,
+          position: widget.setting!.position,
+          place: widget.setting!.place,
+          temperature: widget.setting!.temperature,
+          isCurrent: false,
+        ),
+      );
+    }
   }
 
   void _onAdjustmentValueChanged(Adjustment adjustment, dynamic newValue) {
@@ -192,7 +222,7 @@ class _AddSettingPageState extends State<AddSettingPage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Add Setting'),
+        title: widget.setting == null ? const Text('Add Setting') : const Text('Edit Setting'),
         actions: [
           IconButton(icon: const Icon(Icons.check), onPressed: _saveSetting),
         ],
@@ -237,32 +267,34 @@ class _AddSettingPageState extends State<AddSettingPage> {
                   DateFormat('HH:mm').format(_selectedDateTime),
                 ),
                 onPressed: _pickTime,
-              ),              
+              ),
               Chip(
                 avatar: _locationService.status == LocationStatus.locationFound
                     ? Icon(Icons.my_location)
                     : (_locationService.status == LocationStatus.findingLocation
                           ? Icon(Icons.location_searching)
-                          : Icon(Icons.location_disabled)),
+                          : (_locationService.status == LocationStatus.idle
+                                ? Icon(Icons.location_searching)
+                                : Icon(Icons.location_disabled))),
                 label: _locationService.status == LocationStatus.locationFound
                     ? Text("${_currentPlace?.thoroughfare} ${_currentPlace?.subThoroughfare}, ${_currentPlace?.locality}, ${_currentPlace?.country}")
-                    : (_locationService.status == LocationStatus.findingLocation
-                          ? Text("Finding Location...")
-                          : (_locationService.status == LocationStatus.noPermission
-                                ? Text("No location permision")
-                                : (_locationService.status == LocationStatus.noService
-                                      ? Text("No location service")
-                                      : Text("Error")))),
+                    : (_locationService.status == LocationStatus.idle
+                          ? const Text("-")
+                          : (_locationService.status == LocationStatus.findingLocation
+                                ? const Text("Finding Location...")
+                                : (_locationService.status == LocationStatus.noPermission
+                                      ? const Text("No location permision")
+                                      : (_locationService.status == LocationStatus.noService
+                                            ? const Text("No location service")
+                                            : const Text("Error"))))),
               ),
-              if (_locationService.status == LocationStatus.locationFound) ... [
-                Chip(
-                  avatar: Icon(Icons.arrow_upward),
-                  label: Text("Altitude: ${_currentLocation?.altitude?.round()} m"),
-                ),
-              ],
+              Chip(
+                avatar: Icon(Icons.arrow_upward),
+                label: _currentLocation?.altitude == null ? const Text("-") : Text("Altitude: ${_currentLocation?.altitude?.round()} m"),
+              ),
               Chip(
                 avatar: Icon(Icons.thermostat), 
-                label: temperature == null ? const Text("Fetching temperature...") : Text("${temperature?.toStringAsFixed(1)} °C")
+                label: temperature == null ? const Text("-") : Text("${temperature?.toStringAsFixed(1)} °C")
               ),
             ],
           ),

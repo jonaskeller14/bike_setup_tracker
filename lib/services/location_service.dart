@@ -1,6 +1,7 @@
 import 'package:location/location.dart';
 
 enum LocationStatus {
+  idle,
   findingLocation,
   noService,
   noPermission,
@@ -9,9 +10,10 @@ enum LocationStatus {
 
 class LocationService {
   final Location _location = Location();
-  LocationStatus status = LocationStatus.findingLocation;
+  LocationStatus status = LocationStatus.idle;
 
   Future<LocationData?> fetchLocation() async {
+    status = LocationStatus.idle;
     bool serviceEnabled = await _location.serviceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await _location.requestService();

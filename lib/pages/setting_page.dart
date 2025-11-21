@@ -136,7 +136,7 @@ class _SettingPageState extends State<SettingPage> {
       context: context,
       initialDate: _selectedDateTime,
       firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      lastDate: DateTime.now(),
     );
 
     if (!mounted || pickedDate == null) return;

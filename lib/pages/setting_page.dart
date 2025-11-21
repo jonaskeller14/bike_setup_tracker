@@ -150,6 +150,13 @@ class _SettingPageState extends State<SettingPage> {
         _selectedDateTime.minute,
       );
     });
+
+    if (_currentLocation == null) return;
+    final currentWeather = await _weatherService.fetchWeather(_currentLocation!.latitude!, _currentLocation!.longitude!, datetime: _selectedDateTime);
+    if (!mounted) return;
+    setState(() {
+      _currentWeather = currentWeather;
+    });
   }
 
   Future<void> _pickTime() async {
@@ -168,6 +175,13 @@ class _SettingPageState extends State<SettingPage> {
         pickedTime.hour,
         pickedTime.minute,
       );
+    });
+    
+    if (_currentLocation == null) return;
+    final currentWeather = await _weatherService.fetchWeather(_currentLocation!.latitude!, _currentLocation!.longitude!, datetime: _selectedDateTime);
+    if (!mounted) return;
+    setState(() {
+      _currentWeather = currentWeather;
     });
   }
 

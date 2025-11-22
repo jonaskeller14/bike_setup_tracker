@@ -4,9 +4,26 @@ import 'adjustment.dart';
 import 'setting.dart';
 import 'bike.dart';
 
+enum ComponentType {
+  frame,
+  fork,
+  shock,
+  brake,
+  wheel,
+  tire,
+  drivetrain,
+  stem,
+  handlebar,
+  saddle,
+  pedal,
+  motor,
+  other,
+}
+
 class Component {
   final String id;
   final String name;
+  final ComponentType componentType; 
   final List<Adjustment> adjustments;
   final Bike bike;
   Setting? currentSetting;
@@ -15,6 +32,7 @@ class Component {
     String? id,
     required this.name,
     required this.bike,
+    required this.componentType,
     this.currentSetting,
     List<Adjustment>? adjustments,
   }) : adjustments = adjustments ?? [],
@@ -24,6 +42,7 @@ class Component {
     return Component(
       name: name,
       bike: bike,
+      componentType: componentType,
       currentSetting: currentSetting,
       adjustments: adjustments.map((a) => a.deepCopy()).toList(),
     );
@@ -32,6 +51,7 @@ class Component {
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
+    'componentType': componentType.toString(),
     'bike': bike.id,
     'adjustments': adjustments.map((a) => a.id).toList(),
     'currentSetting': currentSetting?.id,
@@ -74,6 +94,10 @@ class Component {
     return Component(
       id: json["id"],
       name: json['name'],
+      componentType: ComponentType.values.firstWhere(
+        (e) => e.toString() == json['componentType'],
+        orElse: () => ComponentType.other,
+      ),
       bike: bike,
       adjustments: adjustments,
       currentSetting: currentSetting,

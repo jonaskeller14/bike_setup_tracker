@@ -23,6 +23,7 @@ class _ComponentPageState extends State<ComponentPage> {
   late TextEditingController _nameController;
   late List<Adjustment> adjustments;
   late Bike bike;
+  late ComponentType? componentType;
 
   @override
   void initState() {
@@ -30,6 +31,7 @@ class _ComponentPageState extends State<ComponentPage> {
     _nameController = TextEditingController(text: widget.component?.name);
     adjustments = widget.component?.adjustments ?? [];
     bike = widget.component?.bike ?? widget.bikes.first;
+    componentType = widget.component?.componentType;
   }
 
   @override
@@ -177,6 +179,7 @@ class _ComponentPageState extends State<ComponentPage> {
       Component(
         id: widget.component?.id,
         name: name,
+        componentType: componentType!,
         bike: bike,
         adjustments: adjustments,
         currentSetting: widget.component?.currentSetting,
@@ -197,94 +200,127 @@ class _ComponentPageState extends State<ComponentPage> {
           IconButton(icon: const Icon(Icons.check), onPressed: _saveComponent),
         ],
       ),
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextFormField(
-                controller: _nameController,
-                autofocus: widget.component == null,
-                decoration: const InputDecoration(
-                  labelText: 'Component Name',
-                  border: OutlineInputBorder(),
-                  hintText: 'Enter component name',
+      body: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: _nameController,
+                  autofocus: widget.component == null,
+                  decoration: const InputDecoration(
+                    labelText: 'Component Name',
+                    border: OutlineInputBorder(),
+                    hintText: 'Enter component name',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Component name cannot be empty';
+                    }
+                    return null;
+                  },
                 ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Component name cannot be empty';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<Bike>(
-                initialValue: bike,
-                isExpanded: true,
-                decoration: const InputDecoration(
-                  labelText: 'Bike',
-                  border: OutlineInputBorder(),
-                  hintText: "Choose a bike for this component",
+                const SizedBox(height: 12),
+                DropdownButtonFormField<Bike>(
+                  initialValue: bike,
+                  isExpanded: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Bike',
+                    border: OutlineInputBorder(),
+                    hintText: "Choose a bike for this component",
+                  ),
+                  items: widget.bikes.map((b) {
+                    return DropdownMenuItem<Bike>(
+                      value: b,
+                      child: Text(b.name, overflow: TextOverflow.ellipsis),
+                    );
+                  }).toList(),
+                  onChanged: (Bike? newBike) {
+                    if (newBike == null) return;
+                    setState(() {
+                      bike = newBike;
+                    });
+                  },
                 ),
-                items: widget.bikes.map((b) {
-                  return DropdownMenuItem<Bike>(
-                    value: b,
-                    child: Text(b.name, overflow: TextOverflow.ellipsis),
-                  );
-                }).toList(),
-                onChanged: (Bike? newBike) {
-                  if (newBike == null) return;
-                  setState(() {
-                    bike = newBike;
-                  });
-                },
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8.0,
-                runSpacing: 4.0,
-                children: [
-                  ActionChip(
-                    avatar: Icon(Icons.add),
-                    label: const Text('Add On/Off Adjustment'),
-                    onPressed: _addBooleanAdjustment,
+                const SizedBox(height: 12),
+                DropdownButtonFormField<ComponentType>(
+                  initialValue: componentType,
+                  isExpanded: true,
+                  hint: const Text("Please select type"),
+                  decoration: const InputDecoration(
+                    labelText: 'Type',
+                    border: OutlineInputBorder(),
+                    hintText: "Choose a type for this component",
                   ),
-                  ActionChip(
-                    avatar: Icon(Icons.add),
-                    label: const Text('Add Categorical Adjustment'),
-                    onPressed: _addCategoricalAdjustment,
-                  ),
-                  ActionChip(
-                    avatar: Icon(Icons.add),
-                    label: const Text('Add Step Adjustment'),
-                    onPressed: _addStepAdjustment,
-                  ),
-                  ActionChip(
-                    avatar: Icon(Icons.add),
-                    label: const Text('Add Numerical Adjustment'),
-                    onPressed: _addNumericalAdjustment,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: adjustments.isEmpty
-                  ? Center(
-                      child: Text(
-                        'No adjustments yet',
-                        style: TextStyle(color: Colors.grey.shade600),
-                      ),
-                    )
-                  : AdjustmentEditList(
-                      adjustments: adjustments,
-                      editAdjustment: _editAdjustment,
-                      removeAdjustment: removeAdjustment,
-                      onReorderAdjustments: (List<Adjustment> tmpAdjustments) => {adjustments = tmpAdjustments},
+                  items: ComponentType.values.map((componentType) {
+                    return DropdownMenuItem<ComponentType>(
+                      value: componentType,
+                      child: Text(componentType.name, overflow: TextOverflow.ellipsis),
+                    );
+                  }).toList(),
+                  onChanged: (ComponentType? newComponentType) {
+                    if (newComponentType == null) return;
+                    setState(() {
+                      componentType = newComponentType;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Component type cannot be empty';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8.0,
+                  runSpacing: 4.0,
+                  children: [
+                    ActionChip(
+                      avatar: Icon(Icons.add),
+                      label: const Text('Add On/Off Adjustment'),
+                      onPressed: _addBooleanAdjustment,
                     ),
-              ),
-            ],
+                    ActionChip(
+                      avatar: Icon(Icons.add),
+                      label: const Text('Add Categorical Adjustment'),
+                      onPressed: _addCategoricalAdjustment,
+                    ),
+                    ActionChip(
+                      avatar: Icon(Icons.add),
+                      label: const Text('Add Step Adjustment'),
+                      onPressed: _addStepAdjustment,
+                    ),
+                    ActionChip(
+                      avatar: Icon(Icons.add),
+                      label: const Text('Add Numerical Adjustment'),
+                      onPressed: _addNumericalAdjustment,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                adjustments.isNotEmpty 
+                    ? AdjustmentEditList(
+                        adjustments: adjustments,
+                        editAdjustment: _editAdjustment,
+                        removeAdjustment: removeAdjustment,
+                        onReorderAdjustments: (List<Adjustment> tmpAdjustments) => {adjustments = tmpAdjustments},
+                      ) 
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: Center(
+                          child: Text(
+                            'No adjustments yet',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                        )
+                      ),
+              ],
+            ),
           ),
         ),
       ),

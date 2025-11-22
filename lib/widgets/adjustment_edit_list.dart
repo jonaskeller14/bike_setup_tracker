@@ -109,10 +109,13 @@ class _AdjustmentEditListState extends State<AdjustmentEditList> {
         child: child,
       );
     }
-
-    return ReorderableListView(
+    return ReorderableListView.builder(
       padding: const EdgeInsets.all(0),
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
       proxyDecorator: proxyDecorator,
+      itemCount: cards.length,
+      itemBuilder: (context, index) => cards[index],
       onReorder: (int oldIndex, int newIndex) {
         setState(() {
           if (oldIndex < newIndex) {
@@ -123,7 +126,6 @@ class _AdjustmentEditListState extends State<AdjustmentEditList> {
           widget.onReorderAdjustments(_adjustments);
         });
       },
-      children: cards,
     );
   }
 }

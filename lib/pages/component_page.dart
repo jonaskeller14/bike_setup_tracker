@@ -172,28 +172,16 @@ class _ComponentPageState extends State<ComponentPage> {
     if (!_formKey.currentState!.validate()) return;
     final name = _nameController.text.trim();
 
-    if (widget.component == null) {
-      Navigator.pop(
-        context,
-        Component(
-          name: name,
-          bike: bike,
-          adjustments: adjustments,
-        ),
-      );
-    } else {
-      Navigator.pop(
-        context,
-        Component(
-          id: widget.component!.id,
-          name: name,
-          bike: bike,
-          adjustments: adjustments,
-          currentSetting: widget.component!.currentSetting,
-        ),
-      );
-    }
-
+    Navigator.pop(
+      context,
+      Component(
+        id: widget.component?.id,
+        name: name,
+        bike: bike,
+        adjustments: adjustments,
+        currentSetting: widget.component?.currentSetting,
+      ),
+    );
   }
 
   @override

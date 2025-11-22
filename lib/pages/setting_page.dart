@@ -202,38 +202,21 @@ class _SettingPageState extends State<SettingPage> {
     final notesText = _notesController.text.trim();
     final notes = notesText.isEmpty ? null : notesText;
 
-    if (widget.setting == null) {
-      Navigator.pop(
-        context,
-        Setting(
-          name: name,
-          datetime: _selectedDateTime,
-          notes: notes,
-          bike: bike,
-          adjustmentValues: adjustmentValues,
-          position: _currentLocation,
-          place: _currentPlace,
-          weather: _currentWeather,
-          isCurrent: false,
-        ),
-      );
-    } else {
-      Navigator.pop(
-        context,
-        Setting(
-          id: widget.setting!.id,
-          name: name,
-          datetime: _selectedDateTime,
-          notes: notes,
-          bike: bike,
-          adjustmentValues: adjustmentValues,
-          position: widget.setting!.position,
-          place: widget.setting!.place,
-          weather: widget.setting!.weather,
-          isCurrent: false,
-        ),
-      );
-    }
+    Navigator.pop(
+      context,
+      Setting(
+        id: widget.setting?.id,
+        name: name,
+        datetime: _selectedDateTime,
+        notes: notes,
+        bike: bike,
+        adjustmentValues: adjustmentValues,
+        position: _currentLocation,
+        place: _currentPlace,
+        weather: _currentWeather,
+        isCurrent: false,
+      ),
+    );
   }
 
   void _onAdjustmentValueChanged({required Adjustment adjustment, required dynamic newValue}) {

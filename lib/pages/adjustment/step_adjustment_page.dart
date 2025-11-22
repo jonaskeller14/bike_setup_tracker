@@ -43,17 +43,10 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     final min = int.parse(_minController.text.trim());
     final max = int.parse(_maxController.text.trim());
     if (!mounted) return;
-    if (widget.adjustment == null) {
-      Navigator.pop(
-        context,
-        StepAdjustment(name: name, unit: null, step: step, min: min, max: max),
-      );
-    } else {
-      Navigator.pop(
-        context,
-        StepAdjustment(id: widget.adjustment!.id, name: name, unit: null, step: step, min: min, max: max),
-      );
-    }
+    Navigator.pop(
+      context,
+      StepAdjustment(id: widget.adjustment?.id, name: name, unit: null, step: step, min: min, max: max),
+    );
   }
 
   String? _validateName(String? value) {

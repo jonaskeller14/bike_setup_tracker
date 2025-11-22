@@ -29,11 +29,7 @@ class _BikePageState extends State<BikePage> {
   void _saveBike() {
     if (!_formKey.currentState!.validate()) return;
     final name = _nameController.text.trim();
-    if (widget.bike == null) {
-      Navigator.pop(context, Bike(name: name));
-    } else {
-      Navigator.pop(context, Bike(id: widget.bike!.id, name: name));
-    }
+    Navigator.pop(context, Bike(id: widget.bike?.id, name: name));
   }
 
   @override

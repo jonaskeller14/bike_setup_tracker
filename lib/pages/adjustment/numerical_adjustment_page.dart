@@ -48,11 +48,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     final max = maxText.isNotEmpty ? double.tryParse(maxText) : null;
     final unit = unitText.isNotEmpty ? unitText : null;
     if (!mounted) return;
-    if (widget.adjustment == null) {
-      Navigator.pop(context, NumericalAdjustment(name: name, min: min, max: max, unit: unit));
-    } else {
-      Navigator.pop(context, NumericalAdjustment(id: widget.adjustment?.id, name: name, min: min, max: max, unit: unit));
-    }
+    Navigator.pop(context, NumericalAdjustment(id: widget.adjustment?.id, name: name, min: min, max: max, unit: unit));
   }
 
   String? _validateName(String? value) {

@@ -58,7 +58,7 @@ class _BikePageState extends State<BikePage> {
             children: [
               TextFormField(
                 controller: _nameController,
-                autofocus: true,
+                autofocus: widget.bike == null,
                 decoration: const InputDecoration(
                   labelText: 'Bike Name',
                   border: OutlineInputBorder(),

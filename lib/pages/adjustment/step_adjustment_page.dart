@@ -107,7 +107,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
               children: [
                 TextFormField(
                   controller: _nameController,
-                  autofocus: true,
+                  autofocus: widget.adjustment == null,
                   decoration: const InputDecoration(
                     labelText: 'Adjustment Name',
                     hintText: 'Enter Adjustment Name',

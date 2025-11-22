@@ -264,7 +264,7 @@ class _SettingPageState extends State<SettingPage> {
           children: [
             TextFormField(
               controller: _nameController,
-              autofocus: true,
+              autofocus: widget.setting == null,
               decoration: const InputDecoration(
                 labelText: 'Setting Name',
                 border: OutlineInputBorder(),

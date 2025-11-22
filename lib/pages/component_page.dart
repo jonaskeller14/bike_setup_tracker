@@ -218,7 +218,7 @@ class _ComponentPageState extends State<ComponentPage> {
             children: [
               TextFormField(
                 controller: _nameController,
-                autofocus: true,
+                autofocus: widget.component == null,
                 decoration: const InputDecoration(
                   labelText: 'Component Name',
                   border: OutlineInputBorder(),

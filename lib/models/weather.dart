@@ -1,5 +1,5 @@
 class Weather {
-    final double? currentTemperature;
+    double? currentTemperature;
 
     Weather({this.currentTemperature});
 

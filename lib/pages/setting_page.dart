@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
@@ -151,6 +152,7 @@ class _SettingPageState extends State<SettingPage> {
       );
     });
 
+    //TODO: Ask with dialog before updating weather
     if (_currentLocation == null) return;
     final currentWeather = await _weatherService.fetchWeather(_currentLocation!.latitude!, _currentLocation!.longitude!, datetime: _selectedDateTime);
     if (!mounted) return;
@@ -183,6 +185,7 @@ class _SettingPageState extends State<SettingPage> {
       );
     });
     
+    //TODO: Ask with dialog before updating weather
     if (_currentLocation == null) return;
     final currentWeather = await _weatherService.fetchWeather(_currentLocation!.latitude!, _currentLocation!.longitude!, datetime: _selectedDateTime);
     if (!mounted) return;
@@ -326,9 +329,70 @@ class _SettingPageState extends State<SettingPage> {
                   avatar: Icon(Icons.arrow_upward),
                   label: _currentLocation?.altitude == null ? const Text("-") : Text("Altitude: ${_currentLocation?.altitude?.round()} m"),
                 ),
-                Chip(
+                ActionChip(
                   avatar: Icon(Icons.thermostat), 
-                  label: _currentWeather?.currentTemperature == null ? const Text("-") : Text("${_currentWeather?.currentTemperature?.toStringAsFixed(1)} °C")
+                  label: _currentWeather?.currentTemperature == null ? const Text("-") : Text("${_currentWeather?.currentTemperature?.toStringAsFixed(1)} °C"),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        final currentTempFormKey = GlobalKey<FormState>();
+                        final currentTempController = TextEditingController(text: _currentWeather?.currentTemperature.toString() ?? '');
+                        return AlertDialog(
+                          scrollable: true,
+                          title: Text('Set Weather'),
+                          content: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Form(
+                              key: currentTempFormKey,
+                              child: Column(
+                                children: <Widget>[
+                                  TextFormField(
+                                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
+                                    controller: currentTempController,
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(),
+                                      isDense: true,
+                                      hintText: 'Temperature',
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                      suffixText: '°C',
+                                      icon: Icon(Icons.thermostat),
+                                    ),
+                                    validator: (value) {
+                                      if (value == null || value.trim().isEmpty) {
+                                        return 'Please enter a temperature';
+                                      }
+                                      final parsedValue = double.tryParse(value);
+                                      if (parsedValue == null) return "Please enter valid number";
+                                      return null;
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          actions: [
+                            ElevatedButton(
+                              onPressed: () {Navigator.of(context).pop();},
+                              child: const Text("Cancel"),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                if (!currentTempFormKey.currentState!.validate()) return;
+                                setState(() {
+                                  _currentWeather ??= Weather();
+                                  _currentWeather?.currentTemperature = double.parse(currentTempController.text.trim());
+                                });
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text("Submit"),
+                            ),
+                          ],
+                        );
+                      }
+                    );
+                  },
                 ),
               ],
             ),

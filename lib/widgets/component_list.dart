@@ -39,12 +39,6 @@ class _ComponentListState extends State<ComponentList> {
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           itemBuilder: (context, index) {
             final component = widget.components[index];
-            final componentAdjustmentValues = Map.fromEntries(
-              (component.currentSetting?.adjustmentValues ?? {})
-                  .entries
-                  .where((e) => component.adjustments.contains(e.key)),
-            );
-
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 4.0),
               child: Padding(
@@ -129,8 +123,8 @@ class _ComponentListState extends State<ComponentList> {
                       ],
                     ),
                     AdjustmentDisplayList(
-                      components: widget.components,
-                      adjustmentValues: componentAdjustmentValues,
+                      components: [component],
+                      adjustmentValues: component.currentSetting?.adjustmentValues ?? {},
                     ),
                   ],
                 ),

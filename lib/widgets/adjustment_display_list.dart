@@ -20,8 +20,11 @@ class AdjustmentDisplayList extends StatelessWidget {
     int nonEmptyComponentsCounter = 0;
     for (int index = 0; index < components.length; index++) {
       final component = components[index];
-      final componentAdjustmentValues = Map.fromEntries(adjustmentValues.entries.where((entry) => component.adjustments.contains(entry.key)));
-
+      final componentAdjustmentValues = Map.fromEntries(  // keep order of component.adjustments
+        component.adjustments
+            .where((adj) => adjustmentValues.containsKey(adj))
+            .map((adj) => MapEntry(adj, adjustmentValues[adj]!)),
+      );
       if (componentAdjustmentValues.isEmpty) continue;
       
       if (nonEmptyComponentsCounter > 0) {

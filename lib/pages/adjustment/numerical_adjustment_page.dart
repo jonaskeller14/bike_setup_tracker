@@ -12,6 +12,7 @@ class NumericalAdjustmentPage extends StatefulWidget {
 
 class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
   final _formKey = GlobalKey<FormState>();
+  bool _expanded = false;
   late TextEditingController _nameController;
   late TextEditingController _minController;
   late TextEditingController _maxController;
@@ -110,36 +111,6 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                   validator: _validateName,
                 ),
                 const SizedBox(height: 12),
-                // Min value
-                TextFormField(
-                  controller: _minController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
-                  ],
-                  decoration: const InputDecoration(
-                    labelText: 'Min Value (optional)',
-                    hintText: 'Enter minimum value',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: _validateMin,
-                ),
-                const SizedBox(height: 12),
-                // Max value
-                TextFormField(
-                  controller: _maxController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
-                  ],
-                  decoration: const InputDecoration(
-                    labelText: 'Max Value (optional)',
-                    hintText: 'Enter maximum value',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: _validateMax,
-                ),
-                const SizedBox(height: 12),
                 // Unit
                 TextFormField(
                   controller: _unitController,
@@ -149,6 +120,53 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                     border: OutlineInputBorder(),
                   ),
                 ),
+                if (!_expanded) ...[
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          if (!_expanded) _expanded = !_expanded;
+                        });
+                      },
+                      icon: Icon(
+                        _expanded ? Icons.expand_less : Icons.expand_more,
+                      ),
+                      label: Text(_expanded ? "Show less" : "Show more"),
+                    ),
+                  ),
+                ],
+                if (_expanded) ...[
+                  const SizedBox(height: 12),
+                  // Min value
+                  TextFormField(
+                    controller: _minController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+                    ],
+                    decoration: const InputDecoration(
+                      labelText: 'Min Value (optional)',
+                      hintText: 'Enter minimum value',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: _validateMin,
+                  ),
+                  const SizedBox(height: 12),
+                  // Max value
+                  TextFormField(
+                    controller: _maxController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+                    ],
+                    decoration: const InputDecoration(
+                      labelText: 'Max Value (optional)',
+                      hintText: 'Enter maximum value',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: _validateMax,
+                  ),
+                ]
               ],
             ),
           ),

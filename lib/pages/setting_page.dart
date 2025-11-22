@@ -59,7 +59,7 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> _onBikeChange () async {
-    adjustmentValues.clear();    
+    adjustmentValues.clear();
     bikeComponents = widget.components.where((c) => c.bike == bike).toList();
 
     // Set initial values by reading currentSetting

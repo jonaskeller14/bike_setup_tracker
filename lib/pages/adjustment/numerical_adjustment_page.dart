@@ -75,7 +75,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     final minText = _minController.text.trim();
     final min = minText.isNotEmpty ? double.tryParse(minText) : null;
     if (v == null) return 'Valid number required';
-    if (min != null && v <= min) return 'Max must be greater than min';
+    if (min != null && v < min) return 'Max must be greater than min';
     return null;
   }
 

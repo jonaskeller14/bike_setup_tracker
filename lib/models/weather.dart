@@ -5,6 +5,7 @@ class Weather {
     double? currentHumidity;
     double? currentWindSpeed;
     double? currentPrecipitation;
+    double? currentSoilMoisture0to7cm;
 
     Weather({
       required this.currentDateTime, 
@@ -12,7 +13,8 @@ class Weather {
       this.currentWeatherCode,
       this.currentHumidity,
       this.currentWindSpeed,
-      this.currentPrecipitation,      
+      this.currentPrecipitation,
+      this.currentSoilMoisture0to7cm,
     });
 
     Map<String, dynamic> toJson() => {
@@ -22,6 +24,7 @@ class Weather {
       'currentHumidity': currentHumidity,
       'currentWindSpeed': currentWindSpeed,
       'currentPrecipitation': currentPrecipitation,
+      'currentSoilMoisture0to7cm': currentSoilMoisture0to7cm,
     };
 
     factory Weather.fromJson(Map<String, dynamic> json) {
@@ -32,6 +35,7 @@ class Weather {
         currentHumidity: json['currentHumidity'],
         currentWindSpeed: json['currentWindSpeed'],
         currentPrecipitation: json['currentPrecipitation'],
+        currentSoilMoisture0to7cm: json['currentSoilMoisture0to7cm'],
       );
     }
 }

@@ -18,7 +18,7 @@ class WeatherService {
     final String dateStr = datetime.toIso8601String().split('T')[0];  // Format date to YYYY-MM-DD
     queryParams['start_date'] = dateStr;
     queryParams['end_date'] = dateStr;
-    queryParams['hourly'] = 'temperature_2m,weather_code,relative_humidity_2m,wind_speed_10m,precipitation';
+    queryParams['hourly'] = 'temperature_2m,weather_code,relative_humidity_2m,wind_speed_10m,precipitation,soil_moisture_0_to_7cm';
 
     final url = Uri.https(authority, path, queryParams);
 
@@ -69,7 +69,12 @@ class WeatherService {
         final double? currentPrecipitation = (precipitation != null && precipitation.length > hourIndex)
             ? (precipitation[hourIndex] as num).toDouble()
             : null;
-
+        
+        // 🌱 Soil Moisture
+        final List<dynamic>? soilMoisture0to7cm = hourlyData['soil_moisture_0_to_7cm'];
+        final double? currentSoilMoisture0to7cm = (soilMoisture0to7cm != null && soilMoisture0to7cm.length > hourIndex)
+            ? (soilMoisture0to7cm[hourIndex] as num).toDouble()
+            : null;
 
         return Weather(
           currentDateTime: apiDatetime, 
@@ -78,6 +83,7 @@ class WeatherService {
           currentHumidity: currentHumidity,
           currentWindSpeed: currentWindSpeed,
           currentPrecipitation: currentPrecipitation,
+          currentSoilMoisture0to7cm: currentSoilMoisture0to7cm,
         );
 
       } else if (response.statusCode == 429 && counter <= 2) {

@@ -395,6 +395,18 @@ class _SettingPageState extends State<SettingPage> {
                     );
                   },
                 ),
+                Chip(
+                  avatar: Icon(Icons.water_drop), 
+                  label: _currentWeather?.currentPrecipitation == null ? const Text("-") : Text("${_currentWeather?.currentPrecipitation?.round()} mm"),
+                ),
+                Chip(
+                  avatar: Icon(Icons.air), 
+                  label: _currentWeather?.currentWindSpeed == null ? const Text("-") : Text("${_currentWeather?.currentWindSpeed?.round()} km/h"),
+                ),
+                Chip(
+                  avatar: Icon(Icons.spa), 
+                  label: _currentWeather?.currentSoilMoisture0to7cm == null ? const Text("-") : Text("${_currentWeather?.currentSoilMoisture0to7cm?.toStringAsFixed(2)} m³/m³"),
+                ),
               ],
             ),
             Text(

@@ -142,37 +142,38 @@ class _SettingListState extends State<SettingList> {
                         ],
                       ),
                     ],
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(Icons.pedal_bike, size: 13, color: Colors.grey.shade800),
-                        const SizedBox(width: 2),
-                        Text(
-                          setting.bike.name,
-                          style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                    if (setting.place != null) ... [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(Icons.location_pin, size: 13, color: Colors.grey.shade800),
-                          const SizedBox(width: 2),
-                          Text(
-                            "${setting.place?.thoroughfare} ${setting.place?.subThoroughfare}, ${setting.place?.locality}, ${setting.place?.isoCountryCode}",
-                            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        ],
-                      ),
-                    ],
                     Wrap(
                       alignment: WrapAlignment.start,
                       spacing: 4,
                       children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(Icons.pedal_bike, size: 13, color: Colors.grey.shade800),
+                            const SizedBox(width: 2),
+                            Text(
+                              setting.bike.name,
+                              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                        if (setting.place != null) ... [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.location_pin, size: 13, color: Colors.grey.shade800),
+                              const SizedBox(width: 2),
+                              Text(
+                                "${setting.place?.locality}, ${setting.place?.isoCountryCode}",
+                                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ],
                         if (setting.position != null) ...[
                           Row(
                             mainAxisSize: MainAxisSize.min,
@@ -196,6 +197,48 @@ class _SettingListState extends State<SettingList> {
                               const SizedBox(width: 2),
                               Text(
                                 "${setting.weather!.currentTemperature!.toStringAsFixed(1)} °C",
+                                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                              ),
+                            ],
+                          )
+                        ],
+                        if (setting.weather?.currentPrecipitation != null) ... [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.water_drop, size: 13, color: Colors.grey.shade800),
+                              const SizedBox(width: 2),
+                              Text(
+                                "${setting.weather!.currentPrecipitation!.round()} mm",
+                                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                              ),
+                            ],
+                          )
+                        ],
+                        if (setting.weather?.currentWindSpeed != null) ... [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.air, size: 13, color: Colors.grey.shade800),
+                              const SizedBox(width: 2),
+                              Text(
+                                "${setting.weather!.currentWindSpeed!.round()} km/h",
+                                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                              ),
+                            ],
+                          )
+                        ],
+                        if (setting.weather?.currentSoilMoisture0to7cm != null) ... [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.spa, size: 13, color: Colors.grey.shade800),
+                              const SizedBox(width: 2),
+                              Text(
+                                "${setting.weather!.currentSoilMoisture0to7cm!.toStringAsFixed(2)} m³/m³",
                                 style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                               ),
                             ],

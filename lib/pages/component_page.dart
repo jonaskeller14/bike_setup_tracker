@@ -293,6 +293,7 @@ class _ComponentPageState extends State<ComponentPage> {
                       adjustments: adjustments,
                       editAdjustment: _editAdjustment,
                       removeAdjustment: removeAdjustment,
+                      onReorderAdjustments: (List<Adjustment> tmpAdjustments) => {adjustments = tmpAdjustments},
                     ),
               ),
             ],

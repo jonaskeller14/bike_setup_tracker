@@ -99,8 +99,9 @@ class _SettingPageState extends State<SettingPage> {
     });
 
     final weatherFuture = _weatherService.fetchWeather(
-      location.latitude!,
-      location.longitude!,
+      lat: location.latitude!,
+      lon: location.longitude!,
+      datetime: _selectedDateTime,
     );
 
     final placemarkFuture = _addressService.getPlacemark(
@@ -154,7 +155,7 @@ class _SettingPageState extends State<SettingPage> {
 
     //TODO: Ask with dialog before updating weather
     if (_currentLocation == null) return;
-    final currentWeather = await _weatherService.fetchWeather(_currentLocation!.latitude!, _currentLocation!.longitude!, datetime: _selectedDateTime);
+    final currentWeather = await _weatherService.fetchWeather(lat: _currentLocation!.latitude!, lon: _currentLocation!.longitude!, datetime: _selectedDateTime);
     if (!mounted) return;
     setState(() {
       _currentWeather = currentWeather;
@@ -187,7 +188,7 @@ class _SettingPageState extends State<SettingPage> {
     
     //TODO: Ask with dialog before updating weather
     if (_currentLocation == null) return;
-    final currentWeather = await _weatherService.fetchWeather(_currentLocation!.latitude!, _currentLocation!.longitude!, datetime: _selectedDateTime);
+    final currentWeather = await _weatherService.fetchWeather(lat: _currentLocation!.latitude!, lon: _currentLocation!.longitude!, datetime: _selectedDateTime);
     if (!mounted) return;
     setState(() {
       _currentWeather = currentWeather;
@@ -381,7 +382,7 @@ class _SettingPageState extends State<SettingPage> {
                               onPressed: () {
                                 if (!currentTempFormKey.currentState!.validate()) return;
                                 setState(() {
-                                  _currentWeather ??= Weather();
+                                  _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
                                   _currentWeather?.currentTemperature = double.parse(currentTempController.text.trim());
                                 });
                                 Navigator.of(context).pop();

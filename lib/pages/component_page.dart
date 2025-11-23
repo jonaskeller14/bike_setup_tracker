@@ -236,7 +236,15 @@ class _ComponentPageState extends State<ComponentPage> {
                   items: widget.bikes.map((b) {
                     return DropdownMenuItem<Bike>(
                       value: b,
-                      child: Text(b.name, overflow: TextOverflow.ellipsis),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.pedal_bike),
+                          const SizedBox(width: 8),
+                          Text(b.name, overflow: TextOverflow.ellipsis)
+                        ],
+                      ),
                     );
                   }).toList(),
                   onChanged: (Bike? newBike) {
@@ -259,7 +267,15 @@ class _ComponentPageState extends State<ComponentPage> {
                   items: ComponentType.values.map((componentType) {
                     return DropdownMenuItem<ComponentType>(
                       value: componentType,
-                      child: Text(componentType.name, overflow: TextOverflow.ellipsis),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Component.getIcon(componentType),
+                          const SizedBox(width: 8),
+                          Text(componentType.value, overflow: TextOverflow.ellipsis)
+                        ],
+                      ),
                     );
                   }).toList(),
                   onChanged: (ComponentType? newComponentType) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/component.dart';
 import '../widgets/adjustment_display_list.dart';
+import '../icons/bike_icons.dart';
 
 class ComponentList extends StatefulWidget {
   final List<Component> components;
@@ -47,7 +48,7 @@ class _ComponentListState extends State<ComponentList> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ListTile(
-                      leading: const Icon(Icons.tune),
+                      leading: Component.getIcon(component.componentType),
                       contentPadding: const EdgeInsets.all(0),
                       title: Text(
                         component.name,
@@ -125,6 +126,7 @@ class _ComponentListState extends State<ComponentList> {
                     AdjustmentDisplayList(
                       components: [component],
                       adjustmentValues: component.currentSetting?.adjustmentValues ?? {},
+                      showComponentIcons: false,
                     ),
                   ],
                 ),

@@ -408,7 +408,15 @@ class _SettingPageState extends State<SettingPage> {
               items: widget.bikes.map((b) {
                 return DropdownMenuItem<Bike>(
                   value: b,
-                  child: Text(b.name, overflow: TextOverflow.ellipsis),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Icon(Icons.pedal_bike),
+                      const SizedBox(width: 8),
+                      Text(b.name, overflow: TextOverflow.ellipsis)
+                    ],
+                  ),
                 );
               }).toList(),
               onChanged: (Bike? newBike) {
@@ -437,7 +445,7 @@ class _SettingPageState extends State<SettingPage> {
                       ListTile(
                         title: Text(bikeComponent.name),
                         subtitle: Text('${bikeComponent.adjustments.length} adjustments'),
-                        leading: const Icon(Icons.tune),
+                        leading: Component.getIcon(bikeComponent.componentType),
                       ),
                       AdjustmentSetList(
                         key: ValueKey(bikeComponent.id),

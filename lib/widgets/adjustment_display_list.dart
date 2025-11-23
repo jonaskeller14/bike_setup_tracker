@@ -6,12 +6,14 @@ class AdjustmentDisplayList extends StatelessWidget {
   final List<Component> components;
   final Map<Adjustment, dynamic> adjustmentValues;
   final Map<Adjustment, dynamic> previousAdjustmentValues;
+  final bool showComponentIcons;
 
   AdjustmentDisplayList({
     super.key,
     required this.components,
     required this.adjustmentValues,
     Map<Adjustment, dynamic>? previousAdjustmentValues,
+    this.showComponentIcons = false,
   }) : previousAdjustmentValues = previousAdjustmentValues ?? {};
 
   @override
@@ -40,6 +42,7 @@ class AdjustmentDisplayList extends StatelessWidget {
         component: component,
         adjustmentValues: componentAdjustmentValues,
         previousAdjustmentValues: previousAdjustmentValues,
+        showComponentIcons: showComponentIcons,
       ));
       nonEmptyComponentsCounter++;
     }
@@ -51,11 +54,13 @@ class _AdjustmentTableRow extends StatelessWidget {
   final Component component;
   final Map<Adjustment, dynamic> adjustmentValues;
   final Map<Adjustment, dynamic> previousAdjustmentValues;
+  final bool showComponentIcons;
 
   _AdjustmentTableRow({
     required this.component,
     required this.adjustmentValues,
     Map<Adjustment, dynamic>? previousAdjustmentValues,
+    this.showComponentIcons = false,
   }) : previousAdjustmentValues = previousAdjustmentValues ?? {};
 
   @override
@@ -81,10 +86,25 @@ class _AdjustmentTableRow extends StatelessWidget {
         children.add(_VerticalDivider());
       }
     }
-
-    return Wrap(
-      alignment: WrapAlignment.start,
-      children: children,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (showComponentIcons) ... [
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Component.getIcon(component.componentType),
+          ),
+          const SizedBox(width: 6),
+        ],
+        Expanded(
+          child: Wrap(
+            alignment: WrapAlignment.start,
+            children: children,
+          ),
+        )
+      ],
     );
   }
 }

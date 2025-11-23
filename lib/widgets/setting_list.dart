@@ -250,6 +250,7 @@ class _SettingListState extends State<SettingList> {
                       components: widget.components,
                       adjustmentValues: setting.adjustmentValues,
                       previousAdjustmentValues: setting.previousSetting?.adjustmentValues,
+                      showComponentIcons: true,
                     ),
                   ],
                 ),

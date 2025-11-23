@@ -3,21 +3,19 @@ import 'package:uuid/uuid.dart';
 import 'adjustment.dart';
 import 'setting.dart';
 import 'bike.dart';
+import '../icons/bike_icons.dart';
 
 enum ComponentType {
-  frame,
-  fork,
-  shock,
-  brake,
-  wheel,
-  tire,
-  drivetrain,
-  stem,
-  handlebar,
-  saddle,
-  pedal,
-  motor,
-  other,
+  frame('Frame'),
+  fork('Fork'),
+  shock('Shock'),
+  wheelFront('Front Wheel'),
+  wheelRear('Rear Wheel'),
+  motor('Motor'),
+  other('Other');
+
+  final String value;
+  const ComponentType(this.value);
 }
 
 class Component {
@@ -46,6 +44,25 @@ class Component {
       currentSetting: currentSetting,
       adjustments: adjustments.map((a) => a.deepCopy()).toList(),
     );
+  }
+
+  static Icon getIcon(ComponentType componentType) {
+    switch (componentType) {
+      case ComponentType.frame:
+        return const Icon(BikeIcons.frame);
+      case ComponentType.fork:
+        return const Icon(BikeIcons.fork);
+      case ComponentType.shock:
+        return const Icon(BikeIcons.shock);
+      case ComponentType.wheelFront:
+        return const Icon(BikeIcons.wheelFront);
+      case ComponentType.wheelRear:
+        return const Icon(BikeIcons.wheelRear);
+      case ComponentType.motor:
+        return const Icon(BikeIcons.motor);
+      default:
+        return const Icon(BikeIcons.other);
+    }   
   }
 
   Map<String, dynamic> toJson() => {

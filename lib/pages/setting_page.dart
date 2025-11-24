@@ -418,6 +418,10 @@ class _SettingPageState extends State<SettingPage> {
                   },
                 ),
                 Chip(
+                  avatar: Icon(Icons.opacity), 
+                  label: _currentWeather?.currentHumidity == null ? const Text("-") : Text("${_currentWeather?.currentHumidity?.round()} %"),
+                ),
+                Chip(
                   avatar: Icon(Icons.water_drop), 
                   label: _currentWeather?.dayAccumulatedPrecipitation == null ? const Text("-") : Text("${_currentWeather?.dayAccumulatedPrecipitation?.round()} mm"),
                 ),

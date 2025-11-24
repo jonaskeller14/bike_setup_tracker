@@ -202,6 +202,20 @@ class _SettingListState extends State<SettingList> {
                             ],
                           )
                         ],
+                        if (setting.weather?.currentHumidity != null) ... [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.opacity, size: 13, color: Colors.grey.shade800),
+                              const SizedBox(width: 2),
+                              Text(
+                                "${setting.weather!.currentHumidity!.round()} %",
+                                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                              ),
+                            ],
+                          )
+                        ],
                         if (setting.weather?.dayAccumulatedPrecipitation != null) ... [
                           Row(
                             mainAxisSize: MainAxisSize.min,

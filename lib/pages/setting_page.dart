@@ -48,7 +48,25 @@ class _SettingPageState extends State<SettingPage> {
     super.initState();
     bike = widget.setting?.bike ?? widget.bikes.first;
     _onBikeChange();
-    if (widget.setting == null) fetchLocationAddressWeather();
+
+    // Set initial adjustment values from components' current settings (for all bikes!)
+    for (final component in widget.components) {
+      if (component.currentSetting == null) continue;
+      final componentAdjustmentValues = component.currentSetting?.adjustmentValues;
+      if (componentAdjustmentValues == null) continue;
+      for (final componentAdjustmentValue in componentAdjustmentValues.entries) {
+        adjustmentValues[componentAdjustmentValue.key] = componentAdjustmentValue.value;
+      }
+    }
+
+    if (widget.setting == null) {
+      fetchLocationAddressWeather();
+    } else {
+      // Overwrite adjustment values with those from the setting being edited (no effect for current Setting)
+      for (final adjustmentValue in widget.setting!.adjustmentValues.entries) {
+        adjustmentValues[adjustmentValue.key] = adjustmentValue.value;
+      }
+    }
 
     _nameController = TextEditingController(text: widget.setting?.name);
     _notesController = TextEditingController(text: widget.setting?.notes ?? '');
@@ -59,24 +77,7 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Future<void> _onBikeChange () async {
-    adjustmentValues.clear();
     bikeComponents = widget.components.where((c) => c.bike == bike).toList();
-
-    // Set initial values by reading currentSetting
-    if (widget.setting?.bike == bike) {
-      for (final adjustmentValue in widget.setting!.adjustmentValues.entries) {
-        adjustmentValues[adjustmentValue.key] = adjustmentValue.value;
-      }
-    } else {
-      for (final component in bikeComponents) {
-        if (component.currentSetting == null) continue;
-        final componentAdjustmentValues = component.currentSetting?.adjustmentValues;
-        if (componentAdjustmentValues == null) continue;
-        for (final adjustmentValue in componentAdjustmentValues.entries) {
-          adjustmentValues[adjustmentValue.key] = adjustmentValue.value;
-        }
-      }
-    }
   }
 
   Future<void> fetchLocationAddressWeather() async {
@@ -202,6 +203,13 @@ class _SettingPageState extends State<SettingPage> {
     final notesText = _notesController.text.trim();
     final notes = notesText.isEmpty ? null : notesText;
 
+    // Filter adjustmentValues to only include those relevant to the selected bike
+    for (final component in widget.components.where((c) => c.bike != bike)) {
+      for (final adjustment in component.adjustments) {
+        adjustmentValues.remove(adjustment);
+      }
+    }
+
     Navigator.pop(
       context,
       Setting(
@@ -298,7 +306,7 @@ class _SettingPageState extends State<SettingPage> {
                                   ? Icon(Icons.location_searching)
                                   : Icon(Icons.location_disabled))),
                   label: _locationService.status == LocationStatus.locationFound || _currentPlace != null
-                      ? Text("${_currentPlace?.thoroughfare} ${_currentPlace?.subThoroughfare}, ${_currentPlace?.locality}, ${_currentPlace?.country}")
+                      ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}")
                       : (_locationService.status == LocationStatus.idle
                             ? const Text("-")
                             : (_locationService.status == LocationStatus.findingLocation
@@ -453,7 +461,6 @@ class _SettingPageState extends State<SettingPage> {
                         initialAdjustmentValues: bikeComponent.currentSetting?.adjustmentValues ?? <Adjustment, dynamic>{},
                         onAdjustmentValueChanged: _onAdjustmentValueChanged,
                         removeFromAdjustmentValues: _removeFromAdjustmentValues,
-                        onBikeChange: _onBikeChange,
                       ),
                     ],
                   ),

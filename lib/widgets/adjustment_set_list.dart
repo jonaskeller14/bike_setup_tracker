@@ -10,7 +10,6 @@ class AdjustmentSetList extends StatefulWidget {
   final Map<Adjustment, dynamic> initialAdjustmentValues;
   final void Function({required Adjustment adjustment, required dynamic newValue}) onAdjustmentValueChanged;
   final void Function({required Adjustment adjustment}) removeFromAdjustmentValues;
-  final void Function() onBikeChange;
 
   const AdjustmentSetList({
     super.key,
@@ -18,7 +17,6 @@ class AdjustmentSetList extends StatefulWidget {
     required this.initialAdjustmentValues,
     required this.onAdjustmentValueChanged,
     required this.removeFromAdjustmentValues,
-    required this.onBikeChange,
   });
 
   @override
@@ -31,8 +29,6 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
   @override
   void initState() {
     super.initState();
-
-    widget.onBikeChange();
     
     for (final adjustment in widget.adjustments) {
       final initialValue = widget.initialAdjustmentValues[adjustment];

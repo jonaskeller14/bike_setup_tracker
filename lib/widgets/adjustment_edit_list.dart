@@ -21,32 +21,24 @@ class AdjustmentEditList extends StatefulWidget {
 }
 
 class _AdjustmentEditListState extends State<AdjustmentEditList> {
-  late List<Adjustment> _adjustments;
-
-  @override
-  void initState() {
-    super.initState();
-    _adjustments = List.of(widget.adjustments);
-  }
-
   @override
   Widget build(BuildContext context) {
     final List<Card> cards = <Card>[
-      for (int index = 0; index < _adjustments.length; index += 1)
+      for (int index = 0; index < widget.adjustments.length; index++)
         Card(
-          key: ValueKey(_adjustments[index]),
+          key: ValueKey(widget.adjustments[index]),
           child: ListTile(
-            leading: _adjustments[index].getIcon(),
+            leading: widget.adjustments[index].getIcon(),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 8,
             ),
             title: Text(
-              _adjustments[index].name,
+              widget.adjustments[index].name,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Text(
-              _adjustments[index].getProperties(),
+              widget.adjustments[index].getProperties(),
               style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -58,9 +50,9 @@ class _AdjustmentEditListState extends State<AdjustmentEditList> {
                 PopupMenuButton<String>(
                   onSelected: (value) {
                     if (value == 'edit') {
-                      widget.editAdjustment(_adjustments[index]);
+                      widget.editAdjustment(widget.adjustments[index]);
                     } else if (value == 'remove') {
-                      widget.removeAdjustment(_adjustments[index]);
+                      widget.removeAdjustment(widget.adjustments[index]);
                     }
                   },
                   itemBuilder: (BuildContext context) =>
@@ -120,9 +112,9 @@ class _AdjustmentEditListState extends State<AdjustmentEditList> {
           if (oldIndex < newIndex) {
             newIndex -= 1;
           }
-          final item = _adjustments.removeAt(oldIndex);
-          _adjustments.insert(newIndex, item);
-          widget.onReorderAdjustments(_adjustments);
+          final item = widget.adjustments.removeAt(oldIndex);
+          widget.adjustments.insert(newIndex, item);
+          widget.onReorderAdjustments(widget.adjustments);
         });
       },
     );

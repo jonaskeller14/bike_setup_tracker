@@ -154,13 +154,7 @@ class _SettingPageState extends State<SettingPage> {
       );
     });
 
-    //TODO: Ask with dialog before updating weather
-    if (_currentLocation == null) return;
-    final currentWeather = await _weatherService.fetchWeather(lat: _currentLocation!.latitude!, lon: _currentLocation!.longitude!, datetime: _selectedDateTime);
-    if (!mounted) return;
-    setState(() {
-      _currentWeather = currentWeather;
-    });
+    askAndUpdateWeather();
   }
 
   Future<void> _pickTime() async {
@@ -187,10 +181,47 @@ class _SettingPageState extends State<SettingPage> {
       );
     });
     
-    //TODO: Ask with dialog before updating weather
+    askAndUpdateWeather();
+  }
+
+  Future<void> askAndUpdateWeather() async {
     if (_currentLocation == null) return;
-    final currentWeather = await _weatherService.fetchWeather(lat: _currentLocation!.latitude!, lon: _currentLocation!.longitude!, datetime: _selectedDateTime);
+
+    final shouldUpdate = await showDialog<bool>(
+      context: context, // Assumes this function is inside a StatefulWidget's State class
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Update Weather?'),
+          content: const Text('Do you want to fetch the latest weather data for this location, date and time?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text('No'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('Yes, Update'),
+            ),
+          ],
+        );
+      },
+    );
+    if (shouldUpdate == null || shouldUpdate == false) {
+      return;
+    }
+
+    final currentWeather = await _weatherService.fetchWeather(
+      lat: _currentLocation!.latitude!,
+      lon: _currentLocation!.longitude!,
+      datetime: _selectedDateTime,
+    );
+    
     if (!mounted) return;
+    
     setState(() {
       _currentWeather = currentWeather;
     });
@@ -388,7 +419,7 @@ class _SettingPageState extends State<SettingPage> {
                 ),
                 Chip(
                   avatar: Icon(Icons.water_drop), 
-                  label: _currentWeather?.currentPrecipitation == null ? const Text("-") : Text("${_currentWeather?.currentPrecipitation?.round()} mm"),
+                  label: _currentWeather?.dayAccumulatedPrecipitation == null ? const Text("-") : Text("${_currentWeather?.dayAccumulatedPrecipitation?.round()} mm"),
                 ),
                 Chip(
                   avatar: Icon(Icons.air), 

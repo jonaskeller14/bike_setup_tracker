@@ -202,7 +202,7 @@ class _SettingListState extends State<SettingList> {
                             ],
                           )
                         ],
-                        if (setting.weather?.currentPrecipitation != null) ... [
+                        if (setting.weather?.dayAccumulatedPrecipitation != null) ... [
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -210,7 +210,7 @@ class _SettingListState extends State<SettingList> {
                               Icon(Icons.water_drop, size: 13, color: Colors.grey.shade800),
                               const SizedBox(width: 2),
                               Text(
-                                "${setting.weather!.currentPrecipitation!.round()} mm",
+                                "${setting.weather!.dayAccumulatedPrecipitation!.round()} mm",
                                 style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                               ),
                             ],

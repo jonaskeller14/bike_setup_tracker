@@ -69,6 +69,18 @@ class WeatherService {
         final double? currentPrecipitation = (precipitation != null && precipitation.length > hourIndex)
             ? (precipitation[hourIndex] as num).toDouble()
             : null;
+        double? dayAccumulatedPrecipitation = 0.0;
+        if (precipitation != null && precipitation.length > hourIndex) {
+          for (int i = 0; i <= hourIndex; i++) {
+              final precipitationValue = precipitation[i];
+              if (precipitationValue is num && dayAccumulatedPrecipitation != null) {
+                  dayAccumulatedPrecipitation += precipitationValue.toDouble();
+              } else {
+                  dayAccumulatedPrecipitation = null;
+                  break;
+              }
+          }
+        }
         
         // 🌱 Soil Moisture
         final List<dynamic>? soilMoisture0to7cm = hourlyData['soil_moisture_0_to_7cm'];
@@ -84,6 +96,7 @@ class WeatherService {
           currentWindSpeed: currentWindSpeed,
           currentPrecipitation: currentPrecipitation,
           currentSoilMoisture0to7cm: currentSoilMoisture0to7cm,
+          dayAccumulatedPrecipitation: dayAccumulatedPrecipitation,
         );
 
       } else if (response.statusCode == 429 && counter <= 2) {

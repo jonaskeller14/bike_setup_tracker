@@ -442,21 +442,46 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
         actions: [
-          IconButton(
-            onPressed: loadJsonFileData,
-            icon: Icon(Icons.file_upload),
-          ),
-          IconButton(
-            onPressed: () {
-              FileExport.downloadJson(
-                context: context,
-                bikes: bikes,
-                adjustments: adjustments,
-                setups: setups,
-                components: components,
-              );
+          PopupMenuButton<String>(
+            onSelected: (String result) {
+              switch (result) {
+                case 'import':
+                  loadJsonFileData();
+                  break;
+                case 'export':
+                  FileExport.downloadJson(
+                    context: context,
+                    bikes: bikes,
+                    adjustments: adjustments,
+                    setups: setups,
+                    components: components,
+                  );
+                  break;
+              }
             },
-            icon: const Icon(Icons.file_download),
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'import',
+                child: Row(
+                  children: [
+                    Icon(Icons.file_upload),
+                    SizedBox(width: 8),
+                    Text('Import Data'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'export',
+                child: Row(
+                  children: [
+                    Icon(Icons.file_download),
+                    SizedBox(width: 8),
+                    Text('Export Data'),
+                  ],
+                ),
+              ),
+            ],
+            icon: const Icon(Icons.more_vert),
           ),
         ],
       ),

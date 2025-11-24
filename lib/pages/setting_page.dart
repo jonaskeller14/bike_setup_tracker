@@ -363,7 +363,7 @@ class _SettingPageState extends State<SettingPage> {
                         final currentTempController = TextEditingController(text: _currentWeather?.currentTemperature.toString() ?? '');
                         return AlertDialog(
                           scrollable: true,
-                          title: Text('Set Weather'),
+                          title: Text('Set Temperature'),
                           content: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Form(
@@ -396,7 +396,7 @@ class _SettingPageState extends State<SettingPage> {
                             ),
                           ),
                           actions: [
-                            ElevatedButton(
+                            TextButton(
                               onPressed: () {Navigator.of(context).pop();},
                               child: const Text("Cancel"),
                             ),

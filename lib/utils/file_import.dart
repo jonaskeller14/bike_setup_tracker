@@ -30,38 +30,23 @@ class FileImport {
   }
 
   static Future<Data> parseJson({required Map<String, dynamic> jsonData}) async {
-    //parse bikes
     final loadedBikes = (jsonData['bikes'] as List)
         .map((a) => Bike.fromJson(a))
         .toList();
-    
-    // parse adjustments
-    final loadedAdjustments = (jsonData['adjustments'] as List)
-        .map((a) => Adjustment.fromJson(a))
-        .toList();
 
-    // parse setups (first pass)
-    final loadedSetups = (jsonData['setups'] as List)
-        .map((s) => Setup.fromJson(s, loadedAdjustments, loadedBikes))
-        .toList();
-
-    // fix previousSetup links (second pass)
-    final setupsJsonList = jsonData['setups'] as List;
-    for (int i = 0; i < loadedSetups.length; i++) {
-      loadedSetups[i].previousSetupFromJson(
-        setupsJsonList[i],
-        loadedSetups,
-      );
-    }
-
-    // parse components
     final loadedComponents = (jsonData['components'] as List)
-        .map((c) => Component.fromJson(json: c, allAdjustments: loadedAdjustments, allSetups: loadedSetups, bikes: loadedBikes))
+        .map((c) => Component.fromJson(json: c, bikes: loadedBikes))
+        .toList();
+
+    final loadedAllAdjustments = <Adjustment>[
+      for (final component in loadedComponents) ...component.adjustments,
+    ];
+    final loadedSetups = (jsonData['setups'] as List)
+        .map((s) => Setup.fromJson(s, loadedAllAdjustments, loadedBikes))
         .toList();
     
     return Data(
       bikes: loadedBikes,
-      adjustments: loadedAdjustments,
       setups: loadedSetups,
       components: loadedComponents,
     );
@@ -98,7 +83,6 @@ class FileImport {
 
       // Step 3 — validate structure
       if (!jsonData.containsKey('bikes') ||
-          !jsonData.containsKey('adjustments') ||
           !jsonData.containsKey('setups') ||
           !jsonData.containsKey('components')) {
         scaffold.showSnackBar(

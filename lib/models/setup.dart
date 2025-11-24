@@ -79,18 +79,9 @@ class Setup {
       position: json['position'] != null ? _locationDataFromJson(json['position']) : null,
       place: json['place'] != null ? _placemarkFromJson(json['place']) : null,
       weather: json['weather'] != null ? Weather.fromJson(json['weather']) : null,
-      previousSetup: null,
+      previousSetup: null, // linked later
       isCurrent: json['isCurrent'] ?? false,
     );
-  }
-
-  void previousSetupFromJson(Map<String, dynamic> json, List<Setup> allSetups) {
-    if (json["previousSetup"] == null) return; 
-
-    previousSetup = allSetups.firstWhere(
-      (a) => a.id == json["previousSetup"], 
-      orElse: () => throw Exception('Setup with id ${json["previousSetup"]} not found'), 
-      );
   }
 
   static Map<String, dynamic> _locationDataToJson(LocationData data) => {

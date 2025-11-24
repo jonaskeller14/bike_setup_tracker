@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/bike.dart';
-import '../models/adjustment.dart';
 import '../models/setup.dart';
 import '../models/component.dart';
 import 'bike_page.dart';
@@ -23,7 +22,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final List<Bike> bikes = [];
-  final List<Adjustment> adjustments = [];
   final List<Setup> setups = [];
   final List<Component> components = [];
 
@@ -42,9 +40,6 @@ class _HomePageState extends State<HomePage> {
       bikes
         ..clear()
         ..addAll(data.bikes);
-      adjustments
-        ..clear()
-        ..addAll(data.adjustments);
       setups
         ..clear()
         ..addAll(data.setups)
@@ -55,7 +50,7 @@ class _HomePageState extends State<HomePage> {
       determineCurrentSetups();
       determinePreviousSetups();
     });
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
+    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
   }
 
   Future<void> loadJsonFileData() async {
@@ -71,18 +66,15 @@ class _HomePageState extends State<HomePage> {
         bikes
           ..clear()
           ..addAll(data.bikes);
-        adjustments
-          ..clear()
-          ..addAll(data.adjustments);
         setups
           ..clear()
           ..addAll(data.setups)
           ..sort((a, b) => a.datetime.compareTo(b.datetime));
-        determineCurrentSetups();
-        determinePreviousSetups();
         components
           ..clear()
           ..addAll(data.components);
+        determineCurrentSetups();
+        determinePreviousSetups();
       });
     } else if (choice == 'merge') {
       setState(() {
@@ -92,32 +84,24 @@ class _HomePageState extends State<HomePage> {
           }
         }
 
-        for (var a in data.adjustments) {
-          if (!adjustments.any((x) => x.id == a.id)) {
-            adjustments.add(a);
-          }
-        }
-
         for (var s in data.setups) {
           if (!setups.any((x) => x.id == s.id)) {
             setups.add(s);
           }
         }
-        setups.sort((a, b) => a.datetime.compareTo(b.datetime));
-        determineCurrentSetups();
-        determinePreviousSetups();
-
         for (var c in data.components) {
           if (!components.any((x) => x.id == c.id)) {
             components.add(c);
           }
         }
+        setups.sort((a, b) => a.datetime.compareTo(b.datetime));
+        determineCurrentSetups();
+        determinePreviousSetups();
       });
     }
 
     await FileExport.saveData(
       bikes: bikes, 
-      adjustments: adjustments,
       setups: setups,
       components: components,
     );
@@ -140,7 +124,6 @@ class _HomePageState extends State<HomePage> {
     await prefs.clear();
 
     setState(() {
-      adjustments.clear();
       setups.clear();
       components.clear();
     });
@@ -162,7 +145,7 @@ class _HomePageState extends State<HomePage> {
     removeComponents(obsoleteComponents, confirm: false);
     removeSetups(obsoleteSetups, confirm: false);
 
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
+    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
   }
 
   Future<void> removeSetup(Setup toRemoveSetup) async {
@@ -191,7 +174,7 @@ class _HomePageState extends State<HomePage> {
       determineCurrentSetups();
       determinePreviousSetups();
     });
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
+    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
   }
 
   Future<void> removeComponent(Component toRemoveComponent) async {
@@ -208,16 +191,12 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       for (var component in toRemoveComponents) {
-        for (var adjustment in component.adjustments) {
-          adjustments.remove(adjustment);
-        }
         components.remove(component);
       }
     });
 
     await FileExport.saveData(
       bikes: bikes,
-      adjustments: adjustments,
       setups: setups,
       components: components,
     );
@@ -233,7 +212,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       bikes.add(bike);
     });
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
+    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
   }
 
   Future<void> _addComponent() async {
@@ -250,9 +229,8 @@ class _HomePageState extends State<HomePage> {
   
     setState(() {
       components.add(component);
-      adjustments.addAll(component.adjustments);
     });
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
+    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
   }
 
   Future<void> editBike(Bike bike) async {
@@ -269,7 +247,7 @@ class _HomePageState extends State<HomePage> {
         bikes[index] = editedBike;
       }
     });
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
+    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
   }
 
   Future<void> editComponent(Component component) async {
@@ -287,35 +265,16 @@ class _HomePageState extends State<HomePage> {
         components[index] = editedComponent;
       }
     });
-    await resetAdjustments();
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
+    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
   }
 
   Future<void> duplicateComponent(Component component) async {
     final newComponent = component.deepCopy();
     setState(() {
       components.add(newComponent);
-      adjustments.addAll(newComponent.adjustments);
     });
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
+    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
     editComponent(newComponent);
-  }
-
-  Future<void> resetAdjustments() async {
-    adjustments.clear();
-    for (final component in components) {
-      adjustments.addAll(component.adjustments);
-    }
-    
-    Set<Adjustment> toRemoveAdjustments = adjustments.toSet();
-    for (final component in components) {
-      for (final adjustment in component.adjustments) {
-        toRemoveAdjustments.remove(adjustment);
-      }
-    }
-    for (final toRemoveAdjustment in toRemoveAdjustments) {
-      adjustments.remove(toRemoveAdjustment);
-    }
   }
 
   Future<void> _addSetup() async {
@@ -340,7 +299,7 @@ class _HomePageState extends State<HomePage> {
       determineCurrentSetups();
       determinePreviousSetups();
     });
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
+    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
   }
 
   Future<void> editSetup(Setup setup) async {
@@ -360,7 +319,7 @@ class _HomePageState extends State<HomePage> {
         determineCurrentSetups();
         determinePreviousSetups();
       });
-      await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
+      await FileExport.saveData(bikes: bikes, setups: setups, components: components);
     }
   }
 
@@ -379,7 +338,7 @@ class _HomePageState extends State<HomePage> {
       determineCurrentSetups();
       determinePreviousSetups();
     });
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
+    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
 
     editSetup(newSetup);
   }
@@ -452,7 +411,6 @@ class _HomePageState extends State<HomePage> {
                   FileExport.downloadJson(
                     context: context,
                     bikes: bikes,
-                    adjustments: adjustments,
                     setups: setups,
                     components: components,
                   );

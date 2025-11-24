@@ -70,44 +70,14 @@ class Component {
     'name': name,
     'componentType': componentType.toString(),
     'bike': bike.id,
-    'adjustments': adjustments.map((a) => a.id).toList(),
+    'adjustments': adjustments.map((a) => a.toJson()).toList(),
     'currentSetup': currentSetup?.id,
   };
 
   factory Component.fromJson({
     required Map<String, dynamic> json,
     required List<Bike> bikes,
-    required List<Adjustment> allAdjustments,
-    required List<Setup> allSetups,
   }) {
-    final bike = bikes.firstWhere(
-      (b) => b.id == json["bike"]
-    );
-
-    final adjustmentIDs = (json["adjustments"] as List<dynamic>?)
-      ?.map((e) => e.toString())
-      .toList() ?? [];
-
-    final List<Adjustment> adjustments = [];
-    for (var adjustmentID in adjustmentIDs) {
-      final adjustment = allAdjustments.firstWhere(
-        (a) => a.id == adjustmentID,
-        orElse: () => throw Exception('Adjustment with id $adjustmentID not found'),
-      );
-      adjustments.add(adjustment);
-    }
-
-    final setupID = json["currentSetup"];
-    Setup? currentSetup;
-
-    if (setupID != null) {
-      currentSetup = allSetups.where((s) => s.id == setupID).firstOrNull;
-
-      if (currentSetup == null) {
-        debugPrint('⚠️ Warning: Setup with id $setupID not found.');
-      }
-    }
-
     return Component(
       id: json["id"],
       name: json['name'],
@@ -115,9 +85,9 @@ class Component {
         (e) => e.toString() == json['componentType'],
         orElse: () => ComponentType.other,
       ),
-      bike: bike,
-      adjustments: adjustments,
-      currentSetup: currentSetup,
+      bike: bikes.firstWhere((b) => b.id == json["bike"]),
+      adjustments: json["adjustments"].map((adjustmentJson) => Adjustment.fromJson(adjustmentJson)).toList(),
+      currentSetup: null,  // to be linked later
     );
   }
 }

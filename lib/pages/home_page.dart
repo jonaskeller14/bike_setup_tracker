@@ -277,6 +277,32 @@ class _HomePageState extends State<HomePage> {
     editComponent(newComponent);
   }
 
+  Future<void> onReorderComponents(int oldIndex, int newIndex) async {
+    int adjustedNewIndex = newIndex;
+    if (oldIndex < newIndex) {
+      adjustedNewIndex -= 1;
+    }
+
+    setState(() {
+      final component = components.removeAt(oldIndex);
+      components.insert(adjustedNewIndex, component);
+    });
+    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+  }
+
+  Future<void> onReorderBikes(int oldIndex, int newIndex) async {
+    int adjustedNewIndex = newIndex;
+    if (oldIndex < newIndex) {
+      adjustedNewIndex -= 1;
+    }
+
+    setState(() {
+      final bike = bikes.removeAt(oldIndex);
+      bikes.insert(adjustedNewIndex, bike);
+    });
+    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+  }
+
   Future<void> _addSetup() async {
     if (bikes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Add a bike first"), backgroundColor: Theme.of(context).colorScheme.error));
@@ -454,7 +480,7 @@ class _HomePageState extends State<HomePage> {
             ),
             contentPadding: EdgeInsets.zero,
           ),
-          BikeList(bikes: bikes, editBike: editBike, removeBike: removeBike),
+          BikeList(bikes: bikes, editBike: editBike, removeBike: removeBike, onReorderBikes: onReorderBikes),
 
           ListTile(
             title: Text("Components", style: Theme.of(context).textTheme.headlineSmall),
@@ -471,6 +497,7 @@ class _HomePageState extends State<HomePage> {
             editComponent: editComponent,
             duplicateComponent: duplicateComponent,
             removeComponent: removeComponent,
+            onReorder: onReorderComponents,
           ),
 
           ListTile(

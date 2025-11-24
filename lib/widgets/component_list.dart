@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../models/component.dart';
 import '../widgets/adjustment_display_list.dart';
@@ -7,6 +8,7 @@ class ComponentList extends StatefulWidget {
   final void Function(Component component) editComponent;
   final void Function(Component component) duplicateComponent;
   final void Function(Component component) removeComponent;
+  final void Function(int oldIndex, int newIndex) onReorder; 
 
   const ComponentList({
     super.key,
@@ -14,6 +16,7 @@ class ComponentList extends StatefulWidget {
     required this.editComponent,
     required this.duplicateComponent,
     required this.removeComponent,
+    required this.onReorder,
   });
 
   @override
@@ -29,43 +32,41 @@ class _ComponentListState extends State<ComponentList> {
         ? widget.components.length
         : widget.components.length.clamp(0, 3);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: visibleCount,
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          itemBuilder: (context, index) {
-            final component = widget.components[index];
-            return Card(
-              margin: const EdgeInsets.symmetric(vertical: 4.0),
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(16, 0, 8, 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ListTile(
-                      leading: Component.getIcon(component.componentType),
-                      contentPadding: const EdgeInsets.all(0),
-                      title: Text(
-                        component.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+    final List<Card> cards = <Card>[];
+    for (final component in widget.components) {
+      cards.add(
+        Card(
+          key: ValueKey(component.id),
+          margin: const EdgeInsets.symmetric(vertical: 4.0),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ListTile(
+                  leading: Component.getIcon(component.componentType),
+                  contentPadding: const EdgeInsets.all(0),
+                  title: Text(
+                    component.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(Icons.pedal_bike, size: 13, color: Colors.grey.shade800),
+                      const SizedBox(width: 2),
+                      Text(
+                        component.bike.name,
+                        style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      subtitle: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(Icons.pedal_bike, size: 13, color: Colors.grey.shade800),
-                          const SizedBox(width: 2),
-                          Text(
-                              component.bike.name,
-                              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                              overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                      trailing: PopupMenuButton<String>(
+                    ],
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.drag_handle),
+                      PopupMenuButton<String>(
                         onSelected: (value) {
                           if (value == 'edit') {
                             widget.editComponent(component);
@@ -108,32 +109,64 @@ class _ComponentListState extends State<ComponentList> {
                           ),
                         ],
                       ),
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [
+                    Text(
+                      '${component.adjustments.length} adjustments ',
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                     ),
-                    Row(
-                      children: [
-                        Text(
-                          '${component.adjustments.length} adjustments ', 
-                          style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                        ),
-                        for (final adjustment in component.adjustments)
-                          Padding(
-                            padding: const EdgeInsets.only(right: 4.0),
-                            child: adjustment.getIcon(size: 13, color: Colors.grey.shade800),
-                          ),
-                      ],
-                    ),
-                    AdjustmentDisplayList(
-                      components: [component],
-                      adjustmentValues: component.currentSetup?.adjustmentValues ?? {},
-                      showComponentIcons: false,
-                    ),
+                    for (final adjustment in component.adjustments)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 4.0),
+                        child: adjustment.getIcon(size: 13, color: Colors.grey.shade800),
+                      ),
                   ],
                 ),
-              ),
-            );
+                AdjustmentDisplayList(
+                  components: [component],
+                  adjustmentValues: component.currentSetup?.adjustmentValues ?? {},
+                  showComponentIcons: false,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (BuildContext context, Widget? child) {
+        final double animValue = Curves.easeInOut.transform(animation.value);
+        final double elevation = lerpDouble(1, 6, animValue)!;
+        final double scale = lerpDouble(1, 1.03, animValue)!;
+        return Transform.scale(
+          scale: scale,
+          child: Card(elevation: elevation, color: cards[index].color, child: cards[index].child),
+          );
+        },
+        child: child,
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ReorderableListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: visibleCount,
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          onReorder: widget.onReorder,
+          proxyDecorator: proxyDecorator,
+          itemBuilder: (context, index) {
+            return cards[index];
           },
         ),
-
         if (widget.components.length > 3)
           Center(
             child: TextButton.icon(

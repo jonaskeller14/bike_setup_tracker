@@ -182,7 +182,7 @@ class _ComponentPageState extends State<ComponentPage> {
         componentType: componentType!,
         bike: bike,
         adjustments: adjustments,
-        currentSetting: widget.component?.currentSetting,
+        currentSetup: widget.component?.currentSetup,
       ),
     );
   }

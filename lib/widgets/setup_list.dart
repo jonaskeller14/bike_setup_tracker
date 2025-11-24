@@ -1,37 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../models/setting.dart';
+import '../models/setup.dart';
 import '../models/component.dart';
 import '../widgets/adjustment_display_list.dart';
 
-class SettingList extends StatefulWidget {
-  final List<Setting> settings;
+class SetupList extends StatefulWidget {
+  final List<Setup> setups;
   final List<Component> components;
-  final void Function(Setting setting) editSetting;
-  final void Function(Setting setting) restoreSetting;
-  final void Function(Setting setting) removeSetting;
+  final void Function(Setup setup) editSetup;
+  final void Function(Setup setup) restoreSetup;
+  final void Function(Setup setup) removeSetup;
 
-  const SettingList({
+  const SetupList({
     super.key,
-    required this.settings,
+    required this.setups,
     required this.components,
-    required this.editSetting,
-    required this.restoreSetting,
-    required this.removeSetting,
+    required this.editSetup,
+    required this.restoreSetup,
+    required this.removeSetup,
   });
 
   @override
-  State<SettingList> createState() => _SettingListState();
+  State<SetupList> createState() => _SetupListState();
 }
 
-class _SettingListState extends State<SettingList> {
+class _SetupListState extends State<SetupList> {
   bool _expanded = false;
 
   @override
   Widget build(BuildContext context) {
     final visibleCount = _expanded
-        ? widget.settings.length
-        : widget.settings.length.clamp(0, 3);
+        ? widget.setups.length
+        : widget.setups.length.clamp(0, 3);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,13 +42,13 @@ class _SettingListState extends State<SettingList> {
           itemCount: visibleCount,
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           itemBuilder: (context, index) {
-            final setting = widget.settings[widget.settings.length - 1 - index];
+            final setup = widget.setups[widget.setups.length - 1 - index];
 
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 4.0),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
-                side: setting.isCurrent
+                side: setup.isCurrent
                     ? BorderSide(
                         color: Theme.of(context).colorScheme.primary,
                         width: 2,
@@ -63,11 +63,11 @@ class _SettingListState extends State<SettingList> {
                     ListTile(
                       contentPadding: const EdgeInsets.all(0),
                       title: Text(
-                        setting.name,
+                        setup.name,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       subtitle: Text(
-                        DateFormat('yyyy-MM-dd HH:mm').format(setting.datetime),
+                        DateFormat('yyyy-MM-dd HH:mm').format(setup.datetime),
                         style: TextStyle(
                           color: Colors.grey.shade600,
                           fontSize: 13,
@@ -76,11 +76,11 @@ class _SettingListState extends State<SettingList> {
                       trailing: PopupMenuButton<String>(
                         onSelected: (value) {
                           if (value == 'edit') {
-                            widget.editSetting(setting);
+                            widget.editSetup(setup);
                           } else if (value == 'restore') {
-                            widget.restoreSetting(setting);
+                            widget.restoreSetup(setup);
                           } else if (value == 'remove') {
-                            widget.removeSetting(setting);
+                            widget.removeSetup(setup);
                           }
                         },
                         itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -117,7 +117,7 @@ class _SettingListState extends State<SettingList> {
                         ],
                       ),
                     ),
-                    if (setting.notes != null && setting.notes!.isNotEmpty) ...[
+                    if (setup.notes != null && setup.notes!.isNotEmpty) ...[
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -132,7 +132,7 @@ class _SettingListState extends State<SettingList> {
                           const SizedBox(width: 2),
                           Expanded(
                             child: Text(
-                              setting.notes!,
+                              setup.notes!,
                               style: TextStyle(
                                 color: Colors.grey.shade600,
                                 fontSize: 13,
@@ -153,13 +153,13 @@ class _SettingListState extends State<SettingList> {
                             Icon(Icons.pedal_bike, size: 13, color: Colors.grey.shade800),
                             const SizedBox(width: 2),
                             Text(
-                              setting.bike.name,
+                              setup.bike.name,
                               style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
-                        if (setting.place != null) ... [
+                        if (setup.place != null) ... [
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -167,14 +167,14 @@ class _SettingListState extends State<SettingList> {
                               Icon(Icons.location_pin, size: 13, color: Colors.grey.shade800),
                               const SizedBox(width: 2),
                               Text(
-                                "${setting.place?.locality}, ${setting.place?.isoCountryCode}",
+                                "${setup.place?.locality}, ${setup.place?.isoCountryCode}",
                                 style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
                         ],
-                        if (setting.position != null) ...[
+                        if (setup.position != null) ...[
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -182,13 +182,13 @@ class _SettingListState extends State<SettingList> {
                               Icon(Icons.arrow_upward, size: 13, color: Colors.grey.shade800),
                               const SizedBox(width: 2),
                               Text(
-                                "${setting.position!.altitude!.round()} m",
+                                "${setup.position!.altitude!.round()} m",
                                 style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                               ),
                             ],
                           )
                         ],
-                        if (setting.weather?.currentTemperature != null) ... [
+                        if (setup.weather?.currentTemperature != null) ... [
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -196,13 +196,13 @@ class _SettingListState extends State<SettingList> {
                               Icon(Icons.thermostat, size: 13, color: Colors.grey.shade800),
                               const SizedBox(width: 2),
                               Text(
-                                "${setting.weather!.currentTemperature!.toStringAsFixed(1)} °C",
+                                "${setup.weather!.currentTemperature!.toStringAsFixed(1)} °C",
                                 style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                               ),
                             ],
                           )
                         ],
-                        if (setting.weather?.currentHumidity != null) ... [
+                        if (setup.weather?.currentHumidity != null) ... [
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -210,13 +210,13 @@ class _SettingListState extends State<SettingList> {
                               Icon(Icons.opacity, size: 13, color: Colors.grey.shade800),
                               const SizedBox(width: 2),
                               Text(
-                                "${setting.weather!.currentHumidity!.round()} %",
+                                "${setup.weather!.currentHumidity!.round()} %",
                                 style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                               ),
                             ],
                           )
                         ],
-                        if (setting.weather?.dayAccumulatedPrecipitation != null) ... [
+                        if (setup.weather?.dayAccumulatedPrecipitation != null) ... [
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -224,13 +224,13 @@ class _SettingListState extends State<SettingList> {
                               Icon(Icons.water_drop, size: 13, color: Colors.grey.shade800),
                               const SizedBox(width: 2),
                               Text(
-                                "${setting.weather!.dayAccumulatedPrecipitation!.round()} mm",
+                                "${setup.weather!.dayAccumulatedPrecipitation!.round()} mm",
                                 style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                               ),
                             ],
                           )
                         ],
-                        if (setting.weather?.currentWindSpeed != null) ... [
+                        if (setup.weather?.currentWindSpeed != null) ... [
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -238,13 +238,13 @@ class _SettingListState extends State<SettingList> {
                               Icon(Icons.air, size: 13, color: Colors.grey.shade800),
                               const SizedBox(width: 2),
                               Text(
-                                "${setting.weather!.currentWindSpeed!.round()} km/h",
+                                "${setup.weather!.currentWindSpeed!.round()} km/h",
                                 style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                               ),
                             ],
                           )
                         ],
-                        if (setting.weather?.currentSoilMoisture0to7cm != null) ... [
+                        if (setup.weather?.currentSoilMoisture0to7cm != null) ... [
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -252,7 +252,7 @@ class _SettingListState extends State<SettingList> {
                               Icon(Icons.spa, size: 13, color: Colors.grey.shade800),
                               const SizedBox(width: 2),
                               Text(
-                                "${setting.weather!.currentSoilMoisture0to7cm!.toStringAsFixed(2)} m³/m³",
+                                "${setup.weather!.currentSoilMoisture0to7cm!.toStringAsFixed(2)} m³/m³",
                                 style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                               ),
                             ],
@@ -262,8 +262,8 @@ class _SettingListState extends State<SettingList> {
                     ),
                     AdjustmentDisplayList(
                       components: widget.components,
-                      adjustmentValues: setting.adjustmentValues,
-                      previousAdjustmentValues: setting.previousSetting?.adjustmentValues,
+                      adjustmentValues: setup.adjustmentValues,
+                      previousAdjustmentValues: setup.previousSetup?.adjustmentValues,
                       showComponentIcons: true,
                     ),
                   ],
@@ -273,7 +273,7 @@ class _SettingListState extends State<SettingList> {
           },
         ),
 
-        if (widget.settings.length > 3)
+        if (widget.setups.length > 3)
           Center(
             child: TextButton.icon(
               onPressed: () {

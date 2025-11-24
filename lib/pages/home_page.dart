@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/bike.dart';
 import '../models/adjustment.dart';
-import '../models/setting.dart';
+import '../models/setup.dart';
 import '../models/component.dart';
 import 'bike_page.dart';
 import 'component_page.dart';
-import 'setting_page.dart';
+import 'setup_page.dart';
 import '../utils/file_export.dart';
 import '../utils/file_import.dart';
 import '../widgets/bike_list.dart';
 import '../widgets/component_list.dart';
-import '../widgets/setting_list.dart';
+import '../widgets/setup_list.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
@@ -24,7 +24,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final List<Bike> bikes = [];
   final List<Adjustment> adjustments = [];
-  final List<Setting> settings = [];
+  final List<Setup> setups = [];
   final List<Component> components = [];
 
   @override
@@ -45,17 +45,17 @@ class _HomePageState extends State<HomePage> {
       adjustments
         ..clear()
         ..addAll(data.adjustments);
-      settings
+      setups
         ..clear()
-        ..addAll(data.settings)
+        ..addAll(data.setups)
         ..sort((a, b) => a.datetime.compareTo(b.datetime));
       components
         ..clear()
         ..addAll(data.components);
-      determineCurrentSettings();
-      determinePreviousSettings();
+      determineCurrentSetups();
+      determinePreviousSetups();
     });
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
   }
 
   Future<void> loadJsonFileData() async {
@@ -74,12 +74,12 @@ class _HomePageState extends State<HomePage> {
         adjustments
           ..clear()
           ..addAll(data.adjustments);
-        settings
+        setups
           ..clear()
-          ..addAll(data.settings)
+          ..addAll(data.setups)
           ..sort((a, b) => a.datetime.compareTo(b.datetime));
-        determineCurrentSettings();
-        determinePreviousSettings();
+        determineCurrentSetups();
+        determinePreviousSetups();
         components
           ..clear()
           ..addAll(data.components);
@@ -98,14 +98,14 @@ class _HomePageState extends State<HomePage> {
           }
         }
 
-        for (var s in data.settings) {
-          if (!settings.any((x) => x.id == s.id)) {
-            settings.add(s);
+        for (var s in data.setups) {
+          if (!setups.any((x) => x.id == s.id)) {
+            setups.add(s);
           }
         }
-        settings.sort((a, b) => a.datetime.compareTo(b.datetime));
-        determineCurrentSettings();
-        determinePreviousSettings();
+        setups.sort((a, b) => a.datetime.compareTo(b.datetime));
+        determineCurrentSetups();
+        determinePreviousSetups();
 
         for (var c in data.components) {
           if (!components.any((x) => x.id == c.id)) {
@@ -118,7 +118,7 @@ class _HomePageState extends State<HomePage> {
     await FileExport.saveData(
       bikes: bikes, 
       adjustments: adjustments,
-      settings: settings,
+      setups: setups,
       components: components,
     );
     
@@ -141,7 +141,7 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       adjustments.clear();
-      settings.clear();
+      setups.clear();
       components.clear();
     });
   }
@@ -153,24 +153,24 @@ class _HomePageState extends State<HomePage> {
     }
 
     final obsoleteComponents = components.where((c) => c.bike == bike).toList();
-    final obsoleteSettings = settings.where((s) => s.bike == bike).toList();
+    final obsoleteSetups = setups.where((s) => s.bike == bike).toList();
 
     setState(() {
       bikes.remove(bike);
     });
 
     removeComponents(obsoleteComponents, confirm: false);
-    removeSettings(obsoleteSettings, confirm: false);
+    removeSetups(obsoleteSetups, confirm: false);
 
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
   }
 
-  Future<void> removeSetting(Setting toRemoveSetting) async {
-    removeSettings([toRemoveSetting]);
+  Future<void> removeSetup(Setup toRemoveSetup) async {
+    removeSetups([toRemoveSetup]);
   }
 
-  Future<void> removeSettings(List<Setting> toRemoveSettings, {bool confirm = true}) async {
-    if (toRemoveSettings.isEmpty) return;
+  Future<void> removeSetups(List<Setup> toRemoveSetups, {bool confirm = true}) async {
+    if (toRemoveSetups.isEmpty) return;
 
     if (confirm) {
       final confirmed = await showConfirmationDialog(context);
@@ -178,20 +178,20 @@ class _HomePageState extends State<HomePage> {
     }
 
     setState(() {
-      for (var setting in toRemoveSettings) {
-        settings.remove(setting);
+      for (var setup in toRemoveSetups) {
+        setups.remove(setup);
 
         // Also ensure components don't hold dangling references
         for (var c in components) {
-          if (c.currentSetting == setting) {
-            c.currentSetting = null;
+          if (c.currentSetup == setup) {
+            c.currentSetup = null;
           }
         }
       }
-      determineCurrentSettings();
-      determinePreviousSettings();
+      determineCurrentSetups();
+      determinePreviousSetups();
     });
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
   }
 
   Future<void> removeComponent(Component toRemoveComponent) async {
@@ -218,7 +218,7 @@ class _HomePageState extends State<HomePage> {
     await FileExport.saveData(
       bikes: bikes,
       adjustments: adjustments,
-      settings: settings,
+      setups: setups,
       components: components,
     );
   }
@@ -233,7 +233,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       bikes.add(bike);
     });
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
   }
 
   Future<void> _addComponent() async {
@@ -252,7 +252,7 @@ class _HomePageState extends State<HomePage> {
       components.add(component);
       adjustments.addAll(component.adjustments);
     });
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
   }
 
   Future<void> editBike(Bike bike) async {
@@ -269,7 +269,7 @@ class _HomePageState extends State<HomePage> {
         bikes[index] = editedBike;
       }
     });
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
   }
 
   Future<void> editComponent(Component component) async {
@@ -288,7 +288,7 @@ class _HomePageState extends State<HomePage> {
       }
     });
     await resetAdjustments();
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
   }
 
   Future<void> duplicateComponent(Component component) async {
@@ -297,7 +297,7 @@ class _HomePageState extends State<HomePage> {
       components.add(newComponent);
       adjustments.addAll(newComponent.adjustments);
     });
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
     editComponent(newComponent);
   }
 
@@ -318,7 +318,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _addSetting() async {
+  Future<void> _addSetup() async {
     if (bikes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Add a bike first"), backgroundColor: Theme.of(context).colorScheme.error));
       return;
@@ -328,73 +328,73 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    final setting = await Navigator.push<Setting>(
+    final setup = await Navigator.push<Setup>(
       context,
-      MaterialPageRoute(builder: (context) => SettingPage(components: components, bikes: bikes)),
+      MaterialPageRoute(builder: (context) => SetupPage(components: components, bikes: bikes)),
     );
-    if (setting == null) return;
+    if (setup == null) return;
     
     setState(() {
-      settings.add(setting);
-      settings.sort((a, b) => a.datetime.compareTo(b.datetime));
-      determineCurrentSettings();
-      determinePreviousSettings();
+      setups.add(setup);
+      setups.sort((a, b) => a.datetime.compareTo(b.datetime));
+      determineCurrentSetups();
+      determinePreviousSetups();
     });
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
   }
 
-  Future<void> editSetting(Setting setting) async {
-    final editedSetting = await Navigator.push<Setting>(
+  Future<void> editSetup(Setup setup) async {
+    final editedSetup = await Navigator.push<Setup>(
       context,
       MaterialPageRoute(
-        builder: (context) => SettingPage(setting: setting, components: components, bikes: bikes),
+        builder: (context) => SetupPage(setup: setup, components: components, bikes: bikes),
       ),
     );
-    if (editedSetting != null) {
+    if (editedSetup != null) {
       setState(() {
-        final index = settings.indexOf(setting);
+        final index = setups.indexOf(setup);
         if (index != -1) {
-          settings[index] = editedSetting;
+          setups[index] = editedSetup;
         }
-        settings.sort((a, b) => a.datetime.compareTo(b.datetime));
-        determineCurrentSettings();
-        determinePreviousSettings();
+        setups.sort((a, b) => a.datetime.compareTo(b.datetime));
+        determineCurrentSetups();
+        determinePreviousSetups();
       });
-      await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+      await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
     }
   }
 
-  Future<void> restoreSetting(Setting setting) async {
-    final newSetting = Setting(
-      name: setting.name, 
-      bike: setting.bike,
+  Future<void> restoreSetup(Setup setup) async {
+    final newSetup = Setup(
+      name: setup.name, 
+      bike: setup.bike,
       datetime: DateTime.now(),
-      adjustmentValues: setting.adjustmentValues,
+      adjustmentValues: setup.adjustmentValues,
       isCurrent: true,
     );  //FIXME: Location and waether data is null --> maybe add default constructor?
 
     setState(() {
-      settings.add(newSetting);
-      settings.sort((a, b) => a.datetime.compareTo(b.datetime));
-      determineCurrentSettings();
-      determinePreviousSettings();
+      setups.add(newSetup);
+      setups.sort((a, b) => a.datetime.compareTo(b.datetime));
+      determineCurrentSetups();
+      determinePreviousSetups();
     });
-    await FileExport.saveData(bikes: bikes, adjustments: adjustments, settings: settings, components: components);
+    await FileExport.saveData(bikes: bikes, adjustments: adjustments, setups: setups, components: components);
 
-    editSetting(newSetting);
+    editSetup(newSetup);
   }
 
-  Future<void> determineCurrentSettings() async {
-    for (final setting in settings) {
-      setting.isCurrent = false;
+  Future<void> determineCurrentSetups() async {
+    for (final setup in setups) {
+      setup.isCurrent = false;
     }
     final remainingBikes = Set.of(bikes);
-    for (final setting in settings.reversed) {
-      final bike = setting.bike;
+    for (final setup in setups.reversed) {
+      final bike = setup.bike;
       if (remainingBikes.contains(bike)) {
-        setting.isCurrent = true;
+        setup.isCurrent = true;
         for (final component in components.where((c) => c.bike == bike)) {
-          component.currentSetting = setting;
+          component.currentSetup = setup;
         }
         remainingBikes.remove(bike);
         if (remainingBikes.isEmpty) break;
@@ -402,13 +402,13 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> determinePreviousSettings() async {
-    Map<Bike, Setting> previousSettings = {}; 
-    for (final setting in settings) {
-      final bike = setting.bike;
-      final previousSetting = previousSettings[bike];
-      if (previousSetting != null) setting.previousSetting = previousSetting;
-      previousSettings[bike] = setting;
+  Future<void> determinePreviousSetups() async {
+    Map<Bike, Setup> previousSetups = {}; 
+    for (final setup in setups) {
+      final bike = setup.bike;
+      final previousSetup = previousSetups[bike];
+      if (previousSetup != null) setup.previousSetup = previousSetup;
+      previousSetups[bike] = setup;
     }
   }
 
@@ -452,7 +452,7 @@ class _HomePageState extends State<HomePage> {
                 context: context,
                 bikes: bikes,
                 adjustments: adjustments,
-                settings: settings,
+                setups: setups,
                 components: components,
               );
             },
@@ -491,21 +491,21 @@ class _HomePageState extends State<HomePage> {
           ),
 
           ListTile(
-            title: Text("Setting History", style: Theme.of(context).textTheme.headlineSmall),
+            title: Text("Setup History", style: Theme.of(context).textTheme.headlineSmall),
             trailing: IconButton(
               icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
-              onPressed: _addSetting,
-              tooltip: 'Add Setting',
+              onPressed: _addSetup,
+              tooltip: 'Add Setup',
             ),
             contentPadding: EdgeInsets.zero,
           ),
 
-          SettingList(
-            settings: settings,
+          SetupList(
+            setups: setups,
             components: components,
-            editSetting: editSetting,
-            restoreSetting: restoreSetting,
-            removeSetting: removeSetting,
+            editSetup: editSetup,
+            restoreSetup: restoreSetup,
+            removeSetup: removeSetup,
           ),
 
           const SizedBox(height: 100),
@@ -518,9 +518,9 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             FloatingActionButton.extended(
-              heroTag: "addSetting",
-              onPressed: _addSetting,
-              label: const Text('Add Setting'),
+              heroTag: "addSetup",
+              onPressed: _addSetup,
+              label: const Text('Add Setup'),
               icon: const Icon(Icons.add),
             ),
           ],

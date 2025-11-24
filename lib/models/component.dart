@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'adjustment.dart';
-import 'setting.dart';
+import 'setup.dart';
 import 'bike.dart';
 import '../icons/bike_icons.dart';
 
@@ -24,14 +24,14 @@ class Component {
   final ComponentType componentType; 
   final List<Adjustment> adjustments;
   final Bike bike;
-  Setting? currentSetting;
+  Setup? currentSetup;
 
   Component({
     String? id,
     required this.name,
     required this.bike,
     required this.componentType,
-    this.currentSetting,
+    this.currentSetup,
     List<Adjustment>? adjustments,
   }) : adjustments = adjustments ?? [],
        id = id ?? const Uuid().v4();
@@ -41,7 +41,7 @@ class Component {
       name: name,
       bike: bike,
       componentType: componentType,
-      currentSetting: currentSetting,
+      currentSetup: currentSetup,
       adjustments: adjustments.map((a) => a.deepCopy()).toList(),
     );
   }
@@ -71,14 +71,14 @@ class Component {
     'componentType': componentType.toString(),
     'bike': bike.id,
     'adjustments': adjustments.map((a) => a.id).toList(),
-    'currentSetting': currentSetting?.id,
+    'currentSetup': currentSetup?.id,
   };
 
   factory Component.fromJson({
     required Map<String, dynamic> json,
     required List<Bike> bikes,
     required List<Adjustment> allAdjustments,
-    required List<Setting> allSettings,
+    required List<Setup> allSetups,
   }) {
     final bike = bikes.firstWhere(
       (b) => b.id == json["bike"]
@@ -97,14 +97,14 @@ class Component {
       adjustments.add(adjustment);
     }
 
-    final settingID = json["currentSetting"];
-    Setting? currentSetting;
+    final setupID = json["currentSetup"];
+    Setup? currentSetup;
 
-    if (settingID != null) {
-      currentSetting = allSettings.where((s) => s.id == settingID).firstOrNull;
+    if (setupID != null) {
+      currentSetup = allSetups.where((s) => s.id == setupID).firstOrNull;
 
-      if (currentSetting == null) {
-        debugPrint('⚠️ Warning: Setting with id $settingID not found.');
+      if (currentSetup == null) {
+        debugPrint('⚠️ Warning: Setup with id $setupID not found.');
       }
     }
 
@@ -117,7 +117,7 @@ class Component {
       ),
       bike: bike,
       adjustments: adjustments,
-      currentSetting: currentSetting,
+      currentSetup: currentSetup,
     );
   }
 }

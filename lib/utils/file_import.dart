@@ -6,7 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/bike.dart';
 import '../models/adjustment.dart';
-import '../models/setting.dart';
+import '../models/setup.dart';
 import '../models/component.dart';
 import 'data.dart';
 
@@ -40,29 +40,29 @@ class FileImport {
         .map((a) => Adjustment.fromJson(a))
         .toList();
 
-    // parse settings (first pass)
-    final loadedSettings = (jsonData['settings'] as List)
-        .map((s) => Setting.fromJson(s, loadedAdjustments, loadedBikes))
+    // parse setups (first pass)
+    final loadedSetups = (jsonData['setups'] as List)
+        .map((s) => Setup.fromJson(s, loadedAdjustments, loadedBikes))
         .toList();
 
-    // fix previousSetting links (second pass)
-    final settingsJsonList = jsonData['settings'] as List;
-    for (int i = 0; i < loadedSettings.length; i++) {
-      loadedSettings[i].previousSettingFromJson(
-        settingsJsonList[i],
-        loadedSettings,
+    // fix previousSetup links (second pass)
+    final setupsJsonList = jsonData['setups'] as List;
+    for (int i = 0; i < loadedSetups.length; i++) {
+      loadedSetups[i].previousSetupFromJson(
+        setupsJsonList[i],
+        loadedSetups,
       );
     }
 
     // parse components
     final loadedComponents = (jsonData['components'] as List)
-        .map((c) => Component.fromJson(json: c, allAdjustments: loadedAdjustments, allSettings: loadedSettings, bikes: loadedBikes))
+        .map((c) => Component.fromJson(json: c, allAdjustments: loadedAdjustments, allSetups: loadedSetups, bikes: loadedBikes))
         .toList();
     
     return Data(
       bikes: loadedBikes,
       adjustments: loadedAdjustments,
-      settings: loadedSettings,
+      setups: loadedSetups,
       components: loadedComponents,
     );
   }
@@ -99,7 +99,7 @@ class FileImport {
       // Step 3 — validate structure
       if (!jsonData.containsKey('bikes') ||
           !jsonData.containsKey('adjustments') ||
-          !jsonData.containsKey('settings') ||
+          !jsonData.containsKey('setups') ||
           !jsonData.containsKey('components')) {
         scaffold.showSnackBar(
           const SnackBar(content: Text("Invalid JSON format")),

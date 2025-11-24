@@ -6,7 +6,7 @@ import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import '../models/weather.dart';
 import '../models/bike.dart';
-import '../models/setting.dart';
+import '../models/setup.dart';
 import '../models/component.dart';
 import '../models/adjustment.dart';
 import '../services/weather_service.dart';
@@ -14,18 +14,18 @@ import '../services/address_service.dart';
 import '../services/location_service.dart';
 import '../widgets/adjustment_set_list.dart';
 
-class SettingPage extends StatefulWidget {
-  final Setting? setting;
+class SetupPage extends StatefulWidget {
+  final Setup? setup;
   final List<Component> components;
   final List<Bike> bikes;
 
-  const SettingPage({super.key, required this.components, required this.bikes, this.setting});
+  const SetupPage({super.key, required this.components, required this.bikes, this.setup});
 
   @override
-  State<SettingPage> createState() => _SettingPageState();
+  State<SetupPage> createState() => _SetupPageState();
 }
 
-class _SettingPageState extends State<SettingPage> {
+class _SetupPageState extends State<SetupPage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _notesController;
@@ -46,34 +46,34 @@ class _SettingPageState extends State<SettingPage> {
   @override
   void initState() {
     super.initState();
-    bike = widget.setting?.bike ?? widget.bikes.first;
+    bike = widget.setup?.bike ?? widget.bikes.first;
     _onBikeChange();
 
-    // Set initial adjustment values from components' current settings (for all bikes!)
+    // Set initial adjustment values from components' current setups (for all bikes!)
     for (final component in widget.components) {
-      if (component.currentSetting == null) continue;
-      final componentAdjustmentValues = component.currentSetting?.adjustmentValues;
+      if (component.currentSetup == null) continue;
+      final componentAdjustmentValues = component.currentSetup?.adjustmentValues;
       if (componentAdjustmentValues == null) continue;
       for (final componentAdjustmentValue in componentAdjustmentValues.entries) {
         adjustmentValues[componentAdjustmentValue.key] = componentAdjustmentValue.value;
       }
     }
 
-    if (widget.setting == null) {
+    if (widget.setup == null) {
       fetchLocationAddressWeather();
     } else {
-      // Overwrite adjustment values with those from the setting being edited (no effect for current Setting)
-      for (final adjustmentValue in widget.setting!.adjustmentValues.entries) {
+      // Overwrite adjustment values with those from the setup being edited (no effect for current Setup)
+      for (final adjustmentValue in widget.setup!.adjustmentValues.entries) {
         adjustmentValues[adjustmentValue.key] = adjustmentValue.value;
       }
     }
 
-    _nameController = TextEditingController(text: widget.setting?.name);
-    _notesController = TextEditingController(text: widget.setting?.notes ?? '');
-    _selectedDateTime = widget.setting?.datetime ?? DateTime.now();
-    _currentLocation = widget.setting?.position;
-    _currentPlace = widget.setting?.place;
-    _currentWeather = widget.setting?.weather;
+    _nameController = TextEditingController(text: widget.setup?.name);
+    _notesController = TextEditingController(text: widget.setup?.notes ?? '');
+    _selectedDateTime = widget.setup?.datetime ?? DateTime.now();
+    _currentLocation = widget.setup?.position;
+    _currentPlace = widget.setup?.place;
+    _currentWeather = widget.setup?.weather;
   }
 
   Future<void> _onBikeChange () async {
@@ -227,7 +227,7 @@ class _SettingPageState extends State<SettingPage> {
     });
   }
 
-  void _saveSetting() {
+  void _saveSetup() {
     if (!_formKey.currentState!.validate()) return;
     final name = _nameController.text.trim();
 
@@ -243,8 +243,8 @@ class _SettingPageState extends State<SettingPage> {
 
     Navigator.pop(
       context,
-      Setting(
-        id: widget.setting?.id,
+      Setup(
+        id: widget.setup?.id,
         name: name,
         datetime: _selectedDateTime,
         notes: notes,
@@ -274,9 +274,9 @@ class _SettingPageState extends State<SettingPage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: widget.setting == null ? const Text('Add Setting') : const Text('Edit Setting'),
+        title: widget.setup == null ? const Text('Add Setup') : const Text('Edit Setup'),
         actions: [
-          IconButton(icon: const Icon(Icons.check), onPressed: _saveSetting),
+          IconButton(icon: const Icon(Icons.check), onPressed: _saveSetup),
         ],
       ),
       body: Form(
@@ -286,11 +286,11 @@ class _SettingPageState extends State<SettingPage> {
           children: [
             TextFormField(
               controller: _nameController,
-              autofocus: widget.setting == null,
+              autofocus: widget.setup == null,
               decoration: const InputDecoration(
-                labelText: 'Setting Name',
+                labelText: 'Setup Name',
                 border: OutlineInputBorder(),
-                hintText: 'Enter setting name',
+                hintText: 'Enter setup name',
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -493,7 +493,7 @@ class _SettingPageState extends State<SettingPage> {
                       AdjustmentSetList(
                         key: ValueKey(bikeComponent.id),
                         adjustments: bikeComponent.adjustments,
-                        initialAdjustmentValues: bikeComponent.currentSetting?.adjustmentValues ?? <Adjustment, dynamic>{},
+                        initialAdjustmentValues: bikeComponent.currentSetup?.adjustmentValues ?? <Adjustment, dynamic>{},
                         onAdjustmentValueChanged: _onAdjustmentValueChanged,
                         removeFromAdjustmentValues: _removeFromAdjustmentValues,
                       ),

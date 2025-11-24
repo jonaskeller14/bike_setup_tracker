@@ -4,18 +4,18 @@ import 'package:file_save_directory/file_save_directory.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/bike.dart';
 import '../models/adjustment.dart';
-import '../models/setting.dart';
+import '../models/setup.dart';
 import '../models/component.dart';
 
 
 class FileExport {
-  static Future<void> saveData({required List<Bike> bikes, required List<Adjustment> adjustments, required List<Setting> settings, required List<Component> components}) async {
+  static Future<void> saveData({required List<Bike> bikes, required List<Adjustment> adjustments, required List<Setup> setups, required List<Component> components}) async {
     final prefs = await SharedPreferences.getInstance();
 
     final jsonData = jsonEncode({
       'bikes': bikes.map((b) => b.toJson()).toList(),
       'adjustments': adjustments.map((a) => a.toJson()).toList(),
-      'settings': settings.map((s) => s.toJson()).toList(),
+      'setups': setups.map((s) => s.toJson()).toList(),
       'components': components.map((c) => c.toJson()).toList(),
     });
 
@@ -26,13 +26,13 @@ class FileExport {
     required BuildContext context,
     required List<Bike> bikes,
     required List<Adjustment> adjustments,
-    required List<Setting> settings,
+    required List<Setup> setups,
     required List<Component> components,
   }) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final errorColor = Theme.of(context).colorScheme.error;
 
-    _downloadJson(bikes, adjustments, settings, components).then((result) {
+    _downloadJson(bikes, adjustments, setups, components).then((result) {
         if (result == null || result.path == null) {
           scaffoldMessenger.showSnackBar(
             SnackBar(content: Text("Export failed"), backgroundColor: errorColor),
@@ -51,14 +51,14 @@ class FileExport {
   static Future<FileSaveResult?> _downloadJson(
     List<Bike> bikes,
     List<Adjustment> adjustments,
-    List<Setting> settings,
+    List<Setup> setups,
     List<Component> components,
   ) async {
     try {
       final exportData = {
         'bikes': bikes.map((b) => b.toJson()).toList(),
         'adjustments': adjustments.map((a) => a.toJson()).toList(),
-        'settings': settings.map((s) => s.toJson()).toList(),
+        'setups': setups.map((s) => s.toJson()).toList(),
         'components': components.map((c) => c.toJson()).toList(),
       };
 

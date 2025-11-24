@@ -6,7 +6,7 @@ import 'weather.dart';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 
-class Setting {
+class Setup {
   final String id;
   final String name;
   final DateTime datetime;
@@ -16,10 +16,10 @@ class Setting {
   final LocationData? position;
   final geo.Placemark? place;
   final Weather? weather;
-  Setting? previousSetting;
+  Setup? previousSetup;
   bool isCurrent;
 
-  Setting({
+  Setup({
     String? id,
     required this.name,
     required this.datetime,
@@ -29,7 +29,7 @@ class Setting {
     this.place,
     this.position,
     this.weather,
-    this.previousSetting,
+    this.previousSetup,
     required this.isCurrent,
   }): id = id ?? const Uuid().v4();
 
@@ -46,11 +46,11 @@ class Setting {
     'position': position != null ? _locationDataToJson(position!) : null,
     'place': place != null ? _placemarkToJson(place!) : null,
     'weather': weather?.toJson(),
-    'previousSetting': previousSetting?.id,
+    'previousSetup': previousSetup?.id,
     'isCurrent': isCurrent,
   };
 
-  factory Setting.fromJson(Map<String, dynamic> json, List<Adjustment> allAdjustments, List<Bike> allBikes) {
+  factory Setup.fromJson(Map<String, dynamic> json, List<Adjustment> allAdjustments, List<Bike> allBikes) {
     final adjustmentIDValues = json['adjustmentValues'] as Map<String, dynamic>? ?? {};
 
     final Map<Adjustment, dynamic> adjustmentValues = {};
@@ -69,7 +69,7 @@ class Setting {
     final bikeID = json['bike'];
     final bike = allBikes.firstWhere((b) => b.id == bikeID, orElse: () => throw Exception('Bike with id $bikeID not found'));
 
-    return Setting(
+    return Setup(
       id: json['id'],
       name: json['name'],
       datetime: DateTime.parse(json['datetime']),
@@ -79,17 +79,17 @@ class Setting {
       position: json['position'] != null ? _locationDataFromJson(json['position']) : null,
       place: json['place'] != null ? _placemarkFromJson(json['place']) : null,
       weather: json['weather'] != null ? Weather.fromJson(json['weather']) : null,
-      previousSetting: null,
+      previousSetup: null,
       isCurrent: json['isCurrent'] ?? false,
     );
   }
 
-  void previousSettingFromJson(Map<String, dynamic> json, List<Setting> allSettings) {
-    if (json["previousSetting"] == null) return; 
+  void previousSetupFromJson(Map<String, dynamic> json, List<Setup> allSetups) {
+    if (json["previousSetup"] == null) return; 
 
-    previousSetting = allSettings.firstWhere(
-      (a) => a.id == json["previousSetting"], 
-      orElse: () => throw Exception('Setting with id ${json["previousSetting"]} not found'), 
+    previousSetup = allSetups.firstWhere(
+      (a) => a.id == json["previousSetup"], 
+      orElse: () => throw Exception('Setup with id ${json["previousSetup"]} not found'), 
       );
   }
 

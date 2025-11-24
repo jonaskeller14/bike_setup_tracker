@@ -78,6 +78,10 @@ class Component {
     required Map<String, dynamic> json,
     required List<Bike> bikes,
   }) {
+    final adjustments = (json["adjustments"] as List<dynamic>?)
+        ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson))
+        .toList()
+        ?? <Adjustment>[];
     return Component(
       id: json["id"],
       name: json['name'],
@@ -86,7 +90,7 @@ class Component {
         orElse: () => ComponentType.other,
       ),
       bike: bikes.firstWhere((b) => b.id == json["bike"]),
-      adjustments: json["adjustments"].map((adjustmentJson) => Adjustment.fromJson(adjustmentJson)).toList(),
+      adjustments: adjustments,
       currentSetup: null,  // to be linked later
     );
   }

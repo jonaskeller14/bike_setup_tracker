@@ -38,9 +38,10 @@ class FileImport {
         .map((c) => Component.fromJson(json: c, bikes: loadedBikes))
         .toList();
 
-    final loadedAllAdjustments = <Adjustment>[
-      for (final component in loadedComponents) ...component.adjustments,
-    ];
+    final List<Adjustment> loadedAllAdjustments = [];
+    for (final component in loadedComponents) {
+      loadedAllAdjustments.addAll(component.adjustments);
+    }
     final loadedSetups = (jsonData['setups'] as List)
         .map((s) => Setup.fromJson(s, loadedAllAdjustments, loadedBikes))
         .toList();

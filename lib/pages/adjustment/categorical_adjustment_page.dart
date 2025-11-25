@@ -82,10 +82,6 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
         title: widget.adjustment == null ? const Text('Add Categorical Adjustment') : const Text('Edit Categorical Adjustment'),
         actions: [
           IconButton(icon: const Icon(Icons.check), onPressed: _saveCategoricalAdjustment),

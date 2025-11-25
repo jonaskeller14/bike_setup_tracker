@@ -79,10 +79,6 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
         title: widget.adjustment == null ? const Text('Add Numerical Adjustment') : const Text('Edit Numerical Adjustment'),
         actions: [
           IconButton(icon: const Icon(Icons.check), onPressed: _saveNumericalAdjustment),

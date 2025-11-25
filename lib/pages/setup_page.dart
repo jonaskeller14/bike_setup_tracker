@@ -277,10 +277,6 @@ class _SetupPageState extends State<SetupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
         title: widget.setup == null ? const Text('Add Setup') : const Text('Edit Setup'),
         actions: [
           IconButton(icon: const Icon(Icons.check), onPressed: _saveSetup),

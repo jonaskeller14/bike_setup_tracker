@@ -191,10 +191,6 @@ class _ComponentPageState extends State<ComponentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
         title: widget.component == null ? const Text('Add Component') : const Text('Edit Component'),
         actions: [
           IconButton(icon: const Icon(Icons.check), onPressed: _saveComponent),

@@ -51,10 +51,6 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
         title: widget.adjustment == null ? const Text('Add On/Off Adjustment') : const Text('Edit On/Off Adjustment'),
         actions: [
           IconButton(icon: const Icon(Icons.check), onPressed: _saveBooleanAdjustment),

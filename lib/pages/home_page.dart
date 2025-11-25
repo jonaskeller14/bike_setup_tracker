@@ -257,7 +257,10 @@ class _HomePageState extends State<HomePage> {
         builder: (context) => ComponentPage(component: component, bikes: bikes),
       ),
     );
-    if (editedComponent == null) return;
+    if (editedComponent == null) {
+      setState(() {}); // update adjustments
+      return;
+    }
 
     setState(() {
       final index = components.indexOf(component);

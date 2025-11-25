@@ -117,28 +117,31 @@ class _SetupListState extends State<SetupList> {
                     ),
                   ),
                   if (setup.notes != null && setup.notes!.isNotEmpty) ...[
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 3), // tweak to match font size
-                          child: Icon(
-                            Icons.notes,
-                            size: 13,
-                            color: Colors.grey.shade800,
-                          ),
-                        ),
-                        const SizedBox(width: 2),
-                        Expanded(
-                          child: Text(
-                            setup.notes!,
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 13,
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 3), // tweak to match font size
+                            child: Icon(
+                              Icons.notes,
+                              size: 13,
+                              color: Colors.grey.shade800,
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 2),
+                          Expanded(
+                            child: Text(
+                              setup.notes!,
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                   Padding(
@@ -197,7 +200,7 @@ class _SetupListState extends State<SetupList> {
                               Icon(Icons.thermostat, size: 13, color: Colors.grey.shade800),
                               const SizedBox(width: 2),
                               Text(
-                                "${setup.weather!.currentTemperature!.toStringAsFixed(1)} °C",
+                                "${setup.weather!.currentTemperature!.round()} °C",
                                 style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                               ),
                             ],

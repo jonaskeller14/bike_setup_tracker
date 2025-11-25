@@ -358,7 +358,7 @@ class _SetupPageState extends State<SetupPage> {
                 ),
                 ActionChip(
                   avatar: Icon(Icons.thermostat), 
-                  label: _currentWeather?.currentTemperature == null ? const Text("-") : Text("${_currentWeather?.currentTemperature?.toStringAsFixed(1)} °C"),
+                  label: _currentWeather?.currentTemperature == null ? const Text("-") : Text("${_currentWeather?.currentTemperature?.round()} °C"),
                   onPressed: () async {
                     final temperature = await showSetCurrentTemperatureDialog(context, _currentWeather);
                     setState(() {

@@ -37,48 +37,43 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
         scrollDirection: Axis.vertical,
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: DataTable(
-            columns: [
-              DataColumn(
-                label: Text(
-                  'Setup',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Date',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-              for (final adjustment in widget.component.adjustments)
-                DataColumn(
-                  label: Text(
-                    adjustment.name,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                    overflow: TextOverflow.ellipsis,
+          child: Padding(
+            padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
+            child: DataTable(
+              columnSpacing: 20,
+              headingTextStyle: TextStyle(fontWeight: FontWeight.bold),
+              columns: [
+                DataColumn(label: Text('Setup')),
+                DataColumn(label: Text('Date')),
+                for (final adjustment in widget.component.adjustments)
+                  DataColumn(
+                    label: Text(
+                      adjustment.name,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-            ],
-            rows: widget.setups.reversed.where((setup) {
+              ],
+              rows: widget.setups.reversed.where((setup) {
                 return widget.component.adjustments.any(
                   (componentAdjustment) => setup.adjustmentValues.containsKey(componentAdjustment)
                 );
               }).map((setup) {
-              return DataRow(
-                cells: [
-                  DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: Text(setup.name, overflow: TextOverflow.ellipsis))),
-                  DataCell(Text(DateFormat('yyyy-MM-dd').format(setup.datetime))),
-                  for (final adjustment in widget.component.adjustments)
-                    DataCell(
-                      Text(
-                        Adjustment.formatValue(setup.adjustmentValues[adjustment]),
+                return DataRow(
+                  cells: [
+                    DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: Text(setup.name, overflow: TextOverflow.ellipsis))),
+                    DataCell(Text(DateFormat('yyyy-MM-dd').format(setup.datetime))),
+                    for (final adjustment in widget.component.adjustments)
+                      DataCell(
+                        Center(
+                          child: Text(Adjustment.formatValue(setup.adjustmentValues[adjustment])),
+                        ),
                       ),
-                    ),
-                ],
-              );
-            }).toList(),
-          ),
+                  ],
+                );
+              }).toList(),
+            ),
+          ) 
         ),
       ),
     );

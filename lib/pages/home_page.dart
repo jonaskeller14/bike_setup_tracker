@@ -25,9 +25,27 @@ class _HomePageState extends State<HomePage> {
   final List<Setup> setups = [];
   final List<Component> components = [];
 
+  Bike? _selectedBike;
+  List<Bike> filteredBikes = [];
+
+  void onBikeTap(Bike bike) {
+    setState(() {
+      if (_selectedBike == bike) {
+        _selectedBike = null;
+      } else {
+        _selectedBike = bike;
+      }
+      filteredBikes = _selectedBike == null
+        ? bikes 
+        : bikes.where((b) => b == _selectedBike).toList();
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    filteredBikes = bikes;
+    _selectedBike = null;
     loadData();
   }
 
@@ -140,6 +158,10 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       bikes.remove(bike);
+      if (bike == _selectedBike) {
+        _selectedBike = null;
+        filteredBikes = bikes;
+      }
     });
 
     removeComponents(obsoleteComponents, confirm: false);
@@ -202,7 +224,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
   
-  Future<void> _addBike() async {
+  Future<void> addBike() async {
     final bike = await Navigator.push<Bike>(
       context,
       MaterialPageRoute(builder: (context) => const BikePage()),
@@ -220,10 +242,9 @@ class _HomePageState extends State<HomePage> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Add a bike first"), backgroundColor: Theme.of(context).colorScheme.error));
       return;
     }
-
     final component = await Navigator.push<Component>(
       context,
-      MaterialPageRoute(builder: (context) => ComponentPage(bikes: bikes)),
+      MaterialPageRoute(builder: (context) => ComponentPage(bikes: filteredBikes)),
     );
     if (component == null) return;
   
@@ -254,7 +275,7 @@ class _HomePageState extends State<HomePage> {
     final editedComponent = await Navigator.push<Component>(
       context,
       MaterialPageRoute(
-        builder: (context) => ComponentPage(component: component, bikes: bikes),
+        builder: (context) => ComponentPage(component: component, bikes: filteredBikes),
       ),
     );
     if (editedComponent == null) {
@@ -281,6 +302,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> onReorderComponents(int oldIndex, int newIndex) async {
+    if (_selectedBike != null) {
+      final filteredComponents = components.where((c) => c.bike == _selectedBike).toList();
+      final componentToMove = filteredComponents[oldIndex];
+      oldIndex = components.indexOf(componentToMove);
+      final targetComponent = newIndex < filteredComponents.length
+          ? filteredComponents[newIndex]
+          : null;
+      newIndex = targetComponent == null
+          ? components.length 
+          : components.indexOf(targetComponent);
+    }
+
     int adjustedNewIndex = newIndex;
     if (oldIndex < newIndex) {
       adjustedNewIndex -= 1;
@@ -318,7 +351,7 @@ class _HomePageState extends State<HomePage> {
 
     final setup = await Navigator.push<Setup>(
       context,
-      MaterialPageRoute(builder: (context) => SetupPage(components: components, bikes: bikes)),
+      MaterialPageRoute(builder: (context) => SetupPage(components: components, bikes: filteredBikes)),
     );
     if (setup == null) return;
     
@@ -335,7 +368,7 @@ class _HomePageState extends State<HomePage> {
     final editedSetup = await Navigator.push<Setup>(
       context,
       MaterialPageRoute(
-        builder: (context) => SetupPage(setup: setup, components: components, bikes: bikes),
+        builder: (context) => SetupPage(setup: setup, components: components, bikes: filteredBikes),
       ),
     );
     if (editedSetup != null) {
@@ -425,6 +458,12 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final filteredComponents = _selectedBike == null
+        ? components
+        : components.where((c) => c.bike == _selectedBike).toList();
+    final filteredSetups = _selectedBike == null
+        ? setups
+        : setups.where((s) => s.bike == _selectedBike).toList();
     return Scaffold(
       appBar: AppBar(
         leading: Padding(
@@ -511,11 +550,11 @@ class _HomePageState extends State<HomePage> {
             title: Text("Bikes", style: Theme.of(context).textTheme.headlineSmall),
             trailing: IconButton(
               icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
-              onPressed: _addBike,
+              onPressed: addBike,
             ),
             contentPadding: EdgeInsets.zero,
           ),
-          BikeList(bikes: bikes, editBike: editBike, removeBike: removeBike, onReorderBikes: onReorderBikes),
+          BikeList(bikes: bikes, selectedBike: _selectedBike, onBikeTap: onBikeTap, editBike: editBike, removeBike: removeBike, onReorderBikes: onReorderBikes),
 
           ListTile(
             title: Text("Components", style: Theme.of(context).textTheme.headlineSmall),
@@ -528,7 +567,7 @@ class _HomePageState extends State<HomePage> {
           ),
 
           ComponentList(
-            components: components,
+            components: filteredComponents,
             setups: setups,
             editComponent: editComponent,
             duplicateComponent: duplicateComponent,
@@ -547,7 +586,7 @@ class _HomePageState extends State<HomePage> {
           ),
 
           SetupList(
-            setups: setups,
+            setups: filteredSetups,
             components: components,
             editSetup: editSetup,
             restoreSetup: restoreSetup,

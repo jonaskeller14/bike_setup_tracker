@@ -4,6 +4,8 @@ import '../models/bike.dart';
 
 class BikeList extends StatefulWidget {
   final List<Bike> bikes;
+  final Bike? selectedBike;
+  final void Function(Bike bike) onBikeTap;
   final void Function(Bike bike) editBike;
   final void Function(Bike bike) removeBike;
   final void Function(int oldIndex, int newIndex) onReorderBikes;
@@ -11,6 +13,8 @@ class BikeList extends StatefulWidget {
   const BikeList({
     super.key,
     required this.bikes,
+    required this.selectedBike,
+    required this.onBikeTap,
     required this.editBike,
     required this.removeBike,
     required this.onReorderBikes,
@@ -34,56 +38,61 @@ class _BikeListState extends State<BikeList> {
       cards.add(
         Card(
           key: ValueKey(bike.id),
+          color: bike == widget.selectedBike ? Theme.of(context).colorScheme.secondaryContainer : null,
           margin: const EdgeInsets.symmetric(vertical: 4.0),
-          child: ListTile(
-            leading: const Icon(Icons.pedal_bike),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 8,
-            ),
-            title: Text(
-              bike.name,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            // onTap: () => debugPrint("Bike clicked"),
-            subtitle: null,
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.drag_handle),
-                PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'edit') {
-                      widget.editBike(bike);
-                    } else if (value == 'remove') {
-                      widget.removeBike(bike);
-                    }
-                  },
-                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                    const PopupMenuItem<String>(
-                      value: 'edit',
-                      child: Row(
-                        children: [
-                          Icon(Icons.edit, size: 20),
-                          SizedBox(width: 10),
-                          Text('Edit'),
-                        ],
+          child: Opacity(
+            opacity: bike == widget.selectedBike || widget.selectedBike == null ? 1 : 0.3,
+              child: ListTile(
+              dense: true,
+              leading: const Icon(Icons.pedal_bike),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
+              ),
+              title: Text(
+                bike.name,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              onTap: () => widget.onBikeTap(bike),
+              subtitle: null,
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.drag_handle),
+                  PopupMenuButton<String>(
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        widget.editBike(bike);
+                      } else if (value == 'remove') {
+                        widget.removeBike(bike);
+                      }
+                    },
+                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                      const PopupMenuItem<String>(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit, size: 20),
+                            SizedBox(width: 10),
+                            Text('Edit'),
+                          ],
+                        ),
                       ),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'remove',
-                      child: Row(
-                        children: [
-                          Icon(Icons.delete, size: 20),
-                          SizedBox(width: 10),
-                          Text('Remove'),
-                        ],
+                      const PopupMenuItem<String>(
+                        value: 'remove',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete, size: 20),
+                            SizedBox(width: 10),
+                            Text('Remove'),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            )
+                    ],
+                  ),
+                ],
+              )
+            ),
           ),
         ),
       );

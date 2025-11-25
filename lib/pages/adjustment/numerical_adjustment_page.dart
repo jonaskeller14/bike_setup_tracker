@@ -98,6 +98,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
               children: [
                 TextFormField(
                   controller: _nameController,
+                  onEditingComplete: _saveNumericalAdjustment,
                   autofocus: widget.adjustment == null,
                   decoration: const InputDecoration(
                     labelText: 'Adjustment Name',
@@ -110,6 +111,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                 // Unit
                 TextFormField(
                   controller: _unitController,
+                  onEditingComplete: _saveNumericalAdjustment,
                   decoration: const InputDecoration(
                     labelText: 'Unit (optional)',
                     hintText: 'Enter unit (e.g., mm, psi)',
@@ -136,6 +138,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                   // Min value
                   TextFormField(
                     controller: _minController,
+                    onEditingComplete: _saveNumericalAdjustment,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
@@ -151,6 +154,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                   // Max value
                   TextFormField(
                     controller: _maxController,
+                    onEditingComplete: _saveNumericalAdjustment,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),

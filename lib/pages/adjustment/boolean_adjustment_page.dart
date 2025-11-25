@@ -70,13 +70,14 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
               children: [
                 TextFormField(
                   controller: _nameController,
+                  onEditingComplete: _saveBooleanAdjustment,
                   autofocus: widget.adjustment == null,
-                      decoration: const InputDecoration(
-                      labelText: 'Adjustment Name',
-                      hintText: 'Enter Adjustment Name',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: _validateName,
+                  decoration: const InputDecoration(
+                    labelText: 'Adjustment Name',
+                    hintText: 'Enter Adjustment Name',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: _validateName,
                 ),
               ],
             ),

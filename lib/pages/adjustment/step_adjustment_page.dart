@@ -100,6 +100,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
               children: [
                 TextFormField(
                   controller: _nameController,
+                  onEditingComplete: _saveStepAdjustment,
                   autofocus: widget.adjustment == null,
                   decoration: const InputDecoration(
                     labelText: 'Adjustment Name',
@@ -111,6 +112,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _stepController,
+                  onEditingComplete: _saveStepAdjustment,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: const InputDecoration(
@@ -123,6 +125,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _minController,
+                  onEditingComplete: _saveStepAdjustment,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*$'))],
                   decoration: const InputDecoration(
@@ -135,6 +138,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _maxController,
+                  onEditingComplete: _saveStepAdjustment,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*$'))],
                   decoration: const InputDecoration(

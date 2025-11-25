@@ -17,6 +17,7 @@ import '../widgets/dialogs/set_current_windspeed.dart';
 import '../widgets/dialogs/set_current_humidity.dart';
 import '../widgets/dialogs/set_current_soilMoisture0to7cm.dart';
 import '../widgets/dialogs/set_dayAccumulated_precipitation.dart';
+import '../widgets/dialogs/set_location.dart';
 
 class SetupPage extends StatefulWidget {
   final Setup? setup;
@@ -338,7 +339,18 @@ class _SetupPageState extends State<SetupPage> {
                   ),
                   onPressed: _pickTime,
                 ),
-                Chip(
+                ActionChip(
+                  onPressed: () async {
+                    final geo.Location? newLocation = await showSetLocationDialog(context);
+                    if (newLocation == null) return;
+                    final List<geo.Placemark> newPlaces = await geo.placemarkFromCoordinates(newLocation.latitude, newLocation.longitude);
+                    final newPlace = newPlaces.first;
+                    setState(() {
+                      _currentLocation = LocationData.fromMap(newLocation.toJson());
+                      _currentPlace = newPlace;
+                    });
+                    askAndUpdateWeather();
+                  },
                   avatar: _locationService.status == LocationStatus.locationFound
                       ? Icon(Icons.my_location)
                       : (_locationService.status == LocationStatus.findingLocation

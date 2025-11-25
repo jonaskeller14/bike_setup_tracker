@@ -34,7 +34,7 @@ class _BikeListState extends State<BikeList> {
         : widget.bikes.length.clamp(0, 3);
     
     final List<Card> cards = <Card>[];
-    for (final bike in widget.bikes) {
+    for (final bike in widget.bikes.take(visibleCount)) {
       cards.add(
         Card(
           key: ValueKey(bike.id),

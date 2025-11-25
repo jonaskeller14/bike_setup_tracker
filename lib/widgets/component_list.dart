@@ -37,7 +37,7 @@ class _ComponentListState extends State<ComponentList> {
         : widget.components.length.clamp(0, 3);
 
     final List<Card> cards = <Card>[];
-    for (final component in widget.components) {
+    for (final component in widget.components.take(visibleCount)) {
       cards.add(
         Card(
           key: ValueKey(component.id),

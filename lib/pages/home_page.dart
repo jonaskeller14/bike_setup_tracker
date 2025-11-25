@@ -11,6 +11,7 @@ import '../utils/file_import.dart';
 import '../widgets/bike_list.dart';
 import '../widgets/component_list.dart';
 import '../widgets/setup_list.dart';
+import '../widgets/dialogs/confirmation.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
@@ -431,29 +432,6 @@ class _HomePageState extends State<HomePage> {
       if (previousSetup != null) setup.previousSetup = previousSetup;
       previousSetups[bike] = setup;
     }
-  }
-
-  Future<bool> showConfirmationDialog(BuildContext context) async {
-    return await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Are you sure?"),
-          content: const Text("This action cannot be undone."),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text("Continue"),
-            ),
-          ],
-        );
-      },
-    ) ?? false;
   }
 
   @override

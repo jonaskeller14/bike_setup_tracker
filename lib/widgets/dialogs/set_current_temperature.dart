@@ -7,7 +7,7 @@ Future<double?> showSetCurrentTemperatureDialog(BuildContext context, Weather? c
     context: context,
     builder: (BuildContext context) {
       final formKey = GlobalKey<FormState>();
-      final controller = TextEditingController(text: currentWeather?.currentTemperature.toString() ?? '');
+      final controller = TextEditingController(text: currentWeather?.currentTemperature?.toString() ?? '');
       return AlertDialog(
         scrollable: true,
         title: Text('Set Temperature'),
@@ -21,6 +21,8 @@ Future<double?> showSetCurrentTemperatureDialog(BuildContext context, Weather? c
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
                   controller: controller,
+                  autofocus: true,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     isDense: true,

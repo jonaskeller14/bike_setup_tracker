@@ -38,6 +38,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
           SizedBox(width: 30),
           Expanded(
             child: DropdownButtonFormField<String>(
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               isExpanded: true,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),

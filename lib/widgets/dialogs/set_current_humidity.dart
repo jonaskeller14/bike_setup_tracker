@@ -7,7 +7,7 @@ Future<double?> showSetCurrentHumidityDialog(BuildContext context, Weather? curr
     context: context,
     builder: (BuildContext context) {
       final currentTempFormKey = GlobalKey<FormState>();
-      final controller = TextEditingController(text: currentWeather?.currentHumidity.toString() ?? '');
+      final controller = TextEditingController(text: currentWeather?.currentHumidity?.toString() ?? '');
       return AlertDialog(
         scrollable: true,
         title: Text('Set Humidity'),
@@ -19,15 +19,17 @@ Future<double?> showSetCurrentHumidityDialog(BuildContext context, Weather? curr
               children: <Widget>[
                 TextFormField(
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
+                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),],
                   controller: controller,
+                  autofocus: true,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     isDense: true,
                     hintText: 'Humidity',
                     contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                     suffixText: '%',
-                    icon: Icon(Icons.thermostat),
+                    icon: Icon(Icons.opacity),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -35,6 +37,7 @@ Future<double?> showSetCurrentHumidityDialog(BuildContext context, Weather? curr
                     }
                     final parsedValue = double.tryParse(value);
                     if (parsedValue == null) return "Please enter valid number";
+                    if (parsedValue < 0 || parsedValue > 100) return "Enter a valid value in the range 0..100 %";
                     return null;
                   },
                   onFieldSubmitted: (_) {

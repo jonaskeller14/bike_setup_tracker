@@ -70,7 +70,8 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
               children: [
                 TextFormField(
                   controller: _nameController,
-                  onEditingComplete: _saveBooleanAdjustment,
+                  onFieldSubmitted: (_) => _saveBooleanAdjustment(),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   autofocus: widget.adjustment == null,
                   decoration: const InputDecoration(
                     labelText: 'Adjustment Name',

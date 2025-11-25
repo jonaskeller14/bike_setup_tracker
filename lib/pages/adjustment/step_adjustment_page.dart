@@ -72,8 +72,10 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     if (value == null || value.trim().isEmpty) return 'Max is required';
     final v = int.tryParse(value);
     final minValue = int.tryParse(_minController.text.trim());
+    final stepValue = int.tryParse(_stepController.text.trim());
     if (v == null) return 'Valid max value is required';
     if (minValue != null && v <= minValue) return 'Max must be greater than min';
+    if (minValue != null && stepValue != null && minValue + stepValue > v) return "Max must be greater than min+step ";
     return null;
   }
 
@@ -100,7 +102,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
               children: [
                 TextFormField(
                   controller: _nameController,
-                  onEditingComplete: _saveStepAdjustment,
+                  textInputAction: TextInputAction.next,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   autofocus: widget.adjustment == null,
                   decoration: const InputDecoration(
                     labelText: 'Adjustment Name',
@@ -112,7 +115,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _stepController,
-                  onEditingComplete: _saveStepAdjustment,
+                  textInputAction: TextInputAction.next,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: const InputDecoration(
@@ -125,7 +129,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _minController,
-                  onEditingComplete: _saveStepAdjustment,
+                  textInputAction: TextInputAction.next,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*$'))],
                   decoration: const InputDecoration(
@@ -138,7 +143,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _maxController,
-                  onEditingComplete: _saveStepAdjustment,
+                  onFieldSubmitted: (_) => _saveStepAdjustment(),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*$'))],
                   decoration: const InputDecoration(

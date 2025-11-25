@@ -7,7 +7,7 @@ Future<double?> showSetCurrentWindSpeedDialog(BuildContext context, Weather? cur
     context: context,
     builder: (BuildContext context) {
       final formKey = GlobalKey<FormState>();
-      final controller = TextEditingController(text: currentWeather?.currentWindSpeed.toString() ?? '');
+      final controller = TextEditingController(text: currentWeather?.currentWindSpeed?.toString() ?? '');
       return AlertDialog(
         scrollable: true,
         title: Text('Set Wind Speed'),
@@ -19,8 +19,10 @@ Future<double?> showSetCurrentWindSpeedDialog(BuildContext context, Weather? cur
               children: <Widget>[
                 TextFormField(
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
+                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),],
                   controller: controller,
+                  autofocus: true,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     isDense: true,
@@ -35,6 +37,7 @@ Future<double?> showSetCurrentWindSpeedDialog(BuildContext context, Weather? cur
                     }
                     final parsedValue = double.tryParse(value);
                     if (parsedValue == null) return "Please enter valid number";
+                    if (parsedValue < 0) return "Value cannot be negative";
                     return null;
                   },
                   onFieldSubmitted: (_) {

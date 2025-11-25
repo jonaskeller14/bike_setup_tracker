@@ -290,6 +290,8 @@ class _SetupPageState extends State<SetupPage> {
           children: [
             TextFormField(
               controller: _nameController,
+              textInputAction: TextInputAction.next,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               autofocus: widget.setup == null,
               decoration: const InputDecoration(
                 labelText: 'Setup Name',
@@ -304,8 +306,10 @@ class _SetupPageState extends State<SetupPage> {
               },            
             ),
             const SizedBox(height: 12),
-            TextField(
+            TextFormField(
               controller: _notesController,
+              textInputAction: TextInputAction.next,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               maxLines: 3,
               decoration: const InputDecoration(
                 labelText: 'Notes (optional)',
@@ -431,6 +435,7 @@ class _SetupPageState extends State<SetupPage> {
             DropdownButtonFormField<Bike>(
               initialValue: bike,
               isExpanded: true,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               decoration: const InputDecoration(
                 labelText: 'Bike',
                 border: OutlineInputBorder(),

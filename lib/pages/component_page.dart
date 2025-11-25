@@ -211,6 +211,8 @@ class _ComponentPageState extends State<ComponentPage> {
               children: [
                 TextFormField(
                   controller: _nameController,
+                  textInputAction: TextInputAction.next,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   autofocus: widget.component == null,
                   decoration: const InputDecoration(
                     labelText: 'Component Name',
@@ -228,6 +230,7 @@ class _ComponentPageState extends State<ComponentPage> {
                 DropdownButtonFormField<Bike>(
                   initialValue: bike,
                   isExpanded: true,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: const InputDecoration(
                     labelText: 'Bike',
                     border: OutlineInputBorder(),
@@ -258,6 +261,7 @@ class _ComponentPageState extends State<ComponentPage> {
                 DropdownButtonFormField<ComponentType>(
                   initialValue: componentType,
                   isExpanded: true,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   hint: const Text("Please select type"),
                   decoration: const InputDecoration(
                     labelText: 'Type',

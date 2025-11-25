@@ -74,6 +74,8 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
               controller: _controller,
+              textInputAction: TextInputAction.next,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               onChanged: widget.onChanged,
               onFieldSubmitted: widget.onChanged,
               decoration: InputDecoration(

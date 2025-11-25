@@ -101,7 +101,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
               children: [
                 TextFormField(
                   controller: _nameController,
-                  onEditingComplete: _saveCategoricalAdjustment,
+                  textInputAction: TextInputAction.next,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   autofocus: widget.adjustment == null,
                   decoration: const InputDecoration(
                     labelText: 'Adjustment Name',
@@ -137,7 +138,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                           Expanded(
                             child: TextFormField(
                               controller: controller,
-                              onEditingComplete: _saveCategoricalAdjustment,
+                              onFieldSubmitted: (_) => _saveCategoricalAdjustment(),
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
                                 labelText: 'Option ${index + 1}',
                                 hintText: 'Enter option value',

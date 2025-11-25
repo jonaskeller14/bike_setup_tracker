@@ -3,9 +3,9 @@ import 'package:uuid/uuid.dart';
 
 abstract class Adjustment<T> {
   final String id;
-  final String name;
+  String name;
   final Type valueType;
-  final String? unit;
+  String? unit;
 
   Adjustment({String? id, required this.name, required this.unit})
     : valueType = T,
@@ -73,7 +73,7 @@ abstract class Adjustment<T> {
 }
 
 class CategoricalAdjustment extends Adjustment<String> {
-  final List<String> options;
+  List<String> options;
 
   CategoricalAdjustment({super.id, required super.name, required super.unit, required this.options});
 
@@ -109,9 +109,9 @@ class CategoricalAdjustment extends Adjustment<String> {
 }
 
 class StepAdjustment extends Adjustment<int> {
-  final int step;
-  final int min;
-  final int max;
+  int step;
+  int min;
+  int max;
 
   StepAdjustment({
     super.id,
@@ -156,8 +156,8 @@ class StepAdjustment extends Adjustment<int> {
 }
 
 class NumericalAdjustment extends Adjustment<double> {
-  final double min;
-  final double max;
+  double min;
+  double max;
 
   NumericalAdjustment({
     super.id,

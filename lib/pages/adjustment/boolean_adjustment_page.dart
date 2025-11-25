@@ -30,7 +30,14 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
 
     final name = _nameController.text.trim();
     if (!mounted) return;
-    Navigator.pop(context, BooleanAdjustment(id: widget.adjustment?.id, name: name, unit: null));
+    if (widget.adjustment == null) {
+      Navigator.pop(context, BooleanAdjustment(name: name, unit: null));
+    } else {
+      widget.adjustment!.name = name;
+      widget.adjustment!.unit = null;
+      Navigator.pop(context, widget.adjustment);
+    }
+    
   }
 
   String? _validateName(String? value) {

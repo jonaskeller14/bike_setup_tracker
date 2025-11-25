@@ -7,6 +7,7 @@ class AdjustmentDisplayList extends StatelessWidget {
   final Map<Adjustment, dynamic> adjustmentValues;
   final Map<Adjustment, dynamic> previousAdjustmentValues;
   final bool showComponentIcons;
+  final bool highlightInitialValues;
 
   AdjustmentDisplayList({
     super.key,
@@ -14,6 +15,7 @@ class AdjustmentDisplayList extends StatelessWidget {
     required this.adjustmentValues,
     Map<Adjustment, dynamic>? previousAdjustmentValues,
     this.showComponentIcons = false,
+    this.highlightInitialValues = false,
   }) : previousAdjustmentValues = previousAdjustmentValues ?? {};
 
   @override
@@ -43,6 +45,7 @@ class AdjustmentDisplayList extends StatelessWidget {
         adjustmentValues: componentAdjustmentValues,
         previousAdjustmentValues: previousAdjustmentValues,
         showComponentIcons: showComponentIcons,
+        highlightInitialValues: highlightInitialValues,
       ));
       nonEmptyComponentsCounter++;
     }
@@ -55,12 +58,14 @@ class _AdjustmentTableRow extends StatelessWidget {
   final Map<Adjustment, dynamic> adjustmentValues;
   final Map<Adjustment, dynamic> previousAdjustmentValues;
   final bool showComponentIcons;
+  final bool highlightInitialValues;
 
   _AdjustmentTableRow({
     required this.component,
     required this.adjustmentValues,
     Map<Adjustment, dynamic>? previousAdjustmentValues,
-    this.showComponentIcons = false,
+    required this.showComponentIcons,
+    required this.highlightInitialValues,
   }) : previousAdjustmentValues = previousAdjustmentValues ?? {};
 
   @override
@@ -79,6 +84,7 @@ class _AdjustmentTableRow extends StatelessWidget {
           adjustment: adjustment,
           value: value,
           previousValue: previousValue,
+          highlightInitialValues: highlightInitialValues,
         ),
       );
 
@@ -113,16 +119,19 @@ class _AdjustmentTableCell extends StatelessWidget {
   final Adjustment adjustment;
   final dynamic value;
   final dynamic previousValue;
+  final bool highlightInitialValues;
 
   const _AdjustmentTableCell({
     required this.adjustment,
     required this.value,
     required this.previousValue,
+    required this.highlightInitialValues,
   });
 
   @override
   Widget build(BuildContext context) {
     final bool valueHasChanged = previousValue == null ? false : value != previousValue;
+    final bool valueIsInitial = previousValue == null;
     bool isCrossed = false;
     String change = "";
     if (valueHasChanged) {
@@ -152,7 +161,7 @@ class _AdjustmentTableCell extends StatelessWidget {
               children: [
                 TextSpan(
                   text: Adjustment.formatValue(value),
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: (valueIsInitial && highlightInitialValues) ? Colors.green : null),
                 ),
                 if (valueHasChanged) ... [
                   TextSpan(text: " "),

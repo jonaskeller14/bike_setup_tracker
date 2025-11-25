@@ -265,6 +265,7 @@ class _SetupListState extends State<SetupList> {
                       adjustmentValues: setup.adjustmentValues,
                       previousAdjustmentValues: setup.previousSetup?.adjustmentValues,
                       showComponentIcons: true,
+                      highlightInitialValues: true,
                     ),
                   ],
                 ),

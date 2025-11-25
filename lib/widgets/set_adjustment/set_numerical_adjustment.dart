@@ -50,13 +50,14 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
   @override
   Widget build(BuildContext context) {
     double? parsedValue = double.tryParse(widget.value ?? '');
-    final changed = parsedValue == null ? false : widget.initialValue != parsedValue;
-    final highlightColor = changed ? Colors.orange : null;
+    final isChanged = parsedValue == null ? false : widget.initialValue != parsedValue;
+    final isInitial = widget.initialValue == null;
+    final highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: changed ? highlightColor?.withValues(alpha: 0.08) : null,
+        color: isChanged ? highlightColor?.withValues(alpha: 0.08) : null,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

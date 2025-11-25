@@ -19,15 +19,16 @@ class SetStepAdjustmentWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final changed = initialValue != value;
-    final highlightColor = changed ? Colors.orange : null;
+    final isChanged = initialValue != value;
+    final isInitial = initialValue == null;
+    final highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
     final sliderDivisions = ((adjustment.max - adjustment.min) / adjustment.step).floor();
     final sliderMax = (adjustment.min + sliderDivisions * adjustment.step).toDouble();
     
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: changed ? highlightColor?.withValues(alpha: 0.08) : null,
+        color: isChanged ? highlightColor?.withValues(alpha: 0.08) : null,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

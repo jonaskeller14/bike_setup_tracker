@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
@@ -13,6 +12,11 @@ import '../services/weather_service.dart';
 import '../services/address_service.dart';
 import '../services/location_service.dart';
 import '../widgets/adjustment_set_list.dart';
+import '../widgets/dialogs/set_current_temperature.dart';
+import '../widgets/dialogs/set_current_windspeed.dart';
+import '../widgets/dialogs/set_current_humidity.dart';
+import '../widgets/dialogs/set_current_soilMoisture0to7cm.dart';
+import '../widgets/dialogs/set_dayAccumulated_precipitation.dart';
 
 class SetupPage extends StatefulWidget {
   final Setup? setup;
@@ -355,83 +359,67 @@ class _SetupPageState extends State<SetupPage> {
                 ActionChip(
                   avatar: Icon(Icons.thermostat), 
                   label: _currentWeather?.currentTemperature == null ? const Text("-") : Text("${_currentWeather?.currentTemperature?.toStringAsFixed(1)} °C"),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        final currentTempFormKey = GlobalKey<FormState>();
-                        final currentTempController = TextEditingController(text: _currentWeather?.currentTemperature.toString() ?? '');
-                        return AlertDialog(
-                          scrollable: true,
-                          title: Text('Set Temperature'),
-                          content: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Form(
-                              key: currentTempFormKey,
-                              child: Column(
-                                children: <Widget>[
-                                  TextFormField(
-                                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
-                                    controller: currentTempController,
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(),
-                                      isDense: true,
-                                      hintText: 'Temperature',
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                      suffixText: '°C',
-                                      icon: Icon(Icons.thermostat),
-                                    ),
-                                    validator: (value) {
-                                      if (value == null || value.trim().isEmpty) {
-                                        return 'Please enter a temperature';
-                                      }
-                                      final parsedValue = double.tryParse(value);
-                                      if (parsedValue == null) return "Please enter valid number";
-                                      return null;
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () {Navigator.of(context).pop();},
-                              child: const Text("Cancel"),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                if (!currentTempFormKey.currentState!.validate()) return;
-                                setState(() {
-                                  _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                                  _currentWeather?.currentTemperature = double.parse(currentTempController.text.trim());
-                                });
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text("Submit"),
-                            ),
-                          ],
-                        );
+                  onPressed: () async {
+                    final temperature = await showSetCurrentTemperatureDialog(context, _currentWeather);
+                    setState(() {
+                      if (temperature != null) {
+                        _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
+                        _currentWeather?.currentTemperature = temperature;
                       }
-                    );
+                    });
                   },
                 ),
-                Chip(
+                ActionChip(
                   avatar: Icon(Icons.opacity), 
                   label: _currentWeather?.currentHumidity == null ? const Text("-") : Text("${_currentWeather?.currentHumidity?.round()} %"),
+                  onPressed: () async {
+                    final humidity = await showSetCurrentHumidityDialog(context, _currentWeather);
+                    setState(() {
+                      if (humidity != null) {
+                        _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
+                        _currentWeather?.currentHumidity = humidity;
+                      }
+                    });
+                  },
                 ),
-                Chip(
+                ActionChip(
                   avatar: Icon(Icons.water_drop), 
                   label: _currentWeather?.dayAccumulatedPrecipitation == null ? const Text("-") : Text("${_currentWeather?.dayAccumulatedPrecipitation?.round()} mm"),
+                  onPressed: () async{
+                    final precipitation = await showSetDayAccumulatedPrecipitationDialog(context, _currentWeather);
+                    setState(() {
+                      if (precipitation != null) {
+                        _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
+                        _currentWeather?.dayAccumulatedPrecipitation = precipitation;
+                      }
+                    });
+                  },
                 ),
-                Chip(
+                ActionChip(
                   avatar: Icon(Icons.air), 
                   label: _currentWeather?.currentWindSpeed == null ? const Text("-") : Text("${_currentWeather?.currentWindSpeed?.round()} km/h"),
+                  onPressed: () async{
+                    final windSpeed = await showSetCurrentWindSpeedDialog(context, _currentWeather);
+                    setState(() {
+                      if (windSpeed != null) {
+                        _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
+                        _currentWeather?.currentWindSpeed = windSpeed;
+                      }
+                    });                    
+                  },
                 ),
-                Chip(
+                ActionChip(
                   avatar: Icon(Icons.spa), 
                   label: _currentWeather?.currentSoilMoisture0to7cm == null ? const Text("-") : Text("${_currentWeather?.currentSoilMoisture0to7cm?.toStringAsFixed(2)} m³/m³"),
+                  onPressed: () async {
+                    final soilMoisture = await showSetCurrentSoilMoisture0to7cmDialog(context, _currentWeather);
+                    setState(() {
+                      if (soilMoisture != null) {
+                        _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
+                        _currentWeather?.currentSoilMoisture0to7cm = soilMoisture;
+                      }
+                    });
+                  },
                 ),
               ],
             ),

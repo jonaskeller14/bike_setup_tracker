@@ -14,14 +14,27 @@ class _BikePageState extends State<BikePage> {
   late TextEditingController _nameController;
   final _formKey = GlobalKey<FormState>();
 
+  bool _formHasChanges = false; 
+
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.bike?.name);
+    _nameController.addListener(_onTextChanged);
+  }
+
+  void _onTextChanged() {
+    final newHasChanges = _nameController.text.trim() != (widget.bike?.name ?? '');
+    if (_formHasChanges != newHasChanges) {
+      setState(() {
+        _formHasChanges = newHasChanges;
+      });
+    }
   }
 
   @override
   void dispose() {
+    _nameController.removeListener(_onTextChanged);
     _nameController.dispose();
     super.dispose();
   }

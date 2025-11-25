@@ -424,7 +424,6 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         leading: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: SizedBox(
@@ -438,7 +437,9 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        title: Text(widget.title),
+        title: Text(
+          widget.title, 
+        ),
         actions: [
           PopupMenuButton<String>(
             onSelected: (String result) {
@@ -535,20 +536,11 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 100),
         ],
       ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            FloatingActionButton.extended(
-              heroTag: "addSetup",
-              onPressed: _addSetup,
-              label: const Text('Add Setup'),
-              icon: const Icon(Icons.add),
-            ),
-          ],
-        ),
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: "addSetup",
+        onPressed: _addSetup,
+        label: const Text('Add Setup'),
+        icon: const Icon(Icons.add),
       ),
     );
   }

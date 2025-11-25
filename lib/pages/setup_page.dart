@@ -351,7 +351,7 @@ class _SetupPageState extends State<SetupPage> {
                     });
                     askAndUpdateWeather();
                   },
-                  avatar: _locationService.status == LocationStatus.locationFound
+                  avatar: _locationService.status == LocationStatus.locationFound || _currentPlace != null
                       ? Icon(Icons.my_location)
                       : (_locationService.status == LocationStatus.findingLocation
                             ? Icon(Icons.location_searching)

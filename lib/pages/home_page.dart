@@ -425,6 +425,19 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        leading: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: SizedBox(
+            height: 30, 
+            width: 30,
+            child: ClipOval(
+              child: Image.asset(
+                'assets/icons/logo_1024.png',
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        ),
         title: Text(widget.title),
         actions: [
           PopupMenuButton<String>(

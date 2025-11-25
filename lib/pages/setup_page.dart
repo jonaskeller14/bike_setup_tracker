@@ -239,8 +239,10 @@ class _SetupPageState extends State<SetupPage> {
     final notes = notesText.isEmpty ? null : notesText;
 
     // Filter adjustmentValues to only include those relevant to the selected bike
+    // Keep adjustments when editing (handle case: Component was moved to another bike and setting is edited)
     for (final component in widget.components.where((c) => c.bike != bike)) {
       for (final adjustment in component.adjustments) {
+        if (widget.setup != null && widget.setup!.adjustmentValues.keys.contains(adjustment)) continue;
         adjustmentValues.remove(adjustment);
       }
     }

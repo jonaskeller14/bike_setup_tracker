@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_save_directory/file_save_directory.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../models/bike.dart';
 import '../models/setup.dart';
 import '../models/component.dart';
@@ -75,6 +78,43 @@ class FileExport {
     } catch (e, st) {
       debugPrint('Error while exporting JSON: $e\n$st');
       return null;
+    }
+  }
+
+  static Future<void> shareJson({
+    required BuildContext context,
+    required List<Bike> bikes,
+    required List<Setup> setups,
+    required List<Component> components,
+  }) async {
+    final box = context.findRenderObject() as RenderBox?;
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+    try {
+      final String jsonString = jsonEncode({
+        'bikes': bikes.map((b) => b.toJson()).toList(),
+        'setups': setups.map((s) => s.toJson()).toList(),
+        'components': components.map((c) => c.toJson()).toList(),
+      });
+
+      final Directory tempDir = await getTemporaryDirectory();
+      final String filePath = '${tempDir.path}/bike_setup_data.json';
+      final File file = File(filePath);
+      await file.writeAsString(jsonString);
+
+      await SharePlus.instance.share(
+        ShareParams(
+          subject: 'Bike Setup Backup',
+          text: 'Here is my bike setup data!',
+          files: [XFile(filePath)],
+          sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+          downloadFallbackEnabled: true,
+        ),
+      );
+    } catch (e) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Error sharing file: $e')),
+      );
     }
   }
 }

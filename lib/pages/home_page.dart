@@ -455,6 +455,14 @@ class _HomePageState extends State<HomePage> {
                     components: components,
                   );
                   break;
+                case 'share':
+                  FileExport.shareJson(
+                    context: context,
+                    bikes: bikes,
+                    setups: setups,
+                    components: components,
+                  );
+                  break;
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -475,6 +483,16 @@ class _HomePageState extends State<HomePage> {
                     Icon(Icons.file_download),
                     SizedBox(width: 8),
                     Text('Export Data'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'share',
+                child: Row(
+                  children: [
+                    Icon(Icons.share),
+                    SizedBox(width: 8),
+                    Text('Share Data'),
                   ],
                 ),
               ),

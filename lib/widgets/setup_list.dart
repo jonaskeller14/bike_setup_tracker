@@ -55,94 +55,95 @@ class _SetupListState extends State<SetupList> {
                       )
                     : BorderSide.none,
               ),
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(16, 0, 8, 8), 
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ListTile(
-                      contentPadding: const EdgeInsets.all(0),
-                      title: Text(
-                        setup.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(
-                        DateFormat('yyyy-MM-dd HH:mm').format(setup.datetime),
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 13,
-                        ),
-                      ),
-                      trailing: PopupMenuButton<String>(
-                        onSelected: (value) {
-                          if (value == 'edit') {
-                            widget.editSetup(setup);
-                          } else if (value == 'restore') {
-                            widget.restoreSetup(setup);
-                          } else if (value == 'remove') {
-                            widget.removeSetup(setup);
-                          }
-                        },
-                        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                          const PopupMenuItem<String>(
-                            value: 'edit',
-                            child: Row(
-                              children: [
-                                Icon(Icons.edit, size: 20),
-                                SizedBox(width: 10),
-                                Text('Edit'),
-                              ],
-                            ),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: 'restore',
-                            child: Row(
-                              children: [
-                                Icon(Icons.restore, size: 20),
-                                SizedBox(width: 10),
-                                Text('Restore'),
-                              ],
-                            ),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: 'remove',
-                            child: Row(
-                              children: [
-                                Icon(Icons.delete, size: 20),
-                                SizedBox(width: 10),
-                                Text('Remove'),
-                              ],
-                            ),
-                          ),
-                        ],
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    // onTap: () => debugPrint("Setup clicked"),
+                    contentPadding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                    title: Text(
+                      setup.name,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      DateFormat('yyyy-MM-dd HH:mm').format(setup.datetime),
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 13,
                       ),
                     ),
-                    if (setup.notes != null && setup.notes!.isNotEmpty) ...[
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(top: 3), // tweak to match font size
-                            child: Icon(
-                              Icons.notes,
-                              size: 13,
-                              color: Colors.grey.shade800,
+                    trailing: PopupMenuButton<String>(
+                      onSelected: (value) {
+                        if (value == 'edit') {
+                          widget.editSetup(setup);
+                        } else if (value == 'restore') {
+                          widget.restoreSetup(setup);
+                        } else if (value == 'remove') {
+                          widget.removeSetup(setup);
+                        }
+                      },
+                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                        const PopupMenuItem<String>(
+                          value: 'edit',
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit, size: 20),
+                              SizedBox(width: 10),
+                              Text('Edit'),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'restore',
+                          child: Row(
+                            children: [
+                              Icon(Icons.restore, size: 20),
+                              SizedBox(width: 10),
+                              Text('Restore'),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'remove',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete, size: 20),
+                              SizedBox(width: 10),
+                              Text('Remove'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (setup.notes != null && setup.notes!.isNotEmpty) ...[
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 3), // tweak to match font size
+                          child: Icon(
+                            Icons.notes,
+                            size: 13,
+                            color: Colors.grey.shade800,
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        Expanded(
+                          child: Text(
+                            setup.notes!,
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 13,
                             ),
                           ),
-                          const SizedBox(width: 2),
-                          Expanded(
-                            child: Text(
-                              setup.notes!,
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                    Wrap(
+                        ),
+                      ],
+                    ),
+                  ],
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+                    child: Wrap(
                       alignment: WrapAlignment.start,
                       spacing: 4,
                       children: [
@@ -260,15 +261,18 @@ class _SetupListState extends State<SetupList> {
                         ],
                       ],
                     ),
-                    AdjustmentDisplayList(
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
+                    child: AdjustmentDisplayList(
                       components: widget.components,
                       adjustmentValues: setup.adjustmentValues,
                       previousAdjustmentValues: setup.previousSetup?.adjustmentValues,
                       showComponentIcons: true,
                       highlightInitialValues: true,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             );
           },

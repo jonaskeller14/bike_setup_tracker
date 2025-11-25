@@ -45,7 +45,7 @@ class _BikeListState extends State<BikeList> {
               bike.name,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            onTap: () => debugPrint("Bike clicked"),
+            // onTap: () => debugPrint("Bike clicked"),
             subtitle: null,
             trailing: Row(
               mainAxisSize: MainAxisSize.min,

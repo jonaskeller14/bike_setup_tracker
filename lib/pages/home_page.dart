@@ -507,6 +507,7 @@ class _HomePageState extends State<HomePage> {
 
           ComponentList(
             components: components,
+            setups: setups,
             editComponent: editComponent,
             duplicateComponent: duplicateComponent,
             removeComponent: removeComponent,

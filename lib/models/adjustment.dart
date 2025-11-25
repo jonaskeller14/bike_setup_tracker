@@ -18,7 +18,9 @@ abstract class Adjustment<T> {
   String getProperties();
 
   static String formatValue(dynamic value) {
-    if (value is String) {
+    if (value == null) {
+      return '-';
+    } else if (value is String) {
       return value;
     } else if (value is bool) {
       return value ? 'On' : 'Off';

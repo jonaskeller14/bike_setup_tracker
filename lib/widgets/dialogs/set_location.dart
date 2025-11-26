@@ -46,7 +46,12 @@ Future<geo.Location?> showSetLocationDialog(BuildContext context, ) async {
           ElevatedButton(
             onPressed: () async {
               if (!currentTempFormKey.currentState!.validate()) return;
-              geo.Location? location = (await geo.locationFromAddress(controller.text.trim())).firstOrNull;
+              geo.Location? location;
+              try {
+                location = (await geo.locationFromAddress(controller.text.trim())).first;
+              } catch (_) {
+                return;
+              } 
               if (!context.mounted) return;
               Navigator.of(context).pop(location);
             },

@@ -429,7 +429,11 @@ class _HomePageState extends State<HomePage> {
     for (final setup in setups) {
       final bike = setup.bike;
       final previousSetup = previousSetups[bike];
-      if (previousSetup != null) setup.previousSetup = previousSetup;
+      if (previousSetup == null) {
+        setup.previousSetup = null;
+      } else {
+        setup.previousSetup = previousSetup;
+      }
       previousSetups[bike] = setup;
     }
   }

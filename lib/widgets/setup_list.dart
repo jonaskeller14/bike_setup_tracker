@@ -178,7 +178,7 @@ class _SetupListState extends State<SetupList> {
                             ],
                           ),
                         ],
-                        if (setup.position != null) ...[
+                        if (setup.position?.altitude != null) ...[
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,

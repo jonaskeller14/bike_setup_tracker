@@ -43,7 +43,7 @@ class Setup {
       for (var entry in adjustmentValues.entries)
         entry.key.id: entry.value,
     },
-    'position': position != null ? _locationDataToJson(position!) : null,
+    'position': position != null ? locationDataToJson(position!) : null,
     'place': place != null ? _placemarkToJson(place!) : null,
     'weather': weather?.toJson(),
     'previousSetup': previousSetup?.id,
@@ -84,7 +84,7 @@ class Setup {
     );
   }
 
-  static Map<String, dynamic> _locationDataToJson(LocationData data) => {
+  static Map<String, dynamic> locationDataToJson(LocationData data) => {
     'latitude': data.latitude,
     'longitude': data.longitude,
     'altitude': data.altitude,

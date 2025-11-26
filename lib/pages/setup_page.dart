@@ -18,6 +18,7 @@ import '../widgets/dialogs/set_current_humidity.dart';
 import '../widgets/dialogs/set_current_soilMoisture0to7cm.dart';
 import '../widgets/dialogs/set_dayAccumulated_precipitation.dart';
 import '../widgets/dialogs/set_location.dart';
+import '../widgets/dialogs/set_altitude.dart';
 
 class SetupPage extends StatefulWidget {
   final Setup? setup;
@@ -366,9 +367,18 @@ class _SetupPageState extends State<SetupPage> {
                                               ? const Text("No location service")
                                               : const Text("Error"))))),
                 ),
-                Chip(
+                ActionChip(
                   avatar: Icon(Icons.arrow_upward),
                   label: _currentLocation?.altitude == null ? const Text("-") : Text("Altitude: ${_currentLocation?.altitude?.round()} m"),
+                  onPressed: () async {
+                    final altitude = await showSetAltitudeDialog(context, _currentLocation?.altitude);
+                    if (altitude == null) return;
+                    final newMap = _currentLocation == null ? <String, dynamic>{} : Setup.locationDataToJson(_currentLocation!);
+                    newMap['altitude'] = altitude;
+                    setState(() {
+                      _currentLocation = LocationData.fromMap(newMap);
+                    });
+                  },
                 ),
                 ActionChip(
                   avatar: Icon(Icons.thermostat), 

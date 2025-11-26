@@ -29,6 +29,8 @@ class _HomePageState extends State<HomePage> {
   Bike? _selectedBike;
   List<Bike> filteredBikes = [];
 
+  bool _displayOnlyChanges = false;
+
   void onBikeTap(Bike bike) {
     setState(() {
       if (_selectedBike == bike) {
@@ -441,6 +443,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> updateSetupsAfter(Setup setup) async {
+    // Call after sorting setups!
+    // Handles case: New Component, New Setup with new component with date in the past
+    // --> Bug: component references current setup with missing values for new component
     if (setup.isCurrent) return;
     final index = setups.indexOf(setup);
     if (index == -1) return;
@@ -547,24 +552,35 @@ class _HomePageState extends State<HomePage> {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          ListTile(
-            title: Text("Bikes", style: Theme.of(context).textTheme.headlineSmall),
-            trailing: IconButton(
-              icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
-              onPressed: addBike,
-            ),
-            contentPadding: EdgeInsets.zero,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Bikes", style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(width: 20),
+              const Spacer(),
+              IconButton(
+                icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
+                onPressed: addBike,
+              ),
+            ]
           ),
+
           BikeList(bikes: bikes, selectedBike: _selectedBike, onBikeTap: onBikeTap, editBike: editBike, removeBike: removeBike, onReorderBikes: onReorderBikes),
 
-          ListTile(
-            title: Text("Components", style: Theme.of(context).textTheme.headlineSmall),
-            trailing: IconButton(
-              icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
-              onPressed: _addComponent,
-              tooltip: 'Add Component',
-            ),
-            contentPadding: EdgeInsets.zero,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Components", style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(width: 20),
+              const Spacer(),
+              IconButton(
+                icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
+                onPressed: _addComponent,
+                tooltip: 'Add Component',
+              ),
+            ]
           ),
 
           ComponentList(
@@ -576,14 +592,29 @@ class _HomePageState extends State<HomePage> {
             onReorder: onReorderComponents,
           ),
 
-          ListTile(
-            title: Text("Setup History", style: Theme.of(context).textTheme.headlineSmall),
-            trailing: IconButton(
-              icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
-              onPressed: _addSetup,
-              tooltip: 'Add Setup',
-            ),
-            contentPadding: EdgeInsets.zero,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Setup History", style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(width: 20),
+              FilterChip(
+                label: const Text("Only Changes"),
+                selected: _displayOnlyChanges,
+                onSelected: (bool selected) {
+                  setState(() {
+                    _displayOnlyChanges = selected;
+                  });
+                },
+              ),
+              const SizedBox(width: 20),
+              const Spacer(),
+              IconButton(
+                icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
+                onPressed: _addSetup,
+                tooltip: 'Add Setup',
+              ),
+            ]
           ),
 
           SetupList(
@@ -592,6 +623,7 @@ class _HomePageState extends State<HomePage> {
             editSetup: editSetup,
             restoreSetup: restoreSetup,
             removeSetup: removeSetup,
+            displayOnlyChanges: _displayOnlyChanges,
           ),
 
           const SizedBox(height: 100),

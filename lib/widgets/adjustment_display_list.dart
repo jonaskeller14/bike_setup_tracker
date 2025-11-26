@@ -8,6 +8,7 @@ class AdjustmentDisplayList extends StatelessWidget {
   final Map<Adjustment, dynamic> previousAdjustmentValues;
   final bool showComponentIcons;
   final bool highlightInitialValues;
+  final bool displayOnlyChanges;
 
   AdjustmentDisplayList({
     super.key,
@@ -16,12 +17,13 @@ class AdjustmentDisplayList extends StatelessWidget {
     Map<Adjustment, dynamic>? previousAdjustmentValues,
     this.showComponentIcons = false,
     this.highlightInitialValues = false,
+    this.displayOnlyChanges = false,
   }) : previousAdjustmentValues = previousAdjustmentValues ?? {};
 
   @override
   Widget build(BuildContext context) {
     List<Widget> children = [];
-    int nonEmptyComponentsCounter = 0;
+    bool insertDivider = false;
     for (int index = 0; index < components.length; index++) {
       final component = components[index];
       final componentAdjustmentValues = Map.fromEntries(  // keep order of component.adjustments
@@ -30,8 +32,27 @@ class AdjustmentDisplayList extends StatelessWidget {
             .map((adj) => MapEntry(adj, adjustmentValues[adj]!)),
       );
       if (componentAdjustmentValues.isEmpty) continue;
+
+      if (displayOnlyChanges) {
+        bool keepComponent = false;
+        final items = componentAdjustmentValues.entries.toList();
+        for (int index = 0; index < items.length; index++) {
+          final entry = items[index];
+          final adjustment = entry.key;
+          final value = entry.value;
+          final previousValue = previousAdjustmentValues[adjustment];
+
+          final bool valueHasChanged = previousValue == null ? false : value != previousValue;
+          final bool valueIsInitial = previousValue == null;
+          if (valueHasChanged || valueIsInitial) {
+            keepComponent = true;
+            break;
+          }
+        }
+        if (!keepComponent) continue;
+      }
       
-      if (nonEmptyComponentsCounter > 0) {
+      if (insertDivider) {
         children.add(const Divider(
           height: 6, 
           thickness: 1, 
@@ -46,8 +67,9 @@ class AdjustmentDisplayList extends StatelessWidget {
         previousAdjustmentValues: previousAdjustmentValues,
         showComponentIcons: showComponentIcons,
         highlightInitialValues: highlightInitialValues,
+        displayOnlyChanges: displayOnlyChanges,
       ));
-      nonEmptyComponentsCounter++;
+      insertDivider = true;
     }
     return Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: children);
   }
@@ -59,6 +81,7 @@ class _AdjustmentTableRow extends StatelessWidget {
   final Map<Adjustment, dynamic> previousAdjustmentValues;
   final bool showComponentIcons;
   final bool highlightInitialValues;
+  final bool displayOnlyChanges;
 
   _AdjustmentTableRow({
     required this.component,
@@ -66,6 +89,7 @@ class _AdjustmentTableRow extends StatelessWidget {
     Map<Adjustment, dynamic>? previousAdjustmentValues,
     required this.showComponentIcons,
     required this.highlightInitialValues,
+    required this.displayOnlyChanges,
   }) : previousAdjustmentValues = previousAdjustmentValues ?? {};
 
   @override
@@ -79,6 +103,10 @@ class _AdjustmentTableRow extends StatelessWidget {
       final value = entry.value;
       final previousValue = previousAdjustmentValues[adjustment];
 
+      final bool valueHasChanged = previousValue == null ? false : value != previousValue;
+      final bool valueIsInitial = previousValue == null;
+      if (displayOnlyChanges && !valueHasChanged && !valueIsInitial) continue;
+
       children.add(
         _AdjustmentTableCell(
           adjustment: adjustment,
@@ -87,11 +115,9 @@ class _AdjustmentTableRow extends StatelessWidget {
           highlightInitialValues: highlightInitialValues,
         ),
       );
-
-      if (index != items.length - 1) {
-        children.add(_VerticalDivider());
-      }
     }
+    // Add dividers
+    children = children.expand((item) sync* { yield item; if (item != children.last) yield _VerticalDivider(); }).toList();
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,

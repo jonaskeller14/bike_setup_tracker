@@ -10,6 +10,7 @@ class SetupList extends StatefulWidget {
   final void Function(Setup setup) editSetup;
   final void Function(Setup setup) restoreSetup;
   final void Function(Setup setup) removeSetup;
+  final bool displayOnlyChanges;
 
   const SetupList({
     super.key,
@@ -18,6 +19,7 @@ class SetupList extends StatefulWidget {
     required this.editSetup,
     required this.restoreSetup,
     required this.removeSetup,
+    this.displayOnlyChanges = false,
   });
 
   @override
@@ -273,6 +275,7 @@ class _SetupListState extends State<SetupList> {
                       previousAdjustmentValues: setup.previousSetup?.adjustmentValues,
                       showComponentIcons: true,
                       highlightInitialValues: true,
+                      displayOnlyChanges: widget.displayOnlyChanges,
                     ),
                   ),
                 ],

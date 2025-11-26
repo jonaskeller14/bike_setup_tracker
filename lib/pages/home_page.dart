@@ -350,17 +350,18 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    final setup = await Navigator.push<Setup>(
+    final newSetup = await Navigator.push<Setup>(
       context,
       MaterialPageRoute(builder: (context) => SetupPage(components: components, bikes: filteredBikes)),
     );
-    if (setup == null) return;
+    if (newSetup == null) return;
     
     setState(() {
-      setups.add(setup);
+      setups.add(newSetup);
       setups.sort((a, b) => a.datetime.compareTo(b.datetime));
       determineCurrentSetups();
       determinePreviousSetups();
+      updateSetupsAfter(newSetup);
     });
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
   }
@@ -381,6 +382,7 @@ class _HomePageState extends State<HomePage> {
         setups.sort((a, b) => a.datetime.compareTo(b.datetime));
         determineCurrentSetups();
         determinePreviousSetups();
+        updateSetupsAfter(editedSetup);
       });
       await FileExport.saveData(bikes: bikes, setups: setups, components: components);
     }
@@ -435,6 +437,23 @@ class _HomePageState extends State<HomePage> {
         setup.previousSetup = previousSetup;
       }
       previousSetups[bike] = setup;
+    }
+  }
+
+  Future<void> updateSetupsAfter(Setup setup) async {
+    if (setup.isCurrent) return;
+    final index = setups.indexOf(setup);
+    if (index == -1) return;
+    if (index == setups.length -1) return; // ==isCurrent
+    final afterSetups = setups.sublist(index + 1);
+    final afterBikeSetups = afterSetups.where((s) => s.bike == setup.bike);
+    for (final adjustmentValue in setup.adjustmentValues.entries) {
+      final adjustment = adjustmentValue.key;
+      final value = adjustmentValue.value;
+      for (final afterBikeSetup in afterBikeSetups) {
+        if (afterBikeSetup.adjustmentValues.containsKey(adjustment)) continue;
+        afterBikeSetup.adjustmentValues[adjustment] = value;
+      }
     }
   }
 

@@ -7,7 +7,7 @@ import 'adjustment/numerical_adjustment_page.dart';
 import 'adjustment/step_adjustment_page.dart';
 import 'adjustment/categorical_adjustment_page.dart';
 import '../widgets/adjustment_edit_list.dart';
-import '../../widgets/dialogs/discard_changes.dart';
+import '../widgets/dialogs/discard_changes.dart';
 
 class ComponentPage extends StatefulWidget {
   final Component? component;
@@ -24,7 +24,7 @@ class _ComponentPageState extends State<ComponentPage> {
   bool _formHasChanges = false;
   late TextEditingController _nameController;
   late List<Adjustment> adjustments;
-  late List<Adjustment> initialAdjustments;
+  late List<Adjustment> _initialAdjustments;
   late Bike bike;
   late ComponentType? componentType;
 
@@ -34,7 +34,7 @@ class _ComponentPageState extends State<ComponentPage> {
     _nameController = TextEditingController(text: widget.component?.name);
     _nameController.addListener(_changeListener);
     adjustments = widget.component?.adjustments ?? [];
-    initialAdjustments = List.from(adjustments);
+    _initialAdjustments = List.from(adjustments);
     bike = widget.component?.bike ?? widget.bikes.first;
     componentType = widget.component?.componentType;
   }
@@ -44,10 +44,10 @@ class _ComponentPageState extends State<ComponentPage> {
     final bikeHasChanges = bike != (widget.component?.bike ?? widget.bikes.first);
     final componentTypeHasChanges = componentType != widget.component?.componentType;
     
-    bool adjustmentListHasChanges = initialAdjustments.length != adjustments.length;
+    bool adjustmentListHasChanges = _initialAdjustments.length != adjustments.length;
     if (!adjustmentListHasChanges) {
       for (int index = 0; index < adjustments.length; index++) {
-        if (adjustments[index] != initialAdjustments[index]) {
+        if (adjustments[index] != _initialAdjustments[index]) {
           adjustmentListHasChanges = true;
           break;
         }

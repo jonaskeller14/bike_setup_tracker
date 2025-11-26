@@ -19,6 +19,7 @@ import '../widgets/dialogs/set_current_soilMoisture0to7cm.dart';
 import '../widgets/dialogs/set_dayAccumulated_precipitation.dart';
 import '../widgets/dialogs/set_location.dart';
 import '../widgets/dialogs/set_altitude.dart';
+import '../widgets/dialogs/discard_changes.dart';
 
 class SetupPage extends StatefulWidget {
   final Setup? setup;
@@ -33,11 +34,13 @@ class SetupPage extends StatefulWidget {
 
 class _SetupPageState extends State<SetupPage> {
   final _formKey = GlobalKey<FormState>();
+  bool _formHasChanges = false;
   late TextEditingController _nameController;
   late TextEditingController _notesController;
   late Bike bike;
   List<Component> bikeComponents = [];
   late DateTime _selectedDateTime;
+  late DateTime _initialDateTime;
   Map<Adjustment, dynamic> adjustmentValues = {};
 
   final LocationService _locationService = LocationService();
@@ -75,15 +78,23 @@ class _SetupPageState extends State<SetupPage> {
     }
 
     _nameController = TextEditingController(text: widget.setup?.name);
-    _notesController = TextEditingController(text: widget.setup?.notes ?? '');
+    _nameController.addListener(_changeListener);
+    _notesController = TextEditingController(text: widget.setup?.notes);
+    _notesController.addListener(_changeListener);
     _selectedDateTime = widget.setup?.datetime ?? DateTime.now();
+    _initialDateTime = _selectedDateTime;
     _currentLocation = widget.setup?.position;
     _currentPlace = widget.setup?.place;
     _currentWeather = widget.setup?.weather;
   }
 
-  Future<void> _onBikeChange () async {
-    bikeComponents = widget.components.where((c) => c.bike == bike).toList();
+  void _onBikeChange (Bike? newBike) {
+    if (newBike == null) return;
+    setState(() {
+      bike = newBike;
+      bikeComponents = widget.components.where((c) => c.bike == bike).toList();
+    });
+    _changeListener();
   }
 
   Future<void> fetchLocationAddressWeather() async {
@@ -133,9 +144,26 @@ class _SetupPageState extends State<SetupPage> {
     }
   }
 
+  void _changeListener() {
+    final nameHasChanges = _nameController.text.trim() != (widget.setup?.name ?? '');
+    final noteHasChanges = _nameController.text.trim() != (widget.setup?.name ?? '');
+    final dataTimeHasChanges = _initialDateTime != _selectedDateTime;
+    //TODO: location, address, weather IF EDITING
+    final bikeHasChanges = bike != (widget.setup?.bike ?? widget.bikes.first);
+    //TODO: adjustmentValues
+    final hasChanges = nameHasChanges || noteHasChanges || dataTimeHasChanges || bikeHasChanges || ;
+    if (_formHasChanges != hasChanges) {
+      setState(() {
+        _formHasChanges = hasChanges;
+      });
+    }
+  }
+
   @override
   void dispose() {
+    _nameController.removeListener(_changeListener);
     _nameController.dispose();
+    _notesController.removeListener(_changeListener);
     _notesController.dispose();
     super.dispose();
   }
@@ -159,7 +187,7 @@ class _SetupPageState extends State<SetupPage> {
         _selectedDateTime.minute,
       );
     });
-
+    _changeListener();
     askAndUpdateWeather();
   }
 
@@ -186,7 +214,7 @@ class _SetupPageState extends State<SetupPage> {
         pickedTime.minute,
       );
     });
-    
+    _changeListener();
     askAndUpdateWeather();
   }
 
@@ -249,6 +277,8 @@ class _SetupPageState extends State<SetupPage> {
       }
     }
 
+    _formHasChanges = false;
+    if (!mounted) return;
     Navigator.pop(
       context,
       Setup(
@@ -274,249 +304,256 @@ class _SetupPageState extends State<SetupPage> {
     adjustmentValues.remove(adjustment);
   }
 
+  void _handlePopInvoked(bool didPop, dynamic result) async {
+    if (didPop) return;
+    if (!_formHasChanges) return;
+    final shouldDiscard = await showDiscardChangesDialog(context);
+    if (!mounted) return;
+    if (!shouldDiscard) return;
+    Navigator.of(context).pop(null);
+  }
+
+  String? _validateName(String? value) {
+    if (value == null || value.trim().isEmpty) return 'Name is required';
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: widget.setup == null ? const Text('Add Setup') : const Text('Edit Setup'),
-        actions: [
-          IconButton(icon: const Icon(Icons.check), onPressed: _saveSetup),
-        ],
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16.0),
-          children: [
-            TextFormField(
-              controller: _nameController,
-              textInputAction: TextInputAction.next,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              autofocus: widget.setup == null,
-              decoration: const InputDecoration(
-                labelText: 'Setup Name',
-                border: OutlineInputBorder(),
-                hintText: 'Enter setup name',
-              ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a name';
-                }
-                return null;
-              },            
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _notesController,
-              textInputAction: TextInputAction.next,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Notes (optional)',
-                border: OutlineInputBorder(),
-                hintText: 'Add notes (optional)',
-              ),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8.0,
-              runSpacing: 4.0,
-              children: [
-                ActionChip(
-                  avatar: const Icon(Icons.calendar_today),
-                  label: Text(
-                    DateFormat('yyyy-MM-dd').format(_selectedDateTime),
-                  ),
-                  onPressed: _pickDate,
-                ),
-                ActionChip(
-                  avatar: const Icon(Icons.access_time),
-                  label: Text(
-                    DateFormat('HH:mm').format(_selectedDateTime),
-                  ),
-                  onPressed: _pickTime,
-                ),
-                ActionChip(
-                  onPressed: () async {
-                    final geo.Location? newLocation = await showSetLocationDialog(context);
-                    if (newLocation == null) return;
-                    final List<geo.Placemark> newPlaces = await geo.placemarkFromCoordinates(newLocation.latitude, newLocation.longitude);
-                    final newPlace = newPlaces.first;
-                    setState(() {
-                      _currentLocation = LocationData.fromMap(newLocation.toJson());
-                      _currentPlace = newPlace;
-                    });
-                    askAndUpdateWeather();
-                  },
-                  avatar: _locationService.status == LocationStatus.locationFound || _currentPlace != null
-                      ? Icon(Icons.my_location)
-                      : (_locationService.status == LocationStatus.findingLocation
-                            ? Icon(Icons.location_searching)
-                            : (_locationService.status == LocationStatus.idle
-                                  ? Icon(Icons.location_searching)
-                                  : Icon(Icons.location_disabled))),
-                  label: _locationService.status == LocationStatus.locationFound || _currentPlace != null
-                      ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}")
-                      : (_locationService.status == LocationStatus.idle
-                            ? const Text("-")
-                            : (_locationService.status == LocationStatus.findingLocation
-                                  ? const Text("Finding Location...")
-                                  : (_locationService.status == LocationStatus.noPermission
-                                        ? const Text("No location permision")
-                                        : (_locationService.status == LocationStatus.noService
-                                              ? const Text("No location service")
-                                              : const Text("Error"))))),
-                ),
-                ActionChip(
-                  avatar: Icon(Icons.arrow_upward),
-                  label: _currentLocation?.altitude == null ? const Text("-") : Text("Altitude: ${_currentLocation?.altitude?.round()} m"),
-                  onPressed: () async {
-                    final altitude = await showSetAltitudeDialog(context, _currentLocation?.altitude);
-                    if (altitude == null) return;
-                    final newMap = _currentLocation == null ? <String, dynamic>{} : Setup.locationDataToJson(_currentLocation!);
-                    newMap['altitude'] = altitude;
-                    setState(() {
-                      _currentLocation = LocationData.fromMap(newMap);
-                    });
-                  },
-                ),
-                ActionChip(
-                  avatar: Icon(Icons.thermostat), 
-                  label: _currentWeather?.currentTemperature == null ? const Text("-") : Text("${_currentWeather?.currentTemperature?.round()} °C"),
-                  onPressed: () async {
-                    final temperature = await showSetCurrentTemperatureDialog(context, _currentWeather);
-                    setState(() {
-                      if (temperature != null) {
-                        _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                        _currentWeather?.currentTemperature = temperature;
-                      }
-                    });
-                  },
-                ),
-                ActionChip(
-                  avatar: Icon(Icons.opacity), 
-                  label: _currentWeather?.currentHumidity == null ? const Text("-") : Text("${_currentWeather?.currentHumidity?.round()} %"),
-                  onPressed: () async {
-                    final humidity = await showSetCurrentHumidityDialog(context, _currentWeather);
-                    setState(() {
-                      if (humidity != null) {
-                        _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                        _currentWeather?.currentHumidity = humidity;
-                      }
-                    });
-                  },
-                ),
-                ActionChip(
-                  avatar: Icon(Icons.water_drop), 
-                  label: _currentWeather?.dayAccumulatedPrecipitation == null ? const Text("-") : Text("${_currentWeather?.dayAccumulatedPrecipitation?.round()} mm"),
-                  onPressed: () async{
-                    final precipitation = await showSetDayAccumulatedPrecipitationDialog(context, _currentWeather);
-                    setState(() {
-                      if (precipitation != null) {
-                        _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                        _currentWeather?.dayAccumulatedPrecipitation = precipitation;
-                      }
-                    });
-                  },
-                ),
-                ActionChip(
-                  avatar: Icon(Icons.air), 
-                  label: _currentWeather?.currentWindSpeed == null ? const Text("-") : Text("${_currentWeather?.currentWindSpeed?.round()} km/h"),
-                  onPressed: () async{
-                    final windSpeed = await showSetCurrentWindSpeedDialog(context, _currentWeather);
-                    setState(() {
-                      if (windSpeed != null) {
-                        _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                        _currentWeather?.currentWindSpeed = windSpeed;
-                      }
-                    });                    
-                  },
-                ),
-                ActionChip(
-                  avatar: Icon(Icons.spa), 
-                  label: _currentWeather?.currentSoilMoisture0to7cm == null ? const Text("-") : Text("${_currentWeather?.currentSoilMoisture0to7cm?.toStringAsFixed(2)} m³/m³"),
-                  onPressed: () async {
-                    final soilMoisture = await showSetCurrentSoilMoisture0to7cmDialog(context, _currentWeather);
-                    setState(() {
-                      if (soilMoisture != null) {
-                        _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                        _currentWeather?.currentSoilMoisture0to7cm = soilMoisture;
-                      }
-                    });
-                  },
-                ),
-              ],
-            ),
-            Text(
-              "Weather data by Open-Meteo.com",
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[400]),
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<Bike>(
-              initialValue: bike,
-              isExpanded: true,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              decoration: const InputDecoration(
-                labelText: 'Bike',
-                border: OutlineInputBorder(),
-                hintText: "Choose a bike for this component",
-              ),
-              items: widget.bikes.map((b) {
-                return DropdownMenuItem<Bike>(
-                  value: b,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Icon(Icons.pedal_bike),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(b.name, overflow: TextOverflow.ellipsis),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-              onChanged: (Bike? newBike) {
-                if (newBike == null) return;
-                setState(() {
-                  bike = newBike;
-                  _onBikeChange();
-                });
-              },
-            ),
-            const SizedBox(height: 24),
-            if (bikeComponents.isEmpty)
-              const Center(
-                child: Text(
-                  'No components available.',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              )
-            else
-              ...bikeComponents.map((bikeComponent) {
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ListTile(
-                        title: Text(bikeComponent.name),
-                        subtitle: Text('${bikeComponent.adjustments.length} adjustments'),
-                        leading: Component.getIcon(bikeComponent.componentType),
-                      ),
-                      AdjustmentSetList(
-                        key: ValueKey(bikeComponent.id),
-                        adjustments: bikeComponent.adjustments,
-                        initialAdjustmentValues: bikeComponent.currentSetup?.adjustmentValues ?? <Adjustment, dynamic>{},
-                        onAdjustmentValueChanged: _onAdjustmentValueChanged,
-                        removeFromAdjustmentValues: _removeFromAdjustmentValues,
-                      ),
-                    ],
-                  ),
-                );
-              }),
+    return PopScope(
+      canPop: !_formHasChanges,
+      onPopInvokedWithResult: _handlePopInvoked,
+      child: Scaffold(
+        appBar: AppBar(
+          title: widget.setup == null ? const Text('Add Setup') : const Text('Edit Setup'),
+          actions: [
+            IconButton(icon: const Icon(Icons.check), onPressed: _saveSetup),
           ],
+        ),
+        body: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(16.0),
+            children: [
+              TextFormField(
+                controller: _nameController,
+                textInputAction: TextInputAction.next,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                autofocus: widget.setup == null,
+                decoration: const InputDecoration(
+                  labelText: 'Setup Name',
+                  border: OutlineInputBorder(),
+                  hintText: 'Enter setup name',
+                ),
+                validator: _validateName,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _notesController,
+                textInputAction: TextInputAction.next,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'Notes (optional)',
+                  border: OutlineInputBorder(),
+                  hintText: 'Add notes (optional)',
+                ),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8.0,
+                runSpacing: 4.0,
+                children: [
+                  ActionChip(
+                    avatar: const Icon(Icons.calendar_today),
+                    label: Text(
+                      DateFormat('yyyy-MM-dd').format(_selectedDateTime),
+                    ),
+                    onPressed: _pickDate,
+                  ),
+                  ActionChip(
+                    avatar: const Icon(Icons.access_time),
+                    label: Text(
+                      DateFormat('HH:mm').format(_selectedDateTime),
+                    ),
+                    onPressed: _pickTime,
+                  ),
+                  ActionChip(
+                    onPressed: () async {
+                      final geo.Location? newLocation = await showSetLocationDialog(context);
+                      if (newLocation == null) return;
+                      final List<geo.Placemark> newPlaces = await geo.placemarkFromCoordinates(newLocation.latitude, newLocation.longitude);
+                      final newPlace = newPlaces.first;
+                      setState(() {
+                        _currentLocation = LocationData.fromMap(newLocation.toJson());
+                        _currentPlace = newPlace;
+                      });
+                      askAndUpdateWeather();
+                    },
+                    avatar: _locationService.status == LocationStatus.locationFound || _currentPlace != null
+                        ? Icon(Icons.my_location)
+                        : (_locationService.status == LocationStatus.findingLocation
+                              ? Icon(Icons.location_searching)
+                              : (_locationService.status == LocationStatus.idle
+                                    ? Icon(Icons.location_searching)
+                                    : Icon(Icons.location_disabled))),
+                    label: _locationService.status == LocationStatus.locationFound || _currentPlace != null
+                        ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}")
+                        : (_locationService.status == LocationStatus.idle
+                              ? const Text("-")
+                              : (_locationService.status == LocationStatus.findingLocation
+                                    ? const Text("Finding Location...")
+                                    : (_locationService.status == LocationStatus.noPermission
+                                          ? const Text("No location permision")
+                                          : (_locationService.status == LocationStatus.noService
+                                                ? const Text("No location service")
+                                                : const Text("Error"))))),
+                  ),
+                  ActionChip(
+                    avatar: Icon(Icons.arrow_upward),
+                    label: _currentLocation?.altitude == null ? const Text("-") : Text("Altitude: ${_currentLocation?.altitude?.round()} m"),
+                    onPressed: () async {
+                      final altitude = await showSetAltitudeDialog(context, _currentLocation?.altitude);
+                      if (altitude == null) return;
+                      final newMap = _currentLocation == null ? <String, dynamic>{} : Setup.locationDataToJson(_currentLocation!);
+                      newMap['altitude'] = altitude;
+                      setState(() {
+                        _currentLocation = LocationData.fromMap(newMap);
+                      });
+                    },
+                  ),
+                  ActionChip(
+                    avatar: Icon(Icons.thermostat), 
+                    label: _currentWeather?.currentTemperature == null ? const Text("-") : Text("${_currentWeather?.currentTemperature?.round()} °C"),
+                    onPressed: () async {
+                      final temperature = await showSetCurrentTemperatureDialog(context, _currentWeather);
+                      setState(() {
+                        if (temperature != null) {
+                          _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
+                          _currentWeather?.currentTemperature = temperature;
+                        }
+                      });
+                    },
+                  ),
+                  ActionChip(
+                    avatar: Icon(Icons.opacity), 
+                    label: _currentWeather?.currentHumidity == null ? const Text("-") : Text("${_currentWeather?.currentHumidity?.round()} %"),
+                    onPressed: () async {
+                      final humidity = await showSetCurrentHumidityDialog(context, _currentWeather);
+                      setState(() {
+                        if (humidity != null) {
+                          _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
+                          _currentWeather?.currentHumidity = humidity;
+                        }
+                      });
+                    },
+                  ),
+                  ActionChip(
+                    avatar: Icon(Icons.water_drop), 
+                    label: _currentWeather?.dayAccumulatedPrecipitation == null ? const Text("-") : Text("${_currentWeather?.dayAccumulatedPrecipitation?.round()} mm"),
+                    onPressed: () async{
+                      final precipitation = await showSetDayAccumulatedPrecipitationDialog(context, _currentWeather);
+                      setState(() {
+                        if (precipitation != null) {
+                          _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
+                          _currentWeather?.dayAccumulatedPrecipitation = precipitation;
+                        }
+                      });
+                    },
+                  ),
+                  ActionChip(
+                    avatar: Icon(Icons.air), 
+                    label: _currentWeather?.currentWindSpeed == null ? const Text("-") : Text("${_currentWeather?.currentWindSpeed?.round()} km/h"),
+                    onPressed: () async{
+                      final windSpeed = await showSetCurrentWindSpeedDialog(context, _currentWeather);
+                      setState(() {
+                        if (windSpeed != null) {
+                          _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
+                          _currentWeather?.currentWindSpeed = windSpeed;
+                        }
+                      });                    
+                    },
+                  ),
+                  ActionChip(
+                    avatar: Icon(Icons.spa), 
+                    label: _currentWeather?.currentSoilMoisture0to7cm == null ? const Text("-") : Text("${_currentWeather?.currentSoilMoisture0to7cm?.toStringAsFixed(2)} m³/m³"),
+                    onPressed: () async {
+                      final soilMoisture = await showSetCurrentSoilMoisture0to7cmDialog(context, _currentWeather);
+                      setState(() {
+                        if (soilMoisture != null) {
+                          _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
+                          _currentWeather?.currentSoilMoisture0to7cm = soilMoisture;
+                        }
+                      });
+                    },
+                  ),
+                ],
+              ),
+              Text(
+                "Weather data by Open-Meteo.com",
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[400]),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<Bike>(
+                initialValue: bike,
+                isExpanded: true,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                decoration: const InputDecoration(
+                  labelText: 'Bike',
+                  border: OutlineInputBorder(),
+                  hintText: "Choose a bike for this component",
+                ),
+                items: widget.bikes.map((b) {
+                  return DropdownMenuItem<Bike>(
+                    value: b,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(Icons.pedal_bike),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(b.name, overflow: TextOverflow.ellipsis),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+                onChanged: _onBikeChange,
+              ),
+              const SizedBox(height: 24),
+              if (bikeComponents.isEmpty)
+                const Center(
+                  child: Text(
+                    'No components available.',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                )
+              else
+                ...bikeComponents.map((bikeComponent) {
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          title: Text(bikeComponent.name),
+                          subtitle: Text('${bikeComponent.adjustments.length} adjustments'),
+                          leading: Component.getIcon(bikeComponent.componentType),
+                        ),
+                        AdjustmentSetList(
+                          key: ValueKey(bikeComponent.id),
+                          adjustments: bikeComponent.adjustments,
+                          initialAdjustmentValues: bikeComponent.currentSetup?.adjustmentValues ?? <Adjustment, dynamic>{},
+                          onAdjustmentValueChanged: _onAdjustmentValueChanged,
+                          removeFromAdjustmentValues: _removeFromAdjustmentValues,
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+            ],
+          ),
         ),
       ),
     );

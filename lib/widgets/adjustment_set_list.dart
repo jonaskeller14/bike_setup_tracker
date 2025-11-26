@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../models/adjustment.dart';
 import 'set_adjustment/set_boolean_adjustment.dart';
 import 'set_adjustment/set_categorical_adjustment.dart';
@@ -65,6 +66,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             initialValue: widget.initialAdjustmentValues[adjustment],
             value: _adjustmentValues[adjustment],
             onChanged: (newValue) {
+              HapticFeedback.lightImpact();
               setState(() => _adjustmentValues[adjustment] = newValue);
               widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
             },
@@ -93,6 +95,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             initialValue: widget.initialAdjustmentValues[adjustment]?.toDouble(),
             value: _adjustmentValues[adjustment].toDouble(), 
             onChanged: (double newValue) {
+              HapticFeedback.heavyImpact();
               setState(() {
                 _adjustmentValues[adjustment] = newValue;
               });

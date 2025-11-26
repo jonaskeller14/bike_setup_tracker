@@ -3,6 +3,7 @@
 
     <!-- Internet permission is required for network requests -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
 
     <application
         android:label="Bike Setup"

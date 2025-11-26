@@ -127,7 +127,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                   controller: _minController,
                   textInputAction: TextInputAction.next,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  keyboardType: TextInputType.number,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: false, signed: true),
                   inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*$'))],
                   decoration: const InputDecoration(
                     labelText: 'Min Value',
@@ -141,7 +141,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                   controller: _maxController,
                   onFieldSubmitted: (_) => _saveStepAdjustment(),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  keyboardType: TextInputType.number,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: false, signed: true),
                   inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*$'))],
                   decoration: const InputDecoration(
                     labelText: 'Max Value',

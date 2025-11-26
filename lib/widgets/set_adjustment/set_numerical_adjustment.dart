@@ -71,7 +71,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
           SizedBox(width: 30),
           Expanded(
             child: TextFormField(
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
               inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
               controller: _controller,
               textInputAction: TextInputAction.next,

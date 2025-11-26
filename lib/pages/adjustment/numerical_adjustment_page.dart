@@ -105,7 +105,6 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                   validator: _validateName,
                 ),
                 const SizedBox(height: 12),
-                // Unit
                 TextFormField(
                   controller: _unitController,
                   onFieldSubmitted: (_) => _saveNumericalAdjustment(),
@@ -133,12 +132,11 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                 ],
                 if (_expanded) ...[
                   const SizedBox(height: 12),
-                  // Min value
                   TextFormField(
                     controller: _minController,
                     textInputAction: TextInputAction.next,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
                     ],
@@ -150,12 +148,11 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                     validator: _validateMin,
                   ),
                   const SizedBox(height: 12),
-                  // Max value
                   TextFormField(
                     controller: _maxController,
                     onFieldSubmitted: (_) => _saveNumericalAdjustment(),
                     autovalidateMode: AutovalidateMode.onUserInteraction,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
                     ],

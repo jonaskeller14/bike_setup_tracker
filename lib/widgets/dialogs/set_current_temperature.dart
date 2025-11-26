@@ -18,7 +18,7 @@ Future<double?> showSetCurrentTemperatureDialog(BuildContext context, Weather? c
             child: Column(
               children: <Widget>[
                 TextFormField(
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
                   inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
                   controller: controller,
                   autofocus: true,

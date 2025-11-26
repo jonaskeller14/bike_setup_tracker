@@ -31,12 +31,14 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
         children: [
           Icon(Icons.category, color: highlightColor),
           SizedBox(width: 10),
-          Text(
-            adjustment.name,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),
+          Flexible(
+            child: Text(
+              adjustment.name,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),
+            ),
           ),
-          SizedBox(width: 30),
-          Expanded(
+          SizedBox(width: 20),
+          Flexible(
             child: DropdownButtonFormField<String>(
               autovalidateMode: AutovalidateMode.onUserInteraction,
               isExpanded: true,

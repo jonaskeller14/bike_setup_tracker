@@ -460,7 +460,9 @@ class _SetupPageState extends State<SetupPage> {
                     children: [
                       Icon(Icons.pedal_bike),
                       const SizedBox(width: 8),
-                      Text(b.name, overflow: TextOverflow.ellipsis)
+                      Expanded(
+                        child: Text(b.name, overflow: TextOverflow.ellipsis),
+                      ),
                     ],
                   ),
                 );

@@ -155,6 +155,8 @@ class _AdjustmentTableCell extends StatelessWidget {
               fontWeight: FontWeight.normal,
               fontSize: 12
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           Text.rich(
             TextSpan(

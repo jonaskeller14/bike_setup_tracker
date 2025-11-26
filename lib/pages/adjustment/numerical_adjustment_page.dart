@@ -149,6 +149,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _unitController,
+                    maxLength: 10,
                     onFieldSubmitted: (_) => _saveNumericalAdjustment(),
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     decoration: const InputDecoration(
@@ -156,6 +157,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                       hintText: 'Enter unit (e.g., mm, psi)',
                       border: OutlineInputBorder(),
                     ),
+                    validator: (value) => (value != null && value.length > 10) ? "Too many characters" : null ,
                   ),
                   if (!_expanded) ...[
                     Center(

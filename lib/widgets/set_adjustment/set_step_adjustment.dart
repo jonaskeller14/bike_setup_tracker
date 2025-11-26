@@ -35,13 +35,16 @@ class SetStepAdjustmentWidget extends StatelessWidget {
         children: [
           Icon(Icons.format_list_numbered, color: highlightColor),
           SizedBox(width: 10),
-          Text(
-            adjustment.name,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),
+          Flexible(
+            child: Text(
+              adjustment.name,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),
+            ),
           ),
           SizedBox(width: 30),
-          Expanded(
+          Flexible(
             child: Slider(
+              padding: EdgeInsets.all(5),
               value: value,
               max: sliderMax,
               min: adjustment.min.toDouble(),

@@ -27,22 +27,21 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
           ? BoxDecoration(color: highlightColor?.withValues(alpha: 0.08))
           : null,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Icon(Icons.toggle_on, color: highlightColor),
           SizedBox(width: 10),
-          Text(
-            adjustment.name,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),
-          ),
-          SizedBox(width: 30),
           Expanded(
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: Switch(
-                value: value,
-                onChanged: onChanged,
-              ),
+            child: Text(
+              adjustment.name,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),
+            ),
+          ),
+          SizedBox(width: 20),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Switch(
+              value: value,
+              onChanged: onChanged,
             ),
           ),
         ],

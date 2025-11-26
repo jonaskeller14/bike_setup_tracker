@@ -241,7 +241,7 @@ class _ComponentPageState extends State<ComponentPage> {
                         children: [
                           const Icon(Icons.pedal_bike),
                           const SizedBox(width: 8),
-                          Text(b.name, overflow: TextOverflow.ellipsis)
+                          Expanded(child: Text(b.name, overflow: TextOverflow.ellipsis))
                         ],
                       ),
                     );
@@ -273,7 +273,7 @@ class _ComponentPageState extends State<ComponentPage> {
                         children: [
                           Component.getIcon(componentType),
                           const SizedBox(width: 8),
-                          Text(componentType.value, overflow: TextOverflow.ellipsis)
+                          Expanded(child: Text(componentType.value, overflow: TextOverflow.ellipsis)),
                         ],
                       ),
                     );

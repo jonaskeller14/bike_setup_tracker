@@ -64,12 +64,14 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
         children: [
           Icon(Icons.numbers, color: highlightColor),
           SizedBox(width: 10),
-          Text(
-            widget.adjustment.name,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),
+          Flexible(
+            child: Text(
+              widget.adjustment.name,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),
+            ),
           ),
           SizedBox(width: 30),
-          Expanded(
+          Flexible(
             child: TextFormField(
               keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
               inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
@@ -83,6 +85,10 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                 isDense: true,
                 hintText: 'Please enter',
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                suffixStyle: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.normal,
+                ),
                 suffixText: widget.adjustment.unit != null ? ' ${widget.adjustment.unit}' : null,
               ),
               validator: (value) {

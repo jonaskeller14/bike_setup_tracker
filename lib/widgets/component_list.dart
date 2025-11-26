@@ -65,10 +65,12 @@ class _ComponentListState extends State<ComponentList> {
                   children: [
                     Icon(Icons.pedal_bike, size: 13, color: Colors.grey.shade800),
                     const SizedBox(width: 2),
-                    Text(
-                      component.bike.name,
-                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                      overflow: TextOverflow.ellipsis,
+                    Expanded(
+                      child: Text(
+                        component.bike.name,
+                        style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),

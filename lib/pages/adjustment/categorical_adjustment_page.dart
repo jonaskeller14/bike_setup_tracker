@@ -1,6 +1,6 @@
-import '../../models/adjustment.dart';
 import 'package:flutter/material.dart';
-
+import '../../models/adjustment.dart';
+import '../../widgets/dialogs/discard_changes.dart';
 
 class CategoricalAdjustmentPage extends StatefulWidget {
   final CategoricalAdjustment? adjustment;
@@ -12,6 +12,7 @@ class CategoricalAdjustmentPage extends StatefulWidget {
 
 class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
   final _formKey = GlobalKey<FormState>();
+  bool _formHasChanges = false;
   late TextEditingController _nameController;
   late List<TextEditingController> _optionControllers;
   
@@ -19,17 +20,36 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.adjustment?.name);
+    _nameController.addListener(_changeListener);
     if (widget.adjustment == null) {
       _optionControllers = [TextEditingController()];
     } else {
       _optionControllers = widget.adjustment!.options.map((option) => TextEditingController(text: option)).toList();
     }
+    for (final optionController in _optionControllers) {
+      optionController.addListener(_changeListener);
+    }
+  }
+
+  void _changeListener() {
+    final nameHasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '');
+    final options = _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet();
+    final initialOptions = widget.adjustment?.options.toSet() ?? {};
+    final optionHasChanges = options.length != initialOptions.length || !options.containsAll(initialOptions);
+    final hasChanges = nameHasChanges || optionHasChanges;
+    if (_formHasChanges != hasChanges) {
+      setState(() {
+        _formHasChanges = hasChanges;
+      });
+    }
   }
 
   @override
   void dispose() {
+    _nameController.removeListener(_changeListener);
     _nameController.dispose();
     for (final c in _optionControllers) {
+      c.removeListener(_changeListener);
       c.dispose();
     }
     super.dispose();
@@ -37,13 +57,16 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
 
   void _addOptionField() {
     setState(() {
-      _optionControllers.add(TextEditingController());
+      final newController = TextEditingController();
+      newController.addListener(_changeListener);
+      _optionControllers.add(newController);
     });
   }
 
   void _removeOptionField(int index) {
     if (_optionControllers.length == 1) return; // keep at least one field
     setState(() {
+      _optionControllers[index].removeListener(_changeListener);
       _optionControllers[index].dispose();
       _optionControllers.removeAt(index);
     });
@@ -66,110 +89,130 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
     return null;
   }
 
+  String? _validateOption(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Option is required';
+    }
+    if (_hasDuplicateOptions(_optionControllers
+        .map((c) => c.text.trim())
+        .where((s) => s.isNotEmpty)
+        .toList())) {
+      return 'Options must be unique';
+    }
+    return null;
+  }
+
   void _saveCategoricalAdjustment() {
     if (!_formKey.currentState!.validate()) return;
 
     final name = _nameController.text.trim();
     final options = _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList();
+    _formHasChanges = false;
     if (!mounted) return;
-    Navigator.pop(
-      context,
-      CategoricalAdjustment(id: widget.adjustment?.id, name: name, unit: null, options: options),
-    );
+    if (widget.adjustment == null) {
+      Navigator.pop(context, CategoricalAdjustment(name: name, unit: null, options: options));
+    } else {
+      widget.adjustment!.name = name;
+      widget.adjustment!.options = options;
+      Navigator.pop(context, widget.adjustment);
+    }
   }
-
+  
+  void _handlePopInvoked(bool didPop, dynamic result) async {
+    if (didPop) return;
+    if (!_formHasChanges) return;
+    final shouldDiscard = await showDiscardChangesDialog(context);
+    if (!mounted) return;
+    if (!shouldDiscard) return;
+    Navigator.of(context).pop(null);
+  }
+  
+  String? _validateName(String? value) {
+    if (value == null || value.trim().isEmpty) return 'Name is required';
+    return null;
+  }
+    
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: widget.adjustment == null ? const Text('Add Categorical Adjustment') : const Text('Edit Categorical Adjustment'),
-        actions: [
-          IconButton(icon: const Icon(Icons.check), onPressed: _saveCategoricalAdjustment),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  textInputAction: TextInputAction.next,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  autofocus: widget.adjustment == null,
-                  decoration: const InputDecoration(
-                    labelText: 'Adjustment Name',
-                    hintText: 'Enter Adjustment Name',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) =>
-                      value == null || value.trim().isEmpty
-                          ? 'Name is required'
-                          : null,
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Options',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextButton.icon(
-                      onPressed: _addOptionField,
-                      icon: const Icon(Icons.add),
-                      label: const Text('Add'),
+    return PopScope( 
+      canPop: !_formHasChanges,
+      onPopInvokedWithResult: _handlePopInvoked,
+      child: Scaffold(
+        appBar: AppBar(
+          title: widget.adjustment == null ? const Text('Add Categorical Adjustment') : const Text('Edit Categorical Adjustment'),
+          actions: [
+            IconButton(icon: const Icon(Icons.check), onPressed: _saveCategoricalAdjustment),
+          ],
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextFormField(
+                    controller: _nameController,
+                    textInputAction: TextInputAction.next,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    autofocus: widget.adjustment == null,
+                    decoration: const InputDecoration(
+                      labelText: 'Adjustment Name',
+                      hintText: 'Enter Adjustment Name',
+                      border: OutlineInputBorder(),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Column(
-                  children: List.generate(_optionControllers.length, (index) {
-                    final controller = _optionControllers[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: controller,
-                              onFieldSubmitted: (_) => _saveCategoricalAdjustment(),
-                              autovalidateMode: AutovalidateMode.onUserInteraction,
-                              decoration: InputDecoration(
-                                labelText: 'Option ${index + 1}',
-                                hintText: 'Enter option value',
-                                border: const OutlineInputBorder(),
-                                errorText: _validateOptions(),
-                              ),
-                              // Individual field validator
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Option is required';
-                                }
-                                if (_hasDuplicateOptions(_optionControllers
-                                    .map((c) => c.text.trim())
-                                    .where((s) => s.isNotEmpty)
-                                    .toList())) {
-                                  return 'Options must be unique';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          if (_optionControllers.length > 1)
-                            IconButton(
-                              icon: const Icon(Icons.remove_circle, color: Colors.red),
-                              tooltip: 'Remove option',
-                              onPressed: () => _removeOptionField(index),
-                            ),
-                        ],
+                    validator: _validateName,
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Options',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      TextButton.icon(
+                        onPressed: _addOptionField,
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add'),
                       ),
-                    );
-                  }),
-                ),
-              ],
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Column(
+                    children: List.generate(_optionControllers.length, (index) {
+                      final controller = _optionControllers[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: controller,
+                                onFieldSubmitted: (_) => _saveCategoricalAdjustment(),
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
+                                decoration: InputDecoration(
+                                  labelText: 'Option ${index + 1}',
+                                  hintText: 'Enter option value',
+                                  border: const OutlineInputBorder(),
+                                  errorText: _validateOptions(),
+                                ),
+                                validator: _validateOption,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            if (_optionControllers.length > 1)
+                              IconButton(
+                                icon: const Icon(Icons.remove_circle, color: Colors.red),
+                                tooltip: 'Remove option',
+                                onPressed: () => _removeOptionField(index),
+                              ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -12,6 +12,7 @@ import '../services/weather_service.dart';
 import '../services/address_service.dart';
 import '../services/location_service.dart';
 import '../widgets/adjustment_set_list.dart';
+import '../widgets/dialogs/confirmation.dart';
 import '../widgets/dialogs/set_current_temperature.dart';
 import '../widgets/dialogs/set_current_windspeed.dart';
 import '../widgets/dialogs/set_current_humidity.dart';
@@ -25,8 +26,15 @@ class SetupPage extends StatefulWidget {
   final Setup? setup;
   final List<Component> components;
   final List<Bike> bikes;
+  final Setup? Function({required DateTime datetime, required Bike bike}) getPreviousSetupbyDateTime;
 
-  const SetupPage({super.key, required this.components, required this.bikes, this.setup});
+  const SetupPage({
+    super.key,
+    required this.components,
+    required this.bikes,
+    this.setup,
+    required this.getPreviousSetupbyDateTime,
+  });
 
   @override
   State<SetupPage> createState() => _SetupPageState();
@@ -35,6 +43,7 @@ class SetupPage extends StatefulWidget {
 class _SetupPageState extends State<SetupPage> {
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
+  Setup? _previousSetup;
   late TextEditingController _nameController;
   late TextEditingController _notesController;
   late Bike bike;
@@ -42,6 +51,7 @@ class _SetupPageState extends State<SetupPage> {
   late DateTime _selectedDateTime;
   late DateTime _initialDateTime;
   Map<Adjustment, dynamic> adjustmentValues = {};
+  Map<Adjustment, dynamic> _initialAdjustmentValues = {};
 
   final LocationService _locationService = LocationService();
   late LocationData? _currentLocation;
@@ -55,27 +65,6 @@ class _SetupPageState extends State<SetupPage> {
   @override
   void initState() {
     super.initState();
-    bike = widget.setup?.bike ?? widget.bikes.first;
-    _onBikeChange();
-
-    // Set initial adjustment values from components' current setups (for all bikes!)
-    for (final component in widget.components) {
-      if (component.currentSetup == null) continue;
-      final componentAdjustmentValues = component.currentSetup?.adjustmentValues;
-      if (componentAdjustmentValues == null) continue;
-      for (final componentAdjustmentValue in componentAdjustmentValues.entries) {
-        adjustmentValues[componentAdjustmentValue.key] = componentAdjustmentValue.value;
-      }
-    }
-
-    if (widget.setup == null) {
-      fetchLocationAddressWeather();
-    } else {
-      // Overwrite adjustment values with those from the setup being edited (no effect for current Setup)
-      for (final adjustmentValue in widget.setup!.adjustmentValues.entries) {
-        adjustmentValues[adjustmentValue.key] = adjustmentValue.value;
-      }
-    }
 
     _nameController = TextEditingController(text: widget.setup?.name);
     _nameController.addListener(_changeListener);
@@ -86,6 +75,29 @@ class _SetupPageState extends State<SetupPage> {
     _currentLocation = widget.setup?.position;
     _currentPlace = widget.setup?.place;
     _currentWeather = widget.setup?.weather;
+
+    _onBikeChange(widget.setup?.bike ?? widget.bikes.first);
+
+    if (widget.setup == null) fetchLocationAddressWeather();
+  }
+
+  void _setAdjustmentValuesFromInitialAdjustmentValues() {
+    adjustmentValues.clear();
+    adjustmentValues = Map.from(_initialAdjustmentValues);
+    if (widget.setup != null) {
+      // Overwrite adjustment values with those from the setup being edited (no effect for current Setup)
+      for (final adjustmentValue in widget.setup!.adjustmentValues.entries) {
+        adjustmentValues[adjustmentValue.key] = adjustmentValue.value; // overwrite and also set values from other bikes
+      }
+    }
+  }
+
+  void _setInitialAdjustmentValues() {
+    // Case: Component added after setups --> Date is changed to Setup without new component --> initial values need to be null
+    _initialAdjustmentValues.clear();
+    
+    // All components of a bike have the same current Setup! see _HomePageState.updateSetupsAfter()
+    if (_previousSetup != null) _initialAdjustmentValues.addAll(_previousSetup!.adjustmentValues);
   }
 
   void _onBikeChange (Bike? newBike) {
@@ -93,6 +105,9 @@ class _SetupPageState extends State<SetupPage> {
     setState(() {
       bike = newBike;
       bikeComponents = widget.components.where((c) => c.bike == bike).toList();
+      _previousSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: bike);
+      _setInitialAdjustmentValues();
+      _setAdjustmentValuesFromInitialAdjustmentValues();
     });
     _changeListener();
   }
@@ -145,13 +160,34 @@ class _SetupPageState extends State<SetupPage> {
   }
 
   void _changeListener() {
+    //TODO: make this more efficient: hasChanges = ... if !hasChanges: hasChanges = ... ......
     final nameHasChanges = _nameController.text.trim() != (widget.setup?.name ?? '');
     final noteHasChanges = _nameController.text.trim() != (widget.setup?.name ?? '');
     final dataTimeHasChanges = _initialDateTime != _selectedDateTime;
-    //TODO: location, address, weather IF EDITING
+
+    final locationHasChanges = 
+    _currentLocation?.latitude != widget.setup?.position?.latitude || 
+    _currentLocation?.longitude != widget.setup?.position?.longitude || 
+    _currentLocation?.altitude != widget.setup?.position?.altitude;
+    
+    final weatherHasChanges = 
+    _currentWeather?.currentTemperature != widget.setup?.weather?.currentTemperature ||
+    _currentWeather?.currentHumidity != widget.setup?.weather?.currentHumidity ||
+    _currentWeather?.dayAccumulatedPrecipitation != widget.setup?.weather?.dayAccumulatedPrecipitation ||
+    _currentWeather?.currentWindSpeed != widget.setup?.weather?.currentWindSpeed ||
+    _currentWeather?.currentSoilMoisture0to7cm != widget.setup?.weather?.currentSoilMoisture0to7cm;
+
     final bikeHasChanges = bike != (widget.setup?.bike ?? widget.bikes.first);
-    //TODO: adjustmentValues
-    final hasChanges = nameHasChanges || noteHasChanges || dataTimeHasChanges || bikeHasChanges || ;
+    bool adjustmentValuesHaveChanges = false;
+    for (final initialAdjustmentValue in filterForValidAdjustmentValues(_initialAdjustmentValues).entries) {
+      final adj = initialAdjustmentValue.key;
+      if (_initialAdjustmentValues[adj] != adjustmentValues[adj]) {
+        adjustmentValuesHaveChanges = true;
+        break;
+      }
+    }
+
+    final hasChanges = nameHasChanges || noteHasChanges || dataTimeHasChanges || bikeHasChanges || locationHasChanges || weatherHasChanges || adjustmentValuesHaveChanges;
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -169,6 +205,8 @@ class _SetupPageState extends State<SetupPage> {
   }
 
   Future<void> _pickDate() async {
+    final tmpPreviousSetup = _previousSetup;
+
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: _selectedDateTime,
@@ -186,12 +224,31 @@ class _SetupPageState extends State<SetupPage> {
         _selectedDateTime.hour,
         _selectedDateTime.minute,
       );
+      _previousSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: bike);
+      _setInitialAdjustmentValues();
     });
     _changeListener();
     askAndUpdateWeather();
+    
+
+    if (_previousSetup == tmpPreviousSetup) return;
+    final result = await showConfirmationDialog( //TODO: only show dialog if changes were made
+      context, 
+      title: "Previous Setup has changed. Reset Values?", 
+      content: "Your current unsaved adjustments were based on the old setup. Reseting the values will discard these changes.", 
+      trueText: "yes", 
+      falseText: "no"
+    );
+    if (result == false) return;
+    setState(() {
+      _setAdjustmentValuesFromInitialAdjustmentValues();
+    });
+    _changeListener();
   }
 
   Future<void> _pickTime() async {
+    final tmpPreviousSetup = _previousSetup;
+
     TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(_selectedDateTime),
@@ -213,9 +270,25 @@ class _SetupPageState extends State<SetupPage> {
         pickedTime!.hour,
         pickedTime.minute,
       );
+      _previousSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: bike);
+      _setInitialAdjustmentValues();
     });
     _changeListener();
     askAndUpdateWeather();
+
+    if (_previousSetup == tmpPreviousSetup) return;
+    final result = await showConfirmationDialog(
+      context, 
+      title: "Update Values?", 
+      content: "By updating all changes made to the adjustments will be lost.", 
+      trueText: "yes", 
+      falseText: "no"
+    );
+    if (result == false) return;
+    setState(() {
+      _setAdjustmentValuesFromInitialAdjustmentValues();
+    });
+    _changeListener();
   }
 
   Future<void> askAndUpdateWeather() async {
@@ -259,6 +332,20 @@ class _SetupPageState extends State<SetupPage> {
     setState(() {
       _currentWeather = currentWeather;
     });
+    _changeListener();
+  }
+
+  Map<Adjustment, dynamic> filterForValidAdjustmentValues(Map<Adjustment, dynamic> adjustmentValues) {
+    // Filter adjustmentValues to only include those relevant to the selected bike
+    // Keep adjustments when editing (handle case: Component was moved to another bike and setting is edited)
+    Map<Adjustment, dynamic> filteredAdjustmentValues = Map.from(adjustmentValues);
+    for (final component in widget.components.where((c) => c.bike != bike)) {
+      for (final adjustment in component.adjustments) {
+        if (widget.setup != null && widget.setup!.adjustmentValues.keys.contains(adjustment)) continue;
+        filteredAdjustmentValues.remove(adjustment);
+      }
+    }
+    return filteredAdjustmentValues;
   }
 
   void _saveSetup() {
@@ -268,14 +355,7 @@ class _SetupPageState extends State<SetupPage> {
     final notesText = _notesController.text.trim();
     final notes = notesText.isEmpty ? null : notesText;
 
-    // Filter adjustmentValues to only include those relevant to the selected bike
-    // Keep adjustments when editing (handle case: Component was moved to another bike and setting is edited)
-    for (final component in widget.components.where((c) => c.bike != bike)) {
-      for (final adjustment in component.adjustments) {
-        if (widget.setup != null && widget.setup!.adjustmentValues.keys.contains(adjustment)) continue;
-        adjustmentValues.remove(adjustment);
-      }
-    }
+    adjustmentValues = filterForValidAdjustmentValues(adjustmentValues);
 
     _formHasChanges = false;
     if (!mounted) return;
@@ -389,6 +469,7 @@ class _SetupPageState extends State<SetupPage> {
                         _currentPlace = newPlace;
                       });
                       askAndUpdateWeather();
+                      _changeListener();
                     },
                     avatar: _locationService.status == LocationStatus.locationFound || _currentPlace != null
                         ? Icon(Icons.my_location)
@@ -420,6 +501,7 @@ class _SetupPageState extends State<SetupPage> {
                       setState(() {
                         _currentLocation = LocationData.fromMap(newMap);
                       });
+                      _changeListener();
                     },
                   ),
                   ActionChip(
@@ -433,6 +515,7 @@ class _SetupPageState extends State<SetupPage> {
                           _currentWeather?.currentTemperature = temperature;
                         }
                       });
+                      _changeListener();
                     },
                   ),
                   ActionChip(
@@ -446,6 +529,7 @@ class _SetupPageState extends State<SetupPage> {
                           _currentWeather?.currentHumidity = humidity;
                         }
                       });
+                      _changeListener();
                     },
                   ),
                   ActionChip(
@@ -459,6 +543,7 @@ class _SetupPageState extends State<SetupPage> {
                           _currentWeather?.dayAccumulatedPrecipitation = precipitation;
                         }
                       });
+                      _changeListener();
                     },
                   ),
                   ActionChip(
@@ -471,7 +556,8 @@ class _SetupPageState extends State<SetupPage> {
                           _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
                           _currentWeather?.currentWindSpeed = windSpeed;
                         }
-                      });                    
+                      });
+                      _changeListener();
                     },
                   ),
                   ActionChip(
@@ -485,6 +571,7 @@ class _SetupPageState extends State<SetupPage> {
                           _currentWeather?.currentSoilMoisture0to7cm = soilMoisture;
                         }
                       });
+                      _changeListener();
                     },
                   ),
                 ],
@@ -542,11 +629,13 @@ class _SetupPageState extends State<SetupPage> {
                           leading: Component.getIcon(bikeComponent.componentType),
                         ),
                         AdjustmentSetList(
-                          key: ValueKey(bikeComponent.id),
+                          key: ValueKey([bikeComponent.id, _previousSetup, adjustmentValues.values]),
                           adjustments: bikeComponent.adjustments,
-                          initialAdjustmentValues: bikeComponent.currentSetup?.adjustmentValues ?? <Adjustment, dynamic>{},
+                          initialAdjustmentValues: _initialAdjustmentValues,
+                          adjustmentValues: adjustmentValues,
                           onAdjustmentValueChanged: _onAdjustmentValueChanged,
                           removeFromAdjustmentValues: _removeFromAdjustmentValues,
+                          changeListener: _changeListener,
                         ),
                       ],
                     ),

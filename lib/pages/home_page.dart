@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/bike.dart';
 import '../models/setup.dart';
@@ -119,6 +120,9 @@ class _HomePageState extends State<HomePage> {
         setups.sort((a, b) => a.datetime.compareTo(b.datetime));
         determineCurrentSetups();
         determinePreviousSetups();
+        for (final setup in data.setups) {
+          updateSetupsAfter(setup);
+        }
       });
     }
 
@@ -355,7 +359,7 @@ class _HomePageState extends State<HomePage> {
 
     final newSetup = await Navigator.push<Setup>(
       context,
-      MaterialPageRoute(builder: (context) => SetupPage(components: components, bikes: filteredBikes)),
+      MaterialPageRoute(builder: (context) => SetupPage(components: components, bikes: filteredBikes, getPreviousSetupbyDateTime: getPreviousSetupbyDateTime,)),
     );
     if (newSetup == null) return;
     
@@ -373,7 +377,7 @@ class _HomePageState extends State<HomePage> {
     final editedSetup = await Navigator.push<Setup>(
       context,
       MaterialPageRoute(
-        builder: (context) => SetupPage(setup: setup, components: components, bikes: filteredBikes),
+        builder: (context) => SetupPage(setup: setup, components: components, bikes: filteredBikes, getPreviousSetupbyDateTime: getPreviousSetupbyDateTime,),
       ),
     );
     if (editedSetup != null) {
@@ -409,6 +413,10 @@ class _HomePageState extends State<HomePage> {
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
 
     editSetup(newSetup);
+  }
+
+  Setup? getPreviousSetupbyDateTime({required DateTime datetime, required Bike bike}) {
+    return setups.lastWhereOrNull((s) => s.datetime.isBefore(datetime) && s.bike == bike);
   }
 
   Future<void> determineCurrentSetups() async {

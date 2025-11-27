@@ -9,15 +9,19 @@ import 'set_adjustment/set_step_adjustment.dart';
 class AdjustmentSetList extends StatefulWidget {
   final List<Adjustment> adjustments;
   final Map<Adjustment, dynamic> initialAdjustmentValues;
+  final Map<Adjustment, dynamic> adjustmentValues;
   final void Function({required Adjustment adjustment, required dynamic newValue}) onAdjustmentValueChanged;
   final void Function({required Adjustment adjustment}) removeFromAdjustmentValues;
+  final void Function() changeListener;
 
   const AdjustmentSetList({
     super.key,
     required this.adjustments,
     required this.initialAdjustmentValues,
+    required this.adjustmentValues,
     required this.onAdjustmentValueChanged,
     required this.removeFromAdjustmentValues,
+    required this.changeListener,
   });
 
   @override
@@ -32,6 +36,13 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
     super.initState();
     
     for (final adjustment in widget.adjustments) {
+      // Step 1: Set from AdjustmentValues
+      if (widget.adjustmentValues.containsKey(adjustment)) {
+        _adjustmentValues[adjustment] = widget.adjustmentValues[adjustment];
+        continue;
+      }
+      // Step 2: Set from initialAdjustmentValues
+      // Step 3: Set defaults (null, min, false, ...)
       final initialValue = widget.initialAdjustmentValues[adjustment];
       if (initialValue == null) {
         if (adjustment is BooleanAdjustment) { 
@@ -69,6 +80,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
               HapticFeedback.lightImpact();
               setState(() => _adjustmentValues[adjustment] = newValue);
               widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
+              widget.changeListener();
             },
           );
         } else if (adjustment is NumericalAdjustment) {
@@ -85,6 +97,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
               } else {
                 widget.removeFromAdjustmentValues(adjustment: adjustment);
               }
+              widget.changeListener();
             },
           );
           
@@ -102,6 +115,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             },
             onChangedEnd: (double newValue) {
               widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue.toInt());
+              widget.changeListener();
             },
           );
         } else if (adjustment is CategoricalAdjustment) {
@@ -115,6 +129,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
                 _adjustmentValues[adjustment] = newValue;
               });
               widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
+              widget.changeListener();
             },
           );
         }

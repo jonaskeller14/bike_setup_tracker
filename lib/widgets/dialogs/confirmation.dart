@@ -4,6 +4,8 @@ Future<bool> showConfirmationDialog(
   BuildContext context, {
   String title = "Are you sure?",
   String content = "This action cannot be undone.",
+  String falseText = "Cancel",
+  String trueText = "Continue"
 }) async {
   final result = await showDialog<bool>(
     context: context,
@@ -15,11 +17,11 @@ Future<bool> showConfirmationDialog(
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(falseText),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Continue'),
+            child: Text(trueText),
           ),
         ],
       );

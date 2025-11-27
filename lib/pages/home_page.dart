@@ -14,8 +14,7 @@ import '../widgets/setup_list.dart';
 import '../widgets/dialogs/confirmation.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.title});
-  final String title;
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -30,6 +29,8 @@ class _HomePageState extends State<HomePage> {
   List<Bike> filteredBikes = [];
 
   bool _displayOnlyChanges = false;
+
+  int currentPageIndex = 2;
 
   void onBikeTap(Bike bike) {
     setState(() {
@@ -485,9 +486,11 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        title: Text(
-          widget.title, 
-        ),
+        title: <Text>[
+          const Text("Bikes"),
+          const Text("Components"),
+          const Text("Setup History"),
+        ][currentPageIndex],
         actions: [
           PopupMenuButton<String>(
             onSelected: (String result) {
@@ -549,92 +552,114 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("Bikes", style: Theme.of(context).textTheme.headlineSmall),
-              const SizedBox(width: 20),
-              const Spacer(),
-              IconButton(
-                icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
-                onPressed: addBike,
-              ),
-            ]
-          ),
-
-          BikeList(bikes: bikes, selectedBike: _selectedBike, onBikeTap: onBikeTap, editBike: editBike, removeBike: removeBike, onReorderBikes: onReorderBikes),
-
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("Components", style: Theme.of(context).textTheme.headlineSmall),
-              const SizedBox(width: 20),
-              const Spacer(),
-              IconButton(
-                icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
-                onPressed: _addComponent,
-                tooltip: 'Add Component',
-              ),
-            ]
-          ),
-
-          ComponentList(
-            components: filteredComponents,
-            setups: setups,
-            editComponent: editComponent,
-            duplicateComponent: duplicateComponent,
-            removeComponent: removeComponent,
-            onReorder: onReorderComponents,
-          ),
-
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("Setup History", style: Theme.of(context).textTheme.headlineSmall),
-              const SizedBox(width: 20),
-              FilterChip(
-                label: const Text("Only Changes"),
-                selected: _displayOnlyChanges,
-                onSelected: (bool selected) {
-                  setState(() {
-                    _displayOnlyChanges = selected;
-                  });
-                },
-              ),
-              const SizedBox(width: 20),
-              const Spacer(),
-              IconButton(
-                icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
-                onPressed: _addSetup,
-                tooltip: 'Add Setup',
-              ),
-            ]
-          ),
-
-          SetupList(
-            setups: filteredSetups,
-            components: components,
-            editSetup: editSetup,
-            restoreSetup: restoreSetup,
-            removeSetup: removeSetup,
-            displayOnlyChanges: _displayOnlyChanges,
-          ),
-
-          const SizedBox(height: 100),
+      bottomNavigationBar: NavigationBar(
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        selectedIndex: currentPageIndex,
+        onDestinationSelected: (int index) {
+          setState(() {
+            currentPageIndex = index;
+          });
+        },
+        destinations: const <Widget>[
+          NavigationDestination(icon: Icon(Icons.pedal_bike), label: 'Bikes'),
+          NavigationDestination(icon: Icon(Icons.grid_view_sharp), label: 'Components'),
+          NavigationDestination(icon: Icon(Icons.tune), label: 'Setups'),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: "addSetup",
-        onPressed: _addSetup,
-        label: const Text('Add Setup'),
-        icon: const Icon(Icons.add),
-      ),
+      body: <Widget>[
+        ListView(
+          padding: const EdgeInsets.all(16.0),
+          children: [
+            BikeList(bikes: bikes, selectedBike: _selectedBike, onBikeTap: onBikeTap, editBike: editBike, removeBike: removeBike, onReorderBikes: onReorderBikes),
+          ],
+        ),
+        ListView(
+          padding: const EdgeInsets.all(16.0),
+          children: [
+            Wrap(
+              spacing: 10,
+              children: [
+                if (_selectedBike != null)
+                  Chip(
+                    label: Text(_selectedBike!.name),
+                    deleteIcon: const Icon(Icons.close, size: 18),
+                    onDeleted: () {
+                      if (_selectedBike != null) onBikeTap(_selectedBike!);
+                    },
+                    backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                  ),
+              ],
+            ),
+            ComponentList(
+              components: filteredComponents,
+              setups: setups,
+              editComponent: editComponent,
+              duplicateComponent: duplicateComponent,
+              removeComponent: removeComponent,
+              onReorder: onReorderComponents,
+            ),
+
+            const SizedBox(height: 100),
+          ]
+        ),
+        ListView(
+          padding: const EdgeInsets.all(16.0),
+          children: [
+            Wrap(
+              spacing: 10,
+              children: [
+                if (_selectedBike != null)
+                  Chip(
+                    label: Text(_selectedBike!.name),
+                    deleteIcon: const Icon(Icons.close, size: 18),
+                    onDeleted: () {
+                      if (_selectedBike != null) onBikeTap(_selectedBike!);
+                    },
+                    backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+                  ),
+                FilterChip(
+                  label: const Text("Only Changes"),
+                  selected: _displayOnlyChanges,
+                  onSelected: (bool selected) {
+                    setState(() {
+                      _displayOnlyChanges = selected;
+                    });
+                  },
+                ),
+              ],
+            ),
+            SetupList(
+              setups: filteredSetups,
+              components: components,
+              editSetup: editSetup,
+              restoreSetup: restoreSetup,
+              removeSetup: removeSetup,
+              displayOnlyChanges: _displayOnlyChanges,
+            ),
+            const SizedBox(height: 100),
+          ]
+        )
+      ][currentPageIndex],
+      floatingActionButton: <Widget>[
+        FloatingActionButton(
+          heroTag: "addBike",
+          onPressed: addBike,
+          tooltip: 'Add Bike',
+          child: const Icon(Icons.add),
+        ),
+        FloatingActionButton(
+          heroTag: "addComponent",
+          onPressed: _addComponent,
+          tooltip: 'Add Component',
+          child: const Icon(Icons.add),
+        ),
+        FloatingActionButton(
+          heroTag: "addSetup",
+          onPressed: _addSetup,
+          tooltip: 'Add Setup',
+          child: const Icon(Icons.add),
+        ),
+      ][currentPageIndex],
     );
   }
 }

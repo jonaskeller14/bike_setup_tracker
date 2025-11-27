@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       themeMode: ThemeMode.system,  
-      home: const HomePage(title: 'Bike Setup Tracker'),
+      home: const HomePage(),
     );
   }
 }

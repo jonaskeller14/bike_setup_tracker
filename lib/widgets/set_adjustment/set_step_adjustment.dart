@@ -36,6 +36,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
           Icon(Icons.format_list_numbered, color: highlightColor),
           SizedBox(width: 10),
           Flexible(
+            flex: 2,
             child: Text(
               adjustment.name,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),
@@ -43,6 +44,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
           ),
           SizedBox(width: 30),
           Flexible(
+            flex: 3,
             child: Slider(
               padding: EdgeInsets.all(5),
               value: value,

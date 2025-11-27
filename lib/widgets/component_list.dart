@@ -5,6 +5,8 @@ import '../models/setup.dart';
 import '../widgets/adjustment_display_list.dart';
 import '../pages/component_overview_page.dart';
 
+const defaultVisibleCount = 10;
+
 class ComponentList extends StatefulWidget {
   final List<Component> components;
   final List<Setup> setups;
@@ -34,7 +36,7 @@ class _ComponentListState extends State<ComponentList> {
   Widget build(BuildContext context) {
     final visibleCount = _expanded
         ? widget.components.length
-        : widget.components.length.clamp(0, 3);
+        : widget.components.length.clamp(0, defaultVisibleCount);
 
     final List<Card> cards = <Card>[];
     for (final component in widget.components.take(visibleCount)) {
@@ -184,7 +186,7 @@ class _ComponentListState extends State<ComponentList> {
             return cards[index];
           },
         ),
-        if (widget.components.length > 3)
+        if (widget.components.length > defaultVisibleCount)
           Center(
             child: TextButton.icon(
               onPressed: () {

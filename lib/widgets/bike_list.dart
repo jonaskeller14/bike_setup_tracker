@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../models/bike.dart';
 
+const defaultVisibleCount = 10;
+
 class BikeList extends StatefulWidget {
   final List<Bike> bikes;
   final Bike? selectedBike;
@@ -31,7 +33,7 @@ class _BikeListState extends State<BikeList> {
   Widget build(BuildContext context) {
     final visibleCount = _expanded
         ? widget.bikes.length
-        : widget.bikes.length.clamp(0, 3);
+        : widget.bikes.length.clamp(0, defaultVisibleCount);
     
     final List<Card> cards = <Card>[];
     for (final bike in widget.bikes.take(visibleCount)) {
@@ -128,7 +130,7 @@ class _BikeListState extends State<BikeList> {
             return cards[index];
           },
         ),
-        if (widget.bikes.length > 3)
+        if (widget.bikes.length > defaultVisibleCount)
           Center(
             child: TextButton.icon(
               onPressed: () {

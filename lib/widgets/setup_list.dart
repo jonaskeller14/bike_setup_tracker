@@ -4,6 +4,8 @@ import '../models/setup.dart';
 import '../models/component.dart';
 import '../widgets/adjustment_display_list.dart';
 
+const defaultVisibleCount = 10;
+
 class SetupList extends StatefulWidget {
   final List<Setup> setups;
   final List<Component> components;
@@ -33,7 +35,7 @@ class _SetupListState extends State<SetupList> {
   Widget build(BuildContext context) {
     final visibleCount = _expanded
         ? widget.setups.length
-        : widget.setups.length.clamp(0, 3);
+        : widget.setups.length.clamp(0, defaultVisibleCount);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -311,7 +313,7 @@ class _SetupListState extends State<SetupList> {
           },
         ),
 
-        if (widget.setups.length > 3)
+        if (widget.setups.length > defaultVisibleCount)
           Center(
             child: TextButton.icon(
               onPressed: () {

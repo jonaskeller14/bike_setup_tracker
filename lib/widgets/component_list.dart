@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 import '../models/component.dart';
 import '../models/setup.dart';
 import '../widgets/adjustment_display_list.dart';
@@ -146,7 +147,7 @@ class _ComponentListState extends State<ComponentList> {
                 padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
                 child: AdjustmentDisplayList(
                   components: [component],
-                  adjustmentValues: component.currentSetup?.adjustmentValues ?? {},
+                  adjustmentValues: widget.setups.lastWhereOrNull((s) => s.bike == component.bike)?.adjustmentValues ?? {},
                   showComponentIcons: false,
                 ),
               ),

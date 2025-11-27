@@ -24,14 +24,12 @@ class Component {
   final ComponentType componentType; 
   final List<Adjustment> adjustments;
   final Bike bike;
-  Setup? currentSetup;
 
   Component({
     String? id,
     required this.name,
     required this.bike,
     required this.componentType,
-    this.currentSetup,
     List<Adjustment>? adjustments,
   }) : adjustments = adjustments ?? [],
        id = id ?? const Uuid().v4();
@@ -41,7 +39,6 @@ class Component {
       name: name,
       bike: bike,
       componentType: componentType,
-      currentSetup: currentSetup,
       adjustments: adjustments.map((a) => a.deepCopy()).toList(),
     );
   }
@@ -71,7 +68,6 @@ class Component {
     'componentType': componentType.toString(),
     'bike': bike.id,
     'adjustments': adjustments.map((a) => a.toJson()).toList(),
-    'currentSetup': currentSetup?.id,
   };
 
   factory Component.fromJson({
@@ -91,7 +87,6 @@ class Component {
       ),
       bike: bikes.firstWhere((b) => b.id == json["bike"]),
       adjustments: adjustments,
-      currentSetup: null,  // to be linked later
     );
   }
 }

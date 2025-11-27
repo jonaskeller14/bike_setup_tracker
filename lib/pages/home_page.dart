@@ -193,13 +193,6 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       for (var setup in toRemoveSetups) {
         setups.remove(setup);
-
-        // Also ensure components don't hold dangling references
-        for (var c in components) {
-          if (c.currentSetup == setup) {
-            c.currentSetup = null;
-          }
-        }
       }
       determineCurrentSetups();
       determinePreviousSetups();
@@ -428,9 +421,6 @@ class _HomePageState extends State<HomePage> {
       final bike = setup.bike;
       if (remainingBikes.contains(bike)) {
         setup.isCurrent = true;
-        for (final component in components.where((c) => c.bike == bike)) {
-          component.currentSetup = setup;
-        }
         remainingBikes.remove(bike);
         if (remainingBikes.isEmpty) break;
       }

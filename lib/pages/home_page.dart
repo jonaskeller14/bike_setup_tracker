@@ -151,7 +151,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> removeBike(Bike bike) async {
-    final confirmed = await showConfirmationDialog(context);
+    final confirmed = await showConfirmationDialog(context, content: "This action cannot be undone. All components and setups which belong to this bike will be deleted as well.");
     if (!confirmed) {
       return;
     }

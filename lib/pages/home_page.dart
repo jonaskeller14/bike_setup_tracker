@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
 
   bool _displayOnlyChanges = false;
 
-  int currentPageIndex = 2;
+  int currentPageIndex = 0;
 
   void onBikeTap(Bike bike) {
     setState(() {
@@ -570,7 +570,25 @@ class _HomePageState extends State<HomePage> {
         ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
-            BikeList(bikes: bikes, selectedBike: _selectedBike, onBikeTap: onBikeTap, editBike: editBike, removeBike: removeBike, onReorderBikes: onReorderBikes),
+            bikes.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 50),
+                    child: Center(
+                      child: Text(
+                        'No bikes yet',
+                        style: TextStyle(color: Colors.grey.shade600),
+                      ),
+                    )
+                  )
+                : BikeList(
+                  bikes: bikes,
+                  selectedBike: _selectedBike,
+                  onBikeTap: onBikeTap,
+                  editBike: editBike,
+                  removeBike: removeBike,
+                  onReorderBikes: onReorderBikes,
+                ),
+            const SizedBox(height: 100),
           ],
         ),
         ListView(
@@ -590,14 +608,24 @@ class _HomePageState extends State<HomePage> {
                   ),
               ],
             ),
-            ComponentList(
-              components: filteredComponents,
-              setups: setups,
-              editComponent: editComponent,
-              duplicateComponent: duplicateComponent,
-              removeComponent: removeComponent,
-              onReorder: onReorderComponents,
-            ),
+            filteredComponents.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 50),
+                    child: Center(
+                      child: Text(
+                        'No components yet',
+                        style: TextStyle(color: Colors.grey.shade600),
+                      ),
+                    )
+                  )
+                : ComponentList(
+                  components: filteredComponents,
+                  setups: setups,
+                  editComponent: editComponent,
+                  duplicateComponent: duplicateComponent,
+                  removeComponent: removeComponent,
+                  onReorder: onReorderComponents,
+                ),
 
             const SizedBox(height: 100),
           ]
@@ -617,17 +645,28 @@ class _HomePageState extends State<HomePage> {
                     },
                     backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
                   ),
-                FilterChip(
-                  label: const Text("Only Changes"),
-                  selected: _displayOnlyChanges,
-                  onSelected: (bool selected) {
-                    setState(() {
-                      _displayOnlyChanges = selected;
-                    });
-                  },
-                ),
+                filteredSetups.isEmpty
+                    ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 50),
+                      child: Center(
+                        child: Text(
+                          'No setups yet',
+                          style: TextStyle(color: Colors.grey.shade600),
+                        ),
+                      )
+                    )
+                    : FilterChip(
+                      label: const Text("Only Changes"),
+                      selected: _displayOnlyChanges,
+                      onSelected: (bool selected) {
+                        setState(() {
+                          _displayOnlyChanges = selected;
+                        });
+                      },
+                    ),
               ],
             ),
+
             SetupList(
               setups: filteredSetups,
               components: components,

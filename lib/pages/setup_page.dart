@@ -432,7 +432,8 @@ class _SetupPageState extends State<SetupPage> {
                 controller: _notesController,
                 textInputAction: TextInputAction.next,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                maxLines: 3,
+                minLines: 2,
+                maxLines: null,
                 decoration: const InputDecoration(
                   labelText: 'Notes (optional)',
                   border: OutlineInputBorder(),

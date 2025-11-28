@@ -205,6 +205,14 @@ class _ComponentPageState extends State<ComponentPage> {
 
   void _saveComponent() {
     if (!_formKey.currentState!.validate()) return;
+    if (adjustments.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("You need to add at least one adjustment"), 
+        backgroundColor: Theme.of(context).colorScheme.error,
+        duration: Duration(seconds: 2),
+      ));
+      return;
+    }
     final name = _nameController.text.trim();
     _formHasChanges = false;
     if (!mounted) return;

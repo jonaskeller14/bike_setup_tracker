@@ -143,139 +143,122 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
           ],
         ),
         body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextFormField(
-                        controller: _nameController,
-                        onChanged: (String? value) {
-                          setState(() {
-                            _previewAdjustment = StepAdjustment(
-                              name: value ?? '', 
-                              min: _previewAdjustment.min, 
-                              max: _previewAdjustment.max, 
-                              step: _previewAdjustment.step, 
-                              unit: null
-                            );
-                          });
-                        },
-                        textInputAction: TextInputAction.next,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        autofocus: widget.adjustment == null,
-                        decoration: const InputDecoration(
-                          labelText: 'Adjustment Name',
-                          hintText: 'Enter Adjustment Name',
-                          border: OutlineInputBorder(),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          controller: _nameController,
+                          onChanged: (String? value) {
+                            setState(() {
+                              _previewAdjustment = StepAdjustment(
+                                name: value ?? '', 
+                                min: _previewAdjustment.min, 
+                                max: _previewAdjustment.max, 
+                                step: _previewAdjustment.step, 
+                                unit: null
+                              );
+                            });
+                          },
+                          textInputAction: TextInputAction.next,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          autofocus: widget.adjustment == null,
+                          decoration: const InputDecoration(
+                            labelText: 'Adjustment Name',
+                            hintText: 'Enter Adjustment Name',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: _validateName,
                         ),
-                        validator: _validateName,
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _stepController,
-                        textInputAction: TextInputAction.next,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                        decoration: const InputDecoration(
-                          labelText: 'Step',
-                          hintText: 'Enter step value',
-                          border: OutlineInputBorder(),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _stepController,
+                          textInputAction: TextInputAction.next,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                          decoration: const InputDecoration(
+                            labelText: 'Step',
+                            hintText: 'Enter step value',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: _validateStep,
+                          onChanged: (String value) {
+                            setState(() {
+                              final newStep = _validateStep(value) == null ? int.parse(value) : _defaultStep;
+                              _previewAdjustment = StepAdjustment(
+                                name: _previewAdjustment.name, 
+                                min: _previewAdjustment.min, 
+                                max: math.max(_previewAdjustment.max, _previewAdjustment.min + newStep), 
+                                step: newStep, 
+                                unit: null
+                              );
+                              _previewValue = _previewAdjustment.min.toDouble();
+                            });
+                          },
                         ),
-                        validator: _validateStep,
-                        onChanged: (String value) {
-                          setState(() {
-                            final newStep = _validateStep(value) == null ? int.parse(value) : _defaultStep;
-                            _previewAdjustment = StepAdjustment(
-                              name: _previewAdjustment.name, 
-                              min: _previewAdjustment.min, 
-                              max: math.max(_previewAdjustment.max, _previewAdjustment.min + newStep), 
-                              step: newStep, 
-                              unit: null
-                            );
-                            _previewValue = _previewAdjustment.min.toDouble();
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _minController,
-                        textInputAction: TextInputAction.next,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: false, signed: true),
-                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*$'))],
-                        decoration: const InputDecoration(
-                          labelText: 'Min Value',
-                          hintText: 'Enter minimum value',
-                          border: OutlineInputBorder(),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _minController,
+                          textInputAction: TextInputAction.next,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          keyboardType: const TextInputType.numberWithOptions(decimal: false, signed: true),
+                          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*$'))],
+                          decoration: const InputDecoration(
+                            labelText: 'Min Value',
+                            hintText: 'Enter minimum value',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: _validateMin,
+                          onChanged: (String value) {
+                            setState(() {
+                              final newMin = _validateMin(value) == null ? int.parse(value) : _defaultMin;
+                              _previewAdjustment = StepAdjustment(
+                                name: _previewAdjustment.name, 
+                                min: math.min(newMin, _previewAdjustment.max - _previewAdjustment.step), 
+                                max: _previewAdjustment.max, 
+                                step: _previewAdjustment.step, 
+                                unit: null
+                              );
+                              _previewValue = _previewAdjustment.min.toDouble();
+                            });
+                          },
                         ),
-                        validator: _validateMin,
-                        onChanged: (String value) {
-                          setState(() {
-                            final newMin = _validateMin(value) == null ? int.parse(value) : _defaultMin;
-                            _previewAdjustment = StepAdjustment(
-                              name: _previewAdjustment.name, 
-                              min: math.min(newMin, _previewAdjustment.max - _previewAdjustment.step), 
-                              max: _previewAdjustment.max, 
-                              step: _previewAdjustment.step, 
-                              unit: null
-                            );
-                            _previewValue = _previewAdjustment.min.toDouble();
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _maxController,
-                        onFieldSubmitted: (_) => _saveStepAdjustment(),
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: false, signed: true),
-                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*$'))],
-                        decoration: const InputDecoration(
-                          labelText: 'Max Value',
-                          hintText: 'Enter maximum value',
-                          border: OutlineInputBorder(),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _maxController,
+                          onFieldSubmitted: (_) => _saveStepAdjustment(),
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          keyboardType: const TextInputType.numberWithOptions(decimal: false, signed: true),
+                          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*$'))],
+                          decoration: const InputDecoration(
+                            labelText: 'Max Value',
+                            hintText: 'Enter maximum value',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: _validateMax,
+                          onChanged: (String value) {
+                            setState(() {
+                              final newMax = _validateMax(value) == null ? int.parse(value) : _previewAdjustment.min+_previewAdjustment.step;
+                              _previewAdjustment = StepAdjustment(
+                                name: _previewAdjustment.name, 
+                                min: _previewAdjustment.min, 
+                                max: math.max(newMax, _previewAdjustment.min + _previewAdjustment.step), 
+                                step: _previewAdjustment.step, 
+                                unit: null
+                              );
+                              _previewValue = _previewAdjustment.min.toDouble();
+                            });
+                          },
                         ),
-                        validator: _validateMax,
-                        onChanged: (String value) {
-                          setState(() {
-                            final newMax = _validateMax(value) == null ? int.parse(value) : _previewAdjustment.min+_previewAdjustment.step;
-                            _previewAdjustment = StepAdjustment(
-                              name: _previewAdjustment.name, 
-                              min: _previewAdjustment.min, 
-                              max: math.max(newMax, _previewAdjustment.min + _previewAdjustment.step), 
-                              step: _previewAdjustment.step, 
-                              unit: null
-                            );
-                            _previewValue = _previewAdjustment.min.toDouble();
-                          });
-                        },
-                        // onChanged: (value) {
-                        //   setState(() {
-                        //     if (_validateMax(value) == null) {
-                        //       _previewMax = int.parse(value);
-                        //     } else {
-                        //       _previewMax = _previewMin + 5*_previewStep;
-                        //     }
-                        //     _previewMax = math.max(_previewMax, _previewMin + _previewStep);
-                        //     _previewValue = _previewMin.toDouble();
-                        //     _previewAdjustment = StepAdjustment(
-                        //       name: _previewName, 
-                        //       min: _previewMin, 
-                        //       max: _previewMax, 
-                        //       step: _previewStep, 
-                        //       unit: null
-                        //     );
-                        //   });
-                        // },
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -284,7 +267,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
               children: [
                 Container(
                   padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
-                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor))),
+                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Colors.blueGrey.shade100),
                   child: Card(
                     child: SetStepAdjustmentWidget(
                       key: ValueKey(_previewAdjustment),

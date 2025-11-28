@@ -87,38 +87,38 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
           ],
         ),
         body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextFormField(
-                        controller: _nameController,
-                        onChanged: (String? value) {
-                          setState(() {
-                            _previewAdjustment = BooleanAdjustment(
-                              name: value ?? '', 
-                              unit: null
-                            );
-                          });
-                        },
-                        onFieldSubmitted: (_) => _saveBooleanAdjustment(),
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        autofocus: widget.adjustment == null,
-                        decoration: const InputDecoration(
-                          labelText: 'Adjustment Name',
-                          hintText: 'Enter Adjustment Name',
-                          border: OutlineInputBorder(),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          controller: _nameController,
+                          onChanged: (String? value) {
+                            setState(() {
+                              _previewAdjustment = BooleanAdjustment(
+                                name: value ?? '', 
+                                unit: null
+                              );
+                            });
+                          },
+                          onFieldSubmitted: (_) => _saveBooleanAdjustment(),
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          autofocus: widget.adjustment == null,
+                          decoration: const InputDecoration(
+                            labelText: 'Adjustment Name',
+                            hintText: 'Enter Adjustment Name',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: _validateName,
                         ),
-                        validator: _validateName,
-                      ),
-                      
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -127,7 +127,7 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
               children: [
                 Container(
                   padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
-                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor))),
+                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Colors.blueGrey.shade100),
                   child: Card(
                     child: SetBooleanAdjustmentWidget(
                       key: ValueKey(_previewAdjustment),

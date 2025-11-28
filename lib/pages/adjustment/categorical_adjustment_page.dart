@@ -165,95 +165,96 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
           ],
         ),
         body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextFormField(
-                        controller: _nameController,
-                        textInputAction: TextInputAction.next,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        autofocus: widget.adjustment == null,
-                        decoration: const InputDecoration(
-                          labelText: 'Adjustment Name',
-                          hintText: 'Enter Adjustment Name',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: _validateName,
-                        onChanged: (String value) {
-                          setState(() {
-                            _previewAdjustment = CategoricalAdjustment(
-                              name: _nameController.text.trim(),
-                              unit: null, 
-                              options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList(),
-                            );
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('Options',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          TextButton.icon(
-                            onPressed: _addOptionField,
-                            icon: const Icon(Icons.add),
-                            label: const Text('Add'),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          controller: _nameController,
+                          textInputAction: TextInputAction.next,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          autofocus: widget.adjustment == null,
+                          decoration: const InputDecoration(
+                            labelText: 'Adjustment Name',
+                            hintText: 'Enter Adjustment Name',
+                            border: OutlineInputBorder(),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Column(
-                        children: List.generate(_optionControllers.length, (index) {
-                          final controller = _optionControllers[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: TextFormField(
-                                    controller: controller,
-                                    onFieldSubmitted: (_) => _saveCategoricalAdjustment(),
-                                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                                    decoration: InputDecoration(
-                                      labelText: 'Option ${index + 1}',
-                                      hintText: 'Enter option value',
-                                      border: const OutlineInputBorder(),
-                                      errorText: _validateOptions(),
-                                    ),
-                                    validator: _validateOption,
-                                    onChanged: (String value) {
-                                      setState(() {
-                                        _previewValue = null;
-                                        _previewAdjustment = CategoricalAdjustment(
-                                          name: _nameController.text.trim(),
-                                          unit: null, 
-                                          options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList(),
-                                        );
-                                      });
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                if (_optionControllers.length > 1)
-                                  IconButton(
-                                    icon: const Icon(Icons.remove_circle, color: Colors.red),
-                                    tooltip: 'Remove option',
-                                    onPressed: () => _removeOptionField(index),
-                                  ),
-                              ],
+                          validator: _validateName,
+                          onChanged: (String value) {
+                            setState(() {
+                              _previewAdjustment = CategoricalAdjustment(
+                                name: _nameController.text.trim(),
+                                unit: null, 
+                                options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList(),
+                              );
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Options',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            TextButton.icon(
+                              onPressed: _addOptionField,
+                              icon: const Icon(Icons.add),
+                              label: const Text('Add'),
                             ),
-                          );
-                        }),
-                      ),
-                    ],
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Column(
+                          children: List.generate(_optionControllers.length, (index) {
+                            final controller = _optionControllers[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: TextFormField(
+                                      controller: controller,
+                                      onFieldSubmitted: (_) => _saveCategoricalAdjustment(),
+                                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                                      decoration: InputDecoration(
+                                        labelText: 'Option ${index + 1}',
+                                        hintText: 'Enter option value',
+                                        border: const OutlineInputBorder(),
+                                        errorText: _validateOptions(),
+                                      ),
+                                      validator: _validateOption,
+                                      onChanged: (String value) {
+                                        setState(() {
+                                          _previewValue = null;
+                                          _previewAdjustment = CategoricalAdjustment(
+                                            name: _nameController.text.trim(),
+                                            unit: null, 
+                                            options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList(),
+                                          );
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  if (_optionControllers.length > 1)
+                                    IconButton(
+                                      icon: const Icon(Icons.remove_circle, color: Colors.red),
+                                      tooltip: 'Remove option',
+                                      onPressed: () => _removeOptionField(index),
+                                    ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -262,7 +263,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
               children: [
                 Container(
                   padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
-                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor))),
+                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Colors.blueGrey.shade100),
                   child: Card(
                     child: SetCategoricalAdjustmentWidget(
                       key: ValueKey(_previewAdjustment),

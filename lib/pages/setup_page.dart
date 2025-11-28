@@ -430,7 +430,6 @@ class _SetupPageState extends State<SetupPage> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _notesController,
-                textInputAction: TextInputAction.next,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 minLines: 2,
                 maxLines: null,

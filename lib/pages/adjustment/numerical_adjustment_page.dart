@@ -134,98 +134,32 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
           ],
         ),
         body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextFormField(
-                        controller: _nameController,
-                        textInputAction: TextInputAction.next,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        autofocus: widget.adjustment == null,
-                        decoration: const InputDecoration(
-                          labelText: 'Adjustment Name',
-                          hintText: 'Enter Adjustment Name',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: _validateName,
-                        onChanged: (String value) {
-                          setState(() {
-                            _previewAdjustment = NumericalAdjustment(
-                              name: _nameController.text.trim(),
-                              unit: _unitController.text.trim(),
-                              min: double.tryParse(_minController.text.trim()),
-                              max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
-                            );
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _unitController,
-                        maxLength: 10,
-                        onFieldSubmitted: (_) => _saveNumericalAdjustment(),
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        decoration: const InputDecoration(
-                          labelText: 'Unit (optional)',
-                          hintText: 'Enter unit (e.g., mm, psi)',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) => (value != null && value.length > 10) ? "Too many characters" : null,
-                        onChanged: (String value) {
-                          setState(() {
-                            _previewAdjustment = NumericalAdjustment(
-                              name: _nameController.text.trim(),
-                              unit: _unitController.text.trim(), 
-                              min: double.tryParse(_minController.text.trim()),
-                              max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
-                            );
-                          });
-                        },
-                      ),
-                      if (!_expanded) ...[
-                        Center(
-                          child: TextButton.icon(
-                            onPressed: () {
-                              setState(() {
-                                if (!_expanded) _expanded = !_expanded;
-                              });
-                            },
-                            icon: Icon(
-                              _expanded ? Icons.expand_less : Icons.expand_more,
-                            ),
-                            label: Text(_expanded ? "Show less" : "Show more"),
-                          ),
-                        ),
-                      ],
-                      if (_expanded) ...[
-                        const SizedBox(height: 12),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         TextFormField(
-                          controller: _minController,
+                          controller: _nameController,
                           textInputAction: TextInputAction.next,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
-                          ],
+                          autofocus: widget.adjustment == null,
                           decoration: const InputDecoration(
-                            labelText: 'Min Value (optional)',
-                            hintText: 'Enter minimum value',
+                            labelText: 'Adjustment Name',
+                            hintText: 'Enter Adjustment Name',
                             border: OutlineInputBorder(),
                           ),
-                          validator: _validateMin,
+                          validator: _validateName,
                           onChanged: (String value) {
                             setState(() {
-                              _previewValue = null;
                               _previewAdjustment = NumericalAdjustment(
                                 name: _nameController.text.trim(),
-                                unit: _unitController.text.trim(), 
+                                unit: _unitController.text.trim(),
                                 min: double.tryParse(_minController.text.trim()),
                                 max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
                               );
@@ -234,22 +168,18 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                         ),
                         const SizedBox(height: 12),
                         TextFormField(
-                          controller: _maxController,
+                          controller: _unitController,
+                          maxLength: 10,
                           onFieldSubmitted: (_) => _saveNumericalAdjustment(),
                           autovalidateMode: AutovalidateMode.onUserInteraction,
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
-                          ],
                           decoration: const InputDecoration(
-                            labelText: 'Max Value (optional)',
-                            hintText: 'Enter maximum value',
+                            labelText: 'Unit (optional)',
+                            hintText: 'Enter unit (e.g., mm, psi)',
                             border: OutlineInputBorder(),
                           ),
-                          validator: _validateMax,
+                          validator: (value) => (value != null && value.length > 10) ? "Too many characters" : null,
                           onChanged: (String value) {
                             setState(() {
-                              _previewValue = null;
                               _previewAdjustment = NumericalAdjustment(
                                 name: _nameController.text.trim(),
                                 unit: _unitController.text.trim(), 
@@ -259,8 +189,79 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             });
                           },
                         ),
-                      ]
-                    ],
+                        if (!_expanded) ...[
+                          Center(
+                            child: TextButton.icon(
+                              onPressed: () {
+                                setState(() {
+                                  if (!_expanded) _expanded = !_expanded;
+                                });
+                              },
+                              icon: Icon(
+                                _expanded ? Icons.expand_less : Icons.expand_more,
+                              ),
+                              label: Text(_expanded ? "Show less" : "Show more"),
+                            ),
+                          ),
+                        ],
+                        if (_expanded) ...[
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _minController,
+                            textInputAction: TextInputAction.next,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+                            ],
+                            decoration: const InputDecoration(
+                              labelText: 'Min Value (optional)',
+                              hintText: 'Enter minimum value',
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: _validateMin,
+                            onChanged: (String value) {
+                              setState(() {
+                                _previewValue = null;
+                                _previewAdjustment = NumericalAdjustment(
+                                  name: _nameController.text.trim(),
+                                  unit: _unitController.text.trim(), 
+                                  min: double.tryParse(_minController.text.trim()),
+                                  max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
+                                );
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _maxController,
+                            onFieldSubmitted: (_) => _saveNumericalAdjustment(),
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+                            ],
+                            decoration: const InputDecoration(
+                              labelText: 'Max Value (optional)',
+                              hintText: 'Enter maximum value',
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: _validateMax,
+                            onChanged: (String value) {
+                              setState(() {
+                                _previewValue = null;
+                                _previewAdjustment = NumericalAdjustment(
+                                  name: _nameController.text.trim(),
+                                  unit: _unitController.text.trim(), 
+                                  min: double.tryParse(_minController.text.trim()),
+                                  max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
+                                );
+                              });
+                            },
+                          ),
+                        ]
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -269,7 +270,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
               children: [
                 Container(
                   padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
-                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor))),
+                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Colors.blueGrey.shade100),
                   child: Card(
                     child: SetNumericalAdjustmentWidget(
                       key: ValueKey(_previewAdjustment),

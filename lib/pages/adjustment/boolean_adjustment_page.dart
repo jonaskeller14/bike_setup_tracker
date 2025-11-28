@@ -138,8 +138,9 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                         setState(() {
                           _previewValue = newValue;
                         });
-                      }
-                      ),
+                      },
+                      highlighting: false,
+                    ),
                   ),
                 ),
                 Positioned(

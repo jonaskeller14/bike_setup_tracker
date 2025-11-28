@@ -280,7 +280,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                         });
                       },
                       onChangedEnd: (_) => {},
-                      ),
+                      highlighting: false,
+                    ),
                   ),
                 ),
                 Positioned(

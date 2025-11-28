@@ -7,6 +7,7 @@ class SetNumericalAdjustmentWidget extends StatefulWidget {
   final double? initialValue;
   final String? value;
   final ValueChanged<String> onChanged;
+  final bool highlighting;
 
   const SetNumericalAdjustmentWidget({
     required super.key,
@@ -14,6 +15,7 @@ class SetNumericalAdjustmentWidget extends StatefulWidget {
     required this.initialValue,
     required this.value,
     required this.onChanged,
+    this.highlighting = true,
   });
 
   @override
@@ -50,10 +52,19 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
   @override
   Widget build(BuildContext context) {
     double? parsedValue = double.tryParse(widget.value ?? '');
-    final isChanged = parsedValue == null ? false : widget.initialValue != parsedValue;
-    final isInitial = widget.initialValue == null;
-    final highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
-
+    late bool isChanged;
+    late bool isInitial;
+    late Color? highlightColor; 
+    if (widget.highlighting) {
+      isChanged = parsedValue == null ? false : widget.initialValue != parsedValue;
+      isInitial = widget.initialValue == null;
+      highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
+    } else {
+      isChanged = false;
+      isInitial = false;
+      highlightColor = null;
+    }
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(

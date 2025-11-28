@@ -275,6 +275,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                           _previewValue = newValue;
                         });
                       },
+                      highlighting: false,
                     ),
                   ),
                 ),

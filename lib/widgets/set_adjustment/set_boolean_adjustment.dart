@@ -6,6 +6,7 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
   final bool? initialValue;
   final bool value;
   final ValueChanged<bool> onChanged;
+  final bool highlighting;
 
   const SetBooleanAdjustmentWidget({
     required super.key,
@@ -13,14 +14,24 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
     required this.initialValue,
     required this.value,
     required this.onChanged,
+    this.highlighting = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isChanged = initialValue != value;
-    final isInitial = initialValue == null;
-    final highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
-
+    late bool isChanged;
+    late bool isInitial;
+    late Color? highlightColor; 
+    if (highlighting) {
+      isChanged = initialValue != value;
+      isInitial = initialValue == null;
+      highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
+    } else {
+      isChanged = false;
+      isInitial = false;
+      highlightColor = null;
+    }
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: isChanged

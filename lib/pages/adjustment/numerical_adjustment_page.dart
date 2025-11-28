@@ -282,6 +282,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                           _previewValue = newValue;
                         });
                       },
+                      highlighting: false,
                     ),
                   ),
                 ),

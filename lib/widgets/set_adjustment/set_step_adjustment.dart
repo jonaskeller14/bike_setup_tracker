@@ -7,6 +7,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
   final double value;
   final ValueChanged<double> onChanged;
   final ValueChanged<double> onChangedEnd;
+  final bool highlighting;
 
   const SetStepAdjustmentWidget({
     required super.key,
@@ -15,13 +16,23 @@ class SetStepAdjustmentWidget extends StatelessWidget {
     required this.value,
     required this.onChanged,
     required this.onChangedEnd,
+    this.highlighting = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isChanged = initialValue != value;
-    final isInitial = initialValue == null;
-    final highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
+    late bool isChanged;
+    late bool isInitial;
+    late Color? highlightColor; 
+    if (highlighting) {
+      isChanged = initialValue != value;
+      isInitial = initialValue == null;
+      highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
+    } else {
+      isChanged = false;
+      isInitial = false;
+      highlightColor = null;
+    }
     final sliderDivisions = ((adjustment.max - adjustment.min) / adjustment.step).floor();
     final sliderMax = (adjustment.min + sliderDivisions * adjustment.step).toDouble();
     

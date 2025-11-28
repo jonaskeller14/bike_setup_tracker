@@ -6,6 +6,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
   final String? initialValue;
   final String? value;
   final ValueChanged<String?> onChanged;
+  final bool highlighting;
 
   const SetCategoricalAdjustmentWidget({
     required super.key,
@@ -13,13 +14,23 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
     required this.initialValue,
     required this.value,
     required this.onChanged,
+    this.highlighting = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isChanged = initialValue != value;
-    final isInitial = initialValue == null;
-    final highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
+    late bool isChanged;
+    late bool isInitial;
+    late Color? highlightColor; 
+    if (highlighting) {
+      isChanged = initialValue != value;
+      isInitial = initialValue == null;
+      highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
+    } else {
+      isChanged = false;
+      isInitial = false;
+      highlightColor = null;
+    }
     final options = adjustment.options;
 
     return Container(

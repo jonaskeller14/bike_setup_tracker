@@ -559,10 +559,10 @@ class _HomePageState extends State<HomePage> {
             currentPageIndex = index;
           });
         },
-        destinations: const <Widget>[
-          NavigationDestination(icon: Icon(Icons.pedal_bike), label: 'Bikes'),
-          NavigationDestination(icon: Icon(Icons.grid_view_sharp), label: 'Components'),
-          NavigationDestination(icon: Icon(Icons.tune), label: 'Setups'),
+        destinations: <Widget>[
+          NavigationDestination(icon: Badge(isLabelVisible: _selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: Icon(Icons.pedal_bike)), label: 'Bikes'),
+          NavigationDestination(icon: Icon(Icons.grid_view_sharp), label: 'Components', enabled: bikes.isNotEmpty),
+          NavigationDestination(icon: Icon(Icons.tune), label: 'Setups', enabled: bikes.isNotEmpty),
         ],
       ),
       body: <Widget>[

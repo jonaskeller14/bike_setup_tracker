@@ -222,7 +222,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               _previewAdjustment = StepAdjustment(
                                 name: _previewAdjustment.name, 
                                 min: math.min(newMin, _previewAdjustment.max - _previewAdjustment.step), 
-                                max: _previewAdjustment.max, 
+                                max: _previewAdjustment.max, //FIXME: if previously max was set wrong and now with the new min it becomes valid -> it does not update here 
                                 step: _previewAdjustment.step, 
                                 unit: null
                               );

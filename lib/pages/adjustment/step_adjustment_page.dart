@@ -275,6 +275,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                       initialValue: 0.0,
                       value: _previewValue,
                       onChanged: (double newValue) {
+                        HapticFeedback.lightImpact();
                         setState(() {
                           _previewValue = newValue;
                         });

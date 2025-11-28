@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../models/adjustment.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_boolean_adjustment.dart';
@@ -135,6 +136,7 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                       initialValue: false, 
                       value: _previewValue, 
                       onChanged: (bool newValue) {
+                        HapticFeedback.heavyImpact();
                         setState(() {
                           _previewValue = newValue;
                         });

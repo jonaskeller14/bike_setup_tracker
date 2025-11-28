@@ -12,9 +12,9 @@ Future<bool> showDiscardChangesDialog(BuildContext context) async {
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('Cancel'),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Discard Changes'),
+            child: Text('Discard Changes', style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ),
         ],
       );

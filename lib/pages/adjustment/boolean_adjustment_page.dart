@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/adjustment.dart';
 import '../../widgets/dialogs/discard_changes.dart';
+import '../../widgets/set_adjustment/set_boolean_adjustment.dart';
 
 class BooleanAdjustmentPage extends StatefulWidget {
   final BooleanAdjustment? adjustment;
@@ -14,6 +15,12 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
   late TextEditingController _nameController;
+
+  bool _previewValue = false;
+  BooleanAdjustment _previewAdjustment = BooleanAdjustment(
+    name: '', 
+    unit: null,
+  );
 
   @override
   void initState() {
@@ -79,30 +86,86 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
             IconButton(icon: const Icon(Icons.check), onPressed: _saveBooleanAdjustment),
           ],
         ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextFormField(
-                    controller: _nameController,
-                    onFieldSubmitted: (_) => _saveBooleanAdjustment(),
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    autofocus: widget.adjustment == null,
-                    decoration: const InputDecoration(
-                      labelText: 'Adjustment Name',
-                      hintText: 'Enter Adjustment Name',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: _validateName,
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextFormField(
+                        controller: _nameController,
+                        onChanged: (String? value) {
+                          setState(() {
+                            _previewAdjustment = BooleanAdjustment(
+                              name: value ?? '', 
+                              unit: null
+                            );
+                          });
+                        },
+                        onFieldSubmitted: (_) => _saveBooleanAdjustment(),
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        autofocus: widget.adjustment == null,
+                        decoration: const InputDecoration(
+                          labelText: 'Adjustment Name',
+                          hintText: 'Enter Adjustment Name',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: _validateName,
+                      ),
+                      
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-          ),
+            Stack(
+              children: [
+                Container(
+                  padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
+                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor))),
+                  child: Card(
+                    child: SetBooleanAdjustmentWidget(
+                      key: ValueKey(_previewAdjustment),
+                      adjustment: _previewAdjustment,
+                      initialValue: false, 
+                      value: _previewValue, 
+                      onChanged: (bool newValue) {
+                        setState(() {
+                          _previewValue = newValue;
+                        });
+                      }
+                      ),
+                  ),
+                ),
+                Positioned(
+                  top: -1, 
+                  left: -1, 
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: BorderRadius.only(
+                        bottomRight: const Radius.circular(6),
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                    child: const Text(
+                      'Preview only — changes won’t be saved',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

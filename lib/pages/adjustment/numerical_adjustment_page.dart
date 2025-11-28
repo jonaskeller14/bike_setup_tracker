@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import '../../models/adjustment.dart';
 import '../../widgets/dialogs/discard_changes.dart';
+import '../../widgets/set_adjustment/set_numerical_adjustment.dart';
 
 class NumericalAdjustmentPage extends StatefulWidget {
   final NumericalAdjustment? adjustment;
@@ -19,6 +20,12 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
   late TextEditingController _minController;
   late TextEditingController _maxController;
   late TextEditingController _unitController;
+
+  String? _previewValue;
+  NumericalAdjustment _previewAdjustment = NumericalAdjustment(
+    name: '', 
+    unit: null,
+  );
   
   @override
   void initState() {
@@ -126,92 +133,181 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
             IconButton(icon: const Icon(Icons.check), onPressed: _saveNumericalAdjustment),
           ],
         ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextFormField(
-                    controller: _nameController,
-                    textInputAction: TextInputAction.next,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    autofocus: widget.adjustment == null,
-                    decoration: const InputDecoration(
-                      labelText: 'Adjustment Name',
-                      hintText: 'Enter Adjustment Name',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: _validateName,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _unitController,
-                    maxLength: 10,
-                    onFieldSubmitted: (_) => _saveNumericalAdjustment(),
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: const InputDecoration(
-                      labelText: 'Unit (optional)',
-                      hintText: 'Enter unit (e.g., mm, psi)',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) => (value != null && value.length > 10) ? "Too many characters" : null ,
-                  ),
-                  if (!_expanded) ...[
-                    Center(
-                      child: TextButton.icon(
-                        onPressed: () {
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextFormField(
+                        controller: _nameController,
+                        textInputAction: TextInputAction.next,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        autofocus: widget.adjustment == null,
+                        decoration: const InputDecoration(
+                          labelText: 'Adjustment Name',
+                          hintText: 'Enter Adjustment Name',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: _validateName,
+                        onChanged: (String value) {
                           setState(() {
-                            if (!_expanded) _expanded = !_expanded;
+                            _previewAdjustment = NumericalAdjustment(
+                              name: _nameController.text.trim(),
+                              unit: _unitController.text.trim(),
+                              min: double.tryParse(_minController.text.trim()),
+                              max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
+                            );
                           });
                         },
-                        icon: Icon(
-                          _expanded ? Icons.expand_less : Icons.expand_more,
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _unitController,
+                        maxLength: 10,
+                        onFieldSubmitted: (_) => _saveNumericalAdjustment(),
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        decoration: const InputDecoration(
+                          labelText: 'Unit (optional)',
+                          hintText: 'Enter unit (e.g., mm, psi)',
+                          border: OutlineInputBorder(),
                         ),
-                        label: Text(_expanded ? "Show less" : "Show more"),
+                        validator: (value) => (value != null && value.length > 10) ? "Too many characters" : null,
+                        onChanged: (String value) {
+                          setState(() {
+                            _previewAdjustment = NumericalAdjustment(
+                              name: _nameController.text.trim(),
+                              unit: _unitController.text.trim(), 
+                              min: double.tryParse(_minController.text.trim()),
+                              max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
+                            );
+                          });
+                        },
                       ),
-                    ),
-                  ],
-                  if (_expanded) ...[
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _minController,
-                      textInputAction: TextInputAction.next,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+                      if (!_expanded) ...[
+                        Center(
+                          child: TextButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                if (!_expanded) _expanded = !_expanded;
+                              });
+                            },
+                            icon: Icon(
+                              _expanded ? Icons.expand_less : Icons.expand_more,
+                            ),
+                            label: Text(_expanded ? "Show less" : "Show more"),
+                          ),
+                        ),
                       ],
-                      decoration: const InputDecoration(
-                        labelText: 'Min Value (optional)',
-                        hintText: 'Enter minimum value',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: _validateMin,
-                    ),
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _maxController,
-                      onFieldSubmitted: (_) => _saveNumericalAdjustment(),
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
-                      ],
-                      decoration: const InputDecoration(
-                        labelText: 'Max Value (optional)',
-                        hintText: 'Enter maximum value',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: _validateMax,
-                    ),
-                  ]
-                ],
+                      if (_expanded) ...[
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _minController,
+                          textInputAction: TextInputAction.next,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+                          ],
+                          decoration: const InputDecoration(
+                            labelText: 'Min Value (optional)',
+                            hintText: 'Enter minimum value',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: _validateMin,
+                          onChanged: (String value) {
+                            setState(() {
+                              _previewValue = null;
+                              _previewAdjustment = NumericalAdjustment(
+                                name: _nameController.text.trim(),
+                                unit: _unitController.text.trim(), 
+                                min: double.tryParse(_minController.text.trim()),
+                                max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
+                              );
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _maxController,
+                          onFieldSubmitted: (_) => _saveNumericalAdjustment(),
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+                          ],
+                          decoration: const InputDecoration(
+                            labelText: 'Max Value (optional)',
+                            hintText: 'Enter maximum value',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: _validateMax,
+                          onChanged: (String value) {
+                            setState(() {
+                              _previewValue = null;
+                              _previewAdjustment = NumericalAdjustment(
+                                name: _nameController.text.trim(),
+                                unit: _unitController.text.trim(), 
+                                min: double.tryParse(_minController.text.trim()),
+                                max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
+                              );
+                            });
+                          },
+                        ),
+                      ]
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
+            Stack(
+              children: [
+                Container(
+                  padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
+                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor))),
+                  child: Card(
+                    child: SetNumericalAdjustmentWidget(
+                      key: ValueKey(_previewAdjustment),
+                      adjustment: _previewAdjustment,
+                      initialValue: null,
+                      value: _previewValue,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _previewValue = newValue;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: -1, 
+                  left: -1, 
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: BorderRadius.only(
+                        bottomRight: const Radius.circular(6),
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                    child: const Text(
+                      'Preview only — changes won’t be saved',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

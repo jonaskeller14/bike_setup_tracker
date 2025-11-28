@@ -13,6 +13,7 @@ import '../widgets/bike_list.dart';
 import '../widgets/component_list.dart';
 import '../widgets/setup_list.dart';
 import '../widgets/dialogs/confirmation.dart';
+import '../widgets/dialogs/import_merge_overwrite.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -81,7 +82,7 @@ class _HomePageState extends State<HomePage> {
     if (data == null) return;
 
     if (!mounted) return;
-    final choice = await FileImport.showImportChoiceDialog(context);
+    final choice = await showImportMergeOverwriteDialog(context);
     if (choice == 'cancel' || choice == null) return;
 
     if (choice == 'overwrite') {

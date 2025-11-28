@@ -101,33 +101,4 @@ class FileImport {
       return null;
     }
   }
-
-  static Future<String?> showImportChoiceDialog(BuildContext context) async {
-    return showDialog<String>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Import JSON'),
-          content: const Text(
-            'Do you want to overwrite existing data or append (merge) the imported data?',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, 'cancel'),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, 'merge'),
-              child: const Text('Merge'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context, 'overwrite'),
-              child: const Text('Overwrite'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }

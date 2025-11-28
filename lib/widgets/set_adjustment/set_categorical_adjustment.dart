@@ -28,10 +28,12 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
           ? BoxDecoration(color: highlightColor?.withValues(alpha: 0.08))
           : null,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Icon(Icons.category, color: highlightColor),
           SizedBox(width: 10),
           Flexible(
+            flex: 2,
             child: Text(
               adjustment.name,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),
@@ -39,6 +41,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
           ),
           SizedBox(width: 20),
           Flexible(
+            flex: 3,
             child: DropdownButtonFormField<String>(
               autovalidateMode: AutovalidateMode.onUserInteraction,
               isExpanded: true,

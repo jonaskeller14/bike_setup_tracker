@@ -66,9 +66,12 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
           SizedBox(width: 10),
           Flexible(
             flex: 2,
-            child: Text(
-              widget.adjustment.name,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                widget.adjustment.name,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),
+              ),
             ),
           ),
           SizedBox(width: 30),

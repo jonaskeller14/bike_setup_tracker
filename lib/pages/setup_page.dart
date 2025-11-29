@@ -216,14 +216,21 @@ class _SetupPageState extends State<SetupPage> {
 
     if (!mounted || pickedDate == null) return;
 
+    DateTime newDateTime = DateTime(
+      pickedDate.year,
+      pickedDate.month,
+      pickedDate.day,
+      _selectedDateTime.hour,
+      _selectedDateTime.minute,
+    );
+    if (newDateTime == _selectedDateTime) return;
+    if (newDateTime.isAfter(DateTime.now())) {
+      newDateTime = DateTime.now();
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Date and Time must be in the past.')));
+    }
+
     setState(() {
-      _selectedDateTime = DateTime(
-        pickedDate.year,
-        pickedDate.month,
-        pickedDate.day,
-        _selectedDateTime.hour,
-        _selectedDateTime.minute,
-      );
+      _selectedDateTime = newDateTime;
       _previousSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: bike);
       _setInitialAdjustmentValues();
     });
@@ -232,12 +239,12 @@ class _SetupPageState extends State<SetupPage> {
     
 
     if (_previousSetup == tmpPreviousSetup) return;
-    final result = await showConfirmationDialog( //TODO: only show dialog if changes were made
+    final result = await showConfirmationDialog(
       context, 
       title: "Previous Setup has changed. Reset Values?", 
       content: "Your current unsaved adjustments were based on the old setup. Reseting the values will discard these changes.", 
-      trueText: "yes", 
-      falseText: "no"
+      trueText: "Yes", 
+      falseText: "No"
     );
     if (result == false) return;
     setState(() {
@@ -253,23 +260,18 @@ class _SetupPageState extends State<SetupPage> {
       context: context,
       initialTime: TimeOfDay.fromDateTime(_selectedDateTime),
     );
+
     if (!mounted || pickedTime == null) return;
-    if (_selectedDateTime.copyWith(hour: pickedTime.hour, minute: pickedTime.minute).isAfter(DateTime.now())) {
-      pickedTime = TimeOfDay.now();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Date and Time must be in the past.')),
-      );
+    
+    DateTime newDateTime = _selectedDateTime.copyWith(hour: pickedTime.hour, minute: pickedTime.minute);
+    if (newDateTime == _selectedDateTime) return;
+    if (newDateTime.isAfter(DateTime.now())) {
+      newDateTime = DateTime.now();
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Date and Time must be in the past.')));
     }
 
-    if (!mounted) return;
     setState(() {
-      _selectedDateTime = DateTime(
-        _selectedDateTime.year,
-        _selectedDateTime.month,
-        _selectedDateTime.day,
-        pickedTime!.hour,
-        pickedTime.minute,
-      );
+      _selectedDateTime = newDateTime;
       _previousSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: bike);
       _setInitialAdjustmentValues();
     });
@@ -281,8 +283,8 @@ class _SetupPageState extends State<SetupPage> {
       context, 
       title: "Update Values?", 
       content: "By updating all changes made to the adjustments will be lost.", 
-      trueText: "yes", 
-      falseText: "no"
+      trueText: "Yes", 
+      falseText: "No"
     );
     if (result == false) return;
     setState(() {
@@ -294,32 +296,14 @@ class _SetupPageState extends State<SetupPage> {
   Future<void> askAndUpdateWeather() async {
     if (_currentLocation == null) return;
 
-    final shouldUpdate = await showDialog<bool>(
-      context: context, // Assumes this function is inside a StatefulWidget's State class
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Update Weather?'),
-          content: const Text('Do you want to fetch the latest weather data for this location, date and time?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: const Text('No'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: const Text('Yes, Update'),
-            ),
-          ],
-        );
-      },
+    final result = await showConfirmationDialog(
+      context,
+      title: 'Update Weather?',
+      content: 'Do you want to fetch the latest weather data for this location, date and time?',
+      trueText: "Yes",
+      falseText: "No",
     );
-    if (shouldUpdate == null || shouldUpdate == false) {
-      return;
-    }
+    if (!result) return;
 
     final currentWeather = await _weatherService.fetchWeather(
       lat: _currentLocation!.latitude!,

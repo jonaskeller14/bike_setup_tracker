@@ -44,6 +44,11 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     _minController.addListener(_changeListener);
     _maxController = TextEditingController(text: widget.adjustment?.max.toString());
     _maxController.addListener(_changeListener);
+
+    if (widget.adjustment != null) {
+      _previewAdjustment = widget.adjustment!;
+      _previewValue = _previewAdjustment.min.toDouble();
+    }
   }
 
   void _changeListener() {

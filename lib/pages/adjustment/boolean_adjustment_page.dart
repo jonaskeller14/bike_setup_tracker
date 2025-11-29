@@ -28,6 +28,8 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
     super.initState();
     _nameController = TextEditingController(text: widget.adjustment?.name);
     _nameController.addListener(_changeListener);
+
+    if (widget.adjustment != null) _previewAdjustment = widget.adjustment!;
   }
 
   void _changeListener() {

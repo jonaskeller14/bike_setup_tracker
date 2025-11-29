@@ -37,6 +37,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
     for (final optionController in _optionControllers) {
       optionController.addListener(_changeListener);
     }
+
+    if (widget.adjustment != null) _previewAdjustment = widget.adjustment!;
   }
 
   void _changeListener() {

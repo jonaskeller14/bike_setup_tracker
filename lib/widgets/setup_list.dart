@@ -203,52 +203,10 @@ class _SetupListState extends State<SetupList> {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.thermostat, size: 13, color: Colors.grey.shade800),
+                                  Icon(Icons.thermostat, size: 13, color: setup.weather?.getTemperatureColor() ?? Colors.grey.shade800),
                                   const SizedBox(width: 2),
                                   Text(
                                     "${setup.weather!.currentTemperature!.round()} °C",
-                                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                                  ),
-                                ],
-                              )
-                            ],
-                            if (setup.weather?.currentHumidity != null) ... [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.opacity, size: 13, color: Colors.grey.shade800),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    "${setup.weather!.currentHumidity!.round()} %",
-                                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                                  ),
-                                ],
-                              )
-                            ],
-                            if (setup.weather?.dayAccumulatedPrecipitation != null) ... [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.water_drop, size: 13, color: Colors.grey.shade800),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    "${setup.weather!.dayAccumulatedPrecipitation!.round()} mm",
-                                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                                  ),
-                                ],
-                              )
-                            ],
-                            if (setup.weather?.currentWindSpeed != null) ... [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.air, size: 13, color: Colors.grey.shade800),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    "${setup.weather!.currentWindSpeed!.round()} km/h",
                                     style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                                   ),
                                 ],
@@ -259,10 +217,10 @@ class _SetupListState extends State<SetupList> {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.spa, size: 13, color: Colors.grey.shade800),
+                                  setup.weather!.getConditionsIcon(size: 13),
                                   const SizedBox(width: 2),
                                   Text(
-                                    "${setup.weather!.currentSoilMoisture0to7cm!.toStringAsFixed(2)} m³/m³",
+                                    setup.weather?.getConditionsLabel() ?? "-",
                                     style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                                   ),
                                 ],

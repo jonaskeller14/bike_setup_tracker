@@ -54,10 +54,10 @@ class _SetupPageState extends State<SetupPage> {
   Map<Adjustment, dynamic> _initialAdjustmentValues = {};
 
   final LocationService _locationService = LocationService();
-  late LocationData? _currentLocation;
+  LocationData? _currentLocation;
 
   final AddressService _addressService = AddressService();
-  late geo.Placemark? _currentPlace;
+  geo.Placemark? _currentPlace;
 
   final WeatherService _weatherService = WeatherService();
   Weather? _currentWeather;
@@ -492,12 +492,13 @@ class _SetupPageState extends State<SetupPage> {
                   ),
                   ActionChip(
                     avatar: Icon(Icons.arrow_upward),
-                    label: _currentLocation?.altitude == null ? const Text("-") : Text("Altitude: ${_currentLocation?.altitude?.round()} m"),
+                    label: _currentLocation?.altitude == null ? const Text("-") : Text("${_currentLocation?.altitude?.round()} m"),
                     onPressed: () async {
                       final altitude = await showSetAltitudeDialog(context, _currentLocation?.altitude);
                       if (altitude == null) return;
                       final newMap = _currentLocation == null ? <String, dynamic>{} : Setup.locationDataToJson(_currentLocation!);
                       newMap['altitude'] = altitude;
+                      newMap['time'] = newMap['time'] != null ? DateTime.parse(newMap['time']).millisecondsSinceEpoch.toDouble() : null;  // convert String -> DateTime
                       setState(() {
                         _currentLocation = LocationData.fromMap(newMap);
                       });

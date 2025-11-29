@@ -76,7 +76,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
           Icon(Icons.numbers, color: highlightColor),
           SizedBox(width: 10),
           Flexible(
-            flex: 2,
+            flex: 8,
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -87,7 +87,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
           ),
           SizedBox(width: 30),
           Flexible(
-            flex: 3,
+            flex: 9,
             child: TextFormField(
               keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
               inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
@@ -121,6 +121,16 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                 }
                 return null;
               },   
+            ),
+          ),
+          Flexible(
+            flex: 3,
+            child: IconButton(
+              onPressed: () {
+                _controller.text = widget.initialValue?.toString() ?? '';
+                widget.onChanged(_controller.text.trim());
+              }, 
+              icon: const Icon(Icons.settings_backup_restore)
             ),
           ),
         ],

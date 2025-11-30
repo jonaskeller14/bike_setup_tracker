@@ -13,7 +13,7 @@ class LocationService {
   LocationStatus status = LocationStatus.idle;
 
   Future<LocationData?> fetchLocation() async {
-    status = LocationStatus.idle;
+    status = LocationStatus.searching;
     bool serviceEnabled = await _location.serviceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await _location.requestService();

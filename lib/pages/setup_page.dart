@@ -129,6 +129,7 @@ class _SetupPageState extends State<SetupPage> {
 
     setState(() {
       _currentLocation = location;
+      _weatherService.status = WeatherStatus.searching;
     });
 
     final weatherFuture = _weatherService.fetchWeather(
@@ -153,6 +154,7 @@ class _SetupPageState extends State<SetupPage> {
     });
 
     if (_currentWeather == null) {
+      _weatherService.status = WeatherStatus.error;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error fetching weather.')),
       );
@@ -305,6 +307,9 @@ class _SetupPageState extends State<SetupPage> {
     );
     if (!result) return;
 
+    setState(() {
+      _weatherService.status = WeatherStatus.searching;
+    });
     final currentWeather = await _weatherService.fetchWeather(
       lat: _currentLocation!.latitude!,
       lon: _currentLocation!.longitude!,
@@ -380,6 +385,21 @@ class _SetupPageState extends State<SetupPage> {
   String? _validateName(String? value) {
     if (value == null || value.trim().isEmpty) return 'Name is required';
     return null;
+  }
+
+  Widget _loadingIndicator() {
+    return Builder(
+      builder: (BuildContext context) {
+        final double indicatorSize = DefaultTextStyle.of(context).style.fontSize ?? 15;
+        return SizedBox(
+          width: indicatorSize,
+          height: indicatorSize,
+          child: CircularProgressIndicator(
+            strokeWidth: indicatorSize / 6, 
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -467,7 +487,7 @@ class _SetupPageState extends State<SetupPage> {
                         : (_locationService.status == LocationStatus.idle
                               ? const Text("-")
                               : (_locationService.status == LocationStatus.searching
-                                    ? const Text("Finding Location...")
+                                    ? _loadingIndicator()
                                     : (_locationService.status == LocationStatus.noPermission
                                           ? const Text("No location permision")
                                           : (_locationService.status == LocationStatus.noService
@@ -476,7 +496,11 @@ class _SetupPageState extends State<SetupPage> {
                   ),
                   ActionChip(
                     avatar: Icon(Icons.arrow_upward),
-                    label: _currentLocation?.altitude == null ? const Text("-") : Text("${_currentLocation?.altitude?.round()} m"),
+                    label: _locationService.status == LocationStatus.searching 
+                        ? _loadingIndicator() 
+                        : (_currentLocation?.altitude == null 
+                            ? const Text("-") 
+                            : Text("${_currentLocation?.altitude?.round()} m")),
                     onPressed: () async {
                       final altitude = await showSetAltitudeDialog(context, _currentLocation?.altitude);
                       if (altitude == null) return;
@@ -491,7 +515,11 @@ class _SetupPageState extends State<SetupPage> {
                   ),
                   ActionChip(
                     avatar: Icon(Icons.thermostat), 
-                    label: _currentWeather?.currentTemperature == null ? const Text("-") : Text("${_currentWeather?.currentTemperature?.round()} °C"),
+                    label: _weatherService.status == WeatherStatus.searching 
+                        ? _loadingIndicator()
+                        : (_currentWeather?.currentTemperature == null 
+                            ? const Text("-") 
+                            : Text("${_currentWeather?.currentTemperature?.round()} °C")),
                     onPressed: () async {
                       final temperature = await showSetCurrentTemperatureDialog(context, _currentWeather);
                       setState(() {
@@ -505,7 +533,11 @@ class _SetupPageState extends State<SetupPage> {
                   ),
                   ActionChip(
                     avatar: Icon(Icons.opacity), 
-                    label: _currentWeather?.currentHumidity == null ? const Text("-") : Text("${_currentWeather?.currentHumidity?.round()} %"),
+                    label: _weatherService.status == WeatherStatus.searching 
+                        ? _loadingIndicator()
+                        : (_currentWeather?.currentHumidity == null 
+                            ? const Text("-") 
+                            : Text("${_currentWeather?.currentHumidity?.round()} %")),
                     onPressed: () async {
                       final humidity = await showSetCurrentHumidityDialog(context, _currentWeather);
                       setState(() {
@@ -519,7 +551,11 @@ class _SetupPageState extends State<SetupPage> {
                   ),
                   ActionChip(
                     avatar: Icon(Icons.water_drop), 
-                    label: _currentWeather?.dayAccumulatedPrecipitation == null ? const Text("-") : Text("${_currentWeather?.dayAccumulatedPrecipitation?.round()} mm"),
+                    label: _weatherService.status == WeatherStatus.searching 
+                        ? _loadingIndicator()
+                        : (_currentWeather?.dayAccumulatedPrecipitation == null 
+                            ? const Text("-") 
+                            : Text("${_currentWeather?.dayAccumulatedPrecipitation?.round()} mm")),
                     onPressed: () async{
                       final precipitation = await showSetDayAccumulatedPrecipitationDialog(context, _currentWeather);
                       setState(() {
@@ -533,7 +569,11 @@ class _SetupPageState extends State<SetupPage> {
                   ),
                   ActionChip(
                     avatar: Icon(Icons.air), 
-                    label: _currentWeather?.currentWindSpeed == null ? const Text("-") : Text("${_currentWeather?.currentWindSpeed?.round()} km/h"),
+                    label: _weatherService.status == WeatherStatus.searching 
+                        ? _loadingIndicator()
+                        : (_currentWeather?.currentWindSpeed == null 
+                            ? const Text("-") 
+                            : Text("${_currentWeather?.currentWindSpeed?.round()} km/h")),
                     onPressed: () async{
                       final windSpeed = await showSetCurrentWindSpeedDialog(context, _currentWeather);
                       setState(() {
@@ -547,7 +587,11 @@ class _SetupPageState extends State<SetupPage> {
                   ),
                   ActionChip(
                     avatar: Icon(Icons.spa), 
-                    label: _currentWeather?.currentSoilMoisture0to7cm == null ? const Text("-") : Text("${_currentWeather?.currentSoilMoisture0to7cm?.toStringAsFixed(2)} m³/m³"),
+                    label: _weatherService.status == WeatherStatus.searching 
+                        ? _loadingIndicator()
+                        : (_currentWeather?.currentSoilMoisture0to7cm == null 
+                            ? const Text("-") 
+                            : Text("${_currentWeather?.currentSoilMoisture0to7cm?.toStringAsFixed(2)} m³/m³")),
                     onPressed: () async {
                       final soilMoisture = await showSetCurrentSoilMoisture0to7cmDialog(context, _currentWeather);
                       setState(() {

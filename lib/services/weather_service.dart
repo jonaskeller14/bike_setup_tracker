@@ -6,6 +6,7 @@ import '../models/weather.dart';
 
 enum WeatherStatus {
   idle,
+  searching,
   error,
   success,
 }
@@ -14,6 +15,7 @@ class WeatherService {
   WeatherStatus status = WeatherStatus.idle;
 
   Future<Weather?> fetchWeather({required double lat, required double lon, required DateTime datetime, int counter = 1}) async {
+    status = WeatherStatus.searching;
     if (datetime.isAfter(DateTime.now())) return null;
     final String authority = "archive-api.open-meteo.com";
     final String path = "/v1/archive";
@@ -96,6 +98,7 @@ class WeatherService {
             ? (soilMoisture0to7cm[hourIndex] as num).toDouble()
             : null;
 
+        status = WeatherStatus.success;
         return Weather(
           currentDateTime: apiDatetime, 
           currentTemperature: currentTemperature,
@@ -108,14 +111,17 @@ class WeatherService {
         );
 
       } else if (response.statusCode == 429 && counter <= 2) {
+        status = WeatherStatus.searching;
         debugPrint("Error: Weather API limit reached. Trying again after 10s.");
         await Future.delayed(const Duration(seconds: 10));
         return fetchWeather(lat: lat, lon: lon, datetime: datetime, counter: counter + 1);  // Pass the date back into the recursive call
       } else {
+        status = WeatherStatus.error;
         debugPrint("Weather fetch failed: ${response.statusCode} | ${response.body}");
         return null;
       }
     } catch (e) {
+      status = WeatherStatus.error;
       debugPrint("Exception caught: $e");
       return null;
     }

@@ -114,7 +114,7 @@ class _SetupPageState extends State<SetupPage> {
 
   Future<void> fetchLocationAddressWeather() async {
     setState(() {
-      _locationService.status = LocationStatus.findingLocation;
+      _locationService.status = LocationStatus.searching;
     });
 
     // 1 Fetch location
@@ -455,18 +455,18 @@ class _SetupPageState extends State<SetupPage> {
                       askAndUpdateWeather();
                       _changeListener();
                     },
-                    avatar: _locationService.status == LocationStatus.locationFound || _currentPlace != null
+                    avatar: _locationService.status == LocationStatus.success || _currentPlace != null
                         ? Icon(Icons.my_location)
-                        : (_locationService.status == LocationStatus.findingLocation
+                        : (_locationService.status == LocationStatus.searching
                               ? Icon(Icons.location_searching)
                               : (_locationService.status == LocationStatus.idle
                                     ? Icon(Icons.location_searching)
                                     : Icon(Icons.location_disabled))),
-                    label: _locationService.status == LocationStatus.locationFound || _currentPlace != null
+                    label: _locationService.status == LocationStatus.success || _currentPlace != null
                         ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}")
                         : (_locationService.status == LocationStatus.idle
                               ? const Text("-")
-                              : (_locationService.status == LocationStatus.findingLocation
+                              : (_locationService.status == LocationStatus.searching
                                     ? const Text("Finding Location...")
                                     : (_locationService.status == LocationStatus.noPermission
                                           ? const Text("No location permision")
@@ -559,6 +559,12 @@ class _SetupPageState extends State<SetupPage> {
                       _changeListener();
                     },
                   ),
+                  ActionChip(
+                    avatar: const Icon(Icons.autorenew),
+                    label: const Text(""),
+                    labelPadding: EdgeInsets.zero,
+                    onPressed: _locationService.status == LocationStatus.searching ? null : askAndUpdateWeather, 
+                  )
                 ],
               ),
               Text(

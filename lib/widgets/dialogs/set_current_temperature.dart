@@ -10,11 +10,13 @@ Future<double?> showSetCurrentTemperatureDialog(BuildContext context, Weather? c
       final controller = TextEditingController(text: currentWeather?.currentTemperature?.toString() ?? '');
       return AlertDialog(
         scrollable: true,
-        title: Text('Set Temperature'),
+        title: const Text('Set Temperature'),
         content: Form(
           key: formKey,
           child: Column(
             children: <Widget>[
+              const Text("Enter the current air temperature in Celsius."),
+              SizedBox(height: 16),
               TextFormField(
                 keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
                 inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],

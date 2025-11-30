@@ -11,7 +11,7 @@ Future<double?> showSetCurrentSoilMoisture0to7cmDialog(BuildContext context, Wea
       final controller = TextEditingController(text: currentWeather?.currentSoilMoisture0to7cm?.toString() ?? '');
       return AlertDialog(
         scrollable: true,
-        title: Text('Set Soil Moisture 0-7cm'),
+        title: const Text('Set Soil Moisture 0-7cm'),
         content: Form(
           key: formKey,
           child: Column(

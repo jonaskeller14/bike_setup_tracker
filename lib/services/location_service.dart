@@ -2,10 +2,10 @@ import 'package:location/location.dart';
 
 enum LocationStatus {
   idle,
-  findingLocation,
+  searching,
   noService,
   noPermission,
-  locationFound,
+  success,
 }
 
 class LocationService {
@@ -33,7 +33,7 @@ class LocationService {
     }
 
     final location = await _location.getLocation();
-    status = LocationStatus.locationFound;
+    status = LocationStatus.success;
     return location;
   }
 }

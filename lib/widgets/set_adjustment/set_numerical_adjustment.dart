@@ -130,7 +130,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                 _controller.text = widget.initialValue?.toString() ?? '';
                 widget.onChanged(_controller.text.trim());
               }, 
-              icon: const Icon(Icons.settings_backup_restore)
+              icon: const Icon(Icons.replay)
             ),
           ),
         ],

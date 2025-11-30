@@ -10,11 +10,13 @@ Future<double?> showSetDayAccumulatedPrecipitationDialog(BuildContext context, W
       final controller = TextEditingController(text: currentWeather?.dayAccumulatedPrecipitation?.toString() ?? '');
       return AlertDialog(
         scrollable: true,
-        title: Text('Set Precipitation'),
+        title: const Text('Set Precipitation'),
         content: Form(
           key: formKey,
           child: Column(
             children: <Widget>[
+              const Text("Enter the total rainfall accumulated since midnight (00:00) today in millimeters."),
+              SizedBox(height: 16),
               TextFormField(
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),],

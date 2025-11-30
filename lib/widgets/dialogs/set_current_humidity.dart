@@ -10,11 +10,13 @@ Future<double?> showSetCurrentHumidityDialog(BuildContext context, Weather? curr
       final controller = TextEditingController(text: currentWeather?.currentHumidity?.toString() ?? '');
       return AlertDialog(
         scrollable: true,
-        title: Text('Set Humidity'),
+        title: const Text('Set Humidity'),
         content: Form(
           key: currentTempFormKey,
           child: Column(
             children: <Widget>[
+              const Text("Enter the current relative air humidity as a percentage."),
+              SizedBox(height: 16),
               TextFormField(
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),],

@@ -4,7 +4,15 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/weather.dart';
 
+enum WeatherStatus {
+  idle,
+  error,
+  success,
+}
+
 class WeatherService {
+  WeatherStatus status = WeatherStatus.idle;
+
   Future<Weather?> fetchWeather({required double lat, required double lon, required DateTime datetime, int counter = 1}) async {
     if (datetime.isAfter(DateTime.now())) return null;
     final String authority = "archive-api.open-meteo.com";

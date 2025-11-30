@@ -10,11 +10,13 @@ Future<double?> showSetCurrentWindSpeedDialog(BuildContext context, Weather? cur
       final controller = TextEditingController(text: currentWeather?.currentWindSpeed?.toString() ?? '');
       return AlertDialog(
         scrollable: true,
-        title: Text('Set Wind Speed'),
+        title: const Text('Set Wind Speed'),
         content: Form(
           key: formKey,
           child: Column(
             children: <Widget>[
+              const Text("Enter the current wind speed in kilometers per hour."),
+              SizedBox(height: 16),
               TextFormField(
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),],

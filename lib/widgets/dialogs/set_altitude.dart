@@ -9,11 +9,13 @@ Future<double?> showSetAltitudeDialog(BuildContext context, double? altitude) as
       final controller = TextEditingController(text: altitude?.toString());
       return AlertDialog(
         scrollable: true,
-        title: Text('Set Altitude'),
+        title: const Text('Set Altitude'),
         content: Form(
           key: formKey,
           child: Column(
             children: <Widget>[
+              const Text("Enter the altitude (height above sea level) of the current location in meters."),
+              SizedBox(height: 16),
               TextFormField(
                 keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
                 inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],

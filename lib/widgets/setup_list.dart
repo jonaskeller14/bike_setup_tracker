@@ -65,19 +65,36 @@ class _SetupListState extends State<SetupList> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ListTile(
-                        // onTap: () => debugPrint("Setup clicked"),
-                        contentPadding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                        contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+                        minTileHeight: 0,
                         title: Text(
                           setup.name,
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        subtitle: Text(
-                          DateFormat('yyyy-MM-dd HH:mm').format(setup.datetime),
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 13,
-                          ),
-                        ),
+                        subtitle: Wrap(
+                          alignment: WrapAlignment.start,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 4,
+                          children: [
+                            Icon(Icons.calendar_month, size: 13, color: Colors.grey.shade800),
+                            Text(
+                              DateFormat('yyyy-MM-dd').format(setup.datetime),
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 13,
+                              ),
+                            ),
+                            Icon(Icons.access_time, size: 13, color: Colors.grey.shade800),
+                            Text(
+                              DateFormat('HH:mm').format(setup.datetime),
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ), 
+                        
                         trailing: PopupMenuButton<String>(
                           onSelected: (value) {
                             if (value == 'edit') {

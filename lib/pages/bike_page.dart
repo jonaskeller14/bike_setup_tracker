@@ -43,7 +43,12 @@ class _BikePageState extends State<BikePage> {
     if (!_formKey.currentState!.validate()) return;
     final name = _nameController.text.trim();
     _formHasChanges = false;
-    Navigator.pop(context, Bike(id: widget.bike?.id, name: name));
+    if (widget.bike == null) {
+      Navigator.pop(context, Bike(name: name));
+    } else {
+      widget.bike!.name = name;
+      Navigator.pop(context, widget.bike);
+    }
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {

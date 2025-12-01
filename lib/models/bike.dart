@@ -2,7 +2,7 @@ import 'package:uuid/uuid.dart';
 
 class Bike {
   final String id;
-  final String name;
+  String name;
 
   Bike({String? id, required this.name}) : id = id ?? const Uuid().v4();
 

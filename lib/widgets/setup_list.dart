@@ -71,30 +71,142 @@ class _SetupListState extends State<SetupList> {
                           setup.name,
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        subtitle: Wrap(
-                          alignment: WrapAlignment.start,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          spacing: 4,
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.calendar_month, size: 13, color: Colors.grey.shade800),
-                            Text(
-                              DateFormat('yyyy-MM-dd').format(setup.datetime),
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 13,
-                              ),
+                            Wrap(
+                              alignment: WrapAlignment.start,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 4,
+                              children: [
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.calendar_month, size: 13, color: Colors.grey.shade800),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      DateFormat('yyyy-MM-dd').format(setup.datetime),
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.access_time, size: 13, color: Colors.grey.shade800),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      DateFormat('HH:mm').format(setup.datetime),
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.pedal_bike, size: 13, color: Colors.grey.shade800),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      setup.bike.name,
+                                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                                if (setup.place != null) ... [
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.location_pin, size: 13, color: Colors.grey.shade800),
+                                      const SizedBox(width: 2),
+                                      Text(
+                                        "${setup.place?.locality}, ${setup.place?.isoCountryCode}",
+                                        style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                                if (setup.position?.altitude != null) ...[
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.arrow_upward, size: 13, color: Colors.grey.shade800),
+                                      const SizedBox(width: 2),
+                                      Text(
+                                        "${setup.position!.altitude!.round()} m",
+                                        style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                      ),
+                                    ],
+                                  )
+                                ],
+                                if (setup.weather?.currentTemperature != null) ... [
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.thermostat, size: 13, color: Colors.grey.shade800),
+                                      const SizedBox(width: 2),
+                                      Text(
+                                        "${setup.weather!.currentTemperature!.round()} °C",
+                                        style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                      ),
+                                    ],
+                                  )
+                                ],
+                                if (setup.weather?.currentSoilMoisture0to7cm != null) ... [
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      setup.weather!.getConditionsIcon(size: 13),
+                                      const SizedBox(width: 2),
+                                      Text(
+                                        setup.weather?.getConditionsLabel() ?? "-",
+                                        style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ],
                             ),
-                            Icon(Icons.access_time, size: 13, color: Colors.grey.shade800),
-                            Text(
-                              DateFormat('HH:mm').format(setup.datetime),
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 13,
+                            if (setup.notes != null && setup.notes!.isNotEmpty)
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 3), // tweak to match font size
+                                    child: Icon(
+                                      Icons.notes,
+                                      size: 13,
+                                      color: Colors.grey.shade800,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Expanded(
+                                    child: Text(
+                                      setup.notes!,
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
                           ],
-                        ), 
-                        
+                        ),
                         trailing: PopupMenuButton<String>(
                           onSelected: (value) {
                             if (value == 'edit') {
@@ -136,113 +248,6 @@ class _SetupListState extends State<SetupList> {
                                 ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                      if (setup.notes != null && setup.notes!.isNotEmpty) ...[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(top: 3), // tweak to match font size
-                                child: Icon(
-                                  Icons.notes,
-                                  size: 13,
-                                  color: Colors.grey.shade800,
-                                ),
-                              ),
-                              const SizedBox(width: 2),
-                              Expanded(
-                                child: Text(
-                                  setup.notes!,
-                                  style: TextStyle(
-                                    color: Colors.grey.shade600,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
-                        child: Wrap(
-                          alignment: WrapAlignment.start,
-                          spacing: 4,
-                          children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(Icons.pedal_bike, size: 13, color: Colors.grey.shade800),
-                                const SizedBox(width: 2),
-                                Text(
-                                  setup.bike.name,
-                                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                            if (setup.place != null) ... [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.location_pin, size: 13, color: Colors.grey.shade800),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    "${setup.place?.locality}, ${setup.place?.isoCountryCode}",
-                                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
-                            ],
-                            if (setup.position?.altitude != null) ...[
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.arrow_upward, size: 13, color: Colors.grey.shade800),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    "${setup.position!.altitude!.round()} m",
-                                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                                  ),
-                                ],
-                              )
-                            ],
-                            if (setup.weather?.currentTemperature != null) ... [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.thermostat, size: 13, color: setup.weather?.getTemperatureColor() ?? Colors.grey.shade800),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    "${setup.weather!.currentTemperature!.round()} °C",
-                                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                                  ),
-                                ],
-                              )
-                            ],
-                            if (setup.weather?.currentSoilMoisture0to7cm != null) ... [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  setup.weather!.getConditionsIcon(size: 13),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    setup.weather?.getConditionsLabel() ?? "-",
-                                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                                  ),
-                                ],
-                              )
-                            ],
                           ],
                         ),
                       ),

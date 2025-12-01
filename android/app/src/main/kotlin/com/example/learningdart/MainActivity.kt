@@ -1,4 +1,4 @@
-package com.example.bike_setup_tracker
+package com.jonaskeller14.bike_setup_tracker
 
 import io.flutter.embedding.android.FlutterActivity
 

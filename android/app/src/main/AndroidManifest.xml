@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.bike_setup_tracker">
+    package="com.jonaskeller14.bike_setup_tracker">
 
     <!-- Internet permission is required for network requests -->
     <uses-permission android:name="android.permission.INTERNET"/>

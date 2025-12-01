@@ -130,6 +130,7 @@ class _SetupPageState extends State<SetupPage> {
     setState(() {
       _currentLocation = location;
       _weatherService.status = WeatherStatus.searching;
+      _addressService.status = AddressStatus.searching;
     });
 
     final weatherFuture = _weatherService.fetchWeather(
@@ -138,7 +139,7 @@ class _SetupPageState extends State<SetupPage> {
       datetime: _selectedDateTime,
     );
 
-    final placemarkFuture = _addressService.getPlacemark(
+    final placemarkFuture = _addressService.fetchAddress(
       lat: location.latitude!,
       lon: location.longitude!,
     );

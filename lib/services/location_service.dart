@@ -1,4 +1,7 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:location/location.dart';
+import 'package:geocoding/geocoding.dart' as geo;
 
 enum LocationStatus {
   idle,
@@ -32,8 +35,39 @@ class LocationService {
       }
     }
 
-    final location = await _location.getLocation();
-    status = LocationStatus.success;
+    LocationData? location;
+    try {
+      location = await Future.any([
+        _location.getLocation(),
+        Future.delayed(Duration(seconds: 5), () => null),
+      ]);
+
+      location ??= await _location.getLocation().timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          throw TimeoutException('Location retrieval timed out.');
+        },
+      );
+      status = LocationStatus.success;
+    } on TimeoutException catch (e) {
+      debugPrint("Location Timeout Error: $e");
+      status = LocationStatus.idle;
+      location = null;
+    } catch (_) {
+      location = null;
+      status = LocationStatus.noPermission;
+    }    
     return location;
+  }
+
+  Future<LocationData?> locationFromAddress(String address) async {
+    geo.Location? geoLocation;
+    try {
+      geoLocation = (await geo.locationFromAddress(address)).first;
+    } catch (e) {
+      geoLocation = null;
+    }
+    if (geoLocation == null) return null;
+    return LocationData.fromMap(geoLocation.toJson());
   }
 }

@@ -21,6 +21,7 @@ import '../widgets/dialogs/set_dayAccumulated_precipitation.dart';
 import '../widgets/dialogs/set_location.dart';
 import '../widgets/dialogs/set_altitude.dart';
 import '../widgets/dialogs/discard_changes.dart';
+import '../widgets/dialogs/update_location_address_weather.dart';
 
 class SetupPage extends StatefulWidget {
   final Setup? setup;
@@ -113,53 +114,69 @@ class _SetupPageState extends State<SetupPage> {
   }
 
   Future<void> fetchLocationAddressWeather() async {
+    await updateLocation();
+    if (_currentLocation == null) return;
+
+    updateWeather();
+    updateAddress();
+  }
+
+  Future<void> updateLocation() async {
     setState(() {
       _locationService.status = LocationStatus.searching;
     });
 
-    // 1 Fetch location
-    final location = await _locationService.fetchLocation();
+    final newLocation = await _locationService.fetchLocation();
     
     if (!mounted) return;
+    if (newLocation == null) {
+      setState(() {});  // LocationStatus Error was set in _locationService.fetchLocation()
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error fetching location.')),
+      );
+      return;
+    }
 
-    if (location == null) {
-      setState(() {});
+    if (!mounted) return;
+    setState(() {
+      _currentLocation = newLocation;
+    });
+    _changeListener();
+  }
+
+  Future<void> updateAddress() async {
+    if (_currentLocation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cannot update address without location.')),
+      );
       return;
     }
 
     setState(() {
-      _currentLocation = location;
-      _weatherService.status = WeatherStatus.searching;
       _addressService.status = AddressStatus.searching;
     });
 
-    final weatherFuture = _weatherService.fetchWeather(
-      lat: location.latitude!,
-      lon: location.longitude!,
-      datetime: _selectedDateTime,
+    final newAddress = await _addressService.fetchAddress(
+      lat: _currentLocation!.latitude!,
+      lon: _currentLocation!.longitude!,
     );
-
-    final placemarkFuture = _addressService.fetchAddress(
-      lat: location.latitude!,
-      lon: location.longitude!,
-    );
-
-    // Wait for both futures
-    final results = await Future.wait([weatherFuture, placemarkFuture]);
 
     if (!mounted) return;
-
-    setState(() {
-      _currentWeather = results[0] as Weather?;
-      _currentPlace = results[1] as geo.Placemark?;
-    });
-
-    if (_currentWeather == null) {
-      _weatherService.status = WeatherStatus.error;
+    if (newAddress == null) {
+      setState(() {
+        _addressService.status = AddressStatus.error;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error fetching weather.')),
+        const SnackBar(content: Text('Error fetching address.')),
       );
+      return;
     }
+
+    if (!mounted) return;
+    setState(() {
+      _currentPlace = newAddress;
+    });
+    _changeListener();
   }
 
   void _changeListener() {
@@ -298,7 +315,6 @@ class _SetupPageState extends State<SetupPage> {
 
   Future<void> askAndUpdateWeather() async {
     if (_currentLocation == null) return;
-
     final result = await showConfirmationDialog(
       context,
       title: 'Update Weather?',
@@ -307,18 +323,39 @@ class _SetupPageState extends State<SetupPage> {
       falseText: "No",
     );
     if (!result) return;
+    await updateWeather();
+  }
+
+  Future<void> updateWeather() async {
+    if (_currentLocation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cannot update weather without location.')),
+      );
+      return;
+    }
 
     setState(() {
       _weatherService.status = WeatherStatus.searching;
     });
+
     final currentWeather = await _weatherService.fetchWeather(
       lat: _currentLocation!.latitude!,
       lon: _currentLocation!.longitude!,
       datetime: _selectedDateTime,
     );
+
+    if (!mounted) return;
+    if (currentWeather == null) {
+      setState(() {
+        _weatherService.status = WeatherStatus.error;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error fetching weather.')),
+      );
+      return;
+    }
     
     if (!mounted) return;
-    
     setState(() {
       _currentWeather = currentWeather;
     });
@@ -465,35 +502,35 @@ class _SetupPageState extends State<SetupPage> {
                   ),
                   ActionChip(
                     onPressed: () async {
-                      final geo.Location? newLocation = await showSetLocationDialog(context);
-                      if (newLocation == null) return;
-                      final List<geo.Placemark> newPlaces = await geo.placemarkFromCoordinates(newLocation.latitude, newLocation.longitude);
-                      final newPlace = newPlaces.first;
+                      final result = await showSetLocationDialog(context: context, location: _currentLocation, address: _currentPlace);
+                      if (result == null) return;
                       setState(() {
-                        _currentLocation = LocationData.fromMap(newLocation.toJson());
-                        _currentPlace = newPlace;
+                        _locationService.status = LocationStatus.success;
+                        _addressService.status = AddressStatus.success;
+                        _currentLocation = result[0];
+                        _currentPlace = result[1];
                       });
                       askAndUpdateWeather();
                       _changeListener();
                     },
-                    avatar: _locationService.status == LocationStatus.success || _currentPlace != null
-                        ? Icon(Icons.my_location)
-                        : (_locationService.status == LocationStatus.searching
-                              ? Icon(Icons.location_searching)
-                              : (_locationService.status == LocationStatus.idle
-                                    ? Icon(Icons.location_searching)
-                                    : Icon(Icons.location_disabled))),
-                    label: _locationService.status == LocationStatus.success || _currentPlace != null
-                        ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}")
-                        : (_locationService.status == LocationStatus.idle
-                              ? const Text("-")
-                              : (_locationService.status == LocationStatus.searching
-                                    ? _loadingIndicator()
-                                    : (_locationService.status == LocationStatus.noPermission
-                                          ? const Text("No location permision")
-                                          : (_locationService.status == LocationStatus.noService
-                                                ? const Text("No location service")
-                                                : const Text("Error"))))),
+                    avatar: (_locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching)
+                        ? const Icon(Icons.location_searching)
+                        : _currentPlace != null
+                            ? const Icon(Icons.my_location)
+                            : _locationService.status == LocationStatus.noPermission
+                                ? const Icon(Icons.location_disabled)
+                                : _locationService.status == LocationStatus.noService
+                                    ? const Icon(Icons.location_disabled)
+                                    : const Icon(Icons.my_location),
+                    label: (_locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching)
+                        ? _loadingIndicator()
+                        : _currentPlace != null
+                            ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}")
+                            : _locationService.status == LocationStatus.noPermission
+                                ? const Text("No location permision")
+                                : _locationService.status == LocationStatus.noService
+                                    ? const Text("No location service")
+                                    : const Text("-"),
                   ),
                   ActionChip(
                     avatar: Icon(Icons.arrow_upward),
@@ -608,7 +645,21 @@ class _SetupPageState extends State<SetupPage> {
                     avatar: const Icon(Icons.autorenew),
                     label: const Text(""),
                     labelPadding: EdgeInsets.zero,
-                    onPressed: _locationService.status == LocationStatus.searching ? null : askAndUpdateWeather, 
+                    onPressed: _locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching || _weatherService.status == WeatherStatus.searching ? null : () async {
+                      final result = await showUpdateLocationAddressWeatherDialog(context);
+                      switch (result) {
+                        case 0: {
+                          await updateLocation();
+                          if (_currentLocation != null) {
+                            await updateAddress(); 
+                            askAndUpdateWeather();
+                          }
+                        }
+                        case 1: updateAddress();
+                        case 2: updateWeather();
+                        default: return; 
+                      }
+                    }, 
                   )
                 ],
               ),

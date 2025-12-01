@@ -57,6 +57,7 @@ class _ComponentListState extends State<ComponentList> {
                   component.name,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
+                enabled: widget.setups.lastWhereOrNull((s) => s.bike == component.bike) != null,
                 onTap: () async {
                   await Navigator.push<Component>(
                     context,

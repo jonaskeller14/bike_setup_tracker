@@ -99,6 +99,10 @@ class CategoricalAdjustment extends Adjustment<String> {
 
   @override
   Icon getIcon({double? size, Color? color}) {
+    return getIconStatic(size: size, color: color,);
+  }
+
+  static Icon getIconStatic({double? size, Color? color}) {
     return Icon(Icons.category, size: size, color: color,);
   }
 
@@ -146,7 +150,11 @@ class StepAdjustment extends Adjustment<int> {
 
   @override
   Icon getIcon({double? size, Color? color}) {
-    return Icon(Icons.format_list_numbered, size: size, color: color);
+    return getIconStatic(size: size, color: color);
+  }
+
+  static Icon getIconStatic({double? size, Color? color}) {
+    return Icon(Icons.format_list_numbered, size: size, color: color,);
   }
 
   @override
@@ -191,6 +199,10 @@ class NumericalAdjustment extends Adjustment<double> {
 
   @override
   Icon getIcon({double? size, Color? color}) {
+    return getIconStatic(size: size, color: color);
+  }
+
+  static Icon getIconStatic({double? size, Color? color}) {
     return Icon(Icons.numbers, size: size, color: color);
   }
 
@@ -224,7 +236,11 @@ class BooleanAdjustment extends Adjustment<bool> {
 
   @override
   Icon getIcon({double? size, Color? color}) {
-    return Icon(Icons.toggle_on, size: size, color: color);
+    return getIconStatic(size: size, color: color);
+  }
+
+  static Icon getIconStatic({double? size, Color? color}) {
+    return Icon(Icons.toggle_on, size: size, color: color,);
   }
 
   @override

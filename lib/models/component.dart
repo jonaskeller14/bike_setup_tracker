@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'adjustment.dart';
-import 'setup.dart';
 import 'bike.dart';
 import '../icons/bike_icons.dart';
 

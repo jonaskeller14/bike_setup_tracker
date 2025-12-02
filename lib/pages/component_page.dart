@@ -33,7 +33,7 @@ class _ComponentPageState extends State<ComponentPage> {
     super.initState();
     _nameController = TextEditingController(text: widget.component?.name);
     _nameController.addListener(_changeListener);
-    adjustments = widget.component?.adjustments ?? [];
+    adjustments = widget.component == null ? [] : List.from(widget.component!.adjustments);
     _initialAdjustments = List.from(adjustments);
     bike = widget.component?.bike ?? widget.bikes.first;
     componentType = widget.component?.componentType;

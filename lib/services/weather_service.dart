@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:open_meteo/open_meteo.dart';
 import '../models/weather.dart';
 
 enum WeatherStatus {
@@ -12,117 +11,70 @@ enum WeatherStatus {
 }
 
 class WeatherService {
+  final historicalAPI = HistoricalApi(
+    userAgent: "Bike Setup Tracker App v1.0",
+    temperatureUnit: TemperatureUnit.celsius,
+    windspeedUnit: WindspeedUnit.kmh,
+    precipitationUnit: PrecipitationUnit.mm,
+  );
   WeatherStatus status = WeatherStatus.idle;
 
   Future<Weather?> fetchWeather({required double lat, required double lon, required DateTime datetime, int counter = 1}) async {
     status = WeatherStatus.searching;
-    if (datetime.isAfter(DateTime.now())) return null;
-    final String authority = "archive-api.open-meteo.com";
-    final String path = "/v1/archive";
-
-    final Map<String, dynamic> queryParams = {
-      'latitude': '$lat',
-      'longitude': '$lon',
-    };
-
-    final String dateStr = datetime.toIso8601String().split('T')[0];  // Format date to YYYY-MM-DD
-    queryParams['start_date'] = dateStr;
-    queryParams['end_date'] = dateStr;
-    queryParams['hourly'] = 'temperature_2m,weather_code,relative_humidity_2m,wind_speed_10m,precipitation,soil_moisture_0_to_7cm';
-
-    final url = Uri.https(authority, path, queryParams);
-
     try {
-      final response = await http.get(url);
+      if (datetime.isAfter(DateTime.now())) throw Exception("Date must be in the past.");
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        
-        final hourlyData = data['hourly'];
-        if (hourlyData == null) return null;
+      final response = await historicalAPI.request(
+        locations: {
+          OpenMeteoLocation(
+            latitude: lat,
+            longitude: lon,
+            startDate: DateTime(datetime.year, datetime.month, datetime.day),
+            endDate: DateTime(datetime.year, datetime.month, datetime.day),
+          )
+        },
+        hourly: {
+          HistoricalHourly.temperature_2m, 
+          HistoricalHourly.weather_code,
+          HistoricalHourly.relative_humidity_2m,
+          HistoricalHourly.wind_speed_10m,
+          HistoricalHourly.precipitation,
+          HistoricalHourly.soil_moisture_0_to_7cm,
+        },
+      );
+      final apiDatetime = datetime.copyWith(minute: 0, second: 0, millisecond: 0, microsecond: 0);
+      final double? currentTemperature = response.segments[0].hourlyData[HistoricalHourly.temperature_2m]!.values[apiDatetime]?.toDouble();
+      final int? currentWeatherCode = response.segments[0].hourlyData[HistoricalHourly.weather_code]!.values[apiDatetime]?.toInt();
+      final double? currentHumidity = response.segments[0].hourlyData[HistoricalHourly.relative_humidity_2m]!.values[apiDatetime]?.toDouble();
+      final double? currentWindSpeed = response.segments[0].hourlyData[HistoricalHourly.wind_speed_10m]!.values[apiDatetime]?.toDouble();
+      final double? currentPrecipitation = response.segments[0].hourlyData[HistoricalHourly.precipitation]!.values[apiDatetime]?.toDouble();
+      final double dayAccumulatedPrecipitation = response.segments[0].hourlyData[HistoricalHourly.precipitation]!.values.values
+          .map((item) => item.toDouble()) // Iterable<double>
+          .fold(0.0, (accumulator, element) => accumulator + element); // Start at 0.0 and sum up
+      final double? currentSoilMoisture0to7cm = response.segments[0].hourlyData[HistoricalHourly.soil_moisture_0_to_7cm]!.values[apiDatetime]?.toDouble();
 
-        final int hourIndex = datetime.hour.clamp(0, 23);  // Cap the hour between 0 and 23 to prevent index errors
-
-        final List<dynamic>? times = hourlyData['time'];
-        final String? timeString = (times != null && times.length > hourIndex)
-            ? times[hourIndex] as String
-            : null;
-        if (timeString == null) return null; 
-        final DateTime apiDatetime = DateTime.parse(timeString);
-
-        // 🌡️ Temperature
-        final List<dynamic>? temps = hourlyData['temperature_2m'];
-        double? currentTemperature = (temps != null && temps.isNotEmpty) 
-            ? (temps[hourIndex] as num).toDouble()
-            : null;
-        
-        // ☁️ Weather Code
-        final List<dynamic>? codes = hourlyData['weather_code'];
-        final int? currentWeatherCode = (codes != null && codes.length > hourIndex)
-            ? (codes[hourIndex] as num).toInt()
-            : null;
-
-        // 💧 Relative Humidity
-        final List<dynamic>? humidity = hourlyData['relative_humidity_2m'];
-        final double? currentHumidity = (humidity != null && humidity.length > hourIndex)
-            ? (humidity[hourIndex] as num).toDouble()
-            : null;
-
-        // 💨 Wind Speed
-        final List<dynamic>? windSpeed = hourlyData['wind_speed_10m'];
-        final double? currentWindSpeed = (windSpeed != null && windSpeed.length > hourIndex)
-            ? (windSpeed[hourIndex] as num).toDouble()
-            : null;
-            
-        // 🌧️ Precipitation
-        final List<dynamic>? precipitation = hourlyData['precipitation'];
-        final double? currentPrecipitation = (precipitation != null && precipitation.length > hourIndex)
-            ? (precipitation[hourIndex] as num).toDouble()
-            : null;
-        double? dayAccumulatedPrecipitation = 0.0;
-        if (precipitation != null && precipitation.length > hourIndex) {
-          for (int i = 0; i <= hourIndex; i++) {
-              final precipitationValue = precipitation[i];
-              if (precipitationValue is num && dayAccumulatedPrecipitation != null) {
-                  dayAccumulatedPrecipitation += precipitationValue.toDouble();
-              } else {
-                  dayAccumulatedPrecipitation = null;
-                  break;
-              }
-          }
-        }
-        
-        // 🌱 Soil Moisture
-        final List<dynamic>? soilMoisture0to7cm = hourlyData['soil_moisture_0_to_7cm'];
-        final double? currentSoilMoisture0to7cm = (soilMoisture0to7cm != null && soilMoisture0to7cm.length > hourIndex)
-            ? (soilMoisture0to7cm[hourIndex] as num).toDouble()
-            : null;
-
-        status = WeatherStatus.success;
-        return Weather(
-          currentDateTime: apiDatetime, 
-          currentTemperature: currentTemperature,
-          currentWeatherCode: currentWeatherCode,
-          currentHumidity: currentHumidity,
-          currentWindSpeed: currentWindSpeed,
-          currentPrecipitation: currentPrecipitation,
-          currentSoilMoisture0to7cm: currentSoilMoisture0to7cm,
-          dayAccumulatedPrecipitation: dayAccumulatedPrecipitation,
-        );
-
-      } else if (response.statusCode == 429 && counter <= 2) {
-        status = WeatherStatus.searching;
-        debugPrint("Error: Weather API limit reached. Trying again after 10s.");
-        await Future.delayed(const Duration(seconds: 10));
-        return fetchWeather(lat: lat, lon: lon, datetime: datetime, counter: counter + 1);  // Pass the date back into the recursive call
-      } else {
-        status = WeatherStatus.error;
-        debugPrint("Weather fetch failed: ${response.statusCode} | ${response.body}");
-        return null;
-      }
+      status = WeatherStatus.success;
+      return Weather(
+        currentDateTime: apiDatetime, 
+        currentTemperature: currentTemperature,
+        currentWeatherCode: currentWeatherCode,
+        currentHumidity: currentHumidity,
+        currentWindSpeed: currentWindSpeed,
+        currentPrecipitation: currentPrecipitation,
+        currentSoilMoisture0to7cm: currentSoilMoisture0to7cm,
+        dayAccumulatedPrecipitation: dayAccumulatedPrecipitation,
+      );
     } catch (e) {
+      debugPrint("WeatherService: Exception caught: $e");
       status = WeatherStatus.error;
-      debugPrint("Exception caught: $e");
+
+      if (counter <= 2) {
+        status = WeatherStatus.searching;
+        debugPrint("WeatherService Error --> Trying again after 10s.");
+        await Future.delayed(const Duration(seconds: 10));
+        return fetchWeather(lat: lat, lon: lon, datetime: datetime, counter: counter + 1);
+      }
+
       return null;
     }
   }

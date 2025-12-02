@@ -9,12 +9,13 @@ enum ElevationStatus {
 }
 
 class ElevationService {
+  final elevationAPI = ElevationApi(userAgent: "Bike Setup Tracker App v1.0");
   ElevationStatus status = ElevationStatus.idle;
 
   Future<double?> fetchElevation({required double lat, required double lon}) async {
     status = ElevationStatus.searching;
     try {
-      final result = await ElevationApi(userAgent: "Bike Setup Tracker App v1.0").requestJson(latitudes: {lat}, longitudes: {lon});
+      final result = await elevationAPI.requestJson(latitudes: {lat}, longitudes: {lon});
 
       if (result.containsKey('error') && result['error'] == true) {
         final String reason = result['reason'] as String? ?? 'Unknown API Error';

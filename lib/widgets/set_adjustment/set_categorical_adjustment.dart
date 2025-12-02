@@ -40,20 +40,27 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
           : null,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        spacing: 20,
         children: [
-          Icon(Icons.category, color: highlightColor),
-          SizedBox(width: 10),
           Flexible(
             flex: 2,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                adjustment.name,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),
-              ),
-            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Icon(Icons.category, color: highlightColor),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      adjustment.name,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),
+                    ),
+                  ),
+                ),
+              ],
+            )
           ),
-          SizedBox(width: 20),
           Flexible(
             flex: 3,
             child: DropdownButtonFormField<String>(

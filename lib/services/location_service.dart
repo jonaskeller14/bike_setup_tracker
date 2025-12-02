@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
+import '../models/setup.dart';
 
 enum LocationStatus {
   idle,
@@ -69,5 +70,12 @@ class LocationService {
     }
     if (geoLocation == null) return null;
     return LocationData.fromMap(geoLocation.toJson());
+  }
+
+  LocationData setAltitude({required LocationData? location, required double? newAltitude}) {
+    final newMap = location == null ? <String, dynamic>{} : Setup.locationDataToJson(location);
+    newMap['altitude'] = newAltitude;
+    newMap['time'] = newMap['time'] != null ? DateTime.parse(newMap['time']).millisecondsSinceEpoch.toDouble() : null;
+    return LocationData.fromMap(newMap);
   }
 }

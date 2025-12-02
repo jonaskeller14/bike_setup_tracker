@@ -3,6 +3,7 @@ import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import '../../services/location_service.dart';
 import '../../services/address_service.dart';
+import '../../services/elevation_service.dart';
 
 
 Future<List<dynamic>?> showSetLocationDialog({required BuildContext context, required LocationData? location, required geo.Placemark? address}) async {
@@ -33,6 +34,8 @@ class _ShowSetLocationDialogState extends State<ShowSetLocationDialog> {
 
   final LocationService _locationService = LocationService();
   LocationData? _location;
+
+  final ElevationService _elevationService = ElevationService();
 
   final AddressService _addressService = AddressService();
   geo.Placemark? _address;
@@ -72,8 +75,16 @@ class _ShowSetLocationDialogState extends State<ShowSetLocationDialog> {
       _error = newLocation == null ? true : false;
     });
     if (_location == null) return;
-    final newAddress = await _addressService.fetchAddress(lat: _location!.latitude!, lon: _location!.longitude!);
 
+    setState(() {
+      _elevationService.status = ElevationStatus.searching;
+    });
+    final newAltitude = await _elevationService.fetchElevation(lat: _location!.latitude!, lon: _location!.longitude!);
+    setState(() {
+      _location = _locationService.setAltitude(location: _location, newAltitude: newAltitude);
+    });
+
+    final newAddress = await _addressService.fetchAddress(lat: _location!.latitude!, lon: _location!.longitude!);
     setState(() {
       _address = newAddress;
       _error = newAddress == null ? true : false;
@@ -185,7 +196,6 @@ class _ShowSetLocationDialogState extends State<ShowSetLocationDialog> {
                 ),
               ),
             ),
-            const Text("Note: Altitude data is only available via GPS and will be lost here.", style: TextStyle(color: Colors.grey),)
           ],
         ),
       ),

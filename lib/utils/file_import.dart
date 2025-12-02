@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:intl/intl.dart';
 import '../models/bike.dart';
 import '../models/adjustment.dart';
 import '../models/setup.dart';
@@ -14,9 +16,11 @@ class FileImport {
   static Future<Data?> readData(BuildContext context) async {
     final scaffold = ScaffoldMessenger.of(context);
     final errorColor = Theme.of(context).colorScheme.error;
+
+    String jsonString = "{}";
     try {
       final prefs = await SharedPreferences.getInstance();
-      final jsonString = prefs.getString("data") ?? "{}";
+      jsonString = prefs.getString("data") ?? "{}";
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
 
       final Data data = await parseJson(jsonData: jsonData);
@@ -25,6 +29,10 @@ class FileImport {
     } catch (e, st) {
       debugPrint("Loading data failed: $e\n$st");
       scaffold.showSnackBar(SnackBar(content: Text("Loading data failed: $e"), backgroundColor: errorColor,));
+
+      if (!context.mounted) return null;
+      await _saveErrorJson(context: context, jsonString: jsonString);
+      
       return null;
     }
   }
@@ -99,6 +107,27 @@ class FileImport {
       debugPrint("Import failed: $e\n$st");
       scaffold.showSnackBar(SnackBar(content: Text("Import failed: $e"), backgroundColor: errorColor,));
       return null;
+    }
+  }
+
+  static Future<void> _saveErrorJson({required BuildContext context, required String jsonString}) async {
+    final filename = '${DateFormat('yyyyMMdd_HHmm').format(DateTime.now())}_bike_setup_tracker_error.json'; 
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final file = File('${directory.path}/$filename');
+      
+      await file.writeAsString(jsonString);
+
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Debug file saved to: ${file.path}"),
+          duration: const Duration(seconds: 5),
+        ),
+      );
+      debugPrint("Saved error file: ${file.path}");
+    } catch (saveError) {
+      debugPrint("Could not save debug file: $saveError");
     }
   }
 }

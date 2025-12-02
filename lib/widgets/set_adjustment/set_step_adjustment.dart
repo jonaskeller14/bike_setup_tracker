@@ -19,6 +19,16 @@ class SetStepAdjustmentWidget extends StatelessWidget {
     this.highlighting = true,
   });
 
+  void onPressedMinusButton() {
+    onChanged(value-adjustment.step);
+    onChangedEnd(value-adjustment.step);
+  }
+
+  void onPressedPlusButton() {
+    onChanged(value+adjustment.step);
+    onChangedEnd(value+adjustment.step);
+  }
+
   @override
   Widget build(BuildContext context) {
     late bool isChanged;
@@ -64,19 +74,41 @@ class SetStepAdjustmentWidget extends StatelessWidget {
               ],
             )
           ),
-          Flexible(
-            flex: 3,
-            child: Slider(
-              padding: EdgeInsets.all(5),
-              value: value,
-              max: sliderMax,
-              min: adjustment.min.toDouble(),
-              divisions: sliderDivisions,
-              label: value.toInt().toString(),
-              onChanged: onChanged,
-              onChangeEnd: onChangedEnd,
+          if (adjustment.visualization == StepAdjustmentVisualization.slider)
+            Flexible(
+              flex: 3,
+              child: Slider(
+                padding: EdgeInsets.all(5),
+                value: value,
+                max: sliderMax,
+                min: adjustment.min.toDouble(),
+                divisions: sliderDivisions,
+                label: value.toInt().toString(),
+                onChanged: onChanged,
+                onChangeEnd: onChangedEnd,
+              ),
             ),
-          ),
+          if (adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButton)
+            Flexible(
+              flex: 3,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                spacing: 20,
+                children: [
+                  FilledButton(
+                    onPressed: value - adjustment.step >= adjustment.min ? onPressedMinusButton : null,
+                    child: Text("- ${adjustment.step}", style: TextStyle(fontFamily: 'monospace')),
+                  ),
+                  Text(value.toInt().toString(), style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace')),
+                  FilledButton(
+                    onPressed: value + adjustment.step <= adjustment.max ? onPressedPlusButton : null,
+                    child: Text("+ ${adjustment.step}", style: TextStyle(fontFamily: 'monospace')),
+                  )
+                ],
+              ),
+            ),
         ],
       ),
     );

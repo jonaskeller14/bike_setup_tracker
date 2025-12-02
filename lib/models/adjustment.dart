@@ -57,6 +57,10 @@ abstract class Adjustment<T> {
           step: (json['step'] as num).toInt(),
           min: (json['min'] as num).toInt(),
           max: (json['max'] as num).toInt(),
+          visualization: StepAdjustmentVisualization.values.firstWhere(
+            (e) => e.toString() == json['visualization'],
+            orElse: () => StepAdjustmentVisualization.slider,
+          ),
         );
       case 'numerical':
         return NumericalAdjustment(
@@ -112,10 +116,19 @@ class CategoricalAdjustment extends Adjustment<String> {
   }
 }
 
+enum StepAdjustmentVisualization {
+  slider('Slider'),
+  minusButtonValuePlusButton('Buttons');
+
+  final String value;
+  const StepAdjustmentVisualization(this.value);
+}
+
 class StepAdjustment extends Adjustment<int> {
   int step;
   int min;
   int max;
+  StepAdjustmentVisualization visualization;
 
   StepAdjustment({
     super.id,
@@ -124,11 +137,12 @@ class StepAdjustment extends Adjustment<int> {
     required this.step,
     required this.min,
     required this.max,
+    required this.visualization,
   });
 
   @override
   StepAdjustment deepCopy() {
-    return StepAdjustment(name: name, unit: unit, step: step, min: min, max: max);
+    return StepAdjustment(name: name, unit: unit, step: step, min: min, max: max, visualization: visualization);
   }
 
   @override
@@ -146,6 +160,7 @@ class StepAdjustment extends Adjustment<int> {
     'step': step,
     'min': min,
     'max': max,
+    'visualization': visualization.toString(),
   };
 
   @override

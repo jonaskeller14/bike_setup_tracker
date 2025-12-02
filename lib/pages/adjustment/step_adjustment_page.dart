@@ -7,6 +7,7 @@ import '../../widgets/set_adjustment/set_step_adjustment.dart';
 
 const int _defaultStep = 1;
 const int _defaultMin = 0;
+const StepAdjustmentVisualization _defaultVisualization = StepAdjustmentVisualization.slider;
 
 class StepAdjustmentPage extends StatefulWidget {
   final StepAdjustment? adjustment;
@@ -23,6 +24,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
   late TextEditingController _stepController;
   late TextEditingController _minController;
   late TextEditingController _maxController;
+  late StepAdjustmentVisualization visualization;
 
   double _previewValue = _defaultMin.toDouble();
   StepAdjustment _previewAdjustment = StepAdjustment(
@@ -31,6 +33,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     step: _defaultStep, 
     min: _defaultMin,
     max: 5,
+    visualization: _defaultVisualization,
   );
 
   @override
@@ -44,6 +47,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     _minController.addListener(_changeListener);
     _maxController = TextEditingController(text: widget.adjustment?.max.toString());
     _maxController.addListener(_changeListener);
+    visualization = widget.adjustment?.visualization ?? _defaultVisualization;
 
     if (widget.adjustment != null) {
       _previewAdjustment = widget.adjustment!;
@@ -56,7 +60,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     final stepHasChanges = int.tryParse(_stepController.text.trim()) != (widget.adjustment?.step ?? _defaultStep);
     final minHasChanges = int.tryParse(_minController.text.trim()) != (widget.adjustment?.min ?? _defaultMin);
     final maxHasChanges = int.tryParse(_maxController.text.trim()) != (widget.adjustment?.max);
-    final hasChanges = nameHasChanges || stepHasChanges || minHasChanges || maxHasChanges;
+    final visualizationHasChanges = visualization != (widget.adjustment?.visualization ?? _defaultVisualization);
+    final hasChanges = nameHasChanges || stepHasChanges || minHasChanges || maxHasChanges || visualizationHasChanges;
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -87,11 +92,12 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     _formHasChanges = false;
     if (!mounted) return;
     if (widget.adjustment == null) {
-      Navigator.pop(context, StepAdjustment(name: name, unit: null, step: step, min: min, max: max));
+      Navigator.pop(context, StepAdjustment(name: name, unit: null, step: step, min: min, max: max, visualization: visualization));
     } else {
       widget.adjustment!.name = name;
       widget.adjustment!.min = min;
       widget.adjustment!.max = max;
+      widget.adjustment!.visualization = visualization;
       Navigator.pop(context, widget.adjustment);
     }
   }
@@ -167,7 +173,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                 min: _previewAdjustment.min, 
                                 max: _previewAdjustment.max, 
                                 step: _previewAdjustment.step, 
-                                unit: null
+                                unit: null,
+                                visualization: _previewAdjustment.visualization,
                               );
                             });
                           },
@@ -202,7 +209,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                 min: _previewAdjustment.min, 
                                 max: math.max(_previewAdjustment.max, _previewAdjustment.min + newStep), 
                                 step: newStep, 
-                                unit: null
+                                unit: null,
+                                visualization: _previewAdjustment.visualization,
                               );
                               _previewValue = _previewAdjustment.min.toDouble();
                             });
@@ -229,7 +237,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                 min: math.min(newMin, _previewAdjustment.max - _previewAdjustment.step), 
                                 max: _previewAdjustment.max, //FIXME: if previously max was set wrong and now with the new min it becomes valid -> it does not update here 
                                 step: _previewAdjustment.step, 
-                                unit: null
+                                unit: null,
+                                visualization: _previewAdjustment.visualization,
                               );
                               _previewValue = _previewAdjustment.min.toDouble();
                             });
@@ -256,10 +265,50 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                 min: _previewAdjustment.min, 
                                 max: math.max(newMax, _previewAdjustment.min + _previewAdjustment.step), 
                                 step: _previewAdjustment.step, 
-                                unit: null
+                                unit: null,
+                                visualization: _previewAdjustment.visualization,
                               );
                               _previewValue = _previewAdjustment.min.toDouble();
                             });
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        DropdownButtonFormField<StepAdjustmentVisualization>(
+                          initialValue: visualization,
+                          isExpanded: true,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          hint: const Text("Please select visualization"),
+                          decoration: const InputDecoration(
+                            labelText: 'Visualization',
+                            border: OutlineInputBorder(),
+                            hintText: "Choose a visualization for this adjustment",
+                          ),
+                          items: StepAdjustmentVisualization.values.map((v) {
+                            return DropdownMenuItem<StepAdjustmentVisualization>(
+                              value: v,
+                              child: Text(v.value),
+                            );
+                          }).toList(),
+                          onChanged: (StepAdjustmentVisualization? newVisualization) {
+                            if (newVisualization == null) return;
+                            setState(() {
+                              visualization = newVisualization;
+                              _previewAdjustment = StepAdjustment(
+                                name: _previewAdjustment.name, 
+                                min: _previewAdjustment.min, 
+                                max: _previewAdjustment.max, 
+                                step: _previewAdjustment.step, 
+                                unit: _previewAdjustment.unit,
+                                visualization: newVisualization,
+                              );
+                            });
+                            _changeListener();
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Component type cannot be empty';
+                            }
+                            return null;
                           },
                         ),
                       ],

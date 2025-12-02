@@ -22,6 +22,7 @@ import '../widgets/dialogs/set_location.dart';
 import '../widgets/dialogs/set_altitude.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/dialogs/update_location_address_weather.dart';
+import '../widgets/setup_page_legend.dart';
 
 class SetupPage extends StatefulWidget {
   final Setup? setup;
@@ -749,6 +750,7 @@ class _SetupPageState extends State<SetupPage> {
                     ),
                   );
                 }),
+              const ValueChangeLegend(),
             ],
           ),
         ),

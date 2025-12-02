@@ -52,7 +52,7 @@ class _SetupPageState extends State<SetupPage> {
   late DateTime _selectedDateTime;
   late DateTime _initialDateTime;
   Map<Adjustment, dynamic> adjustmentValues = {};
-  Map<Adjustment, dynamic> _initialAdjustmentValues = {};
+  final Map<Adjustment, dynamic> _initialAdjustmentValues = {};
 
   final LocationService _locationService = LocationService();
   LocationData? _currentLocation;
@@ -563,7 +563,7 @@ class _SetupPageState extends State<SetupPage> {
                       setState(() {
                         if (temperature != null) {
                           _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                          _currentWeather?.currentTemperature = temperature;
+                          _currentWeather = _currentWeather?.copyWith(currentTemperature: temperature);
                         }
                       });
                       _changeListener();
@@ -581,7 +581,7 @@ class _SetupPageState extends State<SetupPage> {
                       setState(() {
                         if (humidity != null) {
                           _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                          _currentWeather?.currentHumidity = humidity;
+                          _currentWeather = _currentWeather?.copyWith(currentHumidity: humidity);
                         }
                       });
                       _changeListener();
@@ -599,7 +599,7 @@ class _SetupPageState extends State<SetupPage> {
                       setState(() {
                         if (precipitation != null) {
                           _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                          _currentWeather?.dayAccumulatedPrecipitation = precipitation;
+                          _currentWeather = _currentWeather?.copyWith(dayAccumulatedPrecipitation: precipitation);
                         }
                       });
                       _changeListener();
@@ -617,7 +617,7 @@ class _SetupPageState extends State<SetupPage> {
                       setState(() {
                         if (windSpeed != null) {
                           _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                          _currentWeather?.currentWindSpeed = windSpeed;
+                          _currentWeather = _currentWeather?.copyWith(currentWindSpeed: windSpeed);
                         }
                       });
                       _changeListener();
@@ -635,7 +635,7 @@ class _SetupPageState extends State<SetupPage> {
                       setState(() {
                         if (soilMoisture != null) {
                           _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                          _currentWeather?.currentSoilMoisture0to7cm = soilMoisture;
+                          _currentWeather = _currentWeather?.copyWith(currentSoilMoisture0to7cm: soilMoisture);
                         }
                       });
                       _changeListener();

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 class Weather {
-    DateTime currentDateTime;
-    double? currentTemperature;
-    int? currentWeatherCode;
-    double? currentHumidity;
-    double? currentWindSpeed;
-    double? currentPrecipitation;
-    double? currentSoilMoisture0to7cm;
-    double? dayAccumulatedPrecipitation;
+    final DateTime currentDateTime;
+    final double? currentTemperature;
+    final int? currentWeatherCode;
+    final double? currentHumidity;
+    final double? currentWindSpeed;
+    final double? currentPrecipitation;
+    final double? currentSoilMoisture0to7cm;
+    final double? dayAccumulatedPrecipitation;
 
     Weather({
       required this.currentDateTime, 
@@ -20,6 +20,28 @@ class Weather {
       this.currentSoilMoisture0to7cm,
       this.dayAccumulatedPrecipitation,
     });
+
+    Weather copyWith({
+      DateTime? currentDateTime,
+      double? currentTemperature,
+      int? currentWeatherCode,
+      double? currentHumidity,
+      double? currentWindSpeed,
+      double? currentPrecipitation,
+      double? currentSoilMoisture0to7cm,
+      double? dayAccumulatedPrecipitation,
+    }) {
+      return Weather(
+        currentDateTime: currentDateTime ?? this.currentDateTime,
+        currentTemperature: currentTemperature ?? this.currentTemperature,
+        currentWeatherCode: currentWeatherCode ?? this.currentWeatherCode,
+        currentHumidity: currentHumidity ?? this.currentHumidity,
+        currentWindSpeed: currentWindSpeed ?? this.currentWindSpeed,
+        currentPrecipitation: currentPrecipitation ?? this.currentPrecipitation,
+        currentSoilMoisture0to7cm: currentSoilMoisture0to7cm ?? this.currentSoilMoisture0to7cm,
+        dayAccumulatedPrecipitation: dayAccumulatedPrecipitation ?? this.dayAccumulatedPrecipitation,
+      );
+    }
 
     Icon getConditionsIcon({double? size}) {
       if (currentSoilMoisture0to7cm == null) return Icon(Icons.question_mark_sharp, size: size);

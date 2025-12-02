@@ -462,10 +462,15 @@ class _SetupPageState extends State<SetupPage> {
                 textInputAction: TextInputAction.next,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 autofocus: widget.setup == null,
-                decoration: const InputDecoration(
+                onChanged: (text) {
+                  setState(() {});
+                },
+                decoration: InputDecoration(
                   labelText: 'Setup Name',
                   border: OutlineInputBorder(),
                   hintText: 'Enter setup name',
+                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                  filled: widget.setup != null && _nameController.text.trim() != widget.setup?.name,
                 ),
                 validator: _validateName,
               ),
@@ -474,11 +479,16 @@ class _SetupPageState extends State<SetupPage> {
                 controller: _notesController,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 minLines: 2,
+                onChanged: (text) {
+                  setState(() {});
+                },
                 maxLines: null,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Notes (optional)',
                   border: OutlineInputBorder(),
                   hintText: 'Add notes (optional)',
+                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                  filled: widget.setup != null && (_notesController.text.trim() != (widget.setup?.notes ?? '')),
                 ),
               ),
               const SizedBox(height: 12),
@@ -491,6 +501,7 @@ class _SetupPageState extends State<SetupPage> {
                     label: Text(
                       DateFormat('yyyy-MM-dd').format(_selectedDateTime),
                     ),
+                    backgroundColor: widget.setup != null && (_selectedDateTime.year != widget.setup?.datetime.year || _selectedDateTime.month != widget.setup?.datetime.month || _selectedDateTime.day != widget.setup?.datetime.day) ? Colors.orange.withValues(alpha: 0.08) : null,
                     onPressed: _pickDate,
                   ),
                   ActionChip(
@@ -498,10 +509,14 @@ class _SetupPageState extends State<SetupPage> {
                     label: Text(
                       DateFormat('HH:mm').format(_selectedDateTime),
                     ),
+                    backgroundColor: widget.setup != null && (_selectedDateTime.hour != widget.setup?.datetime.hour || _selectedDateTime.minute != widget.setup?.datetime.minute) ? Colors.orange.withValues(alpha: 0.08) : null,
                     onPressed: _pickTime,
                   ),
                   ActionChip(
+                    backgroundColor: widget.setup != null && (_currentLocation?.latitude != widget.setup?.position?.latitude || _currentLocation?.longitude != widget.setup?.position?.longitude) ? Colors.orange.withValues(alpha: 0.08) : null,
                     onPressed: () async {
+                      _locationService.status = LocationStatus.idle;
+                      _addressService.status = AddressStatus.idle;
                       final result = await showSetLocationDialog(context: context, location: _currentLocation, address: _currentPlace);
                       if (result == null) return;
                       setState(() {
@@ -539,6 +554,7 @@ class _SetupPageState extends State<SetupPage> {
                         : (_currentLocation?.altitude == null 
                             ? const Text("-") 
                             : Text("${_currentLocation?.altitude?.round()} m")),
+                    backgroundColor: widget.setup != null && _currentLocation?.altitude != widget.setup?.position?.altitude ? Colors.orange.withValues(alpha: 0.08) : null,
                     onPressed: () async {
                       final altitude = await showSetAltitudeDialog(context, _currentLocation?.altitude);
                       if (altitude == null) return;
@@ -558,6 +574,7 @@ class _SetupPageState extends State<SetupPage> {
                         : (_currentWeather?.currentTemperature == null 
                             ? const Text("-") 
                             : Text("${_currentWeather?.currentTemperature?.round()} °C")),
+                    backgroundColor: widget.setup != null && _currentWeather?.currentTemperature != widget.setup?.weather?.currentTemperature ? Colors.orange.withValues(alpha: 0.08) : null,
                     onPressed: () async {
                       final temperature = await showSetCurrentTemperatureDialog(context, _currentWeather);
                       setState(() {
@@ -576,6 +593,7 @@ class _SetupPageState extends State<SetupPage> {
                         : (_currentWeather?.currentHumidity == null 
                             ? const Text("-") 
                             : Text("${_currentWeather?.currentHumidity?.round()} %")),
+                    backgroundColor: widget.setup != null && _currentWeather?.currentHumidity != widget.setup?.weather?.currentHumidity ? Colors.orange.withValues(alpha: 0.08) : null,
                     onPressed: () async {
                       final humidity = await showSetCurrentHumidityDialog(context, _currentWeather);
                       setState(() {
@@ -594,6 +612,7 @@ class _SetupPageState extends State<SetupPage> {
                         : (_currentWeather?.dayAccumulatedPrecipitation == null 
                             ? const Text("-") 
                             : Text("${_currentWeather?.dayAccumulatedPrecipitation?.round()} mm")),
+                    backgroundColor: widget.setup != null && _currentWeather?.dayAccumulatedPrecipitation != widget.setup?.weather?.dayAccumulatedPrecipitation ? Colors.orange.withValues(alpha: 0.08) : null,
                     onPressed: () async{
                       final precipitation = await showSetDayAccumulatedPrecipitationDialog(context, _currentWeather);
                       setState(() {
@@ -612,6 +631,7 @@ class _SetupPageState extends State<SetupPage> {
                         : (_currentWeather?.currentWindSpeed == null 
                             ? const Text("-") 
                             : Text("${_currentWeather?.currentWindSpeed?.round()} km/h")),
+                    backgroundColor: widget.setup != null && _currentWeather?.currentWindSpeed != widget.setup?.weather?.currentWindSpeed ? Colors.orange.withValues(alpha: 0.08) : null,
                     onPressed: () async{
                       final windSpeed = await showSetCurrentWindSpeedDialog(context, _currentWeather);
                       setState(() {
@@ -630,6 +650,7 @@ class _SetupPageState extends State<SetupPage> {
                         : (_currentWeather?.currentSoilMoisture0to7cm == null 
                             ? const Text("-") 
                             : Text("${_currentWeather?.currentSoilMoisture0to7cm?.toStringAsFixed(2)} m³/m³")),
+                    backgroundColor: widget.setup != null && _currentWeather?.currentSoilMoisture0to7cm != widget.setup?.weather?.currentSoilMoisture0to7cm ? Colors.orange.withValues(alpha: 0.08) : null,
                     onPressed: () async {
                       final soilMoisture = await showSetCurrentSoilMoisture0to7cmDialog(context, _currentWeather);
                       setState(() {

@@ -19,6 +19,10 @@ class ComponentOverviewPage extends StatefulWidget{
 }
 
 class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
+  late List<Setup> _setups;
+  bool _sortAscending = true;
+  int? _sortColumnIndex;
+
   bool _showName = true;
   bool _showNotes = false;
   bool _showDate = true;
@@ -33,8 +37,37 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
   @override
   void initState() {
     super.initState();
+    _setups = List.from(widget.setups.reversed);
     for (final adjustment in widget.component.adjustments) {
       _showAdjustment[adjustment] = true;
+    }
+  }
+
+  void onSortColum(dynamic column, int columnIndex, bool ascending) {
+    _sortAscending = ascending;
+    _sortColumnIndex = columnIndex;
+    if (column is String) {
+      switch (column) {
+        case "name": setState(() {ascending ? _setups.sort((a, b) => a.name.compareTo(b.name)) : _setups.sort((a, b) => b.name.compareTo(a.name));});
+        case "notes": setState(() {ascending ? _setups.sort((a, b) => (a.notes ?? '').compareTo(b.notes ?? '')) : _setups.sort((a, b) => (b.notes ?? '').compareTo(a.notes ?? ''));});
+        case "date": setState(() {ascending ? _setups.sort((a, b) => a.datetime.compareTo(b.datetime)) : _setups.sort((a, b) => b.datetime.compareTo(a.datetime));});
+        case "time": setState(() {ascending ? _setups.sort((a, b) => a.datetime.copyWith(year: 0, month: 0, day: 0).compareTo(b.datetime.copyWith(year: 0, month: 0, day: 0))) : _setups.sort((a, b) => b.datetime.copyWith(year: 0, month: 0, day: 0).compareTo(a.datetime.copyWith(year: 0, month: 0, day: 0)));});
+        case "currentTemperature": setState(() {ascending ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));});
+        case "dayAccumulatedPrecipitation": setState(() {ascending ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));});
+        case "currentHumidity": setState(() {ascending ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));});
+        case "currentWindSpeed": setState(() {ascending ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));});
+        case "currentSoilMoisture0to7cm": setState(() {ascending ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));});
+      }
+    } else if (column is Adjustment) {
+      if (column is BooleanAdjustment) {
+        setState(() {ascending ? _setups.sort((a, b) => ((a.adjustmentValues[column] ?? false) ? 1 : 0).compareTo((b.adjustmentValues[column] ?? false) ? 1 : 0)) : _setups.sort((a, b) => ((b.adjustmentValues[column] ?? false) ? 1 : 0).compareTo((a.adjustmentValues[column] ?? false) ? 1 : 0));});
+      } else if (column is StepAdjustment) {
+        setState(() {ascending ? _setups.sort((a, b) => (a.adjustmentValues[column] ?? 0).compareTo(b.adjustmentValues[column] ?? 0)) : _setups.sort((a, b) => (b.adjustmentValues[column] ?? 0).compareTo(a.adjustmentValues[column] ?? 0));});
+      } else if (column is NumericalAdjustment) {
+        setState(() {ascending ? _setups.sort((a, b) => (a.adjustmentValues[column] ?? double.negativeInfinity).compareTo(b.adjustmentValues[column] ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.adjustmentValues[column] ?? double.negativeInfinity).compareTo(a.adjustmentValues[column] ?? double.negativeInfinity));});
+      } else if (column is CategoricalAdjustment) {
+        setState(() {ascending ? _setups.sort((a, b) => (a.adjustmentValues[column] ?? '').compareTo(b.adjustmentValues[column] ?? '')) : _setups.sort((a, b) => (b.adjustmentValues[column] ?? '').compareTo(a.adjustmentValues[column] ?? ''));});
+      }
     }
   }
 
@@ -69,6 +102,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                     onSelected: (bool value) {
                       setState(() {
                         _showName = value;
+                        _sortColumnIndex = null;
                       });
                     },
                   ),
@@ -78,6 +112,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                     onSelected: (bool value) {
                       setState(() {
                         _showNotes = value;
+                        _sortColumnIndex = null;
                       });
                     },
                   ),
@@ -87,6 +122,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                     onSelected: (bool value) {
                       setState(() {
                         _showDate = value;
+                        _sortColumnIndex = null;
                       });
                     },
                   ),
@@ -96,6 +132,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                     onSelected: (bool value) {
                       setState(() {
                         _showTime = value;
+                        _sortColumnIndex = null;
                       });
                     },
                   ),
@@ -113,6 +150,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                     onSelected: (bool value) {
                       setState(() {
                         _showCurrentTemperature = value;
+                        _sortColumnIndex = null;
                       });
                     },
                   ),
@@ -122,6 +160,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                     onSelected: (bool value) {
                       setState(() {
                         _showDayAccumulatedPrecipitation = value;
+                        _sortColumnIndex = null;
                       });
                     },
                   ),
@@ -131,6 +170,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                     onSelected: (bool value) {
                       setState(() {
                         _showCurrentHumidity = value;
+                        _sortColumnIndex = null;
                       });
                     },
                   ),
@@ -140,6 +180,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                     onSelected: (bool value) {
                       setState(() {
                         _showCurrentWindSpeed = value;
+                        _sortColumnIndex = null;
                       });
                     },
                   ),
@@ -149,6 +190,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                     onSelected: (bool value) {
                       setState(() {
                         _showCurrentSoilMoisture0to7cm = value;
+                        _sortColumnIndex = null;
                       });
                     },
                   ),
@@ -167,6 +209,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                       onSelected: (bool value) {
                         setState(() {
                           _showAdjustment[adjustment] = value;
+                          _sortColumnIndex = null;
                         });
                       },
                     ),
@@ -177,28 +220,30 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
+                  sortAscending: _sortAscending,
+                  sortColumnIndex: _sortColumnIndex,
                   columnSpacing: 20,
                   headingTextStyle: TextStyle(fontWeight: FontWeight.bold),
                   columns: [
                     if (_showName)
-                      DataColumn(label: Text('Setup')),
+                      DataColumn(label: const Text('Setup'), onSort: (columnIndex, ascending) => onSortColum("name", columnIndex, ascending)),
                     if (_showNotes)
-                      DataColumn(label: Text('Notes')),
+                      DataColumn(label: const Text('Notes'), onSort: (columnIndex, ascending) => onSortColum("notes", columnIndex, ascending)),
                     if (_showDate)
-                      DataColumn(label: Text('Date')),
+                      DataColumn(label: const Text('Date'), onSort: (columnIndex, ascending) => onSortColum("date", columnIndex, ascending)),
                     if (_showTime)
-                      DataColumn(label: Text('Time')),
+                      DataColumn(label: const Text('Time'), onSort: (columnIndex, ascending) => onSortColum("time", columnIndex, ascending)),
                     
                     if (_showCurrentTemperature)
-                      DataColumn(label: Text('Temperature')),
+                      DataColumn(label: const Text('Temperature'), onSort: (columnIndex, ascending) => onSortColum("currentTemperature", columnIndex, ascending)),
                     if (_showDayAccumulatedPrecipitation)
-                      DataColumn(label: Text('Precipation')),
+                      DataColumn(label: const Text('Precipation'), onSort: (columnIndex, ascending) => onSortColum("dayAccumulatedPrecipitation", columnIndex, ascending)),
                     if (_showCurrentHumidity)
-                      DataColumn(label: Text('Humidity')),
+                      DataColumn(label: const Text('Humidity'), onSort: (columnIndex, ascending) => onSortColum("currentHumidity", columnIndex, ascending)),
                     if (_showCurrentWindSpeed)
-                      DataColumn(label: Text('Windspeed')),
+                      DataColumn(label: const Text('Windspeed'), onSort: (columnIndex, ascending) => onSortColum("currentWindSpeed", columnIndex, ascending)),
                     if (_showCurrentSoilMoisture0to7cm)
-                      DataColumn(label: Text('Soil Moisture')),
+                      DataColumn(label: const Text('Soil Moisture'), onSort: (columnIndex, ascending) => onSortColum("currentSoilMoisture0to7cm", columnIndex, ascending)),
                     
                     for (final adjustment in widget.component.adjustments)
                       if (_showAdjustment[adjustment] == true)
@@ -208,9 +253,10 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                             style: TextStyle(fontWeight: FontWeight.bold),
                             overflow: TextOverflow.ellipsis,
                           ),
+                          onSort: (columnIndex, ascending) => onSortColum(adjustment, columnIndex, ascending),
                         ),
                   ],
-                  rows: widget.setups.reversed.where((setup) {
+                  rows: _setups.where((setup) {
                     return widget.component.adjustments.any(
                       (componentAdjustment) => setup.adjustmentValues.containsKey(componentAdjustment)
                     );

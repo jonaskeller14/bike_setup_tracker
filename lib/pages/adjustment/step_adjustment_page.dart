@@ -20,6 +20,7 @@ class StepAdjustmentPage extends StatefulWidget {
 class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
+  bool _expanded = false;
   late TextEditingController _nameController;
   late TextEditingController _stepController;
   late TextEditingController _minController;
@@ -272,45 +273,62 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             });
                           },
                         ),
-                        const SizedBox(height: 12),
-                        DropdownButtonFormField<StepAdjustmentVisualization>(
-                          initialValue: visualization,
-                          isExpanded: true,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          hint: const Text("Please select visualization"),
-                          decoration: const InputDecoration(
-                            labelText: 'Visualization',
-                            border: OutlineInputBorder(),
-                            hintText: "Choose a visualization for this adjustment",
+                        if (!_expanded) ...[
+                          Center(
+                            child: TextButton.icon(
+                              onPressed: () {
+                                setState(() {
+                                  if (!_expanded) _expanded = !_expanded;
+                                });
+                              },
+                              icon: Icon(
+                                _expanded ? Icons.expand_less : Icons.expand_more,
+                              ),
+                              label: Text(_expanded ? "Show less" : "Show more"),
+                            ),
                           ),
-                          items: StepAdjustmentVisualization.values.map((v) {
-                            return DropdownMenuItem<StepAdjustmentVisualization>(
-                              value: v,
-                              child: Text(v.value),
-                            );
-                          }).toList(),
-                          onChanged: (StepAdjustmentVisualization? newVisualization) {
-                            if (newVisualization == null) return;
-                            setState(() {
-                              visualization = newVisualization;
-                              _previewAdjustment = StepAdjustment(
-                                name: _previewAdjustment.name, 
-                                min: _previewAdjustment.min, 
-                                max: _previewAdjustment.max, 
-                                step: _previewAdjustment.step, 
-                                unit: _previewAdjustment.unit,
-                                visualization: newVisualization,
+                        ],
+                        if (_expanded) ...[
+                          const SizedBox(height: 12),
+                          DropdownButtonFormField<StepAdjustmentVisualization>(
+                            initialValue: visualization,
+                            isExpanded: true,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            hint: const Text("Please select visualization"),
+                            decoration: const InputDecoration(
+                              labelText: 'Visualization',
+                              border: OutlineInputBorder(),
+                              hintText: "Choose a visualization for this adjustment",
+                            ),
+                            items: StepAdjustmentVisualization.values.map((v) {
+                              return DropdownMenuItem<StepAdjustmentVisualization>(
+                                value: v,
+                                child: Text(v.value),
                               );
-                            });
-                            _changeListener();
-                          },
-                          validator: (value) {
-                            if (value == null) {
-                              return 'Component type cannot be empty';
-                            }
-                            return null;
-                          },
-                        ),
+                            }).toList(),
+                            onChanged: (StepAdjustmentVisualization? newVisualization) {
+                              if (newVisualization == null) return;
+                              setState(() {
+                                visualization = newVisualization;
+                                _previewAdjustment = StepAdjustment(
+                                  name: _previewAdjustment.name, 
+                                  min: _previewAdjustment.min, 
+                                  max: _previewAdjustment.max, 
+                                  step: _previewAdjustment.step, 
+                                  unit: _previewAdjustment.unit,
+                                  visualization: newVisualization,
+                                );
+                              });
+                              _changeListener();
+                            },
+                            validator: (value) {
+                              if (value == null) {
+                                return 'Component type cannot be empty';
+                              }
+                              return null;
+                            },
+                          ),
+                        ]
                       ],
                     ),
                   ),

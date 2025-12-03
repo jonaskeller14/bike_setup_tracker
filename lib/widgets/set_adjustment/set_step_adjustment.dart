@@ -47,18 +47,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
     }
     final sliderDivisions = ((adjustment.max - adjustment.min) / adjustment.step).floor();
     final sliderMax = (adjustment.min + sliderDivisions * adjustment.step).toDouble();
-    
-    int nLabels = sliderDivisions;
-    int sliderMinorTicksPerInterval = 0;
-    while (true) {
-      if (nLabels > 5) {
-        nLabels = (nLabels / 2).floor();
-        sliderMinorTicksPerInterval = sliderMinorTicksPerInterval * 2 + 1;
-        continue;
-      }
-      break;
-    }
-    int sliderInterval = sliderMinorTicksPerInterval > 0 ? adjustment.step * (sliderMinorTicksPerInterval + 1) : adjustment.step;
+    final sliderInterval = sliderMax - adjustment.min;
     
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -105,7 +94,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                   interval: sliderInterval.toDouble(),
                   showTicks: true,
                   stepSize: adjustment.step.toDouble(),
-                  minorTicksPerInterval: sliderMinorTicksPerInterval,
+                  minorTicksPerInterval: sliderDivisions - 1,
                   enableTooltip: true,
                   tooltipShape: SfPaddleTooltipShape(),
                   onChanged: (dynamic newValue) {

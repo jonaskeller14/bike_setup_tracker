@@ -58,7 +58,7 @@ class AboutPage extends StatelessWidget {
 
   Widget _buildContactTile({required BuildContext context, required String title, required String email, required IconData icon}) {
     return ListTile(
-      leading: Icon(icon, color: Colors.blueAccent),
+      leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
       title: Text(title),
       subtitle: Text(email),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -68,7 +68,7 @@ class AboutPage extends StatelessWidget {
 
   Widget _buildLegalTile({required BuildContext context, required String title, required String url}) {
     return ListTile(
-      leading: const Icon(Icons.description_outlined, color: Colors.grey),
+      leading: Icon(Icons.description_outlined, color: Theme.of(context).colorScheme.primary),
       title: Text(title),
       onTap: () => _launchUrl(context, url),
       trailing: const Icon(Icons.open_in_new, size: 16.0),

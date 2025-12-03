@@ -41,7 +41,7 @@ class ValueChangeLegend extends StatelessWidget {
             ),
             _buildLegendItem(
               Colors.orange.withValues(alpha: 0.20),
-              'Value has changed',
+              'Changed Value',
             ),
           ],
         ),

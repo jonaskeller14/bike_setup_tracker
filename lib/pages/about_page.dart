@@ -1,0 +1,170 @@
+import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+class AboutPage extends StatelessWidget {
+  const AboutPage({super.key});
+
+  static const String appVersion = '1.0.0';
+  static const String buildNumber = '2';
+  static const String releaseDate = 'December 2025';
+
+  static const String supportEmail = 'jonaskeller14.app+support@gmail.com';
+  static const String featuresEmail = 'jonaskeller14.app+features@gmail.com';
+  static const String bugsEmail = 'jonaskeller14.app+bugs@gmail.com';
+
+  static const String privacyPolicyUrl = 'https://jonaskeller14.com/bike_setup_tracker/privacy_policy.html';
+  static const String eulaUrl = 'https://jonaskeller14.com/bike_setup_tracker/eula.html';
+  
+  Future<void> _launchUrl(BuildContext context, String url) async {
+    final uri = Uri.parse(url);
+    
+    if (await canLaunchUrl(uri)) { // Check if browser exists
+      if (await launchUrl(uri)) {
+        return;
+      } else {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to open link: $url'), backgroundColor: Theme.of(context).colorScheme.error));
+      }
+    } else {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not find a program to launch the link.'), backgroundColor: Theme.of(context).colorScheme.error));
+    }
+  }
+
+  Future<void> _launchEmail(BuildContext context, String email) async {
+    final uri = Uri.parse('mailto:$email');
+    
+    if (await canLaunchUrl(uri)) { // Check if email client exists
+      if (await launchUrl(uri)) {
+        return;
+      } else {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to open email client for: $email'), backgroundColor: Theme.of(context).colorScheme.error));
+      }
+    } else {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not find an email app on your device.'), backgroundColor: Theme.of(context).colorScheme.error));
+    }
+  }
+
+  Widget _buildInfoTile({required String title, required String subtitle}) {
+    return ListTile(
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: Text(subtitle),
+      dense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
+    );
+  }
+
+  Widget _buildContactTile({required BuildContext context, required String title, required String email, required IconData icon}) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.blueAccent),
+      title: Text(title),
+      subtitle: Text(email),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+      onTap: () => _launchEmail(context, email),
+    );
+  }
+
+  Widget _buildLegalTile({required BuildContext context, required String title, required String url}) {
+    return ListTile(
+      leading: const Icon(Icons.description_outlined, color: Colors.grey),
+      title: Text(title),
+      onTap: () => _launchUrl(context, url),
+      trailing: const Icon(Icons.open_in_new, size: 16.0),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('About'),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Center(
+                child: Column(
+                  children: [
+                    const Icon(
+                      Icons.info_outline,
+                      size: 64.0,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Bike Setup Tracker',
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const Divider(),
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
+              child: Text(
+                'App Information',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            _buildInfoTile(title: 'Version', subtitle: appVersion),
+            _buildInfoTile(title: 'Build Number', subtitle: buildNumber),
+            _buildInfoTile(title: 'Release Date', subtitle: releaseDate),
+
+            const Divider(height: 32.0),
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
+              child: Text(
+                'Contact & Feedback',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            _buildContactTile(
+              context: context,
+              title: 'General Support',
+              email: supportEmail,
+              icon: Icons.headset_mic_outlined,
+            ),
+            _buildContactTile(
+              context: context,
+              title: 'Suggestions & Features',
+              email: featuresEmail,
+              icon: Icons.lightbulb_outline,
+            ),
+            _buildContactTile(
+              context: context,
+              title: 'Report Bugs',
+              email: bugsEmail,
+              icon: Icons.bug_report_outlined,
+            ),
+
+            const Divider(height: 32.0),
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
+              child: Text(
+                'Legal Agreements',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            _buildLegalTile(
+              context: context,
+              title: 'Privacy Policy',
+              url: privacyPolicyUrl,
+            ),
+            _buildLegalTile(
+              context: context,
+              title: 'End-User License Agreement (EULA)',
+              url: eulaUrl,
+            ),
+            const SizedBox(height: 30),
+          ],
+        ),
+      ),
+    );
+  }
+}

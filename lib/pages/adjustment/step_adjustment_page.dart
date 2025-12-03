@@ -338,7 +338,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
             Stack(
               children: [
                 Container(
-                  padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
+                  padding: EdgeInsetsGeometry.fromLTRB(16, 48, 16, 16),
                   decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Colors.blueGrey.shade100),
                   child: Card(
                     child: SetStepAdjustmentWidget(

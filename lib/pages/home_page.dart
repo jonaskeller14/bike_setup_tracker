@@ -75,18 +75,7 @@ class _HomePageState extends State<HomePage> {
 
     if (!mounted) return;
     setState(() {
-      bikes
-        ..clear()
-        ..addAll(data.bikes);
-      setups
-        ..clear()
-        ..addAll(data.setups)
-        ..sort((a, b) => a.datetime.compareTo(b.datetime));
-      components
-        ..clear()
-        ..addAll(data.components);
-      determineCurrentSetups();
-      determinePreviousSetups();
+      FileImport.overwrite(remoteData: data, localBikes: bikes, localSetups: setups, localComponents: components);
     });
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
   }
@@ -101,40 +90,11 @@ class _HomePageState extends State<HomePage> {
 
     if (choice == 'overwrite') {
       setState(() {
-        bikes
-          ..clear()
-          ..addAll(data.bikes);
-        setups
-          ..clear()
-          ..addAll(data.setups)
-          ..sort((a, b) => a.datetime.compareTo(b.datetime));
-        components
-          ..clear()
-          ..addAll(data.components);
-        determineCurrentSetups();
-        determinePreviousSetups();
+        FileImport.overwrite(remoteData: data, localBikes: bikes, localSetups: setups, localComponents: components);
       });
     } else if (choice == 'merge') {
       setState(() {
-        for (var b in data.bikes) {
-          if (!bikes.any((x) => x.id == b.id)) {
-            bikes.add(b);
-          }
-        }
-
-        for (var s in data.setups) {
-          if (!setups.any((x) => x.id == s.id)) {
-            setups.add(s);
-          }
-        }
-        for (var c in data.components) {
-          if (!components.any((x) => x.id == c.id)) {
-            components.add(c);
-          }
-        }
-        setups.sort((a, b) => a.datetime.compareTo(b.datetime));
-        determineCurrentSetups();
-        determinePreviousSetups();
+        FileImport.merge(remoteData: data, localBikes: bikes, localSetups: setups, localComponents: components);
         for (final setup in data.setups) {
           updateSetupsAfter(setup);
         }
@@ -209,8 +169,8 @@ class _HomePageState extends State<HomePage> {
       for (var setup in toRemoveSetups) {
         setups.remove(setup);
       }
-      determineCurrentSetups();
-      determinePreviousSetups();
+      FileImport.determineCurrentSetups(setups: setups, bikes: bikes);
+      FileImport.determinePreviousSetups(setups: setups);
     });
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
   }
@@ -374,8 +334,8 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       setups.add(newSetup);
       setups.sort((a, b) => a.datetime.compareTo(b.datetime));
-      determineCurrentSetups();
-      determinePreviousSetups();
+      FileImport.determineCurrentSetups(setups: setups, bikes: bikes);
+      FileImport.determinePreviousSetups(setups: setups);
       updateSetupsAfter(newSetup);
     });
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
@@ -395,8 +355,8 @@ class _HomePageState extends State<HomePage> {
           setups[index] = editedSetup;
         }
         setups.sort((a, b) => a.datetime.compareTo(b.datetime));
-        determineCurrentSetups();
-        determinePreviousSetups();
+        FileImport.determineCurrentSetups(setups: setups, bikes: bikes);
+        FileImport.determinePreviousSetups(setups: setups);
         updateSetupsAfter(editedSetup);
       });
       await FileExport.saveData(bikes: bikes, setups: setups, components: components);
@@ -410,13 +370,13 @@ class _HomePageState extends State<HomePage> {
       datetime: DateTime.now(),
       adjustmentValues: setup.adjustmentValues,
       isCurrent: true,
-    );  //FIXME: Location and waether data is null --> maybe add default constructor?
+    );  //TODO: Location and waether data is null --> maybe add default constructor?
 
     setState(() {
       setups.add(newSetup);
       setups.sort((a, b) => a.datetime.compareTo(b.datetime));
-      determineCurrentSetups();
-      determinePreviousSetups();
+      FileImport.determineCurrentSetups(setups: setups, bikes: bikes);
+      FileImport.determinePreviousSetups(setups: setups);
     });
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
 
@@ -425,35 +385,6 @@ class _HomePageState extends State<HomePage> {
 
   Setup? getPreviousSetupbyDateTime({required DateTime datetime, required Bike bike}) {
     return setups.lastWhereOrNull((s) => s.datetime.isBefore(datetime) && s.bike == bike);
-  }
-
-  Future<void> determineCurrentSetups() async {
-    for (final setup in setups) {
-      setup.isCurrent = false;
-    }
-    final remainingBikes = Set.of(bikes);
-    for (final setup in setups.reversed) {
-      final bike = setup.bike;
-      if (remainingBikes.contains(bike)) {
-        setup.isCurrent = true;
-        remainingBikes.remove(bike);
-        if (remainingBikes.isEmpty) break;
-      }
-    }
-  }
-
-  Future<void> determinePreviousSetups() async {
-    Map<Bike, Setup> previousSetups = {}; 
-    for (final setup in setups) {
-      final bike = setup.bike;
-      final previousSetup = previousSetups[bike];
-      if (previousSetup == null) {
-        setup.previousSetup = null;
-      } else {
-        setup.previousSetup = previousSetup;
-      }
-      previousSetups[bike] = setup;
-    }
   }
 
   Future<void> updateSetupsAfter(Setup setup) async {

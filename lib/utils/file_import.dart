@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -128,6 +129,126 @@ class FileImport {
       debugPrint("Saved error file: ${file.path}");
     } catch (saveError) {
       debugPrint("Could not save debug file: $saveError");
+    }
+  }
+
+  static void overwrite({required Data remoteData, required List<Bike> localBikes, required List<Setup> localSetups, required List<Component> localComponents}) {
+    localBikes
+      ..clear()
+      ..addAll(remoteData.bikes);
+    localSetups
+      ..clear()
+      ..addAll(remoteData.setups)
+      ..sort((a, b) => a.datetime.compareTo(b.datetime));
+    localComponents
+      ..clear()
+      ..addAll(remoteData.components);
+    
+    localSetups.sort((a, b) => a.datetime.compareTo(b.datetime));
+    determineCurrentSetups(setups: localSetups, bikes: localBikes);
+    determinePreviousSetups(setups: localSetups);
+  }
+
+  static void merge({required Data remoteData, required List<Bike> localBikes, required List<Setup> localSetups, required List<Component> localComponents}) {
+    // Last Write Wins (LWW) strategy
+    for (final remoteBike in remoteData.bikes) {
+      final localBike = localBikes.firstWhereOrNull((bike) => bike.id == remoteBike.id);
+      
+      // Prio 1: Bike does not exist --> add newBike if it was not deleted on remote device yet
+      if (localBike == null) {
+        if (!remoteBike.isDeleted) localBikes.add(remoteBike);
+        continue;
+      }
+      
+      // Prio 2: LastModified (remote edit, remote delete, remote restauration)
+      final bool remoteIsNewer = remoteBike.lastModified.isAfter(localBike.lastModified);
+      if (remoteIsNewer) {
+        final int index = localBikes.indexOf(localBike);
+        localBikes[index] = remoteBike;
+        continue;
+      }
+
+      final bool remoteIsOlder = remoteBike.lastModified.isBefore(localBike.lastModified);
+      if (remoteIsOlder) continue; // local wins
+
+      debugPrint("MERGE CONFLICT: Could not add bike ${remoteBike.name} with id ${remoteBike.id}");
+    }
+
+    for (final remoteSetup in remoteData.setups) {
+      final localSetup = localSetups.firstWhereOrNull((setup) => setup.id == remoteSetup.id);
+
+      if (localSetup == null) {
+        if (!remoteSetup.isDeleted) localSetups.add(remoteSetup);
+        continue;
+      }
+
+      final bool remoteIsNewer = remoteSetup.lastModified.isAfter(localSetup.lastModified);
+      if (remoteIsNewer) {
+        final int index = localSetups.indexOf(localSetup);
+        localSetups[index] = remoteSetup;
+        continue;
+      }
+
+      final bool remoteIsOlder = remoteSetup.lastModified.isBefore(localSetup.lastModified);
+      if (remoteIsOlder) continue;
+      
+      debugPrint("MERGE CONFLICT: Could not add bike ${remoteSetup.name} with id ${remoteSetup.id}");
+    }
+
+    for (final remoteComponent in remoteData.components) {
+      final localComponent = localComponents.firstWhereOrNull((component) => component.id == remoteComponent.id);
+
+      if (localComponent == null) {
+        if (!remoteComponent.isDeleted) localComponents.add(remoteComponent);
+        continue;
+      }
+
+      final bool remoteIsNewer = remoteComponent.lastModified.isAfter(localComponent.lastModified);
+      if (remoteIsNewer) {
+        final int index = localComponents.indexOf(localComponent);
+        localComponents[index] = remoteComponent;
+        continue;
+      }
+
+      final bool remoteIsOlder = remoteComponent.lastModified.isBefore(localComponent.lastModified);
+      if (remoteIsOlder) continue;
+
+      debugPrint("MERGE CONFLICT: Could not add bike ${remoteComponent.name} with id ${remoteComponent.id}");
+    }
+
+    localSetups.sort((a, b) => a.datetime.compareTo(b.datetime));
+    determineCurrentSetups(setups: localSetups, bikes: localBikes);
+    determinePreviousSetups(setups: localSetups);
+  }
+
+  static void determineCurrentSetups({required List<Setup> setups, required List<Bike> bikes}) {
+    // Assumes setups is sorted
+    for (final setup in setups) {
+      setup.isCurrent = false;
+    }
+    final remainingBikes = Set.of(bikes.where((b) => !b.isDeleted));
+    for (final setup in setups.reversed.where((s) => !s.isDeleted)) {
+      final bike = setup.bike;
+      if (remainingBikes.contains(bike)) {
+        setup.isCurrent = true;
+        remainingBikes.remove(bike);
+        if (remainingBikes.isEmpty) break;
+      }
+    }
+  }
+
+  static void determinePreviousSetups({required List<Setup> setups}) {
+    // Assumes setups is sorted
+    Map<Bike, Setup> previousSetups = {}; 
+    for (final setup in setups.where((s) => !s.isDeleted)) {
+      final bike = setup.bike;
+      final previousSetup = previousSetups[bike];
+      if (previousSetup == null) {
+        setup.previousSetup = null;
+      } else {
+        setup.previousSetup = previousSetup;
+      }
+      previousSetups[bike] = setup;
     }
   }
 }

@@ -80,7 +80,7 @@ class Setup {
     return Setup(
       id: json['id'],
       isDeleted: json["isDeleted"],
-      lastModified: DateTime.tryParse(json["lastModified"]),
+      lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
       name: json['name'],
       datetime: DateTime.parse(json['datetime']),
       notes: json['notes'] != null ? json['notes'] as String : null,

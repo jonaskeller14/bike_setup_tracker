@@ -91,7 +91,7 @@ class Component {
     return Component(
       id: json["id"],
       isDeleted: json["isDeleted"],
-      lastModified: DateTime.tryParse(json["lastModified"]),
+      lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
       name: json['name'],
       componentType: ComponentType.values.firstWhere(
         (e) => e.toString() == json['componentType'],

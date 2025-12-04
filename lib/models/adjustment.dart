@@ -48,7 +48,7 @@ abstract class Adjustment<T> {
         return BooleanAdjustment(
           id: json["id"],
           isDeleted: json["isDeleted"],
-          lastModified: DateTime.tryParse(json["lastModified"]),
+          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
           name: json['name'],
           unit: json['unit'] as String?,
         );
@@ -56,7 +56,7 @@ abstract class Adjustment<T> {
         return CategoricalAdjustment(
           id: json["id"],
           isDeleted: json["isDeleted"],
-          lastModified: DateTime.tryParse(json["lastModified"]),
+          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
           name: json['name'],
           unit: json['unit'] as String?,
           options: List<String>.from(json['options']),
@@ -65,7 +65,7 @@ abstract class Adjustment<T> {
         return StepAdjustment(
           id: json["id"],
           isDeleted: json["isDeleted"],
-          lastModified: DateTime.tryParse(json["lastModified"]),
+          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
           name: json['name'],
           unit: json['unit'] as String?,
           step: (json['step'] as num).toInt(),
@@ -80,7 +80,7 @@ abstract class Adjustment<T> {
         return NumericalAdjustment(
           id: json["id"],
           isDeleted: json["isDeleted"],
-          lastModified: DateTime.tryParse(json["lastModified"]),
+          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
           name: json['name'],
           unit: json['unit'] as String?,
           min: (json['min'] as num?)?.toDouble(),

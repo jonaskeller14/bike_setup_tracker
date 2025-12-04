@@ -22,7 +22,7 @@ class Bike {
     return Bike(
       id: json["id"],
       isDeleted: json["isDeleted"],
-      lastModified: DateTime.tryParse(json["lastModified"]),
+      lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
       name: json['name'],
     );
   }

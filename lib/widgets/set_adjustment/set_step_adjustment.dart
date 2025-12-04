@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -77,7 +78,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
               ],
             )
           ),
-          if (adjustment.visualization == StepAdjustmentVisualization.slider)
+          if (adjustment.visualization == StepAdjustmentVisualization.slider || adjustment.visualization == StepAdjustmentVisualization.sliderWithClockwiseDial || adjustment.visualization == StepAdjustmentVisualization.sliderWithCounterclockwiseDial)
             Flexible(
               flex: 3,
               child: SfSliderTheme(
@@ -85,24 +86,46 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                   thumbRadius: 15,
                   tooltipTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,)
                 ),
-                child: SfSlider(
-                  min: adjustment.min.toDouble(),
-                  max: sliderMax,
-                  value: value,
-                  thumbShape: CustomValueThumbShape(Theme.of(context).colorScheme.primary),
-                  showLabels: true,
-                  interval: sliderInterval.toDouble(),
-                  showTicks: true,
-                  stepSize: adjustment.step.toDouble(),
-                  minorTicksPerInterval: sliderDivisions - 1,
-                  enableTooltip: true,
-                  tooltipShape: SfPaddleTooltipShape(),
-                  onChanged: (dynamic newValue) {
-                    onChanged(newValue);
-                  },
-                  onChangeEnd: (dynamic newValue) {
-                    onChangedEnd(newValue);
-                  },
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Expanded(
+                      child: SfSlider(
+                        min: adjustment.min.toDouble(),
+                        max: sliderMax,
+                        value: value,
+                        thumbShape: CustomValueThumbShape(Theme.of(context).colorScheme.primary),
+                        showLabels: true,
+                        interval: sliderInterval.toDouble(),
+                        showTicks: true,
+                        stepSize: adjustment.step.toDouble(),
+                        minorTicksPerInterval: sliderDivisions - 1,
+                        enableTooltip: true,
+                        tooltipShape: SfPaddleTooltipShape(),
+                        onChanged: (dynamic newValue) {
+                          onChanged(newValue);
+                        },
+                        tooltipTextFormatterCallback: (actualValue, formattedText) {
+                          if (isChanged && !isInitial) return "$formattedText  (${value >= initialValue! ? '+' : '-'}${(value - initialValue!).abs().toInt()})";
+                          return formattedText;
+                        },
+                        onChangeEnd: (dynamic newValue) {
+                          onChangedEnd(newValue);
+                        },
+                      ),
+                    ),
+                    if (adjustment.visualization == StepAdjustmentVisualization.sliderWithClockwiseDial || adjustment.visualization == StepAdjustmentVisualization.sliderWithCounterclockwiseDial)
+                      RotaryKnob(
+                        key: const ValueKey('RotaryKnob'),
+                        value: value,
+                        min: adjustment.min.toDouble(),
+                        max: sliderMax,
+                        numberOfTicks: sliderDivisions + 1,
+                        clockwise: adjustment.visualization == StepAdjustmentVisualization.sliderWithClockwiseDial,
+                        primaryColor: Theme.of(context).colorScheme.primary,
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -182,5 +205,171 @@ class CustomValueThumbShape extends SfThumbShape {
     );
 
     textPainter.paint(canvas, textCenter);
+  }
+}
+
+class RotaryKnob extends StatelessWidget {
+  final double value;
+  final double min;
+  final double max;
+  final Color primaryColor;
+  final int numberOfTicks;
+  final bool clockwise;
+
+  const RotaryKnob({
+    required super.key,
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.numberOfTicks,
+    required this.clockwise,
+    required this.primaryColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final normalizedValue = (value - min) / (max - min); // 0..1
+    final angleDeg = (normalizedValue * 270.0); // in degrees
+    final angleRad = angleDeg * (pi / 180.0);
+    
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: angleRad, end: angleRad),
+      duration: const Duration(milliseconds: 100), // Quick, continuous-feeling animation
+      builder: (context, value, child) {
+        return CustomPaint(
+          size: const Size(50, 50),
+          painter: KnobPainter(
+            rotationRadians: value,
+            primaryColor: primaryColor,
+            numberOfTicks: numberOfTicks,
+            clockwise: clockwise,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class KnobPainter extends CustomPainter {
+  final double rotationRadians;
+  final Color primaryColor;
+  final int numberOfTicks;
+  final bool clockwise;
+
+  KnobPainter({
+    required this.rotationRadians,
+    required this.primaryColor,
+    required this.numberOfTicks,
+    required this.clockwise,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double startAngleRad = clockwise ? 3 * pi / 4 :  1/4 * pi;
+    final double sweepAngleRad = (clockwise ? 1 : -1) * 270 * (pi / 180.0);
+
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2;
+    final knobRadius = radius * 0.8;
+    final tickRadius = radius * 0.95;
+    
+    // 1. Draw Ticks
+    final tickPaint = Paint()
+      ..color = Colors.grey.shade400
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0
+      ..strokeCap = StrokeCap.round;
+        
+    for (int i = 0; i < numberOfTicks; i++) {
+      final angle = startAngleRad + sweepAngleRad * (i / (numberOfTicks - 1));
+      
+      final x1 = center.dx + tickRadius * 0.9 * cos(angle);
+      final y1 = center.dy + tickRadius * 0.9 * sin(angle);
+      final x2 = center.dx + tickRadius * cos(angle);
+      final y2 = center.dy + tickRadius * sin(angle);
+      
+      canvas.drawLine(Offset(x1, y1), Offset(x2, y2), tickPaint);
+    }
+    
+    // -----------------------------------------------------------------
+    // START: ROTATING SECTION
+    // -----------------------------------------------------------------
+    canvas.save();
+    
+    final double normalizedRotation = rotationRadians / sweepAngleRad.abs(); // Normalized 0 to 1
+    
+    // The knob's "zero" position is assumed to be pointing up (0 rotation).
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(startAngleRad + pi / 2 + normalizedRotation * sweepAngleRad);
+    canvas.translate(-center.dx, -center.dy);
+    
+
+    // --- Draw the Scalloped Knob Body (Now Rotates) ---
+    final knobPaint = Paint()
+      ..color = primaryColor
+      ..style = PaintingStyle.fill;
+        
+    final Path knobPath = _createScallopedKnobPath(
+      center: center,
+      mainRadius: knobRadius,
+      numScallops: 6, 
+      smallCircleRadius: knobRadius / 2.5,
+      radialOffset: knobRadius + knobRadius / 2.5 * 0.5,
+    );
+      
+    canvas.drawPath(knobPath, knobPaint);
+
+    // --- Draw the Indicator Line (Now Rotates with the knob) ---
+    final indicatorPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0
+      ..strokeCap = StrokeCap.round;
+
+    final xStart = center.dx;
+    final yStart = center.dy;
+
+    final xEnd = center.dx;
+    final yEnd = center.dy - 0.8 * knobRadius;
+    
+    canvas.drawLine(Offset(xStart, yStart), Offset(xEnd, yEnd), indicatorPaint);
+
+    // -----------------------------------------------------------------
+    // END: ROTATING SECTION
+    // -----------------------------------------------------------------
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant KnobPainter oldDelegate) {
+    return oldDelegate.rotationRadians != rotationRadians;
+  }
+
+  Path _createScallopedKnobPath({required Offset center, required double mainRadius, required int numScallops, required double smallCircleRadius, required double radialOffset}) {
+    final Path mainCirclePath = Path()..addOval(
+      Rect.fromCircle(center: center, radius: mainRadius)
+    );
+
+    final Path subtractionPath = Path();
+    final double angleStep = 2 * pi / numScallops;
+
+    for (int i = 0; i < numScallops; i++) {
+      final double angle = i * angleStep;
+      final double centerX = center.dx + radialOffset * cos(angle);
+      final double centerY = center.dy + radialOffset * sin(angle);
+      final Offset smallCircleCenter = Offset(centerX, centerY);
+      subtractionPath.addOval(
+        Rect.fromCircle(center: smallCircleCenter, radius: smallCircleRadius)
+      );
+    }
+
+    final Path finalPath = Path.combine(
+      PathOperation.difference,
+      mainCirclePath,
+      subtractionPath,
+    );
+
+    return finalPath;
   }
 }

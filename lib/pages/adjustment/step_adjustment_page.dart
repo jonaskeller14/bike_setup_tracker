@@ -303,7 +303,26 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             items: StepAdjustmentVisualization.values.map((v) {
                               return DropdownMenuItem<StepAdjustmentVisualization>(
                                 value: v,
-                                child: Text(v.value),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    if (v == StepAdjustmentVisualization.slider)
+                                      const Icon(Icons.linear_scale),
+                                    if (v == StepAdjustmentVisualization.sliderWithClockwiseDial) ... [
+                                      const Icon(Icons.linear_scale),
+                                      const Icon(Icons.rotate_right),
+                                    ],
+                                    if (v == StepAdjustmentVisualization.sliderWithCounterclockwiseDial) ... [
+                                      const Icon(Icons.linear_scale),
+                                      const Icon(Icons.rotate_left),
+                                    ],
+                                    if (v == StepAdjustmentVisualization.minusButtonValuePlusButton)
+                                      const Icon(Icons.exposure_plus_1),
+                                    SizedBox(width: 8),
+                                    Expanded(child: Text(v.value)),
+                                  ],
+                                ),
                               );
                             }).toList(),
                             onChanged: (StepAdjustmentVisualization? newVisualization) {

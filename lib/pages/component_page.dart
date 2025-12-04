@@ -291,9 +291,9 @@ class _ComponentPageState extends State<ComponentPage> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.start,
+                          spacing: 8,
                           children: [
                             const Icon(Icons.pedal_bike),
-                            const SizedBox(width: 8),
                             Expanded(child: Text(b.name, overflow: TextOverflow.ellipsis))
                           ],
                         ),
@@ -324,9 +324,9 @@ class _ComponentPageState extends State<ComponentPage> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.start,
+                          spacing: 8,
                           children: [
                             Component.getIcon(componentType),
-                            const SizedBox(width: 8),
                             Expanded(child: Text(componentType.value, overflow: TextOverflow.ellipsis)),
                           ],
                         ),

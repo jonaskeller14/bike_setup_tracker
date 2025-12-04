@@ -117,9 +117,11 @@ class CategoricalAdjustment extends Adjustment<String> {
 }
 
 enum StepAdjustmentVisualization {
+  minusButtonValuePlusButton('Plus/Minus Buttons'),
   slider('Slider'),
-  minusButtonValuePlusButton('Buttons');
-
+  sliderWithClockwiseDial('Slider with Clockwise Dial'),
+  sliderWithCounterclockwiseDial('Slider with Counterclockwise Dial');
+  
   final String value;
   const StepAdjustmentVisualization(this.value);
 }

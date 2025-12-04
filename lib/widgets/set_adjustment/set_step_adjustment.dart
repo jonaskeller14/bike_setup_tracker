@@ -106,10 +106,6 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                         onChanged: (dynamic newValue) {
                           onChanged(newValue);
                         },
-                        tooltipTextFormatterCallback: (actualValue, formattedText) {
-                          if (isChanged && !isInitial) return "$formattedText  (${value >= initialValue! ? '+' : '-'}${(value - initialValue!).abs().toInt()})";
-                          return formattedText;
-                        },
                         onChangeEnd: (dynamic newValue) {
                           onChangedEnd(newValue);
                         },

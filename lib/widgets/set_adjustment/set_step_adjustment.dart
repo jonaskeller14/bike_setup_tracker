@@ -81,16 +81,17 @@ class SetStepAdjustmentWidget extends StatelessWidget {
           if (adjustment.visualization == StepAdjustmentVisualization.slider || adjustment.visualization == StepAdjustmentVisualization.sliderWithClockwiseDial || adjustment.visualization == StepAdjustmentVisualization.sliderWithCounterclockwiseDial)
             Flexible(
               flex: 3,
-              child: SfSliderTheme(
-                data: SfSliderThemeData(
-                  thumbRadius: 15,
-                  tooltipTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,)
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Expanded(
+                    child: SfSliderTheme(
+                      data: SfSliderThemeData(
+                        thumbRadius: 15,
+                        overlayRadius: 0,
+                        tooltipTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,)
+                      ),    
                       child: SfSlider(
                         min: adjustment.min.toDouble(),
                         max: sliderMax,
@@ -111,41 +112,41 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                         },
                       ),
                     ),
-                    if (adjustment.visualization == StepAdjustmentVisualization.sliderWithClockwiseDial || adjustment.visualization == StepAdjustmentVisualization.sliderWithCounterclockwiseDial)
-                      RotaryKnob(
-                        key: const ValueKey('RotaryKnob'),
-                        value: value,
-                        min: adjustment.min.toDouble(),
-                        max: sliderMax,
-                        numberOfTicks: sliderDivisions + 1,
-                        clockwise: adjustment.visualization == StepAdjustmentVisualization.sliderWithClockwiseDial,
-                        primaryColor: Theme.of(context).colorScheme.primary,
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          if (adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButton)
-            Flexible(
-              flex: 3,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 20,
-                children: [
-                  FilledButton(
-                    onPressed: value - adjustment.step >= adjustment.min ? onPressedMinusButton : null,
-                    child: Text("- ${adjustment.step}", style: TextStyle(fontFamily: 'monospace')),
                   ),
-                  Text(value.toInt().toString(), style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace')),
-                  FilledButton(
-                    onPressed: value + adjustment.step <= adjustment.max ? onPressedPlusButton : null,
-                    child: Text("+ ${adjustment.step}", style: TextStyle(fontFamily: 'monospace')),
-                  )
+                  if (adjustment.visualization == StepAdjustmentVisualization.sliderWithClockwiseDial || adjustment.visualization == StepAdjustmentVisualization.sliderWithCounterclockwiseDial)
+                    RotaryKnob(
+                      key: const ValueKey('RotaryKnob'),
+                      value: value,
+                      min: adjustment.min.toDouble(),
+                      max: sliderMax,
+                      numberOfTicks: sliderDivisions + 1,
+                      clockwise: adjustment.visualization == StepAdjustmentVisualization.sliderWithClockwiseDial,
+                      primaryColor: Theme.of(context).colorScheme.primary,
+                    ),
                 ],
               ),
+          ),
+        if (adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButton)
+          Flexible(
+            flex: 3,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 20,
+              children: [
+                FilledButton(
+                  onPressed: value - adjustment.step >= adjustment.min ? onPressedMinusButton : null,
+                  child: Text("- ${adjustment.step}", style: TextStyle(fontFamily: 'monospace')),
+                ),
+                Text(value.toInt().toString(), style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace')),
+                FilledButton(
+                  onPressed: value + adjustment.step <= adjustment.max ? onPressedPlusButton : null,
+                  child: Text("+ ${adjustment.step}", style: TextStyle(fontFamily: 'monospace')),
+                )
+              ],
             ),
+          ),
         ],
       ),
     );

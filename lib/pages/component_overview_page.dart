@@ -27,6 +27,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
   bool _showNotes = false;
   bool _showDate = true;
   bool _showTime = false;
+  bool _showPlace = false;
   bool _showCurrentTemperature = false;
   bool _showDayAccumulatedPrecipitation = false;
   bool _showCurrentHumidity = false;
@@ -52,6 +53,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
         case "notes": setState(() {ascending ? _setups.sort((a, b) => (a.notes ?? '').compareTo(b.notes ?? '')) : _setups.sort((a, b) => (b.notes ?? '').compareTo(a.notes ?? ''));});
         case "date": setState(() {ascending ? _setups.sort((a, b) => a.datetime.compareTo(b.datetime)) : _setups.sort((a, b) => b.datetime.compareTo(a.datetime));});
         case "time": setState(() {ascending ? _setups.sort((a, b) => a.datetime.copyWith(year: 0, month: 0, day: 0).compareTo(b.datetime.copyWith(year: 0, month: 0, day: 0))) : _setups.sort((a, b) => b.datetime.copyWith(year: 0, month: 0, day: 0).compareTo(a.datetime.copyWith(year: 0, month: 0, day: 0)));});
+        case "place": setState(() {ascending ? _setups.sort((a, b) => (a.place?.locality ?? '').compareTo(b.place?.locality ?? '')) : _setups.sort((a, b) => (b.place?.locality ?? '').compareTo(a.place?.locality ?? ''));});
         case "currentTemperature": setState(() {ascending ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));});
         case "dayAccumulatedPrecipitation": setState(() {ascending ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));});
         case "currentHumidity": setState(() {ascending ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));});
@@ -132,6 +134,16 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                     onSelected: (bool value) {
                       setState(() {
                         _showTime = value;
+                        _sortColumnIndex = null;
+                      });
+                    },
+                  ),
+                  FilterChip(
+                    selected: _showPlace,
+                    label: const Text("Place"),
+                    onSelected: (bool value) {
+                      setState(() {
+                        _showPlace = value;
                         _sortColumnIndex = null;
                       });
                     },
@@ -233,6 +245,8 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                       DataColumn(label: const Text('Date'), onSort: (columnIndex, ascending) => onSortColum("date", columnIndex, ascending)),
                     if (_showTime)
                       DataColumn(label: const Text('Time'), onSort: (columnIndex, ascending) => onSortColum("time", columnIndex, ascending)),
+                    if (_showPlace)
+                      DataColumn(label: const Text('Place'), onSort: (columnIndex, ascending) => onSortColum("place", columnIndex, ascending)),
                     
                     if (_showCurrentTemperature)
                       DataColumn(label: const Text('Temperature'), onSort: (columnIndex, ascending) => onSortColum("currentTemperature", columnIndex, ascending)),
@@ -271,6 +285,8 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                           DataCell(Text(DateFormat('yyyy-MM-dd').format(setup.datetime))),
                         if (_showTime)
                           DataCell(Text(DateFormat('HH:mm').format(setup.datetime))),
+                        if (_showPlace)
+                          DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: Text(setup.place?.locality ?? '-', overflow: TextOverflow.ellipsis))),
                         
                         if (_showCurrentTemperature)
                           DataCell(Center(child: Text(setup.weather?.currentTemperature == null ? '-' : "${setup.weather!.currentTemperature!.round()} °C"))),

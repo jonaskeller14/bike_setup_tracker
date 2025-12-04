@@ -1,0 +1,6 @@
+# General setting: Let Git handle line endings automatically for all other text files.
+* text=auto
+
+# FOR THE macos FOLDER: Explicitly force LF line endings on checkout for all files inside it.
+# The leading slash (/) anchors the pattern to the repository root.
+/macos/** text eol=lf

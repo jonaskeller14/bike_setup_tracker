@@ -15,6 +15,20 @@ class AboutPage extends StatelessWidget {
   static const String privacyPolicyUrl = 'https://jonaskeller14.com/bike_setup_tracker/privacy_policy.html';
   static const String eulaUrl = 'https://jonaskeller14.com/bike_setup_tracker/eula.html';
   
+String _getEmailContext() {
+    final now = DateTime.now().toIso8601String().substring(0, 16);
+    return '''
+
+
+
+------------------
+App Version: $appVersion
+Build Number: $buildNumber
+Current Time: $now
+------------------
+''';
+  }
+
   Future<void> _launchUrl(BuildContext context, String url) async {
     final uri = Uri.parse(url);
     
@@ -31,8 +45,10 @@ class AboutPage extends StatelessWidget {
     }
   }
 
-  Future<void> _launchEmail(BuildContext context, String email) async {
-    final uri = Uri.parse('mailto:$email');
+  Future<void> _launchEmail(BuildContext context, String email, {String? subject, String? body}) async {
+    final bodyContext = _getEmailContext();
+    final encodedBody = Uri.encodeComponent((body ?? '') + bodyContext);
+    final uri = Uri.parse('mailto:$email?subject=${Uri.encodeComponent(subject ?? '')}&body=$encodedBody');
     
     if (await canLaunchUrl(uri)) { // Check if email client exists
       if (await launchUrl(uri)) {
@@ -56,13 +72,13 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Widget _buildContactTile({required BuildContext context, required String title, required String email, required IconData icon}) {
+  Widget _buildContactTile({required BuildContext context, required String title, required String email, required IconData icon, required String subject}) {
     return ListTile(
       leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
       title: Text(title),
       subtitle: Text(email),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-      onTap: () => _launchEmail(context, email),
+      onTap: () => _launchEmail(context, email, subject: subject),
     );
   }
 
@@ -129,18 +145,21 @@ class AboutPage extends StatelessWidget {
               title: 'General Support',
               email: supportEmail,
               icon: Icons.headset_mic_outlined,
+              subject: 'Bike Setup Tracker Support Request',
             ),
             _buildContactTile(
               context: context,
               title: 'Suggestions & Features',
               email: featuresEmail,
               icon: Icons.lightbulb_outline,
+              subject: 'Bike Setup Tracker Feature Suggestion',
             ),
             _buildContactTile(
               context: context,
               title: 'Report Bugs',
               email: bugsEmail,
               icon: Icons.bug_report_outlined,
+              subject: 'BUG Report: Bike Setup Tracker',
             ),
 
             const Divider(height: 32.0),

@@ -3,13 +3,17 @@ import 'package:uuid/uuid.dart';
 
 abstract class Adjustment<T> {
   final String id;
+  bool isDeleted;
+  DateTime lastModified;
   String name;
   final Type valueType;
   String? unit;
 
-  Adjustment({String? id, required this.name, required this.unit})
+  Adjustment({String? id, bool? isDeleted, DateTime? lastModified, required this.name, required this.unit})
     : valueType = T,
-      id = id ?? const Uuid().v4();
+      id = id ?? const Uuid().v4(),
+      isDeleted = false,
+      lastModified = DateTime.now();
 
   Adjustment<T> deepCopy();
   bool isValidValue(T value);
@@ -41,10 +45,18 @@ abstract class Adjustment<T> {
     final type = json['type'];
     switch (type) {
       case 'boolean':
-        return BooleanAdjustment(id: json["id"], name: json['name'], unit: json['unit'] as String?);
+        return BooleanAdjustment(
+          id: json["id"],
+          isDeleted: json["isDeleted"],
+          lastModified: DateTime.tryParse(json["lastModified"]),
+          name: json['name'],
+          unit: json['unit'] as String?,
+        );
       case 'categorical':
         return CategoricalAdjustment(
           id: json["id"],
+          isDeleted: json["isDeleted"],
+          lastModified: DateTime.tryParse(json["lastModified"]),
           name: json['name'],
           unit: json['unit'] as String?,
           options: List<String>.from(json['options']),
@@ -52,6 +64,8 @@ abstract class Adjustment<T> {
       case 'step':
         return StepAdjustment(
           id: json["id"],
+          isDeleted: json["isDeleted"],
+          lastModified: DateTime.tryParse(json["lastModified"]),
           name: json['name'],
           unit: json['unit'] as String?,
           step: (json['step'] as num).toInt(),
@@ -65,6 +79,8 @@ abstract class Adjustment<T> {
       case 'numerical':
         return NumericalAdjustment(
           id: json["id"],
+          isDeleted: json["isDeleted"],
+          lastModified: DateTime.tryParse(json["lastModified"]),
           name: json['name'],
           unit: json['unit'] as String?,
           min: (json['min'] as num?)?.toDouble(),
@@ -79,7 +95,14 @@ abstract class Adjustment<T> {
 class CategoricalAdjustment extends Adjustment<String> {
   List<String> options;
 
-  CategoricalAdjustment({super.id, required super.name, required super.unit, required this.options});
+  CategoricalAdjustment({
+    super.id,
+    super.isDeleted,
+    super.lastModified,
+    required super.name,
+    required super.unit,
+    required this.options,
+  });
 
   @override
   CategoricalAdjustment deepCopy() {
@@ -94,6 +117,8 @@ class CategoricalAdjustment extends Adjustment<String> {
   @override
   Map<String, dynamic> toJson() => {
     'id': id,
+    "isDeleted": isDeleted,
+    "lastModified": lastModified.toIso8601String(),
     'name': name,
     'type': 'categorical',
     'valueType': valueType.toString(),
@@ -136,6 +161,8 @@ class StepAdjustment extends Adjustment<int> {
 
   StepAdjustment({
     super.id,
+    super.isDeleted,
+    super.lastModified,
     required super.name,
     required super.unit,
     required this.step,
@@ -157,6 +184,8 @@ class StepAdjustment extends Adjustment<int> {
   @override
   Map<String, dynamic> toJson() => {
     'id': id,
+    "isDeleted": isDeleted,
+    "lastModified": lastModified.toIso8601String(),
     'name': name,
     'type': 'step',
     'valueType': valueType.toString(),
@@ -188,6 +217,8 @@ class NumericalAdjustment extends Adjustment<double> {
 
   NumericalAdjustment({
     super.id,
+    super.isDeleted,
+    super.lastModified,
     required super.name,
     required super.unit,
     double? min,
@@ -208,6 +239,8 @@ class NumericalAdjustment extends Adjustment<double> {
   @override
   Map<String, dynamic> toJson() => {
     'id': id,
+    "isDeleted": isDeleted,
+    "lastModified": lastModified.toIso8601String(),
     'name': name,
     'type': 'numerical',
     'valueType': valueType.toString(),
@@ -232,7 +265,13 @@ class NumericalAdjustment extends Adjustment<double> {
 }
 
 class BooleanAdjustment extends Adjustment<bool> {
-  BooleanAdjustment({super.id, required super.name, required super.unit});
+  BooleanAdjustment({
+    super.id,
+    super.isDeleted,
+    super.lastModified,
+    required super.name,
+    required super.unit,
+  });
 
   @override
   BooleanAdjustment deepCopy() {
@@ -247,6 +286,8 @@ class BooleanAdjustment extends Adjustment<bool> {
   @override
   Map<String, dynamic> toJson() => {
     'id': id,
+    "isDeleted": isDeleted,
+    "lastModified": lastModified.toIso8601String(),
     'name': name,
     'type': 'boolean',
     'valueType': valueType.toString(),

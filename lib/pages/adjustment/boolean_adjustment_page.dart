@@ -57,6 +57,7 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
     if (widget.adjustment == null) {
       Navigator.pop(context, BooleanAdjustment(name: name, unit: null));
     } else {
+      widget.adjustment!.lastModified = DateTime.now();
       widget.adjustment!.name = name;
       widget.adjustment!.unit = null;
       Navigator.pop(context, widget.adjustment);

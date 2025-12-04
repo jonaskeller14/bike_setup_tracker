@@ -8,6 +8,8 @@ import 'package:geocoding/geocoding.dart' as geo;
 
 class Setup {
   final String id;
+  bool isDeleted;
+  DateTime lastModified;
   final String name;
   final DateTime datetime;
   final String? notes;
@@ -21,6 +23,8 @@ class Setup {
 
   Setup({
     String? id,
+    bool? isDeleted, 
+    DateTime? lastModified,
     required this.name,
     required this.datetime,
     this.notes,
@@ -31,10 +35,14 @@ class Setup {
     this.weather,
     this.previousSetup,
     required this.isCurrent,
-  }): id = id ?? const Uuid().v4();
+  }) : id = id ?? const Uuid().v4(),
+       isDeleted = false,
+       lastModified = DateTime.now();
 
   Map<String, dynamic> toJson() => {
     'id': id,
+    "isDeleted": isDeleted,
+    "lastModified": lastModified.toIso8601String(),
     'name': name,
     'datetime': datetime.toIso8601String(),
     'notes': notes,
@@ -71,6 +79,8 @@ class Setup {
 
     return Setup(
       id: json['id'],
+      isDeleted: json["isDeleted"],
+      lastModified: DateTime.tryParse(json["lastModified"]),
       name: json['name'],
       datetime: DateTime.parse(json['datetime']),
       notes: json['notes'] != null ? json['notes'] as String : null,

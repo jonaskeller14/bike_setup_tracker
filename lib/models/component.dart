@@ -20,6 +20,8 @@ enum ComponentType {
 
 class Component {
   final String id;
+  bool isDeleted;
+  DateTime lastModified;
   final String name;
   final ComponentType componentType; 
   final List<Adjustment> adjustments;
@@ -27,12 +29,16 @@ class Component {
 
   Component({
     String? id,
+    bool? isDeleted,
+    DateTime? lastModified,
     required this.name,
     required this.bike,
     required this.componentType,
     List<Adjustment>? adjustments,
   }) : adjustments = adjustments ?? [],
-       id = id ?? const Uuid().v4();
+       id = id ?? const Uuid().v4(),
+       isDeleted = false,
+       lastModified = DateTime.now();
     
   Component deepCopy() {
     return Component(
@@ -66,6 +72,8 @@ class Component {
 
   Map<String, dynamic> toJson() => {
     'id': id,
+    "isDeleted": isDeleted,
+    "lastModified": lastModified.toIso8601String(),
     'name': name,
     'componentType': componentType.toString(),
     'bike': bike.id,
@@ -82,6 +90,8 @@ class Component {
         ?? <Adjustment>[];
     return Component(
       id: json["id"],
+      isDeleted: json["isDeleted"],
+      lastModified: DateTime.tryParse(json["lastModified"]),
       name: json['name'],
       componentType: ComponentType.values.firstWhere(
         (e) => e.toString() == json['componentType'],

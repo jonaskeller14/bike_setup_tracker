@@ -97,7 +97,6 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     if (widget.adjustment == null) {
       Navigator.pop(context, StepAdjustment(name: name, unit: null, step: step, min: min, max: max, visualization: visualization));
     } else {
-      widget.adjustment!.lastModified = DateTime.now();
       widget.adjustment!.name = name;
       widget.adjustment!.min = min;
       widget.adjustment!.max = max;

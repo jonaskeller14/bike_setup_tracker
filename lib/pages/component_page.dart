@@ -65,11 +65,10 @@ class _ComponentPageState extends State<ComponentPage> {
       context,
       MaterialPageRoute(builder: (context) => const BooleanAdjustmentPage()),
     );
-    if (adjustment != null) {
-      setState(() {
-        adjustments.add(adjustment);
-      });
-    }
+    if (adjustment == null) return;
+    setState(() {
+      adjustments.add(adjustment);
+    });
     _changeListener();
   }
 
@@ -78,11 +77,10 @@ class _ComponentPageState extends State<ComponentPage> {
       context,
       MaterialPageRoute(builder: (context) => const NumericalAdjustmentPage()),
     );
-    if (adjustment != null) {
-      setState(() {
-        adjustments.add(adjustment);
-      });
-    }
+    if (adjustment == null) return;
+    setState(() {
+      adjustments.add(adjustment);
+    });
     _changeListener();
   }
 
@@ -91,11 +89,10 @@ class _ComponentPageState extends State<ComponentPage> {
       context,
       MaterialPageRoute(builder: (context) => const StepAdjustmentPage()),
     );
-    if (adjustment != null) {
-      setState(() {
-        adjustments.add(adjustment);
-      });
-    }
+    if (adjustment == null) return;
+    setState(() {
+      adjustments.add(adjustment);
+    });
     _changeListener();
   }
 
@@ -104,11 +101,10 @@ class _ComponentPageState extends State<ComponentPage> {
       context,
       MaterialPageRoute(builder: (context) => const CategoricalAdjustmentPage()),
     );
-    if (adjustment != null) {
-      setState(() {
-        adjustments.add(adjustment);
-      });
-    }
+    if (adjustment == null) return;
+    setState(() {
+      adjustments.add(adjustment);
+    });
     _changeListener();
   }
 
@@ -138,6 +134,7 @@ class _ComponentPageState extends State<ComponentPage> {
         adjustments[index] = editedAdjustment;
       }
     });
+    if (widget.component != null) widget.component!.lastModified = DateTime.now();
   }
 
   Future<void> _editStepAdjustment(StepAdjustment adjustment) async {
@@ -154,6 +151,7 @@ class _ComponentPageState extends State<ComponentPage> {
         adjustments[index] = editedAdjustment;
       }
     });
+    if (widget.component != null) widget.component!.lastModified = DateTime.now();
   }
 
   Future<void> _editCategoricalAdjustment(CategoricalAdjustment adjustment) async {
@@ -170,6 +168,7 @@ class _ComponentPageState extends State<ComponentPage> {
         adjustments[index] = editedAdjustment;
       }
     });
+    if (widget.component != null) widget.component!.lastModified = DateTime.now();
   }
 
   Future<void> _editNumericalAdjustment(NumericalAdjustment adjustment) async {
@@ -186,9 +185,10 @@ class _ComponentPageState extends State<ComponentPage> {
         adjustments[index] = editedAdjustment;
       }
     });
+    if (widget.component != null) widget.component!.lastModified = DateTime.now();
   }
 
-  Future<void> removeAdjustment(Adjustment adjustment) async { //TODO Remove Adjustment in HomePage by supply RemoveAdjustment Function as argument
+  Future<void> removeAdjustment(Adjustment adjustment) async {
     setState(() {
       adjustments.remove(adjustment);
     });
@@ -265,20 +265,9 @@ class _ComponentPageState extends State<ComponentPage> {
   }
   
   void _onReorderAdjustments(int oldIndex, int newIndex) {
-    // Applies reorder to 'adjustments' on the basis of filtered adjustments
-    final filteredAdjustments = adjustments.where((adj) => !adj.isDeleted).toList();
-    final adjustmentToMove = filteredAdjustments[oldIndex];
-    oldIndex = adjustments.indexOf(adjustmentToMove);
-    final targetAdjustment = newIndex < filteredAdjustments.length
-        ? filteredAdjustments[newIndex]
-        : null;
-    newIndex = targetAdjustment == null
-        ? adjustments.length
-        : adjustments.indexOf(targetAdjustment);
-    
     int adjustedNewIndex = newIndex;
     if (oldIndex < newIndex) adjustedNewIndex -= 1;
-          
+
     setState(() {
       final adjustment = adjustments.removeAt(oldIndex);
       adjustments.insert(adjustedNewIndex, adjustment);
@@ -450,9 +439,9 @@ class _ComponentPageState extends State<ComponentPage> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  adjustments.isNotEmpty 
+                  adjustments.isNotEmpty
                       ? AdjustmentEditList(
-                          adjustments: adjustments.where((adj) => !adj.isDeleted).toList(),
+                          adjustments: adjustments,
                           editAdjustment: _editAdjustment,
                           removeAdjustment: removeAdjustment,
                           onReorderAdjustments: _onReorderAdjustments,

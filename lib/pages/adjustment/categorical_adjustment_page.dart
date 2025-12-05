@@ -135,7 +135,6 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
     if (widget.adjustment == null) {
       Navigator.pop(context, CategoricalAdjustment(name: name, unit: null, options: options));
     } else {
-      widget.adjustment!.lastModified = DateTime.now();
       widget.adjustment!.name = name;
       widget.adjustment!.options = options;
       Navigator.pop(context, widget.adjustment);

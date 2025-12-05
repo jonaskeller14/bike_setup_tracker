@@ -87,7 +87,6 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     if (widget.adjustment == null) {
       Navigator.pop(context, NumericalAdjustment(name: name, min: min, max: max, unit: unit));
     } else {
-      widget.adjustment!.lastModified = DateTime.now();
       widget.adjustment!.name = name;
       widget.adjustment!.unit = unit;
       widget.adjustment!.min = min;

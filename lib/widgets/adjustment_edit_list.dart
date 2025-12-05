@@ -6,7 +6,7 @@ class AdjustmentEditList extends StatefulWidget {
   final List<Adjustment> adjustments;
   final void Function(Adjustment adjustment) editAdjustment;
   final void Function(Adjustment adjustment) removeAdjustment;
-  final void Function(List<Adjustment> newOrder) onReorderAdjustments;
+  final void Function(int oldIndex, int newIndex) onReorderAdjustments;
 
   const AdjustmentEditList({
     super.key,
@@ -107,16 +107,7 @@ class _AdjustmentEditListState extends State<AdjustmentEditList> {
       proxyDecorator: proxyDecorator,
       itemCount: cards.length,
       itemBuilder: (context, index) => cards[index],
-      onReorder: (int oldIndex, int newIndex) {
-        setState(() {
-          if (oldIndex < newIndex) {
-            newIndex -= 1;
-          }
-          final item = widget.adjustments.removeAt(oldIndex);
-          widget.adjustments.insert(newIndex, item);
-          widget.onReorderAdjustments(widget.adjustments);
-        });
-      },
+      onReorder: (int oldIndex, int newIndex) => widget.onReorderAdjustments,
     );
   }
 }

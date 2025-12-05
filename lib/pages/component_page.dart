@@ -263,6 +263,28 @@ class _ComponentPageState extends State<ComponentPage> {
       ),
     );
   }
+  
+  void _onReorderAdjustments(int oldIndex, int newIndex) {
+    // Applies reorder to 'adjustments' on the basis of filtered adjustments
+    final filteredAdjustments = adjustments.where((adj) => !adj.isDeleted).toList();
+    final adjustmentToMove = filteredAdjustments[oldIndex];
+    oldIndex = adjustments.indexOf(adjustmentToMove);
+    final targetAdjustment = newIndex < filteredAdjustments.length
+        ? filteredAdjustments[newIndex]
+        : null;
+    newIndex = targetAdjustment == null
+        ? adjustments.length
+        : adjustments.indexOf(targetAdjustment);
+    
+    int adjustedNewIndex = newIndex;
+    if (oldIndex < newIndex) adjustedNewIndex -= 1;
+          
+    setState(() {
+      final adjustment = adjustments.removeAt(oldIndex);
+      adjustments.insert(adjustedNewIndex, adjustment);
+    });
+    _changeListener();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -430,15 +452,10 @@ class _ComponentPageState extends State<ComponentPage> {
                   const SizedBox(height: 16),
                   adjustments.isNotEmpty 
                       ? AdjustmentEditList(
-                          adjustments: adjustments,
+                          adjustments: adjustments.where((adj) => !adj.isDeleted).toList(),
                           editAdjustment: _editAdjustment,
                           removeAdjustment: removeAdjustment,
-                          onReorderAdjustments: (List<Adjustment> tmpAdjustments) {
-                            setState(() {
-                              adjustments = tmpAdjustments;
-                            });
-                            _changeListener();
-                          },
+                          onReorderAdjustments: _onReorderAdjustments,
                         ) 
                       : Container(
                           width: double.infinity,

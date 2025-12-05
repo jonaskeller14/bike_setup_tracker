@@ -278,8 +278,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> onReorderComponents(int oldIndex, int newIndex) async {
-    if (_selectedBike != null) {
-      final filteredComponents = components.where((c) => c.bike == _selectedBike).toList();
+    // Applies reorder to 'components' on the basis of filtered components
+    final filteredComponents = components.where((c) => c.bike == (_selectedBike ?? c.bike) && !c.isDeleted).toList();
       final componentToMove = filteredComponents[oldIndex];
       oldIndex = components.indexOf(componentToMove);
       final targetComponent = newIndex < filteredComponents.length
@@ -288,12 +288,9 @@ class _HomePageState extends State<HomePage> {
       newIndex = targetComponent == null
           ? components.length 
           : components.indexOf(targetComponent);
-    }
 
     int adjustedNewIndex = newIndex;
-    if (oldIndex < newIndex) {
-      adjustedNewIndex -= 1;
-    }
+    if (oldIndex < newIndex) adjustedNewIndex -= 1;
 
     setState(() {
       final component = components.removeAt(oldIndex);
@@ -303,10 +300,19 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> onReorderBikes(int oldIndex, int newIndex) async {
+    // Applies reorder to 'bikes' on the basis of filtered bikes
+    final filteredBikes = bikes.where((b) => !b.isDeleted).toList();
+    final bikeToMove = filteredBikes[oldIndex];
+    oldIndex = bikes.indexOf(bikeToMove);
+    final targetBike = newIndex < filteredBikes.length
+        ? filteredBikes[newIndex]
+        : null;
+    newIndex = targetBike == null
+        ? bikes.length 
+        : bikes.indexOf(targetBike);
+
     int adjustedNewIndex = newIndex;
-    if (oldIndex < newIndex) {
-      adjustedNewIndex -= 1;
-    }
+    if (oldIndex < newIndex) adjustedNewIndex -= 1;
 
     setState(() {
       final bike = bikes.removeAt(oldIndex);
@@ -385,26 +391,6 @@ class _HomePageState extends State<HomePage> {
 
   Setup? getPreviousSetupbyDateTime({required DateTime datetime, required Bike bike}) {
     return setups.lastWhereOrNull((s) => s.datetime.isBefore(datetime) && s.bike == bike);
-  }
-
-  Future<void> updateSetupsAfter(Setup setup) async {
-    // Call after sorting setups!
-    // Handles case: New Component, New Setup with new component with date in the past
-    // --> Bug: component references current setup with missing values for new component
-    if (setup.isCurrent) return;
-    final index = setups.indexOf(setup);
-    if (index == -1) return;
-    if (index == setups.length -1) return; // ==isCurrent
-    final afterSetups = setups.sublist(index + 1);
-    final afterBikeSetups = afterSetups.where((s) => s.bike == setup.bike);
-    for (final adjustmentValue in setup.adjustmentValues.entries) {
-      final adjustment = adjustmentValue.key;
-      final value = adjustmentValue.value;
-      for (final afterBikeSetup in afterBikeSetups) {
-        if (afterBikeSetup.adjustmentValues.containsKey(adjustment)) continue;
-        afterBikeSetup.adjustmentValues[adjustment] = value;
-      }
-    }
   }
 
   @override

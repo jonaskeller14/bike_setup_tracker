@@ -251,4 +251,24 @@ class FileImport {
       previousSetups[bike] = setup;
     }
   }
+
+  static void updateSetupsAfter({required List<Setup> setups, required Setup setup}) {
+    // Call after sorting setups!
+    // Handles case: New Component, New Setup with new component with date in the past
+    // --> Solves Bug: component references current setup with missing values for new component
+    if (setup.isCurrent) return;
+    final index = setups.indexOf(setup);
+    if (index == -1) return;
+    if (index == setups.length -1) return; // ==isCurrent
+    final afterSetups = setups.sublist(index + 1);
+    final afterBikeSetups = afterSetups.where((s) => s.bike == setup.bike);
+    for (final adjustmentValue in setup.adjustmentValues.entries) {
+      final adjustment = adjustmentValue.key;
+      final value = adjustmentValue.value;
+      for (final afterBikeSetup in afterBikeSetups) {
+        if (afterBikeSetup.adjustmentValues.containsKey(adjustment)) continue;
+        afterBikeSetup.adjustmentValues[adjustment] = value;
+      }
+    }
+  }
 }

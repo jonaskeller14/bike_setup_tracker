@@ -96,7 +96,7 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         FileImport.merge(remoteData: data, localBikes: bikes, localSetups: setups, localComponents: components);
         for (final setup in data.setups) {
-          updateSetupsAfter(setup);
+          FileImport.updateSetupsAfter(setups: setups, setup: setup);
         }
       });
     }
@@ -336,7 +336,7 @@ class _HomePageState extends State<HomePage> {
       setups.sort((a, b) => a.datetime.compareTo(b.datetime));
       FileImport.determineCurrentSetups(setups: setups, bikes: bikes);
       FileImport.determinePreviousSetups(setups: setups);
-      updateSetupsAfter(newSetup);
+      FileImport.updateSetupsAfter(setups: setups, setup: newSetup);
     });
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
   }
@@ -357,7 +357,7 @@ class _HomePageState extends State<HomePage> {
         setups.sort((a, b) => a.datetime.compareTo(b.datetime));
         FileImport.determineCurrentSetups(setups: setups, bikes: bikes);
         FileImport.determinePreviousSetups(setups: setups);
-        updateSetupsAfter(editedSetup);
+        FileImport.updateSetupsAfter(setups: setups, setup: editedSetup);
       });
       await FileExport.saveData(bikes: bikes, setups: setups, components: components);
     }

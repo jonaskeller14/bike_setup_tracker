@@ -77,6 +77,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       FileImport.overwrite(remoteData: data, localBikes: bikes, localSetups: setups, localComponents: components);
     });
+    FileImport.cleanupIsDeleted(bikes: bikes, components: components, setups: setups);
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
   }
 

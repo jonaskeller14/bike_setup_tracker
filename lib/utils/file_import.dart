@@ -271,4 +271,25 @@ class FileImport {
       }
     }
   }
+
+  static void cleanupIsDeleted({required List<Bike> bikes, required List<Component> components, required List<Setup> setups}) {
+    final thirtyDays = const Duration(days: 30); 
+    final deleteDateTime = DateTime.now().subtract(thirtyDays);
+    
+    for (final bike in List.from(bikes)) {
+      if (bike.isDeleted && bike.lastModified.isBefore(deleteDateTime)) bikes.remove(bike);
+    }
+
+    for (final component in List.from(components)) {
+      if ((component.isDeleted && component.lastModified.isBefore(deleteDateTime)) || !bikes.contains(component.bike)) components.remove(component);
+
+      for (final adjustment in List.from(component.adjustments)) {
+        if (adjustment.isDeleted && adjustment.lastModified.isBefore(deleteDateTime)) component.adjustments.remove(adjustment);
+      }
+    }
+
+    for (final setup in List.from(setups)) {
+      if ((setup.isDeleted && setup.lastModified.isBefore(deleteDateTime)) || !bikes.contains(setup.bike)) setups.remove(setup);
+    }
+  }
 }

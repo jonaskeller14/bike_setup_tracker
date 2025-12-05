@@ -29,8 +29,8 @@ import '../widgets/setup_page_legend.dart';
 class SetupPage extends StatefulWidget {
   final Setup? setup;
   final List<Component> components;
-  final List<Bike> bikes;
-  final Setup? Function({required DateTime datetime, required Bike bike}) getPreviousSetupbyDateTime;
+  final Map<String, Bike> bikes;
+  final Setup? Function({required DateTime datetime, required String bike}) getPreviousSetupbyDateTime;
 
   const SetupPage({
     super.key,
@@ -50,7 +50,7 @@ class _SetupPageState extends State<SetupPage> {
   Setup? _previousSetup;
   late TextEditingController _nameController;
   late TextEditingController _notesController;
-  late Bike bike;
+  late String bike;
   List<Component> bikeComponents = [];
   late DateTime _selectedDateTime;
   late DateTime _initialDateTime;
@@ -80,7 +80,7 @@ class _SetupPageState extends State<SetupPage> {
     _currentPlace = widget.setup?.place;
     _currentWeather = widget.setup?.weather;
 
-    _onBikeChange(widget.setup?.bike ?? widget.bikes.first);
+    _onBikeChange(widget.setup?.bike ?? widget.bikes.keys.first);
 
     if (widget.setup == null) fetchLocationAddressWeather();
   }
@@ -104,7 +104,7 @@ class _SetupPageState extends State<SetupPage> {
     if (_previousSetup != null) _initialAdjustmentValues.addAll(_previousSetup!.adjustmentValues);
   }
 
-  void _onBikeChange (Bike? newBike) {
+  void _onBikeChange (String? newBike) {
     if (newBike == null) return;
     setState(() {
       bike = newBike;
@@ -197,7 +197,7 @@ class _SetupPageState extends State<SetupPage> {
         _currentWeather?.currentWindSpeed != widget.setup?.weather?.currentWindSpeed ||
         _currentWeather?.currentSoilMoisture0to7cm != widget.setup?.weather?.currentSoilMoisture0to7cm || 
         
-        bike != (widget.setup?.bike ?? widget.bikes.first) || 
+        bike != (widget.setup?.bike ?? widget.bikes.keys.first) || 
 
         filterForValidAdjustmentValues(_initialAdjustmentValues).keys.any((adj) => _initialAdjustmentValues[adj] != adjustmentValues[adj]);
 
@@ -383,6 +383,8 @@ class _SetupPageState extends State<SetupPage> {
       context,
       Setup(
         id: widget.setup?.id,
+        isDeleted: widget.setup?.isDeleted,
+        lastModified: DateTime.now(),
         name: name,
         datetime: _selectedDateTime,
         notes: notes,
@@ -685,7 +687,7 @@ class _SetupPageState extends State<SetupPage> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<Bike>(
-                initialValue: bike,
+                initialValue: widget.bikes[bike],
                 isExpanded: true,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 decoration: const InputDecoration(
@@ -693,7 +695,7 @@ class _SetupPageState extends State<SetupPage> {
                   border: OutlineInputBorder(),
                   hintText: "Choose a bike for this component",
                 ),
-                items: widget.bikes.map((b) {
+                items: widget.bikes.values.map((b) {
                   return DropdownMenuItem<Bike>(
                     value: b,
                     child: Row(
@@ -709,7 +711,7 @@ class _SetupPageState extends State<SetupPage> {
                     ),
                   );
                 }).toList(),
-                onChanged: _onBikeChange,
+                onChanged: (Bike? b) => _onBikeChange(b?.id),
               ),
               const SizedBox(height: 24),
               if (bikeComponents.isEmpty)

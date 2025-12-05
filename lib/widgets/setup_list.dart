@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/setup.dart';
+import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/weather.dart';
 import '../models/app_settings.dart';
@@ -10,6 +11,7 @@ import '../widgets/adjustment_display_list.dart';
 const defaultVisibleCount = 10;
 
 class SetupList extends StatefulWidget {
+  final Map<String, Bike> bikes;
   final List<Setup> setups;
   final List<Component> components;
   final void Function(Setup setup) editSetup;
@@ -19,6 +21,7 @@ class SetupList extends StatefulWidget {
 
   const SetupList({
     super.key,
+    required this.bikes,
     required this.setups,
     required this.components,
     required this.editSetup,
@@ -119,7 +122,7 @@ class _SetupListState extends State<SetupList> {
                                     Icon(Icons.pedal_bike, size: 13, color: Colors.grey.shade800),
                                     const SizedBox(width: 2),
                                     Text(
-                                      setup.bike.name,
+                                      widget.bikes[setup.bike]?.name ?? "-",
                                       style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                                       overflow: TextOverflow.ellipsis,
                                     ),

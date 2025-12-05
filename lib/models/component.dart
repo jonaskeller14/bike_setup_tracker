@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'adjustment.dart';
-import 'bike.dart';
 import '../icons/bike_icons.dart';
 
 enum ComponentType {
@@ -25,7 +24,7 @@ class Component {
   final String name;
   final ComponentType componentType; 
   final List<Adjustment> adjustments;
-  final Bike bike;
+  final String bike;
 
   Component({
     String? id,
@@ -76,14 +75,11 @@ class Component {
     "lastModified": lastModified.toIso8601String(),
     'name': name,
     'componentType': componentType.toString(),
-    'bike': bike.id,
+    'bike': bike,
     'adjustments': adjustments.map((a) => a.toJson()).toList(),
   };
 
-  factory Component.fromJson({
-    required Map<String, dynamic> json,
-    required List<Bike> bikes,
-  }) {
+  factory Component.fromJson({required Map<String, dynamic> json}) {
     final adjustments = (json["adjustments"] as List<dynamic>?)
         ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson))
         .toList()
@@ -97,7 +93,7 @@ class Component {
         (e) => e.toString() == json['componentType'],
         orElse: () => ComponentType.other,
       ),
-      bike: bikes.firstWhere((b) => b.id == json["bike"]),
+      bike: json["bike"],
       adjustments: adjustments,
     );
   }

@@ -107,7 +107,7 @@ class _AdjustmentEditListState extends State<AdjustmentEditList> {
       proxyDecorator: proxyDecorator,
       itemCount: cards.length,
       itemBuilder: (context, index) => cards[index],
-      onReorder: (int oldIndex, int newIndex) => widget.onReorderAdjustments,
+      onReorder: widget.onReorderAdjustments,
     );
   }
 }

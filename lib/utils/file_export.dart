@@ -11,11 +11,11 @@ import '../models/component.dart';
 
 
 class FileExport {
-  static Future<void> saveData({required List<Bike> bikes, required List<Setup> setups, required List<Component> components}) async {
+  static Future<void> saveData({required Map<String, Bike> bikes, required List<Setup> setups, required List<Component> components}) async {
     final prefs = await SharedPreferences.getInstance();
 
     final jsonData = jsonEncode({
-      'bikes': bikes.map((b) => b.toJson()).toList(),
+      'bikes': bikes.values.map((b) => b.toJson()).toList(),
       'setups': setups.map((s) => s.toJson()).toList(),
       'components': components.map((c) => c.toJson()).toList(),
     });
@@ -25,7 +25,7 @@ class FileExport {
 
   static Future<void> downloadJson({
     required BuildContext context,
-    required List<Bike> bikes,
+    required Map<String, Bike> bikes,
     required List<Setup> setups,
     required List<Component> components,
   }) async {
@@ -49,13 +49,13 @@ class FileExport {
     }
 
   static Future<FileSaveResult?> _downloadJson(
-    List<Bike> bikes,
+    Map<String, Bike> bikes,
     List<Setup> setups,
     List<Component> components,
   ) async {
     try {
       final exportData = {
-        'bikes': bikes.map((b) => b.toJson()).toList(),
+        'bikes': bikes.values.map((b) => b.toJson()).toList(),
         'setups': setups.map((s) => s.toJson()).toList(),
         'components': components.map((c) => c.toJson()).toList(),
       };
@@ -83,7 +83,7 @@ class FileExport {
 
   static Future<void> shareJson({
     required BuildContext context,
-    required List<Bike> bikes,
+    required Map<String, Bike> bikes,
     required List<Setup> setups,
     required List<Component> components,
   }) async {
@@ -92,7 +92,7 @@ class FileExport {
 
     try {
       final String jsonString = jsonEncode({
-        'bikes': bikes.map((b) => b.toJson()).toList(),
+        'bikes': bikes.values.map((b) => b.toJson()).toList(),
         'setups': setups.map((s) => s.toJson()).toList(),
         'components': components.map((c) => c.toJson()).toList(),
       });

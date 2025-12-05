@@ -44,7 +44,7 @@ class FileImport {
         .toList();
 
     final loadedComponents = (jsonData['components'] as List)
-        .map((c) => Component.fromJson(json: c, bikes: loadedBikes))
+        .map((c) => Component.fromJson(json: c))
         .toList();
 
     final List<Adjustment> loadedAllAdjustments = [];
@@ -52,11 +52,11 @@ class FileImport {
       loadedAllAdjustments.addAll(component.adjustments);
     }
     final loadedSetups = (jsonData['setups'] as List)
-        .map((s) => Setup.fromJson(s, loadedAllAdjustments, loadedBikes))
+        .map((s) => Setup.fromJson(json: s, allAdjustments: loadedAllAdjustments))
         .toList();
     
     return Data(
-      bikes: loadedBikes,
+      bikes: <String, Bike>{for (var item in loadedBikes) item.id: item},
       setups: loadedSetups,
       components: loadedComponents,
     );
@@ -132,7 +132,7 @@ class FileImport {
     }
   }
 
-  static void overwrite({required Data remoteData, required List<Bike> localBikes, required List<Setup> localSetups, required List<Component> localComponents}) {
+  static void overwrite({required Data remoteData, required Map<String, Bike> localBikes, required List<Setup> localSetups, required List<Component> localComponents}) {
     localBikes
       ..clear()
       ..addAll(remoteData.bikes);
@@ -149,22 +149,21 @@ class FileImport {
     determinePreviousSetups(setups: localSetups);
   }
 
-  static void merge({required Data remoteData, required List<Bike> localBikes, required List<Setup> localSetups, required List<Component> localComponents}) {
+  static void merge({required Data remoteData, required Map<String, Bike> localBikes, required List<Setup> localSetups, required List<Component> localComponents}) {
     // Last Write Wins (LWW) strategy
-    for (final remoteBike in remoteData.bikes) {
-      final localBike = localBikes.firstWhereOrNull((bike) => bike.id == remoteBike.id);
+    for (final remoteBike in remoteData.bikes.values) {
+      final localBike = localBikes[remoteBike.id];
       
       // Prio 1: Bike does not exist --> add newBike if it was not deleted on remote device yet
       if (localBike == null) {
-        if (!remoteBike.isDeleted) localBikes.add(remoteBike);
+        if (!remoteBike.isDeleted) localBikes[remoteBike.id] = remoteBike;
         continue;
       }
       
       // Prio 2: LastModified (remote edit, remote delete, remote restauration)
       final bool remoteIsNewer = remoteBike.lastModified.isAfter(localBike.lastModified);
       if (remoteIsNewer) {
-        final int index = localBikes.indexOf(localBike);
-        localBikes[index] = remoteBike;
+        localBikes[remoteBike.id] = remoteBike;
         continue;
       }
 
@@ -221,12 +220,12 @@ class FileImport {
     determinePreviousSetups(setups: localSetups);
   }
 
-  static void determineCurrentSetups({required List<Setup> setups, required List<Bike> bikes}) {
+  static void determineCurrentSetups({required List<Setup> setups, required Map<String, Bike> bikes}) {
     // Assumes setups is sorted
     for (final setup in setups) {
       setup.isCurrent = false;
     }
-    final remainingBikes = Set.of(bikes.where((b) => !b.isDeleted));
+    final remainingBikes = Set.of(bikes.values.where((b) => !b.isDeleted));
     for (final setup in setups.reversed.where((s) => !s.isDeleted)) {
       final bike = setup.bike;
       if (remainingBikes.contains(bike)) {
@@ -239,7 +238,7 @@ class FileImport {
 
   static void determinePreviousSetups({required List<Setup> setups}) {
     // Assumes setups is sorted
-    Map<Bike, Setup> previousSetups = {}; 
+    Map<String, Setup> previousSetups = {}; 
     for (final setup in setups.where((s) => !s.isDeleted)) {
       final bike = setup.bike;
       final previousSetup = previousSetups[bike];
@@ -272,24 +271,20 @@ class FileImport {
     }
   }
 
-  static void cleanupIsDeleted({required List<Bike> bikes, required List<Component> components, required List<Setup> setups}) {
+  static void cleanupIsDeleted({required Map<String, Bike> bikes, required List<Component> components, required List<Setup> setups}) {
     final thirtyDays = const Duration(days: 30); 
     final deleteDateTime = DateTime.now().subtract(thirtyDays);
     
-    for (final bike in List.from(bikes)) {
-      if (bike.isDeleted && bike.lastModified.isBefore(deleteDateTime)) bikes.remove(bike);
+    for (final bike in List.from(bikes.values)) {
+      if (bike.isDeleted && bike.lastModified.isBefore(deleteDateTime)) bikes.remove(bike.id);
     }
 
     for (final component in List.from(components)) {
-      if ((component.isDeleted && component.lastModified.isBefore(deleteDateTime)) || !bikes.contains(component.bike)) components.remove(component);
-
-      for (final adjustment in List.from(component.adjustments)) {
-        if (adjustment.isDeleted && adjustment.lastModified.isBefore(deleteDateTime)) component.adjustments.remove(adjustment);
-      }
+      if ((component.isDeleted && component.lastModified.isBefore(deleteDateTime)) || !bikes.containsKey(component.bike)) components.remove(component);
     }
 
     for (final setup in List.from(setups)) {
-      if ((setup.isDeleted && setup.lastModified.isBefore(deleteDateTime)) || !bikes.contains(setup.bike)) setups.remove(setup);
+      if ((setup.isDeleted && setup.lastModified.isBefore(deleteDateTime)) || !bikes.containsKey(setup.bike)) setups.remove(setup);
     }
   }
 }

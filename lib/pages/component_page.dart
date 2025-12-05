@@ -11,7 +11,7 @@ import '../widgets/dialogs/discard_changes.dart';
 
 class ComponentPage extends StatefulWidget {
   final Component? component;
-  final List<Bike> bikes;
+  final Map<String, Bike> bikes;
 
   const ComponentPage({super.key, this.component, required this.bikes});
 
@@ -25,7 +25,7 @@ class _ComponentPageState extends State<ComponentPage> {
   late TextEditingController _nameController;
   late List<Adjustment> adjustments;
   late List<Adjustment> _initialAdjustments;
-  late Bike bike;
+  late String bike;
   late ComponentType? componentType;
 
   @override
@@ -35,13 +35,13 @@ class _ComponentPageState extends State<ComponentPage> {
     _nameController.addListener(_changeListener);
     adjustments = widget.component == null ? [] : List.from(widget.component!.adjustments);
     _initialAdjustments = List.from(adjustments);
-    bike = widget.component?.bike ?? widget.bikes.first;
+    bike = widget.component?.bike ?? widget.bikes.keys.first;
     componentType = widget.component?.componentType;
   }
 
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != (widget.component?.name ?? '') || 
-        bike != (widget.component?.bike ?? widget.bikes.first) || 
+        bike != (widget.component?.bike ?? widget.bikes.keys.first) || 
         componentType != widget.component?.componentType;
         _initialAdjustments.length != adjustments.length || 
         adjustments.asMap().entries.any((entry) => entry.value != _initialAdjustments[entry.key]);
@@ -310,7 +310,7 @@ class _ComponentPageState extends State<ComponentPage> {
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<Bike>(
-                    initialValue: bike,
+                    initialValue: widget.bikes[bike],
                     isExpanded: true,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     decoration: const InputDecoration(
@@ -318,7 +318,7 @@ class _ComponentPageState extends State<ComponentPage> {
                       border: OutlineInputBorder(),
                       hintText: "Choose a bike for this component",
                     ),
-                    items: widget.bikes.map((b) {
+                    items: widget.bikes.values.map((b) {
                       return DropdownMenuItem<Bike>(
                         value: b,
                         child: Row(
@@ -335,7 +335,7 @@ class _ComponentPageState extends State<ComponentPage> {
                     onChanged: (Bike? newBike) {
                       if (newBike == null) return;
                       setState(() {
-                        bike = newBike;
+                        bike = newBike.id;
                       });
                       _changeListener();
                     },

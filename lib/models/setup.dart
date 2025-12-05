@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'bike.dart';
 import "adjustment.dart";
 import 'weather.dart';
 import 'package:location/location.dart';
@@ -13,7 +12,7 @@ class Setup {
   final String name;
   final DateTime datetime;
   final String? notes;
-  final Bike bike;
+  final String bike;
   final Map<Adjustment, dynamic> adjustmentValues;
   final LocationData? position;
   final geo.Placemark? place;
@@ -46,7 +45,7 @@ class Setup {
     'name': name,
     'datetime': datetime.toIso8601String(),
     'notes': notes,
-    'bike': bike.id,
+    'bike': bike,
     'adjustmentValues': {
       for (var entry in adjustmentValues.entries)
         entry.key.id: entry.value,
@@ -58,7 +57,7 @@ class Setup {
     'isCurrent': isCurrent,
   };
 
-  factory Setup.fromJson(Map<String, dynamic> json, List<Adjustment> allAdjustments, List<Bike> allBikes) {
+  factory Setup.fromJson({required Map<String, dynamic> json, required List<Adjustment> allAdjustments}) {
     final adjustmentIDValues = json['adjustmentValues'] as Map<String, dynamic>? ?? {};
 
     final Map<Adjustment, dynamic> adjustmentValues = {};
@@ -74,9 +73,6 @@ class Setup {
       }
     }
 
-    final bikeID = json['bike'];
-    final bike = allBikes.firstWhere((b) => b.id == bikeID, orElse: () => throw Exception('Bike with id $bikeID not found'));
-
     return Setup(
       id: json['id'],
       isDeleted: json["isDeleted"],
@@ -84,7 +80,7 @@ class Setup {
       name: json['name'],
       datetime: DateTime.parse(json['datetime']),
       notes: json['notes'] != null ? json['notes'] as String : null,
-      bike: bike,
+      bike: json['bike'],
       adjustmentValues: adjustmentValues,
       position: json['position'] != null ? _locationDataFromJson(json['position']) : null,
       place: json['place'] != null ? _placemarkFromJson(json['place']) : null,

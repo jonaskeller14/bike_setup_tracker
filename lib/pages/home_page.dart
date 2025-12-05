@@ -27,36 +27,33 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool _localDataLoaded = false;
 
-  final List<Bike> bikes = [];
+  Map<String, Bike> bikes = {};
   final List<Setup> setups = [];
   final List<Component> components = [];
 
   Bike? _selectedBike;
-  List<Bike> filteredBikes = [];
+  Map<String, Bike> filteredBikes = {};
 
   bool _displayOnlyChanges = false;
 
   int currentPageIndex = 0;
 
-  void onBikeTap(Bike bike) {
+  void onBikeTap(Bike? bike) {
     setState(() {
-      if (_selectedBike == bike) {
-        _selectedBike = null;
-      } else {
-        _selectedBike = bike;
-      }
-      filteredBikes = _selectedBike == null
-        ? bikes 
-        : bikes.where((b) => b == _selectedBike).toList();
+      _selectedBike = (bike == null || _selectedBike == bike) 
+          ? null 
+          : _selectedBike = bike;
+      filteredBikes = _selectedBike == null 
+          ? Map.fromEntries(bikes.entries.where((entry) => !entry.value.isDeleted))
+          : Map.fromEntries(bikes.entries.where((entry) => !entry.value.isDeleted && entry.value == _selectedBike));
     });
   }
 
   @override
   void initState() {
     super.initState();
-    filteredBikes = bikes;
-    _selectedBike = null;
     loadData();
+    onBikeTap(null); // after loading
   }
 
   @override
@@ -137,14 +134,13 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    final obsoleteComponents = components.where((c) => c.bike == bike).toList();
-    final obsoleteSetups = setups.where((s) => s.bike == bike).toList();
+    final obsoleteComponents = components.where((c) => c.bike == bike.id).toList();
+    final obsoleteSetups = setups.where((s) => s.bike == bike.id).toList();
 
     setState(() {
       bike.isDeleted = true;
       bike.lastModified = DateTime.now();
-      _selectedBike = null;
-      filteredBikes = bikes.where((b) => !b.isDeleted).toList();
+      onBikeTap(null);
     });
 
     removeComponents(obsoleteComponents, confirm: false);
@@ -210,13 +206,14 @@ class _HomePageState extends State<HomePage> {
     if (bike == null) return;
   
     setState(() {
-      bikes.add(bike);
+      bikes[bike.id] = bike;
+      if (_selectedBike == null) onBikeTap(null);
     });
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
   }
 
   Future<void> _addComponent() async {
-    if (bikes.isEmpty) {
+    if (filteredBikes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Add a bike first"), backgroundColor: Theme.of(context).colorScheme.error));
       return;
     }
@@ -241,10 +238,7 @@ class _HomePageState extends State<HomePage> {
     );
     if (editedBike == null) return;
     setState(() {
-      final index = bikes.indexOf(bike);
-      if (index != -1) {
-        bikes[index] = editedBike;
-      }
+      bikes[editedBike.id] = editedBike;
     });
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
   }
@@ -281,7 +275,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> onReorderComponents(int oldIndex, int newIndex) async {
     // Applies reorder to 'components' on the basis of filtered components
-    final filteredComponents = components.where((c) => c.bike == (_selectedBike ?? c.bike) && !c.isDeleted).toList();
+    final filteredComponents = components.where((c) => c.bike == (_selectedBike?.id ?? c.bike) && !c.isDeleted).toList();
     final componentToMove = filteredComponents[oldIndex];
     oldIndex = components.indexOf(componentToMove);
     final targetComponent = newIndex < filteredComponents.length
@@ -303,22 +297,27 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> onReorderBikes(int oldIndex, int newIndex) async {
     // Applies reorder to 'bikes' on the basis of filtered bikes
-    final filteredBikes = bikes.where((b) => !b.isDeleted).toList();
+    final bikesList = bikes.values.toList();
+    
+    final filteredBikes = bikesList.where((b) => !b.isDeleted).toList();
     final bikeToMove = filteredBikes[oldIndex];
-    oldIndex = bikes.indexOf(bikeToMove);
+    oldIndex = bikesList.indexOf(bikeToMove);
     final targetBike = newIndex < filteredBikes.length
         ? filteredBikes[newIndex]
         : null;
     newIndex = targetBike == null
         ? bikes.length 
-        : bikes.indexOf(targetBike);
+        : bikesList.indexOf(targetBike);
 
     int adjustedNewIndex = newIndex;
     if (oldIndex < newIndex) adjustedNewIndex -= 1;
 
+    final bike = bikesList.removeAt(oldIndex);
+    bikesList.insert(adjustedNewIndex, bike);
+
     setState(() {
-      final bike = bikes.removeAt(oldIndex);
-      bikes.insert(adjustedNewIndex, bike);
+      bikes = {for (var element in bikesList) element.id : element};
+      onBikeTap(null);
     });
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
   }
@@ -391,18 +390,18 @@ class _HomePageState extends State<HomePage> {
     editSetup(newSetup);
   }
 
-  Setup? getPreviousSetupbyDateTime({required DateTime datetime, required Bike bike}) {
+  Setup? getPreviousSetupbyDateTime({required DateTime datetime, required String bike}) {
     return setups.lastWhereOrNull((s) => s.datetime.isBefore(datetime) && s.bike == bike);
   }
 
   @override
   Widget build(BuildContext context) {
     final filteredComponents = _selectedBike == null
-        ? components
-        : components.where((c) => c.bike == _selectedBike).toList();
+        ? components.where((c) => !c.isDeleted).toList()
+        : components.where((c) => !c.isDeleted && c.bike == _selectedBike?.id).toList();
     final filteredSetups = _selectedBike == null
-        ? setups
-        : setups.where((s) => s.bike == _selectedBike).toList();
+        ? setups.where((s) => !s.isDeleted).toList()
+        : setups.where((s) => !s.isDeleted && s.bike == _selectedBike?.id).toList();
     return Scaffold(
       appBar: AppBar(
         leading: Padding(
@@ -528,7 +527,7 @@ class _HomePageState extends State<HomePage> {
         ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
-            bikes.isEmpty
+            bikes.values.where((bike) => !bike.isDeleted).isEmpty //include bikes which are not filtered for
                 ? Padding(
                     padding: const EdgeInsets.symmetric(vertical: 50),
                     child: Center(
@@ -539,7 +538,7 @@ class _HomePageState extends State<HomePage> {
                     )
                   )
                 : BikeList(
-                  bikes: bikes,
+                  bikes: bikes.values.where((bike) => !bike.isDeleted).toList(), //include bikes which are not filtered for
                   selectedBike: _selectedBike,
                   onBikeTap: onBikeTap,
                   editBike: editBike,
@@ -577,6 +576,7 @@ class _HomePageState extends State<HomePage> {
                     )
                   )
                 : ComponentList(
+                  bikes: bikes,
                   components: filteredComponents,
                   setups: setups,
                   editComponent: editComponent,
@@ -626,6 +626,7 @@ class _HomePageState extends State<HomePage> {
             ),
 
             SetupList(
+              bikes: bikes,
               setups: filteredSetups,
               components: filteredComponents,
               editSetup: editSetup,

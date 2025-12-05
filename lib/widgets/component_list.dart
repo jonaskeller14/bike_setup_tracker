@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import '../models/component.dart';
 import '../models/setup.dart';
+import '../models/bike.dart';
 import '../widgets/adjustment_display_list.dart';
 import '../pages/component_overview_page.dart';
 
 const defaultVisibleCount = 10;
 
 class ComponentList extends StatefulWidget {
+  final Map<String, Bike> bikes;
   final List<Component> components;
   final List<Setup> setups;
   final Future<void> Function(Component component) editComponent;
@@ -18,6 +20,7 @@ class ComponentList extends StatefulWidget {
 
   const ComponentList({
     super.key,
+    required this.bikes,
     required this.components,
     required this.setups,
     required this.editComponent,
@@ -79,7 +82,7 @@ class _ComponentListState extends State<ComponentList> {
                             Icon(Icons.pedal_bike, size: 13, color: Colors.grey.shade800),
                             const SizedBox(width: 2),
                             Text(
-                              component.bike.name,
+                              widget.bikes[component.bike]?.name ?? "-",
                               style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                               overflow: TextOverflow.ellipsis,
                             ),

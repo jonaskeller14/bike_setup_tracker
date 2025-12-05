@@ -3,7 +3,7 @@ import '../models/setup.dart';
 import '../models/component.dart';
 
 class Data {
-  final List<Bike> bikes;
+  final Map<String, Bike> bikes;
   final List<Setup> setups;
   final List<Component> components;
 

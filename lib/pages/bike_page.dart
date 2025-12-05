@@ -47,6 +47,7 @@ class _BikePageState extends State<BikePage> {
       Navigator.pop(context, Bike(name: name));
     } else {
       widget.bike!.name = name;
+      widget.bike!.lastModified = DateTime.now();
       Navigator.pop(context, widget.bike);
     }
   }

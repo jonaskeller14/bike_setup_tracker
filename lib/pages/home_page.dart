@@ -141,11 +141,10 @@ class _HomePageState extends State<HomePage> {
     final obsoleteSetups = setups.where((s) => s.bike == bike).toList();
 
     setState(() {
-      bikes.remove(bike);
-      if (bike == _selectedBike) {
-        _selectedBike = null;
-        filteredBikes = bikes;
-      }
+      bike.isDeleted = true;
+      bike.lastModified = DateTime.now();
+      _selectedBike = null;
+      filteredBikes = bikes.where((b) => !b.isDeleted).toList();
     });
 
     removeComponents(obsoleteComponents, confirm: false);
@@ -168,7 +167,8 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       for (var setup in toRemoveSetups) {
-        setups.remove(setup);
+        setup.isDeleted = true;
+        setup.lastModified = DateTime.now();
       }
       FileImport.determineCurrentSetups(setups: setups, bikes: bikes);
       FileImport.determinePreviousSetups(setups: setups);
@@ -190,7 +190,8 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       for (var component in toRemoveComponents) {
-        components.remove(component);
+        component.isDeleted = true;
+        component.lastModified = DateTime.now();
       }
     });
 
@@ -281,14 +282,14 @@ class _HomePageState extends State<HomePage> {
   Future<void> onReorderComponents(int oldIndex, int newIndex) async {
     // Applies reorder to 'components' on the basis of filtered components
     final filteredComponents = components.where((c) => c.bike == (_selectedBike ?? c.bike) && !c.isDeleted).toList();
-      final componentToMove = filteredComponents[oldIndex];
-      oldIndex = components.indexOf(componentToMove);
-      final targetComponent = newIndex < filteredComponents.length
-          ? filteredComponents[newIndex]
-          : null;
-      newIndex = targetComponent == null
-          ? components.length 
-          : components.indexOf(targetComponent);
+    final componentToMove = filteredComponents[oldIndex];
+    oldIndex = components.indexOf(componentToMove);
+    final targetComponent = newIndex < filteredComponents.length
+        ? filteredComponents[newIndex]
+        : null;
+    newIndex = targetComponent == null
+        ? components.length 
+        : components.indexOf(targetComponent);
 
     int adjustedNewIndex = newIndex;
     if (oldIndex < newIndex) adjustedNewIndex -= 1;

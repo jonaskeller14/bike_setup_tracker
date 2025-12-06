@@ -93,9 +93,6 @@ class _HomePageState extends State<HomePage> {
     } else if (choice == 'merge') {
       setState(() {
         FileImport.merge(remoteData: data, localBikes: bikes, localSetups: setups, localComponents: components);
-        for (final setup in data.setups) {
-          FileImport.updateSetupsAfter(setups: setups, setup: setup);
-        }
       });
     }
 

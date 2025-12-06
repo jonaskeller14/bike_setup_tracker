@@ -218,6 +218,9 @@ class FileImport {
     localSetups.sort((a, b) => a.datetime.compareTo(b.datetime));
     determineCurrentSetups(setups: localSetups, bikes: localBikes);
     determinePreviousSetups(setups: localSetups);
+    for (final remoteSetup in remoteData.setups) {
+      FileImport.updateSetupsAfter(setups: localSetups, setup: remoteSetup);
+    }
   }
 
   static void determineCurrentSetups({required List<Setup> setups, required Map<String, Bike> bikes}) {

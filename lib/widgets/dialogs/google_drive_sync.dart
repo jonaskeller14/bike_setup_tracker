@@ -61,13 +61,14 @@ class _ShowGoogleDriveDialogState extends State<ShowGoogleDriveDialog> {
 
     if (isSignedIn) {
       actions.add(
-        OutlinedButton(
+        OutlinedButton.icon(
+          icon: Icon(Icons.logout),
           onPressed: !_isLoading ? () async {
             setState(() {_isLoading = true;});
             await widget.googleDriveService.signOut();
             setState(() {_isLoading = false;});
           } : null,
-          child: const Text("Sign out"),
+          label: const Text("Sign out"),
         ),
       );
       actions.add(
@@ -157,9 +158,11 @@ class _ShowGoogleDriveDialogState extends State<ShowGoogleDriveDialog> {
           ),
           const SizedBox(height: 16),
           lastSyncWidget,
-          const SizedBox(height: 8),
-          if (widget.googleDriveService.errorMessage.isNotEmpty)
+          
+          if (widget.googleDriveService.errorMessage.isNotEmpty) ...[
+            const SizedBox(height: 8),
             Text(widget.googleDriveService.errorMessage, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          ],
         ],
       ),
       actions: [
@@ -168,6 +171,7 @@ class _ShowGoogleDriveDialogState extends State<ShowGoogleDriveDialog> {
           children: actions,
         ),
       ],
+      actionsPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
     );
   }
 }

@@ -225,7 +225,7 @@ class NumericalAdjustment extends Adjustment<double> {
 
   @override
   String getProperties() {
-    return "Range $min..$max [${unit ?? ''}]";
+    return "Range ${min == double.negativeInfinity ? '-∞' : min}..${max == double.infinity ? '∞' : max}, Unit [${unit ?? ''}]";
   }
 }
 

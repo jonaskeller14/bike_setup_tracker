@@ -242,6 +242,36 @@ class _ComponentPageState extends State<ComponentPage> {
     return null;
   }
 
+  Widget _buildGuideRow(IconData icon, String type, String example) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(icon, size: 16, color: Colors.grey.shade600),
+          const SizedBox(width: 8),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                style: TextStyle(color: Colors.grey.shade800, fontSize: 13, height: 1.3),
+                children: [
+                  TextSpan(
+                    text: "$type: ", 
+                    style: const TextStyle(fontWeight: FontWeight.bold)
+                  ),
+                  TextSpan(
+                    text: example,
+                    style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic)
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope( 
@@ -352,24 +382,56 @@ class _ComponentPageState extends State<ComponentPage> {
                     runSpacing: 4.0,
                     children: [
                       ActionChip(
-                        avatar: Icon(Icons.add),
-                        label: const Text('Add On/Off Adjustment'),
-                        onPressed: _addBooleanAdjustment,
+                        avatar: const Icon(Icons.add),
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: 8,
+                          children: [
+                            const Text('Add Numerical Adjustment'),
+                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.surfaceDim),
+                            Icon(Icons.speed, size: 18),
+                          ],
+                        ),
+                        onPressed: _addNumericalAdjustment,
                       ),
                       ActionChip(
-                        avatar: Icon(Icons.add),
-                        label: const Text('Add Categorical Adjustment'),
-                        onPressed: _addCategoricalAdjustment,
-                      ),
-                      ActionChip(
-                        avatar: Icon(Icons.add),
-                        label: const Text('Add Step Adjustment'),
+                        avatar: const Icon(Icons.add),
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: 8,
+                          children: [
+                            const Text('Add Step Adjustment'),
+                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.surfaceDim),
+                            Icon(Icons.stairs_outlined, size: 18),
+                          ],
+                        ),
                         onPressed: _addStepAdjustment,
                       ),
                       ActionChip(
-                        avatar: Icon(Icons.add),
-                        label: const Text('Add Numerical Adjustment'),
-                        onPressed: _addNumericalAdjustment,
+                        avatar: const Icon(Icons.add),
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: 8,
+                          children: [
+                            const Text('Add Categorical Adjustment'),
+                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.surfaceDim),
+                            Icon(Icons.category, size: 18),
+                          ],
+                        ),
+                        onPressed: _addCategoricalAdjustment,
+                      ),
+                      ActionChip(
+                        avatar: const Icon(Icons.add),
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: 8,
+                          children: [
+                            const Text('Add On/Off Adjustment'),
+                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.surfaceDim),
+                            Icon(Icons.toggle_on, size: 18),
+                          ],
+                        ),
+                        onPressed: _addBooleanAdjustment,
                       ),
                     ],
                   ),
@@ -386,14 +448,44 @@ class _ComponentPageState extends State<ComponentPage> {
                             _changeListener();
                           },
                         ) 
-                      : Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          child: Center(
-                            child: Text(
-                              'No adjustments yet',
-                              style: TextStyle(color: Colors.grey.shade600),
-                            ),
-                          )
+                      : Container(
+                          width: double.infinity,
+                          margin: const EdgeInsets.only(top: 8),
+                          padding: const EdgeInsets.all(8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.help_outline, color: Colors.grey.shade600),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    "No adjustments yet",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey.shade600,
+                                      fontSize: Theme.of(context).textTheme.titleLarge?.fontSize ?? 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                "Define what settings you can tweak on this component by tapping the buttons above.",
+                                style: TextStyle(height: 1.4, color: Colors.grey.shade600),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                "Examples:",
+                                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey.shade600),
+                              ),
+                              const SizedBox(height: 4),
+                              _buildGuideRow(Icons.speed, "Numerical", "Pressure (psi/bar), Length, Angle, Weight"),
+                              _buildGuideRow(Icons.rotate_right, "Step", "Rebound/Compression Clicks, Spacers"),
+                              _buildGuideRow(Icons.category, "Categorical", "Tire Compound (Soft/Hard), Model, Brand"),
+                              _buildGuideRow(Icons.toggle_on, "On/Off", "Lockout Lever, Climb Switch, Tire insert installed?"),
+                            ],
+                          ),
                         ),
                 ],
               ),

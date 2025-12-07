@@ -108,7 +108,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             initialValue: widget.initialAdjustmentValues[adjustment]?.toDouble(),
             value: _adjustmentValues[adjustment].toDouble(), 
             onChanged: (double newValue) {
-              HapticFeedback.heavyImpact();
+              HapticFeedback.lightImpact();
               setState(() {
                 _adjustmentValues[adjustment] = newValue;
               });

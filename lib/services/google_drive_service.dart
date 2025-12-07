@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
@@ -8,13 +9,14 @@ import '../utils/data.dart';
 import '../utils/file_import.dart';
 import 'package:http/http.dart' as http;
 
-class GoogleDriveService {
+class GoogleDriveService extends ChangeNotifier { 
   static const List<String> _scopes = [drive.DriveApi.driveAppdataScope];
   static const String _fileName = 'bike_setup_tracker_data.json';
 
   GoogleSignInAccount? _currentUser;
   bool _isAuthorized = false;
-  String errorMessage = '';
+  String _errorMessage = '';
+  bool _isSyncing = false;
 
   drive.DriveApi? _driveApi;
   final Map<String, dynamic> Function() getDataToUpload;
@@ -29,11 +31,24 @@ class GoogleDriveService {
   String? get displayName => _currentUser?.displayName;
   String? get email => _currentUser?.email;
   String? get photoUrl => _currentUser?.photoUrl;
+  bool get isAuthorized => _isAuthorized;
+  String get errorMessage => _errorMessage;
+  bool get isSyncing => _isSyncing;
 
   GoogleDriveService({
     required this.getDataToUpload,
     required this.onDataDownloaded,
   });
+
+  void _setErrorMessage(String message) {
+    _errorMessage = message;
+    notifyListeners();
+  }
+
+  void _setIsSyncing(bool syncing) {
+    _isSyncing = syncing;
+    notifyListeners();
+  }
 
   Future<void> silentSetup() async {
     final GoogleSignIn signIn = GoogleSignIn.instance;
@@ -51,7 +66,7 @@ class GoogleDriveService {
       await signIn.attemptLightweightAuthentication(); // Silent Sign in
       
     } catch (error) {
-      errorMessage = "Google Sign In Setup Failed: $error";
+      _setErrorMessage("Google Sign In Setup Failed: $error");
     }
   }
 
@@ -65,7 +80,9 @@ class GoogleDriveService {
     
     _currentUser = user;
     _isAuthorized = authorization != null;
-    errorMessage = '';
+    _errorMessage = '';
+
+    notifyListeners();
 
     await silentSync();
   }
@@ -73,33 +90,41 @@ class GoogleDriveService {
   Future<void> _handleAuthenticationError(Object e) async {
     _currentUser = null;
     _isAuthorized = false;
-    errorMessage =
+    _errorMessage =
         e is GoogleSignInException
             ? _errorMessageFromSignInException(e)
             : 'Unknown error: $e';
+    notifyListeners(); // Notify UI of sign-out/error
   }
 
   String _errorMessageFromSignInException(GoogleSignInException e) {
     return switch (e.code) {
-      GoogleSignInExceptionCode.canceled => 'Sign in canceled',
+      GoogleSignInExceptionCode.canceled => 'Sign in canceled by user',
       GoogleSignInExceptionCode.interrupted => "Sign in interrupted",
       _ => 'GoogleSignInException ${e.code}: ${e.description}',
     };
   }
 
   Future<void> handleAuthorizeScopes() async {
+    if (_currentUser == null) return;
+
     try {
       await _currentUser!.authorizationClient.authorizeScopes(_scopes);
       _isAuthorized = true;
-      errorMessage = '';
+      _errorMessage = '';
+      notifyListeners();
     } on GoogleSignInException catch (e) {
       _isAuthorized = false;
-      errorMessage = _errorMessageFromSignInException(e);
+      _setErrorMessage(_errorMessageFromSignInException(e));
     }
   }
 
   Future<void> _initializeDriveApi() async {
-    if (_currentUser == null) return;
+    if (_currentUser == null) {
+      _driveApi = null;
+      return;
+    }
+
     final Map<String, String>? headers = await _currentUser!.authorizationClient
         .authorizationHeaders(_scopes);
 
@@ -113,31 +138,46 @@ class GoogleDriveService {
 
   Future<void> interactiveSignIn() async {
     if (!GoogleSignIn.instance.supportsAuthenticate()) {
-      errorMessage = "Current Platform does not support Authentication";
+      _setErrorMessage("Current Platform does not support Authentication");
       return;
     }
+    
+    _setErrorMessage('');
 
     try {
       _currentUser = await GoogleSignIn.instance.authenticate();
+      if (_currentUser == null) return; // User cancelled
+      await _initializeDriveApi(); // Initialize API immediately after sign-in
     } on GoogleSignInException catch (e) {
-      errorMessage = "Sign in error: $e";
+      _setErrorMessage("Sign in error: ${_errorMessageFromSignInException(e)}");
     } catch (e) {
-      errorMessage = "Sign in error: $e";
+      _setErrorMessage("Sign in error: $e");
     }
-    if (_currentUser == null) return;
-    
-    _initializeDriveApi();
+    notifyListeners(); // Update UI after sign-in attempt
   }
 
   Future<void> interactiveSync() async {
+    _setIsSyncing(true);
+    _setErrorMessage(''); 
+
     if (_currentUser == null) await interactiveSignIn();
-    if (_currentUser == null) return;
+    if (_currentUser == null) {
+      _setIsSyncing(false);
+      return;
+    }
 
     if (!_isAuthorized) await handleAuthorizeScopes();
-    if (!_isAuthorized) return;
+    if (!_isAuthorized) {
+      _setIsSyncing(false);
+      return;
+    }
 
     if (_driveApi == null) await _initializeDriveApi();
-    if (_driveApi == null) return;
+    if (_driveApi == null) {
+      _setIsSyncing(false);
+      _setErrorMessage("Drive API initialization failed.");
+      return;
+    }
     
     try {
       await download(); 
@@ -150,21 +190,29 @@ class GoogleDriveService {
         await clearToken();
         await handleAuthorizeScopes();
 
-        if (!_isAuthorized) return;
+        if (!_isAuthorized) {
+          _setIsSyncing(false);
+          return;
+        }
 
         try {
           await download(); 
           await upload();
           lastSync = DateTime.now();
         } catch (e) {
-          errorMessage = "ERROR handling 401 error: $e"; 
+          _setErrorMessage("Error after re-authorization: $e");
         }
       } else {
-        errorMessage = 'API Error: ${e.message}';
+        _setErrorMessage('API Error: ${e.message}');
       }
+    } on SocketException {
+      _setErrorMessage('No internet connection. Please connect to a network.');
     } catch (e) {
-      errorMessage = 'General Sync Error: $e';
+      _setErrorMessage('General Sync Error: $e');
     }
+    
+    _setIsSyncing(false);
+    notifyListeners(); // Notify one last time for sync status update
   }
 
   Future<void> silentSync() async {
@@ -174,12 +222,18 @@ class GoogleDriveService {
     if (_driveApi == null) await _initializeDriveApi();
     if (_driveApi == null) return;
     
+    // Silent sync only logs errors, doesn't overwrite general errorMessage
     try {
       await download(); 
       await upload();
       lastSync = DateTime.now();
+      debugPrint("Silent Sync successful at $lastSync");
+    } on DetailedApiRequestError catch (e) {
+      debugPrint('Silent Sync API Error: Status ${e.status}, Message: ${e.message}');
+    } on SocketException {
+      debugPrint('Silent Sync failed: No internet connection.');
     } catch (e) {
-      errorMessage = 'Silent Sync Error: $e';
+      debugPrint('Silent Sync General Error: $e');
     }
   }
 
@@ -187,7 +241,7 @@ class GoogleDriveService {
     if (lastSync != null && DateTime.now().difference(lastSync!) < _syncMinTimeGap) return;
     _syncTimer?.cancel();
     _syncTimer = Timer(_syncDebounceDuration, () {
-      debugPrint("Scheduled Silent Sync");
+      debugPrint("Scheduled Silent Sync triggered");
       silentSync();
     });
   }
@@ -195,8 +249,11 @@ class GoogleDriveService {
   Future<void> clearToken() async {
     try {
       final GoogleSignInClientAuthorization? authorization = await _currentUser?.authorizationClient.authorizationForScopes(_scopes);
-      await _currentUser!.authorizationClient.clearAuthorizationToken(accessToken: authorization!.accessToken);
-      debugPrint("Cleared Token.");
+      // Ensure authorization and accessToken are non-null before attempting clear
+      if (authorization?.accessToken != null) {
+        await _currentUser!.authorizationClient.clearAuthorizationToken(accessToken: authorization!.accessToken);
+        debugPrint("Cleared Token.");
+      }
     } catch (e) {
       debugPrint("Could not clear token: $e");
     }
@@ -236,7 +293,10 @@ class GoogleDriveService {
     if (_driveApi == null) throw Exception("Drive API not initialized");
 
     final fileId = await _getFileId();
-    if (fileId == null) return; // File doesn't exist yet
+    if (fileId == null) {
+      debugPrint("Remote file does not exist. Skipping download.");
+      return; 
+    }
 
     final drive.Media media = await _driveApi!.files.get(
       fileId,
@@ -271,6 +331,9 @@ class GoogleDriveService {
     await GoogleSignIn.instance.disconnect();
     _currentUser = null;
     _driveApi = null;
+    _isAuthorized = false;
+    _errorMessage = '';
+    notifyListeners();
   }
 }
 

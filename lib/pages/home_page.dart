@@ -445,10 +445,7 @@ class _HomePageState extends State<HomePage> {
         ][currentPageIndex],
         actions: [
           if (_enableGoogleDrive)
-            GoogleDriveSyncButton(
-              googleDriveService: _googleDriveService,
-              isSyncing: false,
-            ),
+            GoogleDriveSyncButton(googleDriveService: _googleDriveService),
           PopupMenuButton<String>(
             onSelected: (String result) {
               switch (result) {

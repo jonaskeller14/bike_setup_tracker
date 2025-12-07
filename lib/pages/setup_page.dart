@@ -733,7 +733,7 @@ class _SetupPageState extends State<SetupPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         ListTile(
-                          title: Text(bikeComponent.name),
+                          title: Text(bikeComponent.name, style: TextStyle(fontWeight: FontWeight.bold)),
                           subtitle: Text('${bikeComponent.adjustments.length} adjustments'),
                           leading: Component.getIcon(bikeComponent.componentType),
                         ),

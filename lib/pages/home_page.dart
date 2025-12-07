@@ -9,6 +9,7 @@ import 'component_page.dart';
 import 'setup_page.dart';
 import 'app_settings_page.dart';
 import 'about_page.dart';
+import '../utils/data.dart';
 import '../utils/file_export.dart';
 import '../utils/file_import.dart';
 import '../widgets/bike_list.dart';
@@ -16,6 +17,8 @@ import '../widgets/component_list.dart';
 import '../widgets/setup_list.dart';
 import '../widgets/dialogs/confirmation.dart';
 import '../widgets/dialogs/import_merge_overwrite.dart';
+import '../widgets/google_drive_sync_button.dart';
+import '../services/google_drive_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -38,6 +41,9 @@ class _HomePageState extends State<HomePage> {
 
   int currentPageIndex = 0;
 
+  static const _enableGoogleDrive = true;
+  late GoogleDriveService _googleDriveService;
+
   void onBikeTap(Bike? bike) {
     setState(() {
       _selectedBike = (bike == null || _selectedBike == bike) 
@@ -54,6 +60,22 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     loadData();
     onBikeTap(null); // after loading
+
+    _googleDriveService = GoogleDriveService(
+      getDataToUpload: () {
+        return {
+          'bikes': bikes.values.map((b) => b.toJson()).toList(),
+          'setups': setups.map((s) => s.toJson()).toList(),
+          'components': components.map((c) => c.toJson()).toList(),
+        };
+      },
+      onDataDownloaded: (Data remoteData) {
+        setState(() {
+          FileImport.merge(remoteData: remoteData, localBikes: bikes, localSetups: setups, localComponents: components);
+        });
+      },
+    );
+    if (_enableGoogleDrive) _googleDriveService.silentSetup();
   }
 
   @override
@@ -144,6 +166,7 @@ class _HomePageState extends State<HomePage> {
     removeSetups(obsoleteSetups, confirm: false);
 
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
   Future<void> removeSetup(Setup toRemoveSetup) async {
@@ -167,6 +190,7 @@ class _HomePageState extends State<HomePage> {
       FileImport.determinePreviousSetups(setups: setups);
     });
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
   Future<void> removeComponent(Component toRemoveComponent) async {
@@ -188,11 +212,8 @@ class _HomePageState extends State<HomePage> {
       }
     });
 
-    await FileExport.saveData(
-      bikes: bikes,
-      setups: setups,
-      components: components,
-    );
+    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
   
   Future<void> addBike() async {
@@ -207,6 +228,7 @@ class _HomePageState extends State<HomePage> {
       if (_selectedBike == null) onBikeTap(null);
     });
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
   Future<void> _addComponent() async {
@@ -224,6 +246,7 @@ class _HomePageState extends State<HomePage> {
       components.add(component);
     });
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
   Future<void> editBike(Bike bike) async {
@@ -238,6 +261,7 @@ class _HomePageState extends State<HomePage> {
       bikes[editedBike.id] = editedBike;
     });
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
   Future<void> editComponent(Component component) async {
@@ -259,6 +283,7 @@ class _HomePageState extends State<HomePage> {
       }
     });
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
   Future<void> duplicateComponent(Component component) async {
@@ -266,7 +291,6 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       components.add(newComponent);
     });
-    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
     editComponent(newComponent);
   }
 
@@ -290,6 +314,7 @@ class _HomePageState extends State<HomePage> {
       components.insert(adjustedNewIndex, component);
     });
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
   Future<void> onReorderBikes(int oldIndex, int newIndex) async {
@@ -317,6 +342,7 @@ class _HomePageState extends State<HomePage> {
       onBikeTap(null);
     });
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
   Future<void> _addSetup() async {
@@ -343,6 +369,7 @@ class _HomePageState extends State<HomePage> {
       FileImport.updateSetupsAfter(setups: setups, setup: newSetup);
     });
     await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
   Future<void> editSetup(Setup setup) async {
@@ -352,19 +379,20 @@ class _HomePageState extends State<HomePage> {
         builder: (context) => SetupPage(setup: setup, components: components, bikes: filteredBikes, getPreviousSetupbyDateTime: getPreviousSetupbyDateTime,),
       ),
     );
-    if (editedSetup != null) {
-      setState(() {
-        final index = setups.indexOf(setup);
-        if (index != -1) {
-          setups[index] = editedSetup;
-        }
-        setups.sort((a, b) => a.datetime.compareTo(b.datetime));
-        FileImport.determineCurrentSetups(setups: setups, bikes: bikes);
-        FileImport.determinePreviousSetups(setups: setups);
-        FileImport.updateSetupsAfter(setups: setups, setup: editedSetup);
-      });
-      await FileExport.saveData(bikes: bikes, setups: setups, components: components);
-    }
+    if (editedSetup == null) return;
+
+    setState(() {
+      final index = setups.indexOf(setup);
+      if (index != -1) {
+        setups[index] = editedSetup;
+      }
+      setups.sort((a, b) => a.datetime.compareTo(b.datetime));
+      FileImport.determineCurrentSetups(setups: setups, bikes: bikes);
+      FileImport.determinePreviousSetups(setups: setups);
+      FileImport.updateSetupsAfter(setups: setups, setup: editedSetup);
+    });
+    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
   Future<void> restoreSetup(Setup setup) async {
@@ -382,8 +410,6 @@ class _HomePageState extends State<HomePage> {
       FileImport.determineCurrentSetups(setups: setups, bikes: bikes);
       FileImport.determinePreviousSetups(setups: setups);
     });
-    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
-
     editSetup(newSetup);
   }
 
@@ -420,6 +446,11 @@ class _HomePageState extends State<HomePage> {
           const Text("Setup History"),
         ][currentPageIndex],
         actions: [
+          if (_enableGoogleDrive)
+            GoogleDriveSyncButton(
+              googleDriveService: _googleDriveService,
+              isSyncing: false,
+            ),
           PopupMenuButton<String>(
             onSelected: (String result) {
               switch (result) {

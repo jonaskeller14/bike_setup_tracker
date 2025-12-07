@@ -39,11 +39,11 @@ class FileImport {
   }
 
   static Future<Data> parseJson({required Map<String, dynamic> jsonData}) async {
-    final loadedBikes = (jsonData['bikes'] as List)
+    final loadedBikes = (jsonData['bikes'] as List<dynamic>? ?? [])
         .map((a) => Bike.fromJson(a))
         .toList();
 
-    final loadedComponents = (jsonData['components'] as List)
+    final loadedComponents = (jsonData['components'] as List<dynamic>? ?? [])
         .map((c) => Component.fromJson(json: c))
         .toList();
 
@@ -51,7 +51,7 @@ class FileImport {
     for (final component in loadedComponents) {
       loadedAllAdjustments.addAll(component.adjustments);
     }
-    final loadedSetups = (jsonData['setups'] as List)
+    final loadedSetups = (jsonData['setups'] as List<dynamic>? ?? [])
         .map((s) => Setup.fromJson(json: s, allAdjustments: loadedAllAdjustments))
         .toList();
     

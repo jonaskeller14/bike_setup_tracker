@@ -18,14 +18,14 @@ class AboutPage extends StatelessWidget {
 String _getEmailContext() {
     final now = DateTime.now().toIso8601String().substring(0, 16);
     return '''
-
-
-
 ------------------
 App Version: $appVersion
 Build Number: $buildNumber
 Current Time: $now
 ------------------
+
+
+
 ''';
   }
 

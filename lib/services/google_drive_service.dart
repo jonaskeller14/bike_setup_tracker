@@ -186,8 +186,9 @@ class GoogleDriveService {
   void scheduleSilentSync() {
     if (lastSync != null && DateTime.now().difference(lastSync!) < _syncMinTimeGap) return;
     _syncTimer?.cancel();
-    _syncTimer = Timer(_syncDebounceDuration, () async {
-      await silentSync();
+    _syncTimer = Timer(_syncDebounceDuration, () {
+      debugPrint("Scheduled Silent Sync");
+      silentSync();
     });
   }
 

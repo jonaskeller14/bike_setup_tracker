@@ -57,6 +57,7 @@ class _ShowSetLocationDialogState extends State<ShowSetLocationDialog> {
   void _save() async {
     _onFieldSubmitted(_controller.text.trim());
     if (_location == null || _address == null) {
+      if (!mounted) return;
       setState(() {
         _error = true;
       });
@@ -69,22 +70,25 @@ class _ShowSetLocationDialogState extends State<ShowSetLocationDialog> {
   void _onFieldSubmitted(String text) async {
     if (!_formKey.currentState!.validate()) return;
     final newLocation = await _locationService.locationFromAddress(text.trim());
-
+    if (!mounted) return;
     setState(() {
       _location = newLocation;
       _error = newLocation == null ? true : false;
     });
     if (_location == null) return;
 
+    if (!mounted) return;
     setState(() {
       _elevationService.status = ElevationStatus.searching;
     });
     final newAltitude = await _elevationService.fetchElevation(lat: _location!.latitude!, lon: _location!.longitude!);
+    if (!mounted) return;
     setState(() {
       _location = _locationService.setAltitude(location: _location, newAltitude: newAltitude);
     });
 
     final newAddress = await _addressService.fetchAddress(lat: _location!.latitude!, lon: _location!.longitude!);
+    if (!mounted) return;
     setState(() {
       _address = newAddress;
       _error = newAddress == null ? true : false;

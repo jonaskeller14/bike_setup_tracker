@@ -97,7 +97,7 @@ class _HomePageState extends State<HomePage> {
       FileImport.overwrite(remoteData: data, localBikes: bikes, localSetups: setups, localComponents: components);
     });
     FileImport.cleanupIsDeleted(bikes: bikes, components: components, setups: setups);
-    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveData(bikes: bikes, setups: setups, components: components);
   }
 
   Future<void> loadJsonFileData() async {
@@ -118,11 +118,8 @@ class _HomePageState extends State<HomePage> {
       });
     }
 
-    await FileExport.saveData(
-      bikes: bikes, 
-      setups: setups,
-      components: components,
-    );
+    FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
     
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -165,7 +162,7 @@ class _HomePageState extends State<HomePage> {
     removeComponents(obsoleteComponents, confirm: false);
     removeSetups(obsoleteSetups, confirm: false);
 
-    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveData(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
@@ -189,7 +186,7 @@ class _HomePageState extends State<HomePage> {
       FileImport.determineCurrentSetups(setups: setups, bikes: bikes);
       FileImport.determinePreviousSetups(setups: setups);
     });
-    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveData(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
@@ -212,7 +209,7 @@ class _HomePageState extends State<HomePage> {
       }
     });
 
-    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveData(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
   
@@ -227,7 +224,7 @@ class _HomePageState extends State<HomePage> {
       bikes[bike.id] = bike;
       if (_selectedBike == null) onBikeTap(null);
     });
-    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveData(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
@@ -245,7 +242,8 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       components.add(component);
     });
-    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+
+    FileExport.saveData(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
@@ -260,7 +258,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       bikes[editedBike.id] = editedBike;
     });
-    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveData(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
@@ -282,7 +280,7 @@ class _HomePageState extends State<HomePage> {
         components[index] = editedComponent;
       }
     });
-    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveData(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
@@ -313,7 +311,7 @@ class _HomePageState extends State<HomePage> {
       final component = components.removeAt(oldIndex);
       components.insert(adjustedNewIndex, component);
     });
-    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveData(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
@@ -341,7 +339,7 @@ class _HomePageState extends State<HomePage> {
       bikes = {for (var element in bikesList) element.id : element};
       onBikeTap(null);
     });
-    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveData(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
@@ -368,7 +366,7 @@ class _HomePageState extends State<HomePage> {
       FileImport.determinePreviousSetups(setups: setups);
       FileImport.updateSetupsAfter(setups: setups, setup: newSetup);
     });
-    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveData(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
@@ -391,7 +389,7 @@ class _HomePageState extends State<HomePage> {
       FileImport.determinePreviousSetups(setups: setups);
       FileImport.updateSetupsAfter(setups: setups, setup: editedSetup);
     });
-    await FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveData(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 

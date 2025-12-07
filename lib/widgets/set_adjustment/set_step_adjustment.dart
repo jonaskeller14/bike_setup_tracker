@@ -64,7 +64,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.max,
               children: [
-                Icon(Icons.format_list_numbered, color: highlightColor),
+                Icon(Icons.stairs_outlined, color: highlightColor),
                 SizedBox(width: 10),
                 Expanded(
                   child: Align(

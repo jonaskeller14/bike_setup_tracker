@@ -171,7 +171,7 @@ class StepAdjustment extends Adjustment<int> {
   }
 
   static Icon getIconStatic({double? size, Color? color}) {
-    return Icon(Icons.format_list_numbered, size: size, color: color,);
+    return Icon(Icons.stairs_outlined, size: size, color: color,);
   }
 
   @override

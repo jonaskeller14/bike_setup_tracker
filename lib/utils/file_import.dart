@@ -167,10 +167,11 @@ class FileImport {
         continue;
       }
 
-      final bool remoteIsOlder = remoteBike.lastModified.isBefore(localBike.lastModified);
-      if (remoteIsOlder) continue; // local wins
+      // final bool remoteIsOlder = remoteBike.lastModified.isBefore(localBike.lastModified);
+      // if (remoteIsOlder) continue; // local wins
 
-      debugPrint("MERGE CONFLICT: Could not add bike ${remoteBike.name} with id ${remoteBike.id}");
+      // remote = local
+      // continue;
     }
 
     for (final remoteSetup in remoteData.setups) {
@@ -188,10 +189,11 @@ class FileImport {
         continue;
       }
 
-      final bool remoteIsOlder = remoteSetup.lastModified.isBefore(localSetup.lastModified);
-      if (remoteIsOlder) continue;
-      
-      debugPrint("MERGE CONFLICT: Could not add bike ${remoteSetup.name} with id ${remoteSetup.id}");
+      // final bool remoteIsOlder = remoteSetup.lastModified.isBefore(localSetup.lastModified);
+      // if (remoteIsOlder) continue;
+
+      // remote = local
+      // continue;
     }
 
     for (final remoteComponent in remoteData.components) {
@@ -209,10 +211,11 @@ class FileImport {
         continue;
       }
 
-      final bool remoteIsOlder = remoteComponent.lastModified.isBefore(localComponent.lastModified);
-      if (remoteIsOlder) continue;
+      // final bool remoteIsOlder = remoteComponent.lastModified.isBefore(localComponent.lastModified);
+      // if (remoteIsOlder) continue;
 
-      debugPrint("MERGE CONFLICT: Could not add bike ${remoteComponent.name} with id ${remoteComponent.id}");
+      // remote = local
+      // continue;
     }
 
     localSetups.sort((a, b) => a.datetime.compareTo(b.datetime));
@@ -228,7 +231,7 @@ class FileImport {
     for (final setup in setups) {
       setup.isCurrent = false;
     }
-    final remainingBikes = Set.of(bikes.values.where((b) => !b.isDeleted));
+    final remainingBikes = Set.of(bikes.values.where((b) => !b.isDeleted).map((b) => b.id));
     for (final setup in setups.reversed.where((s) => !s.isDeleted)) {
       final bike = setup.bike;
       if (remainingBikes.contains(bike)) {

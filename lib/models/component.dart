@@ -36,8 +36,8 @@ class Component {
     List<Adjustment>? adjustments,
   }) : adjustments = adjustments ?? [],
        id = id ?? const Uuid().v4(),
-       isDeleted = false,
-       lastModified = DateTime.now();
+       isDeleted = isDeleted ?? false,
+       lastModified = lastModified ?? DateTime.now();
     
   Component deepCopy() {
     return Component(

@@ -8,8 +8,8 @@ class Bike {
 
   Bike({String? id, bool? isDeleted, DateTime? lastModified, required this.name})
     : id = id ?? const Uuid().v4(),
-      isDeleted = false,
-      lastModified = DateTime.now();
+      isDeleted = isDeleted ?? false,
+      lastModified = lastModified ?? DateTime.now();
 
   Map<String, dynamic> toJson() => {
     'id': id,

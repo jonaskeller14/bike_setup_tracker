@@ -167,15 +167,11 @@ class GoogleDriveService extends ChangeNotifier {
     }
 
     if (!_isAuthorized) await handleAuthorizeScopes();
-    if (!_isAuthorized) {
-      _setIsSyncing(false);
-      return;
-    }
 
-    if (_driveApi == null) await _initializeDriveApi();
-    if (_driveApi == null) {
+    if (_driveApi == null || !_isAuthorized) await _initializeDriveApi();
+    if (_driveApi == null || !_isAuthorized) {
       _setIsSyncing(false);
-      _setErrorMessage("Drive API initialization failed.");
+      _setErrorMessage("Drive access requires re-authorization.");
       return;
     }
     
@@ -196,7 +192,8 @@ class GoogleDriveService extends ChangeNotifier {
         }
 
         try {
-          await download(); 
+          await _initializeDriveApi(); // Re-initialize API with new authorization
+          await download();
           await upload();
           lastSync = DateTime.now();
         } catch (e) {
@@ -212,29 +209,39 @@ class GoogleDriveService extends ChangeNotifier {
     }
     
     _setIsSyncing(false);
-    notifyListeners(); // Notify one last time for sync status update
+    notifyListeners();
   }
 
   Future<void> silentSync() async {
     if (_currentUser == null) return;
-    if (!_isAuthorized) return;
 
-    if (_driveApi == null) await _initializeDriveApi();
-    if (_driveApi == null) return;
+    if (_driveApi == null || !_isAuthorized) await _initializeDriveApi();
+    if (_driveApi == null || !_isAuthorized) return;
+
+    _setIsSyncing(true);
     
-    // Silent sync only logs errors, doesn't overwrite general errorMessage
     try {
-      await download(); 
+      await download();
       await upload();
       lastSync = DateTime.now();
       debugPrint("Silent Sync successful at $lastSync");
     } on DetailedApiRequestError catch (e) {
-      debugPrint('Silent Sync API Error: Status ${e.status}, Message: ${e.message}');
+      if (e.status == 401) {  // Refresh token failed. Cannot re-authorize silently.
+        debugPrint("Silent Sync Failed: 401 Unauthorized (Refresh Token Expired).");
+        await clearToken();
+        _isAuthorized = false;
+        _setErrorMessage("Sync failed: Authorization expired. Please tap 'Sync' to re-authorize.");
+        notifyListeners();
+      } else {
+        debugPrint('Silent Sync API Error: Status ${e.status}, Message: ${e.message}');
+      }
     } on SocketException {
       debugPrint('Silent Sync failed: No internet connection.');
     } catch (e) {
       debugPrint('Silent Sync General Error: $e');
     }
+    
+    _setIsSyncing(false);
   }
 
   void scheduleSilentSync() {

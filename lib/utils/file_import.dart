@@ -217,7 +217,7 @@ class FileImport {
       // remote = local
       // continue;
     }
-
+    cleanupIsDeleted(bikes: localBikes, components: localComponents, setups: localSetups);
     localSetups.sort((a, b) => a.datetime.compareTo(b.datetime));
     determineCurrentSetups(setups: localSetups, bikes: localBikes);
     determinePreviousSetups(setups: localSetups);

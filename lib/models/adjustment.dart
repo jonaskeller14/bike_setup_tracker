@@ -220,7 +220,7 @@ class NumericalAdjustment extends Adjustment<double> {
   }
 
   static Icon getIconStatic({double? size, Color? color}) {
-    return Icon(Icons.numbers, size: size, color: color);
+    return Icon(Icons.speed, size: size, color: color);
   }
 
   @override

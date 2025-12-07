@@ -79,7 +79,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
             child: Row(
               mainAxisSize: MainAxisSize.max,
               children: [
-                Icon(Icons.numbers, color: highlightColor),
+                Icon(Icons.speed, color: highlightColor),
                 SizedBox(width: 10),
                 Expanded(
                   child: Align(

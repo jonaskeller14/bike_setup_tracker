@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 Future<bool> showConfirmationDialog(
   BuildContext context, {
   String title = "Are you sure?",
-  String content = "This action cannot be undone.",
+  String? content = "This action cannot be undone.",
   String falseText = "Cancel",
   String trueText = "Continue"
 }) async {
@@ -13,7 +13,7 @@ Future<bool> showConfirmationDialog(
     builder: (context) {
       return AlertDialog(
         title: Text(title),
-        content: Text(content),
+        content: content == null ? null : Text(content),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),

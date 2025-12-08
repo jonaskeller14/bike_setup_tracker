@@ -7,6 +7,7 @@ import '../models/component.dart';
 import 'bike_page.dart';
 import 'component_page.dart';
 import 'setup_page.dart';
+import 'trash_page.dart';
 import 'app_settings_page.dart';
 import 'about_page.dart';
 import '../utils/data.dart';
@@ -124,9 +125,12 @@ class _HomePageState extends State<HomePage> {
     
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(choice == 'overwrite'
+      SnackBar(
+        showCloseIcon: true,
+        content: Text(choice == 'overwrite'
           ? 'Data overwritten successfully'
-          : 'Data merged successfully')),
+          : 'Data merged successfully'
+        )),
     );
   }
 
@@ -146,10 +150,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> removeBike(Bike bike) async {
-    final confirmed = await showConfirmationDialog(context, content: "This action cannot be undone. All components and setups which belong to this bike will be deleted as well.");
-    if (!confirmed) {
-      return;
-    }
+    final confirmed = await showConfirmationDialog(context, content: "All components and setups which belong to this bike will be deleted as well.");
+    if (!confirmed) return;
 
     final obsoleteComponents = components.where((c) => c.bike == bike.id).toList();
     final obsoleteSetups = setups.where((s) => s.bike == bike.id).toList();
@@ -174,11 +176,6 @@ class _HomePageState extends State<HomePage> {
   Future<void> removeSetups(List<Setup> toRemoveSetups, {bool confirm = true}) async {
     if (toRemoveSetups.isEmpty) return;
 
-    if (confirm) {
-      final confirmed = await showConfirmationDialog(context);
-      if (!confirmed) return;
-    }
-
     setState(() {
       for (var setup in toRemoveSetups) {
         setup.isDeleted = true;
@@ -187,6 +184,31 @@ class _HomePageState extends State<HomePage> {
       FileImport.determineCurrentSetups(setups: setups, bikes: bikes);
       FileImport.determinePreviousSetups(setups: setups);
     });
+
+    if (confirm) {
+      final snackBar = SnackBar(
+        content: Text('${toRemoveSetups.length} setup(s) moved to trash.'),
+        duration: const Duration(seconds: 5),
+        action: SnackBarAction(
+          label: 'UNDO',
+          onPressed: () {
+            setState(() {
+              for (var setup in toRemoveSetups) {
+                setup.isDeleted = false;
+                setup.lastModified = DateTime.now();
+              }
+              setups.sort((a, b) => a.datetime.compareTo(b.datetime)); // not really necessary
+              FileImport.determineCurrentSetups(setups: setups, bikes: bikes);
+              FileImport.determinePreviousSetups(setups: setups);
+            });
+          },
+        ),
+      );
+
+      final SnackBarClosedReason reason = await ScaffoldMessenger.of(context).showSnackBar(snackBar).closed;
+      if (reason == SnackBarClosedReason.action) return; // Not save and sync
+    }
+
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
@@ -198,17 +220,33 @@ class _HomePageState extends State<HomePage> {
   Future<void> removeComponents(List<Component> toRemoveComponents, {bool confirm = true}) async {
     if (toRemoveComponents.isEmpty) return;
 
-    if (confirm) {
-      final confirmed = await showConfirmationDialog(context);
-      if (!confirmed) return;
-    }
-
     setState(() {
       for (var component in toRemoveComponents) {
         component.isDeleted = true;
         component.lastModified = DateTime.now();
       }
     });
+
+    if (confirm) {
+      final snackBar = SnackBar(
+        content: Text('${toRemoveComponents.length} setup(s) moved to trash.'),
+        duration: const Duration(seconds: 5),
+        action: SnackBarAction(
+          label: 'UNDO',
+          onPressed: () {
+            setState(() {
+              for (var setup in toRemoveComponents) {
+                setup.isDeleted = false;
+                setup.lastModified = DateTime.now();
+              }
+            });
+          },
+        ),
+      );
+
+      final SnackBarClosedReason reason = await ScaffoldMessenger.of(context).showSnackBar(snackBar).closed;
+      if (reason == SnackBarClosedReason.action) return; // Not save and sync
+    }
 
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
@@ -231,7 +269,11 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _addComponent() async {
     if (filteredBikes.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Add a bike first"), backgroundColor: Theme.of(context).colorScheme.error));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        showCloseIcon: true,
+        content: Text("Add a bike first"), 
+        backgroundColor: Theme.of(context).colorScheme.error
+      ));
       return;
     }
     final component = await Navigator.push<Component>(
@@ -346,11 +388,19 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _addSetup() async {
     if (bikes.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Add a bike first"), backgroundColor: Theme.of(context).colorScheme.error));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        showCloseIcon: true, 
+        content: Text("Add a bike first"), 
+        backgroundColor: Theme.of(context).colorScheme.error
+      ));
       return;
     }
     if (components.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Add a component first"), backgroundColor: Theme.of(context).colorScheme.error));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        showCloseIcon: true, 
+        content: Text("Add a component first"), 
+        backgroundColor: Theme.of(context).colorScheme.error
+      ));
       return;
     }
 
@@ -469,6 +519,18 @@ class _HomePageState extends State<HomePage> {
                     components: components,
                   );
                   break;
+                case "trash":
+                  Navigator.push<void>(context, MaterialPageRoute(builder: (context) => TrashPage(bikes: bikes, components: components, setups: setups))).then((_) {
+                    setState(() {
+                      setups.sort((a, b) => a.datetime.compareTo(b.datetime));
+                      FileImport.determineCurrentSetups(setups: setups, bikes: bikes);
+                      FileImport.determinePreviousSetups(setups: setups);
+                      // FileImport.updateSetupsAfter(setups: setups, setup: setup); //FIXME
+                    });
+                    FileExport.saveData(bikes: bikes, setups: setups, components: components);
+                    if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
+                  });
+                  break;
                 case "settings":
                   Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()));
                   break;
@@ -505,6 +567,16 @@ class _HomePageState extends State<HomePage> {
                     Icon(Icons.share),
                     SizedBox(width: 8),
                     Text('Share Data'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: "trash",
+                child: Row(
+                  children: [
+                    Icon(Icons.delete),
+                    SizedBox(width: 8),
+                    Text('Trash'),
                   ],
                 ),
               ),

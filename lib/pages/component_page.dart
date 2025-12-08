@@ -199,6 +199,7 @@ class _ComponentPageState extends State<ComponentPage> {
     if (!_formKey.currentState!.validate()) return;
     if (adjustments.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        showCloseIcon: true,
         content: Text("You need to add at least one adjustment"), 
         backgroundColor: Theme.of(context).colorScheme.error,
         duration: Duration(seconds: 2),

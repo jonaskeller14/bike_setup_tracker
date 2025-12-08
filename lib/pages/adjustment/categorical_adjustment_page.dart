@@ -42,11 +42,12 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
   }
 
   void _changeListener() {
-    final nameHasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '');
     final options = _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet();
     final initialOptions = widget.adjustment?.options.toSet() ?? {};
-    final optionHasChanges = options.length != initialOptions.length || !options.containsAll(initialOptions);
-    final hasChanges = nameHasChanges || optionHasChanges;
+    
+    final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '') || 
+        options.length != initialOptions.length || 
+        !options.containsAll(initialOptions);
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;

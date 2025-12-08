@@ -47,11 +47,10 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
   }
 
   void _changeListener() {
-    final nameHasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '');
-    final unitHasChanges = _unitController.text.trim() != (widget.adjustment?.unit ?? '');
-    final minHasChanges = (double.tryParse(_minController.text.trim()) ?? double.negativeInfinity) != (widget.adjustment?.min ?? double.negativeInfinity);
-    final maxHasChanges = (double.tryParse(_maxController.text.trim()) ?? double.infinity) != (widget.adjustment?.max ?? double.infinity);
-    final hasChanges = nameHasChanges || unitHasChanges || minHasChanges || maxHasChanges;
+    final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '') || 
+        _unitController.text.trim() != (widget.adjustment?.unit ?? '') || 
+        (double.tryParse(_minController.text.trim()) ?? double.negativeInfinity) != (widget.adjustment?.min ?? double.negativeInfinity) || 
+        (double.tryParse(_maxController.text.trim()) ?? double.infinity) != (widget.adjustment?.max ?? double.infinity);
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;

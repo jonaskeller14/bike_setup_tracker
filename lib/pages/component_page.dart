@@ -40,20 +40,12 @@ class _ComponentPageState extends State<ComponentPage> {
   }
 
   void _changeListener() {
-    final nameHasChanges = _nameController.text.trim() != (widget.component?.name ?? '');
-    final bikeHasChanges = bike != (widget.component?.bike ?? widget.bikes.first);
-    final componentTypeHasChanges = componentType != widget.component?.componentType;
-    
-    bool adjustmentListHasChanges = _initialAdjustments.length != adjustments.length;
-    if (!adjustmentListHasChanges) {
-      for (int index = 0; index < adjustments.length; index++) {
-        if (adjustments[index] != _initialAdjustments[index]) {
-          adjustmentListHasChanges = true;
-          break;
-        }
-      }
-    }
-    final hasChanges = nameHasChanges || componentTypeHasChanges || bikeHasChanges || adjustmentListHasChanges;
+    final hasChanges = _nameController.text.trim() != (widget.component?.name ?? '') || 
+        bike != (widget.component?.bike ?? widget.bikes.first) || 
+        componentType != widget.component?.componentType;
+        _initialAdjustments.length != adjustments.length || 
+        adjustments.asMap().entries.any((entry) => entry.value != _initialAdjustments[entry.key]);
+
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;

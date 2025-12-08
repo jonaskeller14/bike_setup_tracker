@@ -59,12 +59,12 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
   }
 
   void _changeListener() {
-    final nameHasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '');
-    final stepHasChanges = int.tryParse(_stepController.text.trim()) != (widget.adjustment?.step ?? _defaultStep);
-    final minHasChanges = int.tryParse(_minController.text.trim()) != (widget.adjustment?.min ?? _defaultMin);
-    final maxHasChanges = int.tryParse(_maxController.text.trim()) != (widget.adjustment?.max);
-    final visualizationHasChanges = visualization != (widget.adjustment?.visualization ?? _defaultVisualization);
-    final hasChanges = nameHasChanges || stepHasChanges || minHasChanges || maxHasChanges || visualizationHasChanges;
+    final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '') ||
+        int.tryParse(_stepController.text.trim()) != (widget.adjustment?.step ?? _defaultStep) ||
+        int.tryParse(_minController.text.trim()) != (widget.adjustment?.min ?? _defaultMin) ||
+        int.tryParse(_maxController.text.trim()) != (widget.adjustment?.max) ||
+        visualization != (widget.adjustment?.visualization ?? _defaultVisualization);
+
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;

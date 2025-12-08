@@ -181,34 +181,24 @@ class _SetupPageState extends State<SetupPage> {
   }
 
   void _changeListener() {
-    //TODO: make this more efficient: hasChanges = ... if !hasChanges: hasChanges = ... ......
-    final nameHasChanges = _nameController.text.trim() != (widget.setup?.name ?? '');
-    final noteHasChanges = _nameController.text.trim() != (widget.setup?.name ?? '');
-    final dataTimeHasChanges = _initialDateTime != _selectedDateTime;
+    final hasChanges = _nameController.text.trim() != (widget.setup?.name ?? '') || 
+        _notesController.text.trim() != (widget.setup?.notes ?? '') || 
+        _initialDateTime != _selectedDateTime || 
 
-    final locationHasChanges = 
-    _currentLocation?.latitude != widget.setup?.position?.latitude || 
-    _currentLocation?.longitude != widget.setup?.position?.longitude || 
-    _currentLocation?.altitude != widget.setup?.position?.altitude;
-    
-    final weatherHasChanges = 
-    _currentWeather?.currentTemperature != widget.setup?.weather?.currentTemperature ||
-    _currentWeather?.currentHumidity != widget.setup?.weather?.currentHumidity ||
-    _currentWeather?.dayAccumulatedPrecipitation != widget.setup?.weather?.dayAccumulatedPrecipitation ||
-    _currentWeather?.currentWindSpeed != widget.setup?.weather?.currentWindSpeed ||
-    _currentWeather?.currentSoilMoisture0to7cm != widget.setup?.weather?.currentSoilMoisture0to7cm;
+        _currentLocation?.latitude != widget.setup?.position?.latitude || 
+        _currentLocation?.longitude != widget.setup?.position?.longitude || 
+        _currentLocation?.altitude != widget.setup?.position?.altitude || 
 
-    final bikeHasChanges = bike != (widget.setup?.bike ?? widget.bikes.first);
-    bool adjustmentValuesHaveChanges = false;
-    for (final initialAdjustmentValue in filterForValidAdjustmentValues(_initialAdjustmentValues).entries) {
-      final adj = initialAdjustmentValue.key;
-      if (_initialAdjustmentValues[adj] != adjustmentValues[adj]) {
-        adjustmentValuesHaveChanges = true;
-        break;
-      }
-    }
+        _currentWeather?.currentTemperature != widget.setup?.weather?.currentTemperature ||
+        _currentWeather?.currentHumidity != widget.setup?.weather?.currentHumidity ||
+        _currentWeather?.dayAccumulatedPrecipitation != widget.setup?.weather?.dayAccumulatedPrecipitation ||
+        _currentWeather?.currentWindSpeed != widget.setup?.weather?.currentWindSpeed ||
+        _currentWeather?.currentSoilMoisture0to7cm != widget.setup?.weather?.currentSoilMoisture0to7cm || 
+        
+        bike != (widget.setup?.bike ?? widget.bikes.first) || 
 
-    final hasChanges = nameHasChanges || noteHasChanges || dataTimeHasChanges || bikeHasChanges || locationHasChanges || weatherHasChanges || adjustmentValuesHaveChanges;
+        filterForValidAdjustmentValues(_initialAdjustmentValues).keys.any((adj) => _initialAdjustmentValues[adj] != adjustmentValues[adj]);
+
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;

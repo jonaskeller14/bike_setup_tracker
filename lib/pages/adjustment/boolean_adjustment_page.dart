@@ -33,10 +33,10 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
   }
 
   void _changeListener() {
-    final nameHasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '');
-    if (_formHasChanges != nameHasChanges) {
+    final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '');
+    if (_formHasChanges != hasChanges) {
       setState(() {
-        _formHasChanges = nameHasChanges;
+        _formHasChanges = hasChanges;
       });
     }
   }

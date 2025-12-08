@@ -72,6 +72,7 @@ class _HomePageState extends State<HomePage> {
       onDataDownloaded: (Data remoteData) {
         setState(() {
           FileImport.merge(remoteData: remoteData, localBikes: bikes, localSetups: setups, localComponents: components);
+          if (!bikes.values.contains(_selectedBike)) onBikeTap(null);
         });
       },
     );

@@ -39,7 +39,11 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     _unitController = TextEditingController(text: widget.adjustment?.unit);
     _unitController.addListener(_changeListener);
 
-    if (widget.adjustment != null) _previewAdjustment = widget.adjustment!;
+    if (widget.adjustment != null) {
+      _previewAdjustment = widget.adjustment!;
+      
+      _expanded = true;
+    }
   }
 
   void _changeListener() {

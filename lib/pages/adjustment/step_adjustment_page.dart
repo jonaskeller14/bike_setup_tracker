@@ -53,6 +53,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     if (widget.adjustment != null) {
       _previewAdjustment = widget.adjustment!;
       _previewValue = _previewAdjustment.min.toDouble();
+
+      _expanded = true;
     }
   }
 

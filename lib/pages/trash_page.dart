@@ -43,10 +43,8 @@ class _TrashPageState extends State<TrashPage> {
         ),
       ),
       body: deletedCombined.isEmpty 
-          ? Expanded(
-              child: Center(
-                child: Text("Empty Tash", style: TextStyle(color: Colors.grey.shade600)),
-              ) 
+          ? Center(
+              child: Text("Empty Tash", style: TextStyle(color: Colors.grey.shade600)), 
             ) 
           : ListView.builder(
               padding: const EdgeInsets.all(16.0),

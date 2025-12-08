@@ -600,7 +600,7 @@ class _HomePageState extends State<HomePage> {
                     )
                   )
                 : ComponentList(
-                  bikes: bikes,
+                  bikes: filteredBikes,
                   components: filteredComponents,
                   setups: setups,
                   editComponent: editComponent,
@@ -650,7 +650,7 @@ class _HomePageState extends State<HomePage> {
             ),
 
             SetupList(
-              bikes: bikes,
+              bikes: filteredBikes,
               setups: filteredSetups,
               components: filteredComponents,
               editSetup: editSetup,

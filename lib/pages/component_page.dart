@@ -318,6 +318,11 @@ class _ComponentPageState extends State<ComponentPage> {
                       border: OutlineInputBorder(),
                       hintText: "Choose a bike for this component",
                     ),
+                    validator: (Bike? newBike) {
+                      if (newBike == null) return "Bike cannot be empty.";
+                      if (!widget.bikes.values.contains(newBike)) return "Please select valid bike";
+                      return null;
+                    },
                     items: widget.bikes.values.map((b) {
                       return DropdownMenuItem<Bike>(
                         value: b,
@@ -374,7 +379,7 @@ class _ComponentPageState extends State<ComponentPage> {
                     },
                     validator: (value) {
                       if (value == null) {
-                        return 'Component type cannot be empty';
+                        return 'Component type cannot be empty. You can edit it later.';
                       }
                       return null;
                     },

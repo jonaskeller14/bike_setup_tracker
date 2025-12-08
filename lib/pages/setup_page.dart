@@ -695,6 +695,11 @@ class _SetupPageState extends State<SetupPage> {
                   border: OutlineInputBorder(),
                   hintText: "Choose a bike for this component",
                 ),
+                validator: (Bike? newBike) {
+                  if (newBike == null) return "Bike cannot be empty.";
+                  if (!widget.bikes.values.contains(newBike)) return "Please select valid bike";
+                  return null;
+                },
                 items: widget.bikes.values.map((b) {
                   return DropdownMenuItem<Bike>(
                     value: b,

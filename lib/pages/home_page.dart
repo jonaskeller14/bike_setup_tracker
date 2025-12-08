@@ -189,6 +189,8 @@ class _HomePageState extends State<HomePage> {
       final snackBar = SnackBar(
         content: Text('${toRemoveSetups.length} setup(s) moved to trash.'),
         duration: const Duration(seconds: 5),
+        persist: false,
+        showCloseIcon: true,
         action: SnackBarAction(
           label: 'UNDO',
           onPressed: () {
@@ -229,8 +231,10 @@ class _HomePageState extends State<HomePage> {
 
     if (confirm) {
       final snackBar = SnackBar(
-        content: Text('${toRemoveComponents.length} setup(s) moved to trash.'),
+        content: Text('${toRemoveComponents.length} components(s) moved to trash.'),
         duration: const Duration(seconds: 5),
+        persist: false,
+        showCloseIcon: true,
         action: SnackBarAction(
           label: 'UNDO',
           onPressed: () {
@@ -270,6 +274,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _addComponent() async {
     if (filteredBikes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        persist: false,
         showCloseIcon: true,
         content: Text("Add a bike first"), 
         backgroundColor: Theme.of(context).colorScheme.error
@@ -389,6 +394,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _addSetup() async {
     if (bikes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        persist: false,
         showCloseIcon: true, 
         content: Text("Add a bike first"), 
         backgroundColor: Theme.of(context).colorScheme.error
@@ -397,6 +403,7 @@ class _HomePageState extends State<HomePage> {
     }
     if (components.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        persist: false,
         showCloseIcon: true, 
         content: Text("Add a component first"), 
         backgroundColor: Theme.of(context).colorScheme.error
@@ -525,7 +532,9 @@ class _HomePageState extends State<HomePage> {
                       setups.sort((a, b) => a.datetime.compareTo(b.datetime));
                       FileImport.determineCurrentSetups(setups: setups, bikes: bikes);
                       FileImport.determinePreviousSetups(setups: setups);
-                      // FileImport.updateSetupsAfter(setups: setups, setup: setup); //FIXME
+                      for (final setup in setups) {
+                        FileImport.updateSetupsAfter(setups: setups, setup: setup);
+                      }
                     });
                     FileExport.saveData(bikes: bikes, setups: setups, components: components);
                     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();

@@ -11,6 +11,7 @@ enum ComponentType {
   wheelFront('Front Wheel'),
   wheelRear('Rear Wheel'),
   motor('Motor'),
+  equipment('Equipment'),
   other('Other');
 
   final String value;
@@ -56,6 +57,8 @@ class Component {
         return const Icon(BikeIcons.wheelRear);
       case ComponentType.motor:
         return const Icon(BikeIcons.motor);
+      case ComponentType.equipment:
+        return const Icon(BikeIcons.equipment);
       default:
         return const Icon(BikeIcons.other);
     }   

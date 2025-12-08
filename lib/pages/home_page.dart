@@ -682,7 +682,7 @@ class _HomePageState extends State<HomePage> {
 
             SetupList(
               setups: filteredSetups,
-              components: components,
+              components: filteredComponents,
               editSetup: editSetup,
               restoreSetup: restoreSetup,
               removeSetup: removeSetup,

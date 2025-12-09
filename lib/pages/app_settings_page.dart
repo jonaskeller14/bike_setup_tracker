@@ -10,6 +10,45 @@ class AppSettingsPage extends StatefulWidget {
 }
 
 class _AppSettingsPageState extends State<AppSettingsPage> {
+  static const Map<String, String> _dateFormatOptions = {
+    'dd.MM.yyyy (09.12.2025)': 'dd.MM.yyyy',
+    'dd/MM/yyyy (09/12/2025)': 'dd/MM/yyyy',
+    'MM/dd/yyyy (12/09/2025)': 'MM/dd/yyyy',
+    'yyyy-MM-dd (2025-12-09)': 'yyyy-MM-dd',
+    'dd MMM yyyy (09 Dec 2025)': 'dd MMM yyyy',
+  };
+
+  static const Map<String, String> _timeFormatOptions = {
+    'HH:mm (20:07)': 'HH:mm', // 24-hour format
+    'h:mm a (8:07 PM)': 'h:mm a', // 12-hour format
+  };
+
+  Widget _getThemeModeChild(ThemeMode mode) {
+    IconData icon;
+    String name;
+    switch (mode) {
+      case ThemeMode.dark:
+        icon = Icons.dark_mode;
+        name = 'Dark';
+        break;
+      case ThemeMode.light:
+        icon = Icons.light_mode;
+        name = 'Light';
+        break;
+      case ThemeMode.system:
+        icon = Icons.settings;
+        name = 'System';
+        break;
+    }
+    return Row(
+      spacing: 8,
+      children: [
+        Icon(icon),
+        Text(name),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appSettingsWriter = context.read<AppSettings>();
@@ -23,24 +62,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         children: [
           ListTile(
             leading: Icon(Icons.color_lens, color: Theme.of(context).colorScheme.primary),
-            title: const Text("Theme Mode"),
+            title: const Text("App Theme Mode"),
             trailing: DropdownButton<ThemeMode>(
               value: appSettingsReader.themeMode,
               items: ThemeMode.values.map((ThemeMode mode) {
                 return DropdownMenuItem<ThemeMode>(
                   value: mode,
-                  child: Row(
-                    spacing: 8,
-                    children: [
-                      if (mode == ThemeMode.dark)
-                        Icon(Icons.dark_mode),
-                      if (mode == ThemeMode.light)
-                        Icon(Icons.light_mode),
-                      if (mode == ThemeMode.system)
-                        Icon(Icons.settings),
-                      Text(mode.name)
-                    ],
-                  ),
+                  child: _getThemeModeChild(mode),
                 );
               }).toList(),
               onChanged: (ThemeMode? newValue) {
@@ -51,7 +79,46 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               },
             ),
           ),
-          // Divider(),
+          Divider(),
+          ListTile(
+            leading: Icon(Icons.calendar_month, color: Theme.of(context).colorScheme.primary),
+            title: const Text("Date Format"),
+            trailing: DropdownButton<String>(
+              value: appSettingsReader.dateFormat,
+              items: _dateFormatOptions.entries.map((e) {
+                return DropdownMenuItem(
+                  value: e.value,
+                  child: Text(e.key),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                if (newValue == null) return;
+                setState(() {
+                  appSettingsWriter.setDateFormat(newValue);
+                });
+              },
+            ),
+          ),
+          Divider(),
+          ListTile(
+            leading: Icon(Icons.access_time, color: Theme.of(context).colorScheme.primary),
+            title: const Text("Time Format"),
+            trailing: DropdownButton<String>(
+              value: appSettingsReader.timeFormat,
+              items: _timeFormatOptions.entries.map((e) {
+                return DropdownMenuItem(
+                  value: e.value,
+                  child: Text(e.key),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                if (newValue == null) return;
+                setState(() {
+                  appSettingsWriter.setTimeFormat(newValue);
+                });
+              },
+            ),
+          ),
         ],
       )
     );

@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
+import 'package:provider/provider.dart';
 import '../models/weather.dart';
 import '../models/bike.dart';
 import '../models/setup.dart';
 import '../models/component.dart';
 import '../models/adjustment.dart';
+import '../models/app_settings.dart';
 import '../services/weather_service.dart';
 import '../services/address_service.dart';
 import '../services/location_service.dart';
@@ -433,6 +435,8 @@ class _SetupPageState extends State<SetupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final appSettings = context.watch<AppSettings>();
+
     return PopScope(
       canPop: !_formHasChanges,
       onPopInvokedWithResult: _handlePopInvoked,
@@ -490,7 +494,7 @@ class _SetupPageState extends State<SetupPage> {
                   ActionChip(
                     avatar: const Icon(Icons.calendar_today),
                     label: Text(
-                      DateFormat('yyyy-MM-dd').format(_selectedDateTime),
+                      DateFormat(appSettings.dateFormat).format(_selectedDateTime),
                     ),
                     backgroundColor: widget.setup != null && (_selectedDateTime.year != widget.setup?.datetime.year || _selectedDateTime.month != widget.setup?.datetime.month || _selectedDateTime.day != widget.setup?.datetime.day) ? Colors.orange.withValues(alpha: 0.08) : null,
                     onPressed: _pickDate,
@@ -498,7 +502,7 @@ class _SetupPageState extends State<SetupPage> {
                   ActionChip(
                     avatar: const Icon(Icons.access_time),
                     label: Text(
-                      DateFormat('HH:mm').format(_selectedDateTime),
+                      DateFormat(appSettings.timeFormat).format(_selectedDateTime),
                     ),
                     backgroundColor: widget.setup != null && (_selectedDateTime.hour != widget.setup?.datetime.hour || _selectedDateTime.minute != widget.setup?.datetime.minute) ? Colors.orange.withValues(alpha: 0.08) : null,
                     onPressed: _pickTime,

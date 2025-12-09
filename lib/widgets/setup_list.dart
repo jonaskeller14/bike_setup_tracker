@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../models/setup.dart';
 import '../models/component.dart';
+import '../models/app_settings.dart';
 import '../widgets/adjustment_display_list.dart';
 
 const defaultVisibleCount = 10;
@@ -33,6 +35,7 @@ class _SetupListState extends State<SetupList> {
 
   @override
   Widget build(BuildContext context) {
+    final appSettings = context.watch<AppSettings>();
     final visibleCount = _expanded
         ? widget.setups.length
         : widget.setups.length.clamp(0, defaultVisibleCount);
@@ -85,7 +88,7 @@ class _SetupListState extends State<SetupList> {
                                     Icon(Icons.calendar_month, size: 13, color: Colors.grey.shade800),
                                     const SizedBox(width: 2),
                                     Text(
-                                      DateFormat('yyyy-MM-dd').format(setup.datetime),
+                                      DateFormat(appSettings.dateFormat).format(setup.datetime),
                                       style: TextStyle(
                                         color: Colors.grey.shade600,
                                         fontSize: 13,
@@ -100,7 +103,7 @@ class _SetupListState extends State<SetupList> {
                                     Icon(Icons.access_time, size: 13, color: Colors.grey.shade800),
                                     const SizedBox(width: 2),
                                     Text(
-                                      DateFormat('HH:mm').format(setup.datetime),
+                                      DateFormat(appSettings.timeFormat).format(setup.datetime),
                                       style: TextStyle(
                                         color: Colors.grey.shade600,
                                         fontSize: 13,

@@ -62,13 +62,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appsSettings = context.watch<AppSettings>();
+    final appSettings = context.watch<AppSettings>();
 
     return MaterialApp(
       title: 'Bike Setup Tracker',
       theme: materialAppTheme,
       darkTheme: materialAppDarkTheme,
-      themeMode: appsSettings.themeMode,
+      themeMode: appSettings.themeMode,
       home: const HomePage(),
       debugShowCheckedModeBanner: false,
     );

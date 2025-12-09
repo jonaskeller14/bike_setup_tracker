@@ -1,8 +1,10 @@
-import 'package:bike_setup_tracker/models/adjustment.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../models/component.dart';
 import '../models/setup.dart';
+import '../models/adjustment.dart';
+import '../models/app_settings.dart';
 
 class ComponentOverviewPage extends StatefulWidget{
   final Component component;
@@ -75,6 +77,8 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final appSettings = context.watch<AppSettings>();
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -282,9 +286,9 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                         if (_showNotes)
                           DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: Text(setup.notes ?? '-', overflow: TextOverflow.ellipsis))),
                         if (_showDate)
-                          DataCell(Text(DateFormat('yyyy-MM-dd').format(setup.datetime))),
+                          DataCell(Text(DateFormat(appSettings.dateFormat).format(setup.datetime))),
                         if (_showTime)
-                          DataCell(Text(DateFormat('HH:mm').format(setup.datetime))),
+                          DataCell(Text(DateFormat(appSettings.timeFormat).format(setup.datetime))),
                         if (_showPlace)
                           DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: Text(setup.place?.locality ?? '-', overflow: TextOverflow.ellipsis))),
                         

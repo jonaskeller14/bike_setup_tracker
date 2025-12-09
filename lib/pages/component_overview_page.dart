@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/component.dart';
 import '../models/setup.dart';
 import '../models/adjustment.dart';
+import '../models/weather.dart';
 import '../models/app_settings.dart';
 
 class ComponentOverviewPage extends StatefulWidget{
@@ -293,13 +294,13 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                           DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: Text(setup.place?.locality ?? '-', overflow: TextOverflow.ellipsis))),
                         
                         if (_showCurrentTemperature)
-                          DataCell(Center(child: Text(setup.weather?.currentTemperature == null ? '-' : "${setup.weather!.currentTemperature!.round()} °C"))),
+                          DataCell(Center(child: Text(setup.weather?.currentTemperature == null ? '-' : "${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit).round()} ${appSettings.temperatureUnit}"))),
                         if (_showDayAccumulatedPrecipitation)
-                          DataCell(Center(child: Text(setup.weather?.dayAccumulatedPrecipitation == null ? '-' : "${setup.weather!.dayAccumulatedPrecipitation!.round()} mm"))),
+                          DataCell(Center(child: Text(setup.weather?.dayAccumulatedPrecipitation == null ? '-' : "${Weather.convertPrecipitationFromMm(setup.weather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit).round()} ${appSettings.precipitationUnit}"))),
                         if (_showCurrentHumidity)
                           DataCell(Center(child: Text(setup.weather?.currentHumidity == null ? '-' : "${setup.weather!.currentHumidity!.round()} %"))),
                         if (_showCurrentWindSpeed)
-                          DataCell(Center(child: Text(setup.weather?.currentWindSpeed == null ? '-' : "${setup.weather!.currentWindSpeed!.round()} km/h"))),
+                          DataCell(Center(child: Text(setup.weather?.currentWindSpeed == null ? '-' : "${Weather.convertWindSpeedFromKmh(setup.weather!.currentWindSpeed!, appSettings.windSpeedUnit).round()} ${appSettings.windSpeedUnit}"))),
                         if (_showCurrentSoilMoisture0to7cm)
                           DataCell(Center(child: Text(setup.weather?.currentSoilMoisture0to7cm == null ? '-' : setup.weather!.currentSoilMoisture0to7cm!.toStringAsFixed(2)))),
                         

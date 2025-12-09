@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import '../../models/setup.dart';
+import '../../models/app_settings.dart';
 
 Future<double?> showSetAltitudeDialog(BuildContext context, double? altitude) async {
+  final appSettings = context.read<AppSettings>();
+
   return await showDialog<double?>(
     context: context,
     builder: (BuildContext context) {
       final formKey = GlobalKey<FormState>();
-      final controller = TextEditingController(text: altitude?.toString());
+      final controller = TextEditingController(text: altitude == null ? null : Setup.convertAltitudeFromMeters(altitude, appSettings.altitudeUnit).toString());
       return AlertDialog(
         scrollable: true,
         title: const Text('Set Altitude'),
@@ -14,7 +19,7 @@ Future<double?> showSetAltitudeDialog(BuildContext context, double? altitude) as
           key: formKey,
           child: Column(
             children: <Widget>[
-              const Text("Enter the altitude (height above sea level) of the current location in meters."),
+              Text("Enter the altitude (height above sea level) of the current location in ${appSettings.altitudeUnit}."),
               SizedBox(height: 16),
               TextFormField(
                 keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
@@ -27,7 +32,7 @@ Future<double?> showSetAltitudeDialog(BuildContext context, double? altitude) as
                   isDense: true,
                   hintText: 'Altitude',
                   contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  suffixText: 'm',
+                  suffixText: appSettings.altitudeUnit,
                   icon: Icon(Icons.arrow_upward),
                 ),
                 validator: (value) {
@@ -40,7 +45,8 @@ Future<double?> showSetAltitudeDialog(BuildContext context, double? altitude) as
                 },
                 onFieldSubmitted: (_) {
                   if (!formKey.currentState!.validate()) return;
-                  Navigator.of(context).pop(double.parse(controller.text.trim()));
+                  final newValue = double.parse(controller.text.trim());
+                  Navigator.of(context).pop(Setup.convertAltitudeToMeters(newValue, appSettings.altitudeUnit));
                 },
               ),
             ],

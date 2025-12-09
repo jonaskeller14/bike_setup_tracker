@@ -6,10 +6,18 @@ class AppSettings extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
   String _dateFormat = 'yyyy-MM-dd';
   String _timeFormat = 'HH:mm';
+  String _temperatureUnit = '°C'; 
+  String _windSpeedUnit = 'km/h'; 
+  String _altitudeUnit = 'm'; 
+  String _precipitationUnit = 'mm';
 
   ThemeMode get themeMode => _themeMode;
   String get dateFormat => _dateFormat;
   String get timeFormat => _timeFormat;
+  String get temperatureUnit => _temperatureUnit;
+  String get windSpeedUnit => _windSpeedUnit;
+  String get altitudeUnit => _altitudeUnit;
+  String get precipitationUnit => _precipitationUnit;
 
   void setThemeMode(ThemeMode newThemeMode) {
     if (_themeMode == newThemeMode) return; 
@@ -31,6 +39,34 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
     saveAppSettings();
   }
+  
+  void setTemperatureUnit(String newUnit) {
+    if (newUnit == _temperatureUnit) return;
+    _temperatureUnit = newUnit;
+    notifyListeners();
+    saveAppSettings();
+  }
+
+  void setWindSpeedUnit(String newUnit) {
+    if (newUnit == _windSpeedUnit) return;
+    _windSpeedUnit = newUnit;
+    notifyListeners();
+    saveAppSettings();
+  }
+
+  void setAltitudeUnit(String newUnit) {
+    if (newUnit == _altitudeUnit) return;
+    _altitudeUnit = newUnit;
+    notifyListeners();
+    saveAppSettings();
+  }
+
+  void setPrecipitationUnit(String newUnit) {
+    if (newUnit == _precipitationUnit) return;
+    _precipitationUnit = newUnit;
+    notifyListeners();
+    saveAppSettings();
+  }
 
   Future<void> loadAppSettings() async {
     String jsonString = "{}";
@@ -45,6 +81,11 @@ class AppSettings extends ChangeNotifier {
       );
       _dateFormat = json['dateFormat'] ?? _dateFormat;
       _timeFormat = json['timeFormat'] ?? _timeFormat;
+      _temperatureUnit = json['temperatureUnit'] ?? _temperatureUnit;
+      _windSpeedUnit = json['windSpeedUnit'] ?? _windSpeedUnit;
+      _altitudeUnit = json['altitudeUnit'] ?? _altitudeUnit;
+      _precipitationUnit = json['precipitationUnit'] ?? _precipitationUnit;
+      
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
     }
@@ -57,6 +98,10 @@ class AppSettings extends ChangeNotifier {
       'themeMode': _themeMode.toString(),
       'dateFormat': _dateFormat,
       'timeFormat': _timeFormat,
+      'temperatureUnit': _temperatureUnit,
+      'windSpeedUnit': _windSpeedUnit,
+      'altitudeUnit': _altitudeUnit,
+      'precipitationUnit': _precipitationUnit,
     });
     await prefs.setString('app_settings', jsonData);
   }

@@ -435,7 +435,7 @@ class _SetupPageState extends State<SetupPage> {
 
   @override
   Widget build(BuildContext context) {
-    final appSettings = context.watch<AppSettings>();
+    final appSettings = context.read<AppSettings>();
 
     return PopScope(
       canPop: !_formHasChanges,
@@ -548,7 +548,7 @@ class _SetupPageState extends State<SetupPage> {
                         ? _loadingIndicator() 
                         : (_currentLocation?.altitude == null 
                             ? const Text("-") 
-                            : Text("${_currentLocation?.altitude?.round()} m")),
+                            : Text("${Setup.convertAltitudeFromMeters(_currentLocation!.altitude!, appSettings.altitudeUnit).round()} ${appSettings.altitudeUnit}")),
                     backgroundColor: widget.setup != null && _currentLocation?.altitude != widget.setup?.position?.altitude ? Colors.orange.withValues(alpha: 0.08) : null,
                     onPressed: () async {
                       final altitude = await showSetAltitudeDialog(context, _currentLocation?.altitude);
@@ -568,7 +568,7 @@ class _SetupPageState extends State<SetupPage> {
                         ? _loadingIndicator()
                         : (_currentWeather?.currentTemperature == null 
                             ? const Text("-") 
-                            : Text("${_currentWeather?.currentTemperature?.round()} °C")),
+                            : Text("${Weather.convertTemperatureFromCelsius(_currentWeather!.currentTemperature!, appSettings.temperatureUnit).round()} ${appSettings.temperatureUnit}")),
                     backgroundColor: widget.setup != null && _currentWeather?.currentTemperature != widget.setup?.weather?.currentTemperature ? Colors.orange.withValues(alpha: 0.08) : null,
                     onPressed: () async {
                       final temperature = await showSetCurrentTemperatureDialog(context, _currentWeather);
@@ -606,7 +606,7 @@ class _SetupPageState extends State<SetupPage> {
                         ? _loadingIndicator()
                         : (_currentWeather?.dayAccumulatedPrecipitation == null 
                             ? const Text("-") 
-                            : Text("${_currentWeather?.dayAccumulatedPrecipitation?.round()} mm")),
+                            : Text("${Weather.convertPrecipitationFromMm(_currentWeather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit).round()} ${appSettings.precipitationUnit}")),
                     backgroundColor: widget.setup != null && _currentWeather?.dayAccumulatedPrecipitation != widget.setup?.weather?.dayAccumulatedPrecipitation ? Colors.orange.withValues(alpha: 0.08) : null,
                     onPressed: () async{
                       final precipitation = await showSetDayAccumulatedPrecipitationDialog(context, _currentWeather);
@@ -625,7 +625,7 @@ class _SetupPageState extends State<SetupPage> {
                         ? _loadingIndicator()
                         : (_currentWeather?.currentWindSpeed == null 
                             ? const Text("-") 
-                            : Text("${_currentWeather?.currentWindSpeed?.round()} km/h")),
+                            : Text("${Weather.convertWindSpeedFromKmh(_currentWeather!.currentWindSpeed!, appSettings.windSpeedUnit).round()} ${appSettings.windSpeedUnit}")),
                     backgroundColor: widget.setup != null && _currentWeather?.currentWindSpeed != widget.setup?.weather?.currentWindSpeed ? Colors.orange.withValues(alpha: 0.08) : null,
                     onPressed: () async{
                       final windSpeed = await showSetCurrentWindSpeedDialog(context, _currentWeather);

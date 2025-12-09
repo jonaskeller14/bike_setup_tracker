@@ -137,4 +137,30 @@ class Setup {
       isoCountryCode: json['isoCountryCode'],
     );
   }
+
+  static double convertAltitudeToMeters(double alt, String currentUnit) {
+    const double ftToM = 1 / 3.28084; // ft / 3.28084 = m
+
+    switch (currentUnit) {
+      case 'm':
+        return alt;
+      case 'ft':
+        return alt * ftToM;
+      default:
+        return alt;
+    }
+  }
+
+  static double convertAltitudeFromMeters(double altM, String targetUnit) {
+    const double mToFt = 3.28084;
+
+    switch (targetUnit) {
+      case 'm':
+        return altM;
+      case 'ft':
+        return altM * mToFt;
+      default:
+        return altM;
+    }
+  }
 }

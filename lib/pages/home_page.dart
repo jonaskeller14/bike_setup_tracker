@@ -25,6 +25,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool _localDataLoaded = false;
+
   final List<Bike> bikes = [];
   final List<Setup> setups = [];
   final List<Component> components = [];
@@ -55,6 +57,16 @@ class _HomePageState extends State<HomePage> {
     filteredBikes = bikes;
     _selectedBike = null;
     loadData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    
+    if (!_localDataLoaded) {
+      loadData();
+      _localDataLoaded = true;
+    }
   }
 
   Future<void> loadData() async {

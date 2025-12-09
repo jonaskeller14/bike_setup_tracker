@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/setup.dart';
 import '../models/component.dart';
+import '../models/weather.dart';
 import '../models/app_settings.dart';
 import '../widgets/adjustment_display_list.dart';
 
@@ -147,7 +148,7 @@ class _SetupListState extends State<SetupList> {
                                       Icon(Icons.arrow_upward, size: 13, color: Colors.grey.shade800),
                                       const SizedBox(width: 2),
                                       Text(
-                                        "${setup.position!.altitude!.round()} m",
+                                        "${Setup.convertAltitudeFromMeters(setup.position!.altitude!, appSettings.altitudeUnit).round()} ${appSettings.altitudeUnit}",
                                         style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                                       ),
                                     ],
@@ -161,7 +162,7 @@ class _SetupListState extends State<SetupList> {
                                       Icon(Icons.thermostat, size: 13, color: Colors.grey.shade800),
                                       const SizedBox(width: 2),
                                       Text(
-                                        "${setup.weather!.currentTemperature!.round()} °C",
+                                        "${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit).round()} ${appSettings.temperatureUnit}",
                                         style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                                       ),
                                     ],

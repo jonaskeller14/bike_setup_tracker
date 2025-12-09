@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../../models/weather.dart';
+import '../../models/app_settings.dart';
 
 Future<double?> showSetCurrentTemperatureDialog(BuildContext context, Weather? currentWeather) async {
+  final appSettings = context.read<AppSettings>();
+  
   return await showDialog<double?>(
     context: context,
     builder: (BuildContext context) {
       final formKey = GlobalKey<FormState>();
-      final controller = TextEditingController(text: currentWeather?.currentTemperature?.toString() ?? '');
+      final controller = TextEditingController(text: currentWeather?.currentTemperature == null ? null : Weather.convertTemperatureFromCelsius(currentWeather!.currentTemperature!, appSettings.temperatureUnit).toString());
       return AlertDialog(
         scrollable: true,
         title: const Text('Set Temperature'),
@@ -15,7 +19,7 @@ Future<double?> showSetCurrentTemperatureDialog(BuildContext context, Weather? c
           key: formKey,
           child: Column(
             children: <Widget>[
-              const Text("Enter the current air temperature in Celsius."),
+              Text("Enter the current air temperature in ${appSettings.temperatureUnit}."),
               SizedBox(height: 16),
               TextFormField(
                 keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
@@ -28,7 +32,7 @@ Future<double?> showSetCurrentTemperatureDialog(BuildContext context, Weather? c
                   isDense: true,
                   hintText: 'Temperature',
                   contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  suffixText: '°C',
+                  suffixText: appSettings.temperatureUnit,
                   icon: Icon(Icons.thermostat),
                 ),
                 validator: (value) {
@@ -41,7 +45,8 @@ Future<double?> showSetCurrentTemperatureDialog(BuildContext context, Weather? c
                 },
                 onFieldSubmitted: (_) {
                   if (!formKey.currentState!.validate()) return;
-                  Navigator.of(context).pop(double.parse(controller.text.trim()));
+                  final newValue = double.parse(controller.text.trim());
+                  Navigator.of(context).pop(Weather.convertTemperatureToCelsius(newValue, appSettings.temperatureUnit));
                 },
               ),
             ],

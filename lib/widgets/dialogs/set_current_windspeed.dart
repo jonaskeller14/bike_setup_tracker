@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../../models/weather.dart';
+import '../../models/app_settings.dart';
 
 Future<double?> showSetCurrentWindSpeedDialog(BuildContext context, Weather? currentWeather) async {
+  final appSettings = context.read<AppSettings>();
+
   return await showDialog<double?>(
     context: context,
     builder: (BuildContext context) {
       final formKey = GlobalKey<FormState>();
-      final controller = TextEditingController(text: currentWeather?.currentWindSpeed?.toString() ?? '');
+      final controller = TextEditingController(text: currentWeather?.currentWindSpeed == null ? null : Weather.convertWindSpeedFromKmh(currentWeather!.currentWindSpeed!, appSettings.windSpeedUnit).toString());
       return AlertDialog(
         scrollable: true,
         title: const Text('Set Wind Speed'),
@@ -15,7 +19,7 @@ Future<double?> showSetCurrentWindSpeedDialog(BuildContext context, Weather? cur
           key: formKey,
           child: Column(
             children: <Widget>[
-              const Text("Enter the current wind speed in kilometers per hour."),
+              Text("Enter the current wind speed in ${appSettings.windSpeedUnit}."),
               SizedBox(height: 16),
               TextFormField(
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -28,7 +32,7 @@ Future<double?> showSetCurrentWindSpeedDialog(BuildContext context, Weather? cur
                   isDense: true,
                   hintText: 'Wind Speed',
                   contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  suffixText: 'km/h',
+                  suffixText: appSettings.windSpeedUnit,
                   icon: Icon(Icons.air),
                 ),
                 validator: (value) {
@@ -42,7 +46,8 @@ Future<double?> showSetCurrentWindSpeedDialog(BuildContext context, Weather? cur
                 },
                 onFieldSubmitted: (_) {
                   if (!formKey.currentState!.validate()) return;
-                  Navigator.of(context).pop(double.parse(controller.text.trim()));
+                  final newValue = double.parse(controller.text.trim());
+                  Navigator.of(context).pop(Weather.convertWindSpeedToKmh(newValue, appSettings.windSpeedUnit));
                 },
               ),
             ],

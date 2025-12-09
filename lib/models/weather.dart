@@ -1,102 +1,192 @@
 import 'package:flutter/material.dart';
 
 class Weather {
-    final DateTime currentDateTime;
-    final double? currentTemperature;
-    final int? currentWeatherCode;
-    final double? currentHumidity;
-    final double? currentWindSpeed;
-    final double? currentPrecipitation;
-    final double? currentSoilMoisture0to7cm;
-    final double? dayAccumulatedPrecipitation;
+  final DateTime currentDateTime;
+  final double? currentTemperature;
+  final int? currentWeatherCode;
+  final double? currentHumidity;
+  final double? currentWindSpeed;
+  final double? currentPrecipitation;
+  final double? currentSoilMoisture0to7cm;
+  final double? dayAccumulatedPrecipitation;
 
-    Weather({
-      required this.currentDateTime, 
-      this.currentTemperature,
-      this.currentWeatherCode,
-      this.currentHumidity,
-      this.currentWindSpeed,
-      this.currentPrecipitation,
-      this.currentSoilMoisture0to7cm,
-      this.dayAccumulatedPrecipitation,
-    });
+  Weather({
+    required this.currentDateTime, 
+    this.currentTemperature,
+    this.currentWeatherCode,
+    this.currentHumidity,
+    this.currentWindSpeed,
+    this.currentPrecipitation,
+    this.currentSoilMoisture0to7cm,
+    this.dayAccumulatedPrecipitation,
+  });
 
-    Weather copyWith({
-      DateTime? currentDateTime,
-      double? currentTemperature,
-      int? currentWeatherCode,
-      double? currentHumidity,
-      double? currentWindSpeed,
-      double? currentPrecipitation,
-      double? currentSoilMoisture0to7cm,
-      double? dayAccumulatedPrecipitation,
-    }) {
-      return Weather(
-        currentDateTime: currentDateTime ?? this.currentDateTime,
-        currentTemperature: currentTemperature ?? this.currentTemperature,
-        currentWeatherCode: currentWeatherCode ?? this.currentWeatherCode,
-        currentHumidity: currentHumidity ?? this.currentHumidity,
-        currentWindSpeed: currentWindSpeed ?? this.currentWindSpeed,
-        currentPrecipitation: currentPrecipitation ?? this.currentPrecipitation,
-        currentSoilMoisture0to7cm: currentSoilMoisture0to7cm ?? this.currentSoilMoisture0to7cm,
-        dayAccumulatedPrecipitation: dayAccumulatedPrecipitation ?? this.dayAccumulatedPrecipitation,
-      );
+  Weather copyWith({
+    DateTime? currentDateTime,
+    double? currentTemperature,
+    int? currentWeatherCode,
+    double? currentHumidity,
+    double? currentWindSpeed,
+    double? currentPrecipitation,
+    double? currentSoilMoisture0to7cm,
+    double? dayAccumulatedPrecipitation,
+  }) {
+    return Weather(
+      currentDateTime: currentDateTime ?? this.currentDateTime,
+      currentTemperature: currentTemperature ?? this.currentTemperature,
+      currentWeatherCode: currentWeatherCode ?? this.currentWeatherCode,
+      currentHumidity: currentHumidity ?? this.currentHumidity,
+      currentWindSpeed: currentWindSpeed ?? this.currentWindSpeed,
+      currentPrecipitation: currentPrecipitation ?? this.currentPrecipitation,
+      currentSoilMoisture0to7cm: currentSoilMoisture0to7cm ?? this.currentSoilMoisture0to7cm,
+      dayAccumulatedPrecipitation: dayAccumulatedPrecipitation ?? this.dayAccumulatedPrecipitation,
+    );
+  }
+
+  Icon getConditionsIcon({double? size}) {
+    if (currentSoilMoisture0to7cm == null) return Icon(Icons.question_mark_sharp, size: size);
+    if (currentSoilMoisture0to7cm! < 0.1) {
+      return Icon(Icons.wb_sunny, size: size, color: Colors.deepOrange);
+    } else if (currentSoilMoisture0to7cm! < 0.2) {
+      return Icon(Icons.water_drop_outlined, size: size, color: Colors.amber);
+    } else if (currentSoilMoisture0to7cm! < 0.35) {
+      return Icon(Icons.water_drop, size: size, color: Colors.lightBlue);
+    } else {
+      return Icon(Icons.water, size: size, color: Colors.blue);
     }
+  }
 
-    Icon getConditionsIcon({double? size}) {
-      if (currentSoilMoisture0to7cm == null) return Icon(Icons.question_mark_sharp, size: size);
-      if (currentSoilMoisture0to7cm! < 0.1) {
-        return Icon(Icons.wb_sunny, size: size, color: Colors.deepOrange);
-      } else if (currentSoilMoisture0to7cm! < 0.2) {
-        return Icon(Icons.water_drop_outlined, size: size, color: Colors.amber);
-      } else if (currentSoilMoisture0to7cm! < 0.35) {
-        return Icon(Icons.water_drop, size: size, color: Colors.lightBlue);
-      } else {
-        return Icon(Icons.water, size: size, color: Colors.blue);
-      }
+  String? getConditionsLabel() {
+    if (currentSoilMoisture0to7cm == null) return null;
+    if (currentSoilMoisture0to7cm! < 0.1) {
+      return "Dry";
+    } else if (currentSoilMoisture0to7cm! < 0.2) {
+      return "Moist";
+    } else if (currentSoilMoisture0to7cm! < 0.35) {
+      return "Wet";
+    } else {
+      return "Muddy";
     }
+  }
 
-    String? getConditionsLabel() {
-      if (currentSoilMoisture0to7cm == null) return null;
-      if (currentSoilMoisture0to7cm! < 0.1) {
-        return "Dry";
-      } else if (currentSoilMoisture0to7cm! < 0.2) {
-        return "Moist";
-      } else if (currentSoilMoisture0to7cm! < 0.35) {
-        return "Wet";
-      } else {
-        return "Muddy";
-      }
+  Color? getTemperatureColor() {
+    if (currentTemperature == null) return null;
+    const minTemp = 0;
+    const maxTemp = 30;
+    return Color.lerp(Colors.blue, Colors.red, (currentTemperature! - minTemp)/(maxTemp - minTemp));
+  }
+
+  Map<String, dynamic> toJson() => {
+    'currentDateTime': currentDateTime.toIso8601String(),
+    'currentTemperature': currentTemperature,
+    'currentWeatherCode': currentWeatherCode,
+    'currentHumidity': currentHumidity,
+    'currentWindSpeed': currentWindSpeed,
+    'currentPrecipitation': currentPrecipitation,
+    'currentSoilMoisture0to7cm': currentSoilMoisture0to7cm,
+    'dayAccumulatedPrecipitation': dayAccumulatedPrecipitation,
+  };
+
+  factory Weather.fromJson(Map<String, dynamic> json) {
+    return Weather(
+      currentDateTime: DateTime.parse(json['currentDateTime']),
+      currentTemperature: json['currentTemperature'],
+      currentWeatherCode: json['currentWeatherCode'],
+      currentHumidity: json['currentHumidity'],
+      currentWindSpeed: json['currentWindSpeed'],
+      currentPrecipitation: json['currentPrecipitation'],
+      currentSoilMoisture0to7cm: json['currentSoilMoisture0to7cm'],
+      dayAccumulatedPrecipitation: json['dayAccumulatedPrecipitation'],
+    );
+  }
+
+  static double convertTemperatureToCelsius(double temp, String currentUnit) {
+    switch (currentUnit) {
+      case '°C':
+        return temp;
+      case '°F':
+        return (temp - 32) * 5 / 9;
+      case 'K':
+        return temp - 273.15;
+      default:
+        return temp;
     }
+  }
 
-    Color? getTemperatureColor() {
-      if (currentTemperature == null) return null;
-      const minTemp = 0;
-      const maxTemp = 30;
-      return Color.lerp(Colors.blue, Colors.red, (currentTemperature! - minTemp)/(maxTemp - minTemp));
+  static double convertTemperatureFromCelsius(double tempC, String targetUnit) {
+    switch (targetUnit) {
+      case '°C':
+        return tempC;
+      case '°F':
+        return (tempC * 9 / 5) + 32;
+      case 'K':
+        return tempC + 273.15;
+      default:
+        return tempC;
     }
+  }
 
-    Map<String, dynamic> toJson() => {
-      'currentDateTime': currentDateTime.toIso8601String(),
-      'currentTemperature': currentTemperature,
-      'currentWeatherCode': currentWeatherCode,
-      'currentHumidity': currentHumidity,
-      'currentWindSpeed': currentWindSpeed,
-      'currentPrecipitation': currentPrecipitation,
-      'currentSoilMoisture0to7cm': currentSoilMoisture0to7cm,
-      'dayAccumulatedPrecipitation': dayAccumulatedPrecipitation,
-    };
+  static double convertWindSpeedToKmh(double speed, String currentUnit) {
+    const double msToKmh = 3.6;          // m/s * 3.6 = km/h
+    const double mphToKmh = 1.60934;     // mph * 1.60934 = km/h
+    const double ktToKmh = 1.852;        // kt * 1.852 = km/h
 
-    factory Weather.fromJson(Map<String, dynamic> json) {
-      return Weather(
-        currentDateTime: DateTime.parse(json['currentDateTime']),
-        currentTemperature: json['currentTemperature'],
-        currentWeatherCode: json['currentWeatherCode'],
-        currentHumidity: json['currentHumidity'],
-        currentWindSpeed: json['currentWindSpeed'],
-        currentPrecipitation: json['currentPrecipitation'],
-        currentSoilMoisture0to7cm: json['currentSoilMoisture0to7cm'],
-        dayAccumulatedPrecipitation: json['dayAccumulatedPrecipitation'],
-      );
+    switch (currentUnit) {
+      case 'km/h':
+        return speed;
+      case 'm/s':
+        return speed * msToKmh;
+      case 'mph':
+        return speed * mphToKmh;
+      case 'kt':
+        return speed * ktToKmh;
+      default:
+        return speed;
     }
+  }
+
+  static double convertWindSpeedFromKmh(double speedKmh, String targetUnit) {
+    const double kmhToMs = 1 / 3.6;          // 1 km/h ≈ 0.27778 m/s
+    const double kmhToMph = 1 / 1.60934;     // 1 km/h ≈ 0.62137 mph
+    const double kmhToKt = 1 / 1.852;        // 1 km/h ≈ 0.53996 knots
+
+    switch (targetUnit) {
+      case 'km/h':
+        return speedKmh;
+      case 'm/s':
+        return speedKmh * kmhToMs;
+      case 'mph':
+        return speedKmh * kmhToMph;
+      case 'kt':
+        return speedKmh * kmhToKt;
+      default:
+        return speedKmh;
+    }
+  }
+
+  static double convertPrecipitationToMm(double precip, String currentUnit) {
+    const double inToMm = 1 / 0.0393701;
+
+    switch (currentUnit) {
+      case 'mm':
+        return precip;
+      case 'in':
+        return precip * inToMm;
+      default:
+        return precip;
+    }
+  }
+
+  static double convertPrecipitationFromMm(double precipMm, String targetUnit) {
+    const double mmToIn = 0.0393701;
+
+    switch (targetUnit) {
+      case 'mm':
+        return precipMm;
+      case 'in':
+        return precipMm * mmToIn;
+      default:
+        return precipMm;
+    }
+  }
 }

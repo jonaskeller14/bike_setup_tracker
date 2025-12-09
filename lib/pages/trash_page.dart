@@ -1,9 +1,10 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/setup.dart';
+import '../models/app_settings.dart';
 
 class TrashPage extends StatefulWidget{
   final Map<String, Bike> bikes;
@@ -25,7 +26,8 @@ class _TrashPageState extends State<TrashPage> {
 
   @override
   Widget build(BuildContext context) {
-    //FIXME: Sort lists by last modified
+    final appSettings = context.read<AppSettings>();
+    
     final deletedCombined = <dynamic>[];
     deletedCombined.addAll(widget.bikes.values.where((b) => b.isDeleted).toList());
     deletedCombined.addAll(widget.components.where((c) => c.isDeleted));
@@ -63,7 +65,7 @@ class _TrashPageState extends State<TrashPage> {
                                 ? Icon(Icons.tune) 
                                 : null,
                     title: Text(deletedItem.name, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text("Deleted at: ${DateFormat("yyyy-MM-dd HH:mm").format(deletedItem.lastModified)}"),
+                    subtitle: Text("Deleted at: ${DateFormat(appSettings.dateFormat).format(deletedItem.lastModified)} ${DateFormat(appSettings.timeFormat).format(deletedItem.lastModified)}"),
                     trailing: IconButton(
                       icon: Icon(Icons.restore_from_trash),
                       onPressed: () {

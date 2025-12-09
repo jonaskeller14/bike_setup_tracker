@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../../models/app_settings.dart';
 import '../../services/google_drive_service.dart';
 
 Future<void> showGoogleDriveDialog({required BuildContext context, required GoogleDriveService googleDriveService}) async {
@@ -26,6 +28,8 @@ class _ShowGoogleDriveDialogState extends State<ShowGoogleDriveDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final appSettings = context.read<AppSettings>();
+
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final isSignedIn = widget.googleDriveService.isSignedIn;
@@ -33,13 +37,12 @@ class _ShowGoogleDriveDialogState extends State<ShowGoogleDriveDialog> {
 
     Widget lastSyncWidget;
     if (lastSync != null) {
-      final formattedTime = DateFormat("yyyy-MM-dd HH:mm").format(lastSync);
       lastSyncWidget = Row(
         children: [
           Icon(Icons.access_time, size: 16, color: colorScheme.onSurfaceVariant),
           const SizedBox(width: 8),
           Text(
-            "Last sync: $formattedTime",
+            "Last sync: ${DateFormat(appSettings.dateFormat).format(lastSync)} ${DateFormat(appSettings.timeFormat).format(lastSync)}",
             style: textTheme.bodySmall?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),

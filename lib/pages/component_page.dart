@@ -380,7 +380,7 @@ class _ComponentPageState extends State<ComponentPage> {
                           spacing: 8,
                           children: [
                             const Text('Add Numerical Adjustment'),
-                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.surfaceDim),
+                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.onSurfaceVariant),
                             Icon(Icons.speed, size: 18),
                           ],
                         ),
@@ -393,7 +393,7 @@ class _ComponentPageState extends State<ComponentPage> {
                           spacing: 8,
                           children: [
                             const Text('Add Step Adjustment'),
-                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.surfaceDim),
+                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.onSurfaceVariant),
                             Icon(Icons.stairs_outlined, size: 18),
                           ],
                         ),
@@ -406,7 +406,7 @@ class _ComponentPageState extends State<ComponentPage> {
                           spacing: 8,
                           children: [
                             const Text('Add Categorical Adjustment'),
-                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.surfaceDim),
+                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.onSurfaceVariant),
                             Icon(Icons.category, size: 18),
                           ],
                         ),
@@ -419,7 +419,7 @@ class _ComponentPageState extends State<ComponentPage> {
                           spacing: 8,
                           children: [
                             const Text('Add On/Off Adjustment'),
-                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.surfaceDim),
+                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.onSurfaceVariant),
                             Icon(Icons.toggle_on, size: 18),
                           ],
                         ),

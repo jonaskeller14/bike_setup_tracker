@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import '../models/component.dart';
-import '../models/adjustment.dart';
 import '../models/setup.dart';
 import '../widgets/adjustment_display_list.dart';
 import '../pages/component_overview_page.dart';
@@ -85,63 +84,6 @@ class _ComponentListState extends State<ComponentList> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ],
-                        ),
-                      ],
-                    ),
-                    Wrap(
-                      spacing: 4,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade600), borderRadius: BorderRadius.all(Radius.circular(10))),
-                          padding: EdgeInsets.symmetric(vertical: 0, horizontal: 5),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(component.adjustments.whereType<BooleanAdjustment>().length.toString(), style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
-                              const SizedBox(width: 2),
-                              BooleanAdjustment.getIconStatic(size: 13, color: Colors.grey.shade800)
-                            ],
-                          ),
-                        ),
-                        
-                        Container(
-                          decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade600), borderRadius: BorderRadius.all(Radius.circular(10))),
-                          padding: EdgeInsets.symmetric(vertical: 0, horizontal: 5),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(component.adjustments.whereType<CategoricalAdjustment>().length.toString(), style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
-                              const SizedBox(width: 2),
-                              CategoricalAdjustment.getIconStatic(size: 13, color: Colors.grey.shade800)
-                            ],
-                          ),
-                        ),
-
-                        Container(
-                          decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade600), borderRadius: BorderRadius.all(Radius.circular(10))),
-                          padding: EdgeInsets.symmetric(vertical: 0, horizontal: 5),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(component.adjustments.whereType<StepAdjustment>().length.toString(), style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
-                              const SizedBox(width: 2),
-                              StepAdjustment.getIconStatic(size: 13, color: Colors.grey.shade800)
-                            ],
-                          ),
-                        ),
-
-                        Container(
-                          decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade600), borderRadius: BorderRadius.all(Radius.circular(10))),
-                          padding: EdgeInsets.symmetric(vertical: 0, horizontal: 5),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(component.adjustments.whereType<NumericalAdjustment>().length.toString(), style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
-                              const SizedBox(width: 2),
-                              NumericalAdjustment.getIconStatic(size: 13, color: Colors.grey.shade800)
-                            ],
-                          ),
                         ),
                       ],
                     ),

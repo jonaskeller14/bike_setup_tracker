@@ -50,15 +50,14 @@ class _SetupListState extends State<SetupList> {
 
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 4.0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: setup.isCurrent
-                    ? BorderSide(
-                        color: Theme.of(context).colorScheme.primary,
-                        width: 2,
-                      )
-                    : BorderSide.none,
-              ),
+              shape: setup.isCurrent 
+                  ? RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 2,
+                    ))
+                  : null,
               child: Stack(
                 children: [ 
                   Column(

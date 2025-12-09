@@ -7,6 +7,7 @@ import '../models/component.dart';
 import 'bike_page.dart';
 import 'component_page.dart';
 import 'setup_page.dart';
+import 'app_settings_page.dart';
 import 'about_page.dart';
 import '../utils/file_export.dart';
 import '../utils/file_import.dart';
@@ -514,6 +515,9 @@ class _HomePageState extends State<HomePage> {
                     components: components,
                   );
                   break;
+                case "settings":
+                  Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()));
+                  break;
                 case "about":
                   Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AboutPage()));
                   break;
@@ -547,6 +551,16 @@ class _HomePageState extends State<HomePage> {
                     Icon(Icons.share),
                     SizedBox(width: 8),
                     Text('Share Data'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'settings',
+                child: Row(
+                  children: [
+                    Icon(Icons.settings),
+                    SizedBox(width: 8),
+                    Text('Settings'),
                   ],
                 ),
               ),

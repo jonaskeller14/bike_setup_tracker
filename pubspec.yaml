@@ -52,6 +52,7 @@ dependencies:
   syncfusion_flutter_sliders: ^31.2.16
   syncfusion_flutter_core: ^31.2.16
   url_launcher: ^6.3.2
+  provider: ^6.1.5+1
 dev_dependencies:
   flutter_test:
     sdk: flutter

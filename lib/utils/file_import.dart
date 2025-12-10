@@ -58,13 +58,9 @@ class FileImport {
     final loadedComponents = (jsonData['components'] as List<dynamic>? ?? [])
         .map((c) => Component.fromJson(json: c))
         .toList();
-
-    final List<Adjustment> loadedAllAdjustments = [];
-    for (final component in loadedComponents) {
-      loadedAllAdjustments.addAll(component.adjustments);
-    }
+    
     final loadedSetups = (jsonData['setups'] as List<dynamic>? ?? [])
-        .map((s) => Setup.fromJson(json: s, allAdjustments: loadedAllAdjustments))
+        .map((s) => Setup.fromJson(json: s))
         .toList();
     
     return Data(

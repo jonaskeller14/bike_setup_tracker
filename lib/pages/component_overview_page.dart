@@ -36,14 +36,14 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
   bool _showCurrentHumidity = false;
   bool _showCurrentWindSpeed = false;
   bool _showCurrentSoilMoisture0to7cm = false;
-  final Map<Adjustment, bool> _showAdjustment = {};
+  final Map<String, bool> _showAdjustment = {};
 
   @override
   void initState() {
     super.initState();
     _setups = List.from(widget.setups.reversed);
     for (final adjustment in widget.component.adjustments) {
-      _showAdjustment[adjustment] = true;
+      _showAdjustment[adjustment.id] = true;
     }
   }
 
@@ -65,13 +65,13 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
       }
     } else if (column is Adjustment) {
       if (column is BooleanAdjustment) {
-        setState(() {ascending ? _setups.sort((a, b) => ((a.adjustmentValues[column] ?? false) ? 1 : 0).compareTo((b.adjustmentValues[column] ?? false) ? 1 : 0)) : _setups.sort((a, b) => ((b.adjustmentValues[column] ?? false) ? 1 : 0).compareTo((a.adjustmentValues[column] ?? false) ? 1 : 0));});
+        setState(() {ascending ? _setups.sort((a, b) => ((a.adjustmentValues[column.id] ?? false) ? 1 : 0).compareTo((b.adjustmentValues[column.id] ?? false) ? 1 : 0)) : _setups.sort((a, b) => ((b.adjustmentValues[column.id] ?? false) ? 1 : 0).compareTo((a.adjustmentValues[column.id] ?? false) ? 1 : 0));});
       } else if (column is StepAdjustment) {
-        setState(() {ascending ? _setups.sort((a, b) => (a.adjustmentValues[column] ?? 0).compareTo(b.adjustmentValues[column] ?? 0)) : _setups.sort((a, b) => (b.adjustmentValues[column] ?? 0).compareTo(a.adjustmentValues[column] ?? 0));});
+        setState(() {ascending ? _setups.sort((a, b) => (a.adjustmentValues[column.id] ?? 0).compareTo(b.adjustmentValues[column.id] ?? 0)) : _setups.sort((a, b) => (b.adjustmentValues[column.id] ?? 0).compareTo(a.adjustmentValues[column.id] ?? 0));});
       } else if (column is NumericalAdjustment) {
-        setState(() {ascending ? _setups.sort((a, b) => (a.adjustmentValues[column] ?? double.negativeInfinity).compareTo(b.adjustmentValues[column] ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.adjustmentValues[column] ?? double.negativeInfinity).compareTo(a.adjustmentValues[column] ?? double.negativeInfinity));});
+        setState(() {ascending ? _setups.sort((a, b) => (a.adjustmentValues[column.id] ?? double.negativeInfinity).compareTo(b.adjustmentValues[column.id] ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.adjustmentValues[column.id] ?? double.negativeInfinity).compareTo(a.adjustmentValues[column.id] ?? double.negativeInfinity));});
       } else if (column is CategoricalAdjustment) {
-        setState(() {ascending ? _setups.sort((a, b) => (a.adjustmentValues[column] ?? '').compareTo(b.adjustmentValues[column] ?? '')) : _setups.sort((a, b) => (b.adjustmentValues[column] ?? '').compareTo(a.adjustmentValues[column] ?? ''));});
+        setState(() {ascending ? _setups.sort((a, b) => (a.adjustmentValues[column.id] ?? '').compareTo(b.adjustmentValues[column.id] ?? '')) : _setups.sort((a, b) => (b.adjustmentValues[column.id] ?? '').compareTo(a.adjustmentValues[column.id] ?? ''));});
       }
     }
   }
@@ -221,11 +221,11 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                 children: [
                   for (final adjustment in widget.component.adjustments)
                     FilterChip(
-                      selected: _showAdjustment[adjustment]!,
+                      selected: _showAdjustment[adjustment.id]!,
                       label: Text(adjustment.name),
                       onSelected: (bool value) {
                         setState(() {
-                          _showAdjustment[adjustment] = value;
+                          _showAdjustment[adjustment.id] = value;
                           _sortColumnIndex = null;
                         });
                       },
@@ -265,7 +265,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                       DataColumn(label: const Text('Soil Moisture'), onSort: (columnIndex, ascending) => onSortColum("currentSoilMoisture0to7cm", columnIndex, ascending)),
                     
                     for (final adjustment in widget.component.adjustments)
-                      if (_showAdjustment[adjustment] == true)
+                      if (_showAdjustment[adjustment.id] == true)
                         DataColumn(
                           label: Text(
                             adjustment.name,
@@ -277,7 +277,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                   ],
                   rows: _setups.where((setup) {
                     return widget.component.adjustments.any(
-                      (componentAdjustment) => setup.adjustmentValues.containsKey(componentAdjustment)
+                      (adj) => setup.adjustmentValues.containsKey(adj.id)
                     );
                   }).map((setup) {
                     return DataRow(
@@ -305,10 +305,10 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                           DataCell(Center(child: Text(setup.weather?.currentSoilMoisture0to7cm == null ? '-' : setup.weather!.currentSoilMoisture0to7cm!.toStringAsFixed(2)))),
                         
                         for (final adjustment in widget.component.adjustments)
-                          if (_showAdjustment[adjustment] == true)
+                          if (_showAdjustment[adjustment.id] == true)
                             DataCell(
                               Center(
-                                child: Text(Adjustment.formatValue(setup.adjustmentValues[adjustment])),
+                                child: Text(Adjustment.formatValue(setup.adjustmentValues[adjustment.id])),
                               ),
                             ),
                       ],

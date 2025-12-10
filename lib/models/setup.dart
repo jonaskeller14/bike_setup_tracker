@@ -13,7 +13,7 @@ class Setup {
   final DateTime datetime;
   final String? notes;
   final String bike;
-  final Map<Adjustment, dynamic> adjustmentValues;
+  final Map<String, dynamic> adjustmentValues;
   final LocationData? position;
   final geo.Placemark? place;
   final Weather? weather;
@@ -46,10 +46,7 @@ class Setup {
     'datetime': datetime.toIso8601String(),
     'notes': notes,
     'bike': bike,
-    'adjustmentValues': {
-      for (var entry in adjustmentValues.entries)
-        entry.key.id: entry.value,
-    },
+    'adjustmentValues': adjustmentValues,
     'position': position != null ? locationDataToJson(position!) : null,
     'place': place != null ? _placemarkToJson(place!) : null,
     'weather': weather?.toJson(),
@@ -57,22 +54,7 @@ class Setup {
     'isCurrent': isCurrent,
   };
 
-  factory Setup.fromJson({required Map<String, dynamic> json, required List<Adjustment> allAdjustments}) {
-    final adjustmentIDValues = json['adjustmentValues'] as Map<String, dynamic>? ?? {};
-
-    final Map<Adjustment, dynamic> adjustmentValues = {};
-    for (var entry in adjustmentIDValues.entries) {
-      try {
-        final adjustment = allAdjustments.firstWhere(
-          (a) => a.id == entry.key,
-        );
-        adjustmentValues[adjustment] = entry.value;
-      } on StateError {
-        debugPrint('Adjustment with id ${entry.key} not found');
-        continue;
-      }
-    }
-
+  factory Setup.fromJson({required Map<String, dynamic> json}) {
     return Setup(
       id: json['id'],
       isDeleted: json["isDeleted"],
@@ -81,7 +63,7 @@ class Setup {
       datetime: DateTime.parse(json['datetime']),
       notes: json['notes'] != null ? json['notes'] as String : null,
       bike: json['bike'],
-      adjustmentValues: adjustmentValues,
+      adjustmentValues: json['adjustmentValues'] as Map<String, dynamic>? ?? {},
       position: json['position'] != null ? _locationDataFromJson(json['position']) : null,
       place: json['place'] != null ? _placemarkFromJson(json['place']) : null,
       weather: json['weather'] != null ? Weather.fromJson(json['weather']) : null,

@@ -54,8 +54,8 @@ class _SetupPageState extends State<SetupPage> {
   List<Component> bikeComponents = [];
   late DateTime _selectedDateTime;
   late DateTime _initialDateTime;
-  Map<Adjustment, dynamic> adjustmentValues = {};
-  final Map<Adjustment, dynamic> _initialAdjustmentValues = {};
+  Map<String, dynamic> adjustmentValues = {};
+  final Map<String, dynamic> _initialAdjustmentValues = {};
 
   final LocationService _locationService = LocationService();
   LocationData? _currentLocation;
@@ -355,14 +355,14 @@ class _SetupPageState extends State<SetupPage> {
     _changeListener();
   }
 
-  Map<Adjustment, dynamic> filterForValidAdjustmentValues(Map<Adjustment, dynamic> adjustmentValues) {
+  Map<String, dynamic> filterForValidAdjustmentValues(Map<String, dynamic> adjustmentValues) {
     // Filter adjustmentValues to only include those relevant to the selected bike
     // Keep adjustments when editing (handle case: Component was moved to another bike and setting is edited)
-    Map<Adjustment, dynamic> filteredAdjustmentValues = Map.from(adjustmentValues);
+    Map<String, dynamic> filteredAdjustmentValues = Map.from(adjustmentValues);
     for (final component in widget.components.where((c) => c.bike != bike)) {
       for (final adjustment in component.adjustments) {
-        if (widget.setup != null && widget.setup!.adjustmentValues.keys.contains(adjustment)) continue;
-        filteredAdjustmentValues.remove(adjustment);
+        if (widget.setup != null && widget.setup!.adjustmentValues.keys.contains(adjustment.id)) continue;
+        filteredAdjustmentValues.remove(adjustment.id);
       }
     }
     return filteredAdjustmentValues;
@@ -399,11 +399,11 @@ class _SetupPageState extends State<SetupPage> {
   }
 
   void _onAdjustmentValueChanged({required Adjustment adjustment, required dynamic newValue}) {
-    adjustmentValues[adjustment] = newValue;
+    adjustmentValues[adjustment.id] = newValue;
   }
 
   void _removeFromAdjustmentValues({required Adjustment adjustment}) {
-    adjustmentValues.remove(adjustment);
+    adjustmentValues.remove(adjustment.id);
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {

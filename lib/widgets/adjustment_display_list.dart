@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 class AdjustmentDisplayList extends StatelessWidget {
   final List<Component> components;
-  final Map<Adjustment, dynamic> adjustmentValues;
-  final Map<Adjustment, dynamic> previousAdjustmentValues;
+  final Map<String, dynamic> adjustmentValues;
+  final Map<String, dynamic> previousAdjustmentValues;
   final bool showComponentIcons;
   final bool highlightInitialValues;
   final bool displayOnlyChanges;
@@ -15,7 +15,7 @@ class AdjustmentDisplayList extends StatelessWidget {
     super.key,
     required this.components,
     required this.adjustmentValues,
-    Map<Adjustment, dynamic>? previousAdjustmentValues,
+    Map<String, dynamic>? previousAdjustmentValues,
     this.showComponentIcons = false,
     this.highlightInitialValues = false,
     this.displayOnlyChanges = false,
@@ -31,14 +31,20 @@ class AdjustmentDisplayList extends StatelessWidget {
       final componentAdjustmentValues = missingValuesPlaceholder
           ? Map.fromEntries(  // keep order of component.adjustments
             component.adjustments
-                .map((adj) => MapEntry(adj, adjustmentValues[adj] ?? '-')),
+                .map((adj) => MapEntry(adj, adjustmentValues[adj.id] ?? '-')),
           )
           : Map.fromEntries(  // keep order of component.adjustments
             component.adjustments
-                .where((adj) => adjustmentValues.containsKey(adj))
-                .map((adj) => MapEntry(adj, adjustmentValues[adj]!)),
+                .where((adj) => adjustmentValues.containsKey(adj.id))
+                .map((adj) => MapEntry(adj, adjustmentValues[adj.id]!)),
           );
       if (componentAdjustmentValues.isEmpty) continue;
+
+      final componentPreviousAdjustmentValues = Map.fromEntries(
+        component.adjustments
+            .where((adj) => previousAdjustmentValues.containsKey(adj.id))
+            .map((adj) => MapEntry(adj, previousAdjustmentValues[adj.id]!)),
+      );
 
       if (displayOnlyChanges) {
         bool keepComponent = false;
@@ -47,7 +53,7 @@ class AdjustmentDisplayList extends StatelessWidget {
           final entry = items[index];
           final adjustment = entry.key;
           final value = entry.value;
-          final previousValue = previousAdjustmentValues[adjustment];
+          final previousValue = previousAdjustmentValues[adjustment.id];
 
           final bool valueHasChanged = previousValue == null ? false : value != previousValue;
           final bool valueIsInitial = previousValue == null;
@@ -71,7 +77,7 @@ class AdjustmentDisplayList extends StatelessWidget {
       children.add(_AdjustmentTableRow(
         component: component,
         adjustmentValues: componentAdjustmentValues,
-        previousAdjustmentValues: previousAdjustmentValues,
+        previousAdjustmentValues: componentPreviousAdjustmentValues,
         showComponentIcons: showComponentIcons,
         highlightInitialValues: highlightInitialValues,
         displayOnlyChanges: displayOnlyChanges,

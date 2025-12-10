@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'dart:async';
 import 'package:open_meteo/open_meteo.dart';
 import '../models/weather.dart';
@@ -64,6 +66,14 @@ class WeatherService {
         currentSoilMoisture0to7cm: currentSoilMoisture0to7cm,
         dayAccumulatedPrecipitation: dayAccumulatedPrecipitation,
       );
+    } on ClientException catch (e) {
+      debugPrint("WeatherService: Network Error (No Internet): $e");
+      status = WeatherStatus.error;
+      return null;
+    } on SocketException catch (e) {
+      debugPrint("WeatherService: Network Error (No Internet): $e");
+      status = WeatherStatus.error;
+      return null;
     } catch (e) {
       debugPrint("WeatherService: Exception caught: $e");
       status = WeatherStatus.error;

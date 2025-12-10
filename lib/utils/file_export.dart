@@ -46,7 +46,11 @@ class FileExport {
           );
         } else {
           scaffoldMessenger.showSnackBar(
-            SnackBar(content: Text("Saved to: ${result.path}")),
+            SnackBar(
+              persist: false,
+              showCloseIcon: true,
+              content: Text("Saved to: ${result.path}")
+            ),
           );
         }
       }).catchError((e, st) {
@@ -104,6 +108,8 @@ class FileExport {
   }) async {
     final box = context.findRenderObject() as RenderBox?;
     final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
+    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
 
     try {
       final String jsonString = jsonEncode({
@@ -128,7 +134,13 @@ class FileExport {
       );
     } catch (e) {
       scaffoldMessenger.showSnackBar(
-        SnackBar(content: Text('Error sharing file: $e')),
+        SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          closeIconColor: onErrorContainerColor,
+          content: Text('Error sharing file: $e'),
+          backgroundColor: errorContainerColor,
+        ),
       );
     }
   }

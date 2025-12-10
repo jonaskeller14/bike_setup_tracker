@@ -125,6 +125,7 @@ class _HomePageState extends State<HomePage> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
+        persist: false,
         showCloseIcon: true,
         content: Text(choice == 'overwrite'
           ? 'Data overwritten successfully'

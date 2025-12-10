@@ -110,14 +110,23 @@ class FileImport {
       if (!jsonData.containsKey('bikes') ||
           !jsonData.containsKey('setups') ||
           !jsonData.containsKey('components')) {
-        scaffold.showSnackBar(
-          const SnackBar(content: Text("Invalid JSON format")),
-        );
+        scaffold.showSnackBar(SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          closeIconColor: onErrorContainerColor,
+          content: Text("Invalid JSON format", style: TextStyle(color: onErrorContainerColor)), 
+          backgroundColor: errorContainerColor,
+        ));
         return null;
       }
 
       final Data data = await parseJson(jsonData: jsonData);
-      scaffold.showSnackBar(SnackBar(content: Text("Imported ${picked.files.single.name} successfully")));
+      scaffold.showSnackBar(SnackBar(
+        persist: false,
+        showCloseIcon: true,
+        duration: Duration(seconds: 2),
+        content: Text("Imported ${picked.files.single.name} successfully")
+      ));
       return data;
     } catch (e, st) {
       debugPrint("Import failed: $e\n$st");
@@ -143,6 +152,8 @@ class FileImport {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+          persist: false,
+          showCloseIcon: true,
           content: Text("Debug file saved to: ${file.path}"),
           duration: const Duration(seconds: 5),
         ),

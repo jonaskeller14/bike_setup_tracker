@@ -134,9 +134,14 @@ class _SetupPageState extends State<SetupPage> {
     if (!mounted) return;
     if (newLocation == null) {
       setState(() {});  // LocationStatus Error was set in _locationService.fetchLocation()
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error fetching location.')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        persist: false,
+        showCloseIcon: true,
+        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        duration: Duration(seconds: 2),
+        content: Text('Error fetching location.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
+        backgroundColor: Theme.of(context).colorScheme.errorContainer,
+      ));
       return;
     }
 
@@ -149,9 +154,14 @@ class _SetupPageState extends State<SetupPage> {
 
   Future<void> updateAddress() async {
     if (_currentLocation == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cannot update address without location.')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        persist: false,
+        showCloseIcon: true,
+        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        content: Text('Cannot update address without location.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        backgroundColor: Theme.of(context).colorScheme.errorContainer
+      ));
+      
       return;
     }
 
@@ -169,9 +179,14 @@ class _SetupPageState extends State<SetupPage> {
       setState(() {
         _addressService.status = AddressStatus.error;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error fetching address.')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        persist: false,
+        showCloseIcon: true,
+        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        duration: Duration(seconds: 2),
+        content: Text('Error fetching address.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        backgroundColor: Theme.of(context).colorScheme.errorContainer
+      ));
       return;
     }
 
@@ -239,7 +254,13 @@ class _SetupPageState extends State<SetupPage> {
     if (newDateTime == _selectedDateTime) return;
     if (newDateTime.isAfter(DateTime.now())) {
       newDateTime = DateTime.now();
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Date and Time must be in the past.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        persist: false,
+        showCloseIcon: true,
+        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        content: Text('Date and Time must be in the past.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        backgroundColor: Theme.of(context).colorScheme.errorContainer
+      ));
     }
 
     setState(() {
@@ -280,7 +301,13 @@ class _SetupPageState extends State<SetupPage> {
     if (newDateTime == _selectedDateTime) return;
     if (newDateTime.isAfter(DateTime.now())) {
       newDateTime = DateTime.now();
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Date and Time must be in the past.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        persist: false,
+        showCloseIcon: true,
+        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        content: Text('Date and Time must be in the past.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        backgroundColor: Theme.of(context).colorScheme.errorContainer
+      ));
     }
 
     setState(() {
@@ -321,9 +348,14 @@ class _SetupPageState extends State<SetupPage> {
 
   Future<void> updateWeather() async {
     if (_currentLocation == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cannot update weather without location.')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        persist: false,
+        showCloseIcon: true,
+        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        duration: Duration(seconds: 2),
+        content: Text('Cannot update weather without location.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        backgroundColor: Theme.of(context).colorScheme.errorContainer
+      ));
       return;
     }
 
@@ -342,9 +374,14 @@ class _SetupPageState extends State<SetupPage> {
       setState(() {
         _weatherService.status = WeatherStatus.error;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error fetching weather.')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        persist: false,
+        showCloseIcon: true,
+        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        duration: Duration(seconds: 2),
+        content: Text('Error fetching weather.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        backgroundColor: Theme.of(context).colorScheme.errorContainer
+      ));
       return;
     }
     

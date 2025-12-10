@@ -126,24 +126,42 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                 ],
               ),
           ),
-        if (adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButton)
+        if (adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButton || adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial || adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonCounterclockwiseDial)
           Flexible(
             flex: 3,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
-              spacing: 20,
+              spacing: 12,
               children: [
                 FilledButton(
                   onPressed: value - adjustment.step >= adjustment.min ? onPressedMinusButton : null,
-                  child: Text("- ${adjustment.step}", style: TextStyle(fontFamily: 'monospace')),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    minimumSize: const Size(48, 36), 
+                  ),
+                  child: Text("- ${adjustment.step}"),
                 ),
                 Text(value.toInt().toString(), style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace')),
                 FilledButton(
                   onPressed: value + adjustment.step <= adjustment.max ? onPressedPlusButton : null,
-                  child: Text("+ ${adjustment.step}", style: TextStyle(fontFamily: 'monospace')),
-                )
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    minimumSize: const Size(48, 36), 
+                  ),
+                  child: Text("+ ${adjustment.step}"),
+                ),
+                if (adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial || adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonCounterclockwiseDial)
+                  RotaryKnob(
+                    key: const ValueKey('RotaryKnob'),
+                    value: value,
+                    min: adjustment.min.toDouble(),
+                    max: sliderMax,
+                    numberOfTicks: sliderDivisions + 1,
+                    clockwise: adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial,
+                    primaryColor: Theme.of(context).colorScheme.primary,
+                  ),
               ],
             ),
           ),

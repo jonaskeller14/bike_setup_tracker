@@ -321,6 +321,14 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                     ],
                                     if (v == StepAdjustmentVisualization.minusButtonValuePlusButton)
                                       const Icon(Icons.exposure_plus_1),
+                                    if (v == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial) ... [
+                                      const Icon(Icons.exposure_plus_1),
+                                      const Icon(Icons.rotate_right),
+                                    ],
+                                    if (v == StepAdjustmentVisualization.minusButtonValuePlusButtonCounterclockwiseDial) ... [
+                                      const Icon(Icons.exposure_plus_1),
+                                      const Icon(Icons.rotate_left),
+                                    ],
                                     SizedBox(width: 8),
                                     Expanded(child: Text(v.value)),
                                   ],

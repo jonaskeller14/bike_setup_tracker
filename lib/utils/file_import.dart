@@ -16,7 +16,8 @@ import 'data.dart';
 class FileImport {
   static Future<Data?> readData(BuildContext context) async {
     final scaffold = ScaffoldMessenger.of(context);
-    final errorColor = Theme.of(context).colorScheme.error;
+    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
+    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
 
     String jsonString = "{}";
     try {
@@ -25,11 +26,21 @@ class FileImport {
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
 
       final Data data = await parseJson(jsonData: jsonData);
-      scaffold.showSnackBar(SnackBar(content: Text("Loading data successfully")));
+      scaffold.showSnackBar(SnackBar(
+        persist: false,
+        showCloseIcon: true,
+        content: Text("Loading data successfully")
+      ));
       return data;
     } catch (e, st) {
       debugPrint("Loading data failed: $e\n$st");
-      scaffold.showSnackBar(SnackBar(content: Text("Loading data failed: $e"), backgroundColor: errorColor,));
+      scaffold.showSnackBar(SnackBar(             
+        persist: false,
+        showCloseIcon: true,
+        closeIconColor: onErrorContainerColor,
+        content: Text("Loading data failed: $e", style: TextStyle(color: onErrorContainerColor)), 
+        backgroundColor: errorContainerColor,
+      ));
 
       if (!context.mounted) return null;
       await _saveErrorJson(context: context, jsonString: jsonString);
@@ -64,7 +75,8 @@ class FileImport {
 
   static Future<Data?> readJsonFileData(BuildContext context) async {
     final scaffold = ScaffoldMessenger.of(context);
-    final errorColor = Theme.of(context).colorScheme.error;
+    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
+    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
 
     try {
       // Step 1 — pick a file
@@ -83,7 +95,13 @@ class FileImport {
         // Works in Android / iOS
         fileBytes = await File(picked.files.single.path!).readAsBytes();
       } else {
-        scaffold.showSnackBar(SnackBar(content: Text("Cannot read file!"), backgroundColor: errorColor));
+        scaffold.showSnackBar(SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          closeIconColor: onErrorContainerColor,
+          content: Text("Cannot read file!", style: TextStyle(color: onErrorContainerColor)), 
+          backgroundColor: errorContainerColor,
+        ));
         return null;
       }
 
@@ -106,7 +124,13 @@ class FileImport {
       return data;
     } catch (e, st) {
       debugPrint("Import failed: $e\n$st");
-      scaffold.showSnackBar(SnackBar(content: Text("Import failed: $e"), backgroundColor: errorColor,));
+      scaffold.showSnackBar(SnackBar(
+        persist: false,
+        showCloseIcon: true,
+        closeIconColor: onErrorContainerColor,
+        content: Text("Import failed: $e", style: TextStyle(color: onErrorContainerColor)), 
+        backgroundColor: errorContainerColor,
+      ));
       return null;
     }
   }

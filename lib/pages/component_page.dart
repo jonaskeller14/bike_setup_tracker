@@ -199,9 +199,11 @@ class _ComponentPageState extends State<ComponentPage> {
     if (!_formKey.currentState!.validate()) return;
     if (adjustments.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        persist: false,
         showCloseIcon: true,
-        content: Text("You need to add at least one adjustment"), 
-        backgroundColor: Theme.of(context).colorScheme.error,
+        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        content: Text("You need to add at least one adjustment", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        backgroundColor: Theme.of(context).colorScheme.errorContainer,
         duration: Duration(seconds: 2),
       ));
       return;
@@ -241,12 +243,12 @@ class _ComponentPageState extends State<ComponentPage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, size: 16, color: Colors.grey.shade600),
+          Icon(icon, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
           const SizedBox(width: 8),
           Expanded(
             child: RichText(
               text: TextSpan(
-                style: TextStyle(color: Colors.grey.shade800, fontSize: 13, height: 1.3),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13, height: 1.3),
                 children: [
                   TextSpan(
                     text: "$type: ", 
@@ -254,7 +256,7 @@ class _ComponentPageState extends State<ComponentPage> {
                   ),
                   TextSpan(
                     text: example,
-                    style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic)
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5), fontStyle: FontStyle.italic)
                   ),
                 ],
               ),
@@ -397,7 +399,7 @@ class _ComponentPageState extends State<ComponentPage> {
                           spacing: 8,
                           children: [
                             const Text('Add Numerical Adjustment'),
-                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.outline),
                             Icon(Icons.speed, size: 18),
                           ],
                         ),
@@ -410,7 +412,7 @@ class _ComponentPageState extends State<ComponentPage> {
                           spacing: 8,
                           children: [
                             const Text('Add Step Adjustment'),
-                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.outline),
                             Icon(Icons.stairs_outlined, size: 18),
                           ],
                         ),
@@ -423,7 +425,7 @@ class _ComponentPageState extends State<ComponentPage> {
                           spacing: 8,
                           children: [
                             const Text('Add Categorical Adjustment'),
-                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.outline),
                             Icon(Icons.category, size: 18),
                           ],
                         ),
@@ -436,7 +438,7 @@ class _ComponentPageState extends State<ComponentPage> {
                           spacing: 8,
                           children: [
                             const Text('Add On/Off Adjustment'),
-                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.outline),
                             Icon(Icons.toggle_on, size: 18),
                           ],
                         ),
@@ -461,13 +463,13 @@ class _ComponentPageState extends State<ComponentPage> {
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.help_outline, color: Colors.grey.shade600),
+                                  Icon(Icons.help_outline, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)),
                                   const SizedBox(width: 8),
                                   Text(
                                     "No adjustments yet",
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.grey.shade600,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                                       fontSize: Theme.of(context).textTheme.titleLarge?.fontSize ?? 16,
                                     ),
                                   ),
@@ -476,12 +478,12 @@ class _ComponentPageState extends State<ComponentPage> {
                               const SizedBox(height: 8),
                               Text(
                                 "Define what settings you can tweak on this component by tapping the buttons above.",
-                                style: TextStyle(height: 1.4, color: Colors.grey.shade600),
+                                style: TextStyle(height: 1.4, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
                               ),
                               const SizedBox(height: 8),
                               Text(
                                 "Examples:",
-                                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey.shade600),
+                                style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)),
                               ),
                               const SizedBox(height: 4),
                               _buildGuideRow(Icons.speed, "Numerical", "Pressure (psi/bar), Length, Angle, Weight"),

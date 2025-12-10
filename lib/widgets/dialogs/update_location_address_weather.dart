@@ -11,7 +11,7 @@ Future<int?> showUpdateLocationAddressWeatherDialog(
       return AlertDialog(
         title: const Text("Update?"),
         actionsOverflowAlignment: OverflowBarAlignment.start,
-        content: const Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -19,7 +19,7 @@ Future<int?> showUpdateLocationAddressWeatherDialog(
             SizedBox(height: 12),
             Text(
               "1. Location: Required GPS to fetch latitude, longitude, and altitude.\n2. Address: Requires lat/lon to retrieve street address.\n3. Weather: Requires lat/lon to retrieve weather.",
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
           ],
         ),

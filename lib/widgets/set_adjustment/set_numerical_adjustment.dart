@@ -113,7 +113,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                       hintText: 'Please enter',
                       contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                       suffixStyle: TextStyle(
-                        color: Colors.grey.shade600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                         fontWeight: FontWeight.normal,
                       ),
                       suffixText: widget.adjustment.unit != null ? ' ${widget.adjustment.unit}' : null,

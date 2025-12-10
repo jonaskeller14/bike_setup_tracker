@@ -79,11 +79,11 @@ class _ComponentListState extends State<ComponentList> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.pedal_bike, size: 13, color: Colors.grey.shade800),
+                            Icon(Icons.pedal_bike, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                             const SizedBox(width: 2),
                             Text(
                               widget.bikes[component.bike]?.name ?? "-",
-                              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ],

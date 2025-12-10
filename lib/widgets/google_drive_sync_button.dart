@@ -42,8 +42,8 @@ class GoogleDriveSyncButton extends StatelessWidget {
                   width: 14,
                   height: 14,
                   padding: const EdgeInsets.all(2),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.onPrimary,
                     shape: BoxShape.circle,
                   ),
                   child: CircularProgressIndicator(

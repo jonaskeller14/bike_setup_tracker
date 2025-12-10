@@ -368,7 +368,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
               children: [
                 Container(
                   padding: EdgeInsetsGeometry.fromLTRB(16, 48, 16, 16),
-                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Colors.blueGrey.shade100),
+                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
                   child: Card(
                     child: SetStepAdjustmentWidget(
                       key: ValueKey(_previewAdjustment),
@@ -397,10 +397,10 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                       ),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                    child: const Text(
+                    child: Text(
                       'Preview only — changes won’t be saved',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onPrimary,
                         fontWeight: FontWeight.w600,
                         fontSize: 12,
                       ),

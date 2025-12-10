@@ -96,7 +96,10 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                         min: adjustment.min.toDouble(),
                         max: sliderMax,
                         value: value,
-                        thumbShape: CustomValueThumbShape(Theme.of(context).colorScheme.primary),
+                        thumbShape: CustomValueThumbShape(
+                          primaryColor: Theme.of(context).colorScheme.primary,
+                          onPrimaryColor: Theme.of(context).colorScheme.onPrimary,
+                        ),
                         showLabels: true,
                         interval: sliderInterval.toDouble(),
                         showTicks: true,
@@ -122,6 +125,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                       numberOfTicks: sliderDivisions + 1,
                       clockwise: adjustment.visualization == StepAdjustmentVisualization.sliderWithClockwiseDial,
                       primaryColor: Theme.of(context).colorScheme.primary,
+                      onPrimaryColor: Theme.of(context).colorScheme.onPrimary,
                     ),
                 ],
               ),
@@ -173,10 +177,12 @@ class SetStepAdjustmentWidget extends StatelessWidget {
 
 class CustomValueThumbShape extends SfThumbShape {
   final Color primaryColor;
+  final Color onPrimaryColor;
 
-  const CustomValueThumbShape(
-    this.primaryColor,
-  );
+  const CustomValueThumbShape({
+    required this.primaryColor,
+    required this.onPrimaryColor,
+  });
   
   @override
   void paint(
@@ -202,7 +208,7 @@ class CustomValueThumbShape extends SfThumbShape {
       text: text,
       style: TextStyle(
         fontSize: text.length <= 1 ? 16 : text.length <= 2 ? 14 : text.length <= 3 ? 12 : text.length <= 4  ? 10 : 8,
-        color: Colors.white,
+        color: onPrimaryColor,
         fontWeight: FontWeight.bold,
       ),
     );
@@ -228,6 +234,7 @@ class RotaryKnob extends StatelessWidget {
   final double min;
   final double max;
   final Color primaryColor;
+  final Color onPrimaryColor;
   final int numberOfTicks;
   final bool clockwise;
 
@@ -239,6 +246,7 @@ class RotaryKnob extends StatelessWidget {
     required this.numberOfTicks,
     required this.clockwise,
     required this.primaryColor,
+    required this.onPrimaryColor,
   });
 
   @override
@@ -256,6 +264,8 @@ class RotaryKnob extends StatelessWidget {
           painter: KnobPainter(
             rotationRadians: value,
             primaryColor: primaryColor,
+            onPrimaryColor: onPrimaryColor,
+            tickColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
             numberOfTicks: numberOfTicks,
             clockwise: clockwise,
           ),
@@ -268,12 +278,16 @@ class RotaryKnob extends StatelessWidget {
 class KnobPainter extends CustomPainter {
   final double rotationRadians;
   final Color primaryColor;
+  final Color onPrimaryColor;
+  final Color tickColor;
   final int numberOfTicks;
   final bool clockwise;
 
   KnobPainter({
     required this.rotationRadians,
     required this.primaryColor,
+    required this.onPrimaryColor,
+    required this.tickColor,
     required this.numberOfTicks,
     required this.clockwise,
   });
@@ -291,7 +305,7 @@ class KnobPainter extends CustomPainter {
     
     // 1. Draw Ticks
     final tickPaint = Paint()
-      ..color = Colors.grey.shade400
+      ..color = tickColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0
       ..strokeCap = StrokeCap.round;
@@ -337,7 +351,7 @@ class KnobPainter extends CustomPainter {
 
     // --- Draw the Indicator Line (Now Rotates with the knob) ---
     final indicatorPaint = Paint()
-      ..color = Colors.white
+      ..color = onPrimaryColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0
       ..strokeCap = StrokeCap.round;

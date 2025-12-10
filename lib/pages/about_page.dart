@@ -37,11 +37,23 @@ Current Time: $now
         return;
       } else {
         if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to open link: $url'), backgroundColor: Theme.of(context).colorScheme.error));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+          content: Text('Failed to open link: $url', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+          backgroundColor: Theme.of(context).colorScheme.errorContainer
+        ));
       }
     } else {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not find a program to launch the link.'), backgroundColor: Theme.of(context).colorScheme.error));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        persist: false,
+        showCloseIcon: true,
+        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        content: Text('Could not find a program to launch the link.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        backgroundColor: Theme.of(context).colorScheme.errorContainer
+      ));
     }
   }
 
@@ -55,11 +67,23 @@ Current Time: $now
         return;
       } else {
         if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to open email client for: $email'), backgroundColor: Theme.of(context).colorScheme.error));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+          content: Text('Failed to open email client for: $email', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+          backgroundColor: Theme.of(context).colorScheme.errorContainer
+        ));
       }
     } else {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not find an email app on your device.'), backgroundColor: Theme.of(context).colorScheme.error));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        persist: false,
+        showCloseIcon: true,
+        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        content: Text('Could not find an email app on your device.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        backgroundColor: Theme.of(context).colorScheme.errorContainer
+      ));
     }
   }
 

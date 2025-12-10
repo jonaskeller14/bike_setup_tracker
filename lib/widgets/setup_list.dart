@@ -89,12 +89,12 @@ class _SetupListState extends State<SetupList> {
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.calendar_month, size: 13, color: Colors.grey.shade800),
+                                    Icon(Icons.calendar_month, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                     const SizedBox(width: 2),
                                     Text(
                                       DateFormat(appSettings.dateFormat).format(setup.datetime),
                                       style: TextStyle(
-                                        color: Colors.grey.shade600,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                                         fontSize: 13,
                                       ),
                                     ),
@@ -104,12 +104,12 @@ class _SetupListState extends State<SetupList> {
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.access_time, size: 13, color: Colors.grey.shade800),
+                                    Icon(Icons.access_time, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                     const SizedBox(width: 2),
                                     Text(
                                       DateFormat(appSettings.timeFormat).format(setup.datetime),
                                       style: TextStyle(
-                                        color: Colors.grey.shade600,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                                         fontSize: 13,
                                       ),
                                     ),
@@ -119,11 +119,11 @@ class _SetupListState extends State<SetupList> {
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.pedal_bike, size: 13, color: Colors.grey.shade800),
+                                    Icon(Icons.pedal_bike, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                     const SizedBox(width: 2),
                                     Text(
                                       widget.bikes[setup.bike]?.name ?? "-",
-                                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ],
@@ -133,11 +133,11 @@ class _SetupListState extends State<SetupList> {
                                     mainAxisSize: MainAxisSize.min,
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.location_pin, size: 13, color: Colors.grey.shade800),
+                                      Icon(Icons.location_pin, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                       const SizedBox(width: 2),
                                       Text(
                                         "${setup.place?.locality}, ${setup.place?.isoCountryCode}",
-                                        style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ],
@@ -148,11 +148,11 @@ class _SetupListState extends State<SetupList> {
                                     mainAxisSize: MainAxisSize.min,
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.arrow_upward, size: 13, color: Colors.grey.shade800),
+                                      Icon(Icons.arrow_upward, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                       const SizedBox(width: 2),
                                       Text(
                                         "${Setup.convertAltitudeFromMeters(setup.position!.altitude!, appSettings.altitudeUnit).round()} ${appSettings.altitudeUnit}",
-                                        style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                                       ),
                                     ],
                                   )
@@ -162,11 +162,11 @@ class _SetupListState extends State<SetupList> {
                                     mainAxisSize: MainAxisSize.min,
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.thermostat, size: 13, color: Colors.grey.shade800),
+                                      Icon(Icons.thermostat, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                       const SizedBox(width: 2),
                                       Text(
                                         "${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit).round()} ${appSettings.temperatureUnit}",
-                                        style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                                       ),
                                     ],
                                   )
@@ -180,7 +180,7 @@ class _SetupListState extends State<SetupList> {
                                       const SizedBox(width: 2),
                                       Text(
                                         setup.weather?.getConditionsLabel() ?? "-",
-                                        style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                                       ),
                                     ],
                                   )
@@ -196,7 +196,7 @@ class _SetupListState extends State<SetupList> {
                                     child: Icon(
                                       Icons.notes,
                                       size: 13,
-                                      color: Colors.grey.shade800,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
                                   ),
                                   const SizedBox(width: 2),
@@ -204,7 +204,7 @@ class _SetupListState extends State<SetupList> {
                                     child: Text(
                                       setup.notes!,
                                       style: TextStyle(
-                                        color: Colors.grey.shade600,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                                         fontSize: 13,
                                       ),
                                     ),
@@ -283,10 +283,10 @@ class _SetupListState extends State<SetupList> {
                           ),
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                        child: const Text(
+                        child: Text(
                           'Current',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.onPrimary,
                             fontWeight: FontWeight.w600,
                             fontSize: 12,
                           ),

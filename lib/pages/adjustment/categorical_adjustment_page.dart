@@ -247,7 +247,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                   const SizedBox(width: 8),
                                   if (_optionControllers.length > 1)
                                     IconButton(
-                                      icon: const Icon(Icons.remove_circle, color: Colors.red),
+                                      icon: Icon(Icons.remove_circle, color: Theme.of(context).colorScheme.error),
                                       tooltip: 'Remove option',
                                       onPressed: () => _removeOptionField(index),
                                     ),
@@ -266,7 +266,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
               children: [
                 Container(
                   padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
-                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Colors.blueGrey.shade100),
+                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
                   child: Card(
                     child: SetCategoricalAdjustmentWidget(
                       key: ValueKey(_previewAdjustment),
@@ -293,10 +293,10 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                       ),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                    child: const Text(
+                    child: Text(
                       'Preview only — changes won’t be saved',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onPrimary,
                         fontWeight: FontWeight.w600,
                         fontSize: 12,
                       ),

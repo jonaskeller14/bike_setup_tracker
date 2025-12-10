@@ -276,8 +276,9 @@ class _HomePageState extends State<HomePage> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true,
-        content: Text("Add a bike first"), 
-        backgroundColor: Theme.of(context).colorScheme.error
+        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        content: Text("Add a bike first", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        backgroundColor: Theme.of(context).colorScheme.errorContainer
       ));
       return;
     }
@@ -396,8 +397,9 @@ class _HomePageState extends State<HomePage> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true, 
-        content: Text("Add a bike first"), 
-        backgroundColor: Theme.of(context).colorScheme.error
+        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        content: Text("Add a bike first", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        backgroundColor: Theme.of(context).colorScheme.errorContainer
       ));
       return;
     }
@@ -405,8 +407,9 @@ class _HomePageState extends State<HomePage> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true, 
-        content: Text("Add a component first"), 
-        backgroundColor: Theme.of(context).colorScheme.error
+        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        content: Text("Add a component first", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        backgroundColor: Theme.of(context).colorScheme.errorContainer
       ));
       return;
     }
@@ -638,7 +641,7 @@ class _HomePageState extends State<HomePage> {
                     child: Center(
                       child: Text(
                         'No bikes yet',
-                        style: TextStyle(color: Colors.grey.shade600),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
                       ),
                     )
                   )
@@ -676,7 +679,7 @@ class _HomePageState extends State<HomePage> {
                     child: Center(
                       child: Text(
                         'No components yet',
-                        style: TextStyle(color: Colors.grey.shade600),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
                       ),
                     )
                   )
@@ -714,7 +717,7 @@ class _HomePageState extends State<HomePage> {
                       child: Center(
                         child: Text(
                           'No setups yet',
-                          style: TextStyle(color: Colors.grey.shade600),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
                         ),
                       )
                     )

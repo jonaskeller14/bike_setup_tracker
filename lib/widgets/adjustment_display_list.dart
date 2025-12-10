@@ -201,7 +201,7 @@ class _AdjustmentTableCell extends StatelessWidget {
                   change,
                   style: TextStyle(
                     fontSize: 12,
-                    color: valueHasChanged ? Colors.red : Colors.grey,
+                    color: valueHasChanged ? Colors.red : Theme.of(context).colorScheme.onSurfaceVariant,
                     decoration: isCrossed ? TextDecoration.lineThrough : TextDecoration.none,
                     decorationColor: Colors.red,
                   ),
@@ -274,7 +274,7 @@ class _VerticalDivider extends StatelessWidget {
     return Container(
       width: 1,
       height: 40,
-      color: Colors.grey.shade400,
+      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
     );
   }
 }

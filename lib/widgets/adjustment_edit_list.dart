@@ -39,7 +39,7 @@ class _AdjustmentEditListState extends State<AdjustmentEditList> {
             ),
             subtitle: Text(
               widget.adjustments[index].getProperties(),
-              style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),

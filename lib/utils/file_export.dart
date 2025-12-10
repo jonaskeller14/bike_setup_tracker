@@ -30,12 +30,19 @@ class FileExport {
     required List<Component> components,
   }) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final errorColor = Theme.of(context).colorScheme.error;
+    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
+    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
 
     _downloadJson(bikes, setups, components).then((result) {
         if (result == null || result.path == null) {
           scaffoldMessenger.showSnackBar(
-            SnackBar(content: Text("Export failed"), backgroundColor: errorColor),
+            SnackBar(
+              persist: false,
+              showCloseIcon: true,
+              closeIconColor: onErrorContainerColor,
+              content: Text("Export failed", style: TextStyle(color: onErrorContainerColor)), 
+              backgroundColor: errorContainerColor,
+            ),
           );
         } else {
           scaffoldMessenger.showSnackBar(
@@ -44,7 +51,15 @@ class FileExport {
         }
       }).catchError((e, st) {
         debugPrint('Export failed: $e\n$st');
-        scaffoldMessenger.showSnackBar(SnackBar(content: Text('Export failed: $e'), backgroundColor: errorColor,));
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            persist: false,
+            showCloseIcon: true,
+            closeIconColor: onErrorContainerColor,
+            content: Text('Export failed: $e', style: TextStyle(color: onErrorContainerColor)), 
+            backgroundColor: errorContainerColor,
+          ),
+        );
       });
     }
 

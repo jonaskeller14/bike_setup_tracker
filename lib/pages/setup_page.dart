@@ -683,7 +683,7 @@ class _SetupPageState extends State<SetupPage> {
               ),
               Text(
                 "Weather data by Open-Meteo.com",
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[400]),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<Bike>(
@@ -720,10 +720,10 @@ class _SetupPageState extends State<SetupPage> {
               ),
               const SizedBox(height: 24),
               if (bikeComponents.isEmpty)
-                const Center(
+                Center(
                   child: Text(
                     'No components available.',
-                    style: TextStyle(color: Colors.grey),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
                   ),
                 )
               else

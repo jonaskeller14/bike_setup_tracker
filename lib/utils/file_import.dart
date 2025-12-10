@@ -29,6 +29,7 @@ class FileImport {
       scaffold.showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true,
+        duration: Duration(seconds: 1),
         content: Text("Loading data successfully")
       ));
       return data;

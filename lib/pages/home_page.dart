@@ -59,8 +59,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    loadData();
-    onBikeTap(null); // after loading
 
     _googleDriveService = GoogleDriveService(
       getDataToUpload: () {
@@ -97,6 +95,7 @@ class _HomePageState extends State<HomePage> {
     if (!mounted) return;
     setState(() {
       FileImport.overwrite(remoteData: data, localBikes: bikes, localSetups: setups, localComponents: components);
+      onBikeTap(null);
     });
     FileImport.cleanupIsDeleted(bikes: bikes, components: components, setups: setups);
     FileExport.saveData(bikes: bikes, setups: setups, components: components);

@@ -120,6 +120,7 @@ class _AdjustmentTableRow extends StatelessWidget {
           value: value,
           previousValue: previousValue,
           highlightInitialValues: highlightInitialValues,
+          maxWidth: items.length > 1 ? 120 : double.infinity,
         ),
       );
     }
@@ -149,6 +150,7 @@ class _AdjustmentTableRow extends StatelessWidget {
 }
 
 class _AdjustmentTableCell extends StatelessWidget {
+  final double maxWidth;
   final Adjustment adjustment;
   final dynamic value;
   final dynamic previousValue;
@@ -159,6 +161,7 @@ class _AdjustmentTableCell extends StatelessWidget {
     required this.value,
     required this.previousValue,
     required this.highlightInitialValues,
+    this.maxWidth = 120.0,
   });
 
   @override
@@ -173,56 +176,92 @@ class _AdjustmentTableCell extends StatelessWidget {
         change = Adjustment.formatValue(previousValue);
       } else {
         dynamic changeValue = value - previousValue;
-        change = changeValue > 0? "+${Adjustment.formatValue(changeValue)}" : Adjustment.formatValue(changeValue);
+        change = changeValue > 0 ? "+${Adjustment.formatValue(changeValue)}" : Adjustment.formatValue(changeValue);
       }
     }
+
+    final valueDisplay = Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+            text: Adjustment.formatValue(value),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              color: (valueIsInitial && highlightInitialValues) ? Colors.green : null,
+            ),
+          ),
+          if (valueHasChanged) ...[
+            TextSpan(text: " "),
+            WidgetSpan(
+              alignment: PlaceholderAlignment.top,
+              child: Transform.translate(
+                offset: const Offset(0, -6),
+                child: Text(
+                  change,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: valueHasChanged ? Colors.red : Colors.grey,
+                    decoration: isCrossed ? TextDecoration.lineThrough : TextDecoration.none,
+                    decorationColor: Colors.red,
+                  ),
+                ),
+              ),
+            )
+          ],
+          if (adjustment.unit != null) ...[
+            TextSpan(text: " ${adjustment.unit}"),
+          ]
+        ],
+      ),
+    );
+
+    Widget finalLabelWidget = ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        // The Row is necessary to ensure the SingleChildScrollView's child 
+        // (the Text.rich) only takes the space it needs when it's shorter 
+        // than _max_value_width.
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              adjustment.name,
+              style: TextStyle(
+                fontWeight: FontWeight.normal,
+                fontSize: 12,
+              ),
+              // maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+
+    Widget finalValueWidget = ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        // The Row is necessary to ensure the SingleChildScrollView's child 
+        // (the Text.rich) only takes the space it needs when it's shorter 
+        // than _max_value_width.
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [valueDisplay],
+        ),
+      ),
+    );
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            adjustment.name,
-            style: TextStyle(
-              fontWeight: FontWeight.normal,
-              fontSize: 12
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Text.rich(
-            maxLines: 1,
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: Adjustment.formatValue(value),
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: (valueIsInitial && highlightInitialValues) ? Colors.green : null),
-                ),
-                if (valueHasChanged) ... [
-                  TextSpan(text: " "),
-                  WidgetSpan(
-                    alignment: PlaceholderAlignment.top,
-                    child: Transform.translate(
-                      offset: const Offset(0, -6),
-                      child: Text(
-                        change,
-                        style: TextStyle(
-                          fontSize: 12, 
-                          color: valueHasChanged ? Colors.red : Colors.grey,
-                          decoration: isCrossed ? TextDecoration.lineThrough : TextDecoration.none,
-                          decorationColor: Colors.red,
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-                if (adjustment.unit != null) ... [
-                  TextSpan(text: " ${adjustment.unit}"),
-                ]
-              ]
-            )
-          ),
+          finalLabelWidget,
+          finalValueWidget,
         ],
       ),
     );
@@ -239,7 +278,3 @@ class _VerticalDivider extends StatelessWidget {
     );
   }
 }
-
-
-
-

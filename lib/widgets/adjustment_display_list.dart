@@ -9,6 +9,7 @@ class AdjustmentDisplayList extends StatelessWidget {
   final bool showComponentIcons;
   final bool highlightInitialValues;
   final bool displayOnlyChanges;
+  final bool missingValuesPlaceholder;
 
   AdjustmentDisplayList({
     super.key,
@@ -18,6 +19,7 @@ class AdjustmentDisplayList extends StatelessWidget {
     this.showComponentIcons = false,
     this.highlightInitialValues = false,
     this.displayOnlyChanges = false,
+    this.missingValuesPlaceholder = false,
   }) : previousAdjustmentValues = previousAdjustmentValues ?? {};
 
   @override
@@ -26,11 +28,16 @@ class AdjustmentDisplayList extends StatelessWidget {
     bool insertDivider = false;
     for (int index = 0; index < components.length; index++) {
       final component = components[index];
-      final componentAdjustmentValues = Map.fromEntries(  // keep order of component.adjustments
-        component.adjustments
-            .where((adj) => adjustmentValues.containsKey(adj))
-            .map((adj) => MapEntry(adj, adjustmentValues[adj]!)),
-      );
+      final componentAdjustmentValues = missingValuesPlaceholder
+          ? Map.fromEntries(  // keep order of component.adjustments
+            component.adjustments
+                .map((adj) => MapEntry(adj, adjustmentValues[adj] ?? '-')),
+          )
+          : Map.fromEntries(  // keep order of component.adjustments
+            component.adjustments
+                .where((adj) => adjustmentValues.containsKey(adj))
+                .map((adj) => MapEntry(adj, adjustmentValues[adj]!)),
+          );
       if (componentAdjustmentValues.isEmpty) continue;
 
       if (displayOnlyChanges) {

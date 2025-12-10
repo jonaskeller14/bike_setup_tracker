@@ -145,6 +145,7 @@ class _ComponentListState extends State<ComponentList> {
                   components: [component],
                   adjustmentValues: widget.setups.lastWhereOrNull((s) => s.bike == component.bike)?.adjustmentValues ?? {},
                   showComponentIcons: false,
+                  missingValuesPlaceholder: true,
                 ),
               ),
             ],

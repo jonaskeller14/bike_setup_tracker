@@ -20,9 +20,9 @@ class AddressService {
         return placemarks.first;
       }
       return null;
-    } catch (e, stack) {
+    } catch (e) {
       status = AddressStatus.error;
-      debugPrint('AddressService: Failed to get address: $e\n$stack');
+      debugPrint('AddressService: Failed to get address: $e');
       return null;
     }
   }

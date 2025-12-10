@@ -165,6 +165,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                     numberOfTicks: sliderDivisions + 1,
                     clockwise: adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial,
                     primaryColor: Theme.of(context).colorScheme.primary,
+                    onPrimaryColor: Theme.of(context).colorScheme.onPrimary,
                   ),
               ],
             ),

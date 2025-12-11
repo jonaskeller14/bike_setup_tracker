@@ -4,8 +4,8 @@ import 'package:url_launcher/url_launcher.dart';
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
 
-  static const String appVersion = '1.0.1';
-  static const String buildNumber = '3';
+  static const String appVersion = '1.0.2';
+  static const String buildNumber = '4';
   static const String releaseDate = 'December 2025';
 
   static const String supportEmail = 'jonaskeller14.app+support@gmail.com';

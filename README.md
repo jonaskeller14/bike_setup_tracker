@@ -57,7 +57,7 @@ Here are the current development goals and their status:
 
 01 | 02 | 03
 :-:|:--:|:--:
-![](assets/store/play-store/phone/01_Add-Bikes.png) | ![](assets/store/play-store/phone/02_Add-Component.png) | ![](assets/store/play-store/phone/03_Add-Setups.png)
+![](assets/store/play-store/phone/01_Add-Bikes.png) | ![](assets/store/play-store/phone/02_Add-Components.png) | ![](assets/store/play-store/phone/03_Add-Setups.png)
 
 04 | 05
 :-:|:--:

@@ -49,12 +49,8 @@ Ditch the notebook. Download Bike Setup Tracker and tune your ride with precisio
 
 01 | 02 | 03
 :-:|:--:|:--:
-![](assets/store/play-store/tablet_10-inch/01.png) | ![](assets/store/play-store/tablet_10-inch/02.png) | ![](assets/store/play-store/tablet_10-inch/03.png)
+![](assets/store/play-store/tablet_10-inch/01_Add-Bikes.png) | ![](assets/store/play-store/tablet_10-inch/02_Add-Components.png) | ![](assets/store/play-store/tablet_10-inch/03_Add-Setups.png)
 
-04 | 05 | 06
-:-:|:--:|:--:
-![](assets/store/play-store/tablet_10-inch/04.png) | ![](assets/store/play-store/tablet_10-inch/05.png) | ![](assets/store/play-store/tablet_10-inch/06.png)
-
-07 | 08 | -
-:-:|:--:|:--:
-![](assets/store/play-store/tablet_10-inch/07.png) | ![](assets/store/play-store/tablet_10-inch/08.png)
+04 | 05
+:-:|:--:
+![](assets/store/play-store/tablet_10-inch/04_Setup-History.png) | ![](assets/store/play-store/tablet_10-inch/05_Putting-Adjustments-in-Context.png)

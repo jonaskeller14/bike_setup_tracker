@@ -42,7 +42,7 @@ class _HomePageState extends State<HomePage> {
 
   int currentPageIndex = 0;
 
-  static const _enableGoogleDrive = true;
+  static const _enableGoogleDrive = false;
   late GoogleDriveService _googleDriveService;
 
   void onBikeTap(Bike? bike) {

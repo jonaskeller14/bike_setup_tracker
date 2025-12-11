@@ -56,6 +56,7 @@ class _SetupPageState extends State<SetupPage> {
   late DateTime _initialDateTime;
   Map<String, dynamic> adjustmentValues = {};
   final Map<String, dynamic> _initialAdjustmentValues = {};
+  Map<String, dynamic> danglingAdjustmentValues = {};
 
   final LocationService _locationService = LocationService();
   LocationData? _currentLocation;
@@ -104,6 +105,17 @@ class _SetupPageState extends State<SetupPage> {
     if (_previousSetup != null) _initialAdjustmentValues.addAll(_previousSetup!.adjustmentValues);
   }
 
+  void _setDanglingAdjustmentValues() {
+    if (widget.setup == null) return;
+    
+    danglingAdjustmentValues = Map.from(adjustmentValues);
+    for (final bikeComponent in bikeComponents) {
+      for (final bikeComponentAdj in bikeComponent.adjustments) {
+        danglingAdjustmentValues.remove(bikeComponentAdj.id);
+      }
+    }
+  }
+
   void _onBikeChange (String? newBike) {
     if (newBike == null) return;
     setState(() {
@@ -112,6 +124,7 @@ class _SetupPageState extends State<SetupPage> {
       _previousSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: bike);
       _setInitialAdjustmentValues();
       _setAdjustmentValuesFromInitialAdjustmentValues();
+      _setDanglingAdjustmentValues();
     });
     _changeListener();
   }
@@ -757,10 +770,13 @@ class _SetupPageState extends State<SetupPage> {
               ),
               const SizedBox(height: 24),
               if (bikeComponents.isEmpty)
-                Center(
-                  child: Text(
-                    'No components available.',
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                SizedBox(
+                  height: 100,
+                  child: Center(
+                    child: Text(
+                      'No components available.',
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                    ),
                   ),
                 )
               else
@@ -788,6 +804,50 @@ class _SetupPageState extends State<SetupPage> {
                     ),
                   );
                 }),
+              if (danglingAdjustmentValues.isNotEmpty)
+                Opacity(
+                  opacity: 0.4,
+                  child: Card(
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          title: const Text("Dangling Adjustment Values", style: TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text('${danglingAdjustmentValues.length} adjustments found that are not associated with this bike. Cannot be edited.'),
+                          leading: Icon(Icons.question_mark),
+                        ),
+                        Column(
+                          children: danglingAdjustmentValues.entries.map((danglingAdjustmentValue) {
+                          return Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                spacing: 20,
+                                children: [
+                                  Flexible(
+                                    flex: 2,
+                                    child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(danglingAdjustmentValue.key),
+                                    ),
+                                  ),
+                                  Flexible(
+                                    flex: 1,
+                                    child: Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Text(Adjustment.formatValue(danglingAdjustmentValue.value), style: TextStyle(fontFamily: "monospace")),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList()
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               const ValueChangeLegend(),
             ],
           ),

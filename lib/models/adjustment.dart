@@ -4,10 +4,11 @@ import 'package:uuid/uuid.dart';
 abstract class Adjustment<T> {
   final String id;
   String name;
+  String? notes;
   final Type valueType;
   String? unit;
 
-  Adjustment({String? id, required this.name, required this.unit})
+  Adjustment({String? id, required this.name, required this.notes, required this.unit})
     : valueType = T,
       id = id ?? const Uuid().v4();
 
@@ -44,12 +45,14 @@ abstract class Adjustment<T> {
         return BooleanAdjustment(
           id: json["id"],
           name: json['name'],
+          notes: json['notes'],
           unit: json['unit'] as String?,
         );
       case 'categorical':
         return CategoricalAdjustment(
           id: json["id"],
           name: json['name'],
+          notes: json['notes'],
           unit: json['unit'] as String?,
           options: List<String>.from(json['options']),
         );
@@ -57,6 +60,7 @@ abstract class Adjustment<T> {
         return StepAdjustment(
           id: json["id"],
           name: json['name'],
+          notes: json['notes'],
           unit: json['unit'] as String?,
           step: (json['step'] as num).toInt(),
           min: (json['min'] as num).toInt(),
@@ -70,6 +74,7 @@ abstract class Adjustment<T> {
         return NumericalAdjustment(
           id: json["id"],
           name: json['name'],
+          notes: json['notes'],
           unit: json['unit'] as String?,
           min: (json['min'] as num?)?.toDouble(),
           max: (json['max'] as num?)?.toDouble(),
@@ -86,13 +91,14 @@ class CategoricalAdjustment extends Adjustment<String> {
   CategoricalAdjustment({
     super.id,
     required super.name,
+    required super.notes,
     required super.unit,
     required this.options,
   });
 
   @override
   CategoricalAdjustment deepCopy() {
-    return CategoricalAdjustment(name: name, unit: unit, options: options);
+    return CategoricalAdjustment(name: name, notes: notes, unit: unit, options: options);
   }
 
   @override
@@ -104,6 +110,7 @@ class CategoricalAdjustment extends Adjustment<String> {
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
+    'notes': notes,
     'type': 'categorical',
     'valueType': valueType.toString(),
     'unit': unit,
@@ -146,6 +153,7 @@ class StepAdjustment extends Adjustment<int> {
   StepAdjustment({
     super.id,
     required super.name,
+    required super.notes,
     required super.unit,
     required this.step,
     required this.min,
@@ -155,7 +163,7 @@ class StepAdjustment extends Adjustment<int> {
 
   @override
   StepAdjustment deepCopy() {
-    return StepAdjustment(name: name, unit: unit, step: step, min: min, max: max, visualization: visualization);
+    return StepAdjustment(name: name, notes: notes, unit: unit, step: step, min: min, max: max, visualization: visualization);
   }
 
   @override
@@ -167,6 +175,7 @@ class StepAdjustment extends Adjustment<int> {
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
+    'notes': notes,
     'type': 'step',
     'valueType': valueType.toString(),
     'unit': unit,
@@ -198,6 +207,7 @@ class NumericalAdjustment extends Adjustment<double> {
   NumericalAdjustment({
     super.id,
     required super.name,
+    required super.notes,
     required super.unit,
     double? min,
     double? max,
@@ -206,7 +216,7 @@ class NumericalAdjustment extends Adjustment<double> {
 
   @override
   NumericalAdjustment deepCopy() {
-    return NumericalAdjustment(name: name, unit: unit, min: min, max: max);
+    return NumericalAdjustment(name: name, notes: notes, unit: unit, min: min, max: max);
   }
 
   @override
@@ -218,6 +228,7 @@ class NumericalAdjustment extends Adjustment<double> {
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
+    'notes': notes,
     'type': 'numerical',
     'valueType': valueType.toString(),
     'unit': unit,
@@ -244,12 +255,13 @@ class BooleanAdjustment extends Adjustment<bool> {
   BooleanAdjustment({
     super.id,
     required super.name,
+    required super.notes,
     required super.unit,
   });
 
   @override
   BooleanAdjustment deepCopy() {
-    return BooleanAdjustment(name: name, unit: unit);
+    return BooleanAdjustment(name: name, notes: notes, unit: unit);
   }
   
   @override
@@ -261,6 +273,7 @@ class BooleanAdjustment extends Adjustment<bool> {
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
+    'notes': notes,
     'type': 'boolean',
     'valueType': valueType.toString(),
     'unit': unit,

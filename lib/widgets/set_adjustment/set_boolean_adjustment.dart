@@ -31,7 +31,7 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
       isInitial = false;
       highlightColor = null;
     }
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: isChanged
@@ -42,7 +42,7 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
         spacing: 20,
         children: [
           Flexible(
-            flex: 2,
+            flex: 3,
             child: Row(
               mainAxisSize: MainAxisSize.max,
               children: [
@@ -51,9 +51,33 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
                 Expanded(
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(
-                      adjustment.name,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),
+                    child: Text.rich(
+                      TextSpan(
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),
+                        children: [
+                          TextSpan(text: adjustment.name),
+                          if (adjustment.notes != null)
+                            WidgetSpan(
+                              alignment: PlaceholderAlignment.middle,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 2),
+                                child: Tooltip(
+                                  triggerMode: TooltipTriggerMode.tap,
+                                  preferBelow: false,
+                                  showDuration: Duration(seconds: 5),
+                                  message: adjustment.notes!,
+                                  child: Opacity(
+                                      opacity: 0.5,
+                                      child: Icon(
+                                      Icons.info_outline,
+                                      color: highlightColor,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -61,7 +85,7 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
             )
           ),
           Flexible(
-            flex: 3,
+            flex: 1,
             child: Align(
               alignment: Alignment.centerRight,
               child: Switch(

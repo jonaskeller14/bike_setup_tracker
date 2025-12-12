@@ -17,6 +17,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
   bool _formHasChanges = false;
   bool _expanded = false;
   late TextEditingController _nameController;
+  late TextEditingController _notesController;
   late TextEditingController _minController;
   late TextEditingController _maxController;
   late TextEditingController _unitController;
@@ -24,6 +25,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
   String? _previewValue;
   NumericalAdjustment _previewAdjustment = NumericalAdjustment(
     name: '', 
+    notes: null,
     unit: null,
   );
   
@@ -32,6 +34,8 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     super.initState();
     _nameController = TextEditingController(text: widget.adjustment?.name);
     _nameController.addListener(_changeListener);
+    _notesController = TextEditingController(text: widget.adjustment?.notes);
+    _notesController.addListener(_changeListener);
     _minController = TextEditingController(text: widget.adjustment?.min == double.infinity || widget.adjustment?.min == double.negativeInfinity ? null : widget.adjustment?.min.toString());
     _minController.addListener(_changeListener);
     _maxController = TextEditingController(text: widget.adjustment?.max == double.infinity || widget.adjustment?.max == double.negativeInfinity ? null : widget.adjustment?.max.toString());
@@ -48,6 +52,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
 
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '') || 
+        _notesController.text.trim() != (widget.adjustment?.notes ?? '') ||
         _unitController.text.trim() != (widget.adjustment?.unit ?? '') || 
         (double.tryParse(_minController.text.trim()) ?? double.negativeInfinity) != (widget.adjustment?.min ?? double.negativeInfinity) || 
         (double.tryParse(_maxController.text.trim()) ?? double.infinity) != (widget.adjustment?.max ?? double.infinity);
@@ -62,6 +67,8 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
   void dispose() {
     _nameController.removeListener(_changeListener);
     _nameController.dispose();
+    _notesController.removeListener(_changeListener);
+    _notesController.dispose();
     _minController.removeListener(_changeListener);
     _minController.dispose();
     _maxController.removeListener(_changeListener);
@@ -75,6 +82,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     if (!_formKey.currentState!.validate()) return;
 
     final name = _nameController.text.trim();
+    final notes = _notesController.text.trim();
     final minText = _minController.text.trim();
     final maxText = _maxController.text.trim();
     final unitText = _unitController.text.trim();
@@ -85,9 +93,16 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     _formHasChanges = false;
     if (!mounted) return;
     if (widget.adjustment == null) {
-      Navigator.pop(context, NumericalAdjustment(name: name, min: min, max: max, unit: unit));
+      Navigator.pop(context, NumericalAdjustment(
+        name: name, 
+        notes: notes.isEmpty ? null : notes, 
+        min: min, 
+        max: max, 
+        unit: unit
+      ));
     } else {
       widget.adjustment!.name = name;
+      widget.adjustment!.notes = notes.isEmpty ? null : notes;
       widget.adjustment!.unit = unit;
       widget.adjustment!.min = min;
       widget.adjustment!.max = max;
@@ -166,6 +181,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             setState(() {
                               _previewAdjustment = NumericalAdjustment(
                                 name: _nameController.text.trim(),
+                                notes: _previewAdjustment.notes,
                                 unit: _unitController.text.trim(),
                                 min: double.tryParse(_minController.text.trim()),
                                 max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
@@ -191,6 +207,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             setState(() {
                               _previewAdjustment = NumericalAdjustment(
                                 name: _nameController.text.trim(),
+                                notes: _previewAdjustment.notes,
                                 unit: _unitController.text.trim(), 
                                 min: double.tryParse(_minController.text.trim()),
                                 max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
@@ -236,6 +253,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                 _previewValue = null;
                                 _previewAdjustment = NumericalAdjustment(
                                   name: _nameController.text.trim(),
+                                  notes: _previewAdjustment.notes,
                                   unit: _unitController.text.trim(), 
                                   min: double.tryParse(_minController.text.trim()),
                                   max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
@@ -265,12 +283,36 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                 _previewValue = null;
                                 _previewAdjustment = NumericalAdjustment(
                                   name: _nameController.text.trim(),
+                                  notes: _previewAdjustment.notes,
                                   unit: _unitController.text.trim(), 
                                   min: double.tryParse(_minController.text.trim()),
                                   max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
                                 );
                               });
                             },
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _notesController,
+                            minLines: 2,
+                            maxLines: null,
+                            onChanged: (String? value) {
+                              setState(() {
+                                _previewAdjustment = NumericalAdjustment(
+                                  name: _nameController.text.trim(),
+                                  notes: (value == null || value.isEmpty) ? null : value,
+                                  unit: _unitController.text.trim(), 
+                                  min: double.tryParse(_minController.text.trim()),
+                                  max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
+                                );
+                              });
+                            },
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            decoration: const InputDecoration(
+                              labelText: 'Notes (optional)',
+                              hintText: 'Enter measuring procedure/instrument/...',
+                              border: OutlineInputBorder(),
+                            ),
                           ),
                         ]
                       ],

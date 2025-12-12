@@ -22,6 +22,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
   bool _formHasChanges = false;
   bool _expanded = false;
   late TextEditingController _nameController;
+  late TextEditingController _notesController;
   late TextEditingController _stepController;
   late TextEditingController _minController;
   late TextEditingController _maxController;
@@ -30,6 +31,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
   double _previewValue = _defaultMin.toDouble();
   StepAdjustment _previewAdjustment = StepAdjustment(
     name: '',
+    notes: null,
     unit: null,
     step: _defaultStep, 
     min: _defaultMin,
@@ -42,6 +44,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     super.initState();
     _nameController = TextEditingController(text: widget.adjustment?.name);
     _nameController.addListener(_changeListener);
+    _notesController = TextEditingController(text: widget.adjustment?.notes);
+    _notesController.addListener(_changeListener);
     _stepController = TextEditingController(text: widget.adjustment?.step.toString() ?? _defaultStep.toString());
     _stepController.addListener(_changeListener);
     _minController = TextEditingController(text: widget.adjustment?.min.toString() ?? _defaultMin.toString());
@@ -60,6 +64,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
 
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '') ||
+        _notesController.text.trim() != (widget.adjustment?.notes ?? '') ||
         int.tryParse(_stepController.text.trim()) != (widget.adjustment?.step ?? _defaultStep) ||
         int.tryParse(_minController.text.trim()) != (widget.adjustment?.min ?? _defaultMin) ||
         int.tryParse(_maxController.text.trim()) != (widget.adjustment?.max) ||
@@ -76,6 +81,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
   void dispose() {
     _nameController.removeListener(_changeListener);
     _nameController.dispose();
+    _notesController.removeListener(_changeListener);
+    _notesController.dispose();
     _stepController.removeListener(_changeListener);
     _stepController.dispose();
     _minController.removeListener(_changeListener);
@@ -89,15 +96,25 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     if (!_formKey.currentState!.validate()) return;
 
     final name = _nameController.text.trim();
+    final notes = _notesController.text.trim();
     final step = int.parse(_stepController.text.trim());
     final min = int.parse(_minController.text.trim());
     final max = int.parse(_maxController.text.trim());
     _formHasChanges = false;
     if (!mounted) return;
     if (widget.adjustment == null) {
-      Navigator.pop(context, StepAdjustment(name: name, unit: null, step: step, min: min, max: max, visualization: visualization));
+      Navigator.pop(context, StepAdjustment(
+        name: name, 
+        notes: notes.isEmpty ? null : notes, 
+        unit: null, 
+        step: step, 
+        min: min, max: 
+        max, 
+        visualization: visualization
+      ));
     } else {
       widget.adjustment!.name = name;
+      widget.adjustment!.notes = notes.isEmpty ? null : notes;
       widget.adjustment!.min = min;
       widget.adjustment!.max = max;
       widget.adjustment!.visualization = visualization;
@@ -173,6 +190,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             setState(() {
                               _previewAdjustment = StepAdjustment(
                                 name: value ?? '', 
+                                notes: _previewAdjustment.notes,
                                 min: _previewAdjustment.min, 
                                 max: _previewAdjustment.max, 
                                 step: _previewAdjustment.step, 
@@ -213,6 +231,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               final newStep = _validateStep(value) == null ? int.parse(value) : _defaultStep;
                               _previewAdjustment = StepAdjustment(
                                 name: _previewAdjustment.name, 
+                                notes: _previewAdjustment.notes,
                                 min: _previewAdjustment.min, 
                                 max: math.max(_previewAdjustment.max, _previewAdjustment.min + newStep), 
                                 step: newStep, 
@@ -243,6 +262,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               final newMin = _validateMin(value) == null ? int.parse(value) : _defaultMin;
                               _previewAdjustment = StepAdjustment(
                                 name: _previewAdjustment.name, 
+                                notes: _previewAdjustment.notes,
                                 min: math.min(newMin, _previewAdjustment.max - _previewAdjustment.step), 
                                 max: _previewAdjustment.max, //FIXME: if previously max was set wrong and now with the new min it becomes valid -> it does not update here 
                                 step: _previewAdjustment.step, 
@@ -273,6 +293,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               final newMax = _validateMax(value) == null ? int.parse(value) : _previewAdjustment.min+_previewAdjustment.step;
                               _previewAdjustment = StepAdjustment(
                                 name: _previewAdjustment.name, 
+                                notes: _previewAdjustment.notes,
                                 min: _previewAdjustment.min, 
                                 max: math.max(newMax, _previewAdjustment.min + _previewAdjustment.step), 
                                 step: _previewAdjustment.step, 
@@ -351,6 +372,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                 visualization = newVisualization;
                                 _previewAdjustment = StepAdjustment(
                                   name: _previewAdjustment.name, 
+                                  notes: _previewAdjustment.notes,
                                   min: _previewAdjustment.min, 
                                   max: _previewAdjustment.max, 
                                   step: _previewAdjustment.step, 
@@ -366,6 +388,31 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               }
                               return null;
                             },
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _notesController,
+                            minLines: 2,
+                            maxLines: null,
+                            onChanged: (String? value) {
+                              setState(() {
+                                _previewAdjustment = StepAdjustment(
+                                  name: _previewAdjustment.name, 
+                                  notes: (value == null || value.isEmpty) ? null : value,
+                                  min: _previewAdjustment.min, 
+                                  max: _previewAdjustment.max, 
+                                  step: _previewAdjustment.step, 
+                                  unit: _previewAdjustment.unit,
+                                  visualization: _previewAdjustment.visualization,
+                                );
+                              });
+                            },
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            decoration: const InputDecoration(
+                              labelText: 'Notes (optional)',
+                              hintText: 'Enter measuring procedure/instrument/...',
+                              border: OutlineInputBorder(),
+                            ),
                           ),
                         ]
                       ],

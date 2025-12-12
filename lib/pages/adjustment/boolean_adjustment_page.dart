@@ -15,11 +15,14 @@ class BooleanAdjustmentPage extends StatefulWidget {
 class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
+  bool _expanded = false;
   late TextEditingController _nameController;
+  late TextEditingController _notesController;
 
   bool _previewValue = false;
   BooleanAdjustment _previewAdjustment = BooleanAdjustment(
     name: '', 
+    notes: null,
     unit: null,
   );
 
@@ -28,12 +31,18 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
     super.initState();
     _nameController = TextEditingController(text: widget.adjustment?.name);
     _nameController.addListener(_changeListener);
+    _notesController = TextEditingController(text: widget.adjustment?.notes);
+    _notesController.addListener(_changeListener);
 
-    if (widget.adjustment != null) _previewAdjustment = widget.adjustment!;
+    if (widget.adjustment != null) {
+      _previewAdjustment = widget.adjustment!;
+      _expanded = true;
+    }
   }
 
   void _changeListener() {
-    final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '');
+    final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '') || 
+        _notesController.text.trim() != (widget.adjustment?.notes ?? '');
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -45,6 +54,8 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
   void dispose() {
     _nameController.removeListener(_changeListener);
     _nameController.dispose();
+    _notesController.removeListener(_changeListener);
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -52,12 +63,18 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
     if (!_formKey.currentState!.validate()) return;
 
     final name = _nameController.text.trim();
+    final notes = _notesController.text.trim();
     _formHasChanges = false;
     if (!mounted) return;
     if (widget.adjustment == null) {
-      Navigator.pop(context, BooleanAdjustment(name: name, unit: null));
+      Navigator.pop(context, BooleanAdjustment(
+        name: name, 
+        notes: notes.isEmpty ? null : notes, 
+        unit: null
+      ));
     } else {
       widget.adjustment!.name = name;
+      widget.adjustment!.notes = notes.isEmpty ? null : notes;
       widget.adjustment!.unit = null;
       Navigator.pop(context, widget.adjustment);
     }
@@ -105,7 +122,8 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                           onChanged: (String? value) {
                             setState(() {
                               _previewAdjustment = BooleanAdjustment(
-                                name: value ?? '', 
+                                name: value ?? '',
+                                notes: _previewAdjustment.notes,
                                 unit: null
                               );
                             });
@@ -122,6 +140,44 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                           ),
                           validator: _validateName,
                         ),
+                        if (!_expanded) ...[
+                          Center(
+                            child: TextButton.icon(
+                              onPressed: () {
+                                setState(() {
+                                  if (!_expanded) _expanded = !_expanded;
+                                });
+                              },
+                              icon: Icon(
+                                _expanded ? Icons.expand_less : Icons.expand_more,
+                              ),
+                              label: Text(_expanded ? "Show less" : "Show more"),
+                            ),
+                          ),
+                        ],
+                        if (_expanded) ...[
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _notesController,
+                            minLines: 2,
+                            maxLines: null,
+                            onChanged: (String? value) {
+                              setState(() {
+                                _previewAdjustment = BooleanAdjustment(
+                                  name: _previewAdjustment.name, 
+                                  notes: (value == null || value.isEmpty) ? null : value,
+                                  unit: null
+                                );
+                              });
+                            },
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            decoration: const InputDecoration(
+                              labelText: 'Notes (optional)',
+                              hintText: 'Enter measuring procedure/instrument/...',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),

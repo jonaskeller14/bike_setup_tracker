@@ -14,12 +14,15 @@ class CategoricalAdjustmentPage extends StatefulWidget {
 class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
+  bool _expanded = false;
   late TextEditingController _nameController;
+  late TextEditingController _notesController;
   late List<TextEditingController> _optionControllers;
 
   String? _previewValue;
   CategoricalAdjustment _previewAdjustment = CategoricalAdjustment(
     name: '',
+    notes: null,
     unit: null,
     options: [],
   );
@@ -29,6 +32,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
     super.initState();
     _nameController = TextEditingController(text: widget.adjustment?.name);
     _nameController.addListener(_changeListener);
+    _notesController = TextEditingController(text: widget.adjustment?.notes);
+    _notesController.addListener(_changeListener);
     if (widget.adjustment == null) {
       _optionControllers = [TextEditingController()];
     } else {
@@ -38,7 +43,10 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       optionController.addListener(_changeListener);
     }
 
-    if (widget.adjustment != null) _previewAdjustment = widget.adjustment!;
+    if (widget.adjustment != null) {
+      _previewAdjustment = widget.adjustment!;
+      _expanded = true;
+    }
   }
 
   void _changeListener() {
@@ -46,6 +54,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
     final initialOptions = widget.adjustment?.options.toSet() ?? {};
     
     final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '') || 
+        _notesController.text.trim() != (widget.adjustment?.notes ?? '') ||
         options.length != initialOptions.length || 
         !options.containsAll(initialOptions);
     if (_formHasChanges != hasChanges) {
@@ -59,6 +68,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
   void dispose() {
     _nameController.removeListener(_changeListener);
     _nameController.dispose();
+    _notesController.removeListener(_changeListener);
+    _notesController.dispose();
     for (final c in _optionControllers) {
       c.removeListener(_changeListener);
       c.dispose();
@@ -74,6 +85,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       _previewValue = null;
       _previewAdjustment = CategoricalAdjustment(
         name: _nameController.text.trim(),
+        notes: _previewAdjustment.notes,
         unit: null, 
         options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList(),
       );
@@ -89,6 +101,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       _previewValue = null;
       _previewAdjustment = CategoricalAdjustment(
         name: _nameController.text.trim(),
+        notes: null,
         unit: null, 
         options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList(),
       );
@@ -129,13 +142,20 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
     if (!_formKey.currentState!.validate()) return;
 
     final name = _nameController.text.trim();
+    final notes = _notesController.text.trim();
     final options = _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList();
     _formHasChanges = false;
     if (!mounted) return;
     if (widget.adjustment == null) {
-      Navigator.pop(context, CategoricalAdjustment(name: name, unit: null, options: options));
+      Navigator.pop(context, CategoricalAdjustment(
+        name: name, 
+        notes: notes.isEmpty ? null : notes, 
+        unit: null, 
+        options: options
+      ));
     } else {
       widget.adjustment!.name = name;
+      widget.adjustment!.notes = notes.isEmpty ? null : notes;
       widget.adjustment!.options = options;
       Navigator.pop(context, widget.adjustment);
     }
@@ -195,6 +215,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                             setState(() {
                               _previewAdjustment = CategoricalAdjustment(
                                 name: _nameController.text.trim(),
+                                notes: _previewAdjustment.notes,
                                 unit: null, 
                                 options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList(),
                               );
@@ -241,6 +262,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                           _previewValue = null;
                                           _previewAdjustment = CategoricalAdjustment(
                                             name: _nameController.text.trim(),
+                                            notes: _previewAdjustment.notes,
                                             unit: null, 
                                             options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList(),
                                           );
@@ -260,6 +282,46 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                             );
                           }),
                         ),
+                        if (!_expanded) ...[
+                          Divider(),
+                          Center(
+                            child: TextButton.icon(
+                              onPressed: () {
+                                setState(() {
+                                  if (!_expanded) _expanded = !_expanded;
+                                });
+                              },
+                              icon: Icon(
+                                _expanded ? Icons.expand_less : Icons.expand_more,
+                              ),
+                              label: Text(_expanded ? "Show less" : "Show more"),
+                            ),
+                          ),
+                        ],
+                        if (_expanded) ...[
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _notesController,
+                            minLines: 2,
+                            maxLines: null,
+                            onChanged: (String? value) {
+                              setState(() {
+                                _previewAdjustment = CategoricalAdjustment(
+                                  name: _previewAdjustment.name, 
+                                  notes: (value == null || value.isEmpty) ? null : value,
+                                  options: _previewAdjustment.options,
+                                  unit: null
+                                );
+                              });
+                            },
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            decoration: const InputDecoration(
+                              labelText: 'Notes (optional)',
+                              hintText: 'Enter measuring procedure/instrument/...',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),

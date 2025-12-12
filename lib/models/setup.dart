@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import "adjustment.dart";
 import 'weather.dart';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;

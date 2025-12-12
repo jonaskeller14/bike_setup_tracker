@@ -107,16 +107,19 @@ class _HomePageState extends State<HomePage> {
 
     if (!mounted) return;
     final choice = await showImportMergeOverwriteDialog(context);
-    if (choice == 'cancel' || choice == null) return;
 
-    if (choice == 'overwrite') {
-      setState(() {
-        FileImport.overwrite(remoteData: data, localBikes: bikes, localSetups: setups, localComponents: components);
-      });
-    } else if (choice == 'merge') {
-      setState(() {
-        FileImport.merge(remoteData: data, localBikes: bikes, localSetups: setups, localComponents: components);
-      });
+    switch (choice) {
+      case 'overwrite':
+        setState(() {
+          FileImport.overwrite(remoteData: data, localBikes: bikes, localSetups: setups, localComponents: components);
+          onBikeTap(null);
+        });
+      case 'merge':
+        setState(() {
+          FileImport.merge(remoteData: data, localBikes: bikes, localSetups: setups, localComponents: components);
+        });
+      default: 
+        return;
     }
 
     FileExport.saveData(bikes: bikes, setups: setups, components: components);

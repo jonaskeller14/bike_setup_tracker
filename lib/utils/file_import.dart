@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 import '../models/bike.dart';
-import '../models/adjustment.dart';
 import '../models/setup.dart';
 import '../models/component.dart';
 import 'data.dart';

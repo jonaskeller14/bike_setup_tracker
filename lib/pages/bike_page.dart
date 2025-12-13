@@ -88,10 +88,12 @@ class _BikePageState extends State<BikePage> {
                   onFieldSubmitted: (_) => _saveBike(),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   autofocus: widget.bike == null,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Bike Name',
                     border: OutlineInputBorder(),
                     hintText: 'Enter bike name',
+                    fillColor: Colors.orange.withValues(alpha: 0.08),
+                    filled: widget.bike != null && _nameController.text.trim() != widget.bike?.name,
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {

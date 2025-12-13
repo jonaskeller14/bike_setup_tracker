@@ -154,10 +154,12 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                           textInputAction: TextInputAction.next,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           autofocus: widget.adjustment == null,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Adjustment Name',
                             hintText: 'Enter Adjustment Name',
                             border: OutlineInputBorder(),
+                            fillColor: Colors.orange.withValues(alpha: 0.08),
+                            filled: widget.adjustment != null && _nameController.text.trim() != widget.adjustment?.name,
                           ),
                           validator: _validateName,
                           onChanged: (String value) {
@@ -177,10 +179,12 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                           maxLength: 10,
                           onFieldSubmitted: (_) => _saveNumericalAdjustment(),
                           autovalidateMode: AutovalidateMode.onUserInteraction,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Unit (optional)',
                             hintText: 'Enter unit (e.g., mm, psi)',
                             border: OutlineInputBorder(),
+                            fillColor: Colors.orange.withValues(alpha: 0.08),
+                            filled: widget.adjustment != null && _unitController.text.trim() != widget.adjustment?.unit,
                           ),
                           validator: (value) => (value != null && value.length > 10) ? "Too many characters" : null,
                           onChanged: (String value) {
@@ -219,10 +223,12 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
                             ],
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Min Value (optional)',
                               hintText: 'Enter minimum value',
                               border: OutlineInputBorder(),
+                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              filled: widget.adjustment != null && (double.tryParse(_minController.text.trim()) ?? double.negativeInfinity) != widget.adjustment?.min,
                             ),
                             validator: _validateMin,
                             onChanged: (String value) {
@@ -246,10 +252,12 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
                             ],
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Max Value (optional)',
                               hintText: 'Enter maximum value',
                               border: OutlineInputBorder(),
+                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              filled: widget.adjustment != null && (double.tryParse(_maxController.text.trim()) ?? double.infinity) != widget.adjustment?.max,
                             ),
                             validator: _validateMax,
                             onChanged: (String value) {

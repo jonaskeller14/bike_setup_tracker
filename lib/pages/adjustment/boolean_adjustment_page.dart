@@ -113,10 +113,12 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                           onFieldSubmitted: (_) => _saveBooleanAdjustment(),
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           autofocus: widget.adjustment == null,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Adjustment Name',
                             hintText: 'Enter Adjustment Name',
                             border: OutlineInputBorder(),
+                            fillColor: Colors.orange.withValues(alpha: 0.08),
+                            filled: widget.adjustment != null && _nameController.text.trim() != widget.adjustment?.name,
                           ),
                           validator: _validateName,
                         ),

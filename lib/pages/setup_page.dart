@@ -740,10 +740,12 @@ class _SetupPageState extends State<SetupPage> {
                 initialValue: widget.bikes[bike],
                 isExpanded: true,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Bike',
                   border: OutlineInputBorder(),
                   hintText: "Choose a bike for this component",
+                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                  filled: widget.setup != null && bike != widget.setup?.bike,
                 ),
                 validator: (Bike? newBike) {
                   if (newBike == null) return "Bike cannot be empty.";

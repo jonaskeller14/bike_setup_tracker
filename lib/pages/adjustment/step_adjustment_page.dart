@@ -184,10 +184,12 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                           textInputAction: TextInputAction.next,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           autofocus: widget.adjustment == null,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Adjustment Name',
                             hintText: 'Enter Adjustment Name',
                             border: OutlineInputBorder(),
+                            fillColor: Colors.orange.withValues(alpha: 0.08),
+                            filled: widget.adjustment != null && _nameController.text.trim() != widget.adjustment?.name,
                           ),
                           validator: _validateName,
                         ),
@@ -198,10 +200,12 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           keyboardType: TextInputType.number,
                           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Step',
                             hintText: 'Enter step value',
                             border: OutlineInputBorder(),
+                            fillColor: Colors.orange.withValues(alpha: 0.08),
+                            filled: widget.adjustment != null && int.tryParse(_stepController.text.trim()) != widget.adjustment?.step,
                           ),
                           validator: _validateStep,
                           onChanged: (String value) {
@@ -226,10 +230,12 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           keyboardType: const TextInputType.numberWithOptions(decimal: false, signed: true),
                           inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*$'))],
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Min Value',
                             hintText: 'Enter minimum value',
                             border: OutlineInputBorder(),
+                            fillColor: Colors.orange.withValues(alpha: 0.08),
+                            filled: widget.adjustment != null && int.tryParse(_minController.text.trim()) != widget.adjustment?.min,
                           ),
                           validator: _validateMin,
                           onChanged: (String value) {
@@ -254,10 +260,12 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           keyboardType: const TextInputType.numberWithOptions(decimal: false, signed: true),
                           inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*$'))],
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Max Value',
                             hintText: 'Enter maximum value',
                             border: OutlineInputBorder(),
+                            fillColor: Colors.orange.withValues(alpha: 0.08),
+                            filled: widget.adjustment != null && int.tryParse(_maxController.text.trim()) != widget.adjustment?.max,
                           ),
                           validator: _validateMax,
                           onChanged: (String value) {
@@ -297,10 +305,12 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             isExpanded: true,
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             hint: const Text("Please select visualization"),
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Visualization',
                               border: OutlineInputBorder(),
                               hintText: "Choose a visualization for this adjustment",
+                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              filled: widget.adjustment != null && visualization != widget.adjustment?.visualization,
                             ),
                             items: StepAdjustmentVisualization.values.map((v) {
                               return DropdownMenuItem<StepAdjustmentVisualization>(

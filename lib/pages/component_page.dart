@@ -304,10 +304,12 @@ class _ComponentPageState extends State<ComponentPage> {
                     textInputAction: TextInputAction.next,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     autofocus: widget.component == null,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Component Name',
                       border: OutlineInputBorder(),
                       hintText: 'Enter component name',
+                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      filled: widget.component != null && _nameController.text.trim() != widget.component?.name,
                     ),
                     validator: _validateName,
                   ),
@@ -316,10 +318,12 @@ class _ComponentPageState extends State<ComponentPage> {
                     initialValue: widget.bikes[bike],
                     isExpanded: true,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Bike',
                       border: OutlineInputBorder(),
                       hintText: "Choose a bike for this component",
+                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      filled: widget.component != null && bike != widget.component?.bike,
                     ),
                     validator: (Bike? newBike) {
                       if (newBike == null) return "Bike cannot be empty.";
@@ -354,10 +358,12 @@ class _ComponentPageState extends State<ComponentPage> {
                     isExpanded: true,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     hint: const Text("Please select type"),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Type',
                       border: OutlineInputBorder(),
                       hintText: "Choose a type for this component",
+                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      filled: widget.component != null && componentType != widget.component?.componentType,
                     ),
                     items: ComponentType.values.map((componentType) {
                       return DropdownMenuItem<ComponentType>(

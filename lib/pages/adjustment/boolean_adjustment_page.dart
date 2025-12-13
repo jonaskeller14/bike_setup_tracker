@@ -151,7 +151,7 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                               icon: Icon(
                                 _expanded ? Icons.expand_less : Icons.expand_more,
                               ),
-                              label: Text(_expanded ? "Show less" : "Show more"),
+                              label: Text(_expanded ? "Hide Additional Fields" : "Show Additional Fields"),
                             ),
                           ),
                         ],

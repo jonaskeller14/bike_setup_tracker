@@ -8,12 +8,23 @@ Do you keep your suspension clicks, tire pressures, and geometry settings scatte
 
 Bike Setup Tracker is the ultimate digital logbook for cyclists, mechanics, and racers who want to get the most out of their equipment. Whether you are a Downhill racer, an Enduro enthusiast, or a Road cyclist, this app brings structure to your bike adjustments.
 
-## Table of Contents
-- [Key Features](#key-features)
 - [Roadmap](#roadmap)
+- [Key Features](#key-features)
 - [Screenshots](#screenshots)
   - [Phone](#phone)
   - [Tablet](#tablet)
+
+
+## Roadmap
+
+Here are the current development goals and their status:
+
+- [ ] **Publish for Android** ➡️ **In Progress**
+- [ ] **Cloud Synchronisation** ➡️ **In Testing Phase**
+- [ ] **Publish for iOS** ➡️ **Planned** (Will commence development once the Android is stable.)
+
+I am open for feedback, suggestions, and bug reports—please feel free to open a new issue for any of these.
+
 
 ## Key Features
 
@@ -39,16 +50,6 @@ Bike Setup Tracker is the ultimate digital logbook for cyclists, mechanics, and 
 - **Racers:** Keep a log of your race-day tunes.
 
 Ditch the notebook. Download Bike Setup Tracker and tune your ride with precision.
-
-
-
-## Roadmap
-
-Here are the current development goals and their status:
-
-- [ ] **Publish for Android** ➡️ **In Progress**
-- [ ] **Cloud Synchronisation** ➡️ **In Testing Phase**
-- [ ] **Publish for iOS** ➡️ **Planned** (Will commence development once the Android is stable.)
 
 
 ## Screenshots

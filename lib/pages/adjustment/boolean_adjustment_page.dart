@@ -171,10 +171,12 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                               });
                             },
                             autovalidateMode: AutovalidateMode.onUserInteraction,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Notes (optional)',
                               hintText: 'Enter measuring procedure/instrument/...',
                               border: OutlineInputBorder(),
+                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              filled: widget.adjustment != null && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
                             ),
                           ),
                         ],

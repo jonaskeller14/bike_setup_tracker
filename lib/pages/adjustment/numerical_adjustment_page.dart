@@ -184,7 +184,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             hintText: 'Enter unit (e.g., mm, psi)',
                             border: OutlineInputBorder(),
                             fillColor: Colors.orange.withValues(alpha: 0.08),
-                            filled: widget.adjustment != null && _unitController.text.trim() != widget.adjustment?.unit,
+                            filled: widget.adjustment != null && _unitController.text.trim() != (widget.adjustment?.unit ?? ""),
                           ),
                           validator: (value) => (value != null && value.length > 10) ? "Too many characters" : null,
                           onChanged: (String value) {

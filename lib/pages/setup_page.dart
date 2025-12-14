@@ -709,6 +709,32 @@ class _SetupPageState extends State<SetupPage> {
                       _changeListener();
                     },
                   ),
+                  PopupMenuButton<Condition>(
+                    onSelected: (value) {
+                      setState(() {
+                        _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
+                        _currentWeather = _currentWeather?.copyWith(condition: value);
+                      });
+                    },
+                    itemBuilder: (BuildContext context) => Condition.values.map((c) => 
+                      PopupMenuItem<Condition>(
+                        value: c,
+                        child: Row(
+                          spacing: 10, 
+                          children: [
+                            c.getConditionsIcon(),
+                            Text(c.value)
+                          ]
+                        ),
+                      ),
+                    ).toList(),
+                    child: Chip(
+                      avatar: _currentWeather?.getConditionsIcon() ?? const Icon(Icons.question_mark_sharp),
+                      label: _weatherService.status == WeatherStatus.searching 
+                          ? _loadingIndicator()
+                          : Text(_currentWeather?.condition?.value ?? "-"),
+                    ),
+                  ),
                   ActionChip(
                     avatar: const Icon(Icons.autorenew),
                     label: const Text(""),

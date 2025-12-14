@@ -171,7 +171,7 @@ class _SetupListState extends State<SetupList> {
                                     ],
                                   )
                                 ],
-                                if (setup.weather?.currentSoilMoisture0to7cm != null) ... [
+                                if (setup.weather?.condition != null) ... [
                                   Row(
                                     mainAxisSize: MainAxisSize.min,
                                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -179,7 +179,7 @@ class _SetupListState extends State<SetupList> {
                                       setup.weather!.getConditionsIcon(size: 13),
                                       const SizedBox(width: 2),
                                       Text(
-                                        setup.weather?.getConditionsLabel() ?? "-",
+                                        setup.weather?.condition?.value ?? "-",
                                         style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                                       ),
                                     ],

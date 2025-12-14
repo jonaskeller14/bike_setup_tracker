@@ -1,4 +1,27 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+
+enum Condition {
+  dry('Dry'),
+  moist('Moist'),
+  wet('Wet'),
+  muddy('Muddy');
+
+  final String value;
+  const Condition(this.value);
+  Icon getConditionsIcon({double? size}) {
+    switch (this) {
+      case Condition.dry:
+        return Icon(Icons.wb_sunny, size: size, color: Colors.deepOrange);
+      case Condition.moist:
+        return Icon(Icons.water_drop_outlined, size: size, color: Colors.amber);
+      case Condition.wet:
+        return Icon(Icons.water_drop, size: size, color: Colors.lightBlue);
+      case Condition.muddy:
+        return Icon(Icons.water, size: size, color: Colors.blue);
+    }
+  }
+}
 
 class Weather {
   final DateTime currentDateTime;
@@ -10,6 +33,8 @@ class Weather {
   final double? currentSoilMoisture0to7cm;
   final double? dayAccumulatedPrecipitation;
 
+  final Condition? condition;
+
   Weather({
     required this.currentDateTime, 
     this.currentTemperature,
@@ -19,7 +44,8 @@ class Weather {
     this.currentPrecipitation,
     this.currentSoilMoisture0to7cm,
     this.dayAccumulatedPrecipitation,
-  });
+    Condition? condition,
+  }) : condition = condition ?? getConditionFromSoilMoisture0to7cm(currentSoilMoisture0to7cm);
 
   Weather copyWith({
     DateTime? currentDateTime,
@@ -30,6 +56,7 @@ class Weather {
     double? currentPrecipitation,
     double? currentSoilMoisture0to7cm,
     double? dayAccumulatedPrecipitation,
+    Condition? condition,
   }) {
     return Weather(
       currentDateTime: currentDateTime ?? this.currentDateTime,
@@ -40,32 +67,25 @@ class Weather {
       currentPrecipitation: currentPrecipitation ?? this.currentPrecipitation,
       currentSoilMoisture0to7cm: currentSoilMoisture0to7cm ?? this.currentSoilMoisture0to7cm,
       dayAccumulatedPrecipitation: dayAccumulatedPrecipitation ?? this.dayAccumulatedPrecipitation,
+      condition: condition ?? this.condition,
     );
   }
 
   Icon getConditionsIcon({double? size}) {
-    if (currentSoilMoisture0to7cm == null) return Icon(Icons.question_mark_sharp, size: size);
-    if (currentSoilMoisture0to7cm! < 0.1) {
-      return Icon(Icons.wb_sunny, size: size, color: Colors.deepOrange);
-    } else if (currentSoilMoisture0to7cm! < 0.2) {
-      return Icon(Icons.water_drop_outlined, size: size, color: Colors.amber);
-    } else if (currentSoilMoisture0to7cm! < 0.35) {
-      return Icon(Icons.water_drop, size: size, color: Colors.lightBlue);
-    } else {
-      return Icon(Icons.water, size: size, color: Colors.blue);
-    }
+    if (condition == null) return Icon(Icons.question_mark_sharp, size: size);
+    return condition!.getConditionsIcon(size: size);
   }
 
-  String? getConditionsLabel() {
+  static Condition? getConditionFromSoilMoisture0to7cm(double? currentSoilMoisture0to7cm) {
     if (currentSoilMoisture0to7cm == null) return null;
-    if (currentSoilMoisture0to7cm! < 0.1) {
-      return "Dry";
-    } else if (currentSoilMoisture0to7cm! < 0.2) {
-      return "Moist";
-    } else if (currentSoilMoisture0to7cm! < 0.35) {
-      return "Wet";
+    if (currentSoilMoisture0to7cm < 0.1) {
+      return Condition.dry;
+    } else if (currentSoilMoisture0to7cm < 0.2) {
+      return Condition.moist;
+    } else if (currentSoilMoisture0to7cm < 0.35) {
+      return Condition.wet;
     } else {
-      return "Muddy";
+      return Condition.muddy;
     }
   }
 
@@ -85,6 +105,7 @@ class Weather {
     'currentPrecipitation': currentPrecipitation,
     'currentSoilMoisture0to7cm': currentSoilMoisture0to7cm,
     'dayAccumulatedPrecipitation': dayAccumulatedPrecipitation,
+    'condition': condition.toString(),
   };
 
   factory Weather.fromJson(Map<String, dynamic> json) {
@@ -97,6 +118,7 @@ class Weather {
       currentPrecipitation: json['currentPrecipitation'],
       currentSoilMoisture0to7cm: json['currentSoilMoisture0to7cm'],
       dayAccumulatedPrecipitation: json['dayAccumulatedPrecipitation'],
+      condition: Condition.values.firstWhereOrNull((e) => e.toString() == json['condition']),
     );
   }
 

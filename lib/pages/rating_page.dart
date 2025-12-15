@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../models/app_settings.dart';
-import '../models/bike.dart';
+import '../models/rating.dart';
 import '../models/component.dart';
+import '../models/bike.dart';
+import '../models/person.dart';
 import '../models/adjustment/adjustment.dart';
 import 'adjustment/boolean_adjustment_page.dart';
 import 'adjustment/numerical_adjustment_page.dart';
@@ -12,46 +12,75 @@ import 'adjustment/text_adjustment_page.dart';
 import 'adjustment/duration_adjustment_page.dart';
 import '../widgets/adjustment_edit_list.dart';
 import '../widgets/dialogs/discard_changes.dart';
-import '../widgets/sheets/component_add_adjustment.dart';
+import '../widgets/sheets/rating_add_adjustment.dart';
 
-class ComponentPage extends StatefulWidget {
-  final Component? component;
+class RatingPage extends StatefulWidget {
+  final Rating? rating;
+  final List<Component> components;
   final Map<String, Bike> bikes;
+  final Map<String, Person> persons;
 
-  const ComponentPage({super.key, this.component, required this.bikes});
+  const RatingPage({
+    super.key,
+    required this.bikes,
+    required this.components,
+    required this.persons,
+    this.rating,
+  });
 
   @override
-  State<ComponentPage> createState() => _ComponentPageState();
+  State<RatingPage> createState() => _RatingPageState();
 }
 
-class _ComponentPageState extends State<ComponentPage> {
-  static const _enableDurationAdjustment = false;
+class FilterFilterType {
+  final String? filter;
+  final FilterType filterType;
+
+  const FilterFilterType(this.filter, this.filterType);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FilterFilterType &&
+          runtimeType == other.runtimeType &&
+          filter == other.filter &&
+          filterType == other.filterType;
+
+  @override
+  int get hashCode => filter.hashCode ^ filterType.hashCode;
+}
+
+class _RatingPageState extends State<RatingPage> {
+  static const _enableTextAdjustment = false;
+  static const _enableDurationAdjustment = true;
+  late TextEditingController _nameController;
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
-  late TextEditingController _nameController;
-  late List<Adjustment> adjustments;
+
+  late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
-  late String bike;
-  late ComponentType? componentType;
+  late FilterFilterType _filterFilterType;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.component?.name);
+    _nameController = TextEditingController(text: widget.rating?.name);
     _nameController.addListener(_changeListener);
-    adjustments = widget.component == null ? [] : List.from(widget.component!.adjustments);
-    _initialAdjustments = List.from(adjustments);
-    bike = widget.component?.bike ?? widget.bikes.keys.first;
-    componentType = widget.component?.componentType;
+    _adjustments = widget.rating == null ? [] : List.from(widget.rating!.adjustments);
+    _initialAdjustments = List.from(_adjustments);
+    
+    _filterFilterType = FilterFilterType(
+      widget.rating?.filter,
+      widget.rating?.filterType ?? FilterType.global,
+    );
   }
 
   void _changeListener() {
-    final hasChanges = _nameController.text.trim() != (widget.component?.name ?? '') || 
-        bike != (widget.component?.bike ?? widget.bikes.keys.first) || 
-        componentType != widget.component?.componentType;
-        _initialAdjustments.length != adjustments.length || 
-        adjustments.asMap().entries.any((entry) => entry.value != _initialAdjustments[entry.key]);
-
+    final hasChanges = _nameController.text.trim() != (widget.rating?.name ?? '') ||
+        _filterFilterType.filter != (widget.rating?.filter) ||
+        _filterFilterType.filterType != (widget.rating?.filterType ?? FilterType.global) ||
+        _initialAdjustments.length != _adjustments.length || 
+        _adjustments.asMap().entries.any((entry) => entry.value != _initialAdjustments[entry.key]);
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -75,7 +104,7 @@ class _ComponentPageState extends State<ComponentPage> {
     if (adjustment == null) return;
 
     setState(() {
-      adjustments.add(adjustment);
+      _adjustments.add(adjustment);
     });
     
     _changeListener();
@@ -85,7 +114,7 @@ class _ComponentPageState extends State<ComponentPage> {
     final newAdjustment = await _editAdjustment(adjustment.deepCopy());
     if (newAdjustment == null) return;
     setState(() {
-      adjustments.add(newAdjustment);
+      _adjustments.add(newAdjustment);
     });
     _changeListener();
   }
@@ -139,56 +168,44 @@ class _ComponentPageState extends State<ComponentPage> {
     }
     if (editedAdjustment == null) return null;
     setState(() {
-      final index = adjustments.indexOf(adjustment);
+      final index = _adjustments.indexOf(adjustment);
       if (index != -1) {
-        adjustments[index] = editedAdjustment!;
+        _adjustments[index] = editedAdjustment!;
       }
     });
-    if (widget.component != null) widget.component!.lastModified = DateTime.now();
+    if (widget.rating != null) widget.rating!.lastModified = DateTime.now();
     return editedAdjustment;
-  }
-
-  Future<void> _duplicateAdjustment(Adjustment adjustment) async {
-    final newAdjustment = adjustment.deepCopy();
-    setState(() {
-      adjustments.add(newAdjustment);
-    });
-    _editAdjustment(newAdjustment);
   }
 
   Future<void> removeAdjustment(Adjustment adjustment) async {
     setState(() {
-      adjustments.remove(adjustment);
+      _adjustments.remove(adjustment);
     });
     _changeListener();
   }
 
-  void _saveComponent() {
+  void _saveRating() {
     if (!_formKey.currentState!.validate()) return;
-    if (adjustments.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text("You need to add at least one adjustment", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-        duration: Duration(seconds: 2),
-      ));
-      return;
-    }
     final name = _nameController.text.trim();
     _formHasChanges = false;
-    if (!mounted) return;
-    Navigator.pop(
-      context,
-      Component(
-        id: widget.component?.id,
-        name: name,
-        componentType: componentType!,
-        bike: bike,
-        adjustments: adjustments,
-      ),
-    );
+    
+    if (widget.rating == null) {
+      Navigator.pop(context, Rating(
+        name: name, 
+        filter: _filterFilterType.filter, 
+        filterType: _filterFilterType.filterType,
+        adjustments: _adjustments,
+      ));
+    } else {
+      widget.rating!.name = name;
+      widget.rating!.lastModified = DateTime.now();
+      widget.rating!.filter = _filterFilterType.filter;
+      widget.rating!.filterType = _filterFilterType.filterType;
+      widget.rating!.adjustments
+          ..clear()
+          ..addAll(_adjustments);
+      Navigator.pop(context, widget.rating);
+    }
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {
@@ -198,11 +215,6 @@ class _ComponentPageState extends State<ComponentPage> {
     if (!mounted) return;
     if (!shouldDiscard) return;
     Navigator.of(context).pop(null);
-  }
-
-  String? _validateName(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Name is required';
-    return null;
   }
 
   Widget _buildGuideRow(IconData icon, String type, String example) {
@@ -234,14 +246,14 @@ class _ComponentPageState extends State<ComponentPage> {
       ),
     );
   }
-  
+
   void _onReorderAdjustments(int oldIndex, int newIndex) {
     int adjustedNewIndex = newIndex;
     if (oldIndex < newIndex) adjustedNewIndex -= 1;
 
     setState(() {
-      final adjustment = adjustments.removeAt(oldIndex);
-      adjustments.insert(adjustedNewIndex, adjustment);
+      final adjustment = _adjustments.removeAt(oldIndex);
+      _adjustments.insert(adjustedNewIndex, adjustment);
     });
     _changeListener();
   }
@@ -258,7 +270,7 @@ class _ComponentPageState extends State<ComponentPage> {
             Icon(Icons.help_outline, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)),
             const SizedBox(width: 8),
             Text(
-              "No adjustments yet",
+              "No rating items yet",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
@@ -269,7 +281,7 @@ class _ComponentPageState extends State<ComponentPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          "Define what settings you can tweak on this component by tapping the button below.",
+          "Define what rating items you want to record by tapping the button below.",
           style: TextStyle(height: 1.4, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
         ),
         const SizedBox(height: 8),
@@ -278,14 +290,14 @@ class _ComponentPageState extends State<ComponentPage> {
           style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)),
         ),
         const SizedBox(height: 4),
-        _buildGuideRow(Icons.speed, "Numerical", "Pressure (psi/bar), Length, Angle, Weight"),
-        _buildGuideRow(Icons.rotate_right, "Step", "Rebound/Compression Clicks, Spacers"),
-        _buildGuideRow(Icons.category, "Categorical", "Tire Compound (Soft/Hard), Model, Brand"),
-        _buildGuideRow(Icons.toggle_on, "On/Off", "Lockout Lever, Climb Switch, Tire insert installed?"),
-        if (context.read<AppSettings>().enableTextAdjustment)
-          _buildGuideRow(Icons.text_snippet, "Text", "Flexible field for any other setup specifications"),
+        _buildGuideRow(Icons.speed, "Numerical", "How many times did the fork bottom out?"),
+        _buildGuideRow(Icons.rotate_right, "Step", "Rate grip or confidence (on 1-10 scale)"),
+        _buildGuideRow(Icons.category, "Categorical", "Rate based on categories (good/bad/acceptable)"),
+        _buildGuideRow(Icons.toggle_on, "On/Off", "Did the fork bottom out? (Yes/No)"),
+        if (_enableTextAdjustment)
+          _buildGuideRow(Icons.text_snippet, "Text", "General notes about feel or observations"),
         if (_enableDurationAdjustment)
-          _buildGuideRow(Icons.timer_outlined, "Duration", "Time span"),  //TODO: improve help text
+          _buildGuideRow(Icons.timer_outlined, "Duration", "Laptime of track xyz"),
       ],
     ),
   );
@@ -297,9 +309,9 @@ class _ComponentPageState extends State<ComponentPage> {
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
         appBar: AppBar(
-          title: widget.component == null ? const Text('Add Component') : const Text('Edit Component'),
+          title: widget.rating == null ? const Text('Add Rating') : const Text('Edit Rating'),
           actions: [
-            IconButton(icon: const Icon(Icons.check), onPressed: _saveComponent),
+            IconButton(icon: const Icon(Icons.check), onPressed: _saveRating),
           ],
         ),
         body: SingleChildScrollView(
@@ -312,38 +324,53 @@ class _ComponentPageState extends State<ComponentPage> {
               children: [
                 TextFormField(
                   controller: _nameController,
-                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) => _saveRating(),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  autofocus: widget.component == null,
+                  autofocus: widget.rating == null,
                   decoration: InputDecoration(
-                    labelText: 'Component Name',
+                    labelText: 'Rating Name',
                     border: OutlineInputBorder(),
-                    hintText: 'Enter component name',
+                    hintText: 'Enter rating name',
                     fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.component != null && _nameController.text.trim() != widget.component?.name,
+                    filled: widget.rating != null && _nameController.text.trim() != widget.rating?.name,
                   ),
-                  validator: _validateName,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter a rating name';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 12),
-                DropdownButtonFormField<Bike>(
-                  initialValue: widget.bikes[bike],
+                DropdownButtonFormField<FilterFilterType?>(
+                  initialValue: _filterFilterType,
                   isExpanded: true,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: InputDecoration(
-                    labelText: 'Bike',
+                    labelText: 'Filter',
                     border: OutlineInputBorder(),
-                    hintText: "Choose a bike for this component",
+                    hintText: "Choose an object which the filter should be applied for",
                     fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.component != null && bike != widget.component?.bike,
+                    filled: widget.rating != null && _filterFilterType.filter != widget.rating?.filter,
                   ),
-                  validator: (Bike? newBike) {
-                    if (newBike == null) return "Bike cannot be empty.";
-                    if (!widget.bikes.values.contains(newBike)) return "Please select valid bike";
+                  validator: (FilterFilterType? newValue) {
                     return null;
                   },
-                  items: widget.bikes.values.map((b) {
-                    return DropdownMenuItem<Bike>(
-                      value: b,
+                  items: [
+                    DropdownMenuItem<FilterFilterType>(
+                      value: FilterFilterType(null, FilterType.global),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        spacing: 8,
+                        children: [
+                          const Icon(Icons.circle_outlined),
+                          Expanded(child: Text("Apply everywhere", overflow: TextOverflow.ellipsis))
+                        ],
+                      ),
+                    ),
+                    ...widget.bikes.values.map((b) => DropdownMenuItem<FilterFilterType>(
+                      value: FilterFilterType(b.id, FilterType.bike),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -353,63 +380,76 @@ class _ComponentPageState extends State<ComponentPage> {
                           Expanded(child: Text(b.name, overflow: TextOverflow.ellipsis))
                         ],
                       ),
-                    );
-                  }).toList(),
-                  onChanged: (Bike? newBike) {
-                    if (newBike == null) return;
-                    setState(() {
-                      bike = newBike.id;
-                    });
-                    _changeListener();
-                  },
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<ComponentType>(
-                  initialValue: componentType,
-                  isExpanded: true,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  hint: const Text("Please select type"),
-                  decoration: InputDecoration(
-                    labelText: 'Type',
-                    border: OutlineInputBorder(),
-                    hintText: "Choose a type for this component",
-                    fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.component != null && componentType != widget.component?.componentType,
-                  ),
-                  items: ComponentType.values.map((componentType) {
-                    return DropdownMenuItem<ComponentType>(
-                      value: componentType,
+                    )),
+                    ...ComponentType.values.map((ct) => DropdownMenuItem<FilterFilterType>(
+                      value: FilterFilterType(ct.toString(), FilterType.componentType),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.start,
                         spacing: 8,
                         children: [
-                          Component.getIcon(componentType),
-                          Expanded(child: Text(componentType.value, overflow: TextOverflow.ellipsis)),
+                          Component.getIcon(ct),
+                          Expanded(child: Text(ct.value, overflow: TextOverflow.ellipsis))
                         ],
                       ),
-                    );
-                  }).toList(),
-                  onChanged: (ComponentType? newComponentType) {
-                    if (newComponentType == null) return;
+                    )),
+                    ...widget.components.map((c) => DropdownMenuItem<FilterFilterType>(
+                      value: FilterFilterType(c.id, FilterType.component),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        spacing: 8,
+                        children: [
+                          Flexible(
+                            fit: FlexFit.tight, 
+                            flex: 2,
+                            child: Row(
+                              spacing: 8,
+                              children: [
+                                Component.getIcon(c.componentType),
+                                Expanded(child: Text(c.name, overflow: TextOverflow.ellipsis)),
+                              ],
+                            ),
+                          ),
+                          Flexible(
+                            flex: 2,
+                            fit: FlexFit.tight,
+                            child: Row(
+                              spacing: 8,
+                              children: [
+                                const Icon(Icons.pedal_bike),
+                                Expanded(child: Text(widget.bikes[c.bike]?.name ?? "-", overflow: TextOverflow.ellipsis)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+                    ...widget.persons.values.map((p) => DropdownMenuItem<FilterFilterType>(
+                      value: FilterFilterType(p.id, FilterType.person),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        spacing: 8,
+                        children: [
+                          const Icon(Icons.person),
+                          Expanded(child: Text(p.name, overflow: TextOverflow.ellipsis))
+                        ],
+                      ),
+                    )),
+                  ],
+                  onChanged: (FilterFilterType? newValue) {
                     setState(() {
-                      componentType = newComponentType;
+                      _filterFilterType = newValue ?? FilterFilterType(null, FilterType.global);
                     });
                     _changeListener();
                   },
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Component type cannot be empty. You can edit it later.';
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 16),
-                adjustments.isNotEmpty
+                _adjustments.isNotEmpty
                     ? AdjustmentEditList(
-                        adjustments: adjustments,
+                        adjustments: _adjustments,
                         editAdjustment: _editAdjustment,
-                        duplicateAdjustment: _duplicateAdjustment,
                         removeAdjustment: removeAdjustment,
                         onReorderAdjustments: _onReorderAdjustments,
                       ) 
@@ -417,15 +457,15 @@ class _ComponentPageState extends State<ComponentPage> {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
-                    onPressed: () => showComponentAddAdjustmentBottomSheet(
+                    onPressed: () => showRatingAddAdjustmentBottomSheet(
                       context: context,
-                      componentType: componentType,
+                      enableTextAdjustment: _enableTextAdjustment,
                       enableDurationAdjustment: _enableDurationAdjustment,
                       addAdjustmentFromPreset: _addAdjustmentFromPreset,
                       addAdjustment: _addAdjustment,
                     ),
                     icon: const Icon(Icons.add),
-                    label: const Text("Add Adjustment"),
+                    label: const Text("Add Attribute"),
                   ),
                 ),
               ],

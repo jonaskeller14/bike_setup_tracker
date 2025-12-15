@@ -1,22 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../models/person.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/setup.dart';
+import '../models/rating.dart';
 import '../models/app_settings.dart';
 
 class TrashPage extends StatefulWidget{
+  final Map<String, Person> persons;
   final Map<String, Bike> bikes;
   final List<Component> components;
   final List<Setup> setups;
+  final Map<String, Rating> ratings;
   final VoidCallback onChanged;
 
   const TrashPage({
     super.key, 
+    required this.persons,
     required this.bikes,
     required this.components, 
     required this.setups,
+    required this.ratings,
     required this.onChanged,
   });
 
@@ -36,12 +42,16 @@ class _TrashPageState extends State<TrashPage> {
   ListTile _trashItem({required dynamic deletedItem, required DateFormat dateFormat, required DateFormat timeFormat}) {
     return ListTile(
       leading: deletedItem is Bike 
-          ? Icon(Icons.pedal_bike) 
+          ? const Icon(Icons.pedal_bike) 
           : deletedItem is Component 
               ? Component.getIcon(deletedItem.componentType) 
               : deletedItem is Setup 
-                  ? Icon(Icons.tune) 
-                  : null,
+                  ? const Icon(Icons.tune) 
+                  : deletedItem is Person
+                      ? const Icon(Icons.person)
+                      : deletedItem is Rating
+                          ? const Icon(Icons.star)
+                          : null,
       title: Text(deletedItem.name, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Text("Deleted at: ${dateFormat.format(deletedItem.lastModified)} ${timeFormat.format(deletedItem.lastModified)}"),
       trailing: IconButton(
@@ -62,9 +72,11 @@ class _TrashPageState extends State<TrashPage> {
     final appSettings = context.read<AppSettings>();
     
     final deletedCombined = <dynamic>[];
+    deletedCombined.addAll(widget.persons.values.where((p) => p.isDeleted).toList());
     deletedCombined.addAll(widget.bikes.values.where((b) => b.isDeleted).toList());
     deletedCombined.addAll(widget.components.where((c) => c.isDeleted));
     deletedCombined.addAll(widget.setups.where((s) => s.isDeleted));
+    deletedCombined.addAll(widget.ratings.values.where((r) => r.isDeleted).toList());
     deletedCombined.sort((a, b) => b.lastModified.compareTo(a.lastModified));
 
     return Scaffold(

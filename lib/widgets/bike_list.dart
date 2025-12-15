@@ -1,11 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../models/bike.dart';
+import '../models/person.dart';
 
 const defaultVisibleCount = 10;
 
 class BikeList extends StatefulWidget {
   final List<Bike> bikes;
+  final Map<String, Person> persons;
   final Bike? selectedBike;
   final void Function(Bike bike) onBikeTap;
   final void Function(Bike bike) editBike;
@@ -16,6 +18,7 @@ class BikeList extends StatefulWidget {
   const BikeList({
     super.key,
     required this.bikes,
+    required this.persons,
     required this.selectedBike,
     required this.onBikeTap,
     required this.editBike,
@@ -59,7 +62,27 @@ class _BikeListState extends State<BikeList> {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               onTap: () => widget.onBikeTap(bike),
-              subtitle: null,
+              subtitle: Wrap(
+                spacing: 4,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  if (bike.person != null)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.person, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        const SizedBox(width: 2),
+                        Text(
+                          widget.persons[bike.person]?.name ?? "-",
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  if (bike.person == null)
+                    Icon(Icons.person_off, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ],
+              ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

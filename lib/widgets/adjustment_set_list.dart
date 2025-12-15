@@ -6,6 +6,7 @@ import 'set_adjustment/set_categorical_adjustment.dart';
 import 'set_adjustment/set_numerical_adjustment.dart';
 import 'set_adjustment/set_step_adjustment.dart';
 import 'set_adjustment/set_text_adjustment.dart';
+import 'set_adjustment/set_duration_adjustment.dart';
 
 class AdjustmentSetList extends StatefulWidget {
   final List<Adjustment> adjustments;
@@ -60,6 +61,8 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
       } else if (adjustment is CategoricalAdjustment) {
         _adjustmentValues[adjustment.id] = null;
       } else if (adjustment is TextAdjustment) {
+        _adjustmentValues[adjustment.id] = null;
+      } else if (adjustment is DurationAdjustment) {
         _adjustmentValues[adjustment.id] = null;
       } else {
         throw Exception('Unknown adjustment type');
@@ -145,6 +148,19 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
               setState(() {
                 _adjustmentValues[adjustment.id] = (newValue is String && newValue.isEmpty) ? null : newValue;
               });
+              widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
+              widget.changeListener();
+            },
+          );
+        } else if (adjustment is DurationAdjustment) {
+          return SetDurationAdjustmentWidget(
+            key: ValueKey(adjustment),
+            adjustment: adjustment,
+            initialValue: widget.initialAdjustmentValues[adjustment.id],
+            value: _adjustmentValues[adjustment.id], 
+            onChanged: (Duration newValue) {
+              if (!mounted) return;
+              setState(() => _adjustmentValues[adjustment.id] = newValue);
               widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
               widget.changeListener();
             },

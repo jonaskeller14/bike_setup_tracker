@@ -7,11 +7,13 @@ import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
+import '../models/person.dart';
+import '../models/rating.dart';
 import '../models/bike.dart';
 import '../models/setup.dart';
 import '../models/component.dart';
 import '../utils/backup.dart';
-import 'data.dart';
+import '../models/data.dart';
 
 class FileImport {
   static Future<Data?> readData(BuildContext context) async {
@@ -138,23 +140,8 @@ class FileImport {
         return null;
       }
 
-      // Step 2 — decode JSON
       final jsonString = utf8.decode(fileBytes);
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
-
-      // Step 3 — validate structure
-      if (!jsonData.containsKey('bikes') ||
-          !jsonData.containsKey('setups') ||
-          !jsonData.containsKey('components')) {
-        scaffold.showSnackBar(SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: onErrorContainerColor,
-          content: Text("Invalid JSON format", style: TextStyle(color: onErrorContainerColor)), 
-          backgroundColor: errorContainerColor,
-        ));
-        return null;
-      }
 
       final Data data = Data.fromJson(json: jsonData);
       scaffold.showSnackBar(SnackBar(
@@ -200,38 +187,93 @@ class FileImport {
     }
   }
 
-  static void overwrite({required Data remoteData, required Map<String, Bike> localBikes, required List<Setup> localSetups, required List<Component> localComponents}) {
-    localBikes
+  static void overwrite({required Data remoteData, required Data localData}) {
+    localData.persons
+      ..clear()
+      ..addAll(remoteData.persons);
+    localData.ratings
+      ..clear()
+      ..addAll(remoteData.ratings);
+    localData.bikes
       ..clear()
       ..addAll(remoteData.bikes);
-    localSetups
+    localData.setups
       ..clear()
       ..addAll(remoteData.setups)
       ..sort((a, b) => a.datetime.compareTo(b.datetime));
-    localComponents
+    localData.components
       ..clear()
       ..addAll(remoteData.components);
     
-    localSetups.sort((a, b) => a.datetime.compareTo(b.datetime));
-    determineCurrentSetups(setups: localSetups, bikes: localBikes);
-    determinePreviousSetups(setups: localSetups);
+    localData.setups.sort((a, b) => a.datetime.compareTo(b.datetime));
+    determineCurrentSetups(setups: localData.setups, bikes: localData.bikes);
+    determinePreviousSetups(setups: localData.setups);
   }
 
-  static void merge({required Data remoteData, required Map<String, Bike> localBikes, required List<Setup> localSetups, required List<Component> localComponents}) {
+  static void merge({
+    required Data remoteData,
+    required Data localData,
+  }) {
     // Last Write Wins (LWW) strategy
+    for (final remotePerson in remoteData.persons.values) {
+      final localPerson = localData.persons[remotePerson.id];
+      
+      // Prio 1: Person does not exist --> add newPerson if it was not deleted on remote device yet
+      if (localPerson == null) {
+        if (!remotePerson.isDeleted) localData.persons[remotePerson.id] = remotePerson;
+        continue;
+      }
+      
+      // Prio 2: LastModified (remote edit, remote delete, remote restauration)
+      final bool remoteIsNewer = remotePerson.lastModified.isAfter(localPerson.lastModified);
+      if (remoteIsNewer) {
+        localData.persons[remotePerson.id] = remotePerson;
+        continue;
+      }
+
+      // final bool remoteIsOlder = remotePerson.lastModified.isBefore(localPerson.lastModified);
+      // if (remoteIsOlder) continue; // local wins
+
+      // remote = local
+      // continue;
+    }
+
+    for (final remoteRating in remoteData.ratings.values) {
+      final localRating = localData.ratings[remoteRating.id];
+      
+      // Prio 1: Rating does not exist --> add newPerson if it was not deleted on remote device yet
+      if (localRating == null) {
+        if (!remoteRating.isDeleted) localData.ratings[remoteRating.id] = remoteRating;
+        continue;
+      }
+      
+      // Prio 2: LastModified (remote edit, remote delete, remote restauration)
+      final bool remoteIsNewer = remoteRating.lastModified.isAfter(localRating.lastModified);
+      if (remoteIsNewer) {
+        localData.ratings[remoteRating.id] = remoteRating;
+        continue;
+      }
+
+      // final bool remoteIsOlder = remoteRating.lastModified.isBefore(localRating.lastModified);
+      // if (remoteIsOlder) continue; // local wins
+
+      // remote = local
+      // continue;
+    }
+
     for (final remoteBike in remoteData.bikes.values) {
-      final localBike = localBikes[remoteBike.id];
+      final localBike = localData.bikes[remoteBike.id];
       
       // Prio 1: Bike does not exist --> add newBike if it was not deleted on remote device yet
       if (localBike == null) {
-        if (!remoteBike.isDeleted) localBikes[remoteBike.id] = remoteBike;
+        if (!remoteBike.isDeleted) localData.bikes[remoteBike.id] = remoteBike;
         continue;
       }
       
       // Prio 2: LastModified (remote edit, remote delete, remote restauration)
       final bool remoteIsNewer = remoteBike.lastModified.isAfter(localBike.lastModified);
       if (remoteIsNewer) {
-        localBikes[remoteBike.id] = remoteBike;
+        localData.bikes[remoteBike.id] = remoteBike;
         continue;
       }
 
@@ -243,17 +285,17 @@ class FileImport {
     }
 
     for (final remoteSetup in remoteData.setups) {
-      final localSetup = localSetups.firstWhereOrNull((setup) => setup.id == remoteSetup.id);
+      final localSetup = localData.setups.firstWhereOrNull((setup) => setup.id == remoteSetup.id);
 
       if (localSetup == null) {
-        if (!remoteSetup.isDeleted) localSetups.add(remoteSetup);
+        if (!remoteSetup.isDeleted) localData.setups.add(remoteSetup);
         continue;
       }
 
       final bool remoteIsNewer = remoteSetup.lastModified.isAfter(localSetup.lastModified);
       if (remoteIsNewer) {
-        final int index = localSetups.indexOf(localSetup);
-        localSetups[index] = remoteSetup;
+        final int index = localData.setups.indexOf(localSetup);
+        localData.setups[index] = remoteSetup;
         continue;
       }
 
@@ -265,17 +307,17 @@ class FileImport {
     }
 
     for (final remoteComponent in remoteData.components) {
-      final localComponent = localComponents.firstWhereOrNull((component) => component.id == remoteComponent.id);
+      final localComponent = localData.components.firstWhereOrNull((component) => component.id == remoteComponent.id);
 
       if (localComponent == null) {
-        if (!remoteComponent.isDeleted) localComponents.add(remoteComponent);
+        if (!remoteComponent.isDeleted) localData.components.add(remoteComponent);
         continue;
       }
 
       final bool remoteIsNewer = remoteComponent.lastModified.isAfter(localComponent.lastModified);
       if (remoteIsNewer) {
-        final int index = localComponents.indexOf(localComponent);
-        localComponents[index] = remoteComponent;
+        final int index = localData.components.indexOf(localComponent);
+        localData.components[index] = remoteComponent;
         continue;
       }
 
@@ -285,12 +327,12 @@ class FileImport {
       // remote = local
       // continue;
     }
-    cleanupIsDeleted(bikes: localBikes, components: localComponents, setups: localSetups);
-    localSetups.sort((a, b) => a.datetime.compareTo(b.datetime));
-    determineCurrentSetups(setups: localSetups, bikes: localBikes);
-    determinePreviousSetups(setups: localSetups);
+    cleanupIsDeleted(data: localData);
+    localData.setups.sort((a, b) => a.datetime.compareTo(b.datetime));
+    determineCurrentSetups(setups: localData.setups, bikes: localData.bikes);
+    determinePreviousSetups(setups: localData.setups);
     for (final remoteSetup in remoteData.setups) {
-      FileImport.updateSetupsAfter(setups: localSetups, setup: remoteSetup);
+      FileImport.updateSetupsAfter(setups: localData.setups, setup: remoteSetup);
     }
   }
 
@@ -312,16 +354,23 @@ class FileImport {
 
   static void determinePreviousSetups({required List<Setup> setups}) {
     // Assumes setups is sorted
-    Map<String, Setup> previousSetups = {}; 
+    Map<String, Setup> previousBikeSetups = {};
+    Map<String, Setup> previousPersonSetups = {};
+
     for (final setup in setups.where((s) => !s.isDeleted)) {
       final bike = setup.bike;
-      final previousSetup = previousSetups[bike];
-      if (previousSetup == null) {
-        setup.previousSetup = null;
-      } else {
-        setup.previousSetup = previousSetup;
+      final previousBikeSetup = previousBikeSetups[bike];
+      setup.previousBikeSetup = previousBikeSetup == null ? setup.previousBikeSetup = null : setup.previousBikeSetup = previousBikeSetup;
+      previousBikeSetups[bike] = setup;
+
+      final person = setup.person;
+      if (person == null) {
+        setup.previousPersonSetup = null;
+        continue;
       }
-      previousSetups[bike] = setup;
+      final previousPersonSetup = previousPersonSetups[person];
+      setup.previousPersonSetup = previousPersonSetup == null ? setup.previousPersonSetup = null : setup.previousPersonSetup = previousPersonSetup;
+      previousPersonSetups[person] = setup;
     }
   }
 
@@ -334,31 +383,52 @@ class FileImport {
     if (index == -1) return;
     if (index == setups.length -1) return; // ==isCurrent
     final afterSetups = setups.sublist(index + 1);
+
     final afterBikeSetups = afterSetups.where((s) => s.bike == setup.bike);
-    for (final adjustmentValue in setup.adjustmentValues.entries) {
+    for (final adjustmentValue in setup.bikeAdjustmentValues.entries) {
       final adjustment = adjustmentValue.key;
       final value = adjustmentValue.value;
       for (final afterBikeSetup in afterBikeSetups) {
-        if (afterBikeSetup.adjustmentValues.containsKey(adjustment)) continue;
-        afterBikeSetup.adjustmentValues[adjustment] = value;
+        if (afterBikeSetup.bikeAdjustmentValues.containsKey(adjustment)) continue;
+        afterBikeSetup.bikeAdjustmentValues[adjustment] = value;
+      }
+    }
+
+    final afterPersonSetups = afterSetups.where((s) => s.person != null && s.person == setup.person);
+    for (final adjustmentValue in setup.personAdjustmentValues.entries) {
+      final adjustment = adjustmentValue.key;
+      final value = adjustmentValue.value;
+      for (final afterPersonSetup in afterPersonSetups) {
+        if (afterPersonSetup.personAdjustmentValues.containsKey(adjustment)) continue;
+        afterPersonSetup.personAdjustmentValues[adjustment] = value;
       }
     }
   }
 
-  static void cleanupIsDeleted({required Map<String, Bike> bikes, required List<Component> components, required List<Setup> setups}) {
+  static void cleanupIsDeleted({
+    required Data data
+  }) {
     final thirtyDays = const Duration(days: 30); 
     final deleteDateTime = DateTime.now().subtract(thirtyDays);
     
-    for (final bike in List.from(bikes.values)) {
-      if (bike.isDeleted && bike.lastModified.isBefore(deleteDateTime)) bikes.remove(bike.id);
+    for (final Person person in List.from(data.persons.values)) {
+      if (person.isDeleted && person.lastModified.isBefore(deleteDateTime)) data.persons.remove(person.id);
     }
 
-    for (final component in List.from(components)) {
-      if ((component.isDeleted && component.lastModified.isBefore(deleteDateTime))) components.remove(component);
+    for (final Rating rating in List.from(data.ratings.values)) {
+      if (rating.isDeleted && rating.lastModified.isBefore(deleteDateTime)) data.ratings.remove(rating.id);
     }
 
-    for (final setup in List.from(setups)) {
-      if ((setup.isDeleted && setup.lastModified.isBefore(deleteDateTime))) setups.remove(setup);
+    for (final Bike bike in List.from(data.bikes.values)) {
+      if (bike.isDeleted && bike.lastModified.isBefore(deleteDateTime)) data.bikes.remove(bike.id);
+    }
+
+    for (final Component component in List.from(data.components)) {
+      if ((component.isDeleted && component.lastModified.isBefore(deleteDateTime))) data.components.remove(component);
+    }
+
+    for (final Setup setup in List.from(data.setups)) {
+      if ((setup.isDeleted && setup.lastModified.isBefore(deleteDateTime))) data.setups.remove(setup);
     }
   }
 }

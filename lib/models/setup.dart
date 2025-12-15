@@ -2,6 +2,7 @@ import 'package:uuid/uuid.dart';
 import 'weather.dart';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
+import 'adjustment/adjustment.dart';
 
 class Setup {
   final String id;
@@ -11,11 +12,16 @@ class Setup {
   final DateTime datetime;
   final String? notes;
   final String bike;
-  final Map<String, dynamic> adjustmentValues;
+  final String? person;
+  final Map<String, dynamic> bikeAdjustmentValues;
+  final Map<String, dynamic> personAdjustmentValues;
+  final Map<String, dynamic> ratingAdjustmentValues;
   final LocationData? position;
   final geo.Placemark? place;
   final Weather? weather;
-  Setup? previousSetup;
+
+  Setup? previousBikeSetup;
+  Setup? previousPersonSetup;
   bool isCurrent;
 
   Setup({
@@ -26,17 +32,22 @@ class Setup {
     required this.datetime,
     this.notes,
     required this.bike,
-    required this.adjustmentValues,
+    required this.person,
+    required this.bikeAdjustmentValues,
+    required this.personAdjustmentValues,
+    required this.ratingAdjustmentValues,
     this.place,
     this.position,
     this.weather,
-    this.previousSetup,
+    this.previousBikeSetup,
+    this.previousPersonSetup,
     required this.isCurrent,
   }) : id = id ?? const Uuid().v4(),
        isDeleted = isDeleted ?? false,
        lastModified = lastModified ?? DateTime.now();
 
   Map<String, dynamic> toJson() => {
+    'version': 2,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toIso8601String(),
@@ -44,11 +55,15 @@ class Setup {
     'datetime': datetime.toIso8601String(),
     'notes': notes,
     'bike': bike,
-    'adjustmentValues': adjustmentValues,
+    'person': person,
+    'bikeAdjustmentValues': adjustmentValuesToJson(bikeAdjustmentValues),
+    'personAdjustmentValues': adjustmentValuesToJson(personAdjustmentValues),
+    'ratingAdjustmentValues': adjustmentValuesToJson(ratingAdjustmentValues),
     'position': position != null ? locationDataToJson(position!) : null,
     'place': place != null ? _placemarkToJson(place!) : null,
     'weather': weather?.toJson(),
-    'previousSetup': previousSetup?.id,
+    'previousBikeSetup': previousBikeSetup?.id,
+    'previousPersonSetup': previousPersonSetup?.id,
     'isCurrent': isCurrent,
   };
 
@@ -64,15 +79,81 @@ class Setup {
           datetime: DateTime.parse(json['datetime']),
           notes: json['notes'] != null ? json['notes'] as String : null,
           bike: json['bike'],
-          adjustmentValues: json['adjustmentValues'] as Map<String, dynamic>? ?? {},
+          person: json['person'],  // = null
+          bikeAdjustmentValues: adjustmentValuesFromJson((json['bikeAdjustmentValues'] ?? json['adjustmentValues']) as Map<String, dynamic>? ?? {}),
+          personAdjustmentValues: adjustmentValuesFromJson((json['personAdjustmentValues']) as Map<String, dynamic>? ?? {}),  // = {}
+          ratingAdjustmentValues: adjustmentValuesFromJson((json['ratingAdjustmentValues']) as Map<String, dynamic>? ?? {}),  // = {}
           position: json['position'] != null ? _locationDataFromJson(json['position']) : null,
           place: json['place'] != null ? _placemarkFromJson(json['place']) : null,
           weather: json['weather'] != null ? Weather.fromJson(json['weather']) : null,
-          previousSetup: null, // linked later
-          isCurrent: json['isCurrent'] ?? false,
+          previousBikeSetup: null, // linked later
+          previousPersonSetup: null, // linked later
+          isCurrent: json['isCurrent'] ?? false, //reset later
+        );
+      case 1:
+        return Setup(
+          id: json['id'],
+          isDeleted: json["isDeleted"],
+          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
+          name: json['name'],
+          datetime: DateTime.parse(json['datetime']),
+          notes: json['notes'] != null ? json['notes'] as String : null,
+          bike: json['bike'],
+          person: json['person'],
+          bikeAdjustmentValues: adjustmentValuesFromJson((json['bikeAdjustmentValues'] ?? json['adjustmentValues']) as Map<String, dynamic>? ?? {}),
+          personAdjustmentValues: adjustmentValuesFromJson((json['personAdjustmentValues']) as Map<String, dynamic>? ?? {}),
+          ratingAdjustmentValues: adjustmentValuesFromJson((json['ratingAdjustmentValues']) as Map<String, dynamic>? ?? {}),  // = {}
+          position: json['position'] != null ? _locationDataFromJson(json['position']) : null,
+          place: json['place'] != null ? _placemarkFromJson(json['place']) : null,
+          weather: json['weather'] != null ? Weather.fromJson(json['weather']) : null,
+          previousBikeSetup: null, // linked later
+          previousPersonSetup: null, // linked later
+          isCurrent: json['isCurrent'] ?? false, //reset later
+        );
+      case 2:
+        return Setup(
+          id: json['id'],
+          isDeleted: json["isDeleted"],
+          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
+          name: json['name'],
+          datetime: DateTime.parse(json['datetime']),
+          notes: json['notes'] != null ? json['notes'] as String : null,
+          bike: json['bike'],
+          person: json['person'],
+          bikeAdjustmentValues: adjustmentValuesFromJson((json['bikeAdjustmentValues'] ?? json['adjustmentValues']) as Map<String, dynamic>? ?? {}),
+          personAdjustmentValues: adjustmentValuesFromJson((json['personAdjustmentValues']) as Map<String, dynamic>? ?? {}),
+          ratingAdjustmentValues: adjustmentValuesFromJson((json['ratingAdjustmentValues']) as Map<String, dynamic>? ?? {}),
+          position: json['position'] != null ? _locationDataFromJson(json['position']) : null,
+          place: json['place'] != null ? _placemarkFromJson(json['place']) : null,
+          weather: json['weather'] != null ? Weather.fromJson(json['weather']) : null,
+          previousBikeSetup: null, // linked later
+          previousPersonSetup: null, // linked later
+          isCurrent: json['isCurrent'] ?? false, //reset later
         );
       default: throw Exception("Json Version $version of Setup incompatible.");
     }
+  }
+
+  static Map<String, dynamic> adjustmentValuesToJson(Map<String, dynamic> adjustmentValues) {
+    return adjustmentValues.map((key, value) {
+      if (value is Duration) {
+        return MapEntry(key, DurationAdjustment.toIso8601String(value));
+      }
+      return MapEntry(key, value);
+    });
+  }
+
+  static Map<String, dynamic> adjustmentValuesFromJson(Map<String, dynamic> adjustmentValues) {
+    return adjustmentValues.map((key, value) {
+      //FIXME: Critical Error if TextAdjustment value equals ISO-Format
+      if (value is String) {
+        final duration = DurationAdjustment.tryParseIso8601String(value); 
+        if (duration != null) {
+          return MapEntry(key, duration);
+        }
+      }
+      return MapEntry(key, value);
+    });
   }
 
   static Map<String, dynamic> locationDataToJson(LocationData data) => {

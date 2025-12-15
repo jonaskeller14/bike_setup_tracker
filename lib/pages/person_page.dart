@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/app_settings.dart';
-import '../models/bike.dart';
-import '../models/component.dart';
+import '../models/person.dart';
 import '../models/adjustment/adjustment.dart';
 import 'adjustment/boolean_adjustment_page.dart';
 import 'adjustment/numerical_adjustment_page.dart';
@@ -12,46 +11,44 @@ import 'adjustment/text_adjustment_page.dart';
 import 'adjustment/duration_adjustment_page.dart';
 import '../widgets/adjustment_edit_list.dart';
 import '../widgets/dialogs/discard_changes.dart';
-import '../widgets/sheets/component_add_adjustment.dart';
+import '../widgets/sheets/person_add_adjustment.dart';
 
-class ComponentPage extends StatefulWidget {
-  final Component? component;
-  final Map<String, Bike> bikes;
+class PersonPage extends StatefulWidget {
+  final Person? person;
 
-  const ComponentPage({super.key, this.component, required this.bikes});
+  const PersonPage({super.key, this.person});
 
   @override
-  State<ComponentPage> createState() => _ComponentPageState();
+  State<PersonPage> createState() => _PersonPageState();
 }
 
-class _ComponentPageState extends State<ComponentPage> {
+class _PersonPageState extends State<PersonPage> {
   static const _enableDurationAdjustment = false;
+  late TextEditingController _nameController;
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
-  late TextEditingController _nameController;
-  late List<Adjustment> adjustments;
+
+  late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
-  late String bike;
-  late ComponentType? componentType;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.component?.name);
+    _nameController = TextEditingController(text: widget.person?.name);
     _nameController.addListener(_changeListener);
-    adjustments = widget.component == null ? [] : List.from(widget.component!.adjustments);
-    _initialAdjustments = List.from(adjustments);
-    bike = widget.component?.bike ?? widget.bikes.keys.first;
-    componentType = widget.component?.componentType;
+    _adjustments = widget.person == null 
+        ? [
+            NumericalAdjustment(name: 'Body weight', notes: null, unit: 'kg', min: 0.0), 
+            NumericalAdjustment(name: 'Height', notes: null, unit: 'cm', min: 0.0),
+          ] 
+        : List.from(widget.person!.adjustments);
+    _initialAdjustments = List.from(_adjustments);
   }
 
   void _changeListener() {
-    final hasChanges = _nameController.text.trim() != (widget.component?.name ?? '') || 
-        bike != (widget.component?.bike ?? widget.bikes.keys.first) || 
-        componentType != widget.component?.componentType;
-        _initialAdjustments.length != adjustments.length || 
-        adjustments.asMap().entries.any((entry) => entry.value != _initialAdjustments[entry.key]);
-
+    final hasChanges = _nameController.text.trim() != (widget.person?.name ?? '') ||
+        _initialAdjustments.length != _adjustments.length || 
+        _adjustments.asMap().entries.any((entry) => entry.value != _initialAdjustments[entry.key]);
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -75,7 +72,7 @@ class _ComponentPageState extends State<ComponentPage> {
     if (adjustment == null) return;
 
     setState(() {
-      adjustments.add(adjustment);
+      _adjustments.add(adjustment);
     });
     
     _changeListener();
@@ -85,7 +82,7 @@ class _ComponentPageState extends State<ComponentPage> {
     final newAdjustment = await _editAdjustment(adjustment.deepCopy());
     if (newAdjustment == null) return;
     setState(() {
-      adjustments.add(newAdjustment);
+      _adjustments.add(newAdjustment);
     });
     _changeListener();
   }
@@ -139,56 +136,34 @@ class _ComponentPageState extends State<ComponentPage> {
     }
     if (editedAdjustment == null) return null;
     setState(() {
-      final index = adjustments.indexOf(adjustment);
+      final index = _adjustments.indexOf(adjustment);
       if (index != -1) {
-        adjustments[index] = editedAdjustment!;
+        _adjustments[index] = editedAdjustment!;
       }
     });
-    if (widget.component != null) widget.component!.lastModified = DateTime.now();
+    if (widget.person != null) widget.person!.lastModified = DateTime.now();
     return editedAdjustment;
-  }
-
-  Future<void> _duplicateAdjustment(Adjustment adjustment) async {
-    final newAdjustment = adjustment.deepCopy();
-    setState(() {
-      adjustments.add(newAdjustment);
-    });
-    _editAdjustment(newAdjustment);
   }
 
   Future<void> removeAdjustment(Adjustment adjustment) async {
     setState(() {
-      adjustments.remove(adjustment);
+      _adjustments.remove(adjustment);
     });
     _changeListener();
   }
 
-  void _saveComponent() {
+  void _savePerson() {
     if (!_formKey.currentState!.validate()) return;
-    if (adjustments.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text("You need to add at least one adjustment", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-        duration: Duration(seconds: 2),
-      ));
-      return;
-    }
     final name = _nameController.text.trim();
     _formHasChanges = false;
-    if (!mounted) return;
-    Navigator.pop(
-      context,
-      Component(
-        id: widget.component?.id,
-        name: name,
-        componentType: componentType!,
-        bike: bike,
-        adjustments: adjustments,
-      ),
-    );
+    if (widget.person == null) {
+      Navigator.pop(context, Person(name: name, adjustments: _adjustments));
+    } else {
+      widget.person!.name = name;
+      widget.person!.adjustments = _adjustments;
+      widget.person!.lastModified = DateTime.now();
+      Navigator.pop(context, widget.person);
+    }
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {
@@ -198,11 +173,6 @@ class _ComponentPageState extends State<ComponentPage> {
     if (!mounted) return;
     if (!shouldDiscard) return;
     Navigator.of(context).pop(null);
-  }
-
-  String? _validateName(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Name is required';
-    return null;
   }
 
   Widget _buildGuideRow(IconData icon, String type, String example) {
@@ -234,14 +204,14 @@ class _ComponentPageState extends State<ComponentPage> {
       ),
     );
   }
-  
+
   void _onReorderAdjustments(int oldIndex, int newIndex) {
     int adjustedNewIndex = newIndex;
     if (oldIndex < newIndex) adjustedNewIndex -= 1;
 
     setState(() {
-      final adjustment = adjustments.removeAt(oldIndex);
-      adjustments.insert(adjustedNewIndex, adjustment);
+      final adjustment = _adjustments.removeAt(oldIndex);
+      _adjustments.insert(adjustedNewIndex, adjustment);
     });
     _changeListener();
   }
@@ -258,7 +228,7 @@ class _ComponentPageState extends State<ComponentPage> {
             Icon(Icons.help_outline, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)),
             const SizedBox(width: 8),
             Text(
-              "No adjustments yet",
+              "No attributes yet",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
@@ -269,7 +239,7 @@ class _ComponentPageState extends State<ComponentPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          "Define what settings you can tweak on this component by tapping the button below.",
+          "Define what personal attributes you want to track by tapping the button below.",
           style: TextStyle(height: 1.4, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
         ),
         const SizedBox(height: 8),
@@ -278,12 +248,12 @@ class _ComponentPageState extends State<ComponentPage> {
           style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)),
         ),
         const SizedBox(height: 4),
-        _buildGuideRow(Icons.speed, "Numerical", "Pressure (psi/bar), Length, Angle, Weight"),
-        _buildGuideRow(Icons.rotate_right, "Step", "Rebound/Compression Clicks, Spacers"),
-        _buildGuideRow(Icons.category, "Categorical", "Tire Compound (Soft/Hard), Model, Brand"),
-        _buildGuideRow(Icons.toggle_on, "On/Off", "Lockout Lever, Climb Switch, Tire insert installed?"),
+        _buildGuideRow(Icons.speed, "Numerical", "Body Weight, Height, Age"),
+        _buildGuideRow(Icons.rotate_right, "Step", "..."),
+        _buildGuideRow(Icons.category, "Categorical", "Training status, Riding Gear, Riding style"),
+        _buildGuideRow(Icons.toggle_on, "On/Off", "Wearing a backpack?"),
         if (context.read<AppSettings>().enableTextAdjustment)
-          _buildGuideRow(Icons.text_snippet, "Text", "Flexible field for any other setup specifications"),
+          _buildGuideRow(Icons.text_snippet, "Text", "Flexible field for any other attribute"),
         if (_enableDurationAdjustment)
           _buildGuideRow(Icons.timer_outlined, "Duration", "Time span"),  //TODO: improve help text
       ],
@@ -297,9 +267,9 @@ class _ComponentPageState extends State<ComponentPage> {
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
         appBar: AppBar(
-          title: widget.component == null ? const Text('Add Component') : const Text('Edit Component'),
+          title: widget.person == null ? const Text('Add person') : const Text('Edit person'),
           actions: [
-            IconButton(icon: const Icon(Icons.check), onPressed: _saveComponent),
+            IconButton(icon: const Icon(Icons.check), onPressed: _savePerson),
           ],
         ),
         body: SingleChildScrollView(
@@ -312,104 +282,28 @@ class _ComponentPageState extends State<ComponentPage> {
               children: [
                 TextFormField(
                   controller: _nameController,
-                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) => _savePerson(),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  autofocus: widget.component == null,
+                  autofocus: widget.person == null,
                   decoration: InputDecoration(
-                    labelText: 'Component Name',
+                    labelText: 'Person Name',
                     border: OutlineInputBorder(),
-                    hintText: 'Enter component name',
+                    hintText: 'Enter Person name',
                     fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.component != null && _nameController.text.trim() != widget.component?.name,
+                    filled: widget.person != null && _nameController.text.trim() != widget.person?.name,
                   ),
-                  validator: _validateName,
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<Bike>(
-                  initialValue: widget.bikes[bike],
-                  isExpanded: true,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(
-                    labelText: 'Bike',
-                    border: OutlineInputBorder(),
-                    hintText: "Choose a bike for this component",
-                    fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.component != null && bike != widget.component?.bike,
-                  ),
-                  validator: (Bike? newBike) {
-                    if (newBike == null) return "Bike cannot be empty.";
-                    if (!widget.bikes.values.contains(newBike)) return "Please select valid bike";
-                    return null;
-                  },
-                  items: widget.bikes.values.map((b) {
-                    return DropdownMenuItem<Bike>(
-                      value: b,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        spacing: 8,
-                        children: [
-                          const Icon(Icons.pedal_bike),
-                          Expanded(child: Text(b.name, overflow: TextOverflow.ellipsis))
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (Bike? newBike) {
-                    if (newBike == null) return;
-                    setState(() {
-                      bike = newBike.id;
-                    });
-                    _changeListener();
-                  },
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<ComponentType>(
-                  initialValue: componentType,
-                  isExpanded: true,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  hint: const Text("Please select type"),
-                  decoration: InputDecoration(
-                    labelText: 'Type',
-                    border: OutlineInputBorder(),
-                    hintText: "Choose a type for this component",
-                    fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.component != null && componentType != widget.component?.componentType,
-                  ),
-                  items: ComponentType.values.map((componentType) {
-                    return DropdownMenuItem<ComponentType>(
-                      value: componentType,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        spacing: 8,
-                        children: [
-                          Component.getIcon(componentType),
-                          Expanded(child: Text(componentType.value, overflow: TextOverflow.ellipsis)),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (ComponentType? newComponentType) {
-                    if (newComponentType == null) return;
-                    setState(() {
-                      componentType = newComponentType;
-                    });
-                    _changeListener();
-                  },
                   validator: (value) {
-                    if (value == null) {
-                      return 'Component type cannot be empty. You can edit it later.';
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please enter a name';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
-                adjustments.isNotEmpty
+                _adjustments.isNotEmpty
                     ? AdjustmentEditList(
-                        adjustments: adjustments,
+                        adjustments: _adjustments,
                         editAdjustment: _editAdjustment,
-                        duplicateAdjustment: _duplicateAdjustment,
                         removeAdjustment: removeAdjustment,
                         onReorderAdjustments: _onReorderAdjustments,
                       ) 
@@ -417,15 +311,13 @@ class _ComponentPageState extends State<ComponentPage> {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
-                    onPressed: () => showComponentAddAdjustmentBottomSheet(
+                    onPressed: () => showPersonAddAdjustmentBottomSheet(
                       context: context,
-                      componentType: componentType,
-                      enableDurationAdjustment: _enableDurationAdjustment,
                       addAdjustmentFromPreset: _addAdjustmentFromPreset,
                       addAdjustment: _addAdjustment,
                     ),
                     icon: const Icon(Icons.add),
-                    label: const Text("Add Adjustment"),
+                    label: const Text("Add Attribute"),
                   ),
                 ),
               ],

@@ -6,6 +6,7 @@ part 'categorical_adjustment.dart';
 part 'step_adjustment.dart';
 part 'numerical_adjustment.dart';
 part 'text_adjustment.dart';
+part 'duration_adjustment.dart';
 
 abstract class Adjustment<T> {
   final String id;
@@ -39,6 +40,12 @@ abstract class Adjustment<T> {
       }
     } else if (value is int) {
       return value.toString();
+    } else if (value is Duration) {
+      String twoDigits(int n) => n.toString().padLeft(2, "0");
+      final String hours = twoDigits(value.inHours);
+      final String minutes = twoDigits(value.inMinutes.remainder(60));
+      final String seconds = twoDigits(value.inSeconds.remainder(60));
+      return "$hours:$minutes:$seconds";
     } else {
       return value.toString();
     }
@@ -94,6 +101,15 @@ abstract class Adjustment<T> {
               name: json['name'],
               notes: json['notes'],
               unit: json['unit'] as String?,
+            );
+          case 'duration':
+            return DurationAdjustment(
+              id: json["id"],
+              name: json['name'],
+              notes: json['notes'],
+              unit: json['unit'] as String?,
+              min: DurationAdjustment.tryParseIso8601String(json["min"]),
+              max: DurationAdjustment.tryParseIso8601String(json["max"]),
             );
           default:
             throw Exception('Unknown adjustment type: $type');

@@ -5,9 +5,7 @@ import 'package:file_save_directory/file_save_directory.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import '../models/bike.dart';
-import '../models/setup.dart';
-import '../models/component.dart';
+import '../models/data.dart';
 
 
 class FileExport {
@@ -15,29 +13,20 @@ class FileExport {
   static const Duration _backupFrequency = Duration(days: 1);
   static const String _backupSharedPreferencesInstance = "backup/lastBackup";
   
-  static Future<void> saveData({required Map<String, Bike> bikes, required List<Setup> setups, required List<Component> components}) async {
+  static Future<void> saveData({required Data data}) async {
     final prefs = await SharedPreferences.getInstance();
-
-    final jsonData = jsonEncode({
-      'bikes': bikes.values.map((b) => b.toJson()).toList(),
-      'setups': setups.map((s) => s.toJson()).toList(),
-      'components': components.map((c) => c.toJson()).toList(),
-    });
-
-    await prefs.setString('data', jsonData);
+    await prefs.setString('data', jsonEncode(data.toJson()));
   }
 
   static Future<void> downloadJson({
     required BuildContext context,
-    required Map<String, Bike> bikes,
-    required List<Setup> setups,
-    required List<Component> components,
+    required Data data,
   }) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
     final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
 
-    _downloadJson(bikes, setups, components).then((result) {
+    _downloadJson(data: data).then((result) {
         if (result == null || result.path == null) {
           scaffoldMessenger.showSnackBar(
             SnackBar(
@@ -71,19 +60,9 @@ class FileExport {
       });
     }
 
-  static Future<FileSaveResult?> _downloadJson(
-    Map<String, Bike> bikes,
-    List<Setup> setups,
-    List<Component> components,
-  ) async {
+  static Future<FileSaveResult?> _downloadJson({required Data data}) async {
     try {
-      final exportData = {
-        'bikes': bikes.values.map((b) => b.toJson()).toList(),
-        'setups': setups.map((s) => s.toJson()).toList(),
-        'components': components.map((c) => c.toJson()).toList(),
-      };
-
-      final jsonString = const JsonEncoder.withIndent('  ').convert(exportData);
+      final jsonString = const JsonEncoder.withIndent('  ').convert(data.toJson());
       final bytes = utf8.encode(jsonString);
 
       final now = DateTime.now();
@@ -106,9 +85,7 @@ class FileExport {
 
   static Future<File?> saveBackup({
     BuildContext? context,
-    required Map<String, Bike> bikes,
-    required List<Setup> setups,
-    required List<Component> components,
+    required Data data,
     bool force = false,
   }) async {
     try {
@@ -122,14 +99,8 @@ class FileExport {
         // debugPrint('Backup already exists.');
         return null;
       }
-
-      final exportData = {
-        'bikes': bikes.values.map((b) => b.toJson()).toList(),
-        'setups': setups.map((s) => s.toJson()).toList(),
-        'components': components.map((c) => c.toJson()).toList(),
-      };
-
-      final jsonString = const JsonEncoder.withIndent('  ').convert(exportData);
+      
+      final jsonString = const JsonEncoder.withIndent('  ').convert(data.toJson());
       final dir = await getApplicationDocumentsDirectory();  //catch MissingPlatformDirectoryException
       final backupDir = Directory('${dir.path}/backup');
       if (!await backupDir.exists()) await backupDir.create(recursive: true);
@@ -202,9 +173,7 @@ class FileExport {
 
   static Future<void> shareJson({
     required BuildContext context,
-    required Map<String, Bike> bikes,
-    required List<Setup> setups,
-    required List<Component> components,
+    required Data data,
   }) async {
     final box = context.findRenderObject() as RenderBox?;
     final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -212,11 +181,7 @@ class FileExport {
     final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
 
     try {
-      final String jsonString = jsonEncode({
-        'bikes': bikes.values.map((b) => b.toJson()).toList(),
-        'setups': setups.map((s) => s.toJson()).toList(),
-        'components': components.map((c) => c.toJson()).toList(),
-      });
+      final String jsonString = jsonEncode(data.toJson());
 
       final Directory tempDir = await getTemporaryDirectory();
       final String filePath = '${tempDir.path}/bike_setup_data.json';

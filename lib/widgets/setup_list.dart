@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/setup.dart';
+import '../models/person.dart';
+import '../models/rating.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/weather.dart';
@@ -11,6 +13,8 @@ import '../widgets/adjustment_display_list.dart';
 const defaultVisibleCount = 10;
 
 class SetupList extends StatefulWidget {
+  final Map<String, Person> persons;
+  final Map<String, Rating> ratings;
   final Map<String, Bike> bikes;
   final List<Setup> setups;
   final List<Component> components;
@@ -19,17 +23,25 @@ class SetupList extends StatefulWidget {
   final void Function(Setup setup) removeSetup;
   final bool displayOnlyChanges;
   final Widget filterWidget;
+  final bool displayBikeAdjustmentValues;
+  final bool displayPersonAdjustmentValues;
+  final bool displayRatingAdjustmentValues;
 
   const SetupList({
     super.key,
+    required this.persons,
+    required this.ratings,
     required this.bikes,
     required this.setups,
     required this.components,
     required this.editSetup,
     required this.restoreSetup,
     required this.removeSetup,
-    this.displayOnlyChanges = false,
+    required this.displayOnlyChanges,
     required this.filterWidget,
+    required this.displayBikeAdjustmentValues,
+    required this.displayPersonAdjustmentValues,
+    required this.displayRatingAdjustmentValues,
   });
 
   @override
@@ -280,12 +292,15 @@ class _SetupListState extends State<SetupList> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
                 child: AdjustmentDisplayList(
-                  components: widget.components,
-                  adjustmentValues: setup.adjustmentValues,
-                  previousAdjustmentValues: setup.previousSetup?.adjustmentValues,
+                  components: [for (var c in widget.components) c, for (var p in widget.persons.values.toList()) p, for (var r in widget.ratings.values.toList()) r],
+                  adjustmentValues: {for (var e in setup.personAdjustmentValues.entries) e.key: e.value, for (var e in setup.bikeAdjustmentValues.entries) e.key: e.value, for (var e in setup.ratingAdjustmentValues.entries) e.key: e.value},
+                  previousAdjustmentValues: {for (var e in (setup.previousBikeSetup?.bikeAdjustmentValues.entries ?? {}.entries)) e.key: e.value, for (var e in (setup.previousPersonSetup?.personAdjustmentValues.entries ?? {}.entries)) e.key: e.value},
                   showComponentIcons: true,
                   highlightInitialValues: true,
                   displayOnlyChanges: widget.displayOnlyChanges,
+                  displayBikeAdjustmentValues: widget.displayBikeAdjustmentValues,
+                  displayPersonAdjustmentValues: widget.displayPersonAdjustmentValues,
+                  displayRatingAdjustmentValues: widget.displayRatingAdjustmentValues,
                 ),
               ),
             ],

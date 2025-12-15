@@ -1,9 +1,11 @@
 import "package:collection/collection.dart";
 import "package:flutter/material.dart";
+import "../../models/person.dart";
 import "../../models/bike.dart";
 import "../../models/component.dart";
 import "../../models/setup.dart";
-import "../../utils/data.dart";
+import "../../models/rating.dart";
+import "../../models/data.dart";
 import 'sheet.dart';
 
 Future<Data?> showDataSelectSheet({required BuildContext context, required Data data}) async {
@@ -54,10 +56,14 @@ Future<Data?> showDataSelectSheet({required BuildContext context, required Data 
   final List<Bike> allBikes = data.bikes.values.toList();
   final List<Component> allComponents = data.components;
   final List<Setup> allSetups = data.setups;
+  final List<Person> allPersons = data.persons.values.toList();
+  final List<Rating> allRatings = data.ratings.values.toList();
 
   final List<Bike> selectedBikes = allBikes.toList();
   final List<Component> selectedComponents = allComponents.toList();
   final List<Setup> selectedSetups = allSetups.toList();
+  final List<Person> selectedPersons = allPersons.toList();
+  final List<Rating> selectedRatings = allRatings.toList();
 
   if (!context.mounted) return null;
   final selectionConfirmed = await showModalBottomSheet<bool?>(
@@ -253,6 +259,103 @@ Future<Data?> showDataSelectSheet({required BuildContext context, required Data 
                     }).toList(),
                   ),
                   const SizedBox(height: 16),
+                  ExpansionTile(
+                    title: Text("Profiles (${selectedPersons.length} / ${allPersons.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                    tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    shape: const Border(),
+                    collapsedShape: const Border(),
+                    trailing: Checkbox(
+                      tristate: true,
+                      value: selectedPersons.isEmpty && allPersons.isNotEmpty
+                          ? false 
+                          : (selectedPersons.length == allPersons.length ? true : null),
+                      onChanged: (bool? newValue) {
+                        switch (newValue) {
+                          case false: setSheetState(() => selectedPersons.clear());
+                          case true: setSheetState(() {selectedPersons.clear(); selectedPersons.addAll(allPersons);});
+                          case null: setSheetState(() => selectedPersons.clear());
+                        }
+                      },
+                    ),
+                    children: allPersons.map((person) {
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: CheckboxListTile(
+                          secondary: const Icon(Icons.person),
+                          title: Text(
+                            person.name,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              decoration: person.isDeleted ? TextDecoration.lineThrough : null,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          dense: true,
+                          value: selectedPersons.contains(person),
+                          onChanged: (bool? checked) {
+                            setSheetState(() {
+                              if (checked == true) {
+                                selectedPersons.add(person);
+                              } else {
+                                selectedPersons.remove(person);
+                              }
+                            });
+                          },
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                  ExpansionTile(
+                    title: Text("Ratings (${selectedRatings.length} / ${allRatings.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                    tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
+                    controlAffinity: ListTileControlAffinity.leading,
+                    childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    shape: const Border(),
+                    collapsedShape: const Border(),
+                    trailing: Checkbox(
+                      tristate: true,
+                      value: selectedRatings.isEmpty && allRatings.isNotEmpty
+                          ? false 
+                          : (selectedRatings.length == allRatings.length ? true : null),
+                      onChanged: (bool? newValue) {
+                        switch (newValue) {
+                          case false: setSheetState(() => selectedRatings.clear());
+                          case true: setSheetState(() {selectedRatings.clear(); selectedRatings.addAll(allRatings);});
+                          case null: setSheetState(() => selectedRatings.clear());
+                        }
+                      },
+                    ),
+                    children: allRatings.map((rating) {
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: CheckboxListTile(
+                          secondary: const Icon(Icons.person),
+                          title: Text(
+                            rating.name,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              decoration: rating.isDeleted ? TextDecoration.lineThrough : null,
+                            ),
+                          ),
+                          //TODO: Add subtitle with filter
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          dense: true,
+                          value: selectedRatings.contains(rating),
+                          onChanged: (bool? checked) {
+                            setSheetState(() {
+                              if (checked == true) {
+                                selectedRatings.add(rating);
+                              } else {
+                                selectedRatings.remove(rating);
+                              }
+                            });
+                          },
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     width: double.infinity,
@@ -272,9 +375,11 @@ Future<Data?> showDataSelectSheet({required BuildContext context, required Data 
 
   if (selectionConfirmed == true) {
     return Data(
+      persons: <String, Person>{for (var item in selectedPersons) item.id: item},
       bikes: <String, Bike>{for (var item in selectedBikes) item.id: item},
       setups: selectedSetups,
       components: selectedComponents,
+      ratings: <String, Rating>{for (var item in selectedRatings) item.id: item},
     );
   }
 

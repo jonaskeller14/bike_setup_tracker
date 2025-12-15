@@ -65,15 +65,15 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
       }
     } else if (column is Adjustment) {
       if (column is BooleanAdjustment) {
-        setState(() {ascending ? _setups.sort((a, b) => ((a.adjustmentValues[column.id] ?? false) ? 1 : 0).compareTo((b.adjustmentValues[column.id] ?? false) ? 1 : 0)) : _setups.sort((a, b) => ((b.adjustmentValues[column.id] ?? false) ? 1 : 0).compareTo((a.adjustmentValues[column.id] ?? false) ? 1 : 0));});
+        setState(() {ascending ? _setups.sort((a, b) => ((a.bikeAdjustmentValues[column.id] ?? false) ? 1 : 0).compareTo((b.bikeAdjustmentValues[column.id] ?? false) ? 1 : 0)) : _setups.sort((a, b) => ((b.bikeAdjustmentValues[column.id] ?? false) ? 1 : 0).compareTo((a.bikeAdjustmentValues[column.id] ?? false) ? 1 : 0));});
       } else if (column is StepAdjustment) {
-        setState(() {ascending ? _setups.sort((a, b) => (a.adjustmentValues[column.id] ?? 0).compareTo(b.adjustmentValues[column.id] ?? 0)) : _setups.sort((a, b) => (b.adjustmentValues[column.id] ?? 0).compareTo(a.adjustmentValues[column.id] ?? 0));});
+        setState(() {ascending ? _setups.sort((a, b) => (a.bikeAdjustmentValues[column.id] ?? 0).compareTo(b.bikeAdjustmentValues[column.id] ?? 0)) : _setups.sort((a, b) => (b.bikeAdjustmentValues[column.id] ?? 0).compareTo(a.bikeAdjustmentValues[column.id] ?? 0));});
       } else if (column is NumericalAdjustment) {
-        setState(() {ascending ? _setups.sort((a, b) => (a.adjustmentValues[column.id] ?? double.negativeInfinity).compareTo(b.adjustmentValues[column.id] ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.adjustmentValues[column.id] ?? double.negativeInfinity).compareTo(a.adjustmentValues[column.id] ?? double.negativeInfinity));});
+        setState(() {ascending ? _setups.sort((a, b) => (a.bikeAdjustmentValues[column.id] ?? double.negativeInfinity).compareTo(b.bikeAdjustmentValues[column.id] ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.bikeAdjustmentValues[column.id] ?? double.negativeInfinity).compareTo(a.bikeAdjustmentValues[column.id] ?? double.negativeInfinity));});
       } else if (column is CategoricalAdjustment) {
-        setState(() {ascending ? _setups.sort((a, b) => (a.adjustmentValues[column.id] ?? '').compareTo(b.adjustmentValues[column.id] ?? '')) : _setups.sort((a, b) => (b.adjustmentValues[column.id] ?? '').compareTo(a.adjustmentValues[column.id] ?? ''));});
+        setState(() {ascending ? _setups.sort((a, b) => (a.bikeAdjustmentValues[column.id] ?? '').compareTo(b.bikeAdjustmentValues[column.id] ?? '')) : _setups.sort((a, b) => (b.bikeAdjustmentValues[column.id] ?? '').compareTo(a.bikeAdjustmentValues[column.id] ?? ''));});
       } else if (column is TextAdjustment) {
-        setState(() {ascending ? _setups.sort((a, b) => (a.adjustmentValues[column.id] ?? '').compareTo(b.adjustmentValues[column.id] ?? '')) : _setups.sort((a, b) => (b.adjustmentValues[column.id] ?? '').compareTo(a.adjustmentValues[column.id] ?? ''));});
+        setState(() {ascending ? _setups.sort((a, b) => (a.bikeAdjustmentValues[column.id] ?? '').compareTo(b.bikeAdjustmentValues[column.id] ?? '')) : _setups.sort((a, b) => (b.bikeAdjustmentValues[column.id] ?? '').compareTo(a.bikeAdjustmentValues[column.id] ?? ''));});
       }
     }
   }
@@ -279,7 +279,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                   ],
                   rows: _setups.where((setup) {
                     return widget.component.adjustments.any(
-                      (adj) => setup.adjustmentValues.containsKey(adj.id)
+                      (adj) => setup.bikeAdjustmentValues.containsKey(adj.id)
                     );
                   }).map((setup) {
                     return DataRow(
@@ -310,7 +310,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                           if (_showAdjustment[adjustment.id] == true)
                             DataCell(
                               Center(
-                                child: Text(Adjustment.formatValue(setup.adjustmentValues[adjustment.id])),
+                                child: Text(Adjustment.formatValue(setup.bikeAdjustmentValues[adjustment.id])),
                               ),
                             ),
                       ],

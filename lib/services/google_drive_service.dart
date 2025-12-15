@@ -6,8 +6,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:googleapis/servicecontrol/v2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../utils/data.dart';
 import '../utils/backup.dart';
+import '../models/data.dart';
 import 'package:http/http.dart' as http;
 
 class GoogleDriveService extends ChangeNotifier { 

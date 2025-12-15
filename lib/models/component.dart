@@ -48,24 +48,24 @@ class Component {
     );
   }
 
-  static Icon getIcon(ComponentType componentType) {
+  static Icon getIcon(ComponentType componentType, {double? size, Color? color}) {
     switch (componentType) {
       case ComponentType.frame:
-        return const Icon(BikeIcons.frame);
+        return Icon(BikeIcons.frame, size: size, color: color);
       case ComponentType.fork:
-        return const Icon(BikeIcons.fork);
+        return Icon(BikeIcons.fork, size: size, color: color);
       case ComponentType.shock:
-        return const Icon(BikeIcons.shock);
+        return Icon(BikeIcons.shock, size: size, color: color);
       case ComponentType.wheelFront:
-        return const Icon(BikeIcons.wheelFront);
+        return Icon(BikeIcons.wheelFront, size: size, color: color);
       case ComponentType.wheelRear:
-        return const Icon(BikeIcons.wheelRear);
+        return Icon(BikeIcons.wheelRear, size: size, color: color);
       case ComponentType.motor:
-        return const Icon(BikeIcons.motor);
+        return Icon(BikeIcons.motor, size: size, color: color);
       case ComponentType.equipment:
-        return const Icon(BikeIcons.equipment);
+        return Icon(BikeIcons.equipment, size: size, color: color);
       default:
-        return const Icon(BikeIcons.other);
+        return Icon(BikeIcons.other, size: size, color: color);
     }   
   }
 

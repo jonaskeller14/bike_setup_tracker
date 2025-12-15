@@ -1,14 +1,19 @@
 import '../models/component.dart';
+import '../models/person.dart';
+import '../models/rating.dart';
 import '../models/adjustment/adjustment.dart';
 import 'package:flutter/material.dart';
 
 class AdjustmentDisplayList extends StatelessWidget {
-  final List<Component> components;
+  final List<dynamic> components; // List<Component OR Person OR Rating>
   final Map<String, dynamic> adjustmentValues;
   final Map<String, dynamic> previousAdjustmentValues;
   final bool showComponentIcons;
   final bool highlightInitialValues;
   final bool displayOnlyChanges;
+  final bool displayBikeAdjustmentValues;
+  final bool displayPersonAdjustmentValues;
+  final bool displayRatingAdjustmentValues;
   final bool missingValuesPlaceholder;
 
   AdjustmentDisplayList({
@@ -19,6 +24,9 @@ class AdjustmentDisplayList extends StatelessWidget {
     this.showComponentIcons = false,
     this.highlightInitialValues = false,
     this.displayOnlyChanges = false,
+    this.displayBikeAdjustmentValues = true,
+    this.displayPersonAdjustmentValues = true,
+    this.displayRatingAdjustmentValues = true,
     this.missingValuesPlaceholder = false,
   }) : previousAdjustmentValues = previousAdjustmentValues ?? {};
 
@@ -28,20 +36,25 @@ class AdjustmentDisplayList extends StatelessWidget {
     bool insertDivider = false;
     for (int index = 0; index < components.length; index++) {
       final component = components[index];
-      final componentAdjustmentValues = missingValuesPlaceholder
+      if (component is Component && !displayBikeAdjustmentValues) continue;
+      if (component is Person && !displayPersonAdjustmentValues) continue;
+      if (component is Rating && !displayRatingAdjustmentValues) continue;
+
+      final componentAdjustments = component.adjustments as List<Adjustment>;
+      final Map<Adjustment, dynamic> componentAdjustmentValues = missingValuesPlaceholder
           ? Map.fromEntries(  // keep order of component.adjustments
-            component.adjustments
-                .map((adj) => MapEntry(adj, adjustmentValues[adj.id] ?? '-')),
+            componentAdjustments
+                .map((adj) => MapEntry<Adjustment, dynamic>(adj, adjustmentValues[adj.id] ?? '-'))
           )
           : Map.fromEntries(  // keep order of component.adjustments
-            component.adjustments
+            componentAdjustments
                 .where((adj) => adjustmentValues.containsKey(adj.id))
-                .map((adj) => MapEntry(adj, adjustmentValues[adj.id]!)),
+                .map((adj) => MapEntry<Adjustment, dynamic>(adj, adjustmentValues[adj.id]!))
           );
       if (componentAdjustmentValues.isEmpty) continue;
 
-      final componentPreviousAdjustmentValues = Map.fromEntries(
-        component.adjustments
+      final Map<Adjustment, dynamic> componentPreviousAdjustmentValues = Map.fromEntries(
+        componentAdjustments
             .where((adj) => previousAdjustmentValues.containsKey(adj.id))
             .map((adj) => MapEntry(adj, previousAdjustmentValues[adj.id]!)),
       );
@@ -89,7 +102,7 @@ class AdjustmentDisplayList extends StatelessWidget {
 }
 
 class _AdjustmentTableRow extends StatelessWidget {
-  final Component component;
+  final dynamic component; // Component or Person
   final Map<Adjustment, dynamic> adjustmentValues;
   final Map<Adjustment, dynamic> previousAdjustmentValues;
   final bool showComponentIcons;
@@ -145,7 +158,9 @@ class _AdjustmentTableRow extends StatelessWidget {
             message: component.name,
             child: Padding(
               padding: const EdgeInsets.only(top: 6),
-              child: Component.getIcon(component.componentType),
+              child: component is Component 
+                ? Component.getIcon(component.componentType)
+                : component is Person ? const Icon(Icons.person): const Icon(Icons.star),
             ),
           ),
           const SizedBox(width: 6),
@@ -185,10 +200,10 @@ class _AdjustmentTableCell extends StatelessWidget {
     String change = "";
     final String valueText = Adjustment.formatValue(value);
     if (valueHasChanged) {
-      if (value is String || value is bool) {
+      if (value is String || value is bool) { // Boolean, Text, Categorical
         isCrossed = true;
         change = Adjustment.formatValue(previousValue);
-      } else {
+      } else { // Numerical, Step, Duration
         dynamic changeValue = value - previousValue;
         change = changeValue > 0 ? "+${Adjustment.formatValue(changeValue)}" : Adjustment.formatValue(changeValue);
       }

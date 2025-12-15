@@ -3,6 +3,12 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/component.dart';
+import '../../pages/adjustment/boolean_adjustment_page.dart';
+import '../../pages/adjustment/categorical_adjustment_page.dart';
+import '../../pages/adjustment/numerical_adjustment_page.dart';
+import '../../pages/adjustment/step_adjustment_page.dart';
+import '../../pages/adjustment/text_adjustment_page.dart';
+import '../../pages/adjustment/duration_adjustment_page.dart';
 import 'sheet.dart';
 
 final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
@@ -57,12 +63,9 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
 void showComponentAddAdjustmentBottomSheet({
   required BuildContext context,
   required ComponentType? componentType,
+  bool enableDurationAdjustment = false,
   required Function addAdjustmentFromPreset,
-  required Function addNumericalAdjustment,
-  required Function addStepAdjustment,
-  required Function addCategoricalAdjustment,
-  required Function addBooleanAdjustment,
-  required Function addTextAdjustment,
+  required Function addAdjustment,
 }) {
   showModalBottomSheet(
     useSafeArea: true,
@@ -141,7 +144,7 @@ void showComponentAddAdjustmentBottomSheet({
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () {
                   Navigator.pop(context); // Close sheet first
-                  addNumericalAdjustment(); // Then execute logic
+                  addAdjustment<NumericalAdjustment>(const NumericalAdjustmentPage()); // Then execute logic
                 },
               ),
               ListTile(
@@ -151,7 +154,7 @@ void showComponentAddAdjustmentBottomSheet({
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () {
                   Navigator.pop(context); // Close sheet first
-                  addStepAdjustment(); // Then execute logic
+                  addAdjustment<StepAdjustment>(const StepAdjustmentPage()); // Then execute logic
                 },
               ),
               ListTile(
@@ -161,7 +164,7 @@ void showComponentAddAdjustmentBottomSheet({
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () {
                   Navigator.pop(context); // Close sheet first
-                  addCategoricalAdjustment(); // Then execute logic
+                  addAdjustment<CategoricalAdjustment>(const CategoricalAdjustmentPage()); // Then execute logic
                 },
               ),
               ListTile(
@@ -171,7 +174,7 @@ void showComponentAddAdjustmentBottomSheet({
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () {
                   Navigator.pop(context); // Close sheet first
-                  addBooleanAdjustment(); // Then execute logic
+                  addAdjustment<BooleanAdjustment>(const BooleanAdjustmentPage()); // Then execute logic
                 },
               ),
               if (context.read<AppSettings>().enableTextAdjustment)
@@ -182,7 +185,18 @@ void showComponentAddAdjustmentBottomSheet({
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                   onTap: () {
                     Navigator.pop(context); // Close sheet first
-                    addTextAdjustment(); // Then execute logic
+                    addAdjustment<TextAdjustment>(const TextAdjustmentPage()); // Then execute logic
+                  },
+                ),
+              if (enableDurationAdjustment)
+                ListTile(
+                  leading: Icon(Icons.timer_outlined, color: Theme.of(context).colorScheme.primary),
+                  title: Text("Duration Adjustment"),
+                  subtitle: Text("", style: const TextStyle(fontSize: 12)),  //TODO
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () {
+                    Navigator.pop(context); // Close sheet first
+                    addAdjustment<DurationAdjustment>(const DurationAdjustmentPage()); // Then execute logic
                   },
                 ),
             ],

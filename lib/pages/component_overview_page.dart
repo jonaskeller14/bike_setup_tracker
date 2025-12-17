@@ -72,6 +72,8 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
         setState(() {ascending ? _setups.sort((a, b) => (a.adjustmentValues[column.id] ?? double.negativeInfinity).compareTo(b.adjustmentValues[column.id] ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.adjustmentValues[column.id] ?? double.negativeInfinity).compareTo(a.adjustmentValues[column.id] ?? double.negativeInfinity));});
       } else if (column is CategoricalAdjustment) {
         setState(() {ascending ? _setups.sort((a, b) => (a.adjustmentValues[column.id] ?? '').compareTo(b.adjustmentValues[column.id] ?? '')) : _setups.sort((a, b) => (b.adjustmentValues[column.id] ?? '').compareTo(a.adjustmentValues[column.id] ?? ''));});
+      } else if (column is TextAdjustment) {
+        setState(() {ascending ? _setups.sort((a, b) => (a.adjustmentValues[column.id] ?? '').compareTo(b.adjustmentValues[column.id] ?? '')) : _setups.sort((a, b) => (b.adjustmentValues[column.id] ?? '').compareTo(a.adjustmentValues[column.id] ?? ''));});
       }
     }
   }

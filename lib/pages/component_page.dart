@@ -6,6 +6,7 @@ import 'adjustment/boolean_adjustment_page.dart';
 import 'adjustment/numerical_adjustment_page.dart';
 import 'adjustment/step_adjustment_page.dart';
 import 'adjustment/categorical_adjustment_page.dart';
+import 'adjustment/text_adjustment_page.dart';
 import '../widgets/adjustment_edit_list.dart';
 import '../widgets/dialogs/discard_changes.dart';
 
@@ -20,6 +21,7 @@ class ComponentPage extends StatefulWidget {
 }
 
 class _ComponentPageState extends State<ComponentPage> {
+  static const _enableTextAdjustment = false;
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
   late TextEditingController _nameController;
@@ -108,6 +110,18 @@ class _ComponentPageState extends State<ComponentPage> {
     _changeListener();
   }
 
+  Future<void> _addTextAdjustment() async {
+    final adjustment = await Navigator.push<TextAdjustment>(
+      context,
+      MaterialPageRoute(builder: (context) => const TextAdjustmentPage()),
+    );
+    if (adjustment == null) return;
+    setState(() {
+      adjustments.add(adjustment);
+    });
+    _changeListener();
+  }
+
   Future<void> _editAdjustment(Adjustment adjustment) async {
     if (adjustment is BooleanAdjustment) {
       return _editBooleanAdjustment(adjustment);
@@ -117,6 +131,8 @@ class _ComponentPageState extends State<ComponentPage> {
       return _editStepAdjustment(adjustment);
     } else if (adjustment is NumericalAdjustment) {
       return _editNumericalAdjustment(adjustment);
+    } else if (adjustment is TextAdjustment) {
+      return _editTextAdjustment(adjustment);
     }
   }
 
@@ -176,6 +192,23 @@ class _ComponentPageState extends State<ComponentPage> {
       context,
       MaterialPageRoute(
         builder: (context) => NumericalAdjustmentPage(adjustment: adjustment)
+      ),
+    );
+    if (editedAdjustment == null) return;
+    setState(() {
+      final index = adjustments.indexOf(adjustment);
+      if (index != -1) {
+        adjustments[index] = editedAdjustment;
+      }
+    });
+    if (widget.component != null) widget.component!.lastModified = DateTime.now();
+  }
+
+  Future<void> _editTextAdjustment(TextAdjustment adjustment) async {
+    final editedAdjustment = await Navigator.push<TextAdjustment>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TextAdjustmentPage(adjustment: adjustment)
       ),
     );
     if (editedAdjustment == null) return;
@@ -450,6 +483,20 @@ class _ComponentPageState extends State<ComponentPage> {
                         ),
                         onPressed: _addBooleanAdjustment,
                       ),
+                      if (_enableTextAdjustment)
+                        ActionChip(
+                          avatar: const Icon(Icons.add),
+                          label: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            spacing: 8,
+                            children: [
+                              const Text('Add Text Adjustment'),
+                              Container(height: 20, width: 1, color: Theme.of(context).colorScheme.outline),
+                              Icon(Icons.text_snippet, size: 18),
+                            ],
+                          ),
+                          onPressed: _addTextAdjustment,
+                        ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -496,6 +543,7 @@ class _ComponentPageState extends State<ComponentPage> {
                               _buildGuideRow(Icons.rotate_right, "Step", "Rebound/Compression Clicks, Spacers"),
                               _buildGuideRow(Icons.category, "Categorical", "Tire Compound (Soft/Hard), Model, Brand"),
                               _buildGuideRow(Icons.toggle_on, "On/Off", "Lockout Lever, Climb Switch, Tire insert installed?"),
+                              _buildGuideRow(Icons.text_snippet, "Text", "Flexible field for any other setup specifications"),
                             ],
                           ),
                         ),

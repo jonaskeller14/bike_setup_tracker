@@ -5,6 +5,7 @@ import 'set_adjustment/set_boolean_adjustment.dart';
 import 'set_adjustment/set_categorical_adjustment.dart';
 import 'set_adjustment/set_numerical_adjustment.dart';
 import 'set_adjustment/set_step_adjustment.dart';
+import 'set_adjustment/set_text_adjustment.dart';
 
 class AdjustmentSetList extends StatefulWidget {
   final List<Adjustment> adjustments;
@@ -54,6 +55,8 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
           _adjustmentValues[adjustment.id] = adjustment.min;
           widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: adjustment.min); // FormField with null does not exist
         } else if (adjustment is CategoricalAdjustment) {
+          _adjustmentValues[adjustment.id] = null;
+        } else if (adjustment is TextAdjustment) {
           _adjustmentValues[adjustment.id] = null;
         } else {
           throw Exception('Unknown adjustment type');
@@ -120,6 +123,20 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
           );
         } else if (adjustment is CategoricalAdjustment) {
           return SetCategoricalAdjustmentWidget(
+            key: ValueKey(adjustment), 
+            adjustment: adjustment, 
+            initialValue: widget.initialAdjustmentValues[adjustment.id],
+            value: _adjustmentValues[adjustment.id], 
+            onChanged: (String? newValue) {
+              setState(() {
+                _adjustmentValues[adjustment.id] = newValue;
+              });
+              widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
+              widget.changeListener();
+            },
+          );
+        } else if (adjustment is TextAdjustment) {
+          return SetTextAdjustmentWidget(
             key: ValueKey(adjustment), 
             adjustment: adjustment, 
             initialValue: widget.initialAdjustmentValues[adjustment.id],

@@ -85,6 +85,13 @@ abstract class Adjustment<T> {
           min: (json['min'] as num?)?.toDouble(),
           max: (json['max'] as num?)?.toDouble(),
         );
+      case 'text':
+        return TextAdjustment(
+          id: json["id"],
+          name: json['name'],
+          notes: json['notes'],
+          unit: json['unit'] as String?,
+        );
       default:
         throw Exception('Unknown adjustment type: $type');
     }

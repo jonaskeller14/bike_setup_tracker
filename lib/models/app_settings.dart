@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppSettings extends ChangeNotifier {
+  bool _showOnboarding = true;
   ThemeMode _themeMode = ThemeMode.system;
   String _dateFormat = 'yyyy-MM-dd';
   String _timeFormat = 'HH:mm';
@@ -11,6 +12,7 @@ class AppSettings extends ChangeNotifier {
   String _altitudeUnit = 'm'; 
   String _precipitationUnit = 'mm';
 
+  bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;
   String get dateFormat => _dateFormat;
   String get timeFormat => _timeFormat;
@@ -18,6 +20,13 @@ class AppSettings extends ChangeNotifier {
   String get windSpeedUnit => _windSpeedUnit;
   String get altitudeUnit => _altitudeUnit;
   String get precipitationUnit => _precipitationUnit;
+
+  void setShowOnboarding(bool newShowOnboarding) {
+    if (_showOnboarding == newShowOnboarding) return;
+    _showOnboarding = newShowOnboarding;
+    notifyListeners();
+    saveAppSettings();
+  }
 
   void setThemeMode(ThemeMode newThemeMode) {
     if (_themeMode == newThemeMode) return; 
@@ -69,11 +78,11 @@ class AppSettings extends ChangeNotifier {
   }
 
   Future<void> loadAppSettings() async {
-    String jsonString = "{}";
     try {
       final prefs = await SharedPreferences.getInstance();
-      jsonString = prefs.getString("app_settings") ?? "{}";
+      final jsonString = prefs.getString("app_settings") ?? "{}";
       final json = jsonDecode(jsonString) as Map<String, dynamic>;
+      _showOnboarding = json['showOnboarding'] ?? _showOnboarding;
       
       _themeMode = ThemeMode.values.firstWhere(
         (e) => e.toString() == json['themeMode'],
@@ -95,6 +104,7 @@ class AppSettings extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
 
     final jsonData = jsonEncode({
+      'showOnboarding': _showOnboarding,
       'themeMode': _themeMode.toString(),
       'dateFormat': _dateFormat,
       'timeFormat': _timeFormat,

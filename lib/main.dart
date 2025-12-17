@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'models/app_settings.dart';
+import 'pages/onboarding_page.dart';
 import 'pages/home_page.dart';
 
 final materialAppTheme = ThemeData(
@@ -69,7 +70,7 @@ class MyApp extends StatelessWidget {
       theme: materialAppTheme,
       darkTheme: materialAppDarkTheme,
       themeMode: appSettings.themeMode,
-      home: const HomePage(),
+      home: appSettings.showOnboarding ? const OnboardingPage() : const HomePage(),
       debugShowCheckedModeBanner: false,
     );
   }

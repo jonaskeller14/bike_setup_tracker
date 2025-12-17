@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'adjustment.dart';
+import 'adjustment/adjustment.dart';
 import '../icons/bike_icons.dart';
 
 enum ComponentType {

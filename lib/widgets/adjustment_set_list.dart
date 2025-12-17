@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../models/adjustment.dart';
+import '../models/adjustment/adjustment.dart';
 import 'set_adjustment/set_boolean_adjustment.dart';
 import 'set_adjustment/set_categorical_adjustment.dart';
 import 'set_adjustment/set_numerical_adjustment.dart';

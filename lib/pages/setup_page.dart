@@ -8,7 +8,7 @@ import '../models/weather.dart';
 import '../models/bike.dart';
 import '../models/setup.dart';
 import '../models/component.dart';
-import '../models/adjustment.dart';
+import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../services/weather_service.dart';
 import '../services/address_service.dart';

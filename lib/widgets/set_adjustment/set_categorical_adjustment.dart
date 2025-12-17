@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/adjustment.dart';
+import '../../models/adjustment/adjustment.dart';
 
 class SetCategoricalAdjustmentWidget extends StatelessWidget {
   final CategoricalAdjustment adjustment;

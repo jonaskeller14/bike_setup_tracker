@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/adjustment.dart';
+import '../../models/adjustment/adjustment.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_categorical_adjustment.dart';
 

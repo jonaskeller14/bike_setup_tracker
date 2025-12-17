@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
-import '../../models/adjustment.dart';
+import '../../models/adjustment/adjustment.dart';
 
 class SetStepAdjustmentWidget extends StatelessWidget {
   final StepAdjustment adjustment;

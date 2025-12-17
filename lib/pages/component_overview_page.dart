@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/component.dart';
 import '../models/setup.dart';
-import '../models/adjustment.dart';
+import '../models/adjustment/adjustment.dart';
 import '../models/weather.dart';
 import '../models/app_settings.dart';
 

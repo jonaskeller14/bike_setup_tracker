@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../models/adjustment.dart';
+import '../../models/adjustment/adjustment.dart';
 
 class SetNumericalAdjustmentWidget extends StatefulWidget {
   final NumericalAdjustment adjustment;

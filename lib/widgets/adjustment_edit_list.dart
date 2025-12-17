@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../models/adjustment.dart';
+import '../models/adjustment/adjustment.dart';
 
 class AdjustmentEditList extends StatefulWidget {
   final List<Adjustment> adjustments;

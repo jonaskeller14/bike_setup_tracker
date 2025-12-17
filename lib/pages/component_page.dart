@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
-import '../models/adjustment.dart';
+import '../models/adjustment/adjustment.dart';
 import 'adjustment/boolean_adjustment_page.dart';
 import 'adjustment/numerical_adjustment_page.dart';
 import 'adjustment/step_adjustment_page.dart';

@@ -476,7 +476,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Setup? getPreviousSetupbyDateTime({required DateTime datetime, required String bike}) {
-    return setups.lastWhereOrNull((s) => s.datetime.isBefore(datetime) && s.bike == bike);
+    return setups.lastWhereOrNull((s) => !s.isDeleted && s.datetime.isBefore(datetime) && s.bike == bike);
   }
 
   @override

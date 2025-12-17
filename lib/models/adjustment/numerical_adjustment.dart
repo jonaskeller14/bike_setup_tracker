@@ -20,8 +20,8 @@ class NumericalAdjustment extends Adjustment<double> {
   }
 
   @override
-  bool isValidValue(double value) {
-    return value >= min && value <= max;
+  bool isValidValue(dynamic value) {
+    return value is double && value >= min && value <= max;
   }
 
   @override

@@ -17,8 +17,8 @@ class CategoricalAdjustment extends Adjustment<String> {
   }
 
   @override
-  bool isValidValue(String value) {
-    return options.contains(value);
+  bool isValidValue(dynamic value) {
+    return value is String && options.contains(value);
   }
 
   @override

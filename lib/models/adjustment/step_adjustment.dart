@@ -35,8 +35,8 @@ class StepAdjustment extends Adjustment<int> {
   }
 
   @override
-  bool isValidValue(int value) {
-    return value >= min && value <= max && ((value - min) % step == 0);
+  bool isValidValue(dynamic value) {
+    return value is int && value >= min && value <= max && ((value - min) % step == 0);
   }
 
   @override

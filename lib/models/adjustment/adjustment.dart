@@ -5,6 +5,7 @@ part 'boolean_adjustment.dart';
 part 'categorical_adjustment.dart';
 part 'step_adjustment.dart';
 part 'numerical_adjustment.dart';
+part 'text_adjustment.dart';
 
 abstract class Adjustment<T> {
   final String id;
@@ -18,7 +19,7 @@ abstract class Adjustment<T> {
       id = id ?? const Uuid().v4();
 
   Adjustment<T> deepCopy();
-  bool isValidValue(T value);
+  bool isValidValue(dynamic value);
   Map<String, dynamic> toJson();
   Icon getIcon({double? size, Color? color});
   String getProperties();

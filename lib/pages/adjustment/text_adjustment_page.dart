@@ -18,12 +18,14 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
   bool _expanded = false;
   late TextEditingController _nameController;
   late TextEditingController _notesController;
+  late bool _prefill;
 
   String _previewValue = '';
   TextAdjustment _previewAdjustment = TextAdjustment(
     name: '', 
     notes: null,
     unit: null,
+    prefill: true,
   );
 
   @override
@@ -33,6 +35,7 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
     _nameController.addListener(_changeListener);
     _notesController = TextEditingController(text: widget.adjustment?.notes);
     _notesController.addListener(_changeListener);
+    _prefill = widget.adjustment?.prefill ?? true;
 
     if (widget.adjustment != null) {
       _previewAdjustment = widget.adjustment!;
@@ -70,12 +73,14 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
       Navigator.pop(context, TextAdjustment(
         name: name, 
         notes: notes.isEmpty ? null : notes, 
-        unit: null
+        unit: null,
+        prefill: _prefill,
       ));
     } else {
       widget.adjustment!.name = name;
       widget.adjustment!.notes = notes.isEmpty ? null : notes;
       widget.adjustment!.unit = null;
+      widget.adjustment!.prefill = _prefill;
       Navigator.pop(context, widget.adjustment);
     }
   }
@@ -124,7 +129,8 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                               _previewAdjustment = TextAdjustment(
                                 name: value ?? '',
                                 notes: _previewAdjustment.notes,
-                                unit: null
+                                unit: _previewAdjustment.unit,
+                                prefill: _previewAdjustment.prefill,
                               );
                             });
                           },
@@ -166,7 +172,8 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                                 _previewAdjustment = TextAdjustment(
                                   name: _previewAdjustment.name, 
                                   notes: (value == null || value.isEmpty) ? null : value,
-                                  unit: null
+                                  unit: _previewAdjustment.unit,
+                                  prefill: _previewAdjustment.prefill,
                                 );
                               });
                             },
@@ -178,6 +185,24 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                               fillColor: Colors.orange.withValues(alpha: 0.08),
                               filled: widget.adjustment != null && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
                             ),
+                          ),
+                          const SizedBox(height: 12),
+                          SwitchListTile(
+                            title: const Text("Prefill text with baseline setup"),
+                            subtitle: const Text("When disabled, the text field will always start empty"),
+                            value: _prefill,
+                            onChanged: (value) {
+                              setState(() {
+                                _prefill = value;
+                                _previewValue = _prefill ? "<Text from baseline setup>": "";
+                                _previewAdjustment = TextAdjustment(
+                                  name: _previewAdjustment.name,
+                                  notes: _previewAdjustment.notes,
+                                  unit: _previewAdjustment.unit,
+                                  prefill: value,
+                                );
+                              });
+                            },
                           ),
                         ],
                       ],
@@ -195,7 +220,7 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                     child: SetTextAdjustmentWidget(
                       key: ValueKey(_previewAdjustment),
                       adjustment: _previewAdjustment,
-                      initialValue: null, 
+                      initialValue: _previewAdjustment.prefill ? "<Text from baseline setup>" : null,
                       value: _previewValue, 
                       onChanged: (String newValue) {
                         HapticFeedback.lightImpact();

@@ -1,16 +1,24 @@
 part of 'adjustment.dart';
 
 class TextAdjustment extends Adjustment<String> {
+  bool prefill = false;
+
   TextAdjustment({
     super.id,
     required super.name,
     required super.notes,
     required super.unit,
+    required this.prefill,
   });
 
   @override
   TextAdjustment deepCopy() {
-    return TextAdjustment(name: name, notes: notes, unit: unit);
+    return TextAdjustment(
+      name: name,
+      notes: notes,
+      unit: unit,
+      prefill: prefill,
+    );
   }
   
   @override
@@ -26,6 +34,7 @@ class TextAdjustment extends Adjustment<String> {
     'type': 'text',
     'valueType': valueType.toString(),
     'unit': unit,
+    'prefill': prefill,
   };
 
   @override

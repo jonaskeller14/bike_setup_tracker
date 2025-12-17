@@ -14,6 +14,7 @@ class AdjustmentSetList extends StatefulWidget {
   final void Function({required Adjustment adjustment, required dynamic newValue}) onAdjustmentValueChanged;
   final void Function({required Adjustment adjustment}) removeFromAdjustmentValues;
   final void Function() changeListener;
+  final bool isEdit;
 
   const AdjustmentSetList({
     super.key,
@@ -23,6 +24,7 @@ class AdjustmentSetList extends StatefulWidget {
     required this.onAdjustmentValueChanged,
     required this.removeFromAdjustmentValues,
     required this.changeListener,
+    required this.isEdit,
   });
 
   @override
@@ -37,11 +39,22 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
     super.initState();
     
     for (final adjustment in widget.adjustments) {
+      // Handling Edge case (Add mode)
+      if (adjustment is TextAdjustment && !adjustment.prefill && !widget.isEdit) {
+        _adjustmentValues[adjustment.id] = null;
+        continue;     
+      }
+
       // Step 1: Set from AdjustmentValues
       if (widget.adjustmentValues.containsKey(adjustment.id)) {
         _adjustmentValues[adjustment.id] = widget.adjustmentValues[adjustment.id];
         continue;
+      // Handling Edge case (Edit Mode)
+      } else if (adjustment is TextAdjustment && !adjustment.prefill && widget.isEdit) {
+        _adjustmentValues[adjustment.id] = null;
+        continue;
       }
+
       // Step 2: Set from initialAdjustmentValues
       // Step 3: Set defaults (null, min, false, ...)
       final initialValue = widget.initialAdjustmentValues[adjustment.id];
@@ -136,14 +149,15 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             },
           );
         } else if (adjustment is TextAdjustment) {
+          final initialValue = widget.initialAdjustmentValues[adjustment.id];
           return SetTextAdjustmentWidget(
             key: ValueKey(adjustment), 
             adjustment: adjustment, 
-            initialValue: widget.initialAdjustmentValues[adjustment.id],
+            initialValue: (adjustment.prefill || initialValue == null) ? initialValue : '', // null leads to initial value highlighting and empty string to changed value highlighting
             value: _adjustmentValues[adjustment.id], 
             onChanged: (String? newValue) {
               setState(() {
-                _adjustmentValues[adjustment.id] = newValue;
+                _adjustmentValues[adjustment.id] = (newValue is String && newValue.isEmpty) ? null : newValue;
               });
               widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
               widget.changeListener();

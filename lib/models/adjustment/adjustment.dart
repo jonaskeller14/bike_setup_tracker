@@ -91,6 +91,7 @@ abstract class Adjustment<T> {
           name: json['name'],
           notes: json['notes'],
           unit: json['unit'] as String?,
+          prefill: json['prefill'] ?? false,
         );
       default:
         throw Exception('Unknown adjustment type: $type');

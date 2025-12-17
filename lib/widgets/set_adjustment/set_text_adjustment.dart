@@ -141,10 +141,7 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
                       ),
                       suffixText: widget.adjustment.unit != null ? ' ${widget.adjustment.unit}' : null,
                     ),
-                    validator: (value) {
-                      if ((value == null || value.trim().isEmpty) && widget.initialValue != null) return 'Please enter text';
-                      return null;
-                    },   
+                    validator: (value) => null // Allow empty field
                   ),
                 ),
                 IconButton(

@@ -543,7 +543,8 @@ class _ComponentPageState extends State<ComponentPage> {
                               _buildGuideRow(Icons.rotate_right, "Step", "Rebound/Compression Clicks, Spacers"),
                               _buildGuideRow(Icons.category, "Categorical", "Tire Compound (Soft/Hard), Model, Brand"),
                               _buildGuideRow(Icons.toggle_on, "On/Off", "Lockout Lever, Climb Switch, Tire insert installed?"),
-                              _buildGuideRow(Icons.text_snippet, "Text", "Flexible field for any other setup specifications"),
+                              if (_enableTextAdjustment)
+                                _buildGuideRow(Icons.text_snippet, "Text", "Flexible field for any other setup specifications"),
                             ],
                           ),
                         ),

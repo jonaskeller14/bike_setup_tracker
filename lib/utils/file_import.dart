@@ -10,7 +10,6 @@ import 'package:intl/intl.dart';
 import '../models/bike.dart';
 import '../models/setup.dart';
 import '../models/component.dart';
-import '../models/adjustment/adjustment.dart';
 import 'data.dart';
 
 class FileImport {

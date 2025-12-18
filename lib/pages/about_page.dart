@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:provider/provider.dart';
+import '../models/app_settings.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -184,6 +186,25 @@ Current Time: $now
               email: bugsEmail,
               icon: Icons.bug_report_outlined,
               subject: 'BUG Report: Bike Setup Tracker',
+            ),
+            
+            const Divider(height: 32.0),
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
+              child: Text(
+                'Help',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.help_outline, color: Theme.of(context).colorScheme.primary),
+              title: Text("Show Onboarding"),
+              subtitle: Text("Show onboarding slides to get started."),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+              onTap: () {
+                context.read<AppSettings>().setShowOnboarding(true);
+                Navigator.pop(context);
+              },
             ),
 
             const Divider(height: 32.0),

@@ -223,7 +223,6 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                       initialValue: _previewAdjustment.prefill ? "<Text from baseline setup>" : null,
                       value: _previewValue, 
                       onChanged: (String newValue) {
-                        HapticFeedback.lightImpact();
                         setState(() {
                           _previewValue = newValue;
                         });

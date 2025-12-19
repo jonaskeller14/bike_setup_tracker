@@ -93,8 +93,15 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       ),
       body: ListView(
         children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
+            child: Text(
+              'Appearance',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          ),
           ListTile(
-            leading: Icon(Icons.color_lens),
+            leading: Icon(Icons.color_lens, color: Theme.of(context).colorScheme.primary),
             title: const Text("App Theme Mode"),
             trailing: DropdownButton<ThemeMode>(
               value: appSettingsReader.themeMode,
@@ -111,8 +118,15 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             ),
           ),
           const Divider(),
+          Padding(
+            padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
+            child: Text(
+              'Default Formats',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          ),
           ListTile(
-            leading: Icon(Icons.calendar_month),
+            leading: Icon(Icons.calendar_month, color: Theme.of(context).colorScheme.primary),
             title: const Text("Date Format"),
             trailing: DropdownButton<String>(
               value: appSettingsReader.dateFormat,
@@ -124,7 +138,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.access_time),
+            leading: Icon(Icons.access_time, color: Theme.of(context).colorScheme.primary),
             title: const Text("Time Format"),
             trailing: DropdownButton<String>(
               value: appSettingsReader.timeFormat,
@@ -136,8 +150,15 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             ),
           ),
           const Divider(),
+          Padding(
+            padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
+            child: Text(
+              'Default Units',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          ),
           ListTile(
-            leading: Icon(Icons.arrow_upward),
+            leading: Icon(Icons.arrow_upward, color: Theme.of(context).colorScheme.primary),
             title: const Text("Altitude Unit"),
             trailing: DropdownButton<String>(
               value: appSettingsReader.altitudeUnit,
@@ -149,7 +170,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.thermostat),
+            leading: Icon(Icons.thermostat, color: Theme.of(context).colorScheme.primary),
             title: const Text("Temperature Unit"),
             trailing: DropdownButton<String>(
               value: appSettingsReader.temperatureUnit,
@@ -161,7 +182,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.air),
+            leading: Icon(Icons.air, color: Theme.of(context).colorScheme.primary),
             title: const Text("Wind Speed Unit"),
             trailing: DropdownButton<String>(
               value: appSettingsReader.windSpeedUnit,
@@ -173,7 +194,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.water_drop),
+            leading: Icon(Icons.water_drop, color: Theme.of(context).colorScheme.primary),
             title: const Text("Precipitation Unit"),
             trailing: DropdownButton<String>(
               value: appSettingsReader.precipitationUnit,

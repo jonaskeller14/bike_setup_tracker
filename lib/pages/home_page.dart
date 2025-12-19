@@ -31,7 +31,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool _localDataLoaded = false;
 
-  Map<String, Bike> bikes = {};
+  final Map<String, Bike> bikes = {};
   final List<Setup> setups = [];
   final List<Component> components = [];
 
@@ -388,7 +388,8 @@ class _HomePageState extends State<HomePage> {
     bikesList.insert(adjustedNewIndex, bike);
 
     setState(() {
-      bikes = {for (var element in bikesList) element.id : element};
+      bikes.clear();
+      bikes.addAll({for (var element in bikesList) element.id : element});
       onBikeTap(null);
     });
     FileExport.saveData(bikes: bikes, setups: setups, components: components);

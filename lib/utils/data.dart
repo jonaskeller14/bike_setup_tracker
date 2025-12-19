@@ -12,4 +12,10 @@ class Data {
     required this.setups,
     required this.components,
   });
+
+  Map<String, dynamic> toJson() => {
+    'bikes': bikes.values.map((b) => b.toJson()).toList(),
+    'setups': setups.map((s) => s.toJson()).toList(),
+    'components': components.map((c) => c.toJson()).toList(),
+  };
 }

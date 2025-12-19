@@ -106,7 +106,7 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
         appBar: AppBar(
-          title: widget.adjustment == null ? const Text('Add On/Off Adjustment') : const Text('Edit On/Off Adjustment'),
+          title: widget.adjustment == null ? const Text('Add Text Adjustment') : const Text('Edit Text Adjustment'),
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveTextAdjustment),
           ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/bike.dart';
 import '../models/setup.dart';
@@ -190,7 +191,12 @@ class _HomePageState extends State<HomePage> {
 
     if (confirm) {
       final snackBar = SnackBar(
-        content: Text('${toRemoveSetups.length} setup(s) moved to trash.'),
+        content: Text(Intl.plural(
+          toRemoveSetups.length,
+          zero: "No setup moved to trash.",
+          one: "One setup moved to trash.",
+          other: '${toRemoveSetups.length} setups moved to trash.',
+        )),
         duration: const Duration(seconds: 5),
         persist: false,
         showCloseIcon: true,
@@ -234,7 +240,12 @@ class _HomePageState extends State<HomePage> {
 
     if (confirm) {
       final snackBar = SnackBar(
-        content: Text('${toRemoveComponents.length} components(s) moved to trash.'),
+        content: Text(Intl.plural(
+          toRemoveComponents.length,
+          zero: "No components moved to trash.",
+          one: "One component moved to trash.",
+          other: '${toRemoveComponents.length} components moved to trash.',
+        )),
         duration: const Duration(seconds: 5),
         persist: false,
         showCloseIcon: true,

@@ -816,7 +816,12 @@ class _SetupPageState extends State<SetupPage> {
                       children: [
                         ListTile(
                           title: Text(bikeComponent.name, style: TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Text('${bikeComponent.adjustments.length} adjustments'),
+                          subtitle: Text(Intl.plural(
+                            bikeComponent.adjustments.length,
+                            zero: "No adjustments yet.",
+                            one: "1 adjustment",
+                            other: '${bikeComponent.adjustments.length} adjustments',
+                          )),
                           leading: Component.getIcon(bikeComponent.componentType),
                         ),
                         AdjustmentSetList(

@@ -8,7 +8,7 @@ Future<String?> showImportMergeOverwriteDialog(BuildContext context) async {
         return AlertDialog(
           title: const Text('Import JSON'),
           content: const Text(
-            'Do you want to overwrite existing data or append (merge) the imported data?',
+            'Do you want to overwrite existing data or append (merge) the imported data? Existing data could be lost forever and cannot be restored.',
           ),
           actions: [
             TextButton(

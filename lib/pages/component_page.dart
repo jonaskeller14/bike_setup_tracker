@@ -22,6 +22,47 @@ class ComponentPage extends StatefulWidget {
 
 class _ComponentPageState extends State<ComponentPage> {
   static const _enableTextAdjustment = false;
+  static final Map<ComponentType?, List<Adjustment>> _adjustmentPresets = {
+    ComponentType.frame: [
+      CategoricalAdjustment(name: "Flipchip", notes: "Controls geometry and bottom bracket height", unit: null, options: ["Low", "Mid", "High"])
+    ],
+    ComponentType.fork: [
+      BooleanAdjustment(name: "Lockout", unit: null, notes: "Is the lockout lever enabled?"),
+      NumericalAdjustment(name: "Pressure", unit: "psi", min: 0, notes: "Fork air pressure"),
+      StepAdjustment(name: "Rebound", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Rebound clicks (0-20)"),
+      StepAdjustment(name: "Compression", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Compression clicks (0-20)"),
+    ],
+    ComponentType.shock: [
+      BooleanAdjustment(name: "Lockout", unit: null, notes: "Is the lockout lever enabled?"),
+      NumericalAdjustment(name: "Pressure", unit: "psi", min: 0, notes: "Shock air pressure"),
+      NumericalAdjustment(name: "Spring Rate", unit: "lbs", min: 0, notes: "Coil spring weight"),
+      StepAdjustment(name: "Rebound", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Rebound clicks (0-20)"),
+      StepAdjustment(name: "Compression", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Compression clicks (0-20)"),
+    ],
+    ComponentType.wheelFront: [
+      NumericalAdjustment(name: "Pressure", unit: "bar", min: 0, notes: "Front tire pressure"),
+      BooleanAdjustment(name: "Insert", unit: null, notes: "Tire insert installed?"),
+    ],
+    ComponentType.wheelRear: [
+      NumericalAdjustment(name: "Pressure", unit: "bar", min: 0, notes: "Rear tire pressure"),
+      BooleanAdjustment(name: "Insert", unit: null, notes: "Tire insert installed?"),
+    ],
+    ComponentType.motor: [
+      NumericalAdjustment(name: "Max Power", unit: "W", min: 0, notes: "Maximum motor power output"),
+      NumericalAdjustment(name: "Max Torque", unit: "Nm", min: 0, notes: "Maximum motor torque"),
+      CategoricalAdjustment(name: "Mode", notes: "Current assistance level", unit: null, options: ["Eco", "Trail", "Turbo", "Boost", "Auto"]),
+    ],
+    ComponentType.equipment: [
+      CategoricalAdjustment(name: "Cleat Position", notes: "Shoe cleat fore/aft or lateral position", unit: null, options: ["Forward", "Neutral", "Rearward"]),
+    ],
+    ComponentType.other: [
+      NumericalAdjustment(name: "Saddle Height", unit: "mm", min: 0, notes: "Distance from Bottom Bracket to top of saddle"),
+      NumericalAdjustment(name: "Bar Roll", unit: "°", notes: "Angle of handlebars in degrees"),
+      NumericalAdjustment(name: "Bar Width", unit: "mm", min: 0, notes: "Total width of handlebars"),
+      NumericalAdjustment(name: "Stem Spacer", unit: "mm", min: 0, notes: "Height of spacers under the stem"),
+    ],
+    null: [],
+  };
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
   late TextEditingController _nameController;
@@ -122,28 +163,38 @@ class _ComponentPageState extends State<ComponentPage> {
     _changeListener();
   }
 
-  Future<void> _editAdjustment(Adjustment adjustment) async {
+  Future<void> _addAdjustmentFromPreset(Adjustment adjustment) async {
+    final newAdjustment = await _editAdjustment(adjustment.deepCopy());
+    if (newAdjustment == null) return;
+    setState(() {
+      adjustments.add(newAdjustment);
+    });
+    _changeListener();
+  }
+
+  Future<Adjustment?> _editAdjustment(Adjustment adjustment) async {
     if (adjustment is BooleanAdjustment) {
-      return _editBooleanAdjustment(adjustment);
+      return await _editBooleanAdjustment(adjustment);
     } else if (adjustment is CategoricalAdjustment) {
       return _editCategoricalAdjustment(adjustment);
     } else if (adjustment is StepAdjustment) {
-      return _editStepAdjustment(adjustment);
+      return await _editStepAdjustment(adjustment);
     } else if (adjustment is NumericalAdjustment) {
-      return _editNumericalAdjustment(adjustment);
+      return await _editNumericalAdjustment(adjustment);
     } else if (adjustment is TextAdjustment) {
-      return _editTextAdjustment(adjustment);
+      return await _editTextAdjustment(adjustment);
     }
+    return null;
   }
 
-  Future<void> _editBooleanAdjustment(BooleanAdjustment adjustment) async {
+  Future<Adjustment?> _editBooleanAdjustment(BooleanAdjustment adjustment) async {
     final editedAdjustment = await Navigator.push<BooleanAdjustment>(
       context,
       MaterialPageRoute(
         builder: (context) => BooleanAdjustmentPage(adjustment: adjustment)
       ),
     );
-    if (editedAdjustment == null) return;
+    if (editedAdjustment == null) return null;
     setState(() {
       final index = adjustments.indexOf(adjustment);
       if (index != -1) {
@@ -151,16 +202,17 @@ class _ComponentPageState extends State<ComponentPage> {
       }
     });
     if (widget.component != null) widget.component!.lastModified = DateTime.now();
+    return editedAdjustment;
   }
 
-  Future<void> _editStepAdjustment(StepAdjustment adjustment) async {
+  Future<Adjustment?> _editStepAdjustment(StepAdjustment adjustment) async {
     final editedAdjustment = await Navigator.push<StepAdjustment>(
       context,
       MaterialPageRoute(
         builder: (context) => StepAdjustmentPage(adjustment: adjustment)
       ),
     );
-    if (editedAdjustment == null) return;
+    if (editedAdjustment == null) return null;
     setState(() {
       final index = adjustments.indexOf(adjustment);
       if (index != -1) {
@@ -168,16 +220,17 @@ class _ComponentPageState extends State<ComponentPage> {
       }
     });
     if (widget.component != null) widget.component!.lastModified = DateTime.now();
+    return editedAdjustment;
   }
 
-  Future<void> _editCategoricalAdjustment(CategoricalAdjustment adjustment) async {
+  Future<Adjustment?> _editCategoricalAdjustment(CategoricalAdjustment adjustment) async {
     final editedAdjustment = await Navigator.push<CategoricalAdjustment>(
       context,
       MaterialPageRoute(
         builder: (context) => CategoricalAdjustmentPage(adjustment: adjustment)
       ),
     );
-    if (editedAdjustment == null) return;
+    if (editedAdjustment == null) return null;
     setState(() {
       final index = adjustments.indexOf(adjustment);
       if (index != -1) {
@@ -185,16 +238,17 @@ class _ComponentPageState extends State<ComponentPage> {
       }
     });
     if (widget.component != null) widget.component!.lastModified = DateTime.now();
+    return editedAdjustment;
   }
 
-  Future<void> _editNumericalAdjustment(NumericalAdjustment adjustment) async {
+  Future<Adjustment?> _editNumericalAdjustment(NumericalAdjustment adjustment) async {
     final editedAdjustment = await Navigator.push<NumericalAdjustment>(
       context,
       MaterialPageRoute(
         builder: (context) => NumericalAdjustmentPage(adjustment: adjustment)
       ),
     );
-    if (editedAdjustment == null) return;
+    if (editedAdjustment == null) return null;
     setState(() {
       final index = adjustments.indexOf(adjustment);
       if (index != -1) {
@@ -202,16 +256,17 @@ class _ComponentPageState extends State<ComponentPage> {
       }
     });
     if (widget.component != null) widget.component!.lastModified = DateTime.now();
+    return editedAdjustment;
   }
 
-  Future<void> _editTextAdjustment(TextAdjustment adjustment) async {
+  Future<Adjustment?> _editTextAdjustment(TextAdjustment adjustment) async {
     final editedAdjustment = await Navigator.push<TextAdjustment>(
       context,
       MaterialPageRoute(
         builder: (context) => TextAdjustmentPage(adjustment: adjustment)
       ),
     );
-    if (editedAdjustment == null) return;
+    if (editedAdjustment == null) return null;
     setState(() {
       final index = adjustments.indexOf(adjustment);
       if (index != -1) {
@@ -219,6 +274,7 @@ class _ComponentPageState extends State<ComponentPage> {
       }
     });
     if (widget.component != null) widget.component!.lastModified = DateTime.now();
+    return editedAdjustment;
   }
 
   Future<void> removeAdjustment(Adjustment adjustment) async {
@@ -311,6 +367,166 @@ class _ComponentPageState extends State<ComponentPage> {
     _changeListener();
   }
 
+  Widget _emptyAdjustmentsInfo() => Container(
+    width: double.infinity,
+    margin: const EdgeInsets.only(top: 8),
+    padding: const EdgeInsets.all(8),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.help_outline, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)),
+            const SizedBox(width: 8),
+            Text(
+              "No adjustments yet",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                fontSize: Theme.of(context).textTheme.titleLarge?.fontSize ?? 16,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "Define what settings you can tweak on this component by tapping the button below.",
+          style: TextStyle(height: 1.4, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "Examples:",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)),
+        ),
+        const SizedBox(height: 4),
+        _buildGuideRow(Icons.speed, "Numerical", "Pressure (psi/bar), Length, Angle, Weight"),
+        _buildGuideRow(Icons.rotate_right, "Step", "Rebound/Compression Clicks, Spacers"),
+        _buildGuideRow(Icons.category, "Categorical", "Tire Compound (Soft/Hard), Model, Brand"),
+        _buildGuideRow(Icons.toggle_on, "On/Off", "Lockout Lever, Climb Switch, Tire insert installed?"),
+        if (_enableTextAdjustment)
+          _buildGuideRow(Icons.text_snippet, "Text", "Flexible field for any other setup specifications"),
+      ],
+    ),
+  );
+
+  void _showAddAdjustmentBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      showDragHandle: true,
+      isScrollControlled: true,
+      context: context, 
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                  child: Text(
+                    "Add Adjustment", 
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (_adjustmentPresets[componentType] != null && _adjustmentPresets[componentType]!.isNotEmpty) ... [
+                    Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    child: Text(
+                      "Pre-filled Templates",
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                  ..._adjustmentPresets[componentType]!.map((adjustmentPreset) => ListTile(
+                    leading: adjustmentPreset.getIcon(),
+                    title: Text(adjustmentPreset.name),
+                    subtitle: Text(adjustmentPreset.getProperties(), style: const TextStyle(fontSize: 12)),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _addAdjustmentFromPreset(adjustmentPreset);
+                    },
+                  )),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Divider(),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    child: Text(
+                      "Custom Adjustment",
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ],
+                ListTile(
+                  leading: Icon(Icons.speed, color: Theme.of(context).colorScheme.primary),
+                  title: Text("Numerical Adjustment"),
+                  subtitle: Text("Pressure (psi), Length, Weight", style: const TextStyle(fontSize: 12)),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () {
+                    Navigator.pop(context); // Close sheet first
+                    _addNumericalAdjustment(); // Then execute logic
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.stairs_outlined, color: Theme.of(context).colorScheme.primary),
+                  title: Text("Step Adjustment"),
+                  subtitle: Text("Rebound clicks, Spacers, Increments", style: const TextStyle(fontSize: 12)),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () {
+                    Navigator.pop(context); // Close sheet first
+                    _addStepAdjustment(); // Then execute logic
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.category, color: Theme.of(context).colorScheme.primary),
+                  title: Text("Categorical Adjustment"),
+                  subtitle: Text("Compound, Brand, Style, Mode", style: const TextStyle(fontSize: 12)),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () {
+                    Navigator.pop(context); // Close sheet first
+                    _addCategoricalAdjustment(); // Then execute logic
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.toggle_on, color: Theme.of(context).colorScheme.primary),
+                  title: Text("On/Off Adjustment"),
+                  subtitle: Text("Lockout, Climb switch, Component installed? Yes/No", style: const TextStyle(fontSize: 12)),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () {
+                    Navigator.pop(context); // Close sheet first
+                    _addBooleanAdjustment(); // Then execute logic
+                  },
+                ),
+                if (_enableTextAdjustment)
+                  ListTile(
+                    leading: Icon(Icons.text_snippet, color: Theme.of(context).colorScheme.primary),
+                    title: Text("Text Adjustment"),
+                    subtitle: Text("Notes, advanced settings details", style: const TextStyle(fontSize: 12)),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                    onTap: () {
+                      Navigator.pop(context); // Close sheet first
+                      _addTextAdjustment(); // Then execute logic
+                    },
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope( 
@@ -324,232 +540,125 @@ class _ComponentPageState extends State<ComponentPage> {
           ],
         ),
         body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: _nameController,
-                    textInputAction: TextInputAction.next,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    autofocus: widget.component == null,
-                    decoration: InputDecoration(
-                      labelText: 'Component Name',
-                      border: OutlineInputBorder(),
-                      hintText: 'Enter component name',
-                      fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.component != null && _nameController.text.trim() != widget.component?.name,
-                    ),
-                    validator: _validateName,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: _nameController,
+                  textInputAction: TextInputAction.next,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  autofocus: widget.component == null,
+                  decoration: InputDecoration(
+                    labelText: 'Component Name',
+                    border: OutlineInputBorder(),
+                    hintText: 'Enter component name',
+                    fillColor: Colors.orange.withValues(alpha: 0.08),
+                    filled: widget.component != null && _nameController.text.trim() != widget.component?.name,
                   ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<Bike>(
-                    initialValue: widget.bikes[bike],
-                    isExpanded: true,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: 'Bike',
-                      border: OutlineInputBorder(),
-                      hintText: "Choose a bike for this component",
-                      fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.component != null && bike != widget.component?.bike,
-                    ),
-                    validator: (Bike? newBike) {
-                      if (newBike == null) return "Bike cannot be empty.";
-                      if (!widget.bikes.values.contains(newBike)) return "Please select valid bike";
-                      return null;
-                    },
-                    items: widget.bikes.values.map((b) {
-                      return DropdownMenuItem<Bike>(
-                        value: b,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          spacing: 8,
-                          children: [
-                            const Icon(Icons.pedal_bike),
-                            Expanded(child: Text(b.name, overflow: TextOverflow.ellipsis))
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (Bike? newBike) {
-                      if (newBike == null) return;
-                      setState(() {
-                        bike = newBike.id;
-                      });
-                      _changeListener();
-                    },
+                  validator: _validateName,
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<Bike>(
+                  initialValue: widget.bikes[bike],
+                  isExpanded: true,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  decoration: InputDecoration(
+                    labelText: 'Bike',
+                    border: OutlineInputBorder(),
+                    hintText: "Choose a bike for this component",
+                    fillColor: Colors.orange.withValues(alpha: 0.08),
+                    filled: widget.component != null && bike != widget.component?.bike,
                   ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<ComponentType>(
-                    initialValue: componentType,
-                    isExpanded: true,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    hint: const Text("Please select type"),
-                    decoration: InputDecoration(
-                      labelText: 'Type',
-                      border: OutlineInputBorder(),
-                      hintText: "Choose a type for this component",
-                      fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.component != null && componentType != widget.component?.componentType,
-                    ),
-                    items: ComponentType.values.map((componentType) {
-                      return DropdownMenuItem<ComponentType>(
-                        value: componentType,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          spacing: 8,
-                          children: [
-                            Component.getIcon(componentType),
-                            Expanded(child: Text(componentType.value, overflow: TextOverflow.ellipsis)),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (ComponentType? newComponentType) {
-                      if (newComponentType == null) return;
-                      setState(() {
-                        componentType = newComponentType;
-                      });
-                      _changeListener();
-                    },
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Component type cannot be empty. You can edit it later.';
-                      }
-                      return null;
-                    },
+                  validator: (Bike? newBike) {
+                    if (newBike == null) return "Bike cannot be empty.";
+                    if (!widget.bikes.values.contains(newBike)) return "Please select valid bike";
+                    return null;
+                  },
+                  items: widget.bikes.values.map((b) {
+                    return DropdownMenuItem<Bike>(
+                      value: b,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        spacing: 8,
+                        children: [
+                          const Icon(Icons.pedal_bike),
+                          Expanded(child: Text(b.name, overflow: TextOverflow.ellipsis))
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (Bike? newBike) {
+                    if (newBike == null) return;
+                    setState(() {
+                      bike = newBike.id;
+                    });
+                    _changeListener();
+                  },
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<ComponentType>(
+                  initialValue: componentType,
+                  isExpanded: true,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  hint: const Text("Please select type"),
+                  decoration: InputDecoration(
+                    labelText: 'Type',
+                    border: OutlineInputBorder(),
+                    hintText: "Choose a type for this component",
+                    fillColor: Colors.orange.withValues(alpha: 0.08),
+                    filled: widget.component != null && componentType != widget.component?.componentType,
                   ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8.0,
-                    runSpacing: 4.0,
-                    children: [
-                      ActionChip(
-                        avatar: const Icon(Icons.add),
-                        label: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          spacing: 8,
-                          children: [
-                            const Text('Add Numerical Adjustment'),
-                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.outline),
-                            Icon(Icons.speed, size: 18),
-                          ],
-                        ),
-                        onPressed: _addNumericalAdjustment,
+                  items: ComponentType.values.map((componentType) {
+                    return DropdownMenuItem<ComponentType>(
+                      value: componentType,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        spacing: 8,
+                        children: [
+                          Component.getIcon(componentType),
+                          Expanded(child: Text(componentType.value, overflow: TextOverflow.ellipsis)),
+                        ],
                       ),
-                      ActionChip(
-                        avatar: const Icon(Icons.add),
-                        label: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          spacing: 8,
-                          children: [
-                            const Text('Add Step Adjustment'),
-                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.outline),
-                            Icon(Icons.stairs_outlined, size: 18),
-                          ],
-                        ),
-                        onPressed: _addStepAdjustment,
-                      ),
-                      ActionChip(
-                        avatar: const Icon(Icons.add),
-                        label: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          spacing: 8,
-                          children: [
-                            const Text('Add Categorical Adjustment'),
-                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.outline),
-                            Icon(Icons.category, size: 18),
-                          ],
-                        ),
-                        onPressed: _addCategoricalAdjustment,
-                      ),
-                      ActionChip(
-                        avatar: const Icon(Icons.add),
-                        label: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          spacing: 8,
-                          children: [
-                            const Text('Add On/Off Adjustment'),
-                            Container(height: 20, width: 1, color: Theme.of(context).colorScheme.outline),
-                            Icon(Icons.toggle_on, size: 18),
-                          ],
-                        ),
-                        onPressed: _addBooleanAdjustment,
-                      ),
-                      if (_enableTextAdjustment)
-                        ActionChip(
-                          avatar: const Icon(Icons.add),
-                          label: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            spacing: 8,
-                            children: [
-                              const Text('Add Text Adjustment'),
-                              Container(height: 20, width: 1, color: Theme.of(context).colorScheme.outline),
-                              Icon(Icons.text_snippet, size: 18),
-                            ],
-                          ),
-                          onPressed: _addTextAdjustment,
-                        ),
-                    ],
+                    );
+                  }).toList(),
+                  onChanged: (ComponentType? newComponentType) {
+                    if (newComponentType == null) return;
+                    setState(() {
+                      componentType = newComponentType;
+                    });
+                    _changeListener();
+                  },
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Component type cannot be empty. You can edit it later.';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                adjustments.isNotEmpty
+                    ? AdjustmentEditList(
+                        adjustments: adjustments,
+                        editAdjustment: _editAdjustment,
+                        removeAdjustment: removeAdjustment,
+                        onReorderAdjustments: _onReorderAdjustments,
+                      ) 
+                    : _emptyAdjustmentsInfo(),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () => _showAddAdjustmentBottomSheet(context),
+                    icon: const Icon(Icons.add),
+                    label: const Text("Add Adjustment"),
                   ),
-                  const SizedBox(height: 16),
-                  adjustments.isNotEmpty
-                      ? AdjustmentEditList(
-                          adjustments: adjustments,
-                          editAdjustment: _editAdjustment,
-                          removeAdjustment: removeAdjustment,
-                          onReorderAdjustments: _onReorderAdjustments,
-                        ) 
-                      : Container(
-                          width: double.infinity,
-                          margin: const EdgeInsets.only(top: 8),
-                          padding: const EdgeInsets.all(8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(Icons.help_outline, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    "No adjustments yet",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                      fontSize: Theme.of(context).textTheme.titleLarge?.fontSize ?? 16,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                "Define what settings you can tweak on this component by tapping the buttons above.",
-                                style: TextStyle(height: 1.4, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                "Examples:",
-                                style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)),
-                              ),
-                              const SizedBox(height: 4),
-                              _buildGuideRow(Icons.speed, "Numerical", "Pressure (psi/bar), Length, Angle, Weight"),
-                              _buildGuideRow(Icons.rotate_right, "Step", "Rebound/Compression Clicks, Spacers"),
-                              _buildGuideRow(Icons.category, "Categorical", "Tire Compound (Soft/Hard), Model, Brand"),
-                              _buildGuideRow(Icons.toggle_on, "On/Off", "Lockout Lever, Climb Switch, Tire insert installed?"),
-                              if (_enableTextAdjustment)
-                                _buildGuideRow(Icons.text_snippet, "Text", "Flexible field for any other setup specifications"),
-                            ],
-                          ),
-                        ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

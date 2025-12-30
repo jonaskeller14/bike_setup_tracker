@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import '../models/app_settings.dart';
+import 'faq_page.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -206,6 +207,13 @@ Current Time: $now
                 context.read<AppSettings>().setShowOnboarding(true);
                 Navigator.pop(context);
               },
+            ),
+            ListTile(
+              leading: Icon(Icons.question_answer_outlined, color: Theme.of(context).colorScheme.primary),
+              title: Text("FAQ"),
+              subtitle: Text("Show frequently asked questions."),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+              onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const FAQPage())),
             ),
             ListTile(
               leading: Icon(SimpleIcons.strava, color: Theme.of(context).colorScheme.primary),

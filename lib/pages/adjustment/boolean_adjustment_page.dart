@@ -19,7 +19,7 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
   late TextEditingController _nameController;
   late TextEditingController _notesController;
 
-  bool _previewValue = false;
+  bool? _previewValue = false;
   BooleanAdjustment _previewAdjustment = BooleanAdjustment(
     name: '', 
     notes: null,

@@ -60,13 +60,11 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
       final initialValue = widget.initialAdjustmentValues[adjustment.id];
       if (initialValue == null) {
         if (adjustment is BooleanAdjustment) { 
-          _adjustmentValues[adjustment.id] = false;
-          widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: false); // FormField with null does not exist
+          _adjustmentValues[adjustment.id] = null;
         } else if (adjustment is NumericalAdjustment) {
           _adjustmentValues[adjustment.id] = null;
         } else if (adjustment is StepAdjustment) {
-          _adjustmentValues[adjustment.id] = adjustment.min;
-          widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: adjustment.min); // FormField with null does not exist
+          _adjustmentValues[adjustment.id] = null;
         } else if (adjustment is CategoricalAdjustment) {
           _adjustmentValues[adjustment.id] = null;
         } else if (adjustment is TextAdjustment) {
@@ -92,7 +90,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             adjustment: adjustment,
             initialValue: widget.initialAdjustmentValues[adjustment.id],
             value: _adjustmentValues[adjustment.id],
-            onChanged: (newValue) {
+            onChanged: (bool newValue) {
               HapticFeedback.lightImpact();
               setState(() => _adjustmentValues[adjustment.id] = newValue);
               widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
@@ -122,7 +120,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             key: ValueKey(adjustment), 
             adjustment: adjustment,
             initialValue: widget.initialAdjustmentValues[adjustment.id]?.toDouble(),
-            value: _adjustmentValues[adjustment.id].toDouble(), 
+            value: _adjustmentValues[adjustment.id]?.toDouble(), 
             onChanged: (double newValue) {
               HapticFeedback.lightImpact();
               setState(() {

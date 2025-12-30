@@ -4,7 +4,7 @@ import '../../models/adjustment/adjustment.dart';
 class SetBooleanAdjustmentWidget extends StatelessWidget {
   final BooleanAdjustment adjustment;
   final bool? initialValue;
-  final bool value;
+  final bool? value;
   final ValueChanged<bool> onChanged;
   final bool highlighting;
 
@@ -19,17 +19,13 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    late bool isChanged;
-    late bool isInitial;
-    late Color? highlightColor; 
+    bool isChanged = false;
+    bool isInitial = false;
+    Color? highlightColor;
     if (highlighting) {
       isChanged = initialValue != value;
       isInitial = initialValue == null;
       highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
-    } else {
-      isChanged = false;
-      isInitial = false;
-      highlightColor = null;
     }
 
     return Container(
@@ -47,7 +43,7 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               children: [
                 Icon(Icons.toggle_on, color: highlightColor),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Align(
                     alignment: Alignment.centerLeft,
@@ -56,7 +52,7 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
                         : Tooltip(
                             triggerMode: TooltipTriggerMode.tap,
                             preferBelow: false,
-                            showDuration: Duration(seconds: 5),
+                            showDuration: const Duration(seconds: 5),
                             message: adjustment.notes!,
                             child: Text.rich(
                               TextSpan(
@@ -87,13 +83,21 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
             )
           ),
           Flexible(
-            flex: 1,
+            flex: 2,
             child: Align(
               alignment: Alignment.centerRight,
-              child: Switch(
-                value: value,
-                onChanged: onChanged,
-              ),
+              child: value == null
+                  ? FilledButton(
+                      style: FilledButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      onPressed: () => onChanged(false),
+                      child: const Text("Set value"),
+                    )
+                  : Switch(
+                      value: value!,
+                      onChanged: onChanged,
+                    ),
             ),
           ),
         ],

@@ -30,9 +30,9 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: isChanged
-          ? BoxDecoration(color: highlightColor?.withValues(alpha: 0.08))
-          : null,
+      decoration: BoxDecoration(
+        color: isChanged ? highlightColor?.withValues(alpha: 0.08) : null,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         spacing: 20,

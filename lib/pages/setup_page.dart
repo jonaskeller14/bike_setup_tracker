@@ -501,8 +501,9 @@ class _SetupPageState extends State<SetupPage> {
         ),
         body: Form(
           key: _formKey,
-          child: ListView(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
+            child: Column(
             children: [
               TextFormField(
                 controller: _nameController,
@@ -803,87 +804,88 @@ class _SetupPageState extends State<SetupPage> {
                   child: Center(
                     child: Text(
                       'No components available.',
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                      ),
+                    ),
+                  )
+                else
+                  ...bikeComponents.map((bikeComponent) {
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ListTile(
+                            title: Text(bikeComponent.name, style: TextStyle(fontWeight: FontWeight.bold)),
+                            subtitle: Text(Intl.plural(
+                              bikeComponent.adjustments.length,
+                              zero: "No adjustments yet.",
+                              one: "1 adjustment",
+                              other: '${bikeComponent.adjustments.length} adjustments',
+                            )),
+                            leading: Component.getIcon(bikeComponent.componentType),
+                          ),
+                          AdjustmentSetList(
+                            key: ValueKey([bikeComponent.id, _previousSetup, adjustmentValues.values]),
+                            adjustments: bikeComponent.adjustments,
+                            initialAdjustmentValues: _initialAdjustmentValues,
+                            adjustmentValues: adjustmentValues,
+                            onAdjustmentValueChanged: _onAdjustmentValueChanged,
+                            removeFromAdjustmentValues: _removeFromAdjustmentValues,
+                            changeListener: _changeListener,
+                            isEdit: widget.setup != null,
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                if (danglingAdjustmentValues.isNotEmpty)
+                  Opacity(
+                    opacity: 0.4,
+                    child: Card(
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ListTile(
+                            title: const Text("Dangling Adjustment Values", style: TextStyle(fontWeight: FontWeight.bold)),
+                            subtitle: Text('${danglingAdjustmentValues.length} adjustments found that are not associated with this bike. Cannot be edited.'),
+                            leading: Icon(Icons.question_mark),
+                          ),
+                          Column(
+                            children: danglingAdjustmentValues.entries.map((danglingAdjustmentValue) {
+                            return Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  spacing: 20,
+                                  children: [
+                                    Flexible(
+                                      flex: 2,
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(danglingAdjustmentValue.key),
+                                      ),
+                                    ),
+                                    Flexible(
+                                      flex: 1,
+                                      child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Text(Adjustment.formatValue(danglingAdjustmentValue.value), style: TextStyle(fontFamily: "monospace")),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList()
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                )
-              else
-                ...bikeComponents.map((bikeComponent) {
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          title: Text(bikeComponent.name, style: TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Text(Intl.plural(
-                            bikeComponent.adjustments.length,
-                            zero: "No adjustments yet.",
-                            one: "1 adjustment",
-                            other: '${bikeComponent.adjustments.length} adjustments',
-                          )),
-                          leading: Component.getIcon(bikeComponent.componentType),
-                        ),
-                        AdjustmentSetList(
-                          key: ValueKey([bikeComponent.id, _previousSetup, adjustmentValues.values]),
-                          adjustments: bikeComponent.adjustments,
-                          initialAdjustmentValues: _initialAdjustmentValues,
-                          adjustmentValues: adjustmentValues,
-                          onAdjustmentValueChanged: _onAdjustmentValueChanged,
-                          removeFromAdjustmentValues: _removeFromAdjustmentValues,
-                          changeListener: _changeListener,
-                          isEdit: widget.setup != null,
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              if (danglingAdjustmentValues.isNotEmpty)
-                Opacity(
-                  opacity: 0.4,
-                  child: Card(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          title: const Text("Dangling Adjustment Values", style: TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Text('${danglingAdjustmentValues.length} adjustments found that are not associated with this bike. Cannot be edited.'),
-                          leading: Icon(Icons.question_mark),
-                        ),
-                        Column(
-                          children: danglingAdjustmentValues.entries.map((danglingAdjustmentValue) {
-                          return Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                spacing: 20,
-                                children: [
-                                  Flexible(
-                                    flex: 2,
-                                    child: Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(danglingAdjustmentValue.key),
-                                    ),
-                                  ),
-                                  Flexible(
-                                    flex: 1,
-                                    child: Align(
-                                      alignment: Alignment.centerRight,
-                                      child: Text(Adjustment.formatValue(danglingAdjustmentValue.value), style: TextStyle(fontFamily: "monospace")),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }).toList()
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              const ValueChangeLegend(),
-            ],
+                const ValueChangeLegend(),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_icons/simple_icons.dart';
 import '../models/app_settings.dart';
 
 class AboutPage extends StatelessWidget {
@@ -205,6 +206,13 @@ Current Time: $now
                 context.read<AppSettings>().setShowOnboarding(true);
                 Navigator.pop(context);
               },
+            ),
+            ListTile(
+              leading: Icon(SimpleIcons.strava, color: Theme.of(context).colorScheme.primary),
+              title: Text("Strava Club Forum"),
+              subtitle: Text("Get help and discuss the app with other users."),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+              onTap: () => _launchUrl(context, 'https://www.strava.com/clubs/bike_setup_tracker'),
             ),
 
             const Divider(height: 32.0),

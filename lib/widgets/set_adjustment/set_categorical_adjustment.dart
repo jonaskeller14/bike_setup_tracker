@@ -100,7 +100,26 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
               items: options.map<DropdownMenuItem<String>>((option) {
                 return DropdownMenuItem<String>(
                   value: option,
-                  child: Text(option, overflow: TextOverflow.ellipsis,),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(option, overflow: TextOverflow.ellipsis),
+                      ),
+                      Container(
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: highlighting && option != value
+                              ? (initialValue != option) 
+                                  ? ((initialValue == null) 
+                                      ? Colors.green : Colors.orange).withValues(alpha: 0.16)
+                                      : null
+                              : null,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               }).toList(),
               onChanged: onChanged,

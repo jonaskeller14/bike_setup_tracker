@@ -211,7 +211,7 @@ Current Time: $now
               leading: Icon(SimpleIcons.strava, color: Theme.of(context).colorScheme.primary),
               title: Text("Strava Club Forum"),
               subtitle: Text("Get help and discuss the app with other users."),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+              trailing: const Icon(Icons.open_in_new, size: 16.0),
               onTap: () => _launchUrl(context, 'https://www.strava.com/clubs/bike_setup_tracker'),
             ),
 

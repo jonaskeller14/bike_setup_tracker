@@ -317,11 +317,11 @@ class FileImport {
     }
 
     for (final component in List.from(components)) {
-      if ((component.isDeleted && component.lastModified.isBefore(deleteDateTime)) || !bikes.containsKey(component.bike)) components.remove(component);
+      if ((component.isDeleted && component.lastModified.isBefore(deleteDateTime))) components.remove(component);
     }
 
     for (final setup in List.from(setups)) {
-      if ((setup.isDeleted && setup.lastModified.isBefore(deleteDateTime)) || !bikes.containsKey(setup.bike)) setups.remove(setup);
+      if ((setup.isDeleted && setup.lastModified.isBefore(deleteDateTime))) setups.remove(setup);
     }
   }
 }

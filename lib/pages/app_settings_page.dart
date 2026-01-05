@@ -93,6 +93,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     onChanged: (ThemeMode? newValue) {
                       if (newValue == null) return;
                       appSettingsWriter.setThemeMode(newValue);
+                      Navigator.pop(context);
                     },
                     child: SingleChildScrollView(
                       child: Column(
@@ -139,6 +140,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     onChanged: (String? newValue) {
                       if (newValue == null) return;
                       appSettingsWriter.setDateFormat(newValue);
+                      Navigator.pop(context);
                     },
                     child: SingleChildScrollView(
                       child: Column(
@@ -177,6 +179,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     onChanged: (String? newValue) {
                       if (newValue == null) return;
                       appSettingsWriter.setTimeFormat(newValue);
+                      Navigator.pop(context);
                     },
                     child: SingleChildScrollView(
                       child: Column(
@@ -223,6 +226,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     onChanged: (String? newValue) {
                       if (newValue == null) return;
                       appSettingsWriter.setAltitudeUnit(newValue);
+                      Navigator.pop(context);
                     },
                     child: SingleChildScrollView(
                       child: Column(
@@ -261,6 +265,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     onChanged: (String? newValue) {
                       if (newValue == null) return;
                       appSettingsWriter.setTemperatureUnit(newValue);
+                      Navigator.pop(context);
                     },
                     child: SingleChildScrollView(
                       child: Column(
@@ -299,6 +304,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     onChanged: (String? newValue) {
                       if (newValue == null) return;
                       appSettingsWriter.setWindSpeedUnit(newValue);
+                      Navigator.pop(context);
                     },
                     child: SingleChildScrollView(
                       child: Column(
@@ -337,6 +343,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     onChanged: (String? newValue) {
                       if (newValue == null) return;
                       appSettingsWriter.setPrecipitationUnit(newValue);
+                      Navigator.pop(context);
                     },
                     child: SingleChildScrollView(
                       child: Column(

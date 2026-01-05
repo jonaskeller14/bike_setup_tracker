@@ -25,12 +25,7 @@ class FileImport {
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
 
       final Data data = await parseJson(jsonData: jsonData);
-      scaffold.showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        duration: Duration(seconds: 1),
-        content: Text("Loading data successfully")
-      ));
+      debugPrint("Loading data successfully");
       return data;
     } catch (e, st) {
       debugPrint("Loading data failed: $e\n$st");

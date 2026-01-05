@@ -4,20 +4,40 @@ class FAQPage extends StatelessWidget {
   const FAQPage({super.key});
   static const Map<String, Map<String, String>> faqSections = {
     'General': {
-      'What is this app about?': 'This app helps you track and manage your bike setup adjustments.',
-      'Can I export my data?': "Yes, you can export your bike setup data as a json file. Select 'Export' in top right menu and set file path.",
-      'Is my data stored locally?': 'Yes, all your data is stored locally on your device. We do not collect or store any personal data.',
+      'What is this app about?':
+          'This app helps you track, manage, and optimize your bike setup adjustments for better performance.',
+      'Can I export my data?':
+          'Yes. You can export your bike setup as a JSON file by selecting "Export" from the top-right menu. The default save location is your Downloads folder.',
+      'Is my data stored locally?':
+          'Yes, all your data is stored locally on your device. We do not collect or store any of your personal information.',
+      'I accidentally deleted something. Can I recover it?':
+          'Yes. Open the menu in the top-right corner of the home page and select "Trash." You can restore items deleted within the last 30 days. After 30 days, items are permanently deleted.',
+      'How do I move my data to a new device?':
+          'Data is typically restored by your operating system if you have cloud backups enabled. To move data manually: Export your data as a JSON file from the home page menu, transfer that file to your new device (via cloud or cable), and select "Import" from the menu on the new device.',
+      'Can I sync data between devices?':
+          'Not currently. We are actively working on a cloud synchronization feature...',
     },
     'Bike': {
-      'How do I add a new bike?': 'Go to the Bikes tab and tap the "+" button to add a new bike.',
+      'How do I add a new bike?':
+          'Navigate to the "Bikes" tab and tap the "+" button to create a new bike.',
+      'How do I reorder my bikes?':
+          'In the "Bikes" tab, long-press and drag a bike card to your preferred position. This order will be reflected throughout the app.',
     },
-    "Component": {
-      'How do I add components to my bike?': 'Go to the Components tab, and tap the "+" button to add components. Select your previously added bike in the process.',
-      'What is an adjustment?': 'An adjustment is part of a bike component that can be modified, such as tire pressure or suspension dials. Adjustments define the rules—like limits and units—not the actual values. Values are set in a setup entry.',
+    'Components': {
+      'How do I add components to my bike?':
+          'Go to the "Components" tab and tap the "+" button. A page open which lets you assign the component to any of your existing bikes.',
+      'How do I move a component to a different bike?':
+          'In the "Components" tab, tap the three-dot menu on a specific component and select "Edit." Change the assigned bike in the dropdown menu and save your changes.',
+      'How do I reorder components?':
+          'In the "Components" tab, long-press and drag a component card to change its position. This order persists across all component lists.',
+      'What is an "Adjustment"?':
+          'An Adjustment defines a specific part of a component that can be modified (e.g., tire pressure or suspension rebound). It sets the rules, such as units and limits, while the actual values are recorded within a "Setup."',
     },
     'Setup': {
-      'What is a setup?': 'is a current snapshot of all components of one bike. It captures the specific values of your adjustments and automatically adds context (e.g. location, weather, trail conditions).',
-      'How do I record a new setup?': 'Go to the Setups tab, and tap the "+" button to record a new setup for your bike.',
+      'What is a "Setup"?':
+          'A Setup is a snapshot of your entire bike configuration. It captures the specific values of all your adjustments alongside context like location, weather, and trail conditions',
+      'How do I record a new setup?':
+          'Go to the "Setups" tab and tap the "+" button to record a new setup for your bike.',
     },
   };
 

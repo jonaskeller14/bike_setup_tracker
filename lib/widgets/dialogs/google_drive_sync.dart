@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_icons/simple_icons.dart';
 import '../../models/app_settings.dart';
 import '../../services/google_drive_service.dart';
 
@@ -111,6 +112,7 @@ class _ShowGoogleDriveDialogState extends State<ShowGoogleDriveDialog> {
     );
     
     return AlertDialog(
+      icon: Icon(SimpleIcons.googledrive),
       title: const Text("Google Drive Synchronisation"),
       content: Column(
         mainAxisSize: MainAxisSize.min,

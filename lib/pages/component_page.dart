@@ -35,7 +35,7 @@ class _ComponentPageState extends State<ComponentPage> {
     ComponentType.shock: [
       BooleanAdjustment(name: "Lockout", unit: null, notes: "Is the lockout lever enabled?"),
       NumericalAdjustment(name: "Pressure", unit: "psi", min: 0, notes: "Shock air pressure"),
-      NumericalAdjustment(name: "Spring Rate", unit: "lbs", min: 0, notes: "Coil spring weight"),
+      NumericalAdjustment(name: "Spring Rate", unit: "lbs", min: 0, notes: "Coil spring rate"),
       StepAdjustment(name: "Rebound", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Rebound clicks (0-20)"),
       StepAdjustment(name: "Compression", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Compression clicks (0-20)"),
     ],

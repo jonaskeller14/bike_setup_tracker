@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 import 'models/app_settings.dart';
 import 'pages/onboarding_page.dart';
 import 'pages/home_page.dart';
@@ -22,6 +23,15 @@ final materialAppDarkTheme = ThemeData(
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    systemNavigationBarColor: Colors.transparent,
+    statusBarColor: Colors.transparent,
+    systemNavigationBarContrastEnforced: false,
+    systemStatusBarContrastEnforced: false,
+  ));
+
   runApp(LoadingGate(appSettings: AppSettings()));
 }
 

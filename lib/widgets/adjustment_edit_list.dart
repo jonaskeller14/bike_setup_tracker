@@ -46,7 +46,10 @@ class _AdjustmentEditListState extends State<AdjustmentEditList> {
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.drag_handle),
+                ReorderableDragStartListener(
+                  index: index,
+                  child: const Icon(Icons.drag_handle),
+                ),
                 PopupMenuButton<String>(
                   onSelected: (value) {
                     if (value == 'edit') {

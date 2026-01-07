@@ -100,6 +100,7 @@ class _HomePageState extends State<HomePage> {
     });
     FileImport.cleanupIsDeleted(bikes: bikes, components: components, setups: setups);
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    // Google Drive is synced in init
   }
 
   Future<void> loadJsonFileData() async {

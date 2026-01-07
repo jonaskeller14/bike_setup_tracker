@@ -36,7 +36,8 @@ class _BikeListState extends State<BikeList> {
         : widget.bikes.length.clamp(0, defaultVisibleCount);
     
     final List<Card> cards = <Card>[];
-    for (final bike in widget.bikes.take(visibleCount)) {
+    for (int index = 0; index < visibleCount; index++) {
+      final bike = widget.bikes[index];
       cards.add(
         Card(
           key: ValueKey(bike.id),
@@ -60,7 +61,10 @@ class _BikeListState extends State<BikeList> {
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.drag_handle),
+                  ReorderableDragStartListener(
+                    index: index,
+                    child: const Icon(Icons.drag_handle),
+                  ),
                   PopupMenuButton<String>(
                     onSelected: (value) {
                       if (value == 'edit') {

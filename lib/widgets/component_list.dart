@@ -43,7 +43,8 @@ class _ComponentListState extends State<ComponentList> {
         : widget.components.length.clamp(0, defaultVisibleCount);
 
     final List<Card> cards = <Card>[];
-    for (final component in widget.components.take(visibleCount)) {
+    for (int index = 0; index < visibleCount; index++) {
+      final component = widget.components[index];
       cards.add(
         Card(
           key: ValueKey(component.id),
@@ -95,7 +96,10 @@ class _ComponentListState extends State<ComponentList> {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.drag_handle),
+                    ReorderableDragStartListener(
+                      index: index,
+                      child: const Icon(Icons.drag_handle),
+                    ),
                     PopupMenuButton<String>(
                       onSelected: (value) {
                         if (value == 'edit') {

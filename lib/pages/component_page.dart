@@ -42,10 +42,12 @@ class _ComponentPageState extends State<ComponentPage> {
     ComponentType.wheelFront: [
       NumericalAdjustment(name: "Pressure", unit: "bar", min: 0, notes: "Front tire pressure"),
       BooleanAdjustment(name: "Insert", unit: null, notes: "Tire insert installed?"),
+      CategoricalAdjustment(name: "Condition", options: ["New", "Used", "Worn Out"], unit: null, notes: "Current state of the tire tread"),
     ],
     ComponentType.wheelRear: [
       NumericalAdjustment(name: "Pressure", unit: "bar", min: 0, notes: "Rear tire pressure"),
       BooleanAdjustment(name: "Insert", unit: null, notes: "Tire insert installed?"),
+      CategoricalAdjustment(name: "Condition", options: ["New", "Used", "Worn Out"], unit: null, notes: "Current state of the tire tread"),
     ],
     ComponentType.motor: [
       NumericalAdjustment(name: "Max Power", unit: "W", min: 0, notes: "Maximum motor power output"),
@@ -53,6 +55,9 @@ class _ComponentPageState extends State<ComponentPage> {
       CategoricalAdjustment(name: "Mode", notes: "Current assistance level", unit: null, options: ["Eco", "Trail", "Turbo", "Boost", "Auto"]),
     ],
     ComponentType.equipment: [
+      BooleanAdjustment(name: "Backpack", notes: "Wearing a backpack? Yes/No", unit: null),
+      CategoricalAdjustment(name: "Upper clothing layer 1", notes: "First clothing layer from inside (e.g. thermal shirt, ...)", unit: null, options: ["my Clothing Item A", "my Clothing Item B"]),
+      CategoricalAdjustment(name: "Upper clothing layer 2", notes: "Second clothing layer from inside (e.g. wind jacket, ...)", unit: null, options: ["my Clothing Item A", "my Clothing Item B"]),
       CategoricalAdjustment(name: "Cleat Position", notes: "Shoe cleat fore/aft or lateral position", unit: null, options: ["Forward", "Neutral", "Rearward"]),
     ],
     ComponentType.other: [

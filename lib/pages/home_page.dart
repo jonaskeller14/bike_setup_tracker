@@ -100,6 +100,8 @@ class _HomePageState extends State<HomePage> {
     });
     FileImport.cleanupIsDeleted(bikes: bikes, components: components, setups: setups);
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
+    FileExport.deleteOldBackups();
     // Google Drive is synced in init
   }
 
@@ -125,6 +127,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
     
     if (!mounted) return;
@@ -171,6 +174,7 @@ class _HomePageState extends State<HomePage> {
     removeSetups(obsoleteSetups, confirm: false);
 
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
@@ -222,6 +226,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
@@ -268,6 +273,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
   
@@ -283,6 +289,7 @@ class _HomePageState extends State<HomePage> {
       if (_selectedBike == null) onBikeTap(null);
     });
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
@@ -308,6 +315,7 @@ class _HomePageState extends State<HomePage> {
     });
 
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
@@ -323,6 +331,7 @@ class _HomePageState extends State<HomePage> {
       bikes[editedBike.id] = editedBike;
     });
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
@@ -345,6 +354,7 @@ class _HomePageState extends State<HomePage> {
       }
     });
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
@@ -376,6 +386,7 @@ class _HomePageState extends State<HomePage> {
       components.insert(adjustedNewIndex, component);
     });
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
@@ -405,6 +416,7 @@ class _HomePageState extends State<HomePage> {
       onBikeTap(null);
     });
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
@@ -444,6 +456,7 @@ class _HomePageState extends State<HomePage> {
       FileImport.updateSetupsAfter(setups: setups, setup: newSetup);
     });
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
@@ -467,6 +480,7 @@ class _HomePageState extends State<HomePage> {
       FileImport.updateSetupsAfter(setups: setups, setup: editedSetup);
     });
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
+    FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
   }
 
@@ -556,6 +570,7 @@ class _HomePageState extends State<HomePage> {
                       }
                     });
                     FileExport.saveData(bikes: bikes, setups: setups, components: components);
+                    FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
                     if (_enableGoogleDrive) _googleDriveService.scheduleSilentSync();
                   });
                   break;

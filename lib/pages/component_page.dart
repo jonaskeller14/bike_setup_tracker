@@ -22,7 +22,7 @@ class ComponentPage extends StatefulWidget {
 
 class _ComponentPageState extends State<ComponentPage> {
   static const _enableTextAdjustment = false;
-  static final Map<ComponentType?, List<Adjustment>> _adjustmentPresets = {
+  static final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
     ComponentType.frame: [
       CategoricalAdjustment(name: "Flipchip", notes: "Controls geometry and bottom bracket height", unit: null, options: ["Low", "Mid", "High"])
     ],
@@ -66,7 +66,6 @@ class _ComponentPageState extends State<ComponentPage> {
       NumericalAdjustment(name: "Bar Width", unit: "mm", min: 0, notes: "Total width of handlebars"),
       NumericalAdjustment(name: "Stem Spacer", unit: "mm", min: 0, notes: "Height of spacers under the stem"),
     ],
-    null: [],
   };
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
@@ -433,46 +432,60 @@ class _ComponentPageState extends State<ComponentPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                if (_adjustmentPresets[componentType] != null && _adjustmentPresets[componentType]!.isNotEmpty) ... [
-                    Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    child: Text(
-                      "Pre-filled Templates",
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  child: Text(
+                    "Pre-filled Templates",
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
-                  ..._adjustmentPresets[componentType]!.map((adjustmentPreset) => ListTile(
-                    leading: adjustmentPreset.getIcon(),
-                    title: Text(adjustmentPreset.name),
-                    subtitle: Text(adjustmentPreset.getProperties(), style: const TextStyle(fontSize: 12)),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                    onTap: () {
-                      Navigator.pop(context);
-                      _addAdjustmentFromPreset(adjustmentPreset);
-                    },
-                  )),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                    child: Divider(),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    child: Text(
-                      "Custom Adjustment",
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                        color: Theme.of(context).colorScheme.primary,
+                ),
+                if (componentType == null) 
+                  Text(
+                    "No templates available. Select a component type first.",
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  )
+                else
+                  if (_adjustmentPresets[componentType] != null && _adjustmentPresets[componentType]!.isNotEmpty)
+                    ..._adjustmentPresets[componentType]!.map((adjustmentPreset) => ListTile(
+                      leading: adjustmentPreset.getIcon(),
+                      title: Text(adjustmentPreset.name),
+                      subtitle: Text(adjustmentPreset.getProperties(), style: const TextStyle(fontSize: 12)),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _addAdjustmentFromPreset(adjustmentPreset);
+                      },
+                    ))
+                  else 
+                    Text(
+                      "No templates available.",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: Divider(),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  child: Text(
+                    "Custom Adjustment",
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
-                ],
+                ),
                 ListTile(
                   leading: Icon(Icons.speed, color: Theme.of(context).colorScheme.primary),
                   title: Text("Numerical Adjustment"),

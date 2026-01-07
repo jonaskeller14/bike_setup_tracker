@@ -116,6 +116,10 @@ class _ShowSetLocationDialogState extends State<ShowSetLocationDialog> {
                 hintText: 'Address',
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 icon: Icon(Icons.pin_drop),
+                suffixIcon: IconButton(
+                  onPressed: () => _onFieldSubmitted(_controller.text.trim()), 
+                  icon: Icon(Icons.search),
+                ),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) return 'Please enter an address';

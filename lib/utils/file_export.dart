@@ -169,7 +169,7 @@ class FileExport {
           }
         }
       }
-      debugPrint('Successfully deleting backups');
+      // debugPrint('Successfully deleting backups');
     } catch (e, st) {
       debugPrint('Error deleting backups: $e\n$st');
     }

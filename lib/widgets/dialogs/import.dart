@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Future<String?> showImportMergeOverwriteDialog(BuildContext context) async {
+Future<String?> showImportDialog(BuildContext context) async {
     return showDialog<String>(
       context: context,
       barrierDismissible: false,
@@ -8,20 +8,20 @@ Future<String?> showImportMergeOverwriteDialog(BuildContext context) async {
         return AlertDialog(
           title: const Text('Import Data'),
           content: const Text(
-            'Do you want to overwrite existing data or append (merge) the imported data? Existing data could be lost forever and cannot be restored.',
+            'Do you want to import data from a file or restore data from a backup?',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, 'cancel'),
               child: const Text('Cancel'),
             ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, 'merge'),
-              child: const Text('Merge'),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, 'file'),
+              child: const Text('Import File'),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.pop(context, 'overwrite'),
-              child: const Text('Overwrite'),
+              onPressed: () => Navigator.pop(context, 'backup'),
+              child: const Text('Restore Backup'),
             ),
           ],
         );

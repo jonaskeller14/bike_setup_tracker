@@ -64,6 +64,70 @@ class FileImport {
     );
   }
 
+  static Future<Map<DateTime, String>> getBackups(BuildContext context) async {
+    final scaffold = ScaffoldMessenger.of(context);
+    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
+    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
+
+    try {
+      final dir = await getApplicationDocumentsDirectory();  //catch MissingPlatformDirectoryException
+      final backupDir = Directory('${dir.path}/backup');
+      if (!await backupDir.exists()) return <DateTime, String>{};
+      
+      final Map<DateTime, String> backupMap = {};
+
+      await for (final entity in backupDir.list()) {
+        if (entity is File) {
+          final stat = await entity.stat();
+          backupMap[stat.modified] = entity.path;
+        }
+      }
+      return backupMap;
+    } catch (e, st) {
+      debugPrint("Getting existing backups failed: $e\n$st");
+      if (context.mounted) {
+        scaffold.showSnackBar(SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          closeIconColor: onErrorContainerColor,
+          content: Text("Getting existing backups failed: $e", style: TextStyle(color: onErrorContainerColor)), 
+          backgroundColor: errorContainerColor,
+        ));
+      }
+      
+      return <DateTime, String>{};
+
+    }
+  }
+
+  static Future<Data?> readBackup({required BuildContext context, required String path}) async {
+    final scaffold = ScaffoldMessenger.of(context);
+    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
+    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
+
+    try {
+      final file = File(path);
+      if (!await file.exists()) throw Exception("File does not exist");
+
+      final jsonString = await file.readAsString();
+      final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
+      
+      return await parseJson(jsonData: jsonData);
+    } catch (e, st) {
+      debugPrint("Reading backup failed: $e\n$st");
+      if (context.mounted) {
+        scaffold.showSnackBar(SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          closeIconColor: onErrorContainerColor,
+          content: Text("Reading backup failed: $e", style: TextStyle(color: onErrorContainerColor)), 
+          backgroundColor: errorContainerColor,
+        ));
+      }
+      return null;
+    }
+  }
+
   static Future<Data?> readJsonFileData(BuildContext context) async {
     final scaffold = ScaffoldMessenger.of(context);
     final errorContainerColor = Theme.of(context).colorScheme.errorContainer;

@@ -11,6 +11,7 @@ import 'setup_page.dart';
 import 'trash_page.dart';
 import 'app_settings_page.dart';
 import 'about_page.dart';
+import 'backup_page.dart';
 import '../utils/data.dart';
 import '../utils/file_export.dart';
 import '../utils/file_import.dart';
@@ -19,6 +20,8 @@ import '../widgets/component_list.dart';
 import '../widgets/setup_list.dart';
 import '../widgets/dialogs/confirmation.dart';
 import '../widgets/dialogs/import_merge_overwrite.dart';
+import '../widgets/dialogs/import.dart';
+import '../widgets/dialogs/export.dart';
 import '../widgets/google_drive_sync_button.dart';
 import '../services/google_drive_service.dart';
 
@@ -105,22 +108,37 @@ class _HomePageState extends State<HomePage> {
     // Google Drive is synced in init
   }
 
-  Future<void> loadJsonFileData() async {
-    final data = await FileImport.readJsonFileData(context);
-    if (data == null) return;
+  Future<void> _importData() async {
+    final importChoice = await showImportDialog(context);
 
     if (!mounted) return;
-    final choice = await showImportMergeOverwriteDialog(context);
+    Data? remoteData;
+    switch (importChoice) {
+      case "file":
+        remoteData = await FileImport.readJsonFileData(context);
+      case "backup":
+        final path = await Navigator.push<String?>(context, MaterialPageRoute(builder: (context) => const BackupPage()));
+        if (path == null) return;
+        if (!mounted) return;
+        remoteData = await FileImport.readBackup(context: context, path: path);
+      default:
+        return;
+    }
 
-    switch (choice) {
+    if (remoteData == null) return;
+
+    if (!mounted) return;
+    final mergeOverwriteChoice = await showImportMergeOverwriteDialog(context);
+
+    switch (mergeOverwriteChoice) {
       case 'overwrite':
         setState(() {
-          FileImport.overwrite(remoteData: data, localBikes: bikes, localSetups: setups, localComponents: components);
+          FileImport.overwrite(remoteData: remoteData!, localBikes: bikes, localSetups: setups, localComponents: components);
           onBikeTap(null);
         });
       case 'merge':
         setState(() {
-          FileImport.merge(remoteData: data, localBikes: bikes, localSetups: setups, localComponents: components);
+          FileImport.merge(remoteData: remoteData!, localBikes: bikes, localSetups: setups, localComponents: components);
         });
       default: 
         return;
@@ -135,11 +153,30 @@ class _HomePageState extends State<HomePage> {
       SnackBar(
         persist: false,
         showCloseIcon: true,
-        content: Text(choice == 'overwrite'
+        content: Text(mergeOverwriteChoice == 'overwrite'
           ? 'Data overwritten successfully'
           : 'Data merged successfully'
         )),
     );
+  }
+
+  Future<void> _exportData() async {
+    final choice = await showExporttDialog(context);
+    
+    if (!mounted) return;
+    switch (choice) {
+      case "file":
+        await FileExport.downloadJson(
+          context: context,
+          bikes: bikes,
+          setups: setups,
+          components: components,
+        );
+      case "backup":
+        await FileExport.saveBackup(bikes: bikes, setups: setups, components: components, force: true);
+      default:
+        return;
+    }
   }
 
   Future<void> clearData() async {
@@ -541,15 +578,10 @@ class _HomePageState extends State<HomePage> {
             onSelected: (String result) {
               switch (result) {
                 case 'import':
-                  loadJsonFileData();
+                  _importData();
                   break;
                 case 'export':
-                  FileExport.downloadJson(
-                    context: context,
-                    bikes: bikes,
-                    setups: setups,
-                    components: components,
-                  );
+                  _exportData();
                   break;
                 case 'share':
                   FileExport.shareJson(

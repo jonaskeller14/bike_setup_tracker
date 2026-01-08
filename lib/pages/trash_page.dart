@@ -23,6 +23,28 @@ class TrashPage extends StatefulWidget{
 }
 
 class _TrashPageState extends State<TrashPage> {
+  ListTile _trashItem({required dynamic deletedItem, required DateFormat dateFormat, required DateFormat timeFormat}) {
+    return ListTile(
+      leading: deletedItem is Bike 
+          ? Icon(Icons.pedal_bike) 
+          : deletedItem is Component 
+              ? Component.getIcon(deletedItem.componentType) 
+              : deletedItem is Setup 
+                  ? Icon(Icons.tune) 
+                  : null,
+      title: Text(deletedItem.name, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: Text("Deleted at: ${dateFormat.format(deletedItem.lastModified)} ${timeFormat.format(deletedItem.lastModified)}"),
+      trailing: IconButton(
+        icon: Icon(Icons.restore_from_trash),
+        onPressed: () {
+          setState(() {
+            deletedItem.isDeleted = false;
+            deletedItem.lastModified = DateTime.now();
+          });
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,41 +66,44 @@ class _TrashPageState extends State<TrashPage> {
           ],
         ),
       ),
-      body: deletedCombined.isEmpty 
-          ? Center(
-              child: Text("Empty Tash", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5))), 
-            ) 
-          : ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: deletedCombined.length,
-              itemBuilder: (context, index) {
-                final deletedItem = deletedCombined[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 4.0),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  child: ListTile(
-                    leading: deletedItem is Bike 
-                        ? Icon(Icons.pedal_bike) 
-                        : deletedItem is Component 
-                            ? Component.getIcon(deletedItem.componentType) 
-                            : deletedItem is Setup 
-                                ? Icon(Icons.tune) 
-                                : null,
-                    title: Text(deletedItem.name, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text("Deleted at: ${DateFormat(appSettings.dateFormat).format(deletedItem.lastModified)} ${DateFormat(appSettings.timeFormat).format(deletedItem.lastModified)}"),
-                    trailing: IconButton(
-                      icon: Icon(Icons.restore_from_trash),
-                      onPressed: () {
-                        setState(() {
-                          deletedItem.isDeleted = false;
-                          deletedItem.lastModified = DateTime.now();
-                        });
-                      },
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: const Text('Items in the Trash are permanently deleted after 30 days. The Trash is emptied automatically.'),
+            dense: true,
+          ),
+          Expanded(
+            child: deletedCombined.isEmpty
+                ? Center(
+                    child: Text(
+                      "Empty Trash",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                      ),
                     ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: deletedCombined.length,
+                    itemBuilder: (context, index) {
+                      final deletedItem = deletedCombined[index];
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 4.0),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        child: _trashItem(
+                          deletedItem: deletedItem,
+                          dateFormat: DateFormat(appSettings.dateFormat),
+                          timeFormat: DateFormat(appSettings.timeFormat),
+                        ),
+                      );
+                    },
                   ),
-                );
-              }
-            ),
+          ),
+        ],
+      ),
     );
   }
 }

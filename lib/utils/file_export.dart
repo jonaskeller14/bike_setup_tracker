@@ -105,6 +105,7 @@ class FileExport {
   }
 
   static Future<File?> saveBackup({
+    BuildContext? context,
     required Map<String, Bike> bikes,
     required List<Setup> setups,
     required List<Component> components,
@@ -142,9 +143,33 @@ class FileExport {
       await file.writeAsString(jsonString);
       await prefs.setString(_backupSharedPreferencesInstance, now.toIso8601String());
 
+      if (context != null && context.mounted) {
+        final scaffoldMessenger = ScaffoldMessenger.of(context);
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            persist: false,
+            showCloseIcon: true,
+            content: Text('Saved backup at ${file.path}')
+          ),
+        );
+      }
       // debugPrint('Saved backup at ${file.path}');
       return file;
     } catch (e, st) {
+      if (context != null && context.mounted) {
+        final scaffoldMessenger = ScaffoldMessenger.of(context);
+        final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
+        final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            persist: false,
+            showCloseIcon: true,
+            closeIconColor: onErrorContainerColor,
+            content: Text('Error saving backup: $e', style: TextStyle(color: onErrorContainerColor)), 
+            backgroundColor: errorContainerColor,
+          ),
+        );
+      }
       debugPrint('Error saving backup: $e\n$st');
       return null;
     }

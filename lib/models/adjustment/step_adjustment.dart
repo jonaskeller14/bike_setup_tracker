@@ -64,6 +64,6 @@ class StepAdjustment extends Adjustment<int> {
 
   @override
   String getProperties() {
-    return "Range $min..$max, Step $step";
+    return "Range ${Adjustment.formatValue(min)}..${Adjustment.formatValue(max)}, Step $step";
   }
 }

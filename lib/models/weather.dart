@@ -109,17 +109,22 @@ class Weather {
   };
 
   factory Weather.fromJson(Map<String, dynamic> json) {
-    return Weather(
-      currentDateTime: DateTime.parse(json['currentDateTime']),
-      currentTemperature: json['currentTemperature'],
-      currentWeatherCode: json['currentWeatherCode'],
-      currentHumidity: json['currentHumidity'],
-      currentWindSpeed: json['currentWindSpeed'],
-      currentPrecipitation: json['currentPrecipitation'],
-      currentSoilMoisture0to7cm: json['currentSoilMoisture0to7cm'],
-      dayAccumulatedPrecipitation: json['dayAccumulatedPrecipitation'],
-      condition: Condition.values.firstWhereOrNull((e) => e.toString() == json['condition']),
-    );
+    final int? version = json["version"];
+    switch (version) {
+      case null:
+        return Weather(
+          currentDateTime: DateTime.parse(json['currentDateTime']),
+          currentTemperature: json['currentTemperature'],
+          currentWeatherCode: json['currentWeatherCode'],
+          currentHumidity: json['currentHumidity'],
+          currentWindSpeed: json['currentWindSpeed'],
+          currentPrecipitation: json['currentPrecipitation'],
+          currentSoilMoisture0to7cm: json['currentSoilMoisture0to7cm'],
+          dayAccumulatedPrecipitation: json['dayAccumulatedPrecipitation'],
+          condition: Condition.values.firstWhereOrNull((e) => e.toString() == json['condition']),
+        );
+      default: throw Exception("Json Version $version of Weather incompatible.");
+    }
   }
 
   static double convertTemperatureToCelsius(double temp, String currentUnit) {

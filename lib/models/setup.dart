@@ -53,21 +53,26 @@ class Setup {
   };
 
   factory Setup.fromJson({required Map<String, dynamic> json}) {
-    return Setup(
-      id: json['id'],
-      isDeleted: json["isDeleted"],
-      lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
-      name: json['name'],
-      datetime: DateTime.parse(json['datetime']),
-      notes: json['notes'] != null ? json['notes'] as String : null,
-      bike: json['bike'],
-      adjustmentValues: json['adjustmentValues'] as Map<String, dynamic>? ?? {},
-      position: json['position'] != null ? _locationDataFromJson(json['position']) : null,
-      place: json['place'] != null ? _placemarkFromJson(json['place']) : null,
-      weather: json['weather'] != null ? Weather.fromJson(json['weather']) : null,
-      previousSetup: null, // linked later
-      isCurrent: json['isCurrent'] ?? false,
-    );
+    final int? version = json["version"];
+    switch (version) {
+      case null:
+        return Setup(
+          id: json['id'],
+          isDeleted: json["isDeleted"],
+          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
+          name: json['name'],
+          datetime: DateTime.parse(json['datetime']),
+          notes: json['notes'] != null ? json['notes'] as String : null,
+          bike: json['bike'],
+          adjustmentValues: json['adjustmentValues'] as Map<String, dynamic>? ?? {},
+          position: json['position'] != null ? _locationDataFromJson(json['position']) : null,
+          place: json['place'] != null ? _placemarkFromJson(json['place']) : null,
+          weather: json['weather'] != null ? Weather.fromJson(json['weather']) : null,
+          previousSetup: null, // linked later
+          isCurrent: json['isCurrent'] ?? false,
+        );
+      default: throw Exception("Json Version $version of Setup incompatible.");
+    }
   }
 
   static Map<String, dynamic> locationDataToJson(LocationData data) => {
@@ -84,16 +89,21 @@ class Setup {
   };
 
   static LocationData _locationDataFromJson(Map<String, dynamic> json) {
-    return LocationData.fromMap({
-      'latitude': json['latitude'],
-      'longitude': json['longitude'],
-      'altitude': json['altitude'],
-      'accuracy': json['accuracy'],
-      'heading': json['heading'],
-      'speed': json['speed'],
-      'speed_accuracy': json['speedAccuracy'], // Note: key expected by LocationData.fromMap
-      'time': json['time'] != null ? DateTime.parse(json['time']).millisecondsSinceEpoch.toDouble() : null,
-    });
+    final int? version = json["version"];
+    switch (version) {
+      case null:
+        return LocationData.fromMap({
+          'latitude': json['latitude'],
+          'longitude': json['longitude'],
+          'altitude': json['altitude'],
+          'accuracy': json['accuracy'],
+          'heading': json['heading'],
+          'speed': json['speed'],
+          'speed_accuracy': json['speedAccuracy'], // Note: key expected by LocationData.fromMap
+          'time': json['time'] != null ? DateTime.parse(json['time']).millisecondsSinceEpoch.toDouble() : null,
+        });
+      default: throw Exception("Json Version $version of Location incompatible."); 
+    } 
   }
 
   static Map<String, dynamic> _placemarkToJson(geo.Placemark place) => {
@@ -110,18 +120,23 @@ class Setup {
   };
 
   static geo.Placemark _placemarkFromJson(Map<String, dynamic> json) {
-    return geo.Placemark(
-      name: json['name'],
-      thoroughfare: json['thoroughfare'],
-      subThoroughfare: json['subThoroughfare'],
-      locality: json['locality'],
-      subLocality: json['subLocality'],
-      administrativeArea: json['administrativeArea'],
-      subAdministrativeArea: json['subAdministrativeArea'],
-      postalCode: json['postalCode'],
-      country: json['country'],
-      isoCountryCode: json['isoCountryCode'],
-    );
+    final int? version = json["version"];
+    switch (version) {
+      case null:
+        return geo.Placemark(
+          name: json['name'],
+          thoroughfare: json['thoroughfare'],
+          subThoroughfare: json['subThoroughfare'],
+          locality: json['locality'],
+          subLocality: json['subLocality'],
+          administrativeArea: json['administrativeArea'],
+          subAdministrativeArea: json['subAdministrativeArea'],
+          postalCode: json['postalCode'],
+          country: json['country'],
+          isoCountryCode: json['isoCountryCode'],
+        );
+      default: throw Exception("Json Version $version of Place incompatible.");
+    }
   }
 
   static double convertAltitudeToMeters(double alt, String currentUnit) {

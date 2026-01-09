@@ -19,11 +19,16 @@ class Bike {
   };
 
   factory Bike.fromJson(Map<String, dynamic> json) {
-    return Bike(
-      id: json["id"],
-      isDeleted: json["isDeleted"],
-      lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
-      name: json['name'],
-    );
+    final int? version = json["version"];
+    switch (version) {
+      case null:
+        return Bike(
+          id: json["id"],
+          isDeleted: json["isDeleted"],
+          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
+          name: json['name'],
+        );
+      default: throw Exception("Json Version $version of Bike incompatible.");
+    }
   }
 }

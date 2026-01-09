@@ -80,21 +80,25 @@ class Component {
   };
 
   factory Component.fromJson({required Map<String, dynamic> json}) {
-    final adjustments = (json["adjustments"] as List<dynamic>?)
-        ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson))
-        .toList()
-        ?? <Adjustment>[];
-    return Component(
-      id: json["id"],
-      isDeleted: json["isDeleted"],
-      lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
-      name: json['name'],
-      componentType: ComponentType.values.firstWhere(
-        (e) => e.toString() == json['componentType'],
-        orElse: () => ComponentType.other,
-      ),
-      bike: json["bike"],
-      adjustments: adjustments,
-    );
+    final int? version = json["version"];
+    switch (version) {
+      case null:
+        return Component(
+          id: json["id"],
+          isDeleted: json["isDeleted"],
+          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
+          name: json['name'],
+          componentType: ComponentType.values.firstWhere(
+            (e) => e.toString() == json['componentType'],
+            orElse: () => ComponentType.other,
+          ),
+          bike: json["bike"],
+          adjustments: (json["adjustments"] as List<dynamic>?)
+            ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson))
+            .toList()
+            ?? <Adjustment>[],
+        );
+      default: throw Exception("Json Version $version of Component incompatible."); 
+    }
   }
 }

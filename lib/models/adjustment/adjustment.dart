@@ -45,56 +45,61 @@ abstract class Adjustment<T> {
   }
 
   static Adjustment fromJson(Map<String, dynamic> json) {
-    final type = json['type'];
-    switch (type) {
-      case 'boolean':
-        return BooleanAdjustment(
-          id: json["id"],
-          name: json['name'],
-          notes: json['notes'],
-          unit: json['unit'] as String?,
-        );
-      case 'categorical':
-        return CategoricalAdjustment(
-          id: json["id"],
-          name: json['name'],
-          notes: json['notes'],
-          unit: json['unit'] as String?,
-          options: List<String>.from(json['options']),
-        );
-      case 'step':
-        return StepAdjustment(
-          id: json["id"],
-          name: json['name'],
-          notes: json['notes'],
-          unit: json['unit'] as String?,
-          step: (json['step'] as num).toInt(),
-          min: (json['min'] as num).toInt(),
-          max: (json['max'] as num).toInt(),
-          visualization: StepAdjustmentVisualization.values.firstWhere(
-            (e) => e.toString() == json['visualization'],
-            orElse: () => StepAdjustmentVisualization.slider,
-          ),
-        );
-      case 'numerical':
-        return NumericalAdjustment(
-          id: json["id"],
-          name: json['name'],
-          notes: json['notes'],
-          unit: json['unit'] as String?,
-          min: (json['min'] as num?)?.toDouble(),
-          max: (json['max'] as num?)?.toDouble(),
-        );
-      case 'text':
-        return TextAdjustment(
-          id: json["id"],
-          name: json['name'],
-          notes: json['notes'],
-          unit: json['unit'] as String?,
-          prefill: json['prefill'] ?? false,
-        );
-      default:
-        throw Exception('Unknown adjustment type: $type');
+    final int? version = json["version"];
+    switch (version) {
+      case null:
+        final type = json['type'];
+        switch (type) {
+          case 'boolean':
+            return BooleanAdjustment(
+              id: json["id"],
+              name: json['name'],
+              notes: json['notes'],
+              unit: json['unit'] as String?,
+            );
+          case 'categorical':
+            return CategoricalAdjustment(
+              id: json["id"],
+              name: json['name'],
+              notes: json['notes'],
+              unit: json['unit'] as String?,
+              options: List<String>.from(json['options']),
+            );
+          case 'step':
+            return StepAdjustment(
+              id: json["id"],
+              name: json['name'],
+              notes: json['notes'],
+              unit: json['unit'] as String?,
+              step: (json['step'] as num).toInt(),
+              min: (json['min'] as num).toInt(),
+              max: (json['max'] as num).toInt(),
+              visualization: StepAdjustmentVisualization.values.firstWhere(
+                (e) => e.toString() == json['visualization'],
+                orElse: () => StepAdjustmentVisualization.slider,
+              ),
+            );
+          case 'numerical':
+            return NumericalAdjustment(
+              id: json["id"],
+              name: json['name'],
+              notes: json['notes'],
+              unit: json['unit'] as String?,
+              min: (json['min'] as num?)?.toDouble(),
+              max: (json['max'] as num?)?.toDouble(),
+            );
+          case 'text':
+            return TextAdjustment(
+              id: json["id"],
+              name: json['name'],
+              notes: json['notes'],
+              unit: json['unit'] as String?,
+              prefill: json['prefill'] ?? false,
+            );
+          default:
+            throw Exception('Unknown adjustment type: $type');
+        }
+      default: throw Exception("Json Version $version of Adjustment incompatible."); 
     }
   }
 }

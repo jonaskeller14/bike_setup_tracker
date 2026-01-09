@@ -21,71 +21,112 @@ class AdjustmentEditList extends StatefulWidget {
 }
 
 class _AdjustmentEditListState extends State<AdjustmentEditList> {
+  Card _adjustmentCard({required int index}) {
+    return Card(
+      key: ValueKey(widget.adjustments[index]),
+      child: ListTile(
+        leading: widget.adjustments[index].getIcon(),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 8,
+        ),
+        title: Text(
+          widget.adjustments[index].name,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(Icons.info_outline, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                const SizedBox(width: 2),
+                Text(
+                  widget.adjustments[index].getProperties(),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+            if (widget.adjustments[index].notes != null)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 3), // tweak to match font size
+                    child: Icon(
+                      Icons.notes,
+                      size: 13,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  Expanded(
+                    child: Text(
+                      widget.adjustments[index].notes!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ReorderableDragStartListener(
+              index: index,
+              child: const Icon(Icons.drag_handle),
+            ),
+            PopupMenuButton<String>(
+              onSelected: (value) {
+                if (value == 'edit') {
+                  widget.editAdjustment(widget.adjustments[index]);
+                } else if (value == 'remove') {
+                  widget.removeAdjustment(widget.adjustments[index]);
+                }
+              },
+              itemBuilder: (BuildContext context) =>
+                  <PopupMenuEntry<String>>[
+                const PopupMenuItem<String>(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, size: 20),
+                      SizedBox(width: 10),
+                      Text('Edit'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'remove',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, size: 20),
+                      SizedBox(width: 10),
+                      Text('Remove'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<Card> cards = <Card>[
       for (int index = 0; index < widget.adjustments.length; index++)
-        Card(
-          key: ValueKey(widget.adjustments[index]),
-          child: ListTile(
-            leading: widget.adjustments[index].getIcon(),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 8,
-            ),
-            title: Text(
-              widget.adjustments[index].name,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text(
-              widget.adjustments[index].getProperties(),
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ReorderableDragStartListener(
-                  index: index,
-                  child: const Icon(Icons.drag_handle),
-                ),
-                PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'edit') {
-                      widget.editAdjustment(widget.adjustments[index]);
-                    } else if (value == 'remove') {
-                      widget.removeAdjustment(widget.adjustments[index]);
-                    }
-                  },
-                  itemBuilder: (BuildContext context) =>
-                      <PopupMenuEntry<String>>[
-                    const PopupMenuItem<String>(
-                      value: 'edit',
-                      child: Row(
-                        children: [
-                          Icon(Icons.edit, size: 20),
-                          SizedBox(width: 10),
-                          Text('Edit'),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'remove',
-                      child: Row(
-                        children: [
-                          Icon(Icons.delete, size: 20),
-                          SizedBox(width: 10),
-                          Text('Remove'),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
+        _adjustmentCard(index: index),
     ];
 
     Widget proxyDecorator(Widget child, int index, Animation<double> animation) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/google_drive_service.dart';
-import 'dialogs/google_drive_sync.dart';
+import 'google_drive_sync_sheet.dart';
 
 class GoogleDriveSyncButton extends StatelessWidget {
   final GoogleDriveService googleDriveService;
@@ -29,7 +29,7 @@ class GoogleDriveSyncButton extends StatelessWidget {
                   : Icons.cloud_off),
               onPressed: isSyncing 
                   ? null 
-                  : () => showGoogleDriveDialog(context: context, googleDriveService: googleDriveService),
+                  : () => showGoogleDriveSheet(context: context, googleDriveService: googleDriveService),
               tooltip: isLinked ? "Sync Now" : "Connect Google Drive",
             ),
             

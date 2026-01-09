@@ -152,7 +152,7 @@ class _HomePageState extends State<HomePage> {
 
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
     FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) _googleDriveService.scheduleSilentSync();
+    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup();}
     
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -220,7 +220,7 @@ class _HomePageState extends State<HomePage> {
 
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
     FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) _googleDriveService.scheduleSilentSync();
+    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup();}
   }
 
   Future<void> removeSetup(Setup toRemoveSetup) async {
@@ -272,7 +272,7 @@ class _HomePageState extends State<HomePage> {
 
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
     FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) _googleDriveService.scheduleSilentSync();
+    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup();}
   }
 
   Future<void> removeComponent(Component toRemoveComponent) async {
@@ -319,7 +319,7 @@ class _HomePageState extends State<HomePage> {
 
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
     FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) _googleDriveService.scheduleSilentSync();
+    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup();}
   }
   
   Future<void> addBike() async {
@@ -335,7 +335,7 @@ class _HomePageState extends State<HomePage> {
     });
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
     FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) _googleDriveService.scheduleSilentSync();
+    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup();}
   }
 
   Future<void> _addComponent() async {
@@ -361,7 +361,7 @@ class _HomePageState extends State<HomePage> {
 
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
     FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) _googleDriveService.scheduleSilentSync();
+    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup();}
   }
 
   Future<void> editBike(Bike bike) async {
@@ -377,7 +377,7 @@ class _HomePageState extends State<HomePage> {
     });
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
     FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) _googleDriveService.scheduleSilentSync();
+    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup();}
   }
 
   Future<void> editComponent(Component component) async {
@@ -400,7 +400,7 @@ class _HomePageState extends State<HomePage> {
     });
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
     FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) _googleDriveService.scheduleSilentSync();
+    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup();}
   }
 
   Future<void> duplicateComponent(Component component) async {
@@ -432,7 +432,7 @@ class _HomePageState extends State<HomePage> {
     });
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
     FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) _googleDriveService.scheduleSilentSync();
+    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup();}
   }
 
   Future<void> onReorderBikes(int oldIndex, int newIndex) async {
@@ -462,7 +462,7 @@ class _HomePageState extends State<HomePage> {
     });
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
     FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) _googleDriveService.scheduleSilentSync();
+    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup();}
   }
 
   Future<void> _addSetup() async {
@@ -502,7 +502,7 @@ class _HomePageState extends State<HomePage> {
     });
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
     FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) _googleDriveService.scheduleSilentSync();
+    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup();}
   }
 
   Future<void> editSetup(Setup setup) async {
@@ -526,7 +526,7 @@ class _HomePageState extends State<HomePage> {
     });
     FileExport.saveData(bikes: bikes, setups: setups, components: components);
     FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) _googleDriveService.scheduleSilentSync();
+    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup();}
   }
 
   Future<void> restoreSetup(Setup setup) async {
@@ -612,7 +612,7 @@ class _HomePageState extends State<HomePage> {
                     });
                     FileExport.saveData(bikes: bikes, setups: setups, components: components);
                     FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
-                    if (appSettings.enableGoogleDrive) _googleDriveService.scheduleSilentSync();
+                    if (appSettings.enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup();}
                   });
                   break;
                 case "settings":

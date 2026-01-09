@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_icons/simple_icons.dart';
 import '../models/app_settings.dart';
 
 class AppSettingsPage extends StatefulWidget {
@@ -56,6 +57,11 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   static const Map<String, String> _precipitationUnitOptions = {
     'mm': 'Millimeters (mm)',
     'in': 'Inches (in)',
+  };
+
+  static const Map<bool, String> _enableGoogleDriveOptions = {
+    false: 'Off',
+    true: 'On',
   };
 
   @override
@@ -368,6 +374,52 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ),
             ),
             const Divider(),
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
+              child: Text(
+                'Experimental Features',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            ListTile(
+              leading: Icon(SimpleIcons.googledrive, color: Theme.of(context).colorScheme.primary),
+              title: const Text("Google Drive Sync"),
+              subtitle: Text(_enableGoogleDriveOptions[appSettingsReader.enableGoogleDrive] ?? "-"),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+              onTap: () => showModalBottomSheet<void>(
+                showDragHandle: true,
+                isScrollControlled: true,
+                context: context,
+                builder: (BuildContext context) {
+                  return RadioGroup<bool>(
+                    groupValue: appSettingsReader.enableGoogleDrive,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettingsWriter.setEnableGoogleDrive(newValue);
+                      Navigator.pop(context);
+                    },
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text("Google Drive Sync", style: Theme.of(context).textTheme.titleLarge),
+                          ),
+                          const SizedBox(height: 16),
+                          ..._enableGoogleDriveOptions.entries.map((e) => RadioListTile(
+                            value: e.key,
+                            title: Text(e.value)
+                          )),
+                          const SizedBox(height: 16),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+              ),
+            ),
           ],
         ),
       ),

@@ -14,7 +14,6 @@ class AdjustmentSetList extends StatefulWidget {
   final void Function({required Adjustment adjustment, required dynamic newValue}) onAdjustmentValueChanged;
   final void Function({required Adjustment adjustment}) removeFromAdjustmentValues;
   final void Function() changeListener;
-  final bool isEdit;
 
   const AdjustmentSetList({
     super.key,
@@ -24,7 +23,6 @@ class AdjustmentSetList extends StatefulWidget {
     required this.onAdjustmentValueChanged,
     required this.removeFromAdjustmentValues,
     required this.changeListener,
-    required this.isEdit,
   });
 
   @override
@@ -39,41 +37,32 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
     super.initState();
     
     for (final adjustment in widget.adjustments) {
-      // Handling Edge case (Add mode)
-      if (adjustment is TextAdjustment && !adjustment.prefill && !widget.isEdit) {
-        _adjustmentValues[adjustment.id] = null;
-        continue;     
-      }
-
       // Step 1: Set from AdjustmentValues
       if (widget.adjustmentValues.containsKey(adjustment.id)) {
         _adjustmentValues[adjustment.id] = widget.adjustmentValues[adjustment.id];
         continue;
-      // Handling Edge case (Edit Mode)
-      } else if (adjustment is TextAdjustment && !adjustment.prefill && widget.isEdit) {
-        _adjustmentValues[adjustment.id] = null;
-        continue;
       }
 
       // Step 2: Set from initialAdjustmentValues
-      // Step 3: Set defaults (null, min, false, ...)
       final initialValue = widget.initialAdjustmentValues[adjustment.id];
-      if (initialValue == null) {
-        if (adjustment is BooleanAdjustment) { 
-          _adjustmentValues[adjustment.id] = null;
-        } else if (adjustment is NumericalAdjustment) {
-          _adjustmentValues[adjustment.id] = null;
-        } else if (adjustment is StepAdjustment) {
-          _adjustmentValues[adjustment.id] = null;
-        } else if (adjustment is CategoricalAdjustment) {
-          _adjustmentValues[adjustment.id] = null;
-        } else if (adjustment is TextAdjustment) {
-          _adjustmentValues[adjustment.id] = null;
-        } else {
-          throw Exception('Unknown adjustment type');
-        }
-      } else {
+      if (initialValue != null) {
         _adjustmentValues[adjustment.id] = initialValue;
+        continue;
+      }
+
+      // Step 3: Set defaults (null, min, false, ...)
+      if (adjustment is BooleanAdjustment) { 
+        _adjustmentValues[adjustment.id] = null;
+      } else if (adjustment is NumericalAdjustment) {
+        _adjustmentValues[adjustment.id] = null;
+      } else if (adjustment is StepAdjustment) {
+        _adjustmentValues[adjustment.id] = null;
+      } else if (adjustment is CategoricalAdjustment) {
+        _adjustmentValues[adjustment.id] = null;
+      } else if (adjustment is TextAdjustment) {
+        _adjustmentValues[adjustment.id] = null;
+      } else {
+        throw Exception('Unknown adjustment type');
       }
     }
   }
@@ -147,11 +136,10 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             },
           );
         } else if (adjustment is TextAdjustment) {
-          final initialValue = widget.initialAdjustmentValues[adjustment.id];
           return SetTextAdjustmentWidget(
             key: ValueKey(adjustment), 
             adjustment: adjustment, 
-            initialValue: (adjustment.prefill || initialValue == null) ? initialValue : '', // null leads to initial value highlighting and empty string to changed value highlighting
+            initialValue: widget.initialAdjustmentValues[adjustment.id],
             value: _adjustmentValues[adjustment.id], 
             onChanged: (String? newValue) {
               setState(() {

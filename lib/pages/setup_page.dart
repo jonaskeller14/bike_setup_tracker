@@ -833,7 +833,6 @@ class _SetupPageState extends State<SetupPage> {
                             onAdjustmentValueChanged: _onAdjustmentValueChanged,
                             removeFromAdjustmentValues: _removeFromAdjustmentValues,
                             changeListener: _changeListener,
-                            isEdit: widget.setup != null,
                           ),
                         ],
                       ),

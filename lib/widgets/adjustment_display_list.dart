@@ -138,9 +138,15 @@ class _AdjustmentTableRow extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (showComponentIcons) ... [
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: Component.getIcon(component.componentType),
+          Tooltip(
+            triggerMode: TooltipTriggerMode.tap,
+            preferBelow: false,
+            showDuration: const Duration(seconds: 5),
+            message: component.name,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Component.getIcon(component.componentType),
+            ),
           ),
           const SizedBox(width: 6),
         ],

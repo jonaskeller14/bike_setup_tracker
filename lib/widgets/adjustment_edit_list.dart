@@ -51,6 +51,21 @@ class _AdjustmentEditListState extends State<AdjustmentEditList> {
                 ),
               ],
             ),
+            if (widget.adjustments[index].unit != null)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(Icons.straighten, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  const SizedBox(width: 2),
+                  Text(
+                    "Unit: ${widget.adjustments[index].unit}",
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             if (widget.adjustments[index].notes != null)
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,

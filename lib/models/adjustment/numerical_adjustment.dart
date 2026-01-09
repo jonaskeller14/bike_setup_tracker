@@ -47,6 +47,6 @@ class NumericalAdjustment extends Adjustment<double> {
 
   @override
   String getProperties() {
-    return "Range ${min == double.negativeInfinity ? '-∞' : Adjustment.formatValue(min)}..${max == double.infinity ? '∞' : Adjustment.formatValue(max)}, Unit [${unit ?? ''}]";
+    return "Range ${min == double.negativeInfinity ? '-∞' : Adjustment.formatValue(min)}..${max == double.infinity ? '∞' : Adjustment.formatValue(max)}";
   }
 }

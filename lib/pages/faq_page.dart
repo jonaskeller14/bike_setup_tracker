@@ -6,6 +6,8 @@ class FAQPage extends StatelessWidget {
     'General': {
       'What is this app about?':
           'This app helps you track, manage, and optimize your bike setup adjustments for better performance.',
+      // 'What makes a good bike setup?':
+      //     'A "good" bike setup is a balance between the laws of physics and the rider’s personal feel. It should provide maximum traction and stability while minimizing rider fatigue. To evaluate a setup, you need to look at Objective Data (e.g. laptimes) and Subjective Feedback (what the rider is feeling).',
       'Can I export my data?':
           'Yes. You can export your bike setup as a JSON file by selecting "Export" from the top-right menu. The default save location is your Downloads folder.',
       'Is my data stored locally?':

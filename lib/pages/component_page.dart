@@ -24,11 +24,13 @@ class _ComponentPageState extends State<ComponentPage> {
   static const _enableTextAdjustment = false;
   static final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
     ComponentType.frame: [
-      CategoricalAdjustment(name: "Flipchip", notes: "Controls geometry and bottom bracket height", unit: null, options: ["Low", "Mid", "High"])
+      CategoricalAdjustment(name: "Flipchip", notes: "Controls geometry and bottom bracket height", unit: null, options: ["Low", "Mid", "High"]),
+      CategoricalAdjustment(name: "Chainstay Length", notes: "Some bikes have a adjustable chainstay length", unit: null, options: ["Short", "Mid", "Long"]),
     ],
     ComponentType.fork: [
       BooleanAdjustment(name: "Lockout", unit: null, notes: "Is the lockout lever enabled?"),
       NumericalAdjustment(name: "Pressure", unit: "psi", min: 0, notes: "Fork air pressure"),
+      NumericalAdjustment(name: "SAG", unit: "%", min: 0, max: 100, notes: "Sag is how much your fork compresses under your body weight (including riding gear) in a static riding position. SAG is a good metric for initial setup. Recommended ranges by discipline: XC: 15%, Trail: 15-20%, Enduro: 20%, Downhill: 20-25%."),
       StepAdjustment(name: "Rebound", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Rebound clicks (0-20)"),
       StepAdjustment(name: "Compression", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Compression clicks (0-20)"),
     ],
@@ -36,18 +38,19 @@ class _ComponentPageState extends State<ComponentPage> {
       BooleanAdjustment(name: "Lockout", unit: null, notes: "Is the lockout lever enabled?"),
       NumericalAdjustment(name: "Pressure", unit: "psi", min: 0, notes: "Shock air pressure"),
       NumericalAdjustment(name: "Spring Rate", unit: "lbs", min: 0, notes: "Coil spring rate"),
+      NumericalAdjustment(name: "SAG", unit: "%", min: 0, max: 100, notes: "Sag is how much your shock compresses under your body weight (including riding gear) in a static riding position. SAG is a good metric for initial setup. Recommended ranges by discipline: XC: 20-25%, Trail: 25-30%, Enduro: 30%, Downhill: 30-35%."),
       StepAdjustment(name: "Rebound", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Rebound clicks (0-20)"),
       StepAdjustment(name: "Compression", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Compression clicks (0-20)"),
     ],
     ComponentType.wheelFront: [
       NumericalAdjustment(name: "Pressure", unit: "bar", min: 0, notes: "Front tire pressure"),
       BooleanAdjustment(name: "Insert", unit: null, notes: "Tire insert installed?"),
-      CategoricalAdjustment(name: "Condition", options: ["New", "Used", "Worn Out"], unit: null, notes: "Current state of the tire tread"),
+      CategoricalAdjustment(name: "Wear", options: ["New", "Used", "Worn Out"], unit: null, notes: "Current state of the tire tread"),
     ],
     ComponentType.wheelRear: [
       NumericalAdjustment(name: "Pressure", unit: "bar", min: 0, notes: "Rear tire pressure"),
       BooleanAdjustment(name: "Insert", unit: null, notes: "Tire insert installed?"),
-      CategoricalAdjustment(name: "Condition", options: ["New", "Used", "Worn Out"], unit: null, notes: "Current state of the tire tread"),
+      CategoricalAdjustment(name: "Wear", options: ["New", "Used", "Worn Out"], unit: null, notes: "Current state of the tire tread"),
     ],
     ComponentType.motor: [
       NumericalAdjustment(name: "Max Power", unit: "W", min: 0, notes: "Maximum motor power output"),
@@ -64,7 +67,7 @@ class _ComponentPageState extends State<ComponentPage> {
       NumericalAdjustment(name: "Saddle Height", unit: "mm", min: 0, notes: "Distance from Bottom Bracket to top of saddle"),
       NumericalAdjustment(name: "Bar Roll", unit: "°", notes: "Angle of handlebars in degrees"),
       NumericalAdjustment(name: "Bar Width", unit: "mm", min: 0, notes: "Total width of handlebars"),
-      NumericalAdjustment(name: "Stem Spacer", unit: "mm", min: 0, notes: "Height of spacers under the stem"),
+      NumericalAdjustment(name: "Stack Height", unit: "mm", min: 0, notes: "Height of spacers under the stem"),
     ],
   };
   final _formKey = GlobalKey<FormState>();

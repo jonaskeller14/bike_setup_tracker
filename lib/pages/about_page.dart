@@ -241,6 +241,12 @@ Current Time: $now
               title: 'End-User License Agreement (EULA)',
               url: eulaUrl,
             ),
+            ListTile(
+              leading: Icon(Icons.copyright, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              title: const Text("Third-party trademarks"),
+              subtitle: const Text("Google Drive is a trademark of Google LLC."),
+              dense: true,
+            ),
             const SizedBox(height: 30),
           ],
         ),

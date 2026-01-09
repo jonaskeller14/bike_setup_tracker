@@ -5,13 +5,19 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:googleapis/servicecontrol/v2.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/data.dart';
-import '../utils/file_import.dart';
+import '../utils/backup.dart';
 import 'package:http/http.dart' as http;
 
 class GoogleDriveService extends ChangeNotifier { 
   static const List<String> _scopes = [drive.DriveApi.driveAppdataScope];
   static const String _fileName = 'bike_setup_tracker_data.json';
+
+  static const Duration _backupStoreDuration = Duration(days: 30);
+  static const Duration _backupFrequency = Duration(days: 1);
+  static const String _backupSharedPreferencesInstance = "backup/googleDriveLastBackup";
+  static const String _backupFolderName = 'backup';
 
   GoogleSignInAccount? _currentUser;
   bool _isAuthorized = false;
@@ -222,7 +228,7 @@ class GoogleDriveService extends ChangeNotifier {
     
     try {
       await download();
-      await upload();
+      await upload();  // only upload if download was successfull!
       lastSync = DateTime.now();
       debugPrint("Silent Sync successful at $lastSync");
     } on DetailedApiRequestError catch (e) {
@@ -342,7 +348,194 @@ class GoogleDriveService extends ChangeNotifier {
     _errorMessage = '';
     notifyListeners();
   }
+
+  Future<void> saveBackup({bool force = false}) async {
+    if (_currentUser == null || _driveApi == null || !_isAuthorized) {
+      _setErrorMessage("Not authorized to backup to Google Drive. Please sign in first.");
+      return;
+    }
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? lastBackupStr = prefs.getString(_backupSharedPreferencesInstance);
+      final DateTime? lastBackup = DateTime.tryParse(lastBackupStr ?? "");
+
+      final now = DateTime.now();
+
+      if (!force && lastBackup != null && lastBackup.add(_backupFrequency).isAfter(now)) {
+        debugPrint('Drive backup already exists. Skipping.');
+        return;
+      }
+
+      final jsonString = jsonEncode(getDataToUpload());
+      final List<int> fileBytes = utf8.encode(jsonString);
+      final media = drive.Media(
+        Stream.fromIterable([fileBytes]),
+        fileBytes.length,
+      );
+
+      final timestamp =
+          '${now.year.toString().padLeft(4, '0')}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_'
+          '${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
+
+      final backupFileName = '${timestamp}_backup.json';
+      final backupFolderId = await _getOrCreateBackupFolder();
+
+      final driveFile = drive.File()
+        ..name = backupFileName
+        ..parents = [backupFolderId];
+
+      await _driveApi!.files.create(
+        driveFile,
+        uploadMedia: media,
+      );
+
+      await prefs.setString(_backupSharedPreferencesInstance, now.toIso8601String());
+      debugPrint('Successfully backed up to Google Drive: $backupFileName');
+    } catch (e, st) {
+      _setErrorMessage('Error backing up to Google Drive: $e');
+      debugPrint('Error backing up to Google Drive: $e\n$st');
+    }
+  }
+
+  Future<String> _getOrCreateBackupFolder() async {
+    if (_driveApi == null) throw Exception("Drive API not initialized");
+
+    final fileList = await _driveApi!.files.list(
+      spaces: 'appDataFolder',
+      q: "name = '$_backupFolderName' and mimeType = 'application/vnd.google-apps.folder' and trashed = false",
+      $fields: 'files(id)',
+    );
+
+    if (fileList.files?.isNotEmpty == true) {
+      return fileList.files!.first.id!;
+    }
+
+    final folder = drive.File()
+      ..name = _backupFolderName
+      ..mimeType = 'application/vnd.google-apps.folder'
+      ..parents = ['appDataFolder'];
+
+    final createdFolder = await _driveApi!.files.create(folder);
+    return createdFolder.id!;
+  }
+
+  Future<List<GoogleDriveBackup>> getBackups(BuildContext context) async {
+    final scaffold = ScaffoldMessenger.of(context);
+    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
+    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
+
+    final List<GoogleDriveBackup> backups = [];
+    try {
+      if (_driveApi == null) await _initializeDriveApi();
+      if (_driveApi == null) throw Exception("Drive API not initialized");
+
+      final backupFolderId = await _getOrCreateBackupFolder();
+      final fileList = await _driveApi!.files.list(
+        spaces: 'appDataFolder',
+        q: "'$backupFolderId' in parents and trashed = false",
+        $fields: 'files(id, name, modifiedTime)',
+      );
+
+      if (fileList.files == null || fileList.files!.isEmpty) return backups;
+
+      for (final file in fileList.files!) {
+        final modified = file.modifiedTime;
+        if (modified != null && file.id != null) {
+          backups.add(GoogleDriveBackup(createdAt: modified, fileId: file.id!));
+        }
+      }
+      return backups;
+    } catch (e, st) {
+      debugPrint("Getting Google Drive backups failed: $e\n$st");
+      if (context.mounted) {
+        scaffold.showSnackBar(SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          closeIconColor: onErrorContainerColor,
+          content: Text("Getting Google Drive backups failed: $e", style: TextStyle(color: onErrorContainerColor)), 
+          backgroundColor: errorContainerColor,
+        ));
+      }
+      return backups;
+    }
+  }
+
+  Future<Data?> readBackup({required BuildContext context, required String fileId}) async {
+    final scaffold = ScaffoldMessenger.of(context);
+    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
+    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
+
+    try {
+      if (_driveApi == null) await _initializeDriveApi();
+      if (_driveApi == null) throw Exception("Drive API not initialized");
+
+      final drive.Media media = await _driveApi!.files.get(
+        fileId,
+        downloadOptions: drive.DownloadOptions.fullMedia,
+      ) as drive.Media;
+
+      final List<int> dataStore = [];
+      await for (final chunk in media.stream) {
+        dataStore.addAll(chunk);
+      }
+
+      final jsonString = utf8.decode(dataStore);
+      final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
+      return Data.fromJson(json: jsonData);
+    } catch (e, st) {
+      debugPrint('Reading Google Drive backup failed: $fileId: $e\n$st');
+      if (context.mounted) {
+        scaffold.showSnackBar(SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          closeIconColor: onErrorContainerColor,
+          content: Text("Reading Google Drive backup failed: $e", style: TextStyle(color: onErrorContainerColor)), 
+          backgroundColor: errorContainerColor,
+        ));
+      }
+      return null;
+    }
+  }
+
+  Future<void> deleteOldBackups() async {
+    if (_currentUser == null || _driveApi == null || !_isAuthorized) {
+      debugPrint("Not authorized to delete backups from Google Drive.");
+      return;
+    }
+
+    try {
+      final backupFolderId = await _getOrCreateBackupFolder();
+      final cutoffDateTime = DateTime.now().subtract(_backupStoreDuration);
+
+      final fileList = await _driveApi!.files.list(
+        spaces: 'appDataFolder',
+        q: "'$backupFolderId' in parents and trashed = false",
+        $fields: 'files(id, name, modifiedTime)',
+      );
+
+      if (fileList.files == null || fileList.files!.isEmpty) {
+        debugPrint('No backup files to delete.');
+        return;
+      }
+
+      for (final file in fileList.files!) {
+        try {
+          final modifiedTime = file.modifiedTime;
+          if (modifiedTime != null && modifiedTime.isBefore(cutoffDateTime)) {
+            await _driveApi!.files.delete(file.id!);
+            debugPrint('Deleted old backup: ${file.name}');
+          }
+        } catch (e) {
+          debugPrint('Failed to delete backup file ${file.name}: $e');
+        }
+      }
+    } catch (e, st) {
+      debugPrint('Error deleting old backups from Google Drive: $e\n$st');
+    }
+  }
 }
+
 
 class AuthenticatedClient extends http.BaseClient {
   final http.Client _baseClient;

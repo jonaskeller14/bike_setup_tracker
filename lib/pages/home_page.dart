@@ -13,6 +13,7 @@ import 'app_settings_page.dart';
 import 'about_page.dart';
 import 'backup_page.dart';
 import '../utils/data.dart';
+import '../utils/backup.dart';
 import '../utils/file_export.dart';
 import '../utils/file_import.dart';
 import '../widgets/bike_list.dart';
@@ -117,10 +118,14 @@ class _HomePageState extends State<HomePage> {
       case "file":
         remoteData = await FileImport.readJsonFileData(context);
       case "backup":
-        final path = await Navigator.push<String?>(context, MaterialPageRoute(builder: (context) => const BackupPage()));
-        if (path == null) return;
+        final backup = await Navigator.push<Backup?>(context, MaterialPageRoute(builder: (context) => BackupPage(googleDriveService: _enableGoogleDrive ? _googleDriveService : null)));
+        if (backup == null) return;
         if (!mounted) return;
-        remoteData = await FileImport.readBackup(context: context, path: path);
+
+        switch (backup) {
+          case LocalBackup(): remoteData = await FileImport.readBackup(context: context, path: backup.filepath);
+          case GoogleDriveBackup(): remoteData = await _googleDriveService.readBackup(context: context, fileId: backup.fileId);
+        }
       default:
         return;
     }
@@ -161,7 +166,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _exportData() async {
-    final choice = await showExporttDialog(context);
+    final choice = await showExporttDialog(context: context, enableGoogleDrive: _enableGoogleDrive);
     
     if (!mounted) return;
     switch (choice) {
@@ -174,6 +179,8 @@ class _HomePageState extends State<HomePage> {
         );
       case "backup":
         await FileExport.saveBackup(context: context, bikes: bikes, setups: setups, components: components, force: true);
+      case "googleDriveBackup":
+        await _googleDriveService.saveBackup(force: true);
       default:
         return;
     }

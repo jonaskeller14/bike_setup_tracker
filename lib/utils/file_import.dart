@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import '../models/bike.dart';
 import '../models/setup.dart';
 import '../models/component.dart';
+import '../utils/backup.dart';
 import 'data.dart';
 
 class FileImport {
@@ -44,39 +45,36 @@ class FileImport {
     }
   }
 
-  static Future<Map<DateTime, String>> getBackups(BuildContext context) async {
+  static Future<List<LocalBackup>> getBackups(BuildContext context) async {
     final scaffold = ScaffoldMessenger.of(context);
     final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
     final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
 
+    final List<LocalBackup> backups = [];
     try {
       final dir = await getApplicationDocumentsDirectory();  //catch MissingPlatformDirectoryException
       final backupDir = Directory('${dir.path}/backup');
-      if (!await backupDir.exists()) return <DateTime, String>{};
+      if (!await backupDir.exists()) return backups;
       
-      final Map<DateTime, String> backupMap = {};
-
       await for (final entity in backupDir.list()) {
         if (entity is File) {
           final stat = await entity.stat();
-          backupMap[stat.modified] = entity.path;
+          backups.add(LocalBackup(createdAt: stat.modified, filepath: entity.path));
         }
       }
-      return backupMap;
+      return backups;
     } catch (e, st) {
-      debugPrint("Getting existing backups failed: $e\n$st");
+      debugPrint("Getting local backups failed: $e\n$st");
       if (context.mounted) {
         scaffold.showSnackBar(SnackBar(
           persist: false,
           showCloseIcon: true,
           closeIconColor: onErrorContainerColor,
-          content: Text("Getting existing backups failed: $e", style: TextStyle(color: onErrorContainerColor)), 
+          content: Text("Getting local backups failed: $e", style: TextStyle(color: onErrorContainerColor)), 
           backgroundColor: errorContainerColor,
         ));
       }
-      
-      return <DateTime, String>{};
-
+      return backups;
     }
   }
 

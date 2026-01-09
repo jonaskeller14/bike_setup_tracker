@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Future<String?> showExporttDialog(BuildContext context) async {
+Future<String?> showExporttDialog({required BuildContext context, bool enableGoogleDrive = false}) async {
     return showDialog<String>(
       context: context,
       barrierDismissible: false,
@@ -23,6 +23,11 @@ Future<String?> showExporttDialog(BuildContext context) async {
               onPressed: () => Navigator.pop(context, 'backup'),
               child: const Text('Save Backup'),
             ),
+            if (enableGoogleDrive)
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context, 'googleDriveBackup'),
+                child: const Text('Save Google Drive Backup'),
+              ),
           ],
         );
       },

@@ -1,25 +1,32 @@
-import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_icons/simple_icons.dart';
 import '../models/app_settings.dart';
+import '../services/google_drive_service.dart';
 import '../utils/file_import.dart';
+import '../utils/backup.dart';
 
 class BackupPage extends StatelessWidget {
-  const BackupPage({super.key});
+  final GoogleDriveService? googleDriveService;
+  const BackupPage({super.key, this.googleDriveService});
 
   ListTile _backupListTile({
     required BuildContext context,
-    required DateTime datetime,
-    required String path,
+    required Backup backup,
     required DateFormat dateFormat,
     required DateFormat timeFormat,
   }) {
     return ListTile(
-      title: Text("Backup"),
-      subtitle: Text("Created at: ${dateFormat.format(datetime)} ${timeFormat.format(datetime)}"),
+      leading: switch (backup) {
+        LocalBackup() => const Icon(Icons.phone_android),
+        GoogleDriveBackup() => const Icon(SimpleIcons.googledrive),
+        _ => const Icon(Icons.question_mark),
+      },
+      title: const Text("Backup"),
+      subtitle: Text("Created at: ${dateFormat.format(backup.createdAt)} ${timeFormat.format(backup.createdAt)}"),
       trailing: IconButton(
-        onPressed: () => Navigator.pop(context, path),
+        onPressed: () => Navigator.pop(context, backup),
         icon: const Icon(Icons.upload),
         tooltip: 'Restore backup',
       ),
@@ -51,22 +58,35 @@ class BackupPage extends StatelessWidget {
               dense: true,
             ),
             const Divider(),
-            FutureBuilder(
-              future: FileImport.getBackups(context),
+            FutureBuilder<List<Backup>>(
+              future: Future.wait([
+                FileImport.getBackups(context),
+                googleDriveService?.getBackups(context) ?? Future.value(<Backup>[]),
+              ]).then((results) => results.expand((list) => list).toList()), 
+              
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  final backups = snapshot.data!;
-                  final sortedBackups = SplayTreeMap<DateTime, String>.from(backups, (a, b) => b.compareTo(a));
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: LinearProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return const ListTile(title: Text("Error loading backups"));
+                }
+
+                if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                  final List<Backup> backups = snapshot.data!;
+                  
+                  backups.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
                   return ListView.separated(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     padding: EdgeInsets.zero,
-                    itemCount: sortedBackups.length,
+                    itemCount: backups.length,
                     itemBuilder: (context, index) {
                       return _backupListTile(
                         context: context,
-                        datetime: sortedBackups.keys.toList()[index],
-                        path: sortedBackups.values.toList()[index],
+                        backup: backups[index],
                         dateFormat: dateFormat,
                         timeFormat: timeFormat,
                       );
@@ -74,7 +94,11 @@ class BackupPage extends StatelessWidget {
                     separatorBuilder: (context, index) => const Divider(),
                   );
                 }
-                return const Text('No backups found.');
+
+                return const ListTile(
+                  title: Text('No backups found.'),
+                  leading: Icon(Icons.search_off),
+                );
               },
             ),
             const Divider(),

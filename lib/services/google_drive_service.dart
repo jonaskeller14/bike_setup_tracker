@@ -317,7 +317,7 @@ class GoogleDriveService extends ChangeNotifier {
 
     final jsonString = utf8.decode(dataStore);
     final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
-    final Data remoteData = await FileImport.parseJson(jsonData: jsonData);
+    final Data remoteData = Data.fromJson(json: jsonData);
     onDataDownloaded(remoteData);
   }
 

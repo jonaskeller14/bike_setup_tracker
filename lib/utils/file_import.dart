@@ -24,7 +24,7 @@ class FileImport {
       jsonString = prefs.getString("data") ?? "{}";
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      final Data data = await parseJson(jsonData: jsonData);
+      final Data data = Data.fromJson(json: jsonData);
       debugPrint("Loading data successfully");
       return data;
     } catch (e, st) {
@@ -42,26 +42,6 @@ class FileImport {
       
       return null;
     }
-  }
-
-  static Future<Data> parseJson({required Map<String, dynamic> jsonData}) async {
-    final loadedBikes = (jsonData['bikes'] as List<dynamic>? ?? [])
-        .map((a) => Bike.fromJson(a))
-        .toList();
-
-    final loadedComponents = (jsonData['components'] as List<dynamic>? ?? [])
-        .map((c) => Component.fromJson(json: c))
-        .toList();
-    
-    final loadedSetups = (jsonData['setups'] as List<dynamic>? ?? [])
-        .map((s) => Setup.fromJson(json: s))
-        .toList();
-    
-    return Data(
-      bikes: <String, Bike>{for (var item in loadedBikes) item.id: item},
-      setups: loadedSetups,
-      components: loadedComponents,
-    );
   }
 
   static Future<Map<DateTime, String>> getBackups(BuildContext context) async {
@@ -112,7 +92,7 @@ class FileImport {
       final jsonString = await file.readAsString();
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
       
-      return await parseJson(jsonData: jsonData);
+      return Data.fromJson(json: jsonData);
     } catch (e, st) {
       debugPrint("Reading backup failed: $e\n$st");
       if (context.mounted) {
@@ -178,7 +158,7 @@ class FileImport {
         return null;
       }
 
-      final Data data = await parseJson(jsonData: jsonData);
+      final Data data = Data.fromJson(json: jsonData);
       scaffold.showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true,

@@ -18,4 +18,24 @@ class Data {
     'setups': setups.map((s) => s.toJson()).toList(),
     'components': components.map((c) => c.toJson()).toList(),
   };
+
+  factory Data.fromJson({required Map<String, dynamic> json}) {
+    final loadedBikes = (json['bikes'] as List<dynamic>? ?? [])
+        .map((a) => Bike.fromJson(a))
+        .toList();
+
+    final loadedComponents = (json['components'] as List<dynamic>? ?? [])
+        .map((c) => Component.fromJson(json: c))
+        .toList();
+    
+    final loadedSetups = (json['setups'] as List<dynamic>? ?? [])
+        .map((s) => Setup.fromJson(json: s))
+        .toList();
+    
+    return Data(
+      bikes: <String, Bike>{for (var item in loadedBikes) item.id: item},
+      setups: loadedSetups,
+      components: loadedComponents,
+    );
+  }
 }

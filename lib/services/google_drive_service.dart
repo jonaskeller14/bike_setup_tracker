@@ -349,6 +349,17 @@ class GoogleDriveService extends ChangeNotifier {
     notifyListeners();
   }
 
+  static void setLastBackup(DateTime newValue) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_backupSharedPreferencesInstance, newValue.toIso8601String());
+  }
+
+  static Future<DateTime?> getLastBackup() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? lastBackupStr = prefs.getString(_backupSharedPreferencesInstance);
+    return DateTime.tryParse(lastBackupStr ?? "");
+  }
+
   Future<void> saveBackup({bool force = false}) async {
     if (_currentUser == null || _driveApi == null || !_isAuthorized) {
       _setErrorMessage("Not authorized to backup to Google Drive. Please sign in first.");
@@ -356,10 +367,7 @@ class GoogleDriveService extends ChangeNotifier {
     }
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final String? lastBackupStr = prefs.getString(_backupSharedPreferencesInstance);
-      final DateTime? lastBackup = DateTime.tryParse(lastBackupStr ?? "");
-
+      final lastBackup = await getLastBackup();
       final now = DateTime.now();
 
       if (!force && lastBackup != null && lastBackup.add(_backupFrequency).isAfter(now)) {
@@ -390,7 +398,7 @@ class GoogleDriveService extends ChangeNotifier {
         uploadMedia: media,
       );
 
-      await prefs.setString(_backupSharedPreferencesInstance, now.toIso8601String());
+      setLastBackup(now);
       debugPrint('Successfully backed up to Google Drive: $backupFileName');
     } catch (e, st) {
       _setErrorMessage('Error backing up to Google Drive: $e');

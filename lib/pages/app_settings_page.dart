@@ -74,11 +74,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         title: const Text('App Settings'),
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
+              padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
               child: Text(
                 'Appearance',
                 style: Theme.of(context).textTheme.titleLarge,
@@ -382,6 +383,11 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ),
             ),
             ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: const Text('Experimental features are optional features which can lead to unexpected behavior. They can be enabled or disabled at any time.'),
+              dense: true,
+            ),
+            ListTile(
               leading: Icon(SimpleIcons.googledrive, color: Theme.of(context).colorScheme.primary),
               title: const Text("Google Drive Sync"),
               subtitle: Text(_enableGoogleDriveOptions[appSettingsReader.enableGoogleDrive] ?? "-"),
@@ -406,6 +412,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Text("Google Drive Sync", style: Theme.of(context).textTheme.titleLarge),
+                          ),
+                          const SizedBox(height: 16),
+                          ListTile(
+                            leading: const Icon(Icons.info_outline),
+                            title: const Text('Sync your data across devices and keep secure backups in your Google Drive. Your data is stored privately in your own account; we never have access to it.'),
+                            dense: true,
                           ),
                           const SizedBox(height: 16),
                           ..._enableGoogleDriveOptions.entries.map((e) => RadioListTile(

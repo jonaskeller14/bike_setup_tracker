@@ -22,9 +22,9 @@ import '../widgets/bike_list.dart';
 import '../widgets/component_list.dart';
 import '../widgets/setup_list.dart';
 import '../widgets/dialogs/confirmation.dart';
-import '../widgets/dialogs/import_merge_overwrite.dart';
-import '../widgets/dialogs/import.dart';
-import '../widgets/dialogs/export.dart';
+import '../widgets/sheets/import_merge_overwrite.dart';
+import '../widgets/sheets/import.dart';
+import '../widgets/sheets/export.dart';
 import '../widgets/google_drive_sync_button.dart';
 import '../services/google_drive_service.dart';
 
@@ -111,7 +111,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _importData() async {
-    final importChoice = await showImportDialog(context);
+    final importChoice = await showImportSheet(context);
 
     if (!mounted) return;
     Data? remoteData;
@@ -128,13 +128,14 @@ class _HomePageState extends State<HomePage> {
           case GoogleDriveBackup(): remoteData = await _googleDriveService.readBackup(context: context, fileId: backup.fileId);
         }
       default:
+        debugPrint("showImportSheet canceled");
         return;
     }
 
     if (remoteData == null) return;
 
     if (!mounted) return;
-    final mergeOverwriteChoice = await showImportMergeOverwriteDialog(context);
+    final mergeOverwriteChoice = await showImportMergeOverwriteSheet(context);
 
     switch (mergeOverwriteChoice) {
       case 'overwrite':
@@ -146,7 +147,8 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           FileImport.merge(remoteData: remoteData!, localBikes: bikes, localSetups: setups, localComponents: components);
         });
-      default: 
+      default:
+        debugPrint("showImportMergeOverwriteSheet canceled");
         return;
     }
 
@@ -167,7 +169,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _exportData() async {
-    final choice = await showExporttDialog(context: context);
+    final choice = await showExportSheet(context: context);
     
     if (!mounted) return;
     switch (choice) {
@@ -183,6 +185,7 @@ class _HomePageState extends State<HomePage> {
       case "googleDriveBackup":
         await _googleDriveService.saveBackup(context: context, force: true);
       default:
+        debugPrint("showExportSheet canceled.");
         return;
     }
   }

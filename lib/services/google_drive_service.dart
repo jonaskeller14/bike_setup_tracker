@@ -454,6 +454,21 @@ class GoogleDriveService extends ChangeNotifier {
         }
       }
       return backups;
+    } on SocketException {
+        debugPrint("Getting Google Drive backups failed: No internet connection. Please connect to a network.");
+        if (context.mounted) {
+          scaffold.showSnackBar(SnackBar(
+            persist: false,
+            showCloseIcon: true,
+            closeIconColor: onErrorContainerColor,
+            content: Text(
+              "Getting Google Drive backups failed: No internet connection. Please connect to a network.", 
+              style: TextStyle(color: onErrorContainerColor)
+            ), 
+            backgroundColor: errorContainerColor,
+          ));
+        }
+        return backups;
     } catch (e, st) {
       debugPrint("Getting Google Drive backups failed: $e\n$st");
       if (context.mounted) {

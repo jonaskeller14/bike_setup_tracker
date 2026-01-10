@@ -616,10 +616,12 @@ class _HomePageState extends State<HomePage> {
                   });
                   break;
                 case "settings":
-                  final tmpEnableGoogleDrive = appSettings.enableGoogleDrive;
-                  Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()));
-                  if (appSettings.enableGoogleDrive && !tmpEnableGoogleDrive) _googleDriveService.silentSetup();
-                  break;
+                  final tmpEnableGoogleDrive = context.read<AppSettings>().enableGoogleDrive;
+                  Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()))
+                    .then((_) {
+                      final newEnable = appSettings.enableGoogleDrive;
+                      if (newEnable && !tmpEnableGoogleDrive) _googleDriveService.silentSetup();
+                    });
                 case "about":
                   Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AboutPage()));
                   break;

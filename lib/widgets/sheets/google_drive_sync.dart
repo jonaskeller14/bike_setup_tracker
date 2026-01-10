@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
-import '../models/app_settings.dart';
-import '../services/google_drive_service.dart';
+import '../../models/app_settings.dart';
+import '../../services/google_drive_service.dart';
 
 Future<void> showGoogleDriveSheet({required BuildContext context, required GoogleDriveService googleDriveService}) async {
   return await showModalBottomSheet<void>(

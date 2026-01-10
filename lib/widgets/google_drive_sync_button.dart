@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/google_drive_service.dart';
-import 'google_drive_sync_sheet.dart';
+import 'sheets/google_drive_sync.dart';
 
 class GoogleDriveSyncButton extends StatelessWidget {
   final GoogleDriveService googleDriveService;

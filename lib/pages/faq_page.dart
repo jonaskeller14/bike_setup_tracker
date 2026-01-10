@@ -17,7 +17,7 @@ class FAQPage extends StatelessWidget {
       'How do I move my data to a new device?':
           'Data is typically restored by your operating system if you have cloud backups enabled. To move data manually: Export your data as a JSON file from the home page menu, transfer that file to your new device (via cloud or cable), and select "Import" from the menu on the new device.',
       'Can I sync data between devices?':
-          'Not currently. We are actively working on a cloud synchronization feature...',
+          'Yes. Turn on "Google Drive Sync" in App Settings → Experimental Features. A cloud icon will appear on the home screen — tap it to sign in and authorize. Once enabled, changes sync automatically and daily backups are saved to your Google Drive so you can access them from any device.',
     },
     'Bike': {
       'How do I add a new bike?':

@@ -360,13 +360,16 @@ class GoogleDriveService extends ChangeNotifier {
     return DateTime.tryParse(lastBackupStr ?? "");
   }
 
-  Future<void> saveBackup({bool force = false}) async {
-    if (_currentUser == null || _driveApi == null || !_isAuthorized) {
-      _setErrorMessage("Not authorized to backup to Google Drive. Please sign in first.");
-      return;
-    }
+  Future<void> saveBackup({required BuildContext context, bool force = false}) async {
+    final scaffold = ScaffoldMessenger.of(context);
+    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
+    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
 
     try {
+      if (_currentUser == null || _driveApi == null || !_isAuthorized) {
+        throw Exception("Not authorized to backup to Google Drive. Please sign in first.");
+      }
+
       final lastBackup = await getLastBackup();
       final now = DateTime.now();
 
@@ -400,9 +403,20 @@ class GoogleDriveService extends ChangeNotifier {
 
       setLastBackup(now);
       debugPrint('Successfully backed up to Google Drive: $backupFileName');
-    } catch (e, st) {
-      _setErrorMessage('Error backing up to Google Drive: $e');
-      debugPrint('Error backing up to Google Drive: $e\n$st');
+    } catch (e) {
+      debugPrint('Error backing up to Google Drive: $e');
+      if (context.mounted && force) {
+        scaffold.showSnackBar(SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          closeIconColor: onErrorContainerColor,
+          content: Text(
+            "Error backing up to Google Drive: $e", 
+            style: TextStyle(color: onErrorContainerColor)
+          ), 
+          backgroundColor: errorContainerColor,
+        ));
+      }
     }
   }
 

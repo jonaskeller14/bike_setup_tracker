@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../../models/bike.dart';
 import 'sheet.dart';
 
-Future<Bike?> showBikeFilterSheet({required BuildContext context, required Iterable<Bike> bikes, required Bike? selectedBike}) async {
-  return showModalBottomSheet<Bike?>(
+Future<List<Bike>?> showBikeFilterSheet({required BuildContext context, required Iterable<Bike> bikes, required Bike? selectedBike}) async {
+  return showModalBottomSheet<List<Bike>?>(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
@@ -55,7 +55,7 @@ Future<Bike?> showBikeFilterSheet({required BuildContext context, required Itera
                       width: double.infinity,
                       child: FilledButton(
                         onPressed: () {
-                          Navigator.pop(context, selectedBike);
+                          Navigator.pop(context, selectedBike == null ? <Bike>[] : <Bike>[selectedBike!]);
                         },
                         child: const Text("Confirm Selection"),
                       ),

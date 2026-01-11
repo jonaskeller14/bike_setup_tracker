@@ -562,12 +562,17 @@ class _HomePageState extends State<HomePage> {
       selected: _selectedBike != null,
       showCheckmark: false,
       onSelected: (bool newValue) async {
-        final newSelectedBike = await showBikeFilterSheet(
+        final List<Bike>? newSelectedBikes = await showBikeFilterSheet(
           context: context,
           bikes: bikes.values.where((b) => !b.isDeleted),
           selectedBike: _selectedBike,
         );
-        if (newSelectedBike != null && newSelectedBike != _selectedBike) onBikeTap(newSelectedBike);
+        if (newSelectedBikes == null) return;
+        if (newSelectedBikes.isEmpty) {
+          onBikeTap(null);
+        } else if (newSelectedBikes[0] != _selectedBike) {
+          onBikeTap(newSelectedBikes[0]);
+        }
       },
       onDeleted: _selectedBike == null 
           ? null 

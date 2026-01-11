@@ -35,10 +35,13 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
   void didUpdateWidget(SetNumericalAdjustmentWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.value == oldWidget.value) return;
-    // Update text and keep the cursor at the end
     final newText = widget.value ?? '';
+    // If the controller already holds the same text (e.g. parent echoed a local edit),
+    // don't overwrite it — that would move the cursor to the end and disrupt editing.
+    if (newText == _controller.text) return;
     _controller.value = _controller.value.copyWith(
       text: newText,
+      // Place the cursor at the end for externally-driven updates (e.g. reset).
       selection: TextSelection.collapsed(offset: newText.length),
     );
   }

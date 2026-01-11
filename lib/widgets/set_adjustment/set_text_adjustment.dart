@@ -119,40 +119,33 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
           ),
           Flexible(
             flex: 3,
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _controller,
-                    textInputAction: TextInputAction.next,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    onChanged: widget.onChanged,
-                    onFieldSubmitted: widget.onChanged,
-                    maxLines: null,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                      hintText: 'Enter Text',
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                      suffixStyle: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                        fontWeight: FontWeight.normal,
-                      ),
-                      suffixText: widget.adjustment.unit != null ? ' ${widget.adjustment.unit}' : null,
-                    ),
-                    validator: (value) => null // Allow empty field
-                  ),
+            child: TextFormField(
+              controller: _controller,
+              textInputAction: TextInputAction.next,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              onChanged: widget.onChanged,
+              onFieldSubmitted: widget.onChanged,
+              maxLines: null,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                isDense: true,
+                hintText: 'Enter Text',
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                suffixStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                  fontWeight: FontWeight.normal,
                 ),
-                IconButton(
+                suffixText: widget.adjustment.unit != null ? ' ${widget.adjustment.unit}' : null,
+                suffixIcon: IconButton(
                   onPressed: () {
                     _controller.text = widget.initialValue ?? '';
                     widget.onChanged(_controller.text.trim());
                   }, 
                   icon: const Icon(Icons.replay)
                 ),
-              ]
-            ),  
+              ),
+              validator: (value) => null // Allow empty field
+            ), 
           ),
         ],
       ),

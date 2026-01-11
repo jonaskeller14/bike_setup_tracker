@@ -121,53 +121,47 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
           ),
           Flexible(
             flex: 3,
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
-                    controller: _controller,
-                    textInputAction: TextInputAction.next,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    onChanged: widget.onChanged,
-                    onFieldSubmitted: widget.onChanged,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      isDense: true,
-                      hintText: 'Please enter',
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                      suffixStyle: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                        fontWeight: FontWeight.normal,
-                      ),
-                      suffixText: widget.adjustment.unit != null ? ' ${widget.adjustment.unit}' : null,
-                    ),
-                    validator: (value) {
-                      if ((value == null || value.trim().isEmpty) && widget.initialValue != null) {
-                        return 'Please enter a value';
-                      }
-                      if (value != null && value.trim().isNotEmpty) {
-                        final parsedValue = double.tryParse(value);
-                        if (parsedValue == null) return "Please enter valid number";
-                        final max = widget.adjustment.max;
-                        if (parsedValue > max) return "Value exceeds maximum of $max";
-                        final min = widget.adjustment.min;
-                        if (parsedValue < min) return "Value is below minimum of $min";
-                      }
-                      return null;
-                    },   
-                  ),
+            child: TextFormField(
+              keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
+              controller: _controller,
+              textInputAction: TextInputAction.next,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              onChanged: widget.onChanged,
+              onFieldSubmitted: widget.onChanged,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                isDense: true,
+                hintText: 'Please enter',
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                suffixStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                  fontWeight: FontWeight.normal,
                 ),
-                IconButton(
+                suffixText: widget.adjustment.unit != null ? ' ${widget.adjustment.unit}' : null,
+                suffixIcon: IconButton(
                   onPressed: () {
                     _controller.text = widget.initialValue?.toString() ?? '';
                     widget.onChanged(_controller.text.trim());
                   }, 
-                  icon: const Icon(Icons.replay)
+                  icon: const Icon(Icons.replay),
+                  visualDensity: VisualDensity.compact,
                 ),
-              ]
+              ),
+              validator: (value) {
+                if ((value == null || value.trim().isEmpty) && widget.initialValue != null) {
+                  return 'Please enter a value';
+                }
+                if (value != null && value.trim().isNotEmpty) {
+                  final parsedValue = double.tryParse(value);
+                  if (parsedValue == null) return "Please enter valid number";
+                  final max = widget.adjustment.max;
+                  if (parsedValue > max) return "Value exceeds maximum of $max";
+                  final min = widget.adjustment.min;
+                  if (parsedValue < min) return "Value is below minimum of $min";
+                }
+                return null;
+              },   
             ),  
           ),
         ],

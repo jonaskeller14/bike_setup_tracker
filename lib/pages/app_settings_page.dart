@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import '../models/app_settings.dart';
+import '../widgets/sheets/app_settings_radio_group.dart';
 
 class AppSettingsPage extends StatefulWidget {
   const AppSettingsPage({super.key});
@@ -11,57 +12,51 @@ class AppSettingsPage extends StatefulWidget {
 }
 
 class _AppSettingsPageState extends State<AppSettingsPage> {
-  static const Map<ThemeMode, String> _themeModeOptions = {
-    ThemeMode.system: "System",
-    ThemeMode.light: "Light",
-    ThemeMode.dark: "Dark",
-  };
-
-  static const Map<ThemeMode, Widget> _themeModeOptionWidgets = {
+  static const Map<ThemeMode, Row> _themeModeOptionWidgets = {
     ThemeMode.system: Row(spacing: 8, children: [Icon(Icons.settings), Text("System")]),
     ThemeMode.light: Row(spacing: 8, children: [Icon(Icons.light_mode), Text("Light")]),
     ThemeMode.dark: Row(spacing: 8, children: [Icon(Icons.dark_mode), Text("Dark")]),
   };
 
-  static const Map<String, String> _dateFormatOptions = {
-    'dd.MM.yyyy': 'dd.MM.yyyy (09.12.2025)',
-    'dd/MM/yyyy': 'dd/MM/yyyy (09/12/2025)',
-    'MM/dd/yyyy': 'MM/dd/yyyy (12/09/2025)',
-    'yyyy-MM-dd': 'yyyy-MM-dd (2025-12-09)',
-    'dd MMM yyyy': 'dd MMM yyyy (09 Dec 2025)',
+  static const Map<String, Text> _dateFormatOptionWidgets = {
+    'dd.MM.yyyy': Text('dd.MM.yyyy (09.12.2025)'),
+    'dd/MM/yyyy': Text('dd/MM/yyyy (09/12/2025)'),
+    'MM/dd/yyyy': Text('MM/dd/yyyy (12/09/2025)'),
+    'yyyy-MM-dd': Text('yyyy-MM-dd (2025-12-09)'),
+    'dd MMM yyyy': Text('dd MMM yyyy (09 Dec 2025)'),
   };
 
-  static const Map<String, String> _timeFormatOptions = {
-    'HH:mm': 'HH:mm (20:07)',
-    'h:mm a': 'h:mm a (8:07 PM)',
+  static const Map<String, Text> _timeFormatOptionWidgets = {
+    'HH:mm': Text('HH:mm (20:07)'),
+    'h:mm a': Text('h:mm a (8:07 PM)'),
   };
 
-  static const Map<String, String> _tempUnitOptions = {
-    '°C': 'Celsius (°C)',
-    '°F': 'Fahrenheit (°F)',
-    'K': 'Kelvin (K)',
+  static const Map<String, Text> _tempUnitOptionWidgets = {
+    '°C': Text('Celsius (°C)'),
+    '°F': Text('Fahrenheit (°F)'),
+    'K': Text('Kelvin (K)'),
   };
 
-  static const Map<String, String> _windSpeedUnitOptions = {
-    'km/h': 'Kilometers per hour (km/h)',
-    'mph': 'Miles per hour (mph)',
-    'm/s': 'Meters per second (m/s)',
-    'kt': 'Knots (kt)',
+  static const Map<String, Text> _windSpeedUnitOptionWidgets = {
+    'km/h': Text('Kilometers per hour (km/h)'),
+    'mph': Text('Miles per hour (mph)'),
+    'm/s': Text('Meters per second (m/s)'),
+    'kt': Text('Knots (kt)'),
   };
 
-  static const Map<String, String> _altitudeUnitOptions = {
-    'm': 'Meters (m)',
-    'ft': 'Feet (ft)',
+  static const Map<String, Text> _altitudeUnitOptionWidgets = {
+    'm': Text('Meters (m)'),
+    'ft': Text('Feet (ft)'),
   };
 
-  static const Map<String, String> _precipitationUnitOptions = {
-    'mm': 'Millimeters (mm)',
-    'in': 'Inches (in)',
+  static const Map<String, Text> _precipitationUnitOptionWidgets = {
+    'mm': Text('Millimeters (mm)'),
+    'in': Text('Inches (in)'),
   };
 
-  static const Map<bool, String> _enableGoogleDriveOptions = {
-    false: 'Off',
-    true: 'On',
+  static const Map<bool, Text> _enableGoogleDriveOptionWidgets = {
+    false: Text('Off'),
+    true: Text('On'),
   };
 
   @override
@@ -88,39 +83,17 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             ListTile(
               leading: Icon(Icons.color_lens, color: Theme.of(context).colorScheme.primary),
               title: const Text("App Theme Mode"),
-              subtitle: Text(_themeModeOptions[appSettingsReader.themeMode] ?? "-"),
+              subtitle: _themeModeOptionWidgets[appSettingsReader.themeMode]?.children[1] ?? const Text("-"),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-              onTap: () => showModalBottomSheet<void>(
-                showDragHandle: true,
-                isScrollControlled: true,
+              onTap: () => appSettingsRadioGroupSheet<ThemeMode>(
                 context: context,
-                builder: (BuildContext context) {
-                  return RadioGroup<ThemeMode>(
-                    groupValue: appSettingsReader.themeMode,
-                    onChanged: (ThemeMode? newValue) {
-                      if (newValue == null) return;
-                      appSettingsWriter.setThemeMode(newValue);
-                      Navigator.pop(context);
-                    },
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text("App Theme Mode", style: Theme.of(context).textTheme.titleLarge),
-                          ),
-                          const SizedBox(height: 16),
-                          ..._themeModeOptionWidgets.entries.map((e) => RadioListTile(
-                            value: e.key,
-                            title: e.value,
-                          )),
-                          const SizedBox(height: 16),
-                        ],
-                      ),
-                    ),
-                  );
+                title: "App Theme Mode",
+                value: appSettingsReader.themeMode, 
+                optionWidgets: _themeModeOptionWidgets, 
+                onChanged: (ThemeMode? newValue) {
+                  if (newValue == null) return;
+                  appSettingsWriter.setThemeMode(newValue);
+                  Navigator.pop(context);
                 }
               ),
             ),
@@ -135,78 +108,34 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             ListTile(
               leading: Icon(Icons.calendar_month, color: Theme.of(context).colorScheme.primary),
               title: const Text("Date Format"),
-              subtitle: Text(_dateFormatOptions[appSettingsReader.dateFormat] ?? "-"),
+              subtitle: _dateFormatOptionWidgets[appSettingsReader.dateFormat] ?? const Text("-"),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-              onTap: () => showModalBottomSheet<void>(
-                showDragHandle: true,
-                isScrollControlled: true,
+              onTap: () => appSettingsRadioGroupSheet<String>(
                 context: context,
-                builder: (BuildContext context) {
-                  return RadioGroup<String>(
-                    groupValue: appSettingsReader.dateFormat,
-                    onChanged: (String? newValue) {
-                      if (newValue == null) return;
-                      appSettingsWriter.setDateFormat(newValue);
-                      Navigator.pop(context);
-                    },
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text("Date Format", style: Theme.of(context).textTheme.titleLarge),
-                          ),
-                          const SizedBox(height: 16),
-                          ..._dateFormatOptions.entries.map((e) => RadioListTile(
-                            value: e.key,
-                            title: Text(e.value)
-                          )),
-                          const SizedBox(height: 16),
-                        ],
-                      ),
-                    ),
-                  );
+                title: "Date Format", 
+                value: appSettingsReader.dateFormat,
+                optionWidgets: _dateFormatOptionWidgets, 
+                onChanged: (String? newValue) {
+                  if (newValue == null) return;
+                  appSettingsWriter.setDateFormat(newValue);
+                  Navigator.pop(context);
                 }
               ),
             ),
             ListTile(
               leading: Icon(Icons.access_time, color: Theme.of(context).colorScheme.primary),
               title: const Text("Time Format"),
-              subtitle: Text(_timeFormatOptions[appSettingsReader.timeFormat] ?? "-"),
+              subtitle: _timeFormatOptionWidgets[appSettingsReader.timeFormat] ?? const Text("-"),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-              onTap: () => showModalBottomSheet<void>(
-                showDragHandle: true,
-                isScrollControlled: true,
+              onTap: () => appSettingsRadioGroupSheet<String>(
                 context: context,
-                builder: (BuildContext context) {
-                  return RadioGroup<String>(
-                    groupValue: appSettingsReader.timeFormat,
-                    onChanged: (String? newValue) {
-                      if (newValue == null) return;
-                      appSettingsWriter.setTimeFormat(newValue);
-                      Navigator.pop(context);
-                    },
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text("Time Format", style: Theme.of(context).textTheme.titleLarge),
-                          ),
-                          const SizedBox(height: 16),
-                          ..._timeFormatOptions.entries.map((e) => RadioListTile(
-                            value: e.key,
-                            title: Text(e.value)
-                          )),
-                          const SizedBox(height: 16),
-                        ],
-                      ),
-                    ),
-                  );
+                title: "Time Format", 
+                value: appSettingsReader.timeFormat,
+                optionWidgets: _timeFormatOptionWidgets, 
+                onChanged: (String? newValue) {
+                  if (newValue == null) return;
+                  appSettingsWriter.setTimeFormat(newValue);
+                  Navigator.pop(context);
                 }
               ),
             ),
@@ -221,156 +150,68 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             ListTile(
               leading: Icon(Icons.arrow_upward, color: Theme.of(context).colorScheme.primary),
               title: const Text("Altitude Unit"),
-              subtitle: Text(_altitudeUnitOptions[appSettingsReader.altitudeUnit] ?? "-"),
+              subtitle: _altitudeUnitOptionWidgets[appSettingsReader.altitudeUnit] ?? const Text("-"),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-              onTap: () => showModalBottomSheet<void>(
-                showDragHandle: true,
-                isScrollControlled: true,
+              onTap: () => appSettingsRadioGroupSheet<String>(
                 context: context,
-                builder: (BuildContext context) {
-                  return RadioGroup<String>(
-                    groupValue: appSettingsReader.altitudeUnit,
-                    onChanged: (String? newValue) {
-                      if (newValue == null) return;
-                      appSettingsWriter.setAltitudeUnit(newValue);
-                      Navigator.pop(context);
-                    },
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text("Altitude Unit", style: Theme.of(context).textTheme.titleLarge),
-                          ),
-                          const SizedBox(height: 16),
-                          ..._altitudeUnitOptions.entries.map((e) => RadioListTile(
-                            value: e.key,
-                            title: Text(e.value)
-                          )),
-                          const SizedBox(height: 16),
-                        ],
-                      ),
-                    ),
-                  );
+                title: "Altitude Unit", 
+                value: appSettingsReader.altitudeUnit,
+                optionWidgets: _altitudeUnitOptionWidgets, 
+                onChanged: (String? newValue) {
+                  if (newValue == null) return;
+                  appSettingsWriter.setAltitudeUnit(newValue);
+                  Navigator.pop(context);
                 }
               ),
             ),
             ListTile(
               leading: Icon(Icons.thermostat, color: Theme.of(context).colorScheme.primary),
               title: const Text("Temperature Unit"),
-              subtitle: Text(_tempUnitOptions[appSettingsReader.temperatureUnit] ?? "-"),
+              subtitle: _tempUnitOptionWidgets[appSettingsReader.temperatureUnit] ?? const Text("-"),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-              onTap: () => showModalBottomSheet<void>(
-                showDragHandle: true,
-                isScrollControlled: true,
+              onTap: () => appSettingsRadioGroupSheet<String>(
                 context: context,
-                builder: (BuildContext context) {
-                  return RadioGroup<String>(
-                    groupValue: appSettingsReader.temperatureUnit,
-                    onChanged: (String? newValue) {
-                      if (newValue == null) return;
-                      appSettingsWriter.setTemperatureUnit(newValue);
-                      Navigator.pop(context);
-                    },
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text("Temperature Unit", style: Theme.of(context).textTheme.titleLarge),
-                          ),
-                          const SizedBox(height: 16),
-                          ..._tempUnitOptions.entries.map((e) => RadioListTile(
-                            value: e.key,
-                            title: Text(e.value)
-                          )),
-                          const SizedBox(height: 16),
-                        ],
-                      ),
-                    ),
-                  );
+                title: "Temperature Unit", 
+                value: appSettingsReader.temperatureUnit,
+                optionWidgets: _tempUnitOptionWidgets, 
+                onChanged: (String? newValue) {
+                  if (newValue == null) return;
+                  appSettingsWriter.setTemperatureUnit(newValue);
+                  Navigator.pop(context);
                 }
               ),
             ),
             ListTile(
               leading: Icon(Icons.air, color: Theme.of(context).colorScheme.primary),
               title: const Text("Wind Speed Unit"),
-              subtitle: Text(_windSpeedUnitOptions[appSettingsReader.windSpeedUnit] ?? "-"),
+              subtitle: _windSpeedUnitOptionWidgets[appSettingsReader.windSpeedUnit] ?? const Text("-"),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-              onTap: () => showModalBottomSheet<void>(
-                showDragHandle: true,
-                isScrollControlled: true,
+              onTap: () => appSettingsRadioGroupSheet<String>(
                 context: context,
-                builder: (BuildContext context) {
-                  return RadioGroup<String>(
-                    groupValue: appSettingsReader.windSpeedUnit,
-                    onChanged: (String? newValue) {
-                      if (newValue == null) return;
-                      appSettingsWriter.setWindSpeedUnit(newValue);
-                      Navigator.pop(context);
-                    },
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text("Wind Speed Unit", style: Theme.of(context).textTheme.titleLarge),
-                          ),
-                          const SizedBox(height: 16),
-                          ..._windSpeedUnitOptions.entries.map((e) => RadioListTile(
-                            value: e.key,
-                            title: Text(e.value)
-                          )),
-                          const SizedBox(height: 16),
-                        ],
-                      ),
-                    ),
-                  );
+                title: "Wind Speed Unit", 
+                value: appSettingsReader.windSpeedUnit,
+                optionWidgets: _windSpeedUnitOptionWidgets, 
+                onChanged: (String? newValue) {
+                  if (newValue == null) return;
+                  appSettingsWriter.setWindSpeedUnit(newValue);
+                  Navigator.pop(context);
                 }
               ),
             ),
             ListTile(
               leading: Icon(Icons.water_drop, color: Theme.of(context).colorScheme.primary),
-              subtitle: Text(_precipitationUnitOptions[appSettingsReader.precipitationUnit] ?? "-"),
               title: const Text("Precipitation Unit"),
+              subtitle: _precipitationUnitOptionWidgets[appSettingsReader.precipitationUnit] ?? const Text("-"),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-              onTap: () => showModalBottomSheet<void>(
-                showDragHandle: true,
-                isScrollControlled: true,
+              onTap: () => appSettingsRadioGroupSheet<String>(
                 context: context,
-                builder: (BuildContext context) {
-                  return RadioGroup<String>(
-                    groupValue: appSettingsReader.precipitationUnit,
-                    onChanged: (String? newValue) {
-                      if (newValue == null) return;
-                      appSettingsWriter.setPrecipitationUnit(newValue);
-                      Navigator.pop(context);
-                    },
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text("Precipitation Unit", style: Theme.of(context).textTheme.titleLarge),
-                          ),
-                          const SizedBox(height: 16),
-                          ..._precipitationUnitOptions.entries.map((e) => RadioListTile(
-                            value: e.key,
-                            title: Text(e.value)
-                          )),
-                          const SizedBox(height: 16),
-                        ],
-                      ),
-                    ),
-                  );
+                title: "Precipitation Unit", 
+                value: appSettingsReader.precipitationUnit,
+                optionWidgets: _precipitationUnitOptionWidgets, 
+                onChanged: (String? newValue) {
+                  if (newValue == null) return;
+                  appSettingsWriter.setPrecipitationUnit(newValue);
+                  Navigator.pop(context);
                 }
               ),
             ),
@@ -390,46 +231,19 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             ListTile(
               leading: Icon(SimpleIcons.googledrive, color: Theme.of(context).colorScheme.primary),
               title: const Text("Google Drive Sync"),
-              subtitle: Text(_enableGoogleDriveOptions[appSettingsReader.enableGoogleDrive] ?? "-"),
+              subtitle: _enableGoogleDriveOptionWidgets[appSettingsReader.enableGoogleDrive] ?? const Text("-"),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-              onTap: () => showModalBottomSheet<void>(
-                showDragHandle: true,
-                isScrollControlled: true,
+              onTap: () => appSettingsRadioGroupSheet<bool>(
                 context: context,
-                builder: (BuildContext context) {
-                  return RadioGroup<bool>(
-                    groupValue: appSettingsReader.enableGoogleDrive,
-                    onChanged: (bool? newValue) {
-                      if (newValue == null) return;
-                      appSettingsWriter.setEnableGoogleDrive(newValue);
-                      Navigator.pop(context);
-                    },
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text("Google Drive Sync", style: Theme.of(context).textTheme.titleLarge),
-                          ),
-                          const SizedBox(height: 16),
-                          ListTile(
-                            leading: const Icon(Icons.info_outline),
-                            title: const Text('Sync your data across devices and keep secure backups in your Google Drive. Your data is stored privately in your own account; we never have access to it.'),
-                            dense: true,
-                          ),
-                          const SizedBox(height: 16),
-                          ..._enableGoogleDriveOptions.entries.map((e) => RadioListTile(
-                            value: e.key,
-                            title: Text(e.value)
-                          )),
-                          const SizedBox(height: 16),
-                        ],
-                      ),
-                    ),
-                  );
-                }
+                title: "Google Drive Sync", 
+                value: appSettingsReader.enableGoogleDrive,
+                optionWidgets: _enableGoogleDriveOptionWidgets, 
+                onChanged: (bool? newValue) {
+                  if (newValue == null) return;
+                  appSettingsWriter.setEnableGoogleDrive(newValue);
+                  Navigator.pop(context);
+                },
+                infoText: 'Sync your data across devices and keep secure backups in your Google Drive. Your data is stored privately in your own account; we never have access to it.',
               ),
             ),
           ],

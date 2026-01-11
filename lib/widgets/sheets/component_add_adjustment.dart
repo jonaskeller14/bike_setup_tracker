@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../models/app_settings.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/component.dart';
 import 'sheet.dart';
@@ -55,7 +57,6 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
 void showComponentAddAdjustmentBottomSheet({
   required BuildContext context,
   required ComponentType? componentType,
-  bool enableTextAdjustment = false,
   required Function addAdjustmentFromPreset,
   required Function addNumericalAdjustment,
   required Function addStepAdjustment,
@@ -173,7 +174,7 @@ void showComponentAddAdjustmentBottomSheet({
                   addBooleanAdjustment(); // Then execute logic
                 },
               ),
-              if (enableTextAdjustment)
+              if (context.read<AppSettings>().enableTextAdjustment)
                 ListTile(
                   leading: Icon(Icons.text_snippet, color: Theme.of(context).colorScheme.primary),
                   title: Text("Text Adjustment"),

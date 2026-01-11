@@ -178,10 +178,12 @@ class _AdjustmentTableCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Requirement: Handle all Adjustment types, long values, multi lines values (TextAdjustment)
     final bool valueHasChanged = previousValue == null ? false : value != previousValue;
     final bool valueIsInitial = previousValue == null;
     bool isCrossed = false;
     String change = "";
+    final String valueText = Adjustment.formatValue(value);
     if (valueHasChanged) {
       if (value is String || value is bool) {
         isCrossed = true;
@@ -192,40 +194,44 @@ class _AdjustmentTableCell extends StatelessWidget {
       }
     }
 
-    final valueDisplay = Text.rich(
-      TextSpan(
-        children: [
-          TextSpan(
-            text: Adjustment.formatValue(value),
+    // Use individual Text widgets so we can apply overflow to the main value
+    // while keeping the change indicator visible.
+    final valueDisplay = Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      spacing: 4,
+      children: [
+        Flexible(
+          child: Text(
+            valueText.replaceAll(RegExp(r'\n|\r'), ' '),
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 14,
               color: (valueIsInitial && highlightInitialValues) ? Colors.green : null,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          if (valueHasChanged) ...[
-            TextSpan(text: " "),
-            WidgetSpan(
-              alignment: PlaceholderAlignment.top,
-              child: Transform.translate(
-                offset: const Offset(0, -6),
-                child: Text(
-                  change,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: valueHasChanged ? Colors.red : Theme.of(context).colorScheme.onSurfaceVariant,
-                    decoration: isCrossed ? TextDecoration.lineThrough : TextDecoration.none,
-                    decorationColor: Colors.red,
-                  ),
-                ),
+        ),
+        if (valueHasChanged) ...[
+          Transform.translate(
+            offset: const Offset(0, -6),
+            child: Text(
+              change.replaceAll(RegExp(r'\n|\r'), ' '),
+              style: TextStyle(
+                fontSize: 12,
+                color: valueHasChanged ? Colors.red : Theme.of(context).colorScheme.onSurfaceVariant,
+                decoration: isCrossed ? TextDecoration.lineThrough : TextDecoration.none,
+                decorationColor: Colors.red,
               ),
-            )
-          ],
-          if (adjustment.unit != null) ...[
-            TextSpan(text: " ${adjustment.unit}"),
-          ]
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
-      ),
+        if (adjustment.unit != null)
+          Text(adjustment.unit!),
+      ],
     );
 
     Widget finalLabelWidget = ConstrainedBox(

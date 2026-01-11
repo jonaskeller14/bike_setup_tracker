@@ -12,6 +12,7 @@ class AppSettings extends ChangeNotifier {
   String _altitudeUnit = 'm'; 
   String _precipitationUnit = 'mm';
   bool _enableGoogleDrive = false;
+  bool _enableTextAdjustment = false;
 
   bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;
@@ -22,6 +23,7 @@ class AppSettings extends ChangeNotifier {
   String get altitudeUnit => _altitudeUnit;
   String get precipitationUnit => _precipitationUnit;
   bool get enableGoogleDrive => _enableGoogleDrive;
+  bool get enableTextAdjustment => _enableTextAdjustment;
 
   void setShowOnboarding(bool newShowOnboarding) {
     if (_showOnboarding == newShowOnboarding) return;
@@ -86,6 +88,13 @@ class AppSettings extends ChangeNotifier {
     saveAppSettings();
   }
 
+  void setEnableTextAdjustment(bool newValue) {
+    if (newValue == _enableTextAdjustment) return;
+    _enableTextAdjustment = newValue;
+    notifyListeners();
+    saveAppSettings();
+  }
+
   Future<void> loadAppSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -104,6 +113,7 @@ class AppSettings extends ChangeNotifier {
       _altitudeUnit = json['altitudeUnit'] ?? _altitudeUnit;
       _precipitationUnit = json['precipitationUnit'] ?? _precipitationUnit;
       _enableGoogleDrive = json['enableGoogleDrive'] ?? _enableGoogleDrive;
+      _enableTextAdjustment = json['enableTextAdjustment'] ?? _enableTextAdjustment;
       
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
@@ -123,6 +133,7 @@ class AppSettings extends ChangeNotifier {
       'altitudeUnit': _altitudeUnit,
       'precipitationUnit': _precipitationUnit,
       'enableGoogleDrive': _enableGoogleDrive,
+      'enableTextAdjustment': _enableTextAdjustment,
     });
     await prefs.setString('app_settings', jsonData);
   }

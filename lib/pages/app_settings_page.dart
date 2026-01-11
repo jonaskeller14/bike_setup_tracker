@@ -54,7 +54,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     'in': Text('Inches (in)'),
   };
 
-  static const Map<bool, Text> _enableGoogleDriveOptionWidgets = {
+  static const Map<bool, Text> _offOnOptionWidgets = {
     false: Text('Off'),
     true: Text('On'),
   };
@@ -231,19 +231,37 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             ListTile(
               leading: Icon(SimpleIcons.googledrive, color: Theme.of(context).colorScheme.primary),
               title: const Text("Google Drive Sync"),
-              subtitle: _enableGoogleDriveOptionWidgets[appSettingsReader.enableGoogleDrive] ?? const Text("-"),
+              subtitle: _offOnOptionWidgets[appSettingsReader.enableGoogleDrive] ?? const Text("-"),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
               onTap: () => appSettingsRadioGroupSheet<bool>(
                 context: context,
                 title: "Google Drive Sync", 
                 value: appSettingsReader.enableGoogleDrive,
-                optionWidgets: _enableGoogleDriveOptionWidgets, 
+                optionWidgets: _offOnOptionWidgets, 
                 onChanged: (bool? newValue) {
                   if (newValue == null) return;
                   appSettingsWriter.setEnableGoogleDrive(newValue);
                   Navigator.pop(context);
                 },
                 infoText: 'Sync your data across devices and keep secure backups in your Google Drive. Your data is stored privately in your own account; we never have access to it.',
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.text_snippet, color: Theme.of(context).colorScheme.primary),
+              title: const Text("Text Adjustment"),
+              subtitle: _offOnOptionWidgets[appSettingsReader.enableTextAdjustment] ?? const Text("-"),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+              onTap: () => appSettingsRadioGroupSheet<bool>(
+                context: context,
+                title: "Text Adjustment", 
+                value: appSettingsReader.enableTextAdjustment,
+                optionWidgets: _offOnOptionWidgets, 
+                onChanged: (bool? newValue) {
+                  if (newValue == null) return;
+                  appSettingsWriter.setEnableTextAdjustment(newValue);
+                  Navigator.pop(context);
+                },
+                infoText: 'Adds a Text Adjustment type that provides a free-form text field.',
               ),
             ),
           ],

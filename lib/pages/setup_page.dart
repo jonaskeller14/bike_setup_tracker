@@ -504,6 +504,7 @@ class _SetupPageState extends State<SetupPage> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
                 controller: _nameController,

@@ -470,7 +470,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _addSetup() async {
-    if (bikes.isEmpty) {
+    if (bikes.values.where((b) => !b.isDeleted).isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true, 
@@ -480,7 +480,7 @@ class _HomePageState extends State<HomePage> {
       ));
       return;
     }
-    if (components.isEmpty) {
+    if (components.where((c) => !c.isDeleted).isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true, 
@@ -780,8 +780,8 @@ class _HomePageState extends State<HomePage> {
         },
         destinations: <Widget>[
           NavigationDestination(icon: Badge(isLabelVisible: _selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: Icon(Icons.pedal_bike)), label: 'Bikes'),
-          NavigationDestination(icon: Icon(Icons.grid_view_sharp), label: 'Components', enabled: bikes.isNotEmpty),
-          NavigationDestination(icon: Icon(Icons.tune), label: 'Setups', enabled: filteredComponents.isNotEmpty && bikes.isNotEmpty),
+          NavigationDestination(icon: Icon(Icons.grid_view_sharp), label: 'Components'),
+          NavigationDestination(icon: Icon(Icons.tune), label: 'Setups'),
         ],
       ),
       body: <Widget>[

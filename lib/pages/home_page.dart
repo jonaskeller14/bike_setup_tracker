@@ -308,9 +308,9 @@ class _HomePageState extends State<HomePage> {
           label: 'UNDO',
           onPressed: () {
             setState(() {
-              for (var setup in toRemoveComponents) {
-                setup.isDeleted = false;
-                setup.lastModified = DateTime.now();
+              for (var component in toRemoveComponents) {
+                component.isDeleted = false;
+                component.lastModified = DateTime.now();
               }
             });
           },

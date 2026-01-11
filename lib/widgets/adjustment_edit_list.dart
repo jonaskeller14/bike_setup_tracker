@@ -39,15 +39,20 @@ class _AdjustmentEditListState extends State<AdjustmentEditList> {
           children: [
             Row(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.info_outline, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                Padding(
+                  padding: const EdgeInsets.only(top: 3), // tweak to match font size
+                  child: Icon(Icons.info_outline, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
                 const SizedBox(width: 2),
-                Text(
-                  widget.adjustments[index].getProperties(),
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                Expanded(
+                  child: Text(
+                    widget.adjustments[index].getProperties(),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
@@ -58,11 +63,13 @@ class _AdjustmentEditListState extends State<AdjustmentEditList> {
                 children: [
                   Icon(Icons.straighten, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   const SizedBox(width: 2),
-                  Text(
-                    "Unit: ${widget.adjustments[index].unit}",
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  Expanded(
+                    child: Text(
+                      "Unit: ${widget.adjustments[index].unit}",
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
@@ -86,6 +93,8 @@ class _AdjustmentEditListState extends State<AdjustmentEditList> {
                         color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                         fontSize: 13,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],

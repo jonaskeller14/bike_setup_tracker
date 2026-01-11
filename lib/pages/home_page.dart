@@ -25,6 +25,7 @@ import '../widgets/dialogs/confirmation.dart';
 import '../widgets/sheets/import_merge_overwrite.dart';
 import '../widgets/sheets/import.dart';
 import '../widgets/sheets/export.dart';
+import '../widgets/sheets/bike_filter.dart';
 import '../widgets/google_drive_sync_button.dart';
 import '../services/google_drive_service.dart';
 
@@ -554,6 +555,74 @@ class _HomePageState extends State<HomePage> {
     return setups.lastWhereOrNull((s) => !s.isDeleted && s.datetime.isBefore(datetime) && s.bike == bike);
   }
 
+  FilterChip _bikeFilterWidget() {
+    return FilterChip(
+      avatar: Icon(Icons.pedal_bike),
+      label: _selectedBike == null ? const Text("All Bikes") : Text(_selectedBike!.name),
+      selected: _selectedBike != null,
+      showCheckmark: false,
+      onSelected: (bool newValue) async {
+        final newSelectedBike = await showBikeFilterSheet(
+          context: context,
+          bikes: bikes.values.where((b) => !b.isDeleted),
+          selectedBike: _selectedBike,
+        );
+        if (newSelectedBike != null && newSelectedBike != _selectedBike) onBikeTap(newSelectedBike);
+      },
+      onDeleted: _selectedBike == null 
+          ? null 
+          : () => onBikeTap(null),
+    );
+  }
+
+  SingleChildScrollView _bikeListFilterWidget() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 8),
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        spacing: 12,
+        children: [
+          _bikeFilterWidget(),
+        ],
+      ),
+    );
+  }
+
+  SingleChildScrollView _componentListFilterWidget() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 8),
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        spacing: 12,
+        children: [
+          _bikeFilterWidget(),
+        ],
+      ),
+    );
+  }
+
+  SingleChildScrollView _setupListFilterWidget() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 8),
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        spacing: 12,
+        children: [
+          _bikeFilterWidget(),
+          FilterChip(
+            label: const Text("Only Changes"),
+            selected: _displayOnlyChanges,
+            onSelected: (bool selected) {
+              setState(() {
+                _displayOnlyChanges = selected;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filteredComponents = _selectedBike == null
@@ -711,119 +780,35 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: <Widget>[
-        ListView(
-          padding: const EdgeInsets.all(16.0),
-          children: [
-            bikes.values.where((bike) => !bike.isDeleted).isEmpty //include bikes which are not filtered for
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 50),
-                    child: Center(
-                      child: Text(
-                        'No bikes yet',
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                      ),
-                    )
-                  )
-                : BikeList(
-                  bikes: bikes.values.where((bike) => !bike.isDeleted).toList(), //include bikes which are not filtered for
-                  selectedBike: _selectedBike,
-                  onBikeTap: onBikeTap,
-                  editBike: editBike,
-                  removeBike: removeBike,
-                  onReorderBikes: onReorderBikes,
-                ),
-            const SizedBox(height: 100),
-          ],
+        BikeList(
+          bikes: bikes.values.where((bike) => !bike.isDeleted).toList(), //include bikes which are not filtered for
+          selectedBike: _selectedBike,
+          onBikeTap: onBikeTap,
+          editBike: editBike,
+          removeBike: removeBike,
+          onReorderBikes: onReorderBikes,
+          filterWidget: _bikeListFilterWidget(),
         ),
-        ListView(
-          padding: const EdgeInsets.all(16.0),
-          children: [
-            Wrap(
-              spacing: 10,
-              children: [
-                if (_selectedBike != null)
-                  Chip(
-                    label: Text(_selectedBike!.name),
-                    deleteIcon: const Icon(Icons.close, size: 18),
-                    onDeleted: () {
-                      if (_selectedBike != null) onBikeTap(_selectedBike!);
-                    },
-                    backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-                  ),
-              ],
-            ),
-            filteredComponents.isEmpty
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 50),
-                    child: Center(
-                      child: Text(
-                        'No components yet',
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                      ),
-                    )
-                  )
-                : ComponentList(
-                  bikes: filteredBikes,
-                  components: filteredComponents,
-                  setups: setups,
-                  editComponent: editComponent,
-                  duplicateComponent: duplicateComponent,
-                  removeComponent: removeComponent,
-                  onReorder: onReorderComponents,
-                ),
-
-            const SizedBox(height: 100),
-          ]
+        ComponentList(
+          bikes: filteredBikes,
+          components: filteredComponents,
+          setups: setups,
+          editComponent: editComponent,
+          duplicateComponent: duplicateComponent,
+          removeComponent: removeComponent,
+          onReorder: onReorderComponents,
+          filterWidget: _componentListFilterWidget(),
         ),
-        ListView(
-          padding: const EdgeInsets.all(16.0),
-          children: [
-            Wrap(
-              spacing: 10,
-              children: [
-                if (_selectedBike != null)
-                  Chip(
-                    label: Text(_selectedBike!.name),
-                    deleteIcon: const Icon(Icons.close, size: 18),
-                    onDeleted: () {
-                      if (_selectedBike != null) onBikeTap(_selectedBike!);
-                    },
-                    backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-                  ),
-                filteredSetups.isEmpty
-                    ? Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 50),
-                      child: Center(
-                        child: Text(
-                          'No setups yet',
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                        ),
-                      )
-                    )
-                    : FilterChip(
-                      label: const Text("Only Changes"),
-                      selected: _displayOnlyChanges,
-                      onSelected: (bool selected) {
-                        setState(() {
-                          _displayOnlyChanges = selected;
-                        });
-                      },
-                    ),
-              ],
-            ),
-
-            SetupList(
-              bikes: filteredBikes,
-              setups: filteredSetups,
-              components: filteredComponents,
-              editSetup: editSetup,
-              restoreSetup: restoreSetup,
-              removeSetup: removeSetup,
-              displayOnlyChanges: _displayOnlyChanges,
-            ),
-            const SizedBox(height: 100),
-          ]
-        )
+        SetupList(
+          bikes: filteredBikes,
+          setups: filteredSetups,
+          components: filteredComponents,
+          editSetup: editSetup,
+          restoreSetup: restoreSetup,
+          removeSetup: removeSetup,
+          displayOnlyChanges: _displayOnlyChanges,
+          filterWidget: _setupListFilterWidget(),
+        ),
       ][currentPageIndex],
       floatingActionButton: <Widget>[
         FloatingActionButton(

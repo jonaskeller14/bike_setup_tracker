@@ -11,6 +11,7 @@ class BikeList extends StatefulWidget {
   final void Function(Bike bike) editBike;
   final void Function(Bike bike) removeBike;
   final void Function(int oldIndex, int newIndex) onReorderBikes;
+  final Widget filterWidget;
 
   const BikeList({
     super.key,
@@ -20,6 +21,7 @@ class BikeList extends StatefulWidget {
     required this.editBike,
     required this.removeBike,
     required this.onReorderBikes,
+    required this.filterWidget,
   });
 
   @override
@@ -120,35 +122,48 @@ class _BikeListState extends State<BikeList> {
       );
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ReorderableListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: visibleCount,
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          proxyDecorator: proxyDecorator,
-          onReorder: widget.onReorderBikes,
-          itemBuilder: (context, index) {
-            return cards[index];
-          },
-        ),
-        if (widget.bikes.length > defaultVisibleCount)
-          Center(
-            child: TextButton.icon(
-              onPressed: () {
-                setState(() {
-                  _expanded = !_expanded;
-                });
-              },
-              icon: Icon(
-                _expanded ? Icons.expand_less : Icons.expand_more,
-              ),
-              label: Text(_expanded ? "Show less" : "Show more"),
+    return widget.bikes.isEmpty
+        ? Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                widget.filterWidget,
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      'No bikes yet',
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-      ],
-    );
+          )
+        : ReorderableListView.builder(
+            itemCount: visibleCount,
+            padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
+            header: widget.filterWidget,
+            footer: widget.bikes.length > defaultVisibleCount
+                ? Center(
+                    child: TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _expanded = !_expanded;
+                        });
+                      },
+                      icon: Icon(
+                        _expanded ? Icons.expand_less : Icons.expand_more,
+                      ),
+                      label: Text(_expanded ? "Show less" : "Show more"),
+                    ),
+                  )
+                : null,
+            proxyDecorator: proxyDecorator,
+            onReorder: widget.onReorderBikes,
+            itemBuilder: (context, index) {
+              return cards[index];
+            },
+          );
   }
 }

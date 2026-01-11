@@ -16,7 +16,8 @@ class ComponentList extends StatefulWidget {
   final Future<void> Function(Component component) editComponent;
   final Future<void> Function(Component component) duplicateComponent;
   final Future<void> Function(Component component) removeComponent;
-  final Future<void> Function(int oldIndex, int newIndex) onReorder; 
+  final Future<void> Function(int oldIndex, int newIndex) onReorder;
+  final Widget filterWidget;
 
   const ComponentList({
     super.key,
@@ -27,6 +28,7 @@ class ComponentList extends StatefulWidget {
     required this.duplicateComponent,
     required this.removeComponent,
     required this.onReorder,
+    required this.filterWidget,
   });
 
   @override
@@ -176,36 +178,49 @@ class _ComponentListState extends State<ComponentList> {
         child: child,
       );
     }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ReorderableListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: visibleCount,
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          onReorder: widget.onReorder,
-          proxyDecorator: proxyDecorator,
-          itemBuilder: (context, index) {
-            return cards[index];
-          },
-        ),
-        if (widget.components.length > defaultVisibleCount)
-          Center(
-            child: TextButton.icon(
-              onPressed: () {
-                setState(() {
-                  _expanded = !_expanded;
-                });
-              },
-              icon: Icon(
-                _expanded ? Icons.expand_less : Icons.expand_more,
-              ),
-              label: Text(_expanded ? "Show less" : "Show more"),
+    
+    return widget.components.isEmpty
+        ? Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                widget.filterWidget,
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      'No components yet',
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-      ],
-    );
+          )
+        : ReorderableListView.builder(
+            itemCount: visibleCount,
+            padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
+            header: widget.filterWidget,
+            footer: widget.components.length > defaultVisibleCount
+                ? Center(
+                    child: TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _expanded = !_expanded;
+                        });
+                      },
+                      icon: Icon(
+                        _expanded ? Icons.expand_less : Icons.expand_more,
+                      ),
+                      label: Text(_expanded ? "Show less" : "Show more"),
+                    ),
+                  )
+                : null,
+            onReorder: widget.onReorder,
+            proxyDecorator: proxyDecorator,
+            itemBuilder: (context, index) {
+              return cards[index];
+            },
+          );
   }
 }

@@ -4,9 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import '../../models/app_settings.dart';
 import '../../services/google_drive_service.dart';
+import 'sheet.dart';
 
 Future<void> showGoogleDriveSheet({required BuildContext context, required GoogleDriveService googleDriveService}) async {
   return await showModalBottomSheet<void>(
+    useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
     context: context, 
@@ -115,25 +117,27 @@ class _GoogleDriveSheetState extends State<GoogleDriveSheet> {
     
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsetsGeometry.all(16),
+        padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              spacing: 4,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(SimpleIcons.googledrive),
-                Text(
-                  "Google Drive Synchronisation",
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  spacing: 6,
+                  children: [
+                    Icon(SimpleIcons.googledrive, color: Theme.of(context).colorScheme.onSurface),
+                    sheetTitle(context, 'Google Drive Sync'),
+                  ],
                 ),
+                sheetCloseButton(context),
               ],
             ),
-            
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
             Row(
               children: [
                 CircleAvatar(

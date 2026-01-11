@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import '../../models/app_settings.dart';
+import 'sheet.dart';
 
 Future<String?> showExportSheet({required BuildContext context}) async {
   return showModalBottomSheet<String?>(
+    useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
     context: context, 
@@ -13,8 +15,17 @@ Future<String?> showExportSheet({required BuildContext context}) async {
         child: SafeArea(
           child: Column(
             children: [
-              Text('Export Data', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 32),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    sheetTitle(context, 'Export Data'),
+                    sheetCloseButton(context),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
               ListTile(
                 leading: Icon(Icons.insert_drive_file, color: Theme.of(context).colorScheme.primary),
                 title: const Text("Download File"),

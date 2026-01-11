@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'sheet.dart';
 
 Future<void> appSettingsRadioGroupSheet<T>({required BuildContext context, required String title, required T value, required ValueChanged<T?> onChanged, required Map<T, Widget> optionWidgets, String? infoText}) {
     return showModalBottomSheet<void>(
@@ -21,17 +22,8 @@ Future<void> appSettingsRadioGroupSheet<T>({required BuildContext context, requi
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-                        IconButton.filled(
-                          iconSize: 20, 
-                          style: IconButton.styleFrom(
-                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                            foregroundColor: Theme.of(context).colorScheme.onSurface,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.close), 
-                        ),
+                        sheetTitle(context, title),
+                        sheetCloseButton(context),
                       ],
                     ),
                   ),

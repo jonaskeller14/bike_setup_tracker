@@ -94,7 +94,7 @@ Future<Data?> showDataSelectSheet({required BuildContext context, required Data 
                     collapsedShape: const Border(),
                     trailing: Checkbox(
                       tristate: true,
-                      value: selectedBikes.isEmpty 
+                      value: selectedBikes.isEmpty && allBikes.isNotEmpty
                           ? false 
                           : (selectedBikes.length == allBikes.length ? true : null),
                       onChanged: (bool? newValue) {
@@ -142,7 +142,7 @@ Future<Data?> showDataSelectSheet({required BuildContext context, required Data 
                     collapsedShape: const Border(),
                     trailing: Checkbox(
                       tristate: true,
-                      value: selectedComponents.isEmpty 
+                      value: selectedComponents.isEmpty && allComponents.isNotEmpty
                           ? false 
                           : (selectedComponents.length == allComponents.length ? true : null),
                       onChanged: (bool? newValue) {
@@ -202,7 +202,7 @@ Future<Data?> showDataSelectSheet({required BuildContext context, required Data 
                     collapsedShape: const Border(),
                     trailing: Checkbox(
                       tristate: true,
-                      value: selectedSetups.isEmpty 
+                      value: selectedSetups.isEmpty && allSetups.isNotEmpty
                           ? false 
                           : (selectedSetups.length == allSetups.length ? true : null),
                       onChanged: (bool? newValue) {

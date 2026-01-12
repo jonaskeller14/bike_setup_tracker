@@ -177,6 +177,14 @@ class _RatingPageState extends State<RatingPage> {
     return editedAdjustment;
   }
 
+  Future<void> _duplicateAdjustment(Adjustment adjustment) async {
+    final newAdjustment = adjustment.deepCopy();
+    setState(() {
+      _adjustments.add(newAdjustment);
+    });
+    _editAdjustment(newAdjustment);
+  }
+
   Future<void> removeAdjustment(Adjustment adjustment) async {
     setState(() {
       _adjustments.remove(adjustment);
@@ -449,6 +457,7 @@ class _RatingPageState extends State<RatingPage> {
                     ? AdjustmentEditList(
                         adjustments: _adjustments,
                         editAdjustment: _editAdjustment,
+                        duplicateAdjustment: _duplicateAdjustment,
                         removeAdjustment: removeAdjustment,
                         onReorderAdjustments: _onReorderAdjustments,
                       ) 

@@ -5,6 +5,7 @@ import '../models/adjustment/adjustment.dart';
 class AdjustmentEditList extends StatefulWidget {
   final List<Adjustment> adjustments;
   final void Function(Adjustment adjustment) editAdjustment;
+  final void Function(Adjustment adjustment) duplicateAdjustment;
   final void Function(Adjustment adjustment) removeAdjustment;
   final void Function(int oldIndex, int newIndex) onReorderAdjustments;
 
@@ -12,6 +13,7 @@ class AdjustmentEditList extends StatefulWidget {
     super.key,
     required this.adjustments,
     required this.editAdjustment,
+    required this.duplicateAdjustment,
     required this.removeAdjustment,
     required this.onReorderAdjustments,
   });
@@ -110,10 +112,10 @@ class _AdjustmentEditListState extends State<AdjustmentEditList> {
             ),
             PopupMenuButton<String>(
               onSelected: (value) {
-                if (value == 'edit') {
-                  widget.editAdjustment(widget.adjustments[index]);
-                } else if (value == 'remove') {
-                  widget.removeAdjustment(widget.adjustments[index]);
+                switch (value) {
+                  case 'edit': widget.editAdjustment(widget.adjustments[index]);
+                  case 'duplicate': widget.duplicateAdjustment(widget.adjustments[index]);
+                  case 'remove': widget.removeAdjustment(widget.adjustments[index]);
                 }
               },
               itemBuilder: (BuildContext context) =>
@@ -125,6 +127,16 @@ class _AdjustmentEditListState extends State<AdjustmentEditList> {
                       Icon(Icons.edit, size: 20),
                       SizedBox(width: 10),
                       Text('Edit'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'duplicate',
+                  child: Row(
+                    children: [
+                      Icon(Icons.copy, size: 20),
+                      SizedBox(width: 10),
+                      Text('Duplicate'),
                     ],
                   ),
                 ),

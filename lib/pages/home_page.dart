@@ -26,6 +26,7 @@ import '../widgets/sheets/import_merge_overwrite.dart';
 import '../widgets/sheets/import.dart';
 import '../widgets/sheets/export.dart';
 import '../widgets/sheets/bike_filter.dart';
+import '../widgets/sheets/data_select.dart';
 import '../widgets/google_drive_sync_button.dart';
 import '../services/google_drive_service.dart';
 
@@ -132,21 +133,23 @@ class _HomePageState extends State<HomePage> {
         debugPrint("showImportSheet canceled");
         return;
     }
-
     if (remoteData == null) return;
 
     if (!mounted) return;
-    final mergeOverwriteChoice = await showImportMergeOverwriteSheet(context);
+    final selectedRemoteData = await showDataSelectSheet(context: context, data: remoteData);
+    if (selectedRemoteData == null) return;
 
+    if (!mounted) return;
+    final mergeOverwriteChoice = await showImportMergeOverwriteSheet(context);
     switch (mergeOverwriteChoice) {
       case 'overwrite':
         setState(() {
-          FileImport.overwrite(remoteData: remoteData!, localBikes: bikes, localSetups: setups, localComponents: components);
+          FileImport.overwrite(remoteData: selectedRemoteData, localBikes: bikes, localSetups: setups, localComponents: components);
           onBikeTap(null);
         });
       case 'merge':
         setState(() {
-          FileImport.merge(remoteData: remoteData!, localBikes: bikes, localSetups: setups, localComponents: components);
+          FileImport.merge(remoteData: selectedRemoteData, localBikes: bikes, localSetups: setups, localComponents: components);
         });
       default:
         debugPrint("showImportMergeOverwriteSheet canceled");
@@ -175,11 +178,15 @@ class _HomePageState extends State<HomePage> {
     if (!mounted) return;
     switch (choice) {
       case "file":
+        final selectedData = await showDataSelectSheet(context: context, data: Data(bikes: bikes, components: components, setups: setups));
+        if (selectedData == null) return;
+
+        if (!mounted) return;
         await FileExport.downloadJson(
           context: context,
-          bikes: bikes,
-          setups: setups,
-          components: components,
+          bikes: selectedData.bikes,
+          setups: selectedData.setups,
+          components: selectedData.components,
         );
       case "backup":
         await FileExport.saveBackup(context: context, bikes: bikes, setups: setups, components: components, force: true);
@@ -189,6 +196,19 @@ class _HomePageState extends State<HomePage> {
         debugPrint("showExportSheet canceled.");
         return;
     }
+  }
+
+  Future<void> _shareData() async {
+    final selectedData = await showDataSelectSheet(context: context, data: Data(bikes: bikes, components: components, setups: setups));    
+    if (selectedData == null) return;
+    
+    if (!mounted) return;
+    FileExport.shareJson(
+      context: context,
+      bikes: selectedData.bikes,
+      setups: selectedData.setups,
+      components: selectedData.components,
+    );
   }
 
   Future<void> clearData() async {
@@ -670,12 +690,7 @@ class _HomePageState extends State<HomePage> {
                   _exportData();
                   break;
                 case 'share':
-                  FileExport.shareJson(
-                    context: context,
-                    bikes: bikes,
-                    setups: setups,
-                    components: components,
-                  );
+                  _shareData();
                   break;
                 case "trash":
                   Navigator.push<void>(context, MaterialPageRoute(builder: (context) => TrashPage(bikes: bikes, components: components, setups: setups))).then((_) {

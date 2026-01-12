@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../models/app_settings.dart';
 import '../models/rating.dart';
 import '../models/component.dart';
 import '../models/bike.dart';
@@ -51,8 +53,6 @@ class FilterFilterType {
 }
 
 class _RatingPageState extends State<RatingPage> {
-  static const _enableTextAdjustment = false;
-  static const _enableDurationAdjustment = true;
   late TextEditingController _nameController;
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
@@ -294,10 +294,9 @@ class _RatingPageState extends State<RatingPage> {
         _buildGuideRow(Icons.rotate_right, "Step", "Rate grip or confidence (on 1-10 scale)"),
         _buildGuideRow(Icons.category, "Categorical", "Rate based on categories (good/bad/acceptable)"),
         _buildGuideRow(Icons.toggle_on, "On/Off", "Did the fork bottom out? (Yes/No)"),
-        if (_enableTextAdjustment)
+        if (context.read<AppSettings>().enableTextAdjustment)
           _buildGuideRow(Icons.text_snippet, "Text", "General notes about feel or observations"),
-        if (_enableDurationAdjustment)
-          _buildGuideRow(Icons.timer_outlined, "Duration", "Laptime of track xyz"),
+        _buildGuideRow(Icons.timer_outlined, "Duration", "Laptime of track xyz"),
       ],
     ),
   );
@@ -459,8 +458,6 @@ class _RatingPageState extends State<RatingPage> {
                   child: FilledButton.icon(
                     onPressed: () => showRatingAddAdjustmentBottomSheet(
                       context: context,
-                      enableTextAdjustment: _enableTextAdjustment,
-                      enableDurationAdjustment: _enableDurationAdjustment,
                       addAdjustmentFromPreset: _addAdjustmentFromPreset,
                       addAdjustment: _addAdjustment,
                     ),

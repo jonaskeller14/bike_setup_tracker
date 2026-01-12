@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../models/app_settings.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../pages/adjustment/boolean_adjustment_page.dart';
 import '../../pages/adjustment/categorical_adjustment_page.dart';
@@ -30,8 +32,6 @@ final List<Adjustment> _adjustmentPresets = [
 
 void showRatingAddAdjustmentBottomSheet({
   required BuildContext context,
-  bool enableTextAdjustment = false,
-  bool enableDurationAdjustment = false,
   required Function addAdjustmentFromPreset,
   required Function addAdjustment,
 }) {
@@ -131,7 +131,7 @@ void showRatingAddAdjustmentBottomSheet({
                   addAdjustment<BooleanAdjustment>(const BooleanAdjustmentPage()); // Then execute logic
                 },
               ),
-              if (enableTextAdjustment)
+              if (context.read<AppSettings>().enableTextAdjustment)
                 ListTile(
                   leading: Icon(Icons.text_snippet, color: Theme.of(context).colorScheme.primary),
                   title: Text("Text Attribute"),
@@ -142,17 +142,16 @@ void showRatingAddAdjustmentBottomSheet({
                     addAdjustment<TextAdjustment>(const TextAdjustmentPage()); // Then execute logic
                   },
                 ),
-              if (enableDurationAdjustment)
-                ListTile(
-                  leading: Icon(Icons.timer_outlined, color: Theme.of(context).colorScheme.primary),
-                  title: Text("Duration Attribute"),
-                  subtitle: Text("", style: const TextStyle(fontSize: 12)),  //TODO
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () {
-                    Navigator.pop(context); // Close sheet first
-                    addAdjustment<DurationAdjustment>(const DurationAdjustmentPage()); // Then execute logic
-                  },
-                ),
+              ListTile(
+                leading: Icon(Icons.timer_outlined, color: Theme.of(context).colorScheme.primary),
+                title: Text("Duration Attribute"),
+                subtitle: Text("Perfect for recording laptimes", style: const TextStyle(fontSize: 12)),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () {
+                  Navigator.pop(context); // Close sheet first
+                  addAdjustment<DurationAdjustment>(const DurationAdjustmentPage()); // Then execute logic
+                },
+              ),
             ],
           ),
         ),

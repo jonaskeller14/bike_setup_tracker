@@ -330,7 +330,6 @@ class _SetupListState extends State<SetupList> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: visibleCount,
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
                 itemBuilder: (context, index) {
                   final setup = widget.setups[widget.setups.length - 1 - index];
                   return _setupCard(

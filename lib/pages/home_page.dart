@@ -693,19 +693,27 @@ class _HomePageState extends State<HomePage> {
                   _shareData();
                   break;
                 case "trash":
-                  Navigator.push<void>(context, MaterialPageRoute(builder: (context) => TrashPage(bikes: bikes, components: components, setups: setups))).then((_) {
-                    setState(() {
-                      setups.sort((a, b) => a.datetime.compareTo(b.datetime));
-                      FileImport.determineCurrentSetups(setups: setups, bikes: bikes);
-                      FileImport.determinePreviousSetups(setups: setups);
-                      for (final setup in setups) {
-                        FileImport.updateSetupsAfter(setups: setups, setup: setup);
-                      }
-                    });
-                    FileExport.saveData(bikes: bikes, setups: setups, components: components);
-                    FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
-                    if (appSettings.enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
-                  });
+                  Navigator.push<void>(context, MaterialPageRoute(builder: (context) => TrashPage(
+                    bikes: bikes, 
+                    components: components, 
+                    setups: setups,
+                    onChanged: () {
+                      WidgetsBinding.instance.addPostFrameCallback((_) { // Called when HomePage is not locked anymore
+                        if (!mounted) return;
+                        setState(() {
+                          setups.sort((a, b) => a.datetime.compareTo(b.datetime));
+                          FileImport.determineCurrentSetups(setups: setups, bikes: bikes);
+                          FileImport.determinePreviousSetups(setups: setups);
+                          for (final setup in setups) {
+                            FileImport.updateSetupsAfter(setups: setups, setup: setup);
+                          }
+                        });
+                        FileExport.saveData(bikes: bikes, setups: setups, components: components);
+                        FileExport.saveBackup(bikes: bikes, setups: setups, components: components);
+                        if (appSettings.enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
+                      });
+                    }
+                  )));
                   break;
                 case "settings":
                   final tmpEnableGoogleDrive = context.read<AppSettings>().enableGoogleDrive;

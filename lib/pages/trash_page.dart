@@ -10,12 +10,14 @@ class TrashPage extends StatefulWidget{
   final Map<String, Bike> bikes;
   final List<Component> components;
   final List<Setup> setups;
+  final VoidCallback onChanged;
 
   const TrashPage({
     super.key, 
     required this.bikes,
     required this.components, 
     required this.setups,
+    required this.onChanged,
   });
 
   @override
@@ -23,6 +25,14 @@ class TrashPage extends StatefulWidget{
 }
 
 class _TrashPageState extends State<TrashPage> {
+  bool hasChanges = false;
+
+  @override
+  void dispose() {
+    if (hasChanges) widget.onChanged();
+    super.dispose();
+  }
+
   ListTile _trashItem({required dynamic deletedItem, required DateFormat dateFormat, required DateFormat timeFormat}) {
     return ListTile(
       leading: deletedItem is Bike 
@@ -40,6 +50,7 @@ class _TrashPageState extends State<TrashPage> {
           setState(() {
             deletedItem.isDeleted = false;
             deletedItem.lastModified = DateTime.now();
+            hasChanges = true;
           });
         },
       ),

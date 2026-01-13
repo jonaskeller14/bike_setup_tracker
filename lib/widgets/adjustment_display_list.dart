@@ -290,15 +290,64 @@ class _AdjustmentTableCell extends StatelessWidget {
       ),
     );
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          finalLabelWidget,
-          finalValueWidget,
-        ],
+    final highlightColor = valueIsInitial ? Colors.green : (valueHasChanged ? Colors.orange: null);
+    return Tooltip(
+      triggerMode: TooltipTriggerMode.tap,
+      preferBelow: false,
+      showDuration: const Duration(seconds: 5),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.onSecondaryContainer,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [BoxShadow(color: Theme.of(context).colorScheme.shadow, blurRadius: 4, offset: const Offset(0, 2))],
+      ),
+      padding: const EdgeInsets.all(12),
+      richMessage: WidgetSpan(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 4,
+          children: [
+            Text(
+              adjustment.name,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSecondary,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              adjustment.unit == null
+                    ? Adjustment.formatValue(value)
+                    : "${Adjustment.formatValue(value)} ${adjustment.unit}",
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: highlightColor ?? Theme.of(context).colorScheme.onSecondary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            if (valueHasChanged)
+              Text(
+                adjustment.unit == null
+                    ? Adjustment.formatValue(previousValue)
+                    : "${Adjustment.formatValue(previousValue)} ${adjustment.unit}",
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSecondary.withValues(alpha: 0.7),
+                  decoration: TextDecoration.lineThrough,
+                  decorationColor: Theme.of(context).colorScheme.onSecondary.withValues(alpha: 0.7),
+                ),
+              ),
+          ],
+        ),
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            finalLabelWidget,
+            finalValueWidget,
+          ],
+        ),
       ),
     );
   }

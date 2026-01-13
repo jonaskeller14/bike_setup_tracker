@@ -32,6 +32,20 @@ class TextAdjustment extends Adjustment<String> {
     'unit': unit,
   };
 
+  factory TextAdjustment.fromJson(Map<String, dynamic> json) {
+    final int? version = json["version"];
+    switch (version) {
+      case null:
+        return TextAdjustment(
+          id: json["id"],
+          name: json['name'],
+          notes: json['notes'],
+          unit: json['unit'] as String?,
+        );
+      default: throw Exception("Json Version $version of TextAdjustment incompatible.");
+    }
+  }
+
   @override
   Icon getIcon({double? size, Color? color}) {
     return getIconStatic(size: size, color: color);

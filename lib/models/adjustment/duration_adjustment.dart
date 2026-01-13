@@ -35,6 +35,22 @@ class DurationAdjustment extends Adjustment<double> {
     'max': max == null ? null : toIso8601String(max!),
   };
 
+  factory DurationAdjustment.fromJson(Map<String, dynamic> json) {
+    final int? version = json["version"];
+    switch (version) {
+      case null:
+        return DurationAdjustment(
+          id: json["id"],
+          name: json['name'],
+          notes: json['notes'],
+          unit: json['unit'] as String?,
+          min: DurationAdjustment.tryParseIso8601String(json["min"]),
+          max: DurationAdjustment.tryParseIso8601String(json["max"]),
+        );
+      default: throw Exception("Json Version $version of DurationAdjustment incompatible.");
+    }
+  }
+
   @override
   Icon getIcon({double? size, Color? color}) {
     return getIconStatic(size: size, color: color);

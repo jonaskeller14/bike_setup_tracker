@@ -36,6 +36,22 @@ class NumericalAdjustment extends Adjustment<double> {
     'max': max.isFinite ? max : null,
   };
 
+  factory NumericalAdjustment.fromJson(Map<String, dynamic> json) {
+    final int? version = json["version"];
+    switch (version) {
+      case null:
+        return NumericalAdjustment(
+          id: json["id"],
+          name: json['name'],
+          notes: json['notes'],
+          unit: json['unit'] as String?,
+          min: (json['min'] as num?)?.toDouble(),
+          max: (json['max'] as num?)?.toDouble(),
+        );
+      default: throw Exception("Json Version $version of NumericalAdjustment incompatible.");
+    }
+  }
+
   @override
   Icon getIcon({double? size, Color? color}) {
     return getIconStatic(size: size, color: color);

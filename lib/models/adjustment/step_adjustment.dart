@@ -53,6 +53,27 @@ class StepAdjustment extends Adjustment<int> {
     'visualization': visualization.toString(),
   };
 
+  factory StepAdjustment.fromJson(Map<String, dynamic> json) {
+    final int? version = json["version"];
+    switch (version) {
+      case null:
+        return StepAdjustment(
+          id: json["id"],
+          name: json['name'],
+          notes: json['notes'],
+          unit: json['unit'] as String?,
+          step: (json['step'] as num).toInt(),
+          min: (json['min'] as num).toInt(),
+          max: (json['max'] as num).toInt(),
+          visualization: StepAdjustmentVisualization.values.firstWhere(
+            (e) => e.toString() == json['visualization'],
+            orElse: () => StepAdjustmentVisualization.slider,
+          ),
+        );
+      default: throw Exception("Json Version $version of StepAdjustment incompatible.");
+    }
+  }
+
   @override
   Icon getIcon({double? size, Color? color}) {
     return getIconStatic(size: size, color: color);

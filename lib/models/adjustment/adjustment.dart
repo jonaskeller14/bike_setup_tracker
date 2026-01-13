@@ -57,60 +57,12 @@ abstract class Adjustment<T> {
       case null:
         final type = json['type'];
         switch (type) {
-          case 'boolean':
-            return BooleanAdjustment(
-              id: json["id"],
-              name: json['name'],
-              notes: json['notes'],
-              unit: json['unit'] as String?,
-            );
-          case 'categorical':
-            return CategoricalAdjustment(
-              id: json["id"],
-              name: json['name'],
-              notes: json['notes'],
-              unit: json['unit'] as String?,
-              options: List<String>.from(json['options']),
-            );
-          case 'step':
-            return StepAdjustment(
-              id: json["id"],
-              name: json['name'],
-              notes: json['notes'],
-              unit: json['unit'] as String?,
-              step: (json['step'] as num).toInt(),
-              min: (json['min'] as num).toInt(),
-              max: (json['max'] as num).toInt(),
-              visualization: StepAdjustmentVisualization.values.firstWhere(
-                (e) => e.toString() == json['visualization'],
-                orElse: () => StepAdjustmentVisualization.slider,
-              ),
-            );
-          case 'numerical':
-            return NumericalAdjustment(
-              id: json["id"],
-              name: json['name'],
-              notes: json['notes'],
-              unit: json['unit'] as String?,
-              min: (json['min'] as num?)?.toDouble(),
-              max: (json['max'] as num?)?.toDouble(),
-            );
-          case 'text':
-            return TextAdjustment(
-              id: json["id"],
-              name: json['name'],
-              notes: json['notes'],
-              unit: json['unit'] as String?,
-            );
-          case 'duration':
-            return DurationAdjustment(
-              id: json["id"],
-              name: json['name'],
-              notes: json['notes'],
-              unit: json['unit'] as String?,
-              min: DurationAdjustment.tryParseIso8601String(json["min"]),
-              max: DurationAdjustment.tryParseIso8601String(json["max"]),
-            );
+          case 'boolean': return BooleanAdjustment.fromJson(json);
+          case 'categorical': return CategoricalAdjustment.fromJson(json);
+          case 'step': return StepAdjustment.fromJson(json);
+          case 'numerical': return NumericalAdjustment.fromJson(json);
+          case 'text': return TextAdjustment.fromJson(json);
+          case 'duration': return DurationAdjustment.fromJson(json);
           default:
             throw Exception('Unknown adjustment type: $type');
         }

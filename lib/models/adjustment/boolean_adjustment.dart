@@ -28,6 +28,20 @@ class BooleanAdjustment extends Adjustment<bool> {
     'unit': unit,
   };
 
+  factory BooleanAdjustment.fromJson(Map<String, dynamic> json) {
+    final int? version = json["version"];
+    switch (version) {
+      case null:
+        return BooleanAdjustment(
+          id: json["id"],
+          name: json['name'],
+          notes: json['notes'],
+          unit: json['unit'] as String?,
+        );
+      default: throw Exception("Json Version $version of BooleanAdjustment incompatible.");
+    }
+  }
+
   @override
   Icon getIcon({double? size, Color? color}) {
     return getIconStatic(size: size, color: color);

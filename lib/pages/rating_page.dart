@@ -395,7 +395,7 @@ class _RatingPageState extends State<RatingPage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         spacing: 8,
                         children: [
-                          Component.getIcon(ct),
+                          Icon(ct.getIconData()),
                           Expanded(child: Text(ct.value, overflow: TextOverflow.ellipsis))
                         ],
                       ),
@@ -413,7 +413,7 @@ class _RatingPageState extends State<RatingPage> {
                             child: Row(
                               spacing: 8,
                               children: [
-                                Component.getIcon(c.componentType),
+                                Icon(c.componentType.getIconData()),
                                 Expanded(child: Text(c.name, overflow: TextOverflow.ellipsis)),
                               ],
                             ),

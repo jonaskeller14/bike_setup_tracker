@@ -86,7 +86,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
       appBar: AppBar(
         title: Row(
           children: [
-            Component.getIcon(widget.component.componentType),
+            Icon(widget.component.componentType.getIconData()),
             const SizedBox(width: 8),
             Expanded(
               child: Text(widget.component.name, overflow: TextOverflow.ellipsis),

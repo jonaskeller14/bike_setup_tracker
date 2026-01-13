@@ -384,7 +384,7 @@ class _ComponentPageState extends State<ComponentPage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         spacing: 8,
                         children: [
-                          Component.getIcon(componentType),
+                          Icon(componentType.getIconData()),
                           Expanded(child: Text(componentType.value, overflow: TextOverflow.ellipsis)),
                         ],
                       ),

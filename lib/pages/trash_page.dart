@@ -43,7 +43,7 @@ class _TrashPageState extends State<TrashPage> {
     return ListTile(
       leading: switch(deletedItem) {
         Bike() => const Icon(Bike.iconData),
-        Component() => Component.getIcon(deletedItem.componentType),
+        Component() => Icon(deletedItem.componentType.getIconData()),
         Setup() => const Icon(Setup.iconData),
         Person() => const Icon(Person.iconData),
         Rating() => const Icon(Rating.iconData),

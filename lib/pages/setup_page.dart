@@ -987,7 +987,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                           one: "1 adjustment",
                                           other: '${bikeComponent.adjustments.length} adjustments',
                                         )),
-                                        leading: Component.getIcon(bikeComponent.componentType),
+                                        leading: Icon(bikeComponent.componentType.getIconData()),
                                       ),
                                       AdjustmentSetList(
                                         key: ValueKey([bikeComponent.id, _previousBikeSetup, _bikeAdjustmentValues.values]),
@@ -1189,9 +1189,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                               if (rating.filterType == FilterType.person)
                                                 Icon(Person.iconData),
                                               if (rating.filterType == FilterType.componentType)
-                                                Component.getIcon(ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other),
+                                                Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData()),
                                               if (rating.filterType == FilterType.component)
-                                                Component.getIcon(widget.components.firstWhereOrNull((c) => c.id == rating.filter)?.componentType ?? ComponentType.other),
+                                                Icon((widget.components.firstWhereOrNull((c) => c.id == rating.filter)?.componentType ?? ComponentType.other).getIconData()),
                                               const SizedBox(width: 2),
                                               if (rating.filterType == FilterType.bike)
                                                 Text(

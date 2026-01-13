@@ -15,6 +15,18 @@ enum ComponentType {
 
   final String value;
   const ComponentType(this.value);
+  IconData getIconData() {
+    switch (this) {
+      case frame: return BikeIcons.frame;
+      case fork: return BikeIcons.fork;
+      case shock: return BikeIcons.shock;
+      case wheelFront: return BikeIcons.wheelFront;
+      case wheelRear: return BikeIcons.wheelRear;
+      case motor: return BikeIcons.motor;
+      case equipment: return BikeIcons.equipment;
+      case other: return BikeIcons.other;
+    }
+  }
 }
 
 class Component {
@@ -48,27 +60,6 @@ class Component {
       componentType: componentType,
       adjustments: adjustments.map((a) => a.deepCopy()).toList(),
     );
-  }
-
-  static Icon getIcon(ComponentType componentType, {double? size, Color? color}) {
-    switch (componentType) {
-      case ComponentType.frame:
-        return Icon(BikeIcons.frame, size: size, color: color);
-      case ComponentType.fork:
-        return Icon(BikeIcons.fork, size: size, color: color);
-      case ComponentType.shock:
-        return Icon(BikeIcons.shock, size: size, color: color);
-      case ComponentType.wheelFront:
-        return Icon(BikeIcons.wheelFront, size: size, color: color);
-      case ComponentType.wheelRear:
-        return Icon(BikeIcons.wheelRear, size: size, color: color);
-      case ComponentType.motor:
-        return Icon(BikeIcons.motor, size: size, color: color);
-      case ComponentType.equipment:
-        return Icon(BikeIcons.equipment, size: size, color: color);
-      default:
-        return Icon(BikeIcons.other, size: size, color: color);
-    }   
   }
 
   Map<String, dynamic> toJson() => {

@@ -78,8 +78,8 @@ class _RatingListState extends State<RatingList> {
                             FilterType.global => Icon(Icons.circle_outlined, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                             FilterType.bike => Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                             FilterType.person => Icon(Person.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            FilterType.component => Component.getIcon(widget.components.firstWhereOrNull((c) => c.id == rating.filter)?.componentType ?? ComponentType.other, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            FilterType.componentType => Component.getIcon(ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            FilterType.component => Icon((widget.components.firstWhereOrNull((c) => c.id == rating.filter)?.componentType ?? ComponentType.other).getIconData(), size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            FilterType.componentType => Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData(), size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                           },
 
                           const SizedBox(width: 2),

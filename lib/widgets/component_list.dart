@@ -55,7 +55,7 @@ class _ComponentListState extends State<ComponentList> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ListTile(
-                leading: Component.getIcon(component.componentType),
+                leading: Icon(component.componentType.getIconData()),
                 minTileHeight: 0,
                 contentPadding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
                 title: Text(

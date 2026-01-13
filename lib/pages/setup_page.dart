@@ -938,7 +938,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                 tabs: <Widget>[
                                   const Tab(icon: Icon(Bike.iconData)),
                                   if (context.read<AppSettings>().enablePerson)
-                                    const Tab(icon: Icon(Icons.person)),
+                                    const Tab(icon: Icon(Person.iconData)),
                                   if (context.read<AppSettings>().enableRating)
                                   const Tab(icon: Icon(Icons.star)),
                                 ],
@@ -1082,7 +1082,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                       ListTile(
                                         title: Text(widget.persons[_person]!.name, style: TextStyle(fontWeight: FontWeight.bold)),
                                         subtitle: Text('${widget.persons[_person]!.adjustments.length} attributes'),
-                                        leading: const Icon(Icons.person),
+                                        leading: const Icon(Person.iconData),
                                       ),
                                       AdjustmentSetList(
                                         key: ValueKey([_person, _previousPersonSetup, _personAdjustmentValues.values]),
@@ -1187,7 +1187,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                               if (rating.filterType == FilterType.bike)
                                                 Icon(Bike.iconData),
                                               if (rating.filterType == FilterType.person)
-                                                Icon(Icons.person),
+                                                Icon(Person.iconData),
                                               if (rating.filterType == FilterType.componentType)
                                                 Component.getIcon(ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other),
                                               if (rating.filterType == FilterType.component)

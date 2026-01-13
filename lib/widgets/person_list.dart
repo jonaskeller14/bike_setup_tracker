@@ -72,7 +72,7 @@ class _PersonListState extends State<PersonList> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ListTile(
-                leading: const Icon(Icons.person),
+                leading: const Icon(Person.iconData),
                 minTileHeight: 0,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,

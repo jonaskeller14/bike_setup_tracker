@@ -48,7 +48,7 @@ class _TrashPageState extends State<TrashPage> {
               : deletedItem is Setup 
                   ? const Icon(Icons.tune) 
                   : deletedItem is Person
-                      ? const Icon(Icons.person)
+                      ? const Icon(Person.iconData)
                       : deletedItem is Rating
                           ? const Icon(Icons.star)
                           : null,

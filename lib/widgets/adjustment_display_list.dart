@@ -160,7 +160,7 @@ class _AdjustmentTableRow extends StatelessWidget {
               padding: const EdgeInsets.only(top: 6),
               child: component is Component 
                 ? Component.getIcon(component.componentType)
-                : component is Person ? const Icon(Icons.person): const Icon(Icons.star),
+                : component is Person ? const Icon(Person.iconData): const Icon(Icons.star),
             ),
           ),
           const SizedBox(width: 6),

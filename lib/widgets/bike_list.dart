@@ -73,7 +73,7 @@ class _BikeListState extends State<BikeList> {
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.person, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              Icon(Person.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                               const SizedBox(width: 2),
                               Text(
                                 widget.persons[bike.person]?.name ?? "-",

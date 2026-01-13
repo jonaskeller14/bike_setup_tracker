@@ -439,7 +439,7 @@ class _RatingPageState extends State<RatingPage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         spacing: 8,
                         children: [
-                          const Icon(Icons.person),
+                          const Icon(Person.iconData),
                           Expanded(child: Text(p.name, overflow: TextOverflow.ellipsis))
                         ],
                       ),

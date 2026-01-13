@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'adjustment/adjustment.dart';
 
@@ -7,6 +8,8 @@ class Person {
   DateTime lastModified;
   String name;
   List<Adjustment> adjustments;
+
+  static const IconData iconData = Icons.person;
 
   Person({
     String? id,

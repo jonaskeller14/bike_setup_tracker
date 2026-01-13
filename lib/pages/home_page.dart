@@ -871,7 +871,7 @@ class _HomePageState extends State<HomePage> {
           ),
           if (context.read<AppSettings>().enablePerson)
             FilterChip(
-              label: Icon(Icons.person, size: 20),
+              label: const Icon(Person.iconData, size: 20),
               selected: _setupListPersonAdjustmentValues,
               onSelected: (bool selected) {setState(() => _setupListPersonAdjustmentValues = selected);},
               tooltip: "Show person related values",
@@ -1054,7 +1054,7 @@ class _HomePageState extends State<HomePage> {
           NavigationDestination(icon: Icon(Icons.grid_view_sharp), label: 'Components'),
           NavigationDestination(icon: Icon(Icons.tune), label: 'Setups'),
           if (appSettings.enablePerson)
-            NavigationDestination(icon: const Icon(Icons.person), label: "Profile"),
+            NavigationDestination(icon: const Icon(Person.iconData), label: "Profile"),
           if (appSettings.enableRating)
             NavigationDestination(icon: const Icon(Icons.star), label: "Ratings"),
         ],

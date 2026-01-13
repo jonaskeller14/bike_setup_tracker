@@ -286,7 +286,7 @@ Future<Data?> showDataSelectSheet({required BuildContext context, required Data 
                         return Card(
                           margin: const EdgeInsets.symmetric(vertical: 4.0),
                           child: CheckboxListTile(
-                            secondary: const Icon(Icons.person),
+                            secondary: const Icon(Person.iconData),
                             title: Text(
                               person.name,
                               style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -336,7 +336,7 @@ Future<Data?> showDataSelectSheet({required BuildContext context, required Data 
                         return Card(
                           margin: const EdgeInsets.symmetric(vertical: 4.0),
                           child: CheckboxListTile(
-                            secondary: const Icon(Icons.person),
+                            secondary: const Icon(Person.iconData),
                             title: Text(
                               rating.name,
                               style: Theme.of(context).textTheme.titleMedium?.copyWith(

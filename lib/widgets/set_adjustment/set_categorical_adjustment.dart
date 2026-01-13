@@ -47,7 +47,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.max,
               children: [
-                Icon(Icons.category, color: highlightColor),
+                Icon(CategoricalAdjustment.iconData, color: highlightColor),
                 SizedBox(width: 10),
                 Expanded(
                   child: Align(

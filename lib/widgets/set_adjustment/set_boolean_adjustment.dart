@@ -42,7 +42,7 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.max,
               children: [
-                Icon(Icons.toggle_on, color: highlightColor),
+                Icon(BooleanAdjustment.iconData, color: highlightColor),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Align(

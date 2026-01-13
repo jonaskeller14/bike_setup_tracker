@@ -298,13 +298,13 @@ class _RatingPageState extends State<RatingPage> {
           style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)),
         ),
         const SizedBox(height: 4),
-        _buildGuideRow(Icons.speed, "Numerical", "How many times did the fork bottom out?"),
+        _buildGuideRow(NumericalAdjustment.iconData, "Numerical", "How many times did the fork bottom out?"),
         _buildGuideRow(Icons.rotate_right, "Step", "Rate grip or confidence (on 1-10 scale)"),
-        _buildGuideRow(Icons.category, "Categorical", "Rate based on categories (good/bad/acceptable)"),
-        _buildGuideRow(Icons.toggle_on, "On/Off", "Did the fork bottom out? (Yes/No)"),
+        _buildGuideRow(CategoricalAdjustment.iconData, "Categorical", "Rate based on categories (good/bad/acceptable)"),
+        _buildGuideRow(BooleanAdjustment.iconData, "On/Off", "Did the fork bottom out? (Yes/No)"),
         if (context.read<AppSettings>().enableTextAdjustment)
-          _buildGuideRow(Icons.text_snippet, "Text", "General notes about feel or observations"),
-        _buildGuideRow(Icons.timer_outlined, "Duration", "Laptime of track xyz"),
+          _buildGuideRow(TextAdjustment.iconData, "Text", "General notes about feel or observations"),
+        _buildGuideRow(DurationAdjustment.iconData, "Duration", "Laptime of track xyz"),
       ],
     ),
   );

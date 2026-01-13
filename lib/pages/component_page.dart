@@ -278,14 +278,14 @@ class _ComponentPageState extends State<ComponentPage> {
           style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)),
         ),
         const SizedBox(height: 4),
-        _buildGuideRow(Icons.speed, "Numerical", "Pressure (psi/bar), Length, Angle, Weight"),
-        _buildGuideRow(Icons.rotate_right, "Step", "Rebound/Compression Clicks, Spacers"),
-        _buildGuideRow(Icons.category, "Categorical", "Tire Compound (Soft/Hard), Model, Brand"),
-        _buildGuideRow(Icons.toggle_on, "On/Off", "Lockout Lever, Climb Switch, Tire insert installed?"),
+        _buildGuideRow(NumericalAdjustment.iconData, "Numerical", "Pressure (psi/bar), Length, Angle, Weight"),
+        _buildGuideRow(StepAdjustment.iconData, "Step", "Rebound/Compression Clicks, Spacers"),
+        _buildGuideRow(CategoricalAdjustment.iconData, "Categorical", "Tire Compound (Soft/Hard), Model, Brand"),
+        _buildGuideRow(BooleanAdjustment.iconData, "On/Off", "Lockout Lever, Climb Switch, Tire insert installed?"),
         if (context.read<AppSettings>().enableTextAdjustment)
-          _buildGuideRow(Icons.text_snippet, "Text", "Flexible field for any other setup specifications"),
+          _buildGuideRow(TextAdjustment.iconData, "Text", "Flexible field for any other setup specifications"),
         if (_enableDurationAdjustment)
-          _buildGuideRow(Icons.timer_outlined, "Duration", "Time span"),  //TODO: improve help text
+          _buildGuideRow(DurationAdjustment.iconData, "Duration", "Time span"),  //TODO: improve help text
       ],
     ),
   );

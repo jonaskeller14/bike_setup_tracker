@@ -80,7 +80,7 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
             child: Row(
               mainAxisSize: MainAxisSize.max,
               children: [
-                Icon(Icons.text_snippet, color: highlightColor),
+                Icon(TextAdjustment.iconData, color: highlightColor),
                 SizedBox(width: 10),
                 Expanded(
                   child: Align(

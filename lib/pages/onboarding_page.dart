@@ -258,7 +258,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   _delayedFade(
                     delay: 400, 
                     child:  _adjustmentPreview(
-                      icon: Icons.speed, 
+                      icon: NumericalAdjustment.iconData, 
                       name: "Pressure", 
                       type: "Numerical Adjustment", 
                       detail: "in PSI"
@@ -270,7 +270,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   _delayedFade(
                     delay: 700, 
                     child: _adjustmentPreview(
-                      icon: Icons.stairs_outlined, 
+                      icon: StepAdjustment.iconData, 
                       name: "Rebound", 
                       type: "Step Adjustment", 
                       detail: "0 to 12 Clicks"
@@ -282,7 +282,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   _delayedFade(
                     delay: 1000, 
                     child: _adjustmentPreview(
-                      icon: Icons.toggle_on, 
+                      icon: BooleanAdjustment.iconData, 
                       name: "Lockout", 
                       type: "On/Off Adjustment", 
                       detail: "Open or Firm"

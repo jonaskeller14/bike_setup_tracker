@@ -256,14 +256,14 @@ class _PersonPageState extends State<PersonPage> {
           style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)),
         ),
         const SizedBox(height: 4),
-        _buildGuideRow(Icons.speed, "Numerical", "Body Weight, Height, Age"),
+        _buildGuideRow(NumericalAdjustment.iconData, "Numerical", "Body Weight, Height, Age"),
         _buildGuideRow(Icons.rotate_right, "Step", "..."),
-        _buildGuideRow(Icons.category, "Categorical", "Training status, Riding Gear, Riding style"),
-        _buildGuideRow(Icons.toggle_on, "On/Off", "Wearing a backpack?"),
+        _buildGuideRow(CategoricalAdjustment.iconData, "Categorical", "Training status, Riding Gear, Riding style"),
+        _buildGuideRow(BooleanAdjustment.iconData, "On/Off", "Wearing a backpack?"),
         if (context.read<AppSettings>().enableTextAdjustment)
-          _buildGuideRow(Icons.text_snippet, "Text", "Flexible field for any other attribute"),
+          _buildGuideRow(TextAdjustment.iconData, "Text", "Flexible field for any other attribute"),
         if (_enableDurationAdjustment)
-          _buildGuideRow(Icons.timer_outlined, "Duration", "Time span"),  //TODO: improve help text
+          _buildGuideRow(DurationAdjustment.iconData, "Duration", "Time span"),  //TODO: improve help text
       ],
     ),
   );

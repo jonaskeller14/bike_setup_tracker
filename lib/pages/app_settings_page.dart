@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import '../models/app_settings.dart';
+import '../models/adjustment/adjustment.dart';
 import '../widgets/sheets/app_settings_radio_group.dart';
 
 class AppSettingsPage extends StatefulWidget {
@@ -247,7 +248,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.text_snippet, color: Theme.of(context).colorScheme.primary),
+              leading: Icon(TextAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
               title: const Text("Text Adjustment"),
               subtitle: _offOnOptionWidgets[appSettingsReader.enableTextAdjustment] ?? const Text("-"),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),

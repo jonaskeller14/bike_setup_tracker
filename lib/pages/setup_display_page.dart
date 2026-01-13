@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../models/app_settings.dart';
 import '../models/setup.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/person.dart';
@@ -91,6 +94,8 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
 
   @override
   Widget build(BuildContext context) {
+    final appSettings = context.read<AppSettings>();
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -108,7 +113,10 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(widget.setups[_currentPageIndex].name, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-                Text(setup.datetime.toIso8601String()),
+                Text(
+                  "${DateFormat(appSettings.dateFormat).format(setup.datetime)} • ${DateFormat(appSettings.timeFormat).format(setup.datetime)}",
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),),
+                ),
                 Divider(),
                 Text("Context", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                 

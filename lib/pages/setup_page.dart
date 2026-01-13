@@ -31,7 +31,7 @@ import '../widgets/setup_page_legend.dart';
 
 class SetupPage extends StatefulWidget {
   final Setup? setup;
-  final List<Component> components;
+  final Iterable<Component> components;
   final Map<String, Bike> bikes;
   final Map<String, Person> persons;
   final Map<String, Rating> ratings;

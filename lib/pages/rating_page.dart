@@ -18,7 +18,7 @@ import '../widgets/sheets/rating_add_adjustment.dart';
 
 class RatingPage extends StatefulWidget {
   final Rating? rating;
-  final List<Component> components;
+  final Iterable<Component> components;
   final Map<String, Bike> bikes;
   final Map<String, Person> persons;
 

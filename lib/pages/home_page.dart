@@ -97,8 +97,8 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       FileImport.overwrite(remoteData: remoteData, localData: data);
       data.onBikeTap(null);
-      data.filteredPersons = Map.fromEntries(data.persons.entries.where((entry) => !entry.value.isDeleted));
-      data.filteredRatings = Map.fromEntries(data.ratings.entries.where((entry) => !entry.value.isDeleted));
+      data.filterPersons();
+      data.filterRatings();
     });
     FileImport.cleanupIsDeleted(data: data);
     FileExport.saveData(data: data);
@@ -221,8 +221,8 @@ class _HomePageState extends State<HomePage> {
     final confirmed = await showConfirmationDialog(context, content: "All components and setups which belong to this bike will be deleted as well.");
     if (!confirmed) return;
 
-    final obsoleteComponents = data.components.where((c) => c.bike == bike.id).toList();
-    final obsoleteSetups = data.setups.where((s) => s.bike == bike.id).toList();
+    final obsoleteComponents = data.components.where((c) => c.bike == bike.id);
+    final obsoleteSetups = data.setups.where((s) => s.bike == bike.id);
 
     setState(() {
       bike.isDeleted = true;
@@ -242,7 +242,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       person.isDeleted = true;
       person.lastModified = DateTime.now();
-      data.filteredPersons = Map.fromEntries(data.persons.entries.where((entry) => !entry.value.isDeleted));
+      data.filterPersons();
     });
 
     final snackBar = SnackBar(
@@ -256,7 +256,7 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             person.isDeleted = false;
             person.lastModified = DateTime.now();
-            data.filteredPersons = Map.fromEntries(data.persons.entries.where((entry) => !entry.value.isDeleted));
+            data.filterPersons();
           });
         },
       ),
@@ -274,7 +274,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       rating.isDeleted = true;
       rating.lastModified = DateTime.now();
-      data.filteredRatings = Map.fromEntries(data.ratings.entries.where((entry) => !entry.value.isDeleted));
+      data.filterRatings();
     });
 
     final snackBar = SnackBar(
@@ -288,7 +288,7 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             rating.isDeleted = false;
             rating.lastModified = DateTime.now();
-            data.filteredRatings = Map.fromEntries(data.ratings.entries.where((entry) => !entry.value.isDeleted));
+            data.filterRatings();
           });
         },
       ),
@@ -306,7 +306,7 @@ class _HomePageState extends State<HomePage> {
     removeSetups([toRemoveSetup]);
   }
 
-  Future<void> removeSetups(List<Setup> toRemoveSetups, {bool confirm = true}) async {
+  Future<void> removeSetups(Iterable<Setup> toRemoveSetups, {bool confirm = true}) async {
     if (toRemoveSetups.isEmpty) return;
 
     setState(() {
@@ -358,7 +358,7 @@ class _HomePageState extends State<HomePage> {
     removeComponents([toRemoveComponent]);
   }
 
-  Future<void> removeComponents(List<Component> toRemoveComponents, {bool confirm = true}) async {
+  Future<void> removeComponents(Iterable<Component> toRemoveComponents, {bool confirm = true}) async {
     if (toRemoveComponents.isEmpty) return;
 
     setState(() {
@@ -426,7 +426,7 @@ class _HomePageState extends State<HomePage> {
   
     setState(() {
       data.persons[person.id] = person;
-      data.filteredPersons = Map.fromEntries(data.persons.entries.where((entry) => !entry.value.isDeleted));
+      data.filterPersons();
     });
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
@@ -439,7 +439,7 @@ class _HomePageState extends State<HomePage> {
       MaterialPageRoute(
         builder: (context) => RatingPage(
           bikes: Map.fromEntries(data.bikes.entries.where((entry) => !entry.value.isDeleted)),
-          components: data.components.where((c) => !c.isDeleted).toList(),
+          components: data.components.where((c) => !c.isDeleted),
           persons: data.filteredPersons,
         ),
       ),
@@ -448,7 +448,7 @@ class _HomePageState extends State<HomePage> {
   
     setState(() {
       data.ratings[newRating.id] = newRating;
-      data.filteredRatings = Map.fromEntries(data.ratings.entries.where((entry) => !entry.value.isDeleted));
+      data.filterRatings();
     });
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
@@ -507,7 +507,7 @@ class _HomePageState extends State<HomePage> {
     if (editedPerson == null) return;
     setState(() {
       data.persons[editedPerson.id] = editedPerson;
-      data.filteredPersons = Map.fromEntries(data.persons.entries.where((entry) => !entry.value.isDeleted));
+      data.filterPersons();
     });
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
@@ -521,7 +521,7 @@ class _HomePageState extends State<HomePage> {
         builder: (context) => RatingPage(
           rating: rating, 
           bikes: Map.fromEntries(data.bikes.entries.where((entry) => !entry.value.isDeleted)),
-          components: data.components.where((c) => !c.isDeleted).toList(),
+          components: data.components.where((c) => !c.isDeleted),
           persons: data.filteredPersons,
         ),
       ),
@@ -529,7 +529,7 @@ class _HomePageState extends State<HomePage> {
     if (editedRating == null) return;
     setState(() {
       data.ratings[editedRating.id] = editedRating;
-      data.filteredRatings = Map.fromEntries(data.ratings.entries.where((entry) => !entry.value.isDeleted));
+      data.filterRatings();
     });
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
@@ -571,7 +571,7 @@ class _HomePageState extends State<HomePage> {
     final newPerson = person.deepCopy();
     setState(() {
       data.persons[newPerson.id] = newPerson;
-      data.filteredPersons = Map.fromEntries(data.persons.entries.where((entry) => !entry.value.isDeleted));
+      data.filterPersons();
     });
     _editPerson(newPerson);
   }
@@ -580,18 +580,17 @@ class _HomePageState extends State<HomePage> {
     final newRating = rating.deepCopy();
     setState(() {
       data.ratings[newRating.id] = newRating;
-      data.filteredRatings = Map.fromEntries(data.ratings.entries.where((entry) => !entry.value.isDeleted));
+      data.filterRatings();
     });
     _editRating(newRating);
   }
 
   Future<void> onReorderComponents(int oldIndex, int newIndex) async {
     // Applies reorder to 'components' on the basis of filtered components
-    final filteredComponents = data.components.where((c) => c.bike == (data.selectedBike?.id ?? c.bike) && !c.isDeleted).toList();
-    final componentToMove = filteredComponents[oldIndex];
+    final componentToMove = data.filteredComponents[oldIndex];
     oldIndex = data.components.indexOf(componentToMove);
-    final targetComponent = newIndex < filteredComponents.length
-        ? filteredComponents[newIndex]
+    final targetComponent = newIndex < data.filteredComponents.length
+        ? data.filteredComponents[newIndex]
         : null;
     newIndex = targetComponent == null
         ? data.components.length 
@@ -642,7 +641,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _onReorderPerson(int oldIndex, int newIndex) async {
     final personsList = data.persons.values.toList();
     
-    final filteredPersons2 = personsList.where((b) => !b.isDeleted).toList();
+    final filteredPersons2 = data.filteredPersons.values.toList();
     final personToMove = filteredPersons2[oldIndex];
     oldIndex = personsList.indexOf(personToMove);
     final targetPerson = newIndex < filteredPersons2.length
@@ -661,7 +660,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       data.persons.clear();
       data.persons.addAll({for (var element in personsList) element.id : element});
-      data.filteredPersons = Map.fromEntries(data.persons.entries.where((entry) => !entry.value.isDeleted));
+      data.filterPersons();
     });
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
@@ -671,7 +670,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _onReorderRating(int oldIndex, int newIndex) async {
     final ratingsList = data.ratings.values.toList();
     
-    final filteredRatings2 = ratingsList.where((b) => !b.isDeleted).toList();
+    final filteredRatings2 = data.filteredRatings.values.toList();
     final ratingToMove = filteredRatings2[oldIndex];
     oldIndex = ratingsList.indexOf(ratingToMove);
     final targetRating = newIndex < filteredRatings2.length
@@ -690,7 +689,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       data.ratings.clear();
       data.ratings.addAll({for (var element in ratingsList) element.id : element});
-      data.filteredRatings = Map.fromEntries(data.ratings.entries.where((entry) => !entry.value.isDeleted));
+      data.filterRatings();
     });
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
@@ -722,7 +721,7 @@ class _HomePageState extends State<HomePage> {
     final newSetup = await Navigator.push<Setup>(
       context,
       MaterialPageRoute(builder: (context) => SetupPage(
-        components: data.components.where((c) => !c.isDeleted).toList(), 
+        components: data.components.where((c) => !c.isDeleted), 
         bikes: data.filteredBikes, 
         persons: data.filteredPersons,
         ratings: data.filteredRatings,
@@ -748,7 +747,7 @@ class _HomePageState extends State<HomePage> {
       context,
       MaterialPageRoute(builder: (context) => SetupPage(
           setup: setup, 
-          components: data.components.where((c) => !c.isDeleted).toList(), 
+          components: data.components.where((c) => !c.isDeleted), 
           bikes: data.filteredBikes, 
           persons: data.filteredPersons, 
           ratings: data.filteredRatings,
@@ -890,12 +889,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredComponents = data.selectedBike == null
-        ? data.components.where((c) => !c.isDeleted).toList()
-        : data.components.where((c) => !c.isDeleted && c.bike == data.selectedBike?.id).toList();
-    final filteredSetups = data.selectedBike == null
-        ? data.setups.where((s) => !s.isDeleted).toList()
-        : data.setups.where((s) => !s.isDeleted && s.bike == data.selectedBike?.id).toList();
     final appSettings = context.watch<AppSettings>();
     return Scaffold(
       appBar: AppBar(
@@ -953,8 +946,8 @@ class _HomePageState extends State<HomePage> {
                           for (final setup in data.setups) {
                             FileImport.updateSetupsAfter(setups: data.setups, setup: setup);
                           }
-                          data.filteredPersons = Map.fromEntries(data.persons.entries.where((entry) => !entry.value.isDeleted));
-                          data.filteredRatings = Map.fromEntries(data.ratings.entries.where((entry) => !entry.value.isDeleted));
+                          data.filterPersons();
+                          data.filterRatings();
                         });
                         FileExport.saveData(data: data);
                         FileExport.saveBackup(data: data);
@@ -1072,7 +1065,7 @@ class _HomePageState extends State<HomePage> {
         ),
         ComponentList(
           bikes: data.filteredBikes,
-          components: filteredComponents,
+          components: data.filteredComponents,
           setups: data.setups,
           editComponent: editComponent,
           duplicateComponent: duplicateComponent,
@@ -1084,8 +1077,8 @@ class _HomePageState extends State<HomePage> {
           persons: data.filteredPersons,
           ratings: data.filteredRatings,
           bikes: data.filteredBikes,
-          setups: filteredSetups,
-          components: filteredComponents,
+          setups: data.filteredSetups,
+          components: data.filteredComponents,
           editSetup: editSetup,
           restoreSetup: restoreSetup,
           removeSetup: removeSetup,
@@ -1099,7 +1092,7 @@ class _HomePageState extends State<HomePage> {
           PersonList(
             bikes: Map.fromEntries(data.bikes.entries.where((entry) => !entry.value.isDeleted)),
             persons: data.filteredPersons,
-            setups: data.setups.where((s) => !s.isDeleted).toList(),
+            setups: data.setups.where((s) => !s.isDeleted),
             editPerson: _editPerson,
             duplicatePerson: _duplicatePerson,
             removePerson: _removePerson,
@@ -1109,7 +1102,7 @@ class _HomePageState extends State<HomePage> {
           RatingList(
             persons: data.filteredPersons,
             bikes: data.filteredBikes,
-            components: data.components.where((c) => !c.isDeleted).toList(),
+            components: data.components.where((c) => !c.isDeleted),
             ratings: data.filteredRatings,
             editRating: _editRating,
             duplicateRating: _duplicateRating,

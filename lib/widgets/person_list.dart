@@ -11,7 +11,7 @@ const defaultVisibleCount = 3;
 class PersonList extends StatefulWidget {
   final Map<String, Bike> bikes;
   final Map<String, Person> persons;
-  final List<Setup> setups;
+  final Iterable<Setup> setups;
   final void Function(Person person) editPerson;
   final void Function(Person person) duplicatePerson;
   final void Function(Person person) removePerson;

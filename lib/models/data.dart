@@ -12,9 +12,12 @@ class Data {
   final Map<String, Rating> ratings;
 
   Bike? selectedBike;
+
   Map<String, Bike> filteredBikes = {};
   Map<String, Person> filteredPersons = {};
   Map<String, Rating> filteredRatings = {};
+  List<Component> filteredComponents = [];
+  List<Setup> filteredSetups = [];
 
   Data({
     required this.persons,
@@ -62,12 +65,46 @@ class Data {
     );
   }
 
+  void filter() {
+    filterBikes();
+    filterComponents();
+    filterSetups();
+    filterPersons();
+    filterRatings();
+  }
+
+  void filterBikes() {
+    filteredBikes = selectedBike == null 
+        ? Map.fromEntries(bikes.entries.where((entry) => !entry.value.isDeleted))
+        : Map.fromEntries(bikes.entries.where((entry) => !entry.value.isDeleted && entry.value == selectedBike));
+  }
+
+  void filterComponents() {
+    filteredComponents = selectedBike == null
+        ? components.where((c) => !c.isDeleted).toList()
+        : components.where((c) => !c.isDeleted && c.bike == selectedBike?.id).toList();
+  }
+
+  void filterSetups() {
+    filteredSetups = selectedBike == null
+        ? setups.where((s) => !s.isDeleted).toList()
+        : setups.where((s) => !s.isDeleted && s.bike == selectedBike?.id).toList();
+  }
+
+  void filterPersons() {
+    filteredPersons = Map.fromEntries(persons.entries.where((entry) => !entry.value.isDeleted));
+  }
+
+  void filterRatings() {
+    filteredRatings = Map.fromEntries(ratings.entries.where((entry) => !entry.value.isDeleted));
+  }
+
   void onBikeTap(Bike? bike) {
     selectedBike = (bike == null || selectedBike == bike) 
         ? null 
         : selectedBike = bike;
-    filteredBikes = selectedBike == null 
-        ? Map.fromEntries(bikes.entries.where((entry) => !entry.value.isDeleted))
-        : Map.fromEntries(bikes.entries.where((entry) => !entry.value.isDeleted && entry.value == selectedBike));
+    filterBikes();
+    filterComponents();
+    filterSetups();
   }
 }

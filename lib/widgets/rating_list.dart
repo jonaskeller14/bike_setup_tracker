@@ -12,7 +12,7 @@ class RatingList extends StatefulWidget {
   final Map<String, Person> persons;
   final Map<String, Bike> bikes;
   final Map<String, Rating> ratings;
-  final List<Component> components;
+  final Iterable<Component> components;
   final void Function(Rating rating) editRating;
   final void Function(Rating rating) duplicateRating;
   final void Function(Rating rating) removeRating;

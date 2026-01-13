@@ -41,17 +41,14 @@ class _TrashPageState extends State<TrashPage> {
 
   ListTile _trashItem({required dynamic deletedItem, required DateFormat dateFormat, required DateFormat timeFormat}) {
     return ListTile(
-      leading: deletedItem is Bike 
-          ? const Icon(Bike.iconData) 
-          : deletedItem is Component 
-              ? Component.getIcon(deletedItem.componentType) 
-              : deletedItem is Setup 
-                  ? const Icon(Icons.tune) 
-                  : deletedItem is Person
-                      ? const Icon(Person.iconData)
-                      : deletedItem is Rating
-                          ? const Icon(Icons.star)
-                          : null,
+      leading: switch(deletedItem) {
+        Bike() => const Icon(Bike.iconData),
+        Component() => Component.getIcon(deletedItem.componentType),
+        Setup() => const Icon(Setup.iconData),
+        Person() => const Icon(Person.iconData),
+        Rating() => const Icon(Icons.star),
+        _ => null,
+      },
       title: Text(deletedItem.name, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Text("Deleted at: ${dateFormat.format(deletedItem.lastModified)} ${timeFormat.format(deletedItem.lastModified)}"),
       trailing: IconButton(

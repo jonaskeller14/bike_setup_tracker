@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'weather.dart';
 import 'package:location/location.dart';
@@ -23,6 +24,8 @@ class Setup {
   Setup? previousBikeSetup;
   Setup? previousPersonSetup;
   bool isCurrent;
+
+  static const IconData iconData = Icons.tune;
 
   Setup({
     String? id,

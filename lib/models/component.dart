@@ -26,6 +26,8 @@ class Component {
   final List<Adjustment> adjustments;
   final String bike;
 
+  static const IconData iconData = Icons.grid_view_sharp;
+
   Component({
     String? id,
     bool? isDeleted,

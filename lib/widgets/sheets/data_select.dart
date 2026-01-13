@@ -225,7 +225,7 @@ Future<Data?> showDataSelectSheet({required BuildContext context, required Data 
                       return Card(
                         margin: const EdgeInsets.symmetric(vertical: 4.0),
                         child: CheckboxListTile(
-                          secondary: const Icon(Icons.tune),
+                          secondary: const Icon(Setup.iconData),
                           title: Text(
                             setup.name,
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(

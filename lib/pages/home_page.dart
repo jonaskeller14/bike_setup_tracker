@@ -1051,12 +1051,12 @@ class _HomePageState extends State<HomePage> {
         },
         destinations: <Widget>[
           NavigationDestination(icon: Badge(isLabelVisible: data.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: const Icon(Bike.iconData)), label: 'Bikes'),
-          NavigationDestination(icon: Icon(Icons.grid_view_sharp), label: 'Components'),
-          NavigationDestination(icon: Icon(Icons.tune), label: 'Setups'),
+          const NavigationDestination(icon: Icon(Component.iconData), label: 'Components'),
+          const NavigationDestination(icon: Icon(Setup.iconData), label: 'Setups'),
           if (appSettings.enablePerson)
-            NavigationDestination(icon: const Icon(Person.iconData), label: "Profile"),
+            const NavigationDestination(icon: Icon(Person.iconData), label: "Profile"),
           if (appSettings.enableRating)
-            NavigationDestination(icon: const Icon(Icons.star), label: "Ratings"),
+            const NavigationDestination(icon: Icon(Icons.star), label: "Ratings"),
         ],
       ),
       body: <Widget>[

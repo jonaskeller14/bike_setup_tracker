@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
+import '../models/setup.dart';
 import '../models/weather.dart';
 import '../icons/bike_icons.dart';
 
@@ -387,7 +388,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
             child: Column(
               children: [
                 ListTile(
-                  leading: Icon(Icons.tune),
+                  leading: const Icon(Setup.iconData),
                   title: const Text("My new Setup", style: TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Wrap(
                     alignment: WrapAlignment.start,

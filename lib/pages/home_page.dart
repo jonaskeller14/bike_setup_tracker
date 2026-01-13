@@ -313,6 +313,7 @@ class _HomePageState extends State<HomePage> {
       for (var setup in toRemoveSetups) {
         setup.isDeleted = true;
         setup.lastModified = DateTime.now();
+        data.filterSetups();
       }
       FileImport.determineCurrentSetups(setups: data.setups, bikes: data.bikes);
       FileImport.determinePreviousSetups(setups: data.setups);
@@ -336,6 +337,7 @@ class _HomePageState extends State<HomePage> {
               for (var setup in toRemoveSetups) {
                 setup.isDeleted = false;
                 setup.lastModified = DateTime.now();
+                data.filterSetups();
               }
               data.setups.sort((a, b) => a.datetime.compareTo(b.datetime)); // not really necessary
               FileImport.determineCurrentSetups(setups: data.setups, bikes: data.bikes);
@@ -365,6 +367,7 @@ class _HomePageState extends State<HomePage> {
       for (var component in toRemoveComponents) {
         component.isDeleted = true;
         component.lastModified = DateTime.now();
+        data.filterComponents();
       }
     });
 
@@ -386,6 +389,7 @@ class _HomePageState extends State<HomePage> {
               for (var component in toRemoveComponents) {
                 component.isDeleted = false;
                 component.lastModified = DateTime.now();
+                data.filterComponents();
               }
             });
           },
@@ -474,6 +478,7 @@ class _HomePageState extends State<HomePage> {
   
     setState(() {
       data.components.add(component);
+      data.filterComponents();
     });
 
     FileExport.saveData(data: data);
@@ -544,7 +549,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
     if (editedComponent == null) {
-      setState(() {}); // update adjustments
+      setState(() {data.filterComponents();}); // + update adjustments
       return;
     }
 
@@ -553,6 +558,7 @@ class _HomePageState extends State<HomePage> {
       if (index != -1) {
         data.components[index] = editedComponent;
       }
+      data.filterComponents();
     });
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
@@ -564,7 +570,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       data.components.add(newComponent);
     });
-    editComponent(newComponent);
+    editComponent(newComponent);  // data.filterComponents();
   }
 
   Future<void> _duplicatePerson(Person person) async {
@@ -602,6 +608,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       final component = data.components.removeAt(oldIndex);
       data.components.insert(adjustedNewIndex, component);
+      data.filterComponents();
     });
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
@@ -631,7 +638,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       data.bikes.clear();
       data.bikes.addAll({for (var element in bikesList) element.id : element});
-      data.onBikeTap(null);
+      data.onBikeTap(null);  // data.filterBikes()
     });
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
@@ -736,6 +743,7 @@ class _HomePageState extends State<HomePage> {
       FileImport.determineCurrentSetups(setups: data.setups, bikes: data.bikes);
       FileImport.determinePreviousSetups(setups: data.setups);
       FileImport.updateSetupsAfter(setups: data.setups, setup: newSetup);
+      data.filterSetups();
     });
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
@@ -760,6 +768,7 @@ class _HomePageState extends State<HomePage> {
       final index = data.setups.indexOf(setup);
       if (index != -1) {
         data.setups[index] = editedSetup;
+        data.filterSetups();
       }
       data.setups.sort((a, b) => a.datetime.compareTo(b.datetime));
       FileImport.determineCurrentSetups(setups: data.setups, bikes: data.bikes);
@@ -785,11 +794,8 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       data.setups.add(newSetup);
-      data.setups.sort((a, b) => a.datetime.compareTo(b.datetime));
-      FileImport.determineCurrentSetups(setups: data.setups, bikes: data.bikes);
-      FileImport.determinePreviousSetups(setups: data.setups);
     });
-    editSetup(newSetup);
+    editSetup(newSetup); // Sorting setups, filterSetups(), etc.
   }
 
   Setup? getPreviousSetupbyDateTime({required DateTime datetime, String? bike, String? person}) {
@@ -946,8 +952,7 @@ class _HomePageState extends State<HomePage> {
                           for (final setup in data.setups) {
                             FileImport.updateSetupsAfter(setups: data.setups, setup: setup);
                           }
-                          data.filterPersons();
-                          data.filterRatings();
+                          data.filter();
                         });
                         FileExport.saveData(data: data);
                         FileExport.saveBackup(data: data);

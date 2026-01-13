@@ -8,6 +8,7 @@ import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/weather.dart';
 import '../models/app_settings.dart';
+import '../pages/setup_display_page.dart';
 import '../widgets/adjustment_display_list.dart';
 
 const defaultVisibleCount = 10;
@@ -347,13 +348,21 @@ class _SetupListState extends State<SetupList> {
                 itemCount: visibleCount,
                 itemBuilder: (context, index) {
                   final setup = widget.setups[widget.setups.length - 1 - index];
-                  return _setupCard(
-                    setup,
-                    dateFormat: appSettings.dateFormat,
-                    timeFormat: appSettings.timeFormat,
-                    altitudeUnit: appSettings.altitudeUnit,
-                    temperatureUnit: appSettings.temperatureUnit, 
-                  );
+                  return InkWell(
+                    onTap: () async {
+                      Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDisplayPage(
+                        setups: widget.setups,
+                        initialSetup: setup,
+                      )));
+                    },
+                    child: _setupCard(
+                      setup,
+                      dateFormat: appSettings.dateFormat,
+                      timeFormat: appSettings.timeFormat,
+                      altitudeUnit: appSettings.altitudeUnit,
+                      temperatureUnit: appSettings.temperatureUnit, 
+                    ),
+                  ); 
                 },
               ),
               if (widget.setups.length > defaultVisibleCount)

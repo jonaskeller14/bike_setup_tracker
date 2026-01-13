@@ -54,7 +54,7 @@ class _RatingListState extends State<RatingList> {
             margin: const EdgeInsets.symmetric(vertical: 4.0),
             child: ListTile(
               dense: true,
-              leading: const Icon(Icons.star),
+              leading: const Icon(Rating.iconData),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 8,

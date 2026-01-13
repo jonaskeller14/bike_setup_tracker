@@ -46,7 +46,7 @@ class _TrashPageState extends State<TrashPage> {
         Component() => Component.getIcon(deletedItem.componentType),
         Setup() => const Icon(Setup.iconData),
         Person() => const Icon(Person.iconData),
-        Rating() => const Icon(Icons.star),
+        Rating() => const Icon(Rating.iconData),
         _ => null,
       },
       title: Text(deletedItem.name, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold)),

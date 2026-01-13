@@ -878,7 +878,7 @@ class _HomePageState extends State<HomePage> {
             ),
           if (context.read<AppSettings>().enableRating)
             FilterChip(
-              label: Icon(Icons.star, size: 20),
+              label: const Icon(Rating.iconData, size: 20),
               selected: _setupListRatingAdjustmentValues,
               onSelected: (bool selected) {setState(() => _setupListRatingAdjustmentValues = selected);},
               tooltip: "Show rating related values",
@@ -1056,7 +1056,7 @@ class _HomePageState extends State<HomePage> {
           if (appSettings.enablePerson)
             const NavigationDestination(icon: Icon(Person.iconData), label: "Profile"),
           if (appSettings.enableRating)
-            const NavigationDestination(icon: Icon(Icons.star), label: "Ratings"),
+            const NavigationDestination(icon: Icon(Rating.iconData), label: "Ratings"),
         ],
       ),
       body: <Widget>[

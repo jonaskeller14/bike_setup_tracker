@@ -940,7 +940,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                   if (context.read<AppSettings>().enablePerson)
                                     const Tab(icon: Icon(Person.iconData)),
                                   if (context.read<AppSettings>().enableRating)
-                                  const Tab(icon: Icon(Icons.star)),
+                                  const Tab(icon: Icon(Rating.iconData)),
                                 ],
                               ),
                           ],
@@ -1215,7 +1215,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                                 ),
                                             ],
                                           ),
-                                          leading: Icon(Icons.star),
+                                          leading: const Icon(Rating.iconData),
                                         ),
                                         AdjustmentSetList(
                                           key: ValueKey([rating.id, _previousBikeSetup, _bikeAdjustmentValues.values]),

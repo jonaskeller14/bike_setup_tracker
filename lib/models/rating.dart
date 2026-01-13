@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'adjustment/adjustment.dart';
 
@@ -17,6 +18,8 @@ class Rating {
   String? filter; // id of filter object (Bike, Component, Person)
   FilterType filterType;
   final List<Adjustment> adjustments;
+
+  static const IconData iconData = Icons.star;
 
   Rating({
     String? id,

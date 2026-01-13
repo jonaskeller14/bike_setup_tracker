@@ -48,7 +48,7 @@ class LoadingGate extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.done) {
           return ChangeNotifierProvider.value(
             value: appSettings,
-            child: const MyApp(),
+            child: const BikeSetupTrackerApp(),
           );
         } else {
           return MaterialApp(
@@ -68,8 +68,8 @@ class LoadingGate extends StatelessWidget {
   }
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class BikeSetupTrackerApp extends StatelessWidget {
+  const BikeSetupTrackerApp({super.key});
 
   @override
   Widget build(BuildContext context) {

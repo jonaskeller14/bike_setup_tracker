@@ -22,7 +22,7 @@ abstract class Adjustment<T> {
   Adjustment<T> deepCopy();
   bool isValidValue(dynamic value);
   Map<String, dynamic> toJson();
-  Icon getIcon({double? size, Color? color});
+  IconData getIconData();
   String getProperties();
 
   static String formatValue(dynamic value) {

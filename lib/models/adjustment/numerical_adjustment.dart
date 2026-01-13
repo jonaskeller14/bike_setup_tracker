@@ -4,6 +4,8 @@ class NumericalAdjustment extends Adjustment<double> {
   double min;
   double max;
 
+  static const IconData iconData = Icons.speed;
+
   NumericalAdjustment({
     super.id,
     required super.name,
@@ -53,13 +55,7 @@ class NumericalAdjustment extends Adjustment<double> {
   }
 
   @override
-  Icon getIcon({double? size, Color? color}) {
-    return getIconStatic(size: size, color: color);
-  }
-
-  static Icon getIconStatic({double? size, Color? color}) {
-    return Icon(Icons.speed, size: size, color: color);
-  }
+  IconData getIconData() => NumericalAdjustment.iconData;
 
   @override
   String getProperties() {

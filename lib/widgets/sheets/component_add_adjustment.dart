@@ -105,7 +105,7 @@ void showComponentAddAdjustmentBottomSheet({
               else
                 if (_adjustmentPresets[componentType] != null && _adjustmentPresets[componentType]!.isNotEmpty)
                   ..._adjustmentPresets[componentType]!.map((adjustmentPreset) => ListTile(
-                    leading: adjustmentPreset.getIcon(),
+                    leading: Icon(adjustmentPreset.getIconData()),
                     title: Text(adjustmentPreset.name),
                     subtitle: Text(adjustmentPreset.getProperties(), style: const TextStyle(fontSize: 12)),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),

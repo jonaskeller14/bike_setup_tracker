@@ -1,6 +1,8 @@
 part of 'adjustment.dart';
 
 class TextAdjustment extends Adjustment<String> {
+  static const IconData iconData = Icons.text_snippet;
+
   TextAdjustment({
     super.id,
     required super.name,
@@ -47,13 +49,7 @@ class TextAdjustment extends Adjustment<String> {
   }
 
   @override
-  Icon getIcon({double? size, Color? color}) {
-    return getIconStatic(size: size, color: color);
-  }
-
-  static Icon getIconStatic({double? size, Color? color}) {
-    return Icon(Icons.text_snippet, size: size, color: color,);
-  }
+  IconData getIconData() => TextAdjustment.iconData;
 
   @override
   String getProperties() {

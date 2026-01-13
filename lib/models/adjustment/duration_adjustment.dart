@@ -4,6 +4,8 @@ class DurationAdjustment extends Adjustment<double> {
   Duration? min;
   Duration? max;
 
+  static const IconData iconData = Icons.timer_outlined;
+
   DurationAdjustment({
     super.id,
     required super.name,
@@ -52,13 +54,7 @@ class DurationAdjustment extends Adjustment<double> {
   }
 
   @override
-  Icon getIcon({double? size, Color? color}) {
-    return getIconStatic(size: size, color: color);
-  }
-
-  static Icon getIconStatic({double? size, Color? color}) {
-    return Icon(Icons.timer_outlined, size: size, color: color);
-  }
+  IconData getIconData() => DurationAdjustment.iconData;
 
   @override
   String getProperties() {

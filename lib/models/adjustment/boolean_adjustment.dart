@@ -1,6 +1,8 @@
 part of 'adjustment.dart';
 
 class BooleanAdjustment extends Adjustment<bool> {
+  static const IconData iconData = Icons.toggle_on;
+  
   BooleanAdjustment({
     super.id,
     required super.name,
@@ -43,13 +45,7 @@ class BooleanAdjustment extends Adjustment<bool> {
   }
 
   @override
-  Icon getIcon({double? size, Color? color}) {
-    return getIconStatic(size: size, color: color);
-  }
-
-  static Icon getIconStatic({double? size, Color? color}) {
-    return Icon(Icons.toggle_on, size: size, color: color,);
-  }
+  IconData getIconData() => BooleanAdjustment.iconData;
 
   @override
   String getProperties() {

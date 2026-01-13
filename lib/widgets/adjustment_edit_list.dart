@@ -27,7 +27,7 @@ class _AdjustmentEditListState extends State<AdjustmentEditList> {
     return Card(
       key: ValueKey(widget.adjustments[index]),
       child: ListTile(
-        leading: widget.adjustments[index].getIcon(),
+        leading: Icon(widget.adjustments[index].getIconData()),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 8,

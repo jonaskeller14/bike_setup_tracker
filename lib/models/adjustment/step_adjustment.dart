@@ -18,6 +18,8 @@ class StepAdjustment extends Adjustment<int> {
   int max;
   StepAdjustmentVisualization visualization;
 
+  static const IconData iconData = Icons.stairs_outlined;
+
   StepAdjustment({
     super.id,
     required super.name,
@@ -75,13 +77,7 @@ class StepAdjustment extends Adjustment<int> {
   }
 
   @override
-  Icon getIcon({double? size, Color? color}) {
-    return getIconStatic(size: size, color: color);
-  }
-
-  static Icon getIconStatic({double? size, Color? color}) {
-    return Icon(Icons.stairs_outlined, size: size, color: color,);
-  }
+  IconData getIconData() => StepAdjustment.iconData;
 
   @override
   String getProperties() {

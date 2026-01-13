@@ -3,6 +3,8 @@ part of 'adjustment.dart';
 class CategoricalAdjustment extends Adjustment<String> {
   List<String> options;
 
+  static const IconData iconData = Icons.category;
+
   CategoricalAdjustment({
     super.id,
     required super.name,
@@ -48,13 +50,7 @@ class CategoricalAdjustment extends Adjustment<String> {
   }
 
   @override
-  Icon getIcon({double? size, Color? color}) {
-    return getIconStatic(size: size, color: color,);
-  }
-
-  static Icon getIconStatic({double? size, Color? color}) {
-    return Icon(Icons.category, size: size, color: color,);
-  }
+  IconData getIconData() => CategoricalAdjustment.iconData;
 
   @override
   String getProperties() {

@@ -349,7 +349,7 @@ class _ComponentPageState extends State<ComponentPage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         spacing: 8,
                         children: [
-                          const Icon(Icons.pedal_bike),
+                          const Icon(Bike.iconData),
                           Expanded(child: Text(b.name, overflow: TextOverflow.ellipsis))
                         ],
                       ),

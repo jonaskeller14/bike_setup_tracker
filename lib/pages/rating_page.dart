@@ -383,7 +383,7 @@ class _RatingPageState extends State<RatingPage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         spacing: 8,
                         children: [
-                          const Icon(Icons.pedal_bike),
+                          const Icon(Bike.iconData),
                           Expanded(child: Text(b.name, overflow: TextOverflow.ellipsis))
                         ],
                       ),
@@ -424,7 +424,7 @@ class _RatingPageState extends State<RatingPage> {
                             child: Row(
                               spacing: 8,
                               children: [
-                                const Icon(Icons.pedal_bike),
+                                const Icon(Bike.iconData),
                                 Expanded(child: Text(widget.bikes[c.bike]?.name ?? "-", overflow: TextOverflow.ellipsis)),
                               ],
                             ),

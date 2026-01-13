@@ -799,7 +799,7 @@ class _HomePageState extends State<HomePage> {
 
   FilterChip _bikeFilterWidget() {
     return FilterChip(
-      avatar: Icon(Icons.pedal_bike),
+      avatar: const Icon(Bike.iconData),
       label: data.selectedBike == null ? const Text("All Bikes") : Text(data.selectedBike!.name),
       selected: data.selectedBike != null,
       showCheckmark: false,
@@ -864,7 +864,7 @@ class _HomePageState extends State<HomePage> {
           ),
           if (context.read<AppSettings>().enablePerson || context.read<AppSettings>().enableRating)
           FilterChip(
-            label: Icon(Icons.pedal_bike, size: 20),
+            label: const Icon(Bike.iconData, size: 20),
             selected: _setupListBikeAdjustmentValues,
             onSelected: (bool selected) {setState(() => _setupListBikeAdjustmentValues = selected);},
             tooltip: "Show bike/component related values",
@@ -1050,7 +1050,7 @@ class _HomePageState extends State<HomePage> {
           });
         },
         destinations: <Widget>[
-          NavigationDestination(icon: Badge(isLabelVisible: data.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: Icon(Icons.pedal_bike)), label: 'Bikes'),
+          NavigationDestination(icon: Badge(isLabelVisible: data.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: const Icon(Bike.iconData)), label: 'Bikes'),
           NavigationDestination(icon: Icon(Icons.grid_view_sharp), label: 'Components'),
           NavigationDestination(icon: Icon(Icons.tune), label: 'Setups'),
           if (appSettings.enablePerson)

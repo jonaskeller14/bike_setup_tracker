@@ -920,7 +920,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      Icon(Icons.pedal_bike),
+                                      Icon(Bike.iconData),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(b.name, overflow: TextOverflow.ellipsis),
@@ -936,7 +936,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                               TabBar.secondary(
                                 controller: _tabController,
                                 tabs: <Widget>[
-                                  const Tab(icon: Icon(Icons.pedal_bike)),
+                                  const Tab(icon: Icon(Bike.iconData)),
                                   if (context.read<AppSettings>().enablePerson)
                                     const Tab(icon: Icon(Icons.person)),
                                   if (context.read<AppSettings>().enableRating)
@@ -1185,7 +1185,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                               )),
                                               Spacer(),
                                               if (rating.filterType == FilterType.bike)
-                                                Icon(Icons.pedal_bike),
+                                                Icon(Bike.iconData),
                                               if (rating.filterType == FilterType.person)
                                                 Icon(Icons.person),
                                               if (rating.filterType == FilterType.componentType)

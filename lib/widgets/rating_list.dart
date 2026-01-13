@@ -76,7 +76,7 @@ class _RatingListState extends State<RatingList> {
                         children: [
                           switch(rating.filterType) {
                             FilterType.global => Icon(Icons.circle_outlined, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            FilterType.bike => Icon(Icons.pedal_bike, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            FilterType.bike => Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                             FilterType.person => Icon(Icons.person, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                             FilterType.component => Component.getIcon(widget.components.firstWhereOrNull((c) => c.id == rating.filter)?.componentType ?? ComponentType.other, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                             FilterType.componentType => Component.getIcon(ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),

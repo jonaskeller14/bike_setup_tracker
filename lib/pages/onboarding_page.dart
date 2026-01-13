@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../models/app_settings.dart';
+import '../models/bike.dart';
 import '../models/weather.dart';
 import '../icons/bike_icons.dart';
 
@@ -153,7 +154,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         children: [
           _delayedFade(
             delay: 0,
-            child: Icon(Icons.pedal_bike, size: 120),
+            child: const Icon(Bike.iconData, size: 120),
           ),
           const SizedBox(height: 24),
           Row(

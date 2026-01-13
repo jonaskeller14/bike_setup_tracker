@@ -126,7 +126,7 @@ class _SetupListState extends State<SetupList> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Icon(Icons.pedal_bike, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   const SizedBox(width: 2),
                   Text(
                     widget.bikes[setup.bike]?.name ?? "-",

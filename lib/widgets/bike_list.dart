@@ -54,7 +54,7 @@ class _BikeListState extends State<BikeList> {
             opacity: bike == widget.selectedBike || widget.selectedBike == null ? 1 : 0.3,
               child: ListTile(
               dense: true,
-              leading: const Icon(Icons.pedal_bike),
+              leading: const Icon(Bike.iconData),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 8,

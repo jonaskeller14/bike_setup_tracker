@@ -82,7 +82,7 @@ class _ComponentListState extends State<ComponentList> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.pedal_bike, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                             const SizedBox(width: 2),
                             Text(
                               widget.bikes[component.bike]?.name ?? "-",

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 class Bike {
@@ -6,6 +7,8 @@ class Bike {
   DateTime lastModified;
   String name;
   String? person;
+
+  static const IconData iconData = Icons.pedal_bike;
 
   Bike({
     String? id,

@@ -42,7 +42,7 @@ class _TrashPageState extends State<TrashPage> {
   ListTile _trashItem({required dynamic deletedItem, required DateFormat dateFormat, required DateFormat timeFormat}) {
     return ListTile(
       leading: deletedItem is Bike 
-          ? const Icon(Icons.pedal_bike) 
+          ? const Icon(Bike.iconData) 
           : deletedItem is Component 
               ? Component.getIcon(deletedItem.componentType) 
               : deletedItem is Setup 

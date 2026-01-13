@@ -117,7 +117,7 @@ Future<Data?> showDataSelectSheet({required BuildContext context, required Data 
                       return Card(
                         margin: const EdgeInsets.symmetric(vertical: 4.0),
                         child: CheckboxListTile(
-                          secondary: const Icon(Icons.pedal_bike),
+                          secondary: const Icon(Bike.iconData),
                           title: Text(
                             bike.name,
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -175,7 +175,7 @@ Future<Data?> showDataSelectSheet({required BuildContext context, required Data 
                           subtitle: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.pedal_bike, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                               const SizedBox(width: 2),
                               Text(
                                 allBikes.firstWhereOrNull((b) => b.id == component.bike)?.name ?? "-",
@@ -235,7 +235,7 @@ Future<Data?> showDataSelectSheet({required BuildContext context, required Data 
                           subtitle: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.pedal_bike, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                               const SizedBox(width: 2),
                               Text(
                                 allBikes.firstWhereOrNull((b) => b.id == setup.bike)?.name ?? "-",

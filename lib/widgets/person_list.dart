@@ -42,7 +42,7 @@ class _PersonListState extends State<PersonList> {
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.pedal_bike, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(width: 2),
             Text(
               bike.name,

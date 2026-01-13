@@ -32,7 +32,7 @@ Future<List<Bike>?> showBikeFilterSheet({required BuildContext context, required
                     child: Wrap(
                       spacing: 12,
                       children: bikes.map((bike) => FilterChip(
-                        avatar: Icon(Icons.pedal_bike),
+                        avatar: const Icon(Bike.iconData),
                         label: Text(bike.name),
                         selected: bike == selectedBike,
                         showCheckmark: false,

@@ -13,6 +13,8 @@ class AppSettings extends ChangeNotifier {
   String _precipitationUnit = 'mm';
   bool _enableGoogleDrive = false;
   bool _enableTextAdjustment = false;
+  bool _enablePerson = false;
+  bool _enableRating = false;
 
   bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;
@@ -24,6 +26,8 @@ class AppSettings extends ChangeNotifier {
   String get precipitationUnit => _precipitationUnit;
   bool get enableGoogleDrive => _enableGoogleDrive;
   bool get enableTextAdjustment => _enableTextAdjustment;
+  bool get enablePerson => _enablePerson;
+  bool get enableRating => _enableRating;
 
   void setShowOnboarding(bool newShowOnboarding) {
     if (_showOnboarding == newShowOnboarding) return;
@@ -95,6 +99,20 @@ class AppSettings extends ChangeNotifier {
     saveAppSettings();
   }
 
+  void setEnablePerson(bool newValue) {
+    if (newValue == _enablePerson) return;
+    _enablePerson = newValue;
+    notifyListeners();
+    saveAppSettings();
+  }
+
+  void setEnableRating(bool newValue) {
+    if (newValue == _enableRating) return;
+    _enableRating = newValue;
+    notifyListeners();
+    saveAppSettings();
+  }
+
   Future<void> loadAppSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -114,6 +132,8 @@ class AppSettings extends ChangeNotifier {
       _precipitationUnit = json['precipitationUnit'] ?? _precipitationUnit;
       _enableGoogleDrive = json['enableGoogleDrive'] ?? _enableGoogleDrive;
       _enableTextAdjustment = json['enableTextAdjustment'] ?? _enableTextAdjustment;
+      _enablePerson = json['enablePerson'] ?? _enablePerson;
+      _enableRating = json['enableRating'] ?? _enableRating;
       
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
@@ -134,6 +154,8 @@ class AppSettings extends ChangeNotifier {
       'precipitationUnit': _precipitationUnit,
       'enableGoogleDrive': _enableGoogleDrive,
       'enableTextAdjustment': _enableTextAdjustment,
+      'enablePerson': _enablePerson,
+      'enableRating': _enableRating,
     });
     await prefs.setString('app_settings', jsonData);
   }

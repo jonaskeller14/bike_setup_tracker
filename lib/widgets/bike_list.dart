@@ -1,5 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/person.dart';
 
@@ -62,27 +64,29 @@ class _BikeListState extends State<BikeList> {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               onTap: () => widget.onBikeTap(bike),
-              subtitle: Wrap(
-                spacing: 4,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  if (bike.person != null)
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
+              subtitle: context.read<AppSettings>().enablePerson
+                  ? Wrap(
+                      spacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        Icon(Icons.person, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        const SizedBox(width: 2),
-                        Text(
-                          widget.persons[bike.person]?.name ?? "-",
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                        if (bike.person != null)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.person, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              const SizedBox(width: 2),
+                              Text(
+                                widget.persons[bike.person]?.name ?? "-",
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        if (bike.person == null)
+                          Icon(Icons.person_off, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ],
-                    ),
-                  if (bike.person == null)
-                    Icon(Icons.person_off, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                ],
-              ),
+                    )
+                  : null,
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [

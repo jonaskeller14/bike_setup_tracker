@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/person.dart';
 import '../widgets/dialogs/discard_changes.dart';
@@ -25,13 +27,13 @@ class _BikePageState extends State<BikePage> {
     super.initState();
     _nameController = TextEditingController(text: widget.bike?.name);
     _nameController.addListener(_changeListener);
-    person = widget.bike == null ? person = widget.persons.keys.firstOrNull : widget.bike!.person;
+    
+    person = widget.bike?.person;
   }
 
   void _changeListener() {
-    //TODO: Person
     final hasChanges = _nameController.text.trim() != (widget.bike?.name ?? '') || 
-        person != (widget.bike == null ? person = widget.persons.keys.firstOrNull : widget.bike!.person);
+        person != widget.bike?.person;
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -110,45 +112,47 @@ class _BikePageState extends State<BikePage> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<Person>(
-                  initialValue: widget.persons[person],
-                  isExpanded: true,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(
-                    labelText: 'Bike Owner',
-                    border: OutlineInputBorder(),
-                    hintText: "Choose an owner for this bike",
-                    fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.bike != null && person != widget.bike?.person,
+                if (context.read<AppSettings>().enablePerson) ...[
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<Person>(
+                    initialValue: widget.persons[person],
+                    isExpanded: true,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(
+                      labelText: 'Bike Owner',
+                      border: OutlineInputBorder(),
+                      hintText: "Choose an owner for this bike",
+                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      filled: widget.bike != null && person != widget.bike?.person,
+                    ),
+                    validator: (Person? newPerson) {
+                      if (newPerson == null) return null;
+                      if (!widget.persons.values.contains(newPerson)) return "Please select valid bike";
+                      return null;
+                    },
+                    items: widget.persons.values.map((p) {
+                      return DropdownMenuItem<Person>(
+                        value: p,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          spacing: 8,
+                          children: [
+                            const Icon(Icons.person),
+                            Expanded(child: Text(p.name, overflow: TextOverflow.ellipsis))
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (Person? newPerson) {
+                      if (newPerson == null) return;
+                      setState(() {
+                        person = newPerson.id;
+                      });
+                      _changeListener();
+                    },
                   ),
-                  validator: (Person? newPerson) {
-                    if (newPerson == null) return null;
-                    if (!widget.persons.values.contains(newPerson)) return "Please select valid bike";
-                    return null;
-                  },
-                  items: widget.persons.values.map((p) {
-                    return DropdownMenuItem<Person>(
-                      value: p,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        spacing: 8,
-                        children: [
-                          const Icon(Icons.person),
-                          Expanded(child: Text(p.name, overflow: TextOverflow.ellipsis))
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (Person? newPerson) {
-                    if (newPerson == null) return;
-                    setState(() {
-                      person = newPerson.id;
-                    });
-                    _changeListener();
-                  },
-                ),
+                ],
               ],
             ),
           ),

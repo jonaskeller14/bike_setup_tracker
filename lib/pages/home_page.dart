@@ -848,7 +848,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  SingleChildScrollView _setupListFilterWidget() {
+  SingleChildScrollView _setupListFilterWidget(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.only(bottom: 8),
       scrollDirection: Axis.horizontal,
@@ -862,24 +862,27 @@ class _HomePageState extends State<HomePage> {
             onSelected: (bool selected) {setState(() => _setupListOnlyChanges = selected);},
             tooltip: "Show only changed values",
           ),
+          if (context.read<AppSettings>().enablePerson || context.read<AppSettings>().enableRating)
           FilterChip(
             label: Icon(Icons.pedal_bike, size: 20),
             selected: _setupListBikeAdjustmentValues,
             onSelected: (bool selected) {setState(() => _setupListBikeAdjustmentValues = selected);},
             tooltip: "Show bike/component related values",
           ),
-          FilterChip(
-            label: Icon(Icons.person, size: 20),
-            selected: _setupListPersonAdjustmentValues,
-            onSelected: (bool selected) {setState(() => _setupListPersonAdjustmentValues = selected);},
-            tooltip: "Show person related values",
-          ),
-          FilterChip(
-            label: Icon(Icons.star, size: 20),
-            selected: _setupListRatingAdjustmentValues,
-            onSelected: (bool selected) {setState(() => _setupListRatingAdjustmentValues = selected);},
-            tooltip: "Show rating related values",
-          ),
+          if (context.read<AppSettings>().enablePerson)
+            FilterChip(
+              label: Icon(Icons.person, size: 20),
+              selected: _setupListPersonAdjustmentValues,
+              onSelected: (bool selected) {setState(() => _setupListPersonAdjustmentValues = selected);},
+              tooltip: "Show person related values",
+            ),
+          if (context.read<AppSettings>().enableRating)
+            FilterChip(
+              label: Icon(Icons.star, size: 20),
+              selected: _setupListRatingAdjustmentValues,
+              onSelected: (bool selected) {setState(() => _setupListRatingAdjustmentValues = selected);},
+              tooltip: "Show rating related values",
+            ),
         ],
       ),
     );
@@ -913,8 +916,10 @@ class _HomePageState extends State<HomePage> {
           const Text("Bikes"),
           const Text("Components"),
           const Text("Setup History"),
-          const Text("Profile"),
-          const Text("Ratings"),
+          if (appSettings.enablePerson)
+            const Text("Profile"),
+          if (appSettings.enableRating)
+            const Text("Ratings"),
         ][currentPageIndex],
         actions: [
           if (appSettings.enableGoogleDrive)
@@ -1048,8 +1053,10 @@ class _HomePageState extends State<HomePage> {
           NavigationDestination(icon: Badge(isLabelVisible: data.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: Icon(Icons.pedal_bike)), label: 'Bikes'),
           NavigationDestination(icon: Icon(Icons.grid_view_sharp), label: 'Components'),
           NavigationDestination(icon: Icon(Icons.tune), label: 'Setups'),
-          NavigationDestination(icon: const Icon(Icons.person), label: "Profile"),
-          NavigationDestination(icon: const Icon(Icons.star), label: "Ratings"),
+          if (appSettings.enablePerson)
+            NavigationDestination(icon: const Icon(Icons.person), label: "Profile"),
+          if (appSettings.enableRating)
+            NavigationDestination(icon: const Icon(Icons.star), label: "Ratings"),
         ],
       ),
       body: <Widget>[
@@ -1086,27 +1093,29 @@ class _HomePageState extends State<HomePage> {
           displayBikeAdjustmentValues: _setupListBikeAdjustmentValues,
           displayPersonAdjustmentValues: _setupListPersonAdjustmentValues,
           displayRatingAdjustmentValues: _setupListRatingAdjustmentValues,
-          filterWidget: _setupListFilterWidget(),
+          filterWidget: _setupListFilterWidget(context),
         ),
-        PersonList(
-          bikes: Map.fromEntries(data.bikes.entries.where((entry) => !entry.value.isDeleted)),
-          persons: data.filteredPersons,
-          setups: data.setups.where((s) => !s.isDeleted).toList(),
-          editPerson: _editPerson,
-          duplicatePerson: _duplicatePerson,
-          removePerson: _removePerson,
-          onReorderPerson: _onReorderPerson,
-        ),
-        RatingList(
-          persons: data.filteredPersons,
-          bikes: data.filteredBikes,
-          components: data.components.where((c) => !c.isDeleted).toList(),
-          ratings: data.filteredRatings,
-          editRating: _editRating,
-          duplicateRating: _duplicateRating,
-          removeRating: _removeRating,
-          onReorderRating: _onReorderRating,
-        ),
+        if (context.read<AppSettings>().enablePerson)
+          PersonList(
+            bikes: Map.fromEntries(data.bikes.entries.where((entry) => !entry.value.isDeleted)),
+            persons: data.filteredPersons,
+            setups: data.setups.where((s) => !s.isDeleted).toList(),
+            editPerson: _editPerson,
+            duplicatePerson: _duplicatePerson,
+            removePerson: _removePerson,
+            onReorderPerson: _onReorderPerson,
+          ),
+        if (context.read<AppSettings>().enableRating)
+          RatingList(
+            persons: data.filteredPersons,
+            bikes: data.filteredBikes,
+            components: data.components.where((c) => !c.isDeleted).toList(),
+            ratings: data.filteredRatings,
+            editRating: _editRating,
+            duplicateRating: _duplicateRating,
+            removeRating: _removeRating,
+            onReorderRating: _onReorderRating,
+          ),
       ][currentPageIndex],
       floatingActionButton: <Widget>[
         FloatingActionButton(
@@ -1127,18 +1136,20 @@ class _HomePageState extends State<HomePage> {
           tooltip: 'Add Setup',
           child: const Icon(Icons.add),
         ),
-        FloatingActionButton(
-          heroTag: "addPerson",
-          onPressed: _addPerson,
-          tooltip: 'Add Person',
-          child: const Icon(Icons.add),
-        ),
-        FloatingActionButton(
-          heroTag: "addRating",
-          onPressed: _addRating,
-          tooltip: 'Add Rating',
-          child: const Icon(Icons.add),
-        ),
+        if (appSettings.enablePerson)
+          FloatingActionButton(
+            heroTag: "addPerson",
+            onPressed: _addPerson,
+            tooltip: 'Add Person',
+            child: const Icon(Icons.add),
+          ),
+        if (appSettings.enableRating)
+          FloatingActionButton(
+            heroTag: "addRating",
+            onPressed: _addRating,
+            tooltip: 'Add Rating',
+            child: const Icon(Icons.add),
+          ),
       ][currentPageIndex],
     );
   }

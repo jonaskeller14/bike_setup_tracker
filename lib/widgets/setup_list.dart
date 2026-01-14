@@ -359,6 +359,7 @@ class _SetupListState extends State<SetupList> {
                         bikes: widget.bikes,
                         persons: widget.persons,
                         components: widget.components,
+                        ratings: widget.ratings,
                         getPreviousSetupbyDateTime: widget.getPreviousSetupbyDateTime,
                       )));
                     },

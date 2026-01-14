@@ -4,7 +4,7 @@ import '../models/rating.dart';
 import '../models/adjustment/adjustment.dart';
 import 'package:flutter/material.dart';
 
-class AdjustmentDisplayList extends StatelessWidget {
+class AdjustmentCompactDisplayList extends StatelessWidget {
   final List<dynamic> components; // List<Component OR Person OR Rating>
   final Map<String, dynamic> adjustmentValues;
   final Map<String, dynamic> previousAdjustmentValues;
@@ -16,7 +16,7 @@ class AdjustmentDisplayList extends StatelessWidget {
   final bool displayRatingAdjustmentValues;
   final bool missingValuesPlaceholder;
 
-  AdjustmentDisplayList({
+  AdjustmentCompactDisplayList({
     super.key,
     required this.components,
     required this.adjustmentValues,

@@ -4,7 +4,7 @@ import 'package:collection/collection.dart';
 import '../models/setup.dart';
 import '../models/bike.dart';
 import '../models/person.dart';
-import '../widgets/adjustment_display_list.dart';
+import 'adjustment_compact_display_list.dart';
 
 const defaultVisibleCount = 3;
 
@@ -137,7 +137,7 @@ class _PersonListState extends State<PersonList> {
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
-                child: AdjustmentDisplayList(
+                child: AdjustmentCompactDisplayList(
                   components: [person],
                   adjustmentValues: widget.setups.lastWhereOrNull((s) => s.person == person.id)?.personAdjustmentValues ?? {},
                   showComponentIcons: false,

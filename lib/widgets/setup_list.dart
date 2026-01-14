@@ -9,7 +9,7 @@ import '../models/component.dart';
 import '../models/weather.dart';
 import '../models/app_settings.dart';
 import '../pages/setup_display_page.dart';
-import '../widgets/adjustment_display_list.dart';
+import 'adjustment_compact_display_list.dart';
 
 const defaultVisibleCount = 10;
 
@@ -292,7 +292,7 @@ class _SetupListState extends State<SetupList> {
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
-                child: AdjustmentDisplayList(
+                child: AdjustmentCompactDisplayList(
                   components: [for (var c in widget.components) c, for (var p in widget.persons.values.toList()) p, for (var r in widget.ratings.values.toList()) r],
                   adjustmentValues: {for (var e in setup.personAdjustmentValues.entries) e.key: e.value, for (var e in setup.bikeAdjustmentValues.entries) e.key: e.value, for (var e in setup.ratingAdjustmentValues.entries) e.key: e.value},
                   previousAdjustmentValues: {for (var e in (setup.previousBikeSetup?.bikeAdjustmentValues.entries ?? {}.entries)) e.key: e.value, for (var e in (setup.previousPersonSetup?.personAdjustmentValues.entries ?? {}.entries)) e.key: e.value},

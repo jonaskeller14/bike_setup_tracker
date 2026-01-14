@@ -4,7 +4,7 @@ import 'package:collection/collection.dart';
 import '../models/component.dart';
 import '../models/setup.dart';
 import '../models/bike.dart';
-import '../widgets/adjustment_display_list.dart';
+import 'adjustment_compact_display_list.dart';
 import '../pages/component_overview_page.dart';
 
 const defaultVisibleCount = 10;
@@ -150,7 +150,7 @@ class _ComponentListState extends State<ComponentList> {
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
-                child: AdjustmentDisplayList(
+                child: AdjustmentCompactDisplayList(
                   components: [component],
                   adjustmentValues: widget.setups.lastWhereOrNull((s) => s.bike == component.bike)?.bikeAdjustmentValues ?? {},
                   showComponentIcons: false,

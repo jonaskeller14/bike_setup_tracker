@@ -33,7 +33,7 @@ Future<double?> showSetCurrentTemperatureDialog(BuildContext context, Weather? c
                   hintText: 'Temperature',
                   contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   suffixText: appSettings.temperatureUnit,
-                  icon: Icon(Icons.thermostat),
+                  icon: Icon(Weather.currentTemperatureIconData),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {

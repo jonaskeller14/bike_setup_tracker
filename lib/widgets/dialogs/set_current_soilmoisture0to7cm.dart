@@ -35,7 +35,7 @@ Future<double?> showSetCurrentSoilMoisture0to7cmDialog(BuildContext context, Wea
                   hintText: 'Soil Moisture',
                   contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   suffixText: 'm³/m³',
-                  icon: Icon(Icons.spa),
+                  icon: const Icon(Weather.currentSoilMoisture0to7cmIconData),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {

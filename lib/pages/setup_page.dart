@@ -723,7 +723,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                           : const Text("-"),
                                 ),
                                 ActionChip(
-                                  avatar: Icon(Icons.arrow_upward),
+                                  avatar: const Icon(Icons.arrow_upward),
                                   label: _locationService.status == LocationStatus.searching 
                                     ? _loadingIndicator() 
                                     : (_currentLocation?.altitude == null 
@@ -743,7 +743,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                   },
                                 ),
                                 ActionChip(
-                                  avatar: Icon(Icons.thermostat), 
+                                  avatar: const Icon(Weather.currentTemperatureIconData), 
                                   label: _weatherService.status == WeatherStatus.searching 
                                     ? _loadingIndicator()
                                     : (_currentWeather?.currentTemperature == null 
@@ -762,7 +762,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                   },
                                 ),
                                 ActionChip(
-                                  avatar: Icon(Icons.opacity), 
+                                  avatar: const Icon(Weather.currentHumidityIconData), 
                                   label: _weatherService.status == WeatherStatus.searching 
                                     ? _loadingIndicator()
                                     : (_currentWeather?.currentHumidity == null 
@@ -781,7 +781,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                   },
                                 ),
                                 ActionChip(
-                                  avatar: Icon(Icons.water_drop), 
+                                  avatar: const Icon(Weather.dayAccumulatedPrecipitationIconData), 
                                   label: _weatherService.status == WeatherStatus.searching 
                                     ? _loadingIndicator()
                                     : (_currentWeather?.dayAccumulatedPrecipitation == null 
@@ -800,7 +800,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                   },
                                 ),
                                 ActionChip(
-                                  avatar: Icon(Icons.air), 
+                                  avatar: const Icon(Weather.currentWindSpeedIconData), 
                                   label: _weatherService.status == WeatherStatus.searching 
                                     ? _loadingIndicator()
                                     : (_currentWeather?.currentWindSpeed == null 
@@ -819,7 +819,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                   },
                                 ),
                                 ActionChip(
-                                  avatar: Icon(Icons.spa), 
+                                  avatar: const Icon(Weather.currentSoilMoisture0to7cmIconData), 
                                   label: _weatherService.status == WeatherStatus.searching 
                                     ? _loadingIndicator()
                                     : (_currentWeather?.currentSoilMoisture0to7cm == null 
@@ -850,14 +850,14 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                       child: Row(
                                         spacing: 10, 
                                         children: [
-                                          c.getConditionsIcon(),
+                                          Icon(c.getIconData(), color: c.getColor()),
                                           Text(c.value)
                                         ]
                                       ),
                                     ),
                                   ).toList(),
                                   child: Chip(
-                                    avatar: _currentWeather?.getConditionsIcon() ?? const Icon(Icons.question_mark_sharp),
+                                    avatar: Icon(_currentWeather?.condition?.getIconData() ?? Icons.question_mark, color: _currentWeather?.condition?.getColor()),
                                     label: _weatherService.status == WeatherStatus.searching 
                                       ? _loadingIndicator()
                                       : Text(_currentWeather?.condition?.value ?? "-"),

@@ -170,7 +170,7 @@ class _SetupListState extends State<SetupList> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Icon(Icons.thermostat, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    Icon(Weather.currentTemperatureIconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     const SizedBox(width: 2),
                     Text(
                       "${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, temperatureUnit).round()} $temperatureUnit",
@@ -184,7 +184,7 @@ class _SetupListState extends State<SetupList> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    setup.weather!.getConditionsIcon(size: 13),
+                    Icon(setup.weather?.condition?.getIconData() ?? Icons.question_mark, size: 13, color: setup.weather?.condition?.getColor()),
                     const SizedBox(width: 2),
                     Text(
                       setup.weather?.condition?.value ?? "-",

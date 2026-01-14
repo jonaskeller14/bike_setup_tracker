@@ -33,7 +33,7 @@ Future<double?> showSetCurrentWindSpeedDialog(BuildContext context, Weather? cur
                   hintText: 'Wind Speed',
                   contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   suffixText: appSettings.windSpeedUnit,
-                  icon: Icon(Icons.air),
+                  icon: const Icon(Weather.currentWindSpeedIconData),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {

@@ -33,7 +33,7 @@ Future<double?> showSetDayAccumulatedPrecipitationDialog(BuildContext context, W
                   hintText: 'Precipitation',
                   contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   suffixText: appSettings.precipitationUnit,
-                  icon: Icon(Icons.water_drop),
+                  icon: Icon(Weather.dayAccumulatedPrecipitationIconData),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {

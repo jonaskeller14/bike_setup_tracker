@@ -9,17 +9,23 @@ enum Condition {
 
   final String value;
   const Condition(this.value);
-  Icon getConditionsIcon({double? size}) {
+
+  IconData getIconData() {
     switch (this) {
-      case Condition.dry:
-        return Icon(Icons.wb_sunny, size: size, color: Colors.deepOrange);
-      case Condition.moist:
-        return Icon(Icons.water_drop_outlined, size: size, color: Colors.amber);
-      case Condition.wet:
-        return Icon(Icons.water_drop, size: size, color: Colors.lightBlue);
-      case Condition.muddy:
-        return Icon(Icons.water, size: size, color: Colors.blue);
+      case dry: return Icons.wb_sunny;
+      case moist: return Icons.water_drop_outlined;
+      case wet: return Icons.water_drop;
+      case muddy: return Icons.water;
     }
+  }
+
+  Color getColor() {
+    switch (this) {
+      case dry: return Colors.deepOrange;
+      case moist: return Colors.amber;
+      case wet: return Colors.lightBlue;
+      case muddy: return Colors.blue;
+    }  
   }
 }
 
@@ -34,6 +40,12 @@ class Weather {
   final double? dayAccumulatedPrecipitation;
 
   final Condition? condition;
+
+  static const IconData currentTemperatureIconData = Icons.thermostat;
+  static const IconData currentHumidityIconData = Icons.opacity;
+  static const IconData currentWindSpeedIconData = Icons.air;
+  static const IconData dayAccumulatedPrecipitationIconData = Icons.water_drop;
+  static const IconData currentSoilMoisture0to7cmIconData = Icons.spa;
 
   Weather({
     required this.currentDateTime, 
@@ -69,11 +81,6 @@ class Weather {
       dayAccumulatedPrecipitation: dayAccumulatedPrecipitation ?? this.dayAccumulatedPrecipitation,
       condition: condition ?? this.condition,
     );
-  }
-
-  Icon getConditionsIcon({double? size}) {
-    if (condition == null) return Icon(Icons.question_mark_sharp, size: size);
-    return condition!.getConditionsIcon(size: size);
   }
 
   static Condition? getConditionFromSoilMoisture0to7cm(double? currentSoilMoisture0to7cm) {

@@ -29,7 +29,7 @@ Future<double?> showSetCurrentHumidityDialog(BuildContext context, Weather? curr
                   hintText: 'Humidity',
                   contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   suffixText: '%',
-                  icon: Icon(Icons.opacity),
+                  icon: const Icon(Weather.currentHumidityIconData),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {

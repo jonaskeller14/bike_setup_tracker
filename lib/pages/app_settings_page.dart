@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import '../models/app_settings.dart';
 import '../models/adjustment/adjustment.dart';
+import '../models/weather.dart';
 import '../widgets/sheets/app_settings_radio_group.dart';
 
 class AppSettingsPage extends StatefulWidget {
@@ -166,7 +167,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.thermostat, color: Theme.of(context).colorScheme.primary),
+              leading: Icon(Weather.currentTemperatureIconData, color: Theme.of(context).colorScheme.primary),
               title: const Text("Temperature Unit"),
               subtitle: _tempUnitOptionWidgets[appSettingsReader.temperatureUnit] ?? const Text("-"),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -183,7 +184,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.air, color: Theme.of(context).colorScheme.primary),
+              leading: Icon(Weather.currentWindSpeedIconData, color: Theme.of(context).colorScheme.primary),
               title: const Text("Wind Speed Unit"),
               subtitle: _windSpeedUnitOptionWidgets[appSettingsReader.windSpeedUnit] ?? const Text("-"),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -200,7 +201,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.water_drop, color: Theme.of(context).colorScheme.primary),
+              leading: Icon(Weather.dayAccumulatedPrecipitationIconData, color: Theme.of(context).colorScheme.primary),
               title: const Text("Precipitation Unit"),
               subtitle: _precipitationUnitOptionWidgets[appSettingsReader.precipitationUnit] ?? const Text("-"),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),

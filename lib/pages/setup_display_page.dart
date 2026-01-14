@@ -168,61 +168,61 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                 //TODO: Not check null, insert placeholders instead?
                 if (setup.notes != null)
                   ListTile(
-                    leading: Icon(Icons.notes),
+                    leading: const Icon(Icons.notes),
                     title: Text(setup.notes!),
                     dense: true,
                   ),
                 if (setup.position != null)
                   ListTile(
-                    leading: Icon(Icons.my_location),
+                    leading: const Icon(Icons.my_location),
                     title: Text("Lat: ${setup.position!.latitude?.toStringAsFixed(4)}, Lon: ${setup.position!.longitude?.toStringAsFixed(4)}"),
                     dense: true,
                   ),
                 if (setup.place != null)
                   ListTile(
-                    leading: Icon(Icons.location_city),
+                    leading: const Icon(Icons.location_city),
                     title: Text("${setup.place?.thoroughfare} ${setup.place?.subThoroughfare}, ${setup.place?.locality}, ${setup.place?.isoCountryCode}"),
                     dense: true,
                   ),
                 if (setup.position?.altitude != null)
                   ListTile(
-                    leading: Icon(Icons.arrow_upward),
+                    leading: const Icon(Icons.arrow_upward),
                     title: Text("${Setup.convertAltitudeFromMeters(setup.position!.altitude!, appSettings.altitudeUnit).round()} ${appSettings.altitudeUnit}"),
                     dense: true,
                   ),
                 if (setup.weather?.currentTemperature != null)
                   ListTile(
-                    leading: Icon(Icons.thermostat),
+                    leading: const Icon(Weather.currentTemperatureIconData),
                     title: Text("${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit).round()} ${appSettings.temperatureUnit}"),
                     dense: true,
                   ),
                 if (setup.weather?.currentHumidity != null)
                   ListTile(
-                    leading: Icon(Icons.opacity),
+                    leading: const Icon(Weather.currentHumidityIconData),
                     title: Text("${setup.weather?.currentHumidity?.round()} %"),
                     dense: true,
                   ),
                 if (setup.weather?.currentPrecipitation != null)
                   ListTile(
-                    leading: Icon(Icons.water_drop),
+                    leading: const Icon(Weather.dayAccumulatedPrecipitationIconData),
                     title:  Text("${Weather.convertPrecipitationFromMm(setup.weather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit).round()} ${appSettings.precipitationUnit}"),
                     dense: true,
                   ),
                 if (setup.weather?.currentWindSpeed != null)
                   ListTile(
-                    leading: Icon(Icons.air),
+                    leading: const Icon(Weather.currentWindSpeedIconData),
                     title:  Text("${Weather.convertWindSpeedFromKmh(setup.weather!.currentWindSpeed!, appSettings.windSpeedUnit).round()} ${appSettings.windSpeedUnit}"),
                     dense: true,
                   ),
                 if (setup.weather?.currentSoilMoisture0to7cm != null)
                   ListTile(
-                    leading: Icon(Icons.spa),
+                    leading: const Icon(Weather.currentSoilMoisture0to7cmIconData),
                     title:  Text("${setup.weather?.currentSoilMoisture0to7cm?.toStringAsFixed(2)} m³/m³"),
                     dense: true,
                   ),
                 if (setup.weather?.condition != null)
                   ListTile(
-                    leading: setup.weather!.getConditionsIcon(),
+                    leading: Icon(setup.weather?.condition?.getIconData() ?? Icons.question_mark_sharp),
                     title: Text(setup.weather?.condition?.value ?? "-"),
                     dense: true,
                   ),

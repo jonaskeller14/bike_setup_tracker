@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/weather.dart';
 
 class SoilMoistureLegendTable extends StatelessWidget {
   const SoilMoistureLegendTable({super.key});
@@ -6,27 +7,27 @@ class SoilMoistureLegendTable extends StatelessWidget {
   static final List<Map<String, dynamic>> _conditionsData = [
     {
       'range': '0.00 - 0.09',
-      'label': 'Dry',
-      'icon': Icons.wb_sunny,
-      'color': Colors.deepOrange,
+      'label': Condition.dry.value,
+      'icon': Condition.dry.getIconData(),
+      'color': Condition.dry.getColor(),
     },
     {
       'range': '0.10 - 0.19',
-      'label': 'Moist',
-      'icon': Icons.water_drop_outlined,
-      'color': Colors.amber,
+      'label': Condition.moist.value,
+      'icon': Condition.moist.getIconData(),
+      'color': Condition.moist.getColor(),
     },
     {
       'range': '0.20 - 0.34',
-      'label': 'Wet',
-      'icon': Icons.water_drop,
-      'color': Colors.lightBlue,
+      'label': Condition.wet.value,
+      'icon': Condition.wet.getIconData(),
+      'color': Condition.wet.getColor(),
     },
     {
       'range': '0.35+',
-      'label': 'Muddy',
-      'icon': Icons.water,
-      'color': Colors.blue,
+      'label': Condition.muddy.value,
+      'icon': Condition.muddy.getIconData(),
+      'color': Condition.muddy.getColor(),
     },
   ];
 

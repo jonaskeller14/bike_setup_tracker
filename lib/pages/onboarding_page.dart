@@ -428,12 +428,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
+                        spacing: 2,
                         children: [
-                          Condition.dry.getConditionsIcon(size: 13),
-                          const SizedBox(width: 2),
-                          Text(
-                            "Dry",
-                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                          Icon(Condition.dry.getIconData(), size: 13),
+                          Text("Dry", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                           ),
                         ],
                       )

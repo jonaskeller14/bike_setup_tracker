@@ -152,7 +152,7 @@ class _AdjustmentTableRow extends StatelessWidget {
       children: [
         if (showComponentIcons) ... [
           Tooltip(
-            triggerMode: TooltipTriggerMode.tap,
+            triggerMode: TooltipTriggerMode.longPress,
             preferBelow: false,
             showDuration: const Duration(seconds: 5),
             message: component.name,

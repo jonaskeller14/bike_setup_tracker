@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 import '../models/person.dart';
@@ -13,40 +12,9 @@ import '../models/bike.dart';
 import '../models/setup.dart';
 import '../models/component.dart';
 import '../utils/backup.dart';
-import '../models/data.dart';
+import '../models/app_data.dart';
 
 class FileImport {
-  static Future<Data?> readData(BuildContext context) async {
-    final scaffold = ScaffoldMessenger.of(context);
-    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
-    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
-
-    String jsonString = "{}";
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      jsonString = prefs.getString("data") ?? "{}";
-      final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
-
-      final Data data = Data.fromJson(json: jsonData);
-      debugPrint("Loading data successfully");
-      return data;
-    } catch (e, st) {
-      debugPrint("Loading data failed: $e\n$st");
-      scaffold.showSnackBar(SnackBar(             
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: onErrorContainerColor,
-        content: Text("Loading data failed: $e", style: TextStyle(color: onErrorContainerColor)), 
-        backgroundColor: errorContainerColor,
-      ));
-
-      if (!context.mounted) return null;
-      await _saveErrorJson(context: context, jsonString: jsonString);
-      
-      return null;
-    }
-  }
-
   static Future<List<LocalBackup>> getBackups(BuildContext context) async {
     final scaffold = ScaffoldMessenger.of(context);
     final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
@@ -80,7 +48,7 @@ class FileImport {
     }
   }
 
-  static Future<Data?> readBackup({required BuildContext context, required String path}) async {
+  static Future<AppData?> readBackup({required BuildContext context, required String path}) async {
     final scaffold = ScaffoldMessenger.of(context);
     final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
     final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
@@ -91,8 +59,8 @@ class FileImport {
 
       final jsonString = await file.readAsString();
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
-      
-      return Data.fromJson(json: jsonData);
+
+      return AppData.addJson(data: AppData(), json: jsonData);
     } catch (e, st) {
       debugPrint("Reading backup failed: $e\n$st");
       if (context.mounted) {
@@ -108,7 +76,7 @@ class FileImport {
     }
   }
 
-  static Future<Data?> readJsonFileData(BuildContext context) async {
+  static Future<AppData?> readJsonFileData(BuildContext context) async {
     final scaffold = ScaffoldMessenger.of(context);
     final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
     final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
@@ -143,14 +111,13 @@ class FileImport {
       final jsonString = utf8.decode(fileBytes);
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      final Data data = Data.fromJson(json: jsonData);
       scaffold.showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true,
         duration: Duration(seconds: 2),
         content: Text("Imported ${picked.files.single.name} successfully")
       ));
-      return data;
+      return AppData.addJson(data: AppData(), json: jsonData);
     } catch (e, st) {
       debugPrint("Import failed: $e\n$st");
       scaffold.showSnackBar(SnackBar(
@@ -164,7 +131,7 @@ class FileImport {
     }
   }
 
-  static Future<void> _saveErrorJson({required BuildContext context, required String jsonString}) async {
+  static Future<void> saveErrorJson({required BuildContext context, required String jsonString}) async {
     final filename = '${DateFormat('yyyyMMdd_HHmm').format(DateTime.now())}_bike_setup_tracker_error.json'; 
     try {
       final directory = await getApplicationDocumentsDirectory();
@@ -187,7 +154,7 @@ class FileImport {
     }
   }
 
-  static void overwrite({required Data remoteData, required Data localData}) {
+  static void overwrite({required AppData remoteData, required AppData localData}) {
     localData.persons
       ..clear()
       ..addAll(remoteData.persons);
@@ -211,8 +178,8 @@ class FileImport {
   }
 
   static void merge({
-    required Data remoteData,
-    required Data localData,
+    required AppData remoteData,
+    required AppData localData,
   }) {
     // Last Write Wins (LWW) strategy
     for (final remotePerson in remoteData.persons.values) {
@@ -406,7 +373,7 @@ class FileImport {
   }
 
   static void cleanupIsDeleted({
-    required Data data
+    required AppData data
   }) {
     final thirtyDays = const Duration(days: 30); 
     final deleteDateTime = DateTime.now().subtract(thirtyDays);

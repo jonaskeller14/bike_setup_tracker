@@ -5,7 +5,7 @@ import 'package:file_save_directory/file_save_directory.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import '../models/data.dart';
+import '../models/app_data.dart';
 
 
 class FileExport {
@@ -13,14 +13,14 @@ class FileExport {
   static const Duration _backupFrequency = Duration(days: 1);
   static const String _backupSharedPreferencesInstance = "backup/lastBackup";
   
-  static Future<void> saveData({required Data data}) async {
+  static Future<void> saveData({required AppData data}) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('data', jsonEncode(data.toJson()));
   }
 
   static Future<void> downloadJson({
     required BuildContext context,
-    required Data data,
+    required AppData data,
   }) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
@@ -60,7 +60,7 @@ class FileExport {
       });
     }
 
-  static Future<FileSaveResult?> _downloadJson({required Data data}) async {
+  static Future<FileSaveResult?> _downloadJson({required AppData data}) async {
     try {
       final jsonString = const JsonEncoder.withIndent('  ').convert(data.toJson());
       final bytes = utf8.encode(jsonString);
@@ -85,7 +85,7 @@ class FileExport {
 
   static Future<File?> saveBackup({
     BuildContext? context,
-    required Data data,
+    required AppData data,
     bool force = false,
   }) async {
     try {
@@ -173,7 +173,7 @@ class FileExport {
 
   static Future<void> shareJson({
     required BuildContext context,
-    required Data data,
+    required AppData data,
   }) async {
     final box = context.findRenderObject() as RenderBox?;
     final scaffoldMessenger = ScaffoldMessenger.of(context);

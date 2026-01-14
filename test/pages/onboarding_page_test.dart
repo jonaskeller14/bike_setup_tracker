@@ -4,15 +4,20 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:bike_setup_tracker/main.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
+import 'package:bike_setup_tracker/models/app_data.dart';
 
 
 void main() {
   testWidgets('OnBoarding Test', (WidgetTester tester) async {
     final appSettings = AppSettings();
+    final appData = AppData();
     
     await tester.pumpWidget(
-      ChangeNotifierProvider<AppSettings>.value(
-        value: appSettings,
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: appSettings),
+          ChangeNotifierProvider.value(value: appData),
+        ],
         child: const BikeSetupTrackerApp(),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'models/app_settings.dart';
+import 'models/app_data.dart';
 import 'pages/onboarding_page.dart';
 import 'pages/home_page.dart';
 
@@ -32,22 +33,55 @@ void main() {
     systemStatusBarContrastEnforced: false,
   ));
 
-  runApp(LoadingGate(appSettings: AppSettings()));
+  runApp(LoadingGate(
+    appSettings: AppSettings(), 
+    appData: AppData(),
+  ));
 }
 
 class LoadingGate extends StatelessWidget {
   final AppSettings appSettings;
+  final AppData appData;
 
-  const LoadingGate({super.key, required this.appSettings});
+  const LoadingGate({super.key, required this.appSettings, required this.appData});
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: appSettings.loadAppSettings(),
+      future: Future.wait([
+        appSettings.loadAppSettings(),
+        appData.load(context),
+      ]),
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return MaterialApp(
+            theme: materialAppTheme,
+            home: Scaffold(
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  spacing: 12,
+                  children: [
+                    const Icon(Icons.error_outline, color: Colors.red, size: 60),
+                    Text(
+                      "Failed to load data. \nClose and restart the app.", 
+                      style: Theme.of(context).textTheme.headlineSmall,
+                      textAlign: TextAlign.center,
+                    ),
+                    //TODO: Add button to send support email with debug file
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
         if (snapshot.connectionState == ConnectionState.done) {
-          return ChangeNotifierProvider.value(
-            value: appSettings,
+          return MultiProvider(
+            providers: [
+              ChangeNotifierProvider.value(value: appSettings),
+              ChangeNotifierProvider.value(value: appData),
+            ],
             child: const BikeSetupTrackerApp(),
           );
         } else {

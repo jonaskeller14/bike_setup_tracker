@@ -7,10 +7,10 @@ import "../../models/bike.dart";
 import "../../models/component.dart";
 import "../../models/setup.dart";
 import "../../models/rating.dart";
-import "../../models/data.dart";
+import "../../models/app_data.dart";
 import 'sheet.dart';
 
-Future<Data?> showDataSelectSheet({required BuildContext context, required Data data}) async {
+Future<AppData?> showDataSelectSheet({required BuildContext context, required AppData data}) async {
   final bool? applySelection = await showModalBottomSheet<bool?>(
     showDragHandle: true,
     isScrollControlled: true,
@@ -380,13 +380,13 @@ Future<Data?> showDataSelectSheet({required BuildContext context, required Data 
   );
 
   if (selectionConfirmed == true) {
-    return Data(
-      persons: <String, Person>{for (var item in selectedPersons) item.id: item},
-      bikes: <String, Bike>{for (var item in selectedBikes) item.id: item},
-      setups: selectedSetups,
-      components: selectedComponents,
-      ratings: <String, Rating>{for (var item in selectedRatings) item.id: item},
-    );
+    final data = AppData();
+    data.persons.addAll(<String, Person>{for (var item in selectedPersons) item.id: item});
+    data.bikes.addAll(<String, Bike>{for (var item in selectedBikes) item.id: item});
+    data.components.addAll(selectedComponents);
+    data.setups.addAll(selectedSetups);
+    data.ratings.addAll(<String, Rating>{for (var item in selectedRatings) item.id: item});
+    return data;
   }
 
   return null;

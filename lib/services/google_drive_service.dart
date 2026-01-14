@@ -7,7 +7,7 @@ import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:googleapis/servicecontrol/v2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/backup.dart';
-import '../models/data.dart';
+import '../models/app_data.dart';
 import 'package:http/http.dart' as http;
 
 class GoogleDriveService extends ChangeNotifier { 
@@ -26,7 +26,7 @@ class GoogleDriveService extends ChangeNotifier {
 
   drive.DriveApi? _driveApi;
   final Map<String, dynamic> Function() getDataToUpload;
-  final Function(Data) onDataDownloaded;
+  final Function(AppData) onDataDownloaded;
 
   DateTime? lastSync;
   Timer? _syncTimer;
@@ -323,7 +323,7 @@ class GoogleDriveService extends ChangeNotifier {
 
     final jsonString = utf8.decode(dataStore);
     final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
-    final Data remoteData = Data.fromJson(json: jsonData);
+    final AppData remoteData = AppData.addJson(data: AppData(), json: jsonData);
     onDataDownloaded(remoteData);
   }
 
@@ -498,7 +498,7 @@ class GoogleDriveService extends ChangeNotifier {
     }
   }
 
-  Future<Data?> readBackup({required BuildContext context, required String fileId}) async {
+  Future<AppData?> readBackup({required BuildContext context, required String fileId}) async {
     final scaffold = ScaffoldMessenger.of(context);
     final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
     final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
@@ -519,7 +519,7 @@ class GoogleDriveService extends ChangeNotifier {
 
       final jsonString = utf8.decode(dataStore);
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
-      return Data.fromJson(json: jsonData);
+      return AppData.addJson(data: AppData(), json: jsonData);
     } catch (e, st) {
       debugPrint('Reading Google Drive backup failed: $fileId: $e\n$st');
       if (context.mounted) {

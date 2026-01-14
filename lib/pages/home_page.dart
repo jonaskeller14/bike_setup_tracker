@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/person.dart';
 import '../models/bike.dart';
 import '../models/rating.dart';
 import '../models/setup.dart';
 import '../models/component.dart';
 import '../models/app_settings.dart';
-import '../models/data.dart';
+import '../models/app_data.dart';
 import 'bike_page.dart';
 import 'component_page.dart';
 import 'setup_page.dart';
@@ -44,16 +43,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool _localDataLoaded = false;
-
-  final Data data = Data(
-    persons: {},
-    bikes: {},
-    setups: [],
-    components: [],
-    ratings: {},
-  );
-
   bool _setupListOnlyChanges = false;
   bool _setupListBikeAdjustmentValues = true;
   bool _setupListPersonAdjustmentValues = false;
@@ -67,56 +56,42 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    _googleDriveService = GoogleDriveService(
-      getDataToUpload: () => data.toJson(),
-      onDataDownloaded: (Data remoteData) {
-        setState(() {
+    Future.microtask(() {
+      if (!mounted) return;
+      final data = context.read<AppData>();
+      final settings = context.read<AppSettings>();
+
+      _googleDriveService = GoogleDriveService(
+        getDataToUpload: () => data.toJson(),
+        onDataDownloaded: (AppData remoteData) {
           FileImport.merge(remoteData: remoteData, localData: data);
           if (!data.bikes.values.contains(data.selectedBike)) data.onBikeTap(null);
-        });
-      },
-    );
-    if (context.read<AppSettings>().enableGoogleDrive) _googleDriveService.silentSetup();
-  }
+        },
+      );
+      if (settings.enableGoogleDrive) _googleDriveService.silentSetup();
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    
-    if (!_localDataLoaded) {
-      loadData();
-      _localDataLoaded = true;
-    }
-  }
-
-  Future<void> loadData() async {
-    final remoteData = await FileImport.readData(context);
-    if (remoteData == null) return;
-
-    if (!mounted) return;
-    setState(() {
-      FileImport.overwrite(remoteData: remoteData, localData: data);
       data.onBikeTap(null);
-      data.filterPersons();
-      data.filterRatings();
+      data.filter();
+
+      FileImport.cleanupIsDeleted(data: data);
+      FileExport.saveData(data: data);
+      FileExport.saveBackup(data: data);
+      FileExport.deleteOldBackups();
     });
-    FileImport.cleanupIsDeleted(data: data);
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
-    FileExport.deleteOldBackups();
-    // Google Drive is synced in init
   }
 
   Future<void> _importData() async {
     final importChoice = await showImportSheet(context);
 
     if (!mounted) return;
-    Data? remoteData;
+    AppData? remoteData;
     switch (importChoice) {
       case "file":
         remoteData = await FileImport.readJsonFileData(context);
       case "backup":
-        final backup = await Navigator.push<Backup?>(context, MaterialPageRoute(builder: (context) => BackupPage(googleDriveService: (mounted && context.read<AppSettings>().enableGoogleDrive) ? _googleDriveService : null)));
+        final backup = await Navigator.push<Backup?>(context, MaterialPageRoute(builder: (context) => BackupPage(
+          googleDriveService: (mounted && context.read<AppSettings>().enableGoogleDrive) ? _googleDriveService : null
+        )));
         if (backup == null) return;
         if (!mounted) return;
 
@@ -135,13 +110,14 @@ class _HomePageState extends State<HomePage> {
     if (selectedRemoteData == null) return;
 
     if (!mounted) return;
+    final data = context.read<AppData>();
     final mergeOverwriteChoice = await showImportMergeOverwriteSheet(context);
     switch (mergeOverwriteChoice) {
       case 'overwrite':
         setState(() {
           FileImport.overwrite(remoteData: remoteData!, localData: data);
-          data.onBikeTap(null);
         });
+        data.onBikeTap(null);
       case 'merge':
         setState(() {
           FileImport.merge(remoteData: remoteData!, localData: data);
@@ -173,7 +149,7 @@ class _HomePageState extends State<HomePage> {
     if (!mounted) return;
     switch (choice) {
       case "file":
-        final selectedData = await showDataSelectSheet(context: context, data: data);
+        final selectedData = await showDataSelectSheet(context: context, data: context.read<AppData>());
         if (selectedData == null) return;
 
         if (!mounted) return;
@@ -182,7 +158,7 @@ class _HomePageState extends State<HomePage> {
           data: selectedData,
         );
       case "backup":
-        await FileExport.saveBackup(context: context, data: data, force: true);
+        await FileExport.saveBackup(context: context, data: context.read<AppData>(), force: true);
       case "googleDriveBackup":
         await _googleDriveService.saveBackup(context: context, force: true);
       default:
@@ -192,7 +168,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _shareData() async {
-    final selectedData = await showDataSelectSheet(context: context, data: data);    
+    final selectedData = await showDataSelectSheet(context: context, data: context.read<AppData>());    
     if (selectedData == null) return;
     
     if (!mounted) return;
@@ -202,33 +178,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> clearData() async {
-    final confirmed = await showConfirmationDialog(context);
-    if (!confirmed) {
-      return;
-    }
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-
-    setState(() {
-      data.setups.clear();
-      data.components.clear();
-    });
-  }
-
   Future<void> removeBike(Bike bike) async {
+    final data = context.read<AppData>();
+
     final confirmed = await showConfirmationDialog(context, content: "All components and setups which belong to this bike will be deleted as well.");
     if (!confirmed) return;
 
     final obsoleteComponents = data.components.where((c) => c.bike == bike.id);
     final obsoleteSetups = data.setups.where((s) => s.bike == bike.id);
 
-    setState(() {
-      bike.isDeleted = true;
-      bike.lastModified = DateTime.now();
-      data.onBikeTap(null);
-    });
+    data.removeBike(bike);
 
     removeComponents(obsoleteComponents, confirm: false);
     removeSetups(obsoleteSetups, confirm: false);
@@ -239,11 +198,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _removePerson(Person person) async {
-    setState(() {
-      person.isDeleted = true;
-      person.lastModified = DateTime.now();
-      data.filterPersons();
-    });
+    final data = context.read<AppData>();
+    data.removePerson(person);
 
     final snackBar = SnackBar(
       content: Text("Person '${person.name}' moved to trash."),
@@ -252,13 +208,7 @@ class _HomePageState extends State<HomePage> {
       showCloseIcon: true,
       action: SnackBarAction(
         label: 'UNDO',
-        onPressed: () {
-          setState(() {
-            person.isDeleted = false;
-            person.lastModified = DateTime.now();
-            data.filterPersons();
-          });
-        },
+        onPressed: () => data.restorePerson(person),
       ),
     );
 
@@ -271,11 +221,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _removeRating(Rating rating) async {
-    setState(() {
-      rating.isDeleted = true;
-      rating.lastModified = DateTime.now();
-      data.filterRatings();
-    });
+    final data = context.read<AppData>();
+    data.removeRating(rating);
 
     final snackBar = SnackBar(
       content: Text("Rating '${rating.name}' moved to trash."),
@@ -285,11 +232,7 @@ class _HomePageState extends State<HomePage> {
       action: SnackBarAction(
         label: 'UNDO',
         onPressed: () {
-          setState(() {
-            rating.isDeleted = false;
-            rating.lastModified = DateTime.now();
-            data.filterRatings();
-          });
+          data.restoreRating(rating);
         },
       ),
     );
@@ -308,16 +251,8 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> removeSetups(Iterable<Setup> toRemoveSetups, {bool confirm = true}) async {
     if (toRemoveSetups.isEmpty) return;
-
-    setState(() {
-      for (var setup in toRemoveSetups) {
-        setup.isDeleted = true;
-        setup.lastModified = DateTime.now();
-        data.filterSetups();
-      }
-      FileImport.determineCurrentSetups(setups: data.setups, bikes: data.bikes);
-      FileImport.determinePreviousSetups(setups: data.setups);
-    });
+    final data = context.read<AppData>();
+    data.removeSetups(toRemoveSetups);
 
     if (confirm) {
       final snackBar = SnackBar(
@@ -332,18 +267,7 @@ class _HomePageState extends State<HomePage> {
         showCloseIcon: true,
         action: SnackBarAction(
           label: 'UNDO',
-          onPressed: () {
-            setState(() {
-              for (var setup in toRemoveSetups) {
-                setup.isDeleted = false;
-                setup.lastModified = DateTime.now();
-                data.filterSetups();
-              }
-              data.setups.sort((a, b) => a.datetime.compareTo(b.datetime)); // not really necessary
-              FileImport.determineCurrentSetups(setups: data.setups, bikes: data.bikes);
-              FileImport.determinePreviousSetups(setups: data.setups);
-            });
-          },
+          onPressed: () => data.restoreSetups(toRemoveSetups),
         ),
       );
 
@@ -363,13 +287,8 @@ class _HomePageState extends State<HomePage> {
   Future<void> removeComponents(Iterable<Component> toRemoveComponents, {bool confirm = true}) async {
     if (toRemoveComponents.isEmpty) return;
 
-    setState(() {
-      for (var component in toRemoveComponents) {
-        component.isDeleted = true;
-        component.lastModified = DateTime.now();
-        data.filterComponents();
-      }
-    });
+    final data = context.read<AppData>();
+    data.removeComponents(toRemoveComponents);
 
     if (confirm) {
       final snackBar = SnackBar(
@@ -384,15 +303,7 @@ class _HomePageState extends State<HomePage> {
         showCloseIcon: true,
         action: SnackBarAction(
           label: 'UNDO',
-          onPressed: () {
-            setState(() {
-              for (var component in toRemoveComponents) {
-                component.isDeleted = false;
-                component.lastModified = DateTime.now();
-                data.filterComponents();
-              }
-            });
-          },
+          onPressed: () => data.restoreComponents(toRemoveComponents),
         ),
       );
 
@@ -406,16 +317,15 @@ class _HomePageState extends State<HomePage> {
   }
   
   Future<void> addBike() async {
+    final data = context.read<AppData>();
+
     final bike = await Navigator.push<Bike>(
       context,
       MaterialPageRoute(builder: (context) => BikePage(persons: data.filteredPersons)),
     );
     if (bike == null) return;
-  
-    setState(() {
-      data.bikes[bike.id] = bike;
-      if (data.selectedBike == null) data.onBikeTap(null);
-    });
+
+    data.addBike(bike);
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
@@ -427,17 +337,19 @@ class _HomePageState extends State<HomePage> {
       MaterialPageRoute(builder: (context) => const PersonPage()),
     );
     if (person == null) return;
-  
-    setState(() {
-      data.persons[person.id] = person;
-      data.filterPersons();
-    });
+
+    if (!mounted) return;
+    final data = context.read<AppData>();
+
+    data.addPerson(person);
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> _addRating() async {
+    final data = context.read<AppData>();
+
     final newRating = await Navigator.push<Rating>(
       context,
       MaterialPageRoute(
@@ -449,17 +361,16 @@ class _HomePageState extends State<HomePage> {
       ),
     );
     if (newRating == null) return;
-  
-    setState(() {
-      data.ratings[newRating.id] = newRating;
-      data.filterRatings();
-    });
+
+    data.addRating(newRating);
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> _addComponent() async {
+    final data = context.read<AppData>();
+    
     if (data.filteredBikes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
@@ -475,11 +386,8 @@ class _HomePageState extends State<HomePage> {
       MaterialPageRoute(builder: (context) => ComponentPage(bikes: data.filteredBikes)),
     );
     if (component == null) return;
-  
-    setState(() {
-      data.components.add(component);
-      data.filterComponents();
-    });
+
+    data.addComponent(component);
 
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
@@ -487,6 +395,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> editBike(Bike bike) async {
+    final data = context.read<AppData>();
+
     final editedBike = await Navigator.push<Bike>(
       context,
       MaterialPageRoute(
@@ -494,15 +404,16 @@ class _HomePageState extends State<HomePage> {
       ),
     );
     if (editedBike == null) return;
-    setState(() {
-      data.bikes[editedBike.id] = editedBike;
-    });
+
+    data.addBike(editedBike);
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> _editPerson(Person person) async {
+    final data = context.read<AppData>();
+
     final editedPerson = await Navigator.push<Person>(
       context,
       MaterialPageRoute(
@@ -510,16 +421,16 @@ class _HomePageState extends State<HomePage> {
       ),
     );
     if (editedPerson == null) return;
-    setState(() {
-      data.persons[editedPerson.id] = editedPerson;
-      data.filterPersons();
-    });
+
+    data.addPerson(editedPerson);
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> _editRating(Rating rating) async {
+    final data = context.read<AppData>();
+
     final editedRating = await Navigator.push<Rating>(
       context,
       MaterialPageRoute(
@@ -532,16 +443,16 @@ class _HomePageState extends State<HomePage> {
       ),
     );
     if (editedRating == null) return;
-    setState(() {
-      data.ratings[editedRating.id] = editedRating;
-      data.filterRatings();
-    });
+
+    data.addRating(editedRating);
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> editComponent(Component component) async {
+    final data = context.read<AppData>();
+
     final editedComponent = await Navigator.push<Component>(
       context,
       MaterialPageRoute(
@@ -549,161 +460,78 @@ class _HomePageState extends State<HomePage> {
       ),
     );
     if (editedComponent == null) {
-      setState(() {data.filterComponents();}); // + update adjustments
+      data.filterComponents();
       return;
     }
 
-    setState(() {
-      final index = data.components.indexOf(component);
-      if (index != -1) {
-        data.components[index] = editedComponent;
-      }
-      data.filterComponents();
-    });
+    data.editComponent(oldComponent: component, newComponent: editedComponent);
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> duplicateComponent(Component component) async {
+    final data = context.read<AppData>();
+
     final newComponent = component.deepCopy();
-    setState(() {
-      data.components.add(newComponent);
-    });
+    data.addComponent(newComponent);
+    
     editComponent(newComponent);  // data.filterComponents();
   }
 
   Future<void> _duplicatePerson(Person person) async {
+    final data = context.read<AppData>();
+
     final newPerson = person.deepCopy();
-    setState(() {
-      data.persons[newPerson.id] = newPerson;
-      data.filterPersons();
-    });
+    data.addPerson(newPerson);
+
     _editPerson(newPerson);
   }
 
   Future<void> _duplicateRating(Rating rating) async {
+    final data = context.read<AppData>();
+
     final newRating = rating.deepCopy();
-    setState(() {
-      data.ratings[newRating.id] = newRating;
-      data.filterRatings();
-    });
+    data.addRating(newRating);
+
     _editRating(newRating);
   }
 
   Future<void> onReorderComponents(int oldIndex, int newIndex) async {
-    // Applies reorder to 'components' on the basis of filtered components
-    final componentToMove = data.filteredComponents[oldIndex];
-    oldIndex = data.components.indexOf(componentToMove);
-    final targetComponent = newIndex < data.filteredComponents.length
-        ? data.filteredComponents[newIndex]
-        : null;
-    newIndex = targetComponent == null
-        ? data.components.length 
-        : data.components.indexOf(targetComponent);
-
-    int adjustedNewIndex = newIndex;
-    if (oldIndex < newIndex) adjustedNewIndex -= 1;
-
-    setState(() {
-      final component = data.components.removeAt(oldIndex);
-      data.components.insert(adjustedNewIndex, component);
-      data.filterComponents();
-    });
+    final data = context.read<AppData>();
+    data.reorderComponent(oldIndex, newIndex);
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> onReorderBikes(int oldIndex, int newIndex) async {
-    // Applies reorder to 'bikes' on the basis of filtered bikes
-    final bikesList = data.bikes.values.toList();
-    
-    final filteredBikes = bikesList.where((b) => !b.isDeleted).toList();
-    final bikeToMove = filteredBikes[oldIndex];
-    oldIndex = bikesList.indexOf(bikeToMove);
-    final targetBike = newIndex < filteredBikes.length
-        ? filteredBikes[newIndex]
-        : null;
-    newIndex = targetBike == null
-        ? data.bikes.length 
-        : bikesList.indexOf(targetBike);
-
-    int adjustedNewIndex = newIndex;
-    if (oldIndex < newIndex) adjustedNewIndex -= 1;
-
-    final bike = bikesList.removeAt(oldIndex);
-    bikesList.insert(adjustedNewIndex, bike);
-
-    setState(() {
-      data.bikes.clear();
-      data.bikes.addAll({for (var element in bikesList) element.id : element});
-      data.onBikeTap(null);  // data.filterBikes()
-    });
+    final data = context.read<AppData>();
+    data.reorderBike(oldIndex, newIndex);
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> _onReorderPerson(int oldIndex, int newIndex) async {
-    final personsList = data.persons.values.toList();
-    
-    final filteredPersons2 = data.filteredPersons.values.toList();
-    final personToMove = filteredPersons2[oldIndex];
-    oldIndex = personsList.indexOf(personToMove);
-    final targetPerson = newIndex < filteredPersons2.length
-        ? filteredPersons2[newIndex]
-        : null;
-    newIndex = targetPerson == null
-        ? data.persons.length 
-        : personsList.indexOf(targetPerson);
-
-    int adjustedNewIndex = newIndex;
-    if (oldIndex < newIndex) adjustedNewIndex -= 1;
-
-    final person = personsList.removeAt(oldIndex);
-    personsList.insert(adjustedNewIndex, person);
-
-    setState(() {
-      data.persons.clear();
-      data.persons.addAll({for (var element in personsList) element.id : element});
-      data.filterPersons();
-    });
+    final data = context.read<AppData>();
+    data.reorderPerson(oldIndex, newIndex);
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> _onReorderRating(int oldIndex, int newIndex) async {
-    final ratingsList = data.ratings.values.toList();
-    
-    final filteredRatings2 = data.filteredRatings.values.toList();
-    final ratingToMove = filteredRatings2[oldIndex];
-    oldIndex = ratingsList.indexOf(ratingToMove);
-    final targetRating = newIndex < filteredRatings2.length
-        ? filteredRatings2[newIndex]
-        : null;
-    newIndex = targetRating == null
-        ? data.ratings.length 
-        : ratingsList.indexOf(targetRating);
-
-    int adjustedNewIndex = newIndex;
-    if (oldIndex < newIndex) adjustedNewIndex -= 1;
-
-    final rating = ratingsList.removeAt(oldIndex);
-    ratingsList.insert(adjustedNewIndex, rating);
-
-    setState(() {
-      data.ratings.clear();
-      data.ratings.addAll({for (var element in ratingsList) element.id : element});
-      data.filterRatings();
-    });
+    final data = context.read<AppData>();
+    data.reorderRating(oldIndex, newIndex);
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> _addSetup() async {
+    final data = context.read<AppData>();
+
     if (data.bikes.values.where((b) => !b.isDeleted).isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
@@ -737,20 +565,15 @@ class _HomePageState extends State<HomePage> {
     );
     if (newSetup == null) return;
     
-    setState(() {
-      data.setups.add(newSetup);
-      data.setups.sort((a, b) => a.datetime.compareTo(b.datetime));
-      FileImport.determineCurrentSetups(setups: data.setups, bikes: data.bikes);
-      FileImport.determinePreviousSetups(setups: data.setups);
-      FileImport.updateSetupsAfter(setups: data.setups, setup: newSetup);
-      data.filterSetups();
-    });
+    data.addSetup(newSetup);
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> editSetup(Setup setup) async {
+    final data = context.read<AppData>();
+
     final editedSetup = await Navigator.push<Setup>(
       context,
       MaterialPageRoute(builder: (context) => SetupPage(
@@ -764,23 +587,15 @@ class _HomePageState extends State<HomePage> {
     );
     if (editedSetup == null) return;
 
-    setState(() {
-      final index = data.setups.indexOf(setup);
-      if (index != -1) {
-        data.setups[index] = editedSetup;
-        data.filterSetups();
-      }
-      data.setups.sort((a, b) => a.datetime.compareTo(b.datetime));
-      FileImport.determineCurrentSetups(setups: data.setups, bikes: data.bikes);
-      FileImport.determinePreviousSetups(setups: data.setups);
-      FileImport.updateSetupsAfter(setups: data.setups, setup: editedSetup);
-    });
+    data.editSetup(oldSetup: setup, newSetup: editedSetup);
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
-  Future<void> restoreSetup(Setup setup) async {
+  Future<void> duplicateSetup(Setup setup) async {
+    final data = context.read<AppData>();
+
     final newSetup = Setup(
       name: setup.name, 
       bike: setup.bike,
@@ -792,17 +607,20 @@ class _HomePageState extends State<HomePage> {
       isCurrent: true,
     );  //TODO: Location and waether data is null --> maybe add default constructor?
 
-    setState(() {
-      data.setups.add(newSetup);
-    });
+    data.addSetup(newSetup);
+
     editSetup(newSetup); // Sorting setups, filterSetups(), etc.
   }
 
   Setup? getPreviousSetupbyDateTime({required DateTime datetime, String? bike, String? person}) {
+    final data = context.read<AppData>();
+
     return data.setups.lastWhereOrNull((s) => !s.isDeleted && s.datetime.isBefore(datetime) && (bike == null || s.bike == bike) && (person == null || s.person == person));
   }
 
   FilterChip _bikeFilterWidget() {
+    final data = context.watch<AppData>();
+
     return FilterChip(
       avatar: const Icon(Bike.iconData),
       label: data.selectedBike == null ? const Text("All Bikes") : Text(data.selectedBike!.name),
@@ -896,6 +714,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
+    final data = context.watch<AppData>();
     return Scaffold(
       appBar: AppBar(
         leading: Padding(
@@ -1062,7 +881,7 @@ class _HomePageState extends State<HomePage> {
           bikes: data.bikes.values.where((bike) => !bike.isDeleted).toList(), //include bikes which are not filtered for
           persons: data.filteredPersons,
           selectedBike: data.selectedBike,
-          onBikeTap: (Bike? bike) {setState(() => data.onBikeTap(bike));},
+          onBikeTap: data.onBikeTap,
           editBike: editBike,
           removeBike: removeBike,
           onReorderBikes: onReorderBikes,
@@ -1085,7 +904,7 @@ class _HomePageState extends State<HomePage> {
           setups: data.filteredSetups,
           components: data.filteredComponents,
           editSetup: editSetup,
-          restoreSetup: restoreSetup,
+          restoreSetup: duplicateSetup,
           removeSetup: removeSetup,
           displayOnlyChanges: _setupListOnlyChanges,
           displayBikeAdjustmentValues: _setupListBikeAdjustmentValues,

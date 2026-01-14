@@ -113,6 +113,25 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
           for (final personAdj in (person?.adjustments ?? [])) {
             danglingPersonAdjustmentValues.remove(personAdj.id);
           }
+
+          final filteredRatings = <String, Rating>{};
+          for (final rating in widget.ratings.values) {
+            switch (rating.filterType) {
+              case FilterType.global:
+                filteredRatings[rating.id] = rating;
+              case FilterType.bike:
+                if (rating.filter == setup.bike) filteredRatings[rating.id] = rating;
+              case FilterType.componentType:
+                if (bikeComponents.any((c) => c.componentType.toString() == rating.filter)) filteredRatings[rating.id] = rating;
+              case FilterType.component:
+                if (bikeComponents.any((c) => c.id == rating.filter)) filteredRatings[rating.id] = rating;
+              case FilterType.person:
+                if (rating.filter == setup.person) filteredRatings[rating.id] = rating;
+            }
+          }
+
+          final Map<String, dynamic> danglingRatingAdjustmentValues = Map.fromEntries(setup.ratingAdjustmentValues.entries);
+          danglingRatingAdjustmentValues.removeWhere((adjId, _) => filteredRatings.values.any((r) => r.adjustments.map((a) => a.id).contains(adjId)));
           
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),

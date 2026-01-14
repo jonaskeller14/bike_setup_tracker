@@ -154,6 +154,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   void _setDanglingAdjustmentValues() {
+    // Assumes _filteredRatings was calcualted before
     if (widget.setup == null) return;
     
     _danglingBikeAdjustmentValues = Map.from(_bikeAdjustmentValues);
@@ -170,14 +171,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     _danglingRatingAdjustmentValues.clear();
     _danglingRatingAdjustmentValues.addAll(_ratingAdjustmentValues);
-    _danglingRatingAdjustmentValues.removeWhere((ratingId, _) => 
-        widget.ratings[ratingId] == null || 
-        widget.ratings[ratingId]!.filterType == FilterType.global || 
-        (widget.ratings[ratingId]!.filterType == FilterType.person && widget.ratings[ratingId]!.filter == _person) || 
-        (widget.ratings[ratingId]!.filterType == FilterType.bike && widget.ratings[ratingId]!.filter == bike) || 
-        (widget.ratings[ratingId]!.filterType == FilterType.componentType && bikeComponents.map((c) => c.componentType.toString()).contains(widget.ratings[ratingId]!.filter)) || 
-        (widget.ratings[ratingId]!.filterType == FilterType.component && bikeComponents.map((c) => c.id).contains(widget.ratings[ratingId]!.filter))
-    );
+    _danglingRatingAdjustmentValues.removeWhere((adjId, _) => _filteredRatings.values.any((r) => r.adjustments.map((a) => a.id).contains(adjId)));
   }
 
   void _setFilteredRatings() {
@@ -208,8 +202,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _previousPersonSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, person: _person);
       _setInitialAdjustmentValues();
       _setAdjustmentValuesFromInitialAdjustmentValues();
-      _setDanglingAdjustmentValues();
       _setFilteredRatings();
+      _setDanglingAdjustmentValues();
     });
     _changeListener();
   }

@@ -292,7 +292,7 @@ class _AdjustmentTableCell extends StatelessWidget {
 
     final highlightColor = valueIsInitial ? Colors.green : (valueHasChanged ? Colors.orange: null);
     return Tooltip(
-      triggerMode: TooltipTriggerMode.tap,
+      triggerMode: TooltipTriggerMode.longPress,
       preferBelow: false,
       showDuration: const Duration(seconds: 5),
       decoration: BoxDecoration(

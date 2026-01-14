@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import "../set_adjustment/set_adjustment.dart";
 
-class DisplayCategoricalAdjustmentWidget extends StatelessWidget {
-  final CategoricalAdjustment adjustment;
-  final String? initialValue;
-  final String? value;
+class DisplayDanglingAdjustmentWidget extends StatelessWidget {
+  final String name;
+  final dynamic initialValue;
+  final dynamic value;
   final bool highlighting;
 
-  const DisplayCategoricalAdjustmentWidget({
-    required super.key,
-    required this.adjustment,
+  const DisplayDanglingAdjustmentWidget({
+    super.key,
+    required this.name,
     required this.initialValue,
     required this.value,
     this.highlighting = true,
@@ -39,17 +39,17 @@ class DisplayCategoricalAdjustmentWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               spacing: 10,
               children: [
-                Icon(CategoricalAdjustment.iconData, color: highlightColor),
-                nameNotesSetAdjustmentWidget(context: context, adjustment: adjustment, highlightColor: highlightColor),
+                Icon(Icons.question_mark, color: highlightColor),
+                nameSetAdjustmentWidget(context: context, name: name, highlightColor: highlightColor),
               ],
             )
           ),
           Flexible(
-            flex: 3,
+            flex: 1,
             child: Column(
               children: [
                 Text(
-                  Adjustment.formatValue(value) + (adjustment.unit != null ? " ${adjustment.unit}" : ""),
+                  Adjustment.formatValue(value),
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: highlightColor,
@@ -59,7 +59,7 @@ class DisplayCategoricalAdjustmentWidget extends StatelessWidget {
                   Opacity(
                     opacity: 0.7,
                     child: Text(
-                      Adjustment.formatValue(initialValue) + (adjustment.unit != null ? " ${adjustment.unit}" : ""),
+                      Adjustment.formatValue(initialValue),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.lineThrough,

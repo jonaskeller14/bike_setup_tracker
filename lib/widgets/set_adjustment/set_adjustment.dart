@@ -40,3 +40,12 @@ Widget nameNotesSetAdjustmentWidget({required BuildContext context, required Adj
     ),
   );
 }
+
+Widget nameSetAdjustmentWidget({required BuildContext context, required String name, required Color? highlightColor}) {
+  return Expanded(
+    child: Align(
+      alignment: Alignment.centerLeft,
+      child: Text(name, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor))
+    ),
+  );
+}

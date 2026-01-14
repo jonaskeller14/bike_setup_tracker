@@ -28,6 +28,7 @@ import '../widgets/dialogs/set_altitude.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/dialogs/update_location_address_weather.dart';
 import '../widgets/setup_page_legend.dart';
+import '../widgets/display_adjustment/display_dangling_adjustment.dart';
 
 class SetupPage extends StatefulWidget {
   final Setup? setup;
@@ -163,10 +164,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     }
 
     _danglingPersonAdjustmentValues = Map.from(_personAdjustmentValues);
-    if (widget.persons[_person] != null) {
-      for (final personAdj in widget.persons[_person]!.adjustments) {
-        _danglingPersonAdjustmentValues.remove(personAdj.id);
-      }
+    for (final personAdj in widget.persons[_person]?.adjustments ?? []) {
+      _danglingPersonAdjustmentValues.remove(personAdj.id);
     }
 
     _danglingRatingAdjustmentValues.clear();
@@ -1015,33 +1014,13 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                         subtitle: Text('${_danglingBikeAdjustmentValues.length} adjustments found that are not associated with this bike. Cannot be edited.'),
                                         leading: Icon(Icons.question_mark),
                                       ),
-                                      Column(
-                                        children: _danglingBikeAdjustmentValues.entries.map((danglingAdjustmentValue) {
-                                          return Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              spacing: 20,
-                                              children: [
-                                                Flexible(
-                                                  flex: 2,
-                                                  child: Align(
-                                                    alignment: Alignment.centerLeft,
-                                                    child: Text(danglingAdjustmentValue.key),
-                                                  ),
-                                                ),
-                                                Flexible(
-                                                  flex: 1,
-                                                  child: Align(
-                                                    alignment: Alignment.centerRight,
-                                                    child: Text(Adjustment.formatValue(danglingAdjustmentValue.value), style: TextStyle(fontFamily: "monospace")),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        }).toList()
-                                      ),
+                                      ..._danglingBikeAdjustmentValues.entries.map((danglingAdjustmentValue) {
+                                        return DisplayDanglingAdjustmentWidget(
+                                          name: danglingAdjustmentValue.key, 
+                                          initialValue: _initialBikeAdjustmentValues[danglingAdjustmentValue.key], 
+                                          value: danglingAdjustmentValue.value
+                                        );
+                                      }),
                                     ],
                                   ),
                                 ),
@@ -1081,7 +1060,12 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                     children: [
                                       ListTile(
                                         title: Text(widget.persons[_person]!.name, style: TextStyle(fontWeight: FontWeight.bold)),
-                                        subtitle: Text('${widget.persons[_person]!.adjustments.length} attributes'),
+                                        subtitle: Text(Intl.plural(
+                                          widget.persons[_person]!.adjustments.length,
+                                          zero: "No attributes yet.",
+                                          one: "1 attribute",
+                                          other: '${widget.persons[_person]!.adjustments.length} attributes',
+                                        )),
                                         leading: const Icon(Person.iconData),
                                       ),
                                       AdjustmentSetList(
@@ -1105,37 +1089,17 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         ListTile(
-                                          title: const Text("Dangling Adjustment Values", style: TextStyle(fontWeight: FontWeight.bold)),
+                                          title: const Text("Dangling Attribute Values", style: TextStyle(fontWeight: FontWeight.bold)),
                                           subtitle: Text('${_danglingPersonAdjustmentValues.length} attributes found that are not associated with this person. Cannot be edited.'),
                                           leading: Icon(Icons.question_mark),
                                         ),
-                                        Column(
-                                          children: _danglingPersonAdjustmentValues.entries.map((danglingAdjustmentValue) {
-                                            return Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                spacing: 20,
-                                                children: [
-                                                  Flexible(
-                                                    flex: 2,
-                                                    child: Align(
-                                                      alignment: Alignment.centerLeft,
-                                                      child: Text(danglingAdjustmentValue.key),
-                                                    ),
-                                                  ),
-                                                  Flexible(
-                                                    flex: 1,
-                                                    child: Align(
-                                                      alignment: Alignment.centerRight,
-                                                      child: Text(Adjustment.formatValue(danglingAdjustmentValue.value), style: TextStyle(fontFamily: "monospace")),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          }).toList()
-                                        ),
+                                        ..._danglingPersonAdjustmentValues.entries.map((danglingAdjustmentValue) {
+                                          return DisplayDanglingAdjustmentWidget(
+                                            name: danglingAdjustmentValue.key, 
+                                            initialValue: _initialPersonAdjustmentValues[danglingAdjustmentValue.key], 
+                                            value: danglingAdjustmentValue.value,
+                                          );
+                                        }),
                                       ],
                                     ),
                                   ),
@@ -1243,33 +1207,13 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                         subtitle: Text('${_danglingRatingAdjustmentValues.length} rating values found that are not associated with this bike/person/components. Cannot be edited.'),
                                         leading: Icon(Icons.question_mark),
                                       ),
-                                      Column(
-                                        children: _danglingRatingAdjustmentValues.entries.map((danglingAdjustmentValue) {
-                                          return Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              spacing: 20,
-                                              children: [
-                                                Flexible(
-                                                  flex: 2,
-                                                  child: Align(
-                                                    alignment: Alignment.centerLeft,
-                                                    child: Text(danglingAdjustmentValue.key),
-                                                  ),
-                                                ),
-                                                Flexible(
-                                                  flex: 1,
-                                                  child: Align(
-                                                    alignment: Alignment.centerRight,
-                                                    child: Text(Adjustment.formatValue(danglingAdjustmentValue.value), style: TextStyle(fontFamily: "monospace")),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        }).toList()
-                                      ),
+                                      ..._danglingRatingAdjustmentValues.entries.map((danglingAdjustmentValue) {
+                                        return DisplayDanglingAdjustmentWidget(
+                                          name: danglingAdjustmentValue.key, 
+                                          initialValue: null,
+                                          value: danglingAdjustmentValue.value,
+                                        );
+                                      }),
                                     ],
                                   ),
                                 ),

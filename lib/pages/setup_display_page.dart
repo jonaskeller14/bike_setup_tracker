@@ -7,7 +7,9 @@ import '../models/adjustment/adjustment.dart';
 import '../models/person.dart';
 import '../models/component.dart';
 import '../models/bike.dart';
+import '../models/weather.dart';
 import '../widgets/display_adjustment/display_adjustment_list.dart';
+import '../widgets/display_adjustment/display_dangling_adjustment.dart';
 
 class SetupDisplayPage extends StatefulWidget{
   final List<Setup> setups;
@@ -47,7 +49,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        spacing: 16,
+        spacing: 12,
         children: [
           TextButton.icon(
             onPressed: index > 0 
@@ -59,7 +61,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
             label: const Text("Previous"),
           ),
           Text(
-            "Setup ${index + 1} of ${widget.setups.length}",
+            "${index + 1} of ${widget.setups.length}",
             style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           TextButton.icon(
@@ -73,31 +75,6 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
             iconAlignment: IconAlignment.end,
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _notesCard(BuildContext context, String? notes) {
-    if (notes == null || notes.isEmpty) return const SizedBox.shrink();
-
-    return Card.outlined(
-      elevation: 0,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              spacing: 8,
-              children: [
-                const Icon(Icons.notes, size: 20),
-                Text("Notes", style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-              ],
-            ),
-            const Divider(height: 24),
-            Text(notes, style: Theme.of(context).textTheme.bodyMedium),
-          ],
-        ),
       ),
     );
   }
@@ -124,32 +101,105 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
 
           final previousBikeSetup = widget.getPreviousSetupbyDateTime(datetime: setup.datetime, bike: setup.bike);
           final previousPersonSetup = widget.getPreviousSetupbyDateTime(datetime: setup.datetime, person: setup.person);
+
+          final danglingBikeAdjustmentValues = Map.from(setup.bikeAdjustmentValues);
+          for (final bikeComponent in bikeComponents) {
+            for (final bikeComponentAdj in bikeComponent.adjustments) {
+              danglingBikeAdjustmentValues.remove(bikeComponentAdj.id);
+            }
+          }
+
+          final danglingPersonAdjustmentValues = Map.from(setup.personAdjustmentValues);
+          for (final personAdj in (person?.adjustments ?? [])) {
+            danglingPersonAdjustmentValues.remove(personAdj.id);
+          }
           
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(widget.setups[_currentPageIndex].name, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                Text(setup.name, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                 Text(
                   "${DateFormat(appSettings.dateFormat).format(setup.datetime)} • ${DateFormat(appSettings.timeFormat).format(setup.datetime)}",
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),),
                 ),
                 Divider(),
                 Text("Context", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                
+                //TODO: Not check null, insert placeholders instead?
+                if (setup.notes != null)
+                  ListTile(
+                    leading: Icon(Icons.notes),
+                    title: Text(setup.notes!),
+                    dense: true,
+                  ),
+                if (setup.position != null)
+                  ListTile(
+                    leading: Icon(Icons.my_location),
+                    title: Text("Lat: ${setup.position!.latitude?.toStringAsFixed(4)}, Lon: ${setup.position!.longitude?.toStringAsFixed(4)}"),
+                    dense: true,
+                  ),
+                if (setup.place != null)
+                  ListTile(
+                    leading: Icon(Icons.location_city),
+                    title: Text("${setup.place?.thoroughfare} ${setup.place?.subThoroughfare}, ${setup.place?.locality}, ${setup.place?.isoCountryCode}"),
+                    dense: true,
+                  ),
+                if (setup.position?.altitude != null)
+                  ListTile(
+                    leading: Icon(Icons.arrow_upward),
+                    title: Text("${Setup.convertAltitudeFromMeters(setup.position!.altitude!, appSettings.altitudeUnit).round()} ${appSettings.altitudeUnit}"),
+                    dense: true,
+                  ),
+                if (setup.weather?.currentTemperature != null)
+                  ListTile(
+                    leading: Icon(Icons.thermostat),
+                    title: Text("${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit).round()} ${appSettings.temperatureUnit}"),
+                    dense: true,
+                  ),
+                if (setup.weather?.currentHumidity != null)
+                  ListTile(
+                    leading: Icon(Icons.opacity),
+                    title: Text("${setup.weather?.currentHumidity?.round()} %"),
+                    dense: true,
+                  ),
+                if (setup.weather?.currentPrecipitation != null)
+                  ListTile(
+                    leading: Icon(Icons.water_drop),
+                    title:  Text("${Weather.convertPrecipitationFromMm(setup.weather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit).round()} ${appSettings.precipitationUnit}"),
+                    dense: true,
+                  ),
+                if (setup.weather?.currentWindSpeed != null)
+                  ListTile(
+                    leading: Icon(Icons.air),
+                    title:  Text("${Weather.convertWindSpeedFromKmh(setup.weather!.currentWindSpeed!, appSettings.windSpeedUnit).round()} ${appSettings.windSpeedUnit}"),
+                    dense: true,
+                  ),
+                if (setup.weather?.currentSoilMoisture0to7cm != null)
+                  ListTile(
+                    leading: Icon(Icons.spa),
+                    title:  Text("${setup.weather?.currentSoilMoisture0to7cm?.toStringAsFixed(2)} m³/m³"),
+                    dense: true,
+                  ),
+                if (setup.weather?.condition != null)
+                  ListTile(
+                    leading: setup.weather!.getConditionsIcon(),
+                    title: Text(setup.weather?.condition?.value ?? "-"),
+                    dense: true,
+                  ),
                 ListTile(
-                  leading: Icon(Icons.notes),
-                  title: Text(setup.notes ?? "sdf"),
+                  leading: const Icon(Bike.iconData),
+                  title: Text(bike?.name ?? "Bike not found."),
                   dense: true,
                 ),
-                _notesCard(context, setup.notes),
-                Text(setup.position.toString()),
-                Text(setup.place?.toJson().toString() ?? "no place"),
-                Text(setup.weather?.toJson().toString() ?? "No weather data"),
-                Divider(),
+                if (appSettings.enablePerson)
+                  ListTile(
+                    leading: setup.person != null ? const Icon(Person.iconData): const Icon(Icons.person_off),
+                    title: Text(person?.name ?? (setup.person == null ? "No person linked to this setup." : "Person not found.")),
+                    dense: true,
+                  ),
+                const SizedBox(height: 24),
                 Text("Values", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                //TODO: Placeholder for empty adjsutmentValues
                 if (bikeComponents.isEmpty)
                   SizedBox(
                     height: 100,
@@ -161,7 +211,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                     ),
                   )
                 else
-                ...bikeComponents.map((bikeComponent) {
+                  ...bikeComponents.map((bikeComponent) {
                     return Card.outlined(
                       margin: const EdgeInsets.symmetric(vertical: 4),
                       child: Column(
@@ -186,36 +236,93 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                       ),
                     );
                   }),
-                ListTile(
-                  leading: const Icon(Bike.iconData),
-                  title: Text(setup.bike),
-                  dense: true,
-                ),
-                ListTile(
-                  leading: const Icon(Person.iconData),
-                  title: Text(setup.person ?? "-"),
-                  dense: true,
-                ),
-                //TODO: Placeholder for empty adjsutmentValues
-                //only if person is enables in settips
-                ...setup.personAdjustmentValues.entries.map((entry) {
-                  return ListTile(
-                    dense: true,
-                    title: Text(entry.key),
-                    trailing: Text(Adjustment.formatValue(entry.value)),
-                  );
-                }),
-                Divider(),
-                Text("Rating", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                //TODO only if rating is enabled in settings
-                //TODO: Placeholder for empty adjsutmentValues
-                ...setup.ratingAdjustmentValues.entries.map((entry) {
-                  return ListTile(
-                    dense: true,
-                    title: Text(entry.key),
-                    trailing: Text(Adjustment.formatValue(entry.value)),
-                  );
-                }),
+                if (danglingBikeAdjustmentValues.isNotEmpty)
+                  Opacity(
+                    opacity: 0.4,
+                    child: Card.outlined(
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ListTile(
+                            title: const Text("Dangling Adjustment Values", style: TextStyle(fontWeight: FontWeight.bold)),
+                            subtitle: Text('${danglingBikeAdjustmentValues.length} adjustments found that are not associated with this bike.'),
+                            leading: Icon(Icons.question_mark),
+                          ),
+                          ...danglingBikeAdjustmentValues.entries.map((danglingAdjustmentValue) {
+                            return DisplayDanglingAdjustmentWidget(
+                              name: danglingAdjustmentValue.key, 
+                              initialValue: previousBikeSetup?.bikeAdjustmentValues[danglingAdjustmentValue.key], 
+                              value: danglingAdjustmentValue.value
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  ),
+                if (appSettings.enablePerson) ...[
+                  if (person != null)
+                    Card.outlined(
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ListTile(
+                            title: Text(person.name, style: TextStyle(fontWeight: FontWeight.bold)),
+                            subtitle: Text(Intl.plural(
+                              person.adjustments.length,
+                              zero: "No attributes yet.",
+                              one: "1 attribute",
+                              other: '${person.adjustments.length} attributes',
+                            )),
+                            leading: const Icon(Person.iconData),
+                          ),
+                          AdjustmentDisplayList(
+                            adjustments: person.adjustments,
+                            initialAdjustmentValues: previousPersonSetup?.personAdjustmentValues ?? {},
+                            adjustmentValues: setup.personAdjustmentValues,
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (danglingPersonAdjustmentValues.isNotEmpty)
+                    Opacity(
+                      opacity: 0.4,
+                      child: Card.outlined(
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListTile(
+                              title: const Text("Dangling Attribute Values", style: TextStyle(fontWeight: FontWeight.bold)),
+                              subtitle: Text('${danglingPersonAdjustmentValues.length} attributes found that are not associated with this person'),
+                              leading: Icon(Icons.question_mark),
+                            ),
+                            ...danglingPersonAdjustmentValues.entries.map((danglingAdjustmentValue) {
+                              return DisplayDanglingAdjustmentWidget(
+                                name: danglingAdjustmentValue.key, 
+                                initialValue: previousPersonSetup?.personAdjustmentValues[danglingAdjustmentValue.key], 
+                                value: danglingAdjustmentValue.value,
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+                if (appSettings.enableRating) ...[
+                  const SizedBox(height: 24),
+                  Text("Rating", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+
+                  //TODO: Placeholder for empty adjsutmentValues
+                  ...setup.ratingAdjustmentValues.entries.map((entry) {
+                    return ListTile(
+                      dense: true,
+                      title: Text(entry.key),
+                      trailing: Text(Adjustment.formatValue(entry.value)),
+                    );
+                  }),
+                ],
               ],
             ),
           );

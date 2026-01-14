@@ -1098,6 +1098,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                     ),
                                   ),
                                 ),
+                              const ValueChangeLegend(),
                             ]
                           ),
                         ),

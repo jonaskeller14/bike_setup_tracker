@@ -11,6 +11,7 @@ import '../models/bike.dart';
 import '../models/weather.dart';
 import '../widgets/display_adjustment/display_adjustment_list.dart';
 import '../widgets/display_adjustment/display_dangling_adjustment.dart';
+import '../widgets/setup_page_legend.dart';
 
 class SetupDisplayPage extends StatefulWidget{
   final List<Setup> setups;
@@ -471,6 +472,8 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                     )
                   ),
                 ],
+                const ValueChangeLegend(),
+                const SizedBox(height: 16),
               ],
             ),
           );

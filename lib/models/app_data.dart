@@ -43,6 +43,7 @@ class AppData extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       jsonString = prefs.getString("data") ?? "{}";
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
+      _clear();
       addJson(data: this, json: jsonData);
       debugPrint("Loading data successfully");
 
@@ -54,6 +55,15 @@ class AppData extends ChangeNotifier {
       }
       throw Exception("Loading data failed");
     }
+  }
+
+  void _clear() {
+    _bikes.clear();
+    _persons.clear();
+    _components.clear();
+    _ratings.clear();
+    _setups.clear();
+    _filter();
   }
 
   Map<String, dynamic> toJson() => {

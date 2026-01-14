@@ -49,7 +49,7 @@ class _ComponentListState extends State<ComponentList> {
       final component = widget.components[index];
       cards.add(
         Card(
-          key: ValueKey(component.id),
+          key: ValueKey([component.id, component]),
           margin: const EdgeInsets.symmetric(vertical: 4.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

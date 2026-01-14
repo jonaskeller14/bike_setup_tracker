@@ -911,7 +911,6 @@ class _HomePageState extends State<HomePage> {
           displayPersonAdjustmentValues: _setupListPersonAdjustmentValues,
           displayRatingAdjustmentValues: _setupListRatingAdjustmentValues,
           filterWidget: _setupListFilterWidget(context),
-          getPreviousSetupbyDateTime: getPreviousSetupbyDateTime,
         ),
         if (context.read<AppSettings>().enablePerson)
           PersonList(

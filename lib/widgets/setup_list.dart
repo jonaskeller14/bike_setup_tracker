@@ -27,7 +27,6 @@ class SetupList extends StatefulWidget {
   final bool displayBikeAdjustmentValues;
   final bool displayPersonAdjustmentValues;
   final bool displayRatingAdjustmentValues;
-  final Setup? Function({required DateTime datetime, String? bike, String? person}) getPreviousSetupbyDateTime;
 
   const SetupList({
     super.key,
@@ -44,7 +43,6 @@ class SetupList extends StatefulWidget {
     required this.displayBikeAdjustmentValues,
     required this.displayPersonAdjustmentValues,
     required this.displayRatingAdjustmentValues,
-    required this.getPreviousSetupbyDateTime,
   });
 
   @override
@@ -360,7 +358,6 @@ class _SetupListState extends State<SetupList> {
                         persons: widget.persons,
                         components: widget.components,
                         ratings: widget.ratings,
-                        getPreviousSetupbyDateTime: widget.getPreviousSetupbyDateTime,
                       )));
                     },
                     child: _setupCard(

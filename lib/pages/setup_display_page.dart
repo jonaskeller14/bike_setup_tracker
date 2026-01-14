@@ -20,7 +20,6 @@ class SetupDisplayPage extends StatefulWidget{
   final Map<String, Person> persons;
   final List<Component> components;
   final Map<String, Rating> ratings;
-  final Setup? Function({required DateTime datetime, String? bike, String? person}) getPreviousSetupbyDateTime;
 
   const SetupDisplayPage({
     super.key, 
@@ -30,7 +29,6 @@ class SetupDisplayPage extends StatefulWidget{
     required this.persons,
     required this.components,
     required this.ratings,
-    required this.getPreviousSetupbyDateTime,
   });
 
   @override
@@ -102,9 +100,6 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
           final Bike? bike = widget.bikes[setup.bike];
           Iterable<Component> bikeComponents = widget.components.where((c) => c.bike == setup.bike);
           final Person? person = widget.persons[setup.person];
-
-          final previousBikeSetup = widget.getPreviousSetupbyDateTime(datetime: setup.datetime, bike: setup.bike);
-          final previousPersonSetup = widget.getPreviousSetupbyDateTime(datetime: setup.datetime, person: setup.person);
 
           final danglingBikeAdjustmentValues = Map.from(setup.bikeAdjustmentValues);
           for (final bikeComponent in bikeComponents) {
@@ -280,7 +275,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                                 ),
                                 AdjustmentDisplayList(
                                   adjustments: bikeComponent.adjustments,
-                                  initialAdjustmentValues: previousBikeSetup?.bikeAdjustmentValues ?? {},
+                                  initialAdjustmentValues: setup.previousBikeSetup?.bikeAdjustmentValues ?? {},
                                   adjustmentValues: setup.bikeAdjustmentValues,
                                 ),
                               ],
@@ -303,7 +298,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                                 ...danglingBikeAdjustmentValues.entries.map((danglingAdjustmentValue) {
                                   return DisplayDanglingAdjustmentWidget(
                                     name: danglingAdjustmentValue.key, 
-                                    initialValue: previousBikeSetup?.bikeAdjustmentValues[danglingAdjustmentValue.key], 
+                                    initialValue: setup.previousBikeSetup?.bikeAdjustmentValues[danglingAdjustmentValue.key], 
                                     value: danglingAdjustmentValue.value
                                   );
                                 }),
@@ -330,7 +325,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                                 ),
                                 AdjustmentDisplayList(
                                   adjustments: person.adjustments,
-                                  initialAdjustmentValues: previousPersonSetup?.personAdjustmentValues ?? {},
+                                  initialAdjustmentValues: setup.previousPersonSetup?.personAdjustmentValues ?? {},
                                   adjustmentValues: setup.personAdjustmentValues,
                                 ),
                               ],
@@ -352,7 +347,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                                   ...danglingPersonAdjustmentValues.entries.map((danglingAdjustmentValue) {
                                     return DisplayDanglingAdjustmentWidget(
                                       name: danglingAdjustmentValue.key, 
-                                      initialValue: previousPersonSetup?.personAdjustmentValues[danglingAdjustmentValue.key], 
+                                      initialValue: setup.previousPersonSetup?.personAdjustmentValues[danglingAdjustmentValue.key], 
                                       value: danglingAdjustmentValue.value,
                                     );
                                   }),

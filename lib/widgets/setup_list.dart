@@ -27,6 +27,7 @@ class SetupList extends StatefulWidget {
   final bool displayBikeAdjustmentValues;
   final bool displayPersonAdjustmentValues;
   final bool displayRatingAdjustmentValues;
+  final Setup? Function({required DateTime datetime, String? bike, String? person}) getPreviousSetupbyDateTime;
 
   const SetupList({
     super.key,
@@ -43,6 +44,7 @@ class SetupList extends StatefulWidget {
     required this.displayBikeAdjustmentValues,
     required this.displayPersonAdjustmentValues,
     required this.displayRatingAdjustmentValues,
+    required this.getPreviousSetupbyDateTime,
   });
 
   @override
@@ -350,9 +352,14 @@ class _SetupListState extends State<SetupList> {
                   final setup = widget.setups[widget.setups.length - 1 - index];
                   return InkWell(
                     onTap: () async {
+                      //FIXME: for getPreviousSetupbyDateTime we need all setups, not just the filtered ones (which are displayed in this SetupList)
                       Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDisplayPage(
                         setups: widget.setups,
                         initialSetup: setup,
+                        bikes: widget.bikes,
+                        persons: widget.persons,
+                        components: widget.components,
+                        getPreviousSetupbyDateTime: widget.getPreviousSetupbyDateTime,
                       )));
                     },
                     child: _setupCard(

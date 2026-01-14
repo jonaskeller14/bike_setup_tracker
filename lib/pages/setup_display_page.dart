@@ -5,16 +5,26 @@ import '../models/app_settings.dart';
 import '../models/setup.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/person.dart';
+import '../models/component.dart';
 import '../models/bike.dart';
+import '../widgets/display_adjustment/display_adjustment_list.dart';
 
 class SetupDisplayPage extends StatefulWidget{
   final List<Setup> setups;
   final Setup initialSetup;
+  final Map<String, Bike> bikes;
+  final Map<String, Person> persons;
+  final List<Component> components;
+  final Setup? Function({required DateTime datetime, String? bike, String? person}) getPreviousSetupbyDateTime;
 
   const SetupDisplayPage({
     super.key, 
     required this.setups,
     required this.initialSetup,
+    required this.bikes,
+    required this.persons,
+    required this.components,
+    required this.getPreviousSetupbyDateTime,
   });
 
   @override
@@ -107,6 +117,14 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
         itemCount: widget.setups.length,
         itemBuilder: (context, index) {
           final setup = widget.setups[index];
+          
+          final Bike? bike = widget.bikes[setup.bike];
+          Iterable<Component> bikeComponents = widget.components.where((c) => c.bike == setup.bike);
+          final Person? person = widget.persons[setup.person];
+
+          final previousBikeSetup = widget.getPreviousSetupbyDateTime(datetime: setup.datetime, bike: setup.bike);
+          final previousPersonSetup = widget.getPreviousSetupbyDateTime(datetime: setup.datetime, person: setup.person);
+          
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -132,24 +150,54 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                 Divider(),
                 Text("Values", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                 //TODO: Placeholder for empty adjsutmentValues
+                if (bikeComponents.isEmpty)
+                  SizedBox(
+                    height: 100,
+                    child: Center(
+                      child: Text(
+                        'No components available.',
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                      ),
+                    ),
+                  )
+                else
+                ...bikeComponents.map((bikeComponent) {
+                    return Card.outlined(
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ListTile(
+                            title: Text(bikeComponent.name, style: TextStyle(fontWeight: FontWeight.bold)),
+                            subtitle: Text(Intl.plural(
+                              bikeComponent.adjustments.length,
+                              zero: "No adjustments yet.",
+                              one: "1 adjustment",
+                              other: '${bikeComponent.adjustments.length} adjustments',
+                            )),
+                            leading: Icon(bikeComponent.componentType.getIconData()),
+                          ),
+                          AdjustmentDisplayList(
+                            adjustments: bikeComponent.adjustments,
+                            initialAdjustmentValues: previousBikeSetup?.bikeAdjustmentValues ?? {},
+                            adjustmentValues: setup.bikeAdjustmentValues,
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
                 ListTile(
                   leading: const Icon(Bike.iconData),
                   title: Text(setup.bike),
                   dense: true,
                 ),
-                ...setup.bikeAdjustmentValues.entries.map((entry) {
-                  return ListTile(
-                    dense: true,
-                    title: Text(entry.key),
-                    trailing: Text(Adjustment.formatValue(entry.value)),
-                  );
-                }),
                 ListTile(
                   leading: const Icon(Person.iconData),
                   title: Text(setup.person ?? "-"),
                   dense: true,
                 ),
                 //TODO: Placeholder for empty adjsutmentValues
+                //only if person is enables in settips
                 ...setup.personAdjustmentValues.entries.map((entry) {
                   return ListTile(
                     dense: true,
@@ -159,6 +207,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                 }),
                 Divider(),
                 Text("Rating", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                //TODO only if rating is enabled in settings
                 //TODO: Placeholder for empty adjsutmentValues
                 ...setup.ratingAdjustmentValues.entries.map((entry) {
                   return ListTile(

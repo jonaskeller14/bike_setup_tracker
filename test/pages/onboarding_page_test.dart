@@ -51,10 +51,15 @@ void main() {
   testWidgets('Not Show OnBoarding', (WidgetTester tester) async {
     final appSettings = AppSettings();
     appSettings.setShowOnboarding(false);
-    
+
+    final appData = AppData();
+
     await tester.pumpWidget(
-      ChangeNotifierProvider<AppSettings>.value(
-        value: appSettings,
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: appSettings),
+          ChangeNotifierProvider.value(value: appData),
+        ],
         child: const BikeSetupTrackerApp(),
       ),
     );

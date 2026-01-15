@@ -773,15 +773,7 @@ class _HomePageState extends State<HomePage> {
                     onChanged: () {
                       WidgetsBinding.instance.addPostFrameCallback((_) { // Called when HomePage is not locked anymore
                         if (!mounted) return;
-                        setState(() {
-                          data.setups.sort((a, b) => a.datetime.compareTo(b.datetime));
-                          FileImport.determineCurrentSetups(setups: data.setups, bikes: data.bikes);
-                          FileImport.determinePreviousSetups(setups: data.setups);
-                          for (final setup in data.setups) {
-                            FileImport.updateSetupsAfter(setups: data.setups, setup: setup);
-                          }
-                        });
-                        data.filter();
+                        data.resolveData();
                         FileExport.saveData(data: data);
                         FileExport.saveBackup(data: data);
                         if (mounted && appSettings.enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}

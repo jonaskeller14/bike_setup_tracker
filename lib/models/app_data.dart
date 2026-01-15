@@ -68,6 +68,8 @@ class AppData extends ChangeNotifier {
     _components.clear();
     _ratings.clear();
     _setups.clear();
+    
+    _selectedBike = null;
     _filter();
   }
 
@@ -418,6 +420,18 @@ class AppData extends ChangeNotifier {
     _bikes.clear();
     _bikes.addAll({for (var element in bikesList) element.id : element});
     _filterBikes();
+
+    notifyListeners();
+  }
+
+  void resolveData() {
+    _setups.sort((a, b) => a.datetime.compareTo(b.datetime));
+    FileImport.determineCurrentSetups(setups: _setups, bikes: _bikes);
+    FileImport.determinePreviousSetups(setups: _setups);
+    for (final setup in _setups) {
+      FileImport.updateSetupsAfter(setups: _setups, setup: setup);
+    }
+    _filter();
 
     notifyListeners();
   }

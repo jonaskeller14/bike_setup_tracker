@@ -175,6 +175,10 @@ class FileImport {
     localData.setups.sort((a, b) => a.datetime.compareTo(b.datetime));
     determineCurrentSetups(setups: localData.setups, bikes: localData.bikes);
     determinePreviousSetups(setups: localData.setups);
+    for (final setup in localData.setups) { // Fix potential error in data 
+      FileImport.updateSetupsAfter(setups: localData.setups, setup: setup);
+    }
+    localData.onBikeTap(null); // filter()
   }
 
   static void merge({
@@ -301,6 +305,7 @@ class FileImport {
     for (final remoteSetup in remoteData.setups) {
       FileImport.updateSetupsAfter(setups: localData.setups, setup: remoteSetup);
     }
+    localData.onBikeTap(null); // handle case where selected bike was overwritten, filter()
   }
 
   static void determineCurrentSetups({required List<Setup> setups, required Map<String, Bike> bikes}) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../models/app_data.dart';
 import '../models/person.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
@@ -9,20 +10,10 @@ import '../models/rating.dart';
 import '../models/app_settings.dart';
 
 class TrashPage extends StatefulWidget{
-  final Map<String, Person> persons;
-  final Map<String, Bike> bikes;
-  final List<Component> components;
-  final List<Setup> setups;
-  final Map<String, Rating> ratings;
   final VoidCallback onChanged;
 
   const TrashPage({
-    super.key, 
-    required this.persons,
-    required this.bikes,
-    required this.components, 
-    required this.setups,
-    required this.ratings,
+    super.key,
     required this.onChanged,
   });
 
@@ -39,7 +30,13 @@ class _TrashPageState extends State<TrashPage> {
     super.dispose();
   }
 
-  ListTile _trashItem({required dynamic deletedItem, required DateFormat dateFormat, required DateFormat timeFormat}) {
+  ListTile _trashItem({required dynamic deletedItem}) {
+    final appSettings = context.read<AppSettings>();
+    final dateFormat = DateFormat(appSettings.dateFormat);
+    final timeFormat = DateFormat(appSettings.timeFormat);
+
+    final data = context.read<AppData>();
+
     return ListTile(
       leading: switch(deletedItem) {
         Bike() => const Icon(Bike.iconData),
@@ -54,11 +51,14 @@ class _TrashPageState extends State<TrashPage> {
       trailing: IconButton(
         icon: Icon(Icons.restore_from_trash),
         onPressed: () {
-          setState(() {
-            deletedItem.isDeleted = false;
-            deletedItem.lastModified = DateTime.now();
-            hasChanges = true;
-          });
+          hasChanges = true;
+          switch (deletedItem) {
+            case Bike(): data.restoreBike(deletedItem);
+            case Component(): data.restoreComponents([deletedItem]);
+            case Setup(): data.restoreSetups([deletedItem]);
+            case Person(): data.restorePerson(deletedItem);
+            case Rating(): data.restoreRating(deletedItem);
+          }
         },
       ),
     );
@@ -66,14 +66,14 @@ class _TrashPageState extends State<TrashPage> {
 
   @override
   Widget build(BuildContext context) {
-    final appSettings = context.read<AppSettings>();
-    
+    final data = context.watch<AppData>();
+
     final deletedCombined = <dynamic>[];
-    deletedCombined.addAll(widget.persons.values.where((p) => p.isDeleted).toList());
-    deletedCombined.addAll(widget.bikes.values.where((b) => b.isDeleted).toList());
-    deletedCombined.addAll(widget.components.where((c) => c.isDeleted));
-    deletedCombined.addAll(widget.setups.where((s) => s.isDeleted));
-    deletedCombined.addAll(widget.ratings.values.where((r) => r.isDeleted).toList());
+    deletedCombined.addAll(data.persons.values.where((p) => p.isDeleted).toList());
+    deletedCombined.addAll(data.bikes.values.where((b) => b.isDeleted).toList());
+    deletedCombined.addAll(data.components.where((c) => c.isDeleted));
+    deletedCombined.addAll(data.setups.where((s) => s.isDeleted));
+    deletedCombined.addAll(data.ratings.values.where((r) => r.isDeleted).toList());
     deletedCombined.sort((a, b) => b.lastModified.compareTo(a.lastModified));
 
     return Scaffold(
@@ -113,11 +113,7 @@ class _TrashPageState extends State<TrashPage> {
                       return Card(
                         margin: const EdgeInsets.symmetric(vertical: 4.0),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        child: _trashItem(
-                          deletedItem: deletedItem,
-                          dateFormat: DateFormat(appSettings.dateFormat),
-                          timeFormat: DateFormat(appSettings.timeFormat),
-                        ),
+                        child: _trashItem(deletedItem: deletedItem),
                       );
                     },
                   ),

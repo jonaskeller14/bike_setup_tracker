@@ -770,11 +770,6 @@ class _HomePageState extends State<HomePage> {
                   break;
                 case "trash":
                   Navigator.push<void>(context, MaterialPageRoute(builder: (context) => TrashPage(
-                    persons: data.persons, 
-                    bikes: data.bikes, 
-                    components: data.components, 
-                    setups: data.setups,
-                    ratings: data.ratings,
                     onChanged: () {
                       WidgetsBinding.instance.addPostFrameCallback((_) { // Called when HomePage is not locked anymore
                         if (!mounted) return;
@@ -785,8 +780,8 @@ class _HomePageState extends State<HomePage> {
                           for (final setup in data.setups) {
                             FileImport.updateSetupsAfter(setups: data.setups, setup: setup);
                           }
-                          data.filter();
                         });
+                        data.filter();
                         FileExport.saveData(data: data);
                         FileExport.saveBackup(data: data);
                         if (mounted && appSettings.enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}

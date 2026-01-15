@@ -167,7 +167,19 @@ class AppData extends ChangeNotifier {
   void removeBike(Bike bike) {
     bike.isDeleted = true;
     bike.lastModified = DateTime.now();
-    if (bike == selectedBike) onBikeTap(null);
+    if (bike == selectedBike) {
+      onBikeTap(null);  //_filterBikes(); included
+    } else {
+      _filterBikes();
+    }
+    
+    notifyListeners();
+  }
+
+  void restoreBike(Bike bike) {
+    bike.isDeleted = false;
+    bike.lastModified = DateTime.now();
+    _filterBikes();
 
     notifyListeners();
   }
@@ -197,9 +209,9 @@ class AppData extends ChangeNotifier {
       setup.isDeleted = true;
       setup.lastModified = DateTime.now();
     }
-    _filterSetups();
     FileImport.determineCurrentSetups(setups: _setups, bikes: _bikes);
     FileImport.determinePreviousSetups(setups: _setups);
+    _filterSetups();
 
     notifyListeners();
   }
@@ -209,11 +221,11 @@ class AppData extends ChangeNotifier {
       setup.isDeleted = false;
       setup.lastModified = DateTime.now();
     }
-    _filterSetups();
     _setups.sort((a, b) => a.datetime.compareTo(b.datetime)); // not really necessary
     FileImport.determineCurrentSetups(setups: _setups, bikes: _bikes);
     FileImport.determinePreviousSetups(setups: _setups);
-
+    _filterSetups();
+    
     notifyListeners();
   }
 

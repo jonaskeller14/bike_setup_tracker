@@ -45,6 +45,11 @@ class AppData extends ChangeNotifier {
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
       _clear();
       addJson(data: this, json: jsonData);
+
+      _setups.sort((a, b) => a.datetime.compareTo(b.datetime));
+      FileImport.determineCurrentSetups(setups: _setups, bikes: _bikes);
+      FileImport.determinePreviousSetups(setups: _setups);
+
       debugPrint("Loading data successfully");
 
       return this;
@@ -100,6 +105,8 @@ class AppData extends ChangeNotifier {
     data.components.addAll(loadedComponents);
     data.setups.addAll(loadedSetups);
     data.ratings.addAll(<String, Rating>{for (var item in loadedRatings) item.id: item});
+    
+    data.notifyListeners(); // not strictly necessary in most cases
     return data;
   }
 

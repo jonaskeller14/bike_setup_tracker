@@ -156,4 +156,50 @@ void main() {
     await tester.pump(const Duration(milliseconds: 200));
     expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Setup')), findsOneWidget);
   });
+
+  testWidgets('BikeList: Add/Remove/Restore Bike and not show deleted', (WidgetTester tester) async {
+    final appSettings = AppSettings();
+    appSettings.setShowOnboarding(false);
+
+    final appData = AppData();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: appSettings),
+          ChangeNotifierProvider.value(value: appData),
+        ],
+        child: const BikeSetupTrackerApp(),
+      ),
+    );
+
+    await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Bikes')));
+    await tester.pumpAndSettle();
+    expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Bikes')), findsOneWidget);
+    
+    // Add Bike and show Bike
+    appData.addBike(Bike(name: "TestBike #1", person: null, isDeleted: false));
+    await tester.pumpAndSettle();
+    expect(find.text("TestBike #1"), findsOneWidget);
+
+    // Not show deleted Bike
+    final bike2 = Bike(name: "TestBike #2", person: null, isDeleted: true);
+    appData.addBike(bike2);
+    await tester.pumpAndSettle();
+    expect(find.text("TestBike #2"), findsNothing);
+
+    // Remove Bike
+    final bike3 = Bike(name: "TestBike #3", person: null, isDeleted: false);
+    appData.addBike(bike3);
+    await tester.pumpAndSettle();
+    expect(find.text("TestBike #3"), findsOneWidget);
+    appData.removeBike(bike3);
+    await tester.pumpAndSettle();
+    expect(find.text("TestBike #3"), findsNothing);
+
+    // Restore Bike
+    appData.restoreBike(bike2);
+    await tester.pumpAndSettle();
+    expect(find.text("TestBike #2"), findsOneWidget);
+  });
 }

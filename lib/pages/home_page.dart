@@ -895,7 +895,7 @@ class _HomePageState extends State<HomePage> {
           editComponent: editComponent,
           duplicateComponent: duplicateComponent,
           removeComponent: removeComponent,
-          onReorder: onReorderComponents,
+          onReorderComponent: onReorderComponents,
           filterWidget: _componentListFilterWidget(),
         ),
         SetupList(
@@ -923,6 +923,7 @@ class _HomePageState extends State<HomePage> {
             duplicatePerson: _duplicatePerson,
             removePerson: _removePerson,
             onReorderPerson: _onReorderPerson,
+            filterWidget: const SizedBox.shrink(),
           ),
         if (context.read<AppSettings>().enableRating)
           RatingList(
@@ -934,6 +935,7 @@ class _HomePageState extends State<HomePage> {
             duplicateRating: _duplicateRating,
             removeRating: _removeRating,
             onReorderRating: _onReorderRating,
+            filterWidget: const SizedBox.shrink(),
           ),
       ][currentPageIndex],
       floatingActionButton: <Widget>[

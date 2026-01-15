@@ -16,6 +16,7 @@ class PersonList extends StatefulWidget {
   final void Function(Person person) duplicatePerson;
   final void Function(Person person) removePerson;
   final void Function(int oldIndex, int newIndex) onReorderPerson;
+  final Widget filterWidget;
 
   const PersonList({
     super.key,
@@ -26,6 +27,7 @@ class PersonList extends StatefulWidget {
     required this.duplicatePerson,
     required this.removePerson,
     required this.onReorderPerson,
+    required this.filterWidget,
   });
 
   @override
@@ -61,93 +63,96 @@ class _PersonListState extends State<PersonList> {
         ? widget.persons.length
         : widget.persons.length.clamp(0, defaultVisibleCount);
     
-    final List<Card> cards = <Card>[];
-    for (var index = 0; index < visibleCount; index++) {
+    final List<InkWell> inkWells = <InkWell>[];
+    for (int index = 0; index < visibleCount; index++) {
       final person = widget.persons.values.toList()[index];
-      cards.add(
-        Card(
+      inkWells.add(
+        InkWell(
           key: ValueKey(person.id),
-          margin: const EdgeInsets.symmetric(vertical: 4.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ListTile(
-                leading: const Icon(Person.iconData),
-                minTileHeight: 0,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                title: Text(
-                  person.name,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                enabled: widget.setups.lastWhereOrNull((s) => s.person == person.id) != null,
-                subtitle: _bikeColumn(person),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ReorderableDragStartListener(
-                      index: index,
-                      child: const Icon(Icons.drag_handle),
-                    ),
-                    PopupMenuButton<String>(
-                      onSelected: (value) {
-                        switch (value) {
-                          case 'edit': widget.editPerson(person);
-                          case 'duplicate': widget.duplicatePerson(person);
-                          case 'remove': widget.removePerson(person);
-                        }
-                      },
-                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                        const PopupMenuItem<String>(
-                          value: 'edit',
-                          child: Row(
-                            children: [
-                              Icon(Icons.edit, size: 20),
-                              SizedBox(width: 10),
-                              Text('Edit'),
-                            ],
+          onTap: null, //TODO
+          child: Card(
+            margin: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ListTile(
+                  leading: const Icon(Person.iconData),
+                  minTileHeight: 0,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  title: Text(
+                    person.name,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  enabled: widget.setups.lastWhereOrNull((s) => s.person == person.id) != null,
+                  subtitle: _bikeColumn(person),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ReorderableDragStartListener(
+                        index: index,
+                        child: const Icon(Icons.drag_handle),
+                      ),
+                      PopupMenuButton<String>(
+                        onSelected: (value) {
+                          switch (value) {
+                            case 'edit': widget.editPerson(person);
+                            case 'duplicate': widget.duplicatePerson(person);
+                            case 'remove': widget.removePerson(person);
+                          }
+                        },
+                        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                          const PopupMenuItem<String>(
+                            value: 'edit',
+                            child: Row(
+                              children: [
+                                Icon(Icons.edit, size: 20),
+                                SizedBox(width: 10),
+                                Text('Edit'),
+                              ],
+                            ),
                           ),
-                        ),
-                        const PopupMenuItem<String>(
-                          value: 'duplicate',
-                          child: Row(
-                            children: [
-                              Icon(Icons.copy, size: 20),
-                              SizedBox(width: 10),
-                              Text('Duplicate'),
-                            ],
+                          const PopupMenuItem<String>(
+                            value: 'duplicate',
+                            child: Row(
+                              children: [
+                                Icon(Icons.copy, size: 20),
+                                SizedBox(width: 10),
+                                Text('Duplicate'),
+                              ],
+                            ),
                           ),
-                        ),
-                        const PopupMenuItem<String>(
-                          value: 'remove',
-                          child: Row(
-                            children: [
-                              Icon(Icons.delete, size: 20),
-                              SizedBox(width: 10),
-                              Text('Remove'),
-                            ],
+                          const PopupMenuItem<String>(
+                            value: 'remove',
+                            child: Row(
+                              children: [
+                                Icon(Icons.delete, size: 20),
+                                SizedBox(width: 10),
+                                Text('Remove'),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
-                child: AdjustmentCompactDisplayList(
-                  components: [person],
-                  adjustmentValues: widget.setups.lastWhereOrNull((s) => s.person == person.id)?.personAdjustmentValues ?? {},
-                  showComponentIcons: false,
-                  missingValuesPlaceholder: true,
-                  displayBikeAdjustmentValues: false,
-                  displayPersonAdjustmentValues: true,
-                  displayRatingAdjustmentValues: false,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
+                  child: AdjustmentCompactDisplayList(
+                    components: [person],
+                    adjustmentValues: widget.setups.lastWhereOrNull((s) => s.person == person.id)?.personAdjustmentValues ?? {},
+                    showComponentIcons: false,
+                    missingValuesPlaceholder: true,
+                    displayBikeAdjustmentValues: false,
+                    displayPersonAdjustmentValues: true,
+                    displayRatingAdjustmentValues: false,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
@@ -160,9 +165,10 @@ class _PersonListState extends State<PersonList> {
           final double animValue = Curves.easeInOut.transform(animation.value);
           final double elevation = lerpDouble(1, 6, animValue)!;
           final double scale = lerpDouble(1, 1.03, animValue)!;
+          final card = inkWells[index].child! as Card;
           return Transform.scale(
             scale: scale,
-            child: Card(elevation: elevation, color: cards[index].color, child: cards[index].child),
+            child: Card(elevation: elevation, color: card.color, child: card.child),
           );
         },
         child: child,
@@ -175,6 +181,7 @@ class _PersonListState extends State<PersonList> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                widget.filterWidget,
                 Expanded(
                   child: Center(
                     child: Text(
@@ -189,8 +196,7 @@ class _PersonListState extends State<PersonList> {
         : ReorderableListView.builder(
             itemCount: visibleCount,
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
-            proxyDecorator: proxyDecorator,
-            header: null,
+            header: widget.filterWidget,
             footer: widget.persons.length > defaultVisibleCount
                 ? Center(
                     child: TextButton.icon(
@@ -206,9 +212,10 @@ class _PersonListState extends State<PersonList> {
                     ),
                   )
                 : null,
+            proxyDecorator: proxyDecorator,
             onReorder: widget.onReorderPerson,
             itemBuilder: (context, index) {
-              return cards[index];
+              return inkWells[index];
             },
           );
   }

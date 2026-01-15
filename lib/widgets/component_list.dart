@@ -16,7 +16,7 @@ class ComponentList extends StatefulWidget {
   final Future<void> Function(Component component) editComponent;
   final Future<void> Function(Component component) duplicateComponent;
   final Future<void> Function(Component component) removeComponent;
-  final Future<void> Function(int oldIndex, int newIndex) onReorder;
+  final Future<void> Function(int oldIndex, int newIndex) onReorderComponent;
   final Widget filterWidget;
 
   const ComponentList({
@@ -27,7 +27,7 @@ class ComponentList extends StatefulWidget {
     required this.editComponent,
     required this.duplicateComponent,
     required this.removeComponent,
-    required this.onReorder,
+    required this.onReorderComponent,
     required this.filterWidget,
   });
 
@@ -43,145 +43,151 @@ class _ComponentListState extends State<ComponentList> {
     final visibleCount = _expanded
         ? widget.components.length
         : widget.components.length.clamp(0, defaultVisibleCount);
-
-    final List<Card> cards = <Card>[];
+    
+    final List<InkWell> inkWells = <InkWell>[];
     for (int index = 0; index < visibleCount; index++) {
       final component = widget.components[index];
-      cards.add(
-        Card(
-          key: ValueKey([component.id, component]),
-          margin: const EdgeInsets.symmetric(vertical: 4.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ListTile(
-                leading: Icon(component.componentType.getIconData()),
-                minTileHeight: 0,
-                contentPadding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                title: Text(
-                  component.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                enabled: widget.setups.lastWhereOrNull((s) => s.bike == component.bike) != null,
-                onTap: () async {
+      inkWells.add(
+        InkWell(
+          key: ValueKey(component.id),
+          onTap: widget.setups.lastWhereOrNull((s) => s.bike == component.bike) != null
+              ? () async {
                   await Navigator.push<Component>(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ComponentOverviewPage(component: component, setups: widget.setups),
                     ),
                   );
-                },
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 2,
-                  children: [
-                    Wrap(
-                      spacing: 4,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            const SizedBox(width: 2),
-                            Text(
-                              widget.bikes[component.bike]?.name ?? "-",
-                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                              overflow: TextOverflow.ellipsis,
+                }
+              : null,
+          child: Card(
+            margin: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ListTile(
+                  leading: Icon(component.componentType.getIconData()),
+                  minTileHeight: 0,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 0,
+                  ),
+                  title: Text(
+                    component.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  enabled: widget.setups.lastWhereOrNull((s) => s.bike == component.bike) != null,
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 2,
+                    children: [
+                      Wrap(
+                        spacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              const SizedBox(width: 2),
+                              Text(
+                                widget.bikes[component.bike]?.name ?? "-",
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ReorderableDragStartListener(
+                        index: index,
+                        child: const Icon(Icons.drag_handle),
+                      ),
+                      PopupMenuButton<String>(
+                        onSelected: (value) {
+                          switch (value) {
+                            case 'edit': widget.editComponent(component);
+                            case 'duplicate': widget.duplicateComponent(component);
+                            case 'remove': widget.removeComponent(component);
+                          }
+                        },
+                        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                          const PopupMenuItem<String>(
+                            value: 'edit',
+                            child: Row(
+                              children: [
+                                Icon(Icons.edit, size: 20),
+                                SizedBox(width: 10),
+                                Text('Edit'),
+                              ],
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ReorderableDragStartListener(
-                      index: index,
-                      child: const Icon(Icons.drag_handle),
-                    ),
-                    PopupMenuButton<String>(
-                      onSelected: (value) {
-                        if (value == 'edit') {
-                          widget.editComponent(component);
-                        } else if (value == "duplicate") {
-                          widget.duplicateComponent(component);
-                        } else if (value == 'remove') {
-                          widget.removeComponent(component);
-                        }
-                      },
-                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                        const PopupMenuItem<String>(
-                          value: 'edit',
-                          child: Row(
-                            children: [
-                              Icon(Icons.edit, size: 20),
-                              SizedBox(width: 10),
-                              Text('Edit'),
-                            ],
                           ),
-                        ),
-                        const PopupMenuItem<String>(
-                          value: 'duplicate',
-                          child: Row(
-                            children: [
-                              Icon(Icons.copy, size: 20),
-                              SizedBox(width: 10),
-                              Text('Duplicate'),
-                            ],
+                          const PopupMenuItem<String>(
+                            value: 'duplicate',
+                            child: Row(
+                              children: [
+                                Icon(Icons.copy, size: 20),
+                                SizedBox(width: 10),
+                                Text('Duplicate'),
+                              ],
+                            ),
                           ),
-                        ),
-                        const PopupMenuItem<String>(
-                          value: 'remove',
-                          child: Row(
-                            children: [
-                              Icon(Icons.delete, size: 20),
-                              SizedBox(width: 10),
-                              Text('Remove'),
-                            ],
+                          const PopupMenuItem<String>(
+                            value: 'remove',
+                            child: Row(
+                              children: [
+                                Icon(Icons.delete, size: 20),
+                                SizedBox(width: 10),
+                                Text('Remove'),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
-                child: AdjustmentCompactDisplayList(
-                  components: [component],
-                  adjustmentValues: widget.setups.lastWhereOrNull((s) => s.bike == component.bike)?.bikeAdjustmentValues ?? {},
-                  showComponentIcons: false,
-                  missingValuesPlaceholder: true,
-                  displayBikeAdjustmentValues: true,
-                  displayPersonAdjustmentValues: false,
-                  displayRatingAdjustmentValues: false,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
+                  child: AdjustmentCompactDisplayList(
+                    components: [component],
+                    adjustmentValues: widget.setups.lastWhereOrNull((s) => s.bike == component.bike)?.bikeAdjustmentValues ?? {},
+                    showComponentIcons: false,
+                    missingValuesPlaceholder: true,
+                    displayBikeAdjustmentValues: true,
+                    displayPersonAdjustmentValues: false,
+                    displayRatingAdjustmentValues: false,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
     }
 
     Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (BuildContext context, Widget? child) {
-        final double animValue = Curves.easeInOut.transform(animation.value);
-        final double elevation = lerpDouble(1, 6, animValue)!;
-        final double scale = lerpDouble(1, 1.03, animValue)!;
-        return Transform.scale(
-          scale: scale,
-          child: Card(elevation: elevation, color: cards[index].color, child: cards[index].child),
+      return AnimatedBuilder(
+        animation: animation,
+        builder: (BuildContext context, Widget? child) {
+          final double animValue = Curves.easeInOut.transform(animation.value);
+          final double elevation = lerpDouble(1, 6, animValue)!;
+          final double scale = lerpDouble(1, 1.03, animValue)!;
+          final card = inkWells[index].child! as Card;
+          return Transform.scale(
+            scale: scale,
+            child: Card(elevation: elevation, color: card.color, child: card.child),
           );
         },
         child: child,
       );
     }
-    
+
     return widget.components.isEmpty
         ? Padding(
             padding: const EdgeInsets.all(16.0),
@@ -219,10 +225,10 @@ class _ComponentListState extends State<ComponentList> {
                     ),
                   )
                 : null,
-            onReorder: widget.onReorder,
             proxyDecorator: proxyDecorator,
+            onReorder: widget.onReorderComponent,
             itemBuilder: (context, index) {
-              return cards[index];
+              return inkWells[index];
             },
           );
   }

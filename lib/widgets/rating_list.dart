@@ -6,7 +6,7 @@ import '../models/bike.dart';
 import '../models/rating.dart';
 import '../models/component.dart';
 
-const defaultVisibleCount = 3;
+const defaultVisibleCount = 10;
 
 class RatingList extends StatefulWidget {
   final Map<String, Person> persons;
@@ -17,6 +17,7 @@ class RatingList extends StatefulWidget {
   final void Function(Rating rating) duplicateRating;
   final void Function(Rating rating) removeRating;
   final void Function(int oldIndex, int newIndex) onReorderRating;
+  final Widget filterWidget;
 
   const RatingList({
     super.key,
@@ -28,6 +29,7 @@ class RatingList extends StatefulWidget {
     required this.duplicateRating,
     required this.removeRating,
     required this.onReorderRating,
+    required this.filterWidget,
   });
 
   @override
@@ -43,11 +45,11 @@ class _RatingListState extends State<RatingList> {
         ? widget.ratings.length
         : widget.ratings.length.clamp(0, defaultVisibleCount);
     
-    final List<GestureDetector> gestureDetectors = <GestureDetector>[];
-    for (var index = 0; index < visibleCount; index++) {
+    final List<InkWell> inkWells = <InkWell>[];
+    for (int index = 0; index < visibleCount; index++) {
       final rating = widget.ratings.values.toList()[index];
-      gestureDetectors.add(
-        GestureDetector(
+      inkWells.add(
+        InkWell(
           key: ValueKey(rating.id),
           onTap: null, //TODO
           child: Card(
@@ -166,7 +168,7 @@ class _RatingListState extends State<RatingList> {
                     ],
                   ),
                 ],
-              )
+              ),
             ),
           ),
         ),
@@ -180,7 +182,7 @@ class _RatingListState extends State<RatingList> {
           final double animValue = Curves.easeInOut.transform(animation.value);
           final double elevation = lerpDouble(1, 6, animValue)!;
           final double scale = lerpDouble(1, 1.03, animValue)!;
-          final card = gestureDetectors[index].child! as Card;
+          final card = inkWells[index].child! as Card;
           return Transform.scale(
             scale: scale,
             child: Card(elevation: elevation, color: card.color, child: card.child),
@@ -190,29 +192,48 @@ class _RatingListState extends State<RatingList> {
       );
     }
 
-    return ReorderableListView.builder(
-      itemCount: visibleCount,
-      padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
-      footer: widget.ratings.length > defaultVisibleCount
-        ? Center(
-          child: TextButton.icon(
-            onPressed: () {
-              setState(() {
-                _expanded = !_expanded;
-              });
-            },
-            icon: Icon(
-              _expanded ? Icons.expand_less : Icons.expand_more,
+    return widget.ratings.isEmpty
+        ? Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                widget.filterWidget,
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      'No bikes yet',
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            label: Text(_expanded ? "Show less" : "Show more"),
-          ),
-        )
-        : null,
-      proxyDecorator: proxyDecorator,
-      onReorder: widget.onReorderRating,
-      itemBuilder: (context, index) {
-        return gestureDetectors[index];
-      },
-    );
+          )
+        : ReorderableListView.builder(
+            itemCount: visibleCount,
+            padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
+            header: widget.filterWidget,
+            footer: widget.ratings.length > defaultVisibleCount
+                ? Center(
+                    child: TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _expanded = !_expanded;
+                        });
+                      },
+                      icon: Icon(
+                        _expanded ? Icons.expand_less : Icons.expand_more,
+                      ),
+                      label: Text(_expanded ? "Show less" : "Show more"),
+                    ),
+                  )
+                : null,
+            proxyDecorator: proxyDecorator,
+            onReorder: widget.onReorderRating,
+            itemBuilder: (context, index) {
+              return inkWells[index];
+            },
+          );
   }
 }

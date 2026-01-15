@@ -42,91 +42,93 @@ class _BikeListState extends State<BikeList> {
         ? widget.bikes.length
         : widget.bikes.length.clamp(0, defaultVisibleCount);
     
-    final List<Card> cards = <Card>[];
+    final List<InkWell> inkWells = <InkWell>[];
     for (int index = 0; index < visibleCount; index++) {
       final bike = widget.bikes[index];
-      cards.add(
-        Card(
+      inkWells.add(
+        InkWell(
           key: ValueKey(bike.id),
-          color: bike == widget.selectedBike ? Theme.of(context).colorScheme.secondaryContainer : null,
-          margin: const EdgeInsets.symmetric(vertical: 4.0),
-          child: Opacity(
-            opacity: bike == widget.selectedBike || widget.selectedBike == null ? 1 : 0.3,
-              child: ListTile(
-              dense: true,
-              leading: const Icon(Bike.iconData),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
-              ),
-              title: Text(
-                bike.name,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              onTap: () => widget.onBikeTap(bike),
-              subtitle: context.read<AppSettings>().enablePerson
-                  ? Wrap(
-                      spacing: 4,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        if (bike.person != null)
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
+          onTap: null, //TODO
+          child: Card(
+            color: bike == widget.selectedBike ? Theme.of(context).colorScheme.secondaryContainer : null,
+            margin: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Opacity(
+              opacity: bike == widget.selectedBike || widget.selectedBike == null ? 1 : 0.3,
+                child: ListTile(
+                dense: true,
+                leading: const Icon(Bike.iconData),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                title: Text(
+                  bike.name,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                onTap: () => widget.onBikeTap(bike),
+                subtitle: context.read<AppSettings>().enablePerson
+                    ? Wrap(
+                        spacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          if (bike.person != null)
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Person.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                const SizedBox(width: 2),
+                                Text(
+                                  widget.persons[bike.person]?.name ?? "-",
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          if (bike.person == null)
+                            Icon(Icons.person_off, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        ],
+                      )
+                    : null,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ReorderableDragStartListener(
+                      index: index,
+                      child: const Icon(Icons.drag_handle),
+                    ),
+                    PopupMenuButton<String>(
+                      onSelected: (value) {
+                        switch (value) {
+                          case 'edit': widget.editBike(bike);
+                          case 'remove': widget.removeBike(bike);
+                        }
+                      },
+                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                        const PopupMenuItem<String>(
+                          value: 'edit',
+                          child: Row(
                             children: [
-                              Icon(Person.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                              const SizedBox(width: 2),
-                              Text(
-                                widget.persons[bike.person]?.name ?? "-",
-                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                              Icon(Icons.edit, size: 20),
+                              SizedBox(width: 10),
+                              Text('Edit'),
                             ],
                           ),
-                        if (bike.person == null)
-                          Icon(Icons.person_off, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'remove',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete, size: 20),
+                              SizedBox(width: 10),
+                              Text('Remove'),
+                            ],
+                          ),
+                        ),
                       ],
-                    )
-                  : null,
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ReorderableDragStartListener(
-                    index: index,
-                    child: const Icon(Icons.drag_handle),
-                  ),
-                  PopupMenuButton<String>(
-                    onSelected: (value) {
-                      if (value == 'edit') {
-                        widget.editBike(bike);
-                      } else if (value == 'remove') {
-                        widget.removeBike(bike);
-                      }
-                    },
-                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                      const PopupMenuItem<String>(
-                        value: 'edit',
-                        child: Row(
-                          children: [
-                            Icon(Icons.edit, size: 20),
-                            SizedBox(width: 10),
-                            Text('Edit'),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'remove',
-                        child: Row(
-                          children: [
-                            Icon(Icons.delete, size: 20),
-                            SizedBox(width: 10),
-                            Text('Remove'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              )
+                    ),
+                  ],
+                )
+              ),
             ),
           ),
         ),
@@ -140,9 +142,10 @@ class _BikeListState extends State<BikeList> {
           final double animValue = Curves.easeInOut.transform(animation.value);
           final double elevation = lerpDouble(1, 6, animValue)!;
           final double scale = lerpDouble(1, 1.03, animValue)!;
+          final card = inkWells[index].child! as Card;
           return Transform.scale(
             scale: scale,
-            child: Card(elevation: elevation, color: cards[index].color, child: cards[index].child),
+            child: Card(elevation: elevation, color: card.color, child: card.child),
           );
         },
         child: child,
@@ -189,7 +192,7 @@ class _BikeListState extends State<BikeList> {
             proxyDecorator: proxyDecorator,
             onReorder: widget.onReorderBikes,
             itemBuilder: (context, index) {
-              return cards[index];
+              return inkWells[index];
             },
           );
   }

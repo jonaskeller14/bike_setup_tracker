@@ -27,6 +27,7 @@ class SetupList extends StatefulWidget {
   final bool displayBikeAdjustmentValues;
   final bool displayPersonAdjustmentValues;
   final bool displayRatingAdjustmentValues;
+  final bool accending;
 
   const SetupList({
     super.key,
@@ -43,6 +44,7 @@ class SetupList extends StatefulWidget {
     required this.displayBikeAdjustmentValues,
     required this.displayPersonAdjustmentValues,
     required this.displayRatingAdjustmentValues,
+    required this.accending,
   });
 
   @override
@@ -347,7 +349,9 @@ class _SetupListState extends State<SetupList> {
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: visibleCount,
                 itemBuilder: (context, index) {
-                  final setup = widget.setups[widget.setups.length - 1 - index];
+                  final setup = widget.accending 
+                      ? widget.setups[index] 
+                      : widget.setups[widget.setups.length - 1 - index];
                   return InkWell(
                     onTap: () async {
                       //FIXME: for getPreviousSetupbyDateTime we need all setups, not just the filtered ones (which are displayed in this SetupList)

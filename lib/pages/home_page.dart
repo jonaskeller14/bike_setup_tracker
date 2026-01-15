@@ -47,6 +47,7 @@ class _HomePageState extends State<HomePage> {
   bool _setupListBikeAdjustmentValues = true;
   bool _setupListPersonAdjustmentValues = false;
   bool _setupListRatingAdjustmentValues = false;
+  bool _setupListSortAccending = false;
 
   int currentPageIndex = 0;
 
@@ -645,12 +646,24 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  FilterChip _setupListSortWidget() {
+    return FilterChip(
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, // Removes the 48px constraint
+      labelPadding: EdgeInsets.symmetric(vertical: 2),
+      avatar: _setupListSortAccending ? const Icon(Icons.arrow_upward) : const Icon(Icons.arrow_downward),
+      label: const SizedBox.shrink(), 
+      onSelected: (bool value) => setState(() => _setupListSortAccending = value),
+      selected: _setupListSortAccending,
+      showCheckmark: false,
+    );
+  }
+
   SingleChildScrollView _bikeListFilterWidget() {
     return SingleChildScrollView(
       padding: const EdgeInsets.only(bottom: 8),
       scrollDirection: Axis.horizontal,
       child: Row(
-        spacing: 12,
+        spacing: 6,
         children: [
           _bikeFilterWidget(),
         ],
@@ -663,7 +676,7 @@ class _HomePageState extends State<HomePage> {
       padding: const EdgeInsets.only(bottom: 8),
       scrollDirection: Axis.horizontal,
       child: Row(
-        spacing: 12,
+        spacing: 6,
         children: [
           _bikeFilterWidget(),
         ],
@@ -671,14 +684,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  SingleChildScrollView _setupListFilterWidget(BuildContext context) {
+  SingleChildScrollView _setupListFilterWidget() {
     return SingleChildScrollView(
       padding: const EdgeInsets.only(bottom: 8),
       scrollDirection: Axis.horizontal,
       child: Row(
-        spacing: 12,
+        spacing: 6,
         children: [
           _bikeFilterWidget(),
+          _setupListSortWidget(),
           FilterChip(
             label: const Text("Only Changes"),
             selected: _setupListOnlyChanges,
@@ -910,7 +924,8 @@ class _HomePageState extends State<HomePage> {
           displayBikeAdjustmentValues: _setupListBikeAdjustmentValues,
           displayPersonAdjustmentValues: _setupListPersonAdjustmentValues,
           displayRatingAdjustmentValues: _setupListRatingAdjustmentValues,
-          filterWidget: _setupListFilterWidget(context),
+          filterWidget: _setupListFilterWidget(),
+          accending: _setupListSortAccending,
         ),
         if (context.read<AppSettings>().enablePerson)
           PersonList(

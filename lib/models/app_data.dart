@@ -68,7 +68,7 @@ class AppData extends ChangeNotifier {
     _components.clear();
     _ratings.clear();
     _setups.clear();
-    
+
     _selectedBike = null;
     _filter();
   }
@@ -266,7 +266,6 @@ class AppData extends ChangeNotifier {
   void addBike(Bike bike) {
     _bikes[bike.id] = bike;
 
-    _selectedBike = null;
     _filter();
 
     notifyListeners();
@@ -293,6 +292,22 @@ class AppData extends ChangeNotifier {
     notifyListeners();
   }
 
+  void editPerson(Person person) {
+    _persons[person.id] = person;
+    _filterPersons();
+
+    notifyListeners();
+  }
+
+  void editBike(Bike bike) {
+    _bikes[bike.id] = bike;
+
+    if (bike != selectedBike) _selectedBike = null;
+    _filter();
+
+    notifyListeners();
+  }
+
   void editComponent({required Component oldComponent, required Component newComponent}) {
     final index = _components.indexOf(oldComponent);
     if (index != -1) {
@@ -300,6 +315,13 @@ class AppData extends ChangeNotifier {
     }
     _filterComponents();
 
+    notifyListeners();
+  }
+
+  void editRating(Rating rating) {
+    _ratings[rating.id] = rating;
+    _filterRatings();
+    
     notifyListeners();
   }
 

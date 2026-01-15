@@ -406,7 +406,7 @@ class _HomePageState extends State<HomePage> {
     );
     if (editedBike == null) return;
 
-    data.addBike(editedBike);
+    data.editBike(editedBike);
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
@@ -423,7 +423,7 @@ class _HomePageState extends State<HomePage> {
     );
     if (editedPerson == null) return;
 
-    data.addPerson(editedPerson);
+    data.editPerson(editedPerson);
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
@@ -445,7 +445,7 @@ class _HomePageState extends State<HomePage> {
     );
     if (editedRating == null) return;
 
-    data.addRating(editedRating);
+    data.editRating(editedRating);
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}

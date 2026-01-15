@@ -172,13 +172,8 @@ class FileImport {
       ..clear()
       ..addAll(remoteData.components);
     
-    localData.setups.sort((a, b) => a.datetime.compareTo(b.datetime));
-    determineCurrentSetups(setups: localData.setups, bikes: localData.bikes);
-    determinePreviousSetups(setups: localData.setups);
-    for (final setup in localData.setups) { // Fix potential error in data 
-      FileImport.updateSetupsAfter(setups: localData.setups, setup: setup);
-    }
-    localData.onBikeTap(null); // filter()
+    localData.resolveData();
+    localData.onBikeTap(null);
   }
 
   static void merge({

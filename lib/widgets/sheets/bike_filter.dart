@@ -30,7 +30,7 @@ Future<List<Bike>?> showBikeFilterSheet({required BuildContext context, required
                   Padding(
                     padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),
                     child: Wrap(
-                      spacing: 12,
+                      spacing: 6,
                       children: bikes.map((bike) => FilterChip(
                         avatar: const Icon(Bike.iconData),
                         label: Text(bike.name),

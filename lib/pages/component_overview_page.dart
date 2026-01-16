@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +7,7 @@ import '../models/setup.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/weather.dart';
 import '../models/app_settings.dart';
+import '../widgets/sheets/column_filter.dart';
 
 class ComponentOverviewPage extends StatefulWidget{
   final Component component;
@@ -25,56 +27,118 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
   late List<Setup> _setups;
   bool _sortAscending = true;
   int? _sortColumnIndex;
+  static const bool _highlighting = true;
 
-  bool _showName = true;
-  bool _showNotes = false;
-  bool _showDate = true;
-  bool _showTime = false;
-  bool _showPlace = false;
-  bool _showCurrentTemperature = false;
-  bool _showDayAccumulatedPrecipitation = false;
-  bool _showCurrentHumidity = false;
-  bool _showCurrentWindSpeed = false;
-  bool _showCurrentSoilMoisture0to7cm = false;
-  final Map<String, bool> _showAdjustment = {};
+  final Map<String, Map<String, bool>> _showColumns = {
+    "General Context": {
+      "Name": true,
+      "Notes": false,
+      "Date": true,
+      "Time": false,
+      "Place": false,
+      "Altitude": false,
+    },
+    "Weather Context": {
+      "Temperature": false,
+      "Precipation": false,
+      "Humidity": false,
+      "Windspeed": false,
+      "Soil Moisture": false,
+      "Condition": false,
+    },
+    "Adjustments": {},
+  };
 
   @override
   void initState() {
     super.initState();
     _setups = List.from(widget.setups.reversed);
     for (final adjustment in widget.component.adjustments) {
-      _showAdjustment[adjustment.id] = true;
+      _showColumns["Adjustments"]?[adjustment.id] = true;
     }
   }
 
-  void onSortColum(dynamic column, int columnIndex, bool ascending) {
+  void onSortColum(String column, int columnIndex, bool ascending) {
     _sortAscending = ascending;
     _sortColumnIndex = columnIndex;
-    if (column is String) {
-      switch (column) {
-        case "name": setState(() {ascending ? _setups.sort((a, b) => a.name.compareTo(b.name)) : _setups.sort((a, b) => b.name.compareTo(a.name));});
-        case "notes": setState(() {ascending ? _setups.sort((a, b) => (a.notes ?? '').compareTo(b.notes ?? '')) : _setups.sort((a, b) => (b.notes ?? '').compareTo(a.notes ?? ''));});
-        case "date": setState(() {ascending ? _setups.sort((a, b) => a.datetime.compareTo(b.datetime)) : _setups.sort((a, b) => b.datetime.compareTo(a.datetime));});
-        case "time": setState(() {ascending ? _setups.sort((a, b) => a.datetime.copyWith(year: 0, month: 0, day: 0).compareTo(b.datetime.copyWith(year: 0, month: 0, day: 0))) : _setups.sort((a, b) => b.datetime.copyWith(year: 0, month: 0, day: 0).compareTo(a.datetime.copyWith(year: 0, month: 0, day: 0)));});
-        case "place": setState(() {ascending ? _setups.sort((a, b) => (a.place?.locality ?? '').compareTo(b.place?.locality ?? '')) : _setups.sort((a, b) => (b.place?.locality ?? '').compareTo(a.place?.locality ?? ''));});
-        case "currentTemperature": setState(() {ascending ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));});
-        case "dayAccumulatedPrecipitation": setState(() {ascending ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));});
-        case "currentHumidity": setState(() {ascending ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));});
-        case "currentWindSpeed": setState(() {ascending ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));});
-        case "currentSoilMoisture0to7cm": setState(() {ascending ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));});
-      }
-    } else if (column is Adjustment) {
-      if (column is BooleanAdjustment) {
-        setState(() {ascending ? _setups.sort((a, b) => ((a.bikeAdjustmentValues[column.id] ?? false) ? 1 : 0).compareTo((b.bikeAdjustmentValues[column.id] ?? false) ? 1 : 0)) : _setups.sort((a, b) => ((b.bikeAdjustmentValues[column.id] ?? false) ? 1 : 0).compareTo((a.bikeAdjustmentValues[column.id] ?? false) ? 1 : 0));});
-      } else if (column is StepAdjustment) {
-        setState(() {ascending ? _setups.sort((a, b) => (a.bikeAdjustmentValues[column.id] ?? 0).compareTo(b.bikeAdjustmentValues[column.id] ?? 0)) : _setups.sort((a, b) => (b.bikeAdjustmentValues[column.id] ?? 0).compareTo(a.bikeAdjustmentValues[column.id] ?? 0));});
-      } else if (column is NumericalAdjustment) {
-        setState(() {ascending ? _setups.sort((a, b) => (a.bikeAdjustmentValues[column.id] ?? double.negativeInfinity).compareTo(b.bikeAdjustmentValues[column.id] ?? double.negativeInfinity)) : _setups.sort((a, b) => (b.bikeAdjustmentValues[column.id] ?? double.negativeInfinity).compareTo(a.bikeAdjustmentValues[column.id] ?? double.negativeInfinity));});
-      } else if (column is CategoricalAdjustment) {
-        setState(() {ascending ? _setups.sort((a, b) => (a.bikeAdjustmentValues[column.id] ?? '').compareTo(b.bikeAdjustmentValues[column.id] ?? '')) : _setups.sort((a, b) => (b.bikeAdjustmentValues[column.id] ?? '').compareTo(a.bikeAdjustmentValues[column.id] ?? ''));});
-      } else if (column is TextAdjustment) {
-        setState(() {ascending ? _setups.sort((a, b) => (a.bikeAdjustmentValues[column.id] ?? '').compareTo(b.bikeAdjustmentValues[column.id] ?? '')) : _setups.sort((a, b) => (b.bikeAdjustmentValues[column.id] ?? '').compareTo(a.bikeAdjustmentValues[column.id] ?? ''));});
-      }
+    switch (column) {
+      case "Name": setState(() {ascending 
+          ? _setups.sort((a, b) => a.name.compareTo(b.name)) 
+          : _setups.sort((a, b) => b.name.compareTo(a.name));
+      });
+      case "Notes": setState(() {ascending 
+          ? _setups.sort((a, b) => (a.notes ?? '').compareTo(b.notes ?? '')) 
+          : _setups.sort((a, b) => (b.notes ?? '').compareTo(a.notes ?? ''));
+      });
+      case "Date": setState(() {ascending 
+          ? _setups.sort((a, b) => a.datetime.compareTo(b.datetime)) 
+          : _setups.sort((a, b) => b.datetime.compareTo(a.datetime));
+      });
+      case "Time": setState(() {ascending 
+          ? _setups.sort((a, b) => a.datetime.copyWith(year: 0, month: 0, day: 0).compareTo(b.datetime.copyWith(year: 0, month: 0, day: 0))) 
+          : _setups.sort((a, b) => b.datetime.copyWith(year: 0, month: 0, day: 0).compareTo(a.datetime.copyWith(year: 0, month: 0, day: 0)));
+      });
+      case "Place": setState(() {ascending 
+          ? _setups.sort((a, b) => (a.place?.locality ?? '').compareTo(b.place?.locality ?? '')) 
+          : _setups.sort((a, b) => (b.place?.locality ?? '').compareTo(a.place?.locality ?? ''));
+      });
+      case "Altitude": setState(() {ascending 
+          ? _setups.sort((a, b) => (a.position?.altitude ?? double.negativeInfinity).compareTo(b.position?.altitude ?? double.negativeInfinity)) 
+          : _setups.sort((a, b) => (b.position?.altitude ?? double.negativeInfinity).compareTo(a.position?.altitude ?? double.negativeInfinity));
+      });
+      case "Temperature": setState(() {ascending 
+          ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) 
+          : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));
+      });
+      case "Precipation": setState(() {ascending 
+          ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) 
+          : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));
+      });
+      case "Humidity": setState(() {ascending 
+          ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) 
+          : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));
+      });
+      case "Windspeed": setState(() {ascending 
+          ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) 
+          : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));
+      });
+      case "Soil Moisture": setState(() {ascending 
+          ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) 
+          : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));
+      });
+      case "Condition": setState(() {ascending 
+          ? _setups.sort((a, b) => (a.weather?.condition?.value ?? '').compareTo(b.weather?.condition?.value ?? '')) 
+          : _setups.sort((a, b) => (b.weather?.condition?.value ?? '').compareTo(a.weather?.condition?.value ?? ''));
+      });
+      default: 
+        final Adjustment? adjustment = widget.component.adjustments.firstWhereOrNull((a) => a.id == column);
+        switch (adjustment) {
+          case null: return;
+          case BooleanAdjustment(): setState(() {ascending 
+              ? _setups.sort((a, b) => ((a.bikeAdjustmentValues[column] ?? false) ? 1 : 0).compareTo((b.bikeAdjustmentValues[column] ?? false) ? 1 : 0)) 
+              : _setups.sort((a, b) => ((b.bikeAdjustmentValues[column] ?? false) ? 1 : 0).compareTo((a.bikeAdjustmentValues[column] ?? false) ? 1 : 0));
+          });
+          case StepAdjustment(): setState(() {ascending 
+              ? _setups.sort((a, b) => ((a.bikeAdjustmentValues[column] ?? 0) as int).compareTo((b.bikeAdjustmentValues[column] ?? 0) as int)) 
+              : _setups.sort((a, b) => ((b.bikeAdjustmentValues[column] ?? 0) as int).compareTo((a.bikeAdjustmentValues[column] ?? 0) as int));
+          });
+          case NumericalAdjustment(): setState(() {ascending 
+              ? _setups.sort((a, b) => ((a.bikeAdjustmentValues[column] ?? double.negativeInfinity) as double).compareTo((b.bikeAdjustmentValues[column] ?? double.negativeInfinity) as double)) 
+              : _setups.sort((a, b) => ((b.bikeAdjustmentValues[column] ?? double.negativeInfinity) as double).compareTo((a.bikeAdjustmentValues[column] ?? double.negativeInfinity) as double));
+          });
+          case CategoricalAdjustment(): setState(() {ascending 
+              ? _setups.sort((a, b) => ((a.bikeAdjustmentValues[column] ?? '') as String).compareTo((b.bikeAdjustmentValues[column] ?? '') as String)) 
+              : _setups.sort((a, b) => ((b.bikeAdjustmentValues[column] ?? '') as String).compareTo((a.bikeAdjustmentValues[column] ?? '') as String));
+          });
+          case TextAdjustment(): setState(() {ascending 
+              ? _setups.sort((a, b) => ((a.bikeAdjustmentValues[column] ?? '') as String).compareTo((b.bikeAdjustmentValues[column] ?? '') as String)) 
+              : _setups.sort((a, b) => ((b.bikeAdjustmentValues[column] ?? '') as String).compareTo((a.bikeAdjustmentValues[column] ?? '') as String));
+          });
+          case DurationAdjustment(): setState(() {ascending 
+              ? _setups.sort((a, b) => ((a.bikeAdjustmentValues[column] ?? Duration.zero) as Duration).compareTo((b.bikeAdjustmentValues[column] ?? Duration.zero) as Duration)) 
+              : _setups.sort((a, b) => ((b.bikeAdjustmentValues[column] ?? Duration.zero) as Duration).compareTo((a.bikeAdjustmentValues[column] ?? Duration.zero) as Duration));
+          });
+        }
     }
   }
 
@@ -100,142 +164,52 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ..._showColumns.entries.map((sectionShowColumnsEntry) {
+            //   return SingleChildScrollView(
+            //     scrollDirection: Axis.horizontal,
+            //     child: Row(
+            //       spacing: 6,
+            //       children: sectionShowColumnsEntry.value.entries.map((showColumnEntry) {
+            //         return FilterChip(
+            //           selected: showColumnEntry.value,
+            //           label: Text(sectionShowColumnsEntry.key == "Adjustments" 
+            //               ? (widget.component.adjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key)?.name ?? "-") 
+            //               : showColumnEntry.key),
+            //           onSelected: (bool value) {
+            //             setState(() {
+            //               _showColumns[sectionShowColumnsEntry.key]?[showColumnEntry.key] = value;
+            //               _sortColumnIndex = null;
+            //             });
+            //           },
+            //         );
+            //       }).toList(),
+            //     ),
+            //   );
+            // }),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: Wrap(
+              child: Row(
                 spacing: 6,
                 children: [
                   FilterChip(
-                    selected: _showName,
-                    label: const Text("Name"),
-                    onSelected: (bool value) {
+                    avatar: const Icon(Icons.view_column_outlined),
+                    showCheckmark: false,
+                    label: const Text("Columns"),
+                    selected: _showColumns.values.any((v) => v.values.any((v) => v  == true)),
+                    onSelected: (bool newValue) async {
+                      final Map<String, Map<String, bool>>? showColumnsCopy = await showColumnFilterSheet(context: context, showColumns: _showColumns, adjustments: widget.component.adjustments);
+                      if (showColumnsCopy == null) return;
                       setState(() {
-                        _showName = value;
-                        _sortColumnIndex = null;
+                        _showColumns.clear();
+                        _showColumns.addEntries(showColumnsCopy.entries);
                       });
                     },
                   ),
-                  FilterChip(
-                    selected: _showNotes,
-                    label: const Text("Notes"),
-                    onSelected: (bool value) {
-                      setState(() {
-                        _showNotes = value;
-                        _sortColumnIndex = null;
-                      });
-                    },
-                  ),
-                  FilterChip(
-                    selected: _showDate,
-                    label: const Text("Date"),
-                    onSelected: (bool value) {
-                      setState(() {
-                        _showDate = value;
-                        _sortColumnIndex = null;
-                      });
-                    },
-                  ),
-                  FilterChip(
-                    selected: _showTime,
-                    label: const Text("Time"),
-                    onSelected: (bool value) {
-                      setState(() {
-                        _showTime = value;
-                        _sortColumnIndex = null;
-                      });
-                    },
-                  ),
-                  FilterChip(
-                    selected: _showPlace,
-                    label: const Text("Place"),
-                    onSelected: (bool value) {
-                      setState(() {
-                        _showPlace = value;
-                        _sortColumnIndex = null;
-                      });
-                    },
-                  ),
+                  //TODO: Use the same filter widgets as in componentList and update all filters simutanously
                 ],
               ),
             ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Wrap(
-                spacing: 6,
-                children: [
-                  FilterChip(
-                    selected: _showCurrentTemperature,
-                    label: const Text("Temperature"),
-                    onSelected: (bool value) {
-                      setState(() {
-                        _showCurrentTemperature = value;
-                        _sortColumnIndex = null;
-                      });
-                    },
-                  ),
-                  FilterChip(
-                    selected: _showDayAccumulatedPrecipitation,
-                    label: const Text("Precipation"),
-                    onSelected: (bool value) {
-                      setState(() {
-                        _showDayAccumulatedPrecipitation = value;
-                        _sortColumnIndex = null;
-                      });
-                    },
-                  ),
-                  FilterChip(
-                    selected: _showCurrentHumidity,
-                    label: const Text("Humidity"),
-                    onSelected: (bool value) {
-                      setState(() {
-                        _showCurrentHumidity = value;
-                        _sortColumnIndex = null;
-                      });
-                    },
-                  ),
-                  FilterChip(
-                    selected: _showCurrentWindSpeed,
-                    label: const Text("Windspeed"),
-                    onSelected: (bool value) {
-                      setState(() {
-                        _showCurrentWindSpeed = value;
-                        _sortColumnIndex = null;
-                      });
-                    },
-                  ),
-                  FilterChip(
-                    selected: _showCurrentSoilMoisture0to7cm,
-                    label: const Text("Soil Moisture"),
-                    onSelected: (bool value) {
-                      setState(() {
-                        _showCurrentSoilMoisture0to7cm = value;
-                        _sortColumnIndex = null;
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Wrap(
-                spacing: 6,
-                children: [
-                  for (final adjustment in widget.component.adjustments)
-                    FilterChip(
-                      selected: _showAdjustment[adjustment.id]!,
-                      label: Text(adjustment.name),
-                      onSelected: (bool value) {
-                        setState(() {
-                          _showAdjustment[adjustment.id] = value;
-                          _sortColumnIndex = null;
-                        });
-                      },
-                    ),
-                ],
-              ),
-            ),
-            if (_showName || _showNotes || _showDate || _showNotes || _showCurrentTemperature || _showDayAccumulatedPrecipitation || _showCurrentHumidity || _showCurrentWindSpeed || _showCurrentSoilMoisture0to7cm || _showAdjustment.values.any((e) => e))
+            if (_showColumns.values.any((v) => v.values.any((v) => v  == true)))
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
@@ -243,81 +217,81 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                   sortColumnIndex: _sortColumnIndex,
                   columnSpacing: 20,
                   headingTextStyle: TextStyle(fontWeight: FontWeight.bold),
-                  columns: [
-                    if (_showName)
-                      DataColumn(label: const Text('Setup'), onSort: (columnIndex, ascending) => onSortColum("name", columnIndex, ascending)),
-                    if (_showNotes)
-                      DataColumn(label: const Text('Notes'), onSort: (columnIndex, ascending) => onSortColum("notes", columnIndex, ascending)),
-                    if (_showDate)
-                      DataColumn(label: const Text('Date'), onSort: (columnIndex, ascending) => onSortColum("date", columnIndex, ascending)),
-                    if (_showTime)
-                      DataColumn(label: const Text('Time'), onSort: (columnIndex, ascending) => onSortColum("time", columnIndex, ascending)),
-                    if (_showPlace)
-                      DataColumn(label: const Text('Place'), onSort: (columnIndex, ascending) => onSortColum("place", columnIndex, ascending)),
-                    
-                    if (_showCurrentTemperature)
-                      DataColumn(label: const Text('Temperature'), onSort: (columnIndex, ascending) => onSortColum("currentTemperature", columnIndex, ascending)),
-                    if (_showDayAccumulatedPrecipitation)
-                      DataColumn(label: const Text('Precipation'), onSort: (columnIndex, ascending) => onSortColum("dayAccumulatedPrecipitation", columnIndex, ascending)),
-                    if (_showCurrentHumidity)
-                      DataColumn(label: const Text('Humidity'), onSort: (columnIndex, ascending) => onSortColum("currentHumidity", columnIndex, ascending)),
-                    if (_showCurrentWindSpeed)
-                      DataColumn(label: const Text('Windspeed'), onSort: (columnIndex, ascending) => onSortColum("currentWindSpeed", columnIndex, ascending)),
-                    if (_showCurrentSoilMoisture0to7cm)
-                      DataColumn(label: const Text('Soil Moisture'), onSort: (columnIndex, ascending) => onSortColum("currentSoilMoisture0to7cm", columnIndex, ascending)),
-                    
-                    for (final adjustment in widget.component.adjustments)
-                      if (_showAdjustment[adjustment.id] == true)
-                        DataColumn(
-                          label: Text(
-                            adjustment.name,
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          onSort: (columnIndex, ascending) => onSortColum(adjustment, columnIndex, ascending),
+                  columns: _showColumns.entries.expand((sectionShowColumnsEntry) {
+                    return sectionShowColumnsEntry.value.entries.where((showColumnEntry) => showColumnEntry.value).map((showColumnEntry) {
+                      return DataColumn(
+                        label: Text(
+                          sectionShowColumnsEntry.key == "Adjustments" 
+                              ? (widget.component.adjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key)?.name ?? "-") 
+                              : showColumnEntry.key, 
+                          overflow: TextOverflow.ellipsis
                         ),
-                  ],
+                        onSort: (columnIndex, ascending) => onSortColum(showColumnEntry.key, columnIndex, ascending),
+                      );
+                    }).toList();
+                  }).toList(),
                   rows: _setups.where((setup) {
                     return widget.component.adjustments.any(
                       (adj) => setup.bikeAdjustmentValues.containsKey(adj.id)
                     );
                   }).map((setup) {
                     return DataRow(
-                      cells: [
-                        if (_showName)
-                          DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: Text(setup.name, overflow: TextOverflow.ellipsis))),
-                        if (_showNotes)
-                          DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: Text(setup.notes ?? '-', overflow: TextOverflow.ellipsis))),
-                        if (_showDate)
-                          DataCell(Text(DateFormat(appSettings.dateFormat).format(setup.datetime))),
-                        if (_showTime)
-                          DataCell(Text(DateFormat(appSettings.timeFormat).format(setup.datetime))),
-                        if (_showPlace)
-                          DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: Text(setup.place?.locality ?? '-', overflow: TextOverflow.ellipsis))),
-                        
-                        if (_showCurrentTemperature)
-                          DataCell(Center(child: Text(setup.weather?.currentTemperature == null ? '-' : "${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit).round()} ${appSettings.temperatureUnit}"))),
-                        if (_showDayAccumulatedPrecipitation)
-                          DataCell(Center(child: Text(setup.weather?.dayAccumulatedPrecipitation == null ? '-' : "${Weather.convertPrecipitationFromMm(setup.weather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit).round()} ${appSettings.precipitationUnit}"))),
-                        if (_showCurrentHumidity)
-                          DataCell(Center(child: Text(setup.weather?.currentHumidity == null ? '-' : "${setup.weather!.currentHumidity!.round()} %"))),
-                        if (_showCurrentWindSpeed)
-                          DataCell(Center(child: Text(setup.weather?.currentWindSpeed == null ? '-' : "${Weather.convertWindSpeedFromKmh(setup.weather!.currentWindSpeed!, appSettings.windSpeedUnit).round()} ${appSettings.windSpeedUnit}"))),
-                        if (_showCurrentSoilMoisture0to7cm)
-                          DataCell(Center(child: Text(setup.weather?.currentSoilMoisture0to7cm == null ? '-' : setup.weather!.currentSoilMoisture0to7cm!.toStringAsFixed(2)))),
-                        
-                        for (final adjustment in widget.component.adjustments)
-                          if (_showAdjustment[adjustment.id] == true)
-                            DataCell(
+                      cells: _showColumns.entries.expand((sectionShowColumnsEntry) {
+                        return sectionShowColumnsEntry.value.entries.where((showColumnEntry) => showColumnEntry.value).map((showColumnEntry) {
+                          if (sectionShowColumnsEntry.key == "Adjustments") {
+                            final value = setup.bikeAdjustmentValues[showColumnEntry.key];
+                            final initialValue = setup.previousBikeSetup?.bikeAdjustmentValues[showColumnEntry.key];
+                            
+                            Color? highlightColor;
+                            if (_highlighting) {
+                              final bool isChanged = value != null && initialValue != value;
+                              final bool isInitial = initialValue == null;
+                              highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
+                            }
+
+                            return DataCell(
                               Center(
-                                child: Text(Adjustment.formatValue(setup.bikeAdjustmentValues[adjustment.id])),
+                                child: Text(
+                                  Adjustment.formatValue(value), 
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(color: highlightColor),
+                                ),
                               ),
-                            ),
-                      ],
+                            );
+                          } else {
+                            return switch(showColumnEntry.key) {
+                              "Name" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: Text(setup.name, overflow: TextOverflow.ellipsis))),
+                              "Notes" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: Text(setup.notes ?? '-', overflow: TextOverflow.ellipsis))),
+                              "Date" => DataCell(Text(DateFormat(appSettings.dateFormat).format(setup.datetime))),
+                              "Time" => DataCell(Text(DateFormat(appSettings.timeFormat).format(setup.datetime))),
+                              "Place" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: Text(setup.place?.locality ?? '-', overflow: TextOverflow.ellipsis))),
+                              "Altitude" => DataCell(Center(child: Text(setup.position?.altitude == null ? '-' : "${setup.position!.altitude!.round()} ${appSettings.altitudeUnit}"))),
+                              "Temperature" => DataCell(Center(child: Text(setup.weather?.currentTemperature == null ? '-' : "${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit).round()} ${appSettings.temperatureUnit}"))),
+                              "Precipation" => DataCell(Center(child: Text(setup.weather?.dayAccumulatedPrecipitation == null ? '-' : "${Weather.convertPrecipitationFromMm(setup.weather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit).round()} ${appSettings.precipitationUnit}"))),
+                              "Humidity" => DataCell(Center(child: Text(setup.weather?.currentHumidity == null ? '-' : "${setup.weather!.currentHumidity!.round()} %"))),
+                              "Windspeed" => DataCell(Center(child: Text(setup.weather?.currentWindSpeed == null ? '-' : "${Weather.convertWindSpeedFromKmh(setup.weather!.currentWindSpeed!, appSettings.windSpeedUnit).round()} ${appSettings.windSpeedUnit}"))),
+                              "Soil Moisture" => DataCell(Center(child: Text(setup.weather?.currentSoilMoisture0to7cm == null ? '-' : setup.weather!.currentSoilMoisture0to7cm!.toStringAsFixed(2)))),
+                              "Condition" => DataCell(Center(child: Text(setup.weather?.condition == null ? '-' : setup.weather!.condition!.value))),
+                              _ => const DataCell(Text("ERROR")),
+                            };
+                          }
+                        }).toList();
+                      }).toList(),
                     );
                   }).toList(),
                 ),
-              ), 
+              )
+            else
+              SizedBox(
+                height: 100,
+                child: Center(
+                  child: Text(
+                    'Select a column to display the table',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

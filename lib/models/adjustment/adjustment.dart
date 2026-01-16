@@ -26,28 +26,24 @@ abstract class Adjustment<T> {
   String getProperties();
 
   static String formatValue(dynamic value) {
-    if (value == null) {
-      return '-';
-    } else if (value is String) {
-      return value;
-    } else if (value is bool) {
-      return value ? 'On' : 'Off';
-    } else if (value is double) {
-      if (value.toInt().toDouble() == value) {
-        return value.toInt().toString();
-      } else {
-        return value.toStringAsFixed(5).replaceAll(RegExp(r'([.]*0+)(?!.*\d)'), '');
-      }
-    } else if (value is int) {
-      return value.toString();
-    } else if (value is Duration) {
-      String twoDigits(int n) => n.toString().padLeft(2, "0");
-      final String hours = twoDigits(value.inHours);
-      final String minutes = twoDigits(value.inMinutes.remainder(60));
-      final String seconds = twoDigits(value.inSeconds.remainder(60));
-      return "$hours:$minutes:$seconds";
-    } else {
-      return value.toString();
+    switch (value) {
+      case null: return '-';
+      case String(): return value;
+      case bool(): return value ? 'On' : 'Off';
+      case double():
+        if (value.toInt().toDouble() == value) {
+          return value.toInt().toString();
+        } else {
+          return value.toStringAsFixed(5).replaceAll(RegExp(r'([.]*0+)(?!.*\d)'), '');
+        }
+      case int(): return value.toString();
+      case Duration():
+        String twoDigits(int n) => n.toString().padLeft(2, "0");
+        final String hours = twoDigits(value.inHours);
+        final String minutes = twoDigits(value.inMinutes.remainder(60));
+        final String seconds = twoDigits(value.inSeconds.remainder(60));
+        return "$hours:$minutes:$seconds";
+      default: return value.toString();
     }
   }
 

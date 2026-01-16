@@ -47,10 +47,11 @@ class _ComponentListState extends State<ComponentList> {
     final List<InkWell> inkWells = <InkWell>[];
     for (int index = 0; index < visibleCount; index++) {
       final component = widget.components[index];
+      final enabled = widget.setups.lastWhereOrNull((s) => !s.isDeleted && s.bike == component.bike) != null;
       inkWells.add(
         InkWell(
           key: ValueKey(component.id),
-          onTap: widget.setups.lastWhereOrNull((s) => s.bike == component.bike) != null
+          onTap: enabled
               ? () async {
                   await Navigator.push<Component>(
                     context,
@@ -76,7 +77,7 @@ class _ComponentListState extends State<ComponentList> {
                     component.name,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  enabled: widget.setups.lastWhereOrNull((s) => s.bike == component.bike) != null,
+                  enabled: enabled,
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     spacing: 2,

@@ -49,14 +49,14 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
           : Map.fromEntries(  // keep order of component.adjustments
             componentAdjustments
                 .where((adj) => adjustmentValues.containsKey(adj.id))
-                .map((adj) => MapEntry<Adjustment, dynamic>(adj, adjustmentValues[adj.id]!))
+                .map((adj) => MapEntry<Adjustment, dynamic>(adj, adjustmentValues[adj.id] ?? '-'))
           );
       if (componentAdjustmentValues.isEmpty) continue;
 
       final Map<Adjustment, dynamic> componentPreviousAdjustmentValues = Map.fromEntries(
         componentAdjustments
             .where((adj) => previousAdjustmentValues.containsKey(adj.id))
-            .map((adj) => MapEntry(adj, previousAdjustmentValues[adj.id]!)),
+            .map((adj) => MapEntry(adj, previousAdjustmentValues[adj.id])),
       );
 
       if (displayOnlyChanges) {

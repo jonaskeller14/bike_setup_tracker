@@ -257,7 +257,7 @@ class _PersonPageState extends State<PersonPage> {
         ),
         const SizedBox(height: 4),
         _buildGuideRow(NumericalAdjustment.iconData, "Numerical", "Body Weight, Height, Age"),
-        _buildGuideRow(Icons.rotate_right, "Step", "..."),
+        _buildGuideRow(StepAdjustment.iconData, "Step", "..."),
         _buildGuideRow(CategoricalAdjustment.iconData, "Categorical", "Training status, Riding Gear, Riding style"),
         _buildGuideRow(BooleanAdjustment.iconData, "On/Off", "Wearing a backpack?"),
         if (context.read<AppSettings>().enableTextAdjustment)

@@ -299,7 +299,7 @@ class _RatingPageState extends State<RatingPage> {
         ),
         const SizedBox(height: 4),
         _buildGuideRow(NumericalAdjustment.iconData, "Numerical", "How many times did the fork bottom out?"),
-        _buildGuideRow(Icons.rotate_right, "Step", "Rate grip or confidence (on 1-10 scale)"),
+        _buildGuideRow(StepAdjustment.iconData, "Step", "Rate grip or confidence (on 1-10 scale)"),
         _buildGuideRow(CategoricalAdjustment.iconData, "Categorical", "Rate based on categories (good/bad/acceptable)"),
         _buildGuideRow(BooleanAdjustment.iconData, "On/Off", "Did the fork bottom out? (Yes/No)"),
         if (context.read<AppSettings>().enableTextAdjustment)

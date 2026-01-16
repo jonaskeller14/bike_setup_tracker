@@ -139,23 +139,27 @@ class Setup {
 
   static Map<String, dynamic> adjustmentValuesToJson(Map<String, dynamic> adjustmentValues) {
     return adjustmentValues.map((key, value) {
-      if (value is Duration) {
-        return MapEntry(key, DurationAdjustment.toIso8601String(value));
+      switch (value) {
+        case Duration(): return MapEntry(key, value.toString());
+        default: return MapEntry(key, value);
       }
-      return MapEntry(key, value);
     });
   }
 
   static Map<String, dynamic> adjustmentValuesFromJson(Map<String, dynamic> adjustmentValues) {
     return adjustmentValues.map((key, value) {
-      //FIXME: Critical Error if TextAdjustment value equals ISO-Format
-      if (value is String) {
-        final duration = DurationAdjustment.tryParseIso8601String(value); 
-        if (duration != null) {
-          return MapEntry(key, duration);
-        }
+      switch (value) {
+        case String():
+          final Duration? duration = DurationAdjustment.tryParseDurationString(value);
+          if (duration != null) {
+            return MapEntry(key, duration);
+          } else if (value.isEmpty) {
+            return MapEntry(key, null);
+          } else {
+            return MapEntry(key, value);
+          } // TextAdjustment --> String?, DurationAdjustment --> Duration
+        default: return MapEntry(key, value);
       }
-      return MapEntry(key, value);
     });
   }
 

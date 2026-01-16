@@ -33,8 +33,8 @@ class DurationAdjustment extends Adjustment<double> {
     'type': 'duration',
     'valueType': valueType.toString(),
     'unit': unit,
-    'min': min == null ? null : toIso8601String(min!),
-    'max': max == null ? null : toIso8601String(max!),
+    'min': min?.toString(),
+    'max': max?.toString(),
   };
 
   factory DurationAdjustment.fromJson(Map<String, dynamic> json) {
@@ -46,8 +46,8 @@ class DurationAdjustment extends Adjustment<double> {
           name: json['name'],
           notes: json['notes'],
           unit: json['unit'] as String?,
-          min: DurationAdjustment.tryParseIso8601String(json["min"]),
-          max: DurationAdjustment.tryParseIso8601String(json["max"]),
+          min: DurationAdjustment.tryParseDurationString(json["min"]),
+          max: DurationAdjustment.tryParseDurationString(json["max"]),
         );
       default: throw Exception("Json Version $version of DurationAdjustment incompatible.");
     }
@@ -61,71 +61,38 @@ class DurationAdjustment extends Adjustment<double> {
     return "Range ${min == null ? '-∞' : Adjustment.formatValue(min)}..${max == null ? '∞' : Adjustment.formatValue(max)}";
   }
 
-  static String toIso8601String(Duration duration) {
-    if (duration.inMicroseconds == 0) return "PT0S";
+  static Duration? tryParseDurationString(String? durationString) {
+    if (durationString == null || durationString.isEmpty) return null;
 
-    final days = duration.inDays;
-    final hours = duration.inHours.remainder(24);
-    final minutes = duration.inMinutes.remainder(60);
-    final seconds = duration.inSeconds.remainder(60);
-    final microseconds = duration.inMicroseconds.remainder(1000000);
-
-    StringBuffer buffer = StringBuffer("P");
-    
-    // Date component: Days
-    if (days != 0) buffer.write("${days}D");
-
-    // Time components: T prefix is mandatory if H, M, or S are present
-    if (hours != 0 || minutes != 0 || seconds != 0 || microseconds != 0) {
-      buffer.write("T");
-      if (hours != 0) buffer.write("${hours}H");
-      if (minutes != 0) buffer.write("${minutes}M");
-      
-      if (seconds != 0 || microseconds != 0) {
-        if (microseconds == 0) {
-          buffer.write("${seconds}S");
-        } else {
-          // Handle decimal seconds for precision
-          double s = seconds + (microseconds / 1000000.0);
-          buffer.write("${s.toStringAsFixed(6).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '')}S");
-        }
-      }
-    }
-
-    return buffer.toString();
-  }
-
-  static Duration? tryParseIso8601String(String? isoString) {
-    if (isoString == null) return null;
-    
     try {
-      // Regex explained: 
-      // ^P start with P
-      // (?:(\d+)D)? optional Days
-      // (?:T...)? optional Time section starting with T
-      // (?:(\d+)H)? optional Hours
-      // (?:(\d+)M)? optional Minutes
-      // (?:(\d+(?:\.\d+)?)S)? optional Seconds (supports decimals)
-      final regex = RegExp(r'^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$');
+      // Regex explained:
+      // ^(-?)            Optional negative sign
+      // (\d+)            Hours (can be multiple digits)
+      // :(\d{1,2})       Minutes (1-2 digits)
+      // :(\d{1,2})       Seconds (1-2 digits)
+      // (?:\.(\d{1,6}))? Optional microseconds (up to 6 digits)
+      final regex = RegExp(r'^(-?)(\d+):(\d{1,2}):(\d{1,2})(?:\.(\d{1,6}))?$');
+
+      final match = regex.firstMatch(durationString);
+      if (match == null) return null;
+
+      final isNegative = match.group(1) == '-';
+      final hours = int.parse(match.group(2)!);
+      final minutes = int.parse(match.group(3)!);
+      final seconds = int.parse(match.group(4)!);
       
-      final match = regex.firstMatch(isoString);
-      if (match == null || isoString == "P") return null;
+      // Microseconds need padding if the string has fewer than 6 digits (e.g., .1 -> 100000)
+      final microPart = match.group(5) ?? '0';
+      final microseconds = int.parse(microPart.padRight(6, '0'));
 
-      final days = int.parse(match.group(1) ?? '0');
-      final hours = int.parse(match.group(2) ?? '0');
-      final minutes = int.parse(match.group(3) ?? '0');
-      final secondsInput = double.parse(match.group(4) ?? '0');
-
-      final seconds = secondsInput.toInt();
-      final microseconds = ((secondsInput - seconds) * 1000000).round();
-
-      return Duration(
-        days: days,
+      final duration = Duration(
         hours: hours,
         minutes: minutes,
         seconds: seconds,
         microseconds: microseconds,
       );
+
+      return isNegative ? -duration : duration;
     } catch (e) {
       return null;
     }

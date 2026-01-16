@@ -114,7 +114,12 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
                   icon: const Icon(Icons.replay)
                 ),
               ),
-              validator: (String? newValue) => null // Allow empty field
+              validator: (String? newValue) {
+                if (DurationAdjustment.tryParseDurationString(newValue) != null) {
+                  return "Pure Duration Format not allowed. Add characters or use Duration Adjustment type.";
+                }
+                return null;
+              }
             ), 
           ),
         ],

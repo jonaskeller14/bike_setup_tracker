@@ -105,7 +105,7 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
                   color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                   fontWeight: FontWeight.normal,
                 ),
-                suffixText: widget.adjustment.unit != null ? ' ${widget.adjustment.unit}' : null,
+                suffixText: widget.adjustment.unit != null ? widget.adjustment.unitSuffix() : null,
                 suffixIcon: IconButton(
                   onPressed: () {
                     _controller.text = widget.initialValue ?? '';

@@ -50,7 +50,7 @@ class DisplayNumericalAdjustmentWidget extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  Adjustment.formatValue(value) + (adjustment.unit != null ? " ${adjustment.unit}" : ""),
+                  Adjustment.formatValue(value) + adjustment.unitSuffix(),
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontFamily: 'monospace',
                     fontWeight: FontWeight.bold,
@@ -62,7 +62,7 @@ class DisplayNumericalAdjustmentWidget extends StatelessWidget {
                   Opacity(
                     opacity: 0.7,
                     child: Text(
-                      Adjustment.formatValue(initialValue) + (adjustment.unit != null ? " ${adjustment.unit}" : ""),
+                      Adjustment.formatValue(initialValue) + adjustment.unitSuffix(),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontFamily: 'monospace',
                         fontWeight: FontWeight.bold,

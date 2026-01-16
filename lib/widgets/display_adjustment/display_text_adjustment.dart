@@ -49,7 +49,7 @@ class DisplayTextAdjustmentWidget extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  Adjustment.formatValue(value) + (adjustment.unit != null ? " ${adjustment.unit}" : ""),
+                  Adjustment.formatValue(value) + adjustment.unitSuffix(),
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: highlightColor,
@@ -59,7 +59,7 @@ class DisplayTextAdjustmentWidget extends StatelessWidget {
                   Opacity(
                     opacity: 0.7,
                     child: Text(
-                      Adjustment.formatValue(initialValue) + (adjustment.unit != null ? " ${adjustment.unit}" : ""),
+                      Adjustment.formatValue(initialValue) + adjustment.unitSuffix(),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.lineThrough,

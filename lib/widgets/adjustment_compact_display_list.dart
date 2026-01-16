@@ -316,9 +316,7 @@ class _AdjustmentTableCell extends StatelessWidget {
               ),
             ),
             Text(
-              adjustment.unit == null
-                    ? Adjustment.formatValue(value)
-                    : "${Adjustment.formatValue(value)} ${adjustment.unit}",
+              Adjustment.formatValue(value) + adjustment.unitSuffix(),
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: highlightColor ?? Theme.of(context).colorScheme.onSecondary,
                 fontWeight: FontWeight.bold,
@@ -326,9 +324,7 @@ class _AdjustmentTableCell extends StatelessWidget {
             ),
             if (valueHasChanged)
               Text(
-                adjustment.unit == null
-                    ? Adjustment.formatValue(previousValue)
-                    : "${Adjustment.formatValue(previousValue)} ${adjustment.unit}",
+                Adjustment.formatValue(previousValue) + adjustment.unitSuffix(),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSecondary.withValues(alpha: 0.7),
                   decoration: TextDecoration.lineThrough,

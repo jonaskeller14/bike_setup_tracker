@@ -25,6 +25,10 @@ abstract class Adjustment<T> {
   IconData getIconData();
   String getProperties();
 
+  String unitSuffix() {
+    return unit == null ? "" : " $unit";
+  }
+
   static String formatValue(dynamic value) {
     switch (value) {
       case null: return '-';

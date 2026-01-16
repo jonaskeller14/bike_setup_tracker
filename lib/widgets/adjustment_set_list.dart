@@ -144,11 +144,13 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             adjustment: adjustment, 
             initialValue: widget.initialAdjustmentValues[adjustment.id],
             value: _adjustmentValues[adjustment.id], 
-            onChanged: (String? newValue) {
-              setState(() {
-                _adjustmentValues[adjustment.id] = (newValue is String && newValue.isEmpty) ? null : newValue;
-              });
-              widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
+            onChanged: (String newValue) {
+              setState(() => _adjustmentValues[adjustment.id] = newValue);
+              if (newValue.isNotEmpty) {        
+                widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
+              } else {
+                widget.removeFromAdjustmentValues(adjustment: adjustment);
+              }
               widget.changeListener();
             },
           );

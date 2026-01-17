@@ -547,13 +547,7 @@ class _HomePageState extends State<HomePage> {
 
     final newSetup = await Navigator.push<Setup>(
       context,
-      MaterialPageRoute(builder: (context) => SetupPage(
-        components: data.components.where((c) => !c.isDeleted), 
-        bikes: data.filteredBikes, 
-        persons: data.filteredPersons,
-        ratings: data.filteredRatings,
-        getPreviousSetupbyDateTime: getPreviousSetupbyDateTime,
-      )),
+      MaterialPageRoute(builder: (context) => SetupPage(getPreviousSetupbyDateTime: getPreviousSetupbyDateTime)),
     );
     if (newSetup == null) return;
     
@@ -568,14 +562,7 @@ class _HomePageState extends State<HomePage> {
 
     final editedSetup = await Navigator.push<Setup>(
       context,
-      MaterialPageRoute(builder: (context) => SetupPage(
-          setup: setup, 
-          components: data.components.where((c) => !c.isDeleted), 
-          bikes: data.filteredBikes, 
-          persons: data.filteredPersons, 
-          ratings: data.filteredRatings,
-          getPreviousSetupbyDateTime: getPreviousSetupbyDateTime,
-      )),
+      MaterialPageRoute(builder: (context) => SetupPage(setup: setup, getPreviousSetupbyDateTime: getPreviousSetupbyDateTime)),
     );
     if (editedSetup == null) return;
 

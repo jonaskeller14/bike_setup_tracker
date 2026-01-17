@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:provider/provider.dart';
+import '../models/app_data.dart';
 import '../models/weather.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
@@ -32,18 +33,10 @@ import '../widgets/display_adjustment/display_dangling_adjustment.dart';
 
 class SetupPage extends StatefulWidget {
   final Setup? setup;
-  final Iterable<Component> components;
-  final Map<String, Bike> bikes;
-  final Map<String, Person> persons;
-  final Map<String, Rating> ratings;
   final Setup? Function({required DateTime datetime, String? bike, String? person}) getPreviousSetupbyDateTime;
 
   const SetupPage({
     super.key,
-    required this.components,
-    required this.bikes,
-    required this.persons,
-    required this.ratings,
     this.setup,
     required this.getPreviousSetupbyDateTime,
   });
@@ -62,9 +55,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   
   Setup? _previousBikeSetup;
   Setup? _previousPersonSetup;
-  late String bike;
+  late String _bike;
+  late String _initialBike;
   late String? _person;
-  List<Component> bikeComponents = [];
+  late String? _initialPerson;
+  List<Component> _bikeComponents = [];
   late DateTime _selectedDateTime;
   late DateTime _initialDateTime;
   Map<String, dynamic> _bikeAdjustmentValues = {};
@@ -100,7 +95,12 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _currentPlace = widget.setup?.place;
     _currentWeather = widget.setup?.weather;
 
-    _onBikeChange(widget.setup?.bike ?? widget.bikes.keys.first);
+    final appData = context.read<AppData>();
+    final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
+    _initialBike = widget.setup?.bike ?? appData.filteredBikes.keys.first;
+    _initialPerson = (widget.setup?.person ?? bikes[_bike]?.person);
+
+    _onBikeChange(_initialBike);
 
     if (widget.setup == null) fetchLocationAddressWeather();
   }
@@ -158,14 +158,17 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     if (widget.setup == null) return;
     
     _danglingBikeAdjustmentValues = Map.from(_bikeAdjustmentValues);
-    for (final bikeComponent in bikeComponents) {
+    for (final bikeComponent in _bikeComponents) {
       for (final bikeComponentAdj in bikeComponent.adjustments) {
         _danglingBikeAdjustmentValues.remove(bikeComponentAdj.id);
       }
     }
 
+
+    final appData = context.read<AppData>();
+    final persons = Map.fromEntries(appData.persons.entries.where((e) => !e.value.isDeleted));
     _danglingPersonAdjustmentValues = Map.from(_personAdjustmentValues);
-    for (final personAdj in widget.persons[_person]?.adjustments ?? []) {
+    for (final personAdj in persons[_person]?.adjustments ?? []) {
       _danglingPersonAdjustmentValues.remove(personAdj.id);
     }
 
@@ -175,17 +178,20 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   void _setFilteredRatings() {
+    final appData = context.read<AppData>();
+    final ratings = Map.fromEntries(appData.ratings.entries.where((e) => !e.value.isDeleted));
+
     _filteredRatings.clear();
-    for (final rating in widget.ratings.values) {
+    for (final rating in ratings.values) {
       switch (rating.filterType) {
         case FilterType.global:
           _filteredRatings[rating.id] = rating;
         case FilterType.bike:
-          if (rating.filter == bike) _filteredRatings[rating.id] = rating;
+          if (rating.filter == _bike) _filteredRatings[rating.id] = rating;
         case FilterType.componentType:
-          if (bikeComponents.any((c) => c.componentType.toString() == rating.filter)) _filteredRatings[rating.id] = rating;
+          if (_bikeComponents.any((c) => c.componentType.toString() == rating.filter)) _filteredRatings[rating.id] = rating;
         case FilterType.component:
-          if (bikeComponents.any((c) => c.id == rating.filter)) _filteredRatings[rating.id] = rating;
+          if (_bikeComponents.any((c) => c.id == rating.filter)) _filteredRatings[rating.id] = rating;
         case FilterType.person:
           if (rating.filter == _person) _filteredRatings[rating.id] = rating;
       }
@@ -194,11 +200,14 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   void _onBikeChange (String? newBike) {
     if (newBike == null) return;
+    final appData = context.read<AppData>();
+    final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
+    final components = appData.components.where((c) => !c.isDeleted);
     setState(() {
-      bike = newBike;
-      _person = widget.bikes[bike]?.person;
-      bikeComponents = widget.components.where((c) => c.bike == bike).toList();
-      _previousBikeSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: bike);
+      _bike = newBike;
+      _person = bikes[_bike]?.person;
+      _bikeComponents = components.where((c) => c.bike == _bike).toList();
+      _previousBikeSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: _bike);
       _previousPersonSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, person: _person);
       _setInitialAdjustmentValues();
       _setAdjustmentValuesFromInitialAdjustmentValues();
@@ -304,8 +313,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         _currentWeather?.currentWindSpeed != widget.setup?.weather?.currentWindSpeed ||
         _currentWeather?.currentSoilMoisture0to7cm != widget.setup?.weather?.currentSoilMoisture0to7cm || 
         
-        bike != (widget.setup?.bike ?? widget.bikes.keys.first) || 
-        _person != (widget.setup?.person ?? widget.bikes[bike]?.person) ||
+        _bike != _initialBike || 
+        _person != _initialPerson ||
 
         //FIXME: Iterate over adjustmentValues instead initialADjustmentValues?
         filterForValidBikeAdjustmentValues(_initialBikeAdjustmentValues).keys.any((adj) => _initialBikeAdjustmentValues[adj] != _bikeAdjustmentValues[adj]) || 
@@ -363,7 +372,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     setState(() {
       _selectedDateTime = newDateTime;
-      _previousBikeSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: bike);
+      _previousBikeSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: _bike);
       _previousPersonSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, person: _person);
       _setInitialAdjustmentValues();
     });
@@ -412,7 +421,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     setState(() {
       _selectedDateTime = newDateTime;
-      _previousBikeSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: bike);
+      _previousBikeSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: _bike);
       _previousPersonSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, person: _person);
       _setInitialAdjustmentValues();
     });
@@ -496,8 +505,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   Map<String, dynamic> filterForValidBikeAdjustmentValues(Map<String, dynamic> bikeAdjustmentValues) {
     // Filter adjustmentValues to only include those relevant to the selected bike
     // Keep adjustments when editing (handle case: Component was moved to another bike and setting is edited)
+    final appData = context.read<AppData>();
+    final components = appData.components.where((c) => !c.isDeleted);
+
     Map<String, dynamic> filteredBikeAdjustmentValues = Map.from(bikeAdjustmentValues);
-    for (final component in widget.components.where((c) => c.bike != bike)) {
+    for (final component in components.where((c) => c.bike != _bike)) {
       for (final adjustment in component.adjustments) {
         if (widget.setup != null && widget.setup!.bikeAdjustmentValues.keys.contains(adjustment.id)) continue;
         filteredBikeAdjustmentValues.remove(adjustment.id);
@@ -509,8 +521,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   Map<String, dynamic> filterForValidPersonAdjustmentValues(Map<String, dynamic> personAdjustmentValues) {
     // Filter adjustmentValues to only include those relevant to the selected person
     // Keep adjustments when editing (handle case: bike was moved to another person and setting is edited)
+    final appData = context.read<AppData>();
+    final persons = Map.fromEntries(appData.persons.entries.where((e) => !e.value.isDeleted));
+
     Map<String, dynamic> filteredPersonAdjustmentValues = Map.from(personAdjustmentValues);
-    for (final person in widget.persons.values.where((p) => p.id != _person)) {
+    for (final person in persons.values.where((p) => p.id != _person)) {
       for (final adjustment in person.adjustments) {
         if (widget.setup != null && widget.setup!.personAdjustmentValues.keys.contains(adjustment.id)) continue;
         filteredPersonAdjustmentValues.remove(adjustment.id);
@@ -542,7 +557,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         name: name,
         datetime: _selectedDateTime,
         notes: notes,
-        bike: bike,
+        bike: _bike,
         person: _person,
         bikeAdjustmentValues: _bikeAdjustmentValues,
         personAdjustmentValues: _personAdjustmentValues,
@@ -611,6 +626,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final appSettings = context.read<AppSettings>();
+    final appData = context.watch<AppData>();
+    final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
+    final bikeOptions = appData.filteredBikes;
+    final persons = Map.fromEntries(appData.persons.entries.where((e) => !e.value.isDeleted));
+    final components = appData.components.where((c) => !c.isDeleted);
 
     return PopScope(
       canPop: !_formHasChanges,
@@ -893,7 +913,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                             ),
                             const SizedBox(height: 12),
                             DropdownButtonFormField<Bike>(
-                              initialValue: widget.bikes[bike],
+                              initialValue: bikes[_bike],
                               isExpanded: true,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
@@ -901,14 +921,14 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                 border: OutlineInputBorder(),
                                 hintText: "Choose a bike for this component",
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
-                                filled: widget.setup != null && bike != widget.setup?.bike,
+                                filled: widget.setup != null && _bike != widget.setup?.bike,
                               ),
                               validator: (Bike? newBike) {
                                 if (newBike == null) return "Bike cannot be empty.";
-                                if (!widget.bikes.values.contains(newBike)) return "Please select valid bike";
+                                if (!bikes.values.contains(newBike)) return "Please select valid bike";
                                 return null;
                               },
-                              items: widget.bikes.values.map((b) {
+                              items: bikeOptions.values.map((b) {
                                 return DropdownMenuItem<Bike>(
                                   value: b,
                                   child: Row(
@@ -957,7 +977,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       sliver: SliverList(
                         delegate: SliverChildListDelegate(
                           [
-                            if (bikeComponents.isEmpty)
+                            if (_bikeComponents.isEmpty)
                               SizedBox(
                                 height: 100,
                                 child: Center(
@@ -968,7 +988,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                 ),
                               )
                             else
-                              ...bikeComponents.map((bikeComponent) {
+                              ..._bikeComponents.map((bikeComponent) {
                                 return Card(
                                   margin: const EdgeInsets.symmetric(vertical: 4),
                                   child: Column(
@@ -1037,7 +1057,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                         sliver: SliverList(
                           delegate: SliverChildListDelegate(
                             [
-                              if (widget.persons[_person] == null)
+                              if (persons[_person] == null)
                                 SizedBox(
                                   height: 100,
                                   child: Center(
@@ -1055,18 +1075,18 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       ListTile(
-                                        title: Text(widget.persons[_person]!.name, style: TextStyle(fontWeight: FontWeight.bold)),
+                                        title: Text(persons[_person]!.name, style: TextStyle(fontWeight: FontWeight.bold)),
                                         subtitle: Text(Intl.plural(
-                                          widget.persons[_person]!.adjustments.length,
+                                          persons[_person]!.adjustments.length,
                                           zero: "No attributes yet.",
                                           one: "1 attribute",
-                                          other: '${widget.persons[_person]!.adjustments.length} attributes',
+                                          other: '${persons[_person]!.adjustments.length} attributes',
                                         )),
                                         leading: const Icon(Person.iconData),
                                       ),
                                       AdjustmentSetList(
                                         key: ValueKey([_person, _previousPersonSetup, _personAdjustmentValues.values]),
-                                        adjustments: widget.persons[_person]!.adjustments,
+                                        adjustments: persons[_person]!.adjustments,
                                         initialAdjustmentValues: _initialPersonAdjustmentValues,
                                         adjustmentValues: _personAdjustmentValues,
                                         onAdjustmentValueChanged: _onPersonAdjustmentValueChanged,
@@ -1148,20 +1168,20 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                               switch (rating.filterType) {
                                                 FilterType.bike => const Icon(Bike.iconData),
                                                 FilterType.person => const Icon(Person.iconData),
-                                                FilterType.component => Icon((widget.components.firstWhereOrNull((c) => c.id == rating.filter)?.componentType ?? ComponentType.other).getIconData()),
+                                                FilterType.component => Icon((components.firstWhereOrNull((c) => c.id == rating.filter)?.componentType ?? ComponentType.other).getIconData()),
                                                 FilterType.componentType => Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData()),
                                                 FilterType.global => const SizedBox.shrink(),
                                               },
                                               const SizedBox(width: 2),
                                               switch (rating.filterType) {
-                                                FilterType.bike => Text(widget.bikes[rating.filter]?.name ?? "-", overflow: TextOverflow.ellipsis),
-                                                FilterType.person => Text(widget.persons[rating.filter]?.name ?? "-", overflow: TextOverflow.ellipsis),
+                                                FilterType.bike => Text(bikes[rating.filter]?.name ?? "-", overflow: TextOverflow.ellipsis),
+                                                FilterType.person => Text(persons[rating.filter]?.name ?? "-", overflow: TextOverflow.ellipsis),
                                                 FilterType.componentType => Text(
                                                   ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter)?.value ?? "-",
                                                   overflow: TextOverflow.ellipsis,
                                                 ),
                                                 FilterType.component => Text(
-                                                  widget.components.firstWhereOrNull((c) => c.id == rating.filter)?.name ?? "-",
+                                                  components.firstWhereOrNull((c) => c.id == rating.filter)?.name ?? "-",
                                                   overflow: TextOverflow.ellipsis,
                                                 ),
                                                 FilterType.global => const SizedBox.shrink(),

@@ -354,11 +354,7 @@ class _HomePageState extends State<HomePage> {
     final newRating = await Navigator.push<Rating>(
       context,
       MaterialPageRoute(
-        builder: (context) => RatingPage(
-          bikes: Map.fromEntries(data.bikes.entries.where((entry) => !entry.value.isDeleted)),
-          components: data.components.where((c) => !c.isDeleted),
-          persons: data.filteredPersons,
-        ),
+        builder: (context) => const RatingPage(),
       ),
     );
     if (newRating == null) return;
@@ -435,12 +431,7 @@ class _HomePageState extends State<HomePage> {
     final editedRating = await Navigator.push<Rating>(
       context,
       MaterialPageRoute(
-        builder: (context) => RatingPage(
-          rating: rating, 
-          bikes: Map.fromEntries(data.bikes.entries.where((entry) => !entry.value.isDeleted)),
-          components: data.components.where((c) => !c.isDeleted),
-          persons: data.filteredPersons,
-        ),
+        builder: (context) => RatingPage(rating: rating),
       ),
     );
     if (editedRating == null) return;

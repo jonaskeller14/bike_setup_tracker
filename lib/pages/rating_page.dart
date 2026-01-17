@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/app_data.dart';
 import '../models/app_settings.dart';
 import '../models/rating.dart';
 import '../models/component.dart';
@@ -18,17 +19,8 @@ import '../widgets/sheets/rating_add_adjustment.dart';
 
 class RatingPage extends StatefulWidget {
   final Rating? rating;
-  final Iterable<Component> components;
-  final Map<String, Bike> bikes;
-  final Map<String, Person> persons;
 
-  const RatingPage({
-    super.key,
-    required this.bikes,
-    required this.components,
-    required this.persons,
-    this.rating,
-  });
+  const RatingPage({super.key, this.rating});
 
   @override
   State<RatingPage> createState() => _RatingPageState();
@@ -225,6 +217,11 @@ class _RatingPageState extends State<RatingPage> {
     Navigator.of(context).pop(null);
   }
 
+  String? _validateName(String? value) {
+    if (value == null || value.trim().isEmpty) return 'Name is required';
+    return null;
+  }
+
   Widget _buildGuideRow(IconData icon, String type, String example) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -311,6 +308,12 @@ class _RatingPageState extends State<RatingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final appData = context.watch<AppData>();
+    final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
+    final bikeOptions = appData.filteredBikes;
+    final personOptions = appData.filteredPersons;
+    final componentOptions = appData.filteredComponents;
+
     return PopScope( 
       canPop: !_formHasChanges,
       onPopInvokedWithResult: _handlePopInvoked,
@@ -341,12 +344,7 @@ class _RatingPageState extends State<RatingPage> {
                     fillColor: Colors.orange.withValues(alpha: 0.08),
                     filled: widget.rating != null && _nameController.text.trim() != widget.rating?.name,
                   ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter a rating name';
-                    }
-                    return null;
-                  },
+                  validator: _validateName,
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<FilterFilterType?>(
@@ -376,7 +374,7 @@ class _RatingPageState extends State<RatingPage> {
                         ],
                       ),
                     ),
-                    ...widget.bikes.values.map((b) => DropdownMenuItem<FilterFilterType>(
+                    ...bikeOptions.values.map((b) => DropdownMenuItem<FilterFilterType>(
                       value: FilterFilterType(b.id, FilterType.bike),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -400,7 +398,7 @@ class _RatingPageState extends State<RatingPage> {
                         ],
                       ),
                     )),
-                    ...widget.components.map((c) => DropdownMenuItem<FilterFilterType>(
+                    ...componentOptions.map((c) => DropdownMenuItem<FilterFilterType>(
                       value: FilterFilterType(c.id, FilterType.component),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -425,14 +423,14 @@ class _RatingPageState extends State<RatingPage> {
                               spacing: 8,
                               children: [
                                 const Icon(Bike.iconData),
-                                Expanded(child: Text(widget.bikes[c.bike]?.name ?? "-", overflow: TextOverflow.ellipsis)),
+                                Expanded(child: Text(bikes[c.bike]?.name ?? "-", overflow: TextOverflow.ellipsis)),
                               ],
                             ),
                           ),
                         ],
                       ),
                     )),
-                    ...widget.persons.values.map((p) => DropdownMenuItem<FilterFilterType>(
+                    ...personOptions.values.map((p) => DropdownMenuItem<FilterFilterType>(
                       value: FilterFilterType(p.id, FilterType.person),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,

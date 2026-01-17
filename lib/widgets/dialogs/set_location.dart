@@ -43,8 +43,6 @@ class _ShowSetLocationDialogState extends State<ShowSetLocationDialog> {
   @override
   void initState() {
     _controller = TextEditingController();
-    _location = widget.location;
-    _address = widget.address;
     super.initState();
   }
 

@@ -15,13 +15,15 @@ import '../widgets/display_adjustment/display_dangling_adjustment.dart';
 import '../widgets/setup_page_legend.dart';
 
 class SetupDisplayPage extends StatefulWidget{
-  final List<Setup> setups;
+  final List<String> setupIds;
   final Setup? initialSetup;
+  final Function editSetup;
 
   const SetupDisplayPage({
     super.key, 
-    required this.setups,
+    required this.setupIds,
     this.initialSetup,
+    required this.editSetup,
   });
 
   @override
@@ -35,7 +37,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
   @override
   void initState() {
     super.initState();
-    if (widget.initialSetup != null) _currentPageIndex = widget.setups.indexOf(widget.initialSetup!);
+    if (widget.initialSetup != null) _currentPageIndex = widget.setupIds.indexOf(widget.initialSetup!.id);
     _pageController = PageController(initialPage: _currentPageIndex);
   }
 
@@ -44,7 +46,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        spacing: 12,
+        spacing: 6,
         children: [
           TextButton.icon(
             onPressed: index > 0 
@@ -56,11 +58,11 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
             label: const Text("Previous"),
           ),
           Text(
-            "${index + 1} of ${widget.setups.length}",
+            "${index + 1} of ${widget.setupIds.length}",
             style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           TextButton.icon(
-            onPressed: index < widget.setups.length - 1 
+            onPressed: index < widget.setupIds.length - 1 
               ? () => _pageController.nextPage(
                   duration: const Duration(milliseconds: 300), 
                   curve: Curves.easeInOut)
@@ -77,23 +79,32 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.read<AppSettings>();
-    final appData = context.read<AppData>();
+    final appData = context.watch<AppData>();
     final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
     final persons = Map.fromEntries(appData.persons.entries.where((e) => !e.value.isDeleted));
     final ratings = Map.fromEntries(appData.ratings.entries.where((e) => !e.value.isDeleted));
     final components = Map.fromEntries(appData.components.entries.where((e) => !e.value.isDeleted));
 
+    final List<Setup?> setups = widget.setupIds.map((setupId) => appData.setups[setupId]).toList();
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: _navigationRow(_currentPageIndex),
+        actions: [
+          IconButton(
+            onPressed: () => widget.editSetup(setups[_currentPageIndex]), 
+            icon: const Icon(Icons.edit),
+          )
+        ],
       ),
       body: PageView.builder(
         controller: _pageController,
         onPageChanged: (index) => setState(() => _currentPageIndex = index),
-        itemCount: widget.setups.length,
+        itemCount: setups.length,
         itemBuilder: (context, index) {
-          final setup = widget.setups[index];
+          final Setup? setup = setups[index];
+          if (setup == null) return Expanded(child: Center(child: const Text("Setup not found.")));
           
           final Bike? bike = bikes[setup.bike];
           Iterable<Component> bikeComponents = components.values.where((c) => c.bike == setup.bike);

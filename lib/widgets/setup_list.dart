@@ -358,8 +358,9 @@ class _SetupListState extends State<SetupList> {
                     onTap: () async {
                       //FIXME: for getPreviousSetupbyDateTime we need all setups, not just the filtered ones (which are displayed in this SetupList)
                       Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDisplayPage(
-                        setups: setups,
+                        setupIds: setups.map((s) => s.id).toList(),
                         initialSetup: setup,
+                        editSetup: widget.editSetup,
                       )));
                     },
                     child: _setupCard(

@@ -31,7 +31,7 @@ Future<ImportMergeOverwriteSheetOptions?> showImportMergeOverwriteSheet(BuildCon
               ListTile(
                 leading: Icon(Icons.replay, color: Theme.of(context).colorScheme.primary),
                 title: const Text("Overwrite data"),
-                subtitle: const Text("Replace your local data with the imported data. This will permanently delete existing data and cannot be undone."),
+                subtitle: const Text("Replace your local data with the imported data. This will permanently delete all existing data and cannot be undone."),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => Navigator.pop(context, ImportMergeOverwriteSheetOptions.overwrite),
               ),

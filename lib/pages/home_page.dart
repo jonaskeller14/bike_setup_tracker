@@ -137,10 +137,12 @@ class _HomePageState extends State<HomePage> {
       SnackBar(
         persist: false,
         showCloseIcon: true,
-        content: Text(mergeOverwriteChoice == 'overwrite'
-          ? 'Data overwritten successfully'
-          : 'Data merged successfully'
-        )),
+        content: switch (mergeOverwriteChoice) {
+          ImportMergeOverwriteSheetOptions.merge => const Text("Data merged successfully"),
+          ImportMergeOverwriteSheetOptions.overwrite => const Text("Data overwritten successfully"),
+          null => const Text("ERROR"), 
+        } 
+      )
     );
   }
 

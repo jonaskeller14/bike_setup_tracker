@@ -39,6 +39,20 @@ class RatingList extends StatefulWidget {
 class _RatingListState extends State<RatingList> {
   bool _expanded = false;
 
+  Column _ratingAdjustmentsColumn(Rating rating) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: rating.adjustments.map((adjustment) {
+        return Text(
+          "● ${adjustment.name}", 
+          maxLines: 1, 
+          overflow: TextOverflow.ellipsis, 
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+        );
+      }).toList(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final visibleCount = _expanded
@@ -54,121 +68,130 @@ class _RatingListState extends State<RatingList> {
           onTap: null, //TODO
           child: Card(
             margin: const EdgeInsets.symmetric(vertical: 4.0),
-            child: ListTile(
-              dense: true,
-              leading: const Icon(Rating.iconData),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
-              ),
-              title: Text(
-                rating.name,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 2,
-                children: [
-                  Wrap(
-                    spacing: 4,
-                    crossAxisAlignment: WrapCrossAlignment.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ListTile(
+                  dense: true,
+                  leading: const Icon(Rating.iconData),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  title: Text(
+                    rating.name,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 2,
                     children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
+                      Wrap(
+                        spacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          switch(rating.filterType) {
-                            FilterType.global => Icon(Icons.circle_outlined, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            FilterType.bike => Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            FilterType.person => Icon(Person.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            FilterType.component => Icon((widget.components.firstWhereOrNull((c) => c.id == rating.filter)?.componentType ?? ComponentType.other).getIconData(), size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            FilterType.componentType => Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData(), size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                          },
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              switch(rating.filterType) {
+                                FilterType.global => Icon(Icons.circle_outlined, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                FilterType.bike => Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                FilterType.person => Icon(Person.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                FilterType.component => Icon((widget.components.firstWhereOrNull((c) => c.id == rating.filter)?.componentType ?? ComponentType.other).getIconData(), size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                FilterType.componentType => Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData(), size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              },
 
-                          const SizedBox(width: 2),
-                          
-                          switch(rating.filterType) {
-                            FilterType.global => Text(
-                              "Global",
-                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            FilterType.bike => Text(
-                              widget.bikes[rating.filter]?.name ?? "-",
-                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            FilterType.person => Text(
-                              widget.persons[rating.filter]?.name ?? "-",
-                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            FilterType.component => Text(
-                              widget.components.firstWhereOrNull((c) => c.id == rating.filter)?.name ?? "-",
-                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            FilterType.componentType => Text(
-                              ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter)?.value ?? "-",
-                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          },
+                              const SizedBox(width: 2),
+                              
+                              switch(rating.filterType) {
+                                FilterType.global => Text(
+                                  "Global",
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                FilterType.bike => Text(
+                                  widget.bikes[rating.filter]?.name ?? "-",
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                FilterType.person => Text(
+                                  widget.persons[rating.filter]?.name ?? "-",
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                FilterType.component => Text(
+                                  widget.components.firstWhereOrNull((c) => c.id == rating.filter)?.name ?? "-",
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                FilterType.componentType => Text(
+                                  ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter)?.value ?? "-",
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              },
+                            ],
+                          ),
                         ],
                       ),
                     ],
                   ),
-                ],
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ReorderableDragStartListener(
-                    index: index,
-                    child: const Icon(Icons.drag_handle),
-                  ),
-                  PopupMenuButton<String>(
-                    onSelected: (value) {
-                      switch (value) {
-                        case 'edit': widget.editRating(rating);
-                        case 'duplicate': widget.duplicateRating(rating);
-                        case 'remove': widget.removeRating(rating);
-                      }
-                    },
-                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                      const PopupMenuItem<String>(
-                        value: 'edit',
-                        child: Row(
-                          children: [
-                            Icon(Icons.edit, size: 20),
-                            SizedBox(width: 10),
-                            Text('Edit'),
-                          ],
-                        ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ReorderableDragStartListener(
+                        index: index,
+                        child: const Icon(Icons.drag_handle),
                       ),
-                      const PopupMenuItem<String>(
-                        value: 'duplicate',
-                        child: Row(
-                          children: [
-                            Icon(Icons.copy, size: 20),
-                            SizedBox(width: 10),
-                            Text('Duplicate'),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'remove',
-                        child: Row(
-                          children: [
-                            Icon(Icons.delete, size: 20),
-                            SizedBox(width: 10),
-                            Text('Remove'),
-                          ],
-                        ),
+                      PopupMenuButton<String>(
+                        onSelected: (value) {
+                          switch (value) {
+                            case 'edit': widget.editRating(rating);
+                            case 'duplicate': widget.duplicateRating(rating);
+                            case 'remove': widget.removeRating(rating);
+                          }
+                        },
+                        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                          const PopupMenuItem<String>(
+                            value: 'edit',
+                            child: Row(
+                              children: [
+                                Icon(Icons.edit, size: 20),
+                                SizedBox(width: 10),
+                                Text('Edit'),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'duplicate',
+                            child: Row(
+                              children: [
+                                Icon(Icons.copy, size: 20),
+                                SizedBox(width: 10),
+                                Text('Duplicate'),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'remove',
+                            child: Row(
+                              children: [
+                                Icon(Icons.delete, size: 20),
+                                SizedBox(width: 10),
+                                Text('Remove'),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: _ratingAdjustmentsColumn(rating),
+                ),
+              ],
             ),
           ),
         ),

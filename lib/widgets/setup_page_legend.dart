@@ -38,7 +38,7 @@ class ValueChangeLegend extends StatelessWidget {
             _buildLegendItem(
               context,
               Colors.green.withValues(alpha: 0.20),
-              'Initial value',
+              'Initial Value',
             ),
             _buildLegendItem(
               context,

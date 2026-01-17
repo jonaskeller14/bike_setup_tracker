@@ -9,6 +9,7 @@ import '../models/adjustment/adjustment.dart';
 import '../models/weather.dart';
 import '../models/app_settings.dart';
 import '../widgets/sheets/column_filter.dart';
+import '../widgets/setup_page_legend.dart';
 
 class ComponentOverviewPage extends StatefulWidget{
   final Component component;
@@ -161,7 +162,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsetsGeometry.symmetric(horizontal: 16),
+        padding: const EdgeInsetsGeometry.all(16),
         scrollDirection: Axis.vertical,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -290,6 +291,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                   ),
                 ),
               ),
+            const ValueChangeLegend(),
           ],
         ),
       ),

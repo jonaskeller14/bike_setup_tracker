@@ -384,7 +384,7 @@ class _HomePageState extends State<HomePage> {
     }
     final component = await Navigator.push<Component>(
       context,
-      MaterialPageRoute(builder: (context) => ComponentPage(bikes: data.filteredBikes)),
+      MaterialPageRoute(builder: (context) => const ComponentPage()),
     );
     if (component == null) return;
 
@@ -457,7 +457,7 @@ class _HomePageState extends State<HomePage> {
     final editedComponent = await Navigator.push<Component>(
       context,
       MaterialPageRoute(
-        builder: (context) => ComponentPage(component: component, bikes: data.filteredBikes),
+        builder: (context) => ComponentPage(component: component),
       ),
     );
     if (editedComponent == null) {

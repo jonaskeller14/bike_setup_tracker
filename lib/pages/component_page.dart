@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/app_data.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
@@ -16,9 +17,8 @@ import '../widgets/sheets/component_add_adjustment.dart';
 
 class ComponentPage extends StatefulWidget {
   final Component? component;
-  final Map<String, Bike> bikes;
 
-  const ComponentPage({super.key, this.component, required this.bikes});
+  const ComponentPage({super.key, this.component});
 
   @override
   State<ComponentPage> createState() => _ComponentPageState();
@@ -29,28 +29,33 @@ class _ComponentPageState extends State<ComponentPage> {
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
   late TextEditingController _nameController;
-  late List<Adjustment> adjustments;
+  late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
-  late String bike;
-  late ComponentType? componentType;
+  late String _bike;
+  late String _initialBike;
+  late ComponentType? _componentType;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.component?.name);
     _nameController.addListener(_changeListener);
-    adjustments = widget.component == null ? [] : List.from(widget.component!.adjustments);
-    _initialAdjustments = List.from(adjustments);
-    bike = widget.component?.bike ?? widget.bikes.keys.first;
-    componentType = widget.component?.componentType;
+    _adjustments = widget.component == null ? [] : List.from(widget.component!.adjustments);
+    _initialAdjustments = List.from(_adjustments);
+    
+    final appData = context.read<AppData>();
+    _initialBike = widget.component?.bike ?? appData.filteredBikes.keys.first;
+    _bike = _initialBike;
+
+    _componentType = widget.component?.componentType;
   }
 
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != (widget.component?.name ?? '') || 
-        bike != (widget.component?.bike ?? widget.bikes.keys.first) || 
-        componentType != widget.component?.componentType ||
-        _initialAdjustments.length != adjustments.length || 
-        adjustments.asMap().entries.any((entry) => entry.value != _initialAdjustments[entry.key]);
+        _bike != _initialBike || 
+        _componentType != widget.component?.componentType ||
+        _initialAdjustments.length != _adjustments.length || 
+        _adjustments.asMap().entries.any((entry) => entry.value != _initialAdjustments[entry.key]);
 
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -75,7 +80,7 @@ class _ComponentPageState extends State<ComponentPage> {
     if (adjustment == null) return;
 
     setState(() {
-      adjustments.add(adjustment);
+      _adjustments.add(adjustment);
     });
     
     _changeListener();
@@ -85,7 +90,7 @@ class _ComponentPageState extends State<ComponentPage> {
     final newAdjustment = await _editAdjustment(adjustment.deepCopy());
     if (newAdjustment == null) return;
     setState(() {
-      adjustments.add(newAdjustment);
+      _adjustments.add(newAdjustment);
     });
     _changeListener();
   }
@@ -139,9 +144,9 @@ class _ComponentPageState extends State<ComponentPage> {
     }
     if (editedAdjustment == null) return null;
     setState(() {
-      final index = adjustments.indexOf(adjustment);
+      final index = _adjustments.indexOf(adjustment);
       if (index != -1) {
-        adjustments[index] = editedAdjustment!;
+        _adjustments[index] = editedAdjustment!;
       }
     });
     if (widget.component != null) widget.component!.lastModified = DateTime.now();
@@ -151,21 +156,21 @@ class _ComponentPageState extends State<ComponentPage> {
   Future<void> _duplicateAdjustment(Adjustment adjustment) async {
     final newAdjustment = adjustment.deepCopy();
     setState(() {
-      adjustments.add(newAdjustment);
+      _adjustments.add(newAdjustment);
     });
     _editAdjustment(newAdjustment);
   }
 
   Future<void> removeAdjustment(Adjustment adjustment) async {
     setState(() {
-      adjustments.remove(adjustment);
+      _adjustments.remove(adjustment);
     });
     _changeListener();
   }
 
   void _saveComponent() {
     if (!_formKey.currentState!.validate()) return;
-    if (adjustments.isEmpty) {
+    if (_adjustments.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true,
@@ -184,9 +189,9 @@ class _ComponentPageState extends State<ComponentPage> {
       Component(
         id: widget.component?.id,
         name: name,
-        componentType: componentType!,
-        bike: bike,
-        adjustments: adjustments,
+        componentType: _componentType!,
+        bike: _bike,
+        adjustments: _adjustments,
       ),
     );
   }
@@ -240,8 +245,8 @@ class _ComponentPageState extends State<ComponentPage> {
     if (oldIndex < newIndex) adjustedNewIndex -= 1;
 
     setState(() {
-      final adjustment = adjustments.removeAt(oldIndex);
-      adjustments.insert(adjustedNewIndex, adjustment);
+      final adjustment = _adjustments.removeAt(oldIndex);
+      _adjustments.insert(adjustedNewIndex, adjustment);
     });
     _changeListener();
   }
@@ -292,6 +297,9 @@ class _ComponentPageState extends State<ComponentPage> {
 
   @override
   Widget build(BuildContext context) {
+    final appData = context.watch<AppData>();
+    final bikeOptions = appData.filteredBikes;
+
     return PopScope( 
       canPop: !_formHasChanges,
       onPopInvokedWithResult: _handlePopInvoked,
@@ -326,7 +334,7 @@ class _ComponentPageState extends State<ComponentPage> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<Bike>(
-                  initialValue: widget.bikes[bike],
+                  initialValue: bikeOptions[_bike],
                   isExpanded: true,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: InputDecoration(
@@ -334,14 +342,14 @@ class _ComponentPageState extends State<ComponentPage> {
                     border: OutlineInputBorder(),
                     hintText: "Choose a bike for this component",
                     fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.component != null && bike != widget.component?.bike,
+                    filled: widget.component != null && _bike != widget.component?.bike,
                   ),
                   validator: (Bike? newBike) {
                     if (newBike == null) return "Bike cannot be empty.";
-                    if (!widget.bikes.values.contains(newBike)) return "Please select valid bike";
+                    if (!bikeOptions.values.contains(newBike)) return "Please select valid bike";
                     return null;
                   },
-                  items: widget.bikes.values.map((b) {
+                  items: bikeOptions.values.map((b) {
                     return DropdownMenuItem<Bike>(
                       value: b,
                       child: Row(
@@ -358,14 +366,14 @@ class _ComponentPageState extends State<ComponentPage> {
                   onChanged: (Bike? newBike) {
                     if (newBike == null) return;
                     setState(() {
-                      bike = newBike.id;
+                      _bike = newBike.id;
                     });
                     _changeListener();
                   },
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<ComponentType>(
-                  initialValue: componentType,
+                  initialValue: _componentType,
                   isExpanded: true,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   hint: const Text("Please select type"),
@@ -374,7 +382,7 @@ class _ComponentPageState extends State<ComponentPage> {
                     border: OutlineInputBorder(),
                     hintText: "Choose a type for this component",
                     fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.component != null && componentType != widget.component?.componentType,
+                    filled: widget.component != null && _componentType != widget.component?.componentType,
                   ),
                   items: ComponentType.values.map((componentType) {
                     return DropdownMenuItem<ComponentType>(
@@ -393,7 +401,7 @@ class _ComponentPageState extends State<ComponentPage> {
                   onChanged: (ComponentType? newComponentType) {
                     if (newComponentType == null) return;
                     setState(() {
-                      componentType = newComponentType;
+                      _componentType = newComponentType;
                     });
                     _changeListener();
                   },
@@ -405,9 +413,9 @@ class _ComponentPageState extends State<ComponentPage> {
                   },
                 ),
                 const SizedBox(height: 16),
-                adjustments.isNotEmpty
+                _adjustments.isNotEmpty
                     ? AdjustmentEditList(
-                        adjustments: adjustments,
+                        adjustments: _adjustments,
                         editAdjustment: _editAdjustment,
                         duplicateAdjustment: _duplicateAdjustment,
                         removeAdjustment: removeAdjustment,
@@ -419,7 +427,7 @@ class _ComponentPageState extends State<ComponentPage> {
                   child: FilledButton.icon(
                     onPressed: () => showComponentAddAdjustmentBottomSheet(
                       context: context,
-                      componentType: componentType,
+                      componentType: _componentType,
                       enableDurationAdjustment: _enableDurationAdjustment,
                       addAdjustmentFromPreset: _addAdjustmentFromPreset,
                       addAdjustment: _addAdjustment,

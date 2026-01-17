@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../models/app_data.dart';
 import '../models/component.dart';
 import '../models/setup.dart';
 import '../models/adjustment/adjustment.dart';
@@ -11,13 +12,8 @@ import '../widgets/sheets/column_filter.dart';
 
 class ComponentOverviewPage extends StatefulWidget{
   final Component component;
-  final List<Setup> setups;
 
-  const ComponentOverviewPage({
-    super.key, 
-    required this.component, 
-    required this.setups,
-  });
+  const ComponentOverviewPage({super.key, required this.component});
 
   @override
   State<ComponentOverviewPage> createState() => _ComponentOverviewPageState();
@@ -52,7 +48,13 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
   @override
   void initState() {
     super.initState();
-    _setups = List.from(widget.setups.reversed);
+    final appData = context.read<AppData>();
+
+    _setups = List.from(appData.setups.where(
+        (s) => !s.isDeleted &&
+                widget.component.adjustments.any((adj) => s.bikeAdjustmentValues.containsKey(adj.id))
+    ).toList().reversed);
+    
     for (final adjustment in widget.component.adjustments) {
       _showColumns["Adjustments"]?[adjustment.id] = true;
     }
@@ -230,11 +232,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                       );
                     }).toList();
                   }).toList(),
-                  rows: _setups.where((setup) {
-                    return widget.component.adjustments.any(
-                      (adj) => setup.bikeAdjustmentValues.containsKey(adj.id)
-                    );
-                  }).map((setup) {
+                  rows: _setups.map((setup) {
                     return DataRow(
                       cells: _showColumns.entries.expand((sectionShowColumnsEntry) {
                         return sectionShowColumnsEntry.value.entries.where((showColumnEntry) => showColumnEntry.value).map((showColumnEntry) {

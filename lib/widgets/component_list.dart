@@ -56,7 +56,7 @@ class _ComponentListState extends State<ComponentList> {
                   await Navigator.push<Component>(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ComponentOverviewPage(component: component, setups: widget.setups.where((s) => !s.isDeleted).toList()),
+                      builder: (context) => ComponentOverviewPage(component: component),
                     ),
                   );
                 }

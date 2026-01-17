@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../models/app_data.dart';
 import '../models/app_settings.dart';
 import '../models/setup.dart';
 import '../models/person.dart';
@@ -15,20 +16,12 @@ import '../widgets/setup_page_legend.dart';
 
 class SetupDisplayPage extends StatefulWidget{
   final List<Setup> setups;
-  final Setup initialSetup;
-  final Map<String, Bike> bikes;
-  final Map<String, Person> persons;
-  final List<Component> components;
-  final Map<String, Rating> ratings;
+  final Setup? initialSetup;
 
   const SetupDisplayPage({
     super.key, 
     required this.setups,
-    required this.initialSetup,
-    required this.bikes,
-    required this.persons,
-    required this.components,
-    required this.ratings,
+    this.initialSetup,
   });
 
   @override
@@ -37,12 +30,12 @@ class SetupDisplayPage extends StatefulWidget{
 
 class _SetupDisplayPageState extends State<SetupDisplayPage> {
   late PageController _pageController;
-  late int _currentPageIndex;
+  int _currentPageIndex = 0;
   
   @override
   void initState() {
     super.initState();
-    _currentPageIndex = widget.setups.indexOf(widget.initialSetup);
+    if (widget.initialSetup != null) _currentPageIndex = widget.setups.indexOf(widget.initialSetup!);
     _pageController = PageController(initialPage: _currentPageIndex);
   }
 
@@ -84,6 +77,11 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.read<AppSettings>();
+    final appData = context.read<AppData>();
+    final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
+    final persons = Map.fromEntries(appData.persons.entries.where((e) => !e.value.isDeleted));
+    final ratings = Map.fromEntries(appData.ratings.entries.where((e) => !e.value.isDeleted));
+    final Iterable<Component> components = appData.components.where((c) => !c.isDeleted);
 
     return Scaffold(
       appBar: AppBar(
@@ -97,9 +95,9 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
         itemBuilder: (context, index) {
           final setup = widget.setups[index];
           
-          final Bike? bike = widget.bikes[setup.bike];
-          Iterable<Component> bikeComponents = widget.components.where((c) => c.bike == setup.bike);
-          final Person? person = widget.persons[setup.person];
+          final Bike? bike = bikes[setup.bike];
+          Iterable<Component> bikeComponents = components.where((c) => c.bike == setup.bike);
+          final Person? person = persons[setup.person];
 
           final danglingBikeAdjustmentValues = Map.from(setup.bikeAdjustmentValues);
           for (final bikeComponent in bikeComponents) {
@@ -114,7 +112,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
           }
 
           final filteredRatings = <String, Rating>{};
-          for (final rating in widget.ratings.values) {
+          for (final rating in ratings.values) {
             switch (rating.filterType) {
               case FilterType.global:
                 filteredRatings[rating.id] = rating;
@@ -397,35 +395,27 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                                           other: '${rating.adjustments.length} adjustments',
                                         )),
                                         Spacer(),
-                                        if (rating.filterType == FilterType.bike)
-                                          Icon(Bike.iconData),
-                                        if (rating.filterType == FilterType.person)
-                                          Icon(Person.iconData),
-                                        if (rating.filterType == FilterType.componentType)
-                                          Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData()),
-                                        if (rating.filterType == FilterType.component)
-                                          Icon((widget.components.firstWhereOrNull((c) => c.id == rating.filter)?.componentType ?? ComponentType.other).getIconData()),
+                                        switch (rating.filterType) {
+                                          FilterType.bike => const Icon(Bike.iconData),
+                                          FilterType.person => const Icon(Person.iconData),
+                                          FilterType.component => Icon((components.firstWhereOrNull((c) => c.id == rating.filter)?.componentType ?? ComponentType.other).getIconData()),
+                                          FilterType.componentType => Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData()),
+                                          FilterType.global => const SizedBox.shrink(),
+                                        },
                                         const SizedBox(width: 2),
-                                        if (rating.filterType == FilterType.bike)
-                                          Text(
-                                            widget.bikes[rating.filter]?.name ?? "-",
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        if (rating.filterType == FilterType.person)
-                                          Text(
-                                            widget.persons[rating.filter]?.name ?? "-",
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        if (rating.filterType == FilterType.componentType)
-                                          Text(
+                                        switch (rating.filterType) {
+                                          FilterType.bike => Text(bikes[rating.filter]?.name ?? "-", overflow: TextOverflow.ellipsis),
+                                          FilterType.person => Text(persons[rating.filter]?.name ?? "-", overflow: TextOverflow.ellipsis),
+                                          FilterType.componentType => Text(
                                             ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter)?.value ?? "-",
                                             overflow: TextOverflow.ellipsis,
                                           ),
-                                        if (rating.filterType == FilterType.component)
-                                          Text(
-                                            widget.components.firstWhereOrNull((c) => c.id == rating.filter)?.name ?? "-",
+                                          FilterType.component => Text(
+                                            components.firstWhereOrNull((c) => c.id == rating.filter)?.name ?? "-",
                                             overflow: TextOverflow.ellipsis,
                                           ),
+                                          FilterType.global => const SizedBox.shrink(),
+                                        },
                                       ],
                                     ),
                                     leading: const Icon(Rating.iconData),

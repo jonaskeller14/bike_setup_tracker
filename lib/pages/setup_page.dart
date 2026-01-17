@@ -1145,35 +1145,27 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                                 other: '${rating.adjustments.length} adjustments',
                                               )),
                                               Spacer(),
-                                              if (rating.filterType == FilterType.bike)
-                                                Icon(Bike.iconData),
-                                              if (rating.filterType == FilterType.person)
-                                                Icon(Person.iconData),
-                                              if (rating.filterType == FilterType.componentType)
-                                                Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData()),
-                                              if (rating.filterType == FilterType.component)
-                                                Icon((widget.components.firstWhereOrNull((c) => c.id == rating.filter)?.componentType ?? ComponentType.other).getIconData()),
+                                              switch (rating.filterType) {
+                                                FilterType.bike => const Icon(Bike.iconData),
+                                                FilterType.person => const Icon(Person.iconData),
+                                                FilterType.component => Icon((widget.components.firstWhereOrNull((c) => c.id == rating.filter)?.componentType ?? ComponentType.other).getIconData()),
+                                                FilterType.componentType => Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData()),
+                                                FilterType.global => const SizedBox.shrink(),
+                                              },
                                               const SizedBox(width: 2),
-                                              if (rating.filterType == FilterType.bike)
-                                                Text(
-                                                  widget.bikes[rating.filter]?.name ?? "-",
-                                                  overflow: TextOverflow.ellipsis,
-                                                ),
-                                              if (rating.filterType == FilterType.person)
-                                                Text(
-                                                  widget.persons[rating.filter]?.name ?? "-",
-                                                  overflow: TextOverflow.ellipsis,
-                                                ),
-                                              if (rating.filterType == FilterType.componentType)
-                                                Text(
+                                              switch (rating.filterType) {
+                                                FilterType.bike => Text(widget.bikes[rating.filter]?.name ?? "-", overflow: TextOverflow.ellipsis),
+                                                FilterType.person => Text(widget.persons[rating.filter]?.name ?? "-", overflow: TextOverflow.ellipsis),
+                                                FilterType.componentType => Text(
                                                   ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter)?.value ?? "-",
                                                   overflow: TextOverflow.ellipsis,
                                                 ),
-                                              if (rating.filterType == FilterType.component)
-                                                Text(
+                                                FilterType.component => Text(
                                                   widget.components.firstWhereOrNull((c) => c.id == rating.filter)?.name ?? "-",
                                                   overflow: TextOverflow.ellipsis,
                                                 ),
+                                                FilterType.global => const SizedBox.shrink(),
+                                              },
                                             ],
                                           ),
                                           leading: const Icon(Rating.iconData),

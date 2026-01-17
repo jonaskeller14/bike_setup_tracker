@@ -358,10 +358,6 @@ class _SetupListState extends State<SetupList> {
                       Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDisplayPage(
                         setups: widget.setups,
                         initialSetup: setup,
-                        bikes: widget.bikes,
-                        persons: widget.persons,
-                        components: widget.components,
-                        ratings: widget.ratings,
                       )));
                     },
                     child: _setupCard(

@@ -48,7 +48,7 @@ class _ComponentPageState extends State<ComponentPage> {
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != (widget.component?.name ?? '') || 
         bike != (widget.component?.bike ?? widget.bikes.keys.first) || 
-        componentType != widget.component?.componentType;
+        componentType != widget.component?.componentType ||
         _initialAdjustments.length != adjustments.length || 
         adjustments.asMap().entries.any((entry) => entry.value != _initialAdjustments[entry.key]);
 

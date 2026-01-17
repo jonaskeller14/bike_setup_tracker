@@ -27,7 +27,7 @@ import '../widgets/dialogs/set_dayAccumulated_precipitation.dart';
 import '../widgets/dialogs/set_location.dart';
 import '../widgets/dialogs/set_altitude.dart';
 import '../widgets/dialogs/discard_changes.dart';
-import '../widgets/dialogs/update_location_address_weather.dart';
+import '../widgets/sheets/update_location_address_weather.dart';
 import '../widgets/setup_page_legend.dart';
 import '../widgets/display_adjustment/display_dangling_adjustment.dart';
 
@@ -891,18 +891,25 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                   label: const Text(""),
                                   labelPadding: EdgeInsets.zero,
                                   onPressed: _locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching || _weatherService.status == WeatherStatus.searching ? null : () async {
-                                    final result = await showUpdateLocationAddressWeatherDialog(context);
+                                    final UpdateLocationAddressWeatherOptions? result = await showUpdateLocationAddressWeatherSheet(
+                                      context, 
+                                      buttonsEnabled: {
+                                        UpdateLocationAddressWeatherOptions.locationByGPS: true,
+                                        UpdateLocationAddressWeatherOptions.addressByLocation: _currentLocation != null,
+                                        UpdateLocationAddressWeatherOptions.updateWeather: _currentLocation != null,
+                                      },
+                                    );
                                     switch (result) {
-                                      case 0: {
+                                      case UpdateLocationAddressWeatherOptions.locationByGPS: {
                                         await updateLocation();
                                         if (_currentLocation != null) {
                                           await updateAddress(); 
                                           askAndUpdateWeather();
                                         }
                                       }
-                                      case 1: updateAddress();
-                                      case 2: updateWeather();
-                                      default: return; 
+                                      case UpdateLocationAddressWeatherOptions.addressByLocation: updateAddress();
+                                      case UpdateLocationAddressWeatherOptions.updateWeather: updateWeather();
+                                      case null: return; 
                                     }
                                   }, 
                                 ),

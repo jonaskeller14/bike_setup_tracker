@@ -520,6 +520,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   void _saveSetup() {
+    if (_nameController.text.trim().isEmpty) _nameController.text = "Unnamed Setup";
+
     if (!_formKey.currentState!.validate()) return;
     final name = _nameController.text.trim();
 

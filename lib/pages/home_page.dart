@@ -322,7 +322,7 @@ class _HomePageState extends State<HomePage> {
 
     final bike = await Navigator.push<Bike>(
       context,
-      MaterialPageRoute(builder: (context) => BikePage(persons: data.filteredPersons)),
+      MaterialPageRoute(builder: (context) => const BikePage()),
     );
     if (bike == null) return;
 
@@ -401,7 +401,7 @@ class _HomePageState extends State<HomePage> {
     final editedBike = await Navigator.push<Bike>(
       context,
       MaterialPageRoute(
-        builder: (context) => BikePage(bike: bike, persons: data.filteredPersons),
+        builder: (context) => BikePage(bike: bike),
       ),
     );
     if (editedBike == null) return;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/app_data.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/person.dart';
@@ -7,9 +8,8 @@ import '../widgets/dialogs/discard_changes.dart';
 
 class BikePage extends StatefulWidget {
   final Bike? bike;
-  final Map<String, Person> persons;
 
-  const BikePage({super.key, required this.persons, this.bike});
+  const BikePage({super.key, this.bike});
 
   @override
   State<BikePage> createState() => _BikePageState();
@@ -20,7 +20,7 @@ class _BikePageState extends State<BikePage> {
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
 
-  String? person;
+  String? _person;
 
   @override
   void initState() {
@@ -28,12 +28,12 @@ class _BikePageState extends State<BikePage> {
     _nameController = TextEditingController(text: widget.bike?.name);
     _nameController.addListener(_changeListener);
     
-    person = widget.bike?.person;
+    _person = widget.bike?.person;
   }
 
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != (widget.bike?.name ?? '') || 
-        person != widget.bike?.person;
+        _person != widget.bike?.person;
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -53,10 +53,10 @@ class _BikePageState extends State<BikePage> {
     final name = _nameController.text.trim();
     _formHasChanges = false;
     if (widget.bike == null) {
-      Navigator.pop(context, Bike(name: name, person: person));
+      Navigator.pop(context, Bike(name: name, person: _person));
     } else {
       widget.bike!.name = name;
-      widget.bike!.person = person;
+      widget.bike!.person = _person;
       widget.bike!.lastModified = DateTime.now();
       Navigator.pop(context, widget.bike);
     }
@@ -73,6 +73,8 @@ class _BikePageState extends State<BikePage> {
 
   @override
   Widget build(BuildContext context) {
+    final appData = context.watch<AppData>();
+
     return PopScope( 
       canPop: !_formHasChanges,
       onPopInvokedWithResult: _handlePopInvoked,
@@ -115,7 +117,7 @@ class _BikePageState extends State<BikePage> {
                 if (context.read<AppSettings>().enablePerson) ...[
                   const SizedBox(height: 12),
                   DropdownButtonFormField<Person>(
-                    initialValue: widget.persons[person],
+                    initialValue: appData.filteredPersons[_person],
                     isExpanded: true,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     decoration: InputDecoration(
@@ -123,14 +125,14 @@ class _BikePageState extends State<BikePage> {
                       border: OutlineInputBorder(),
                       hintText: "Choose an owner for this bike",
                       fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.bike != null && person != widget.bike?.person,
+                      filled: widget.bike != null && _person != widget.bike?.person,
                     ),
                     validator: (Person? newPerson) {
                       if (newPerson == null) return null;
-                      if (!widget.persons.values.contains(newPerson)) return "Please select valid bike";
+                      if (!appData.filteredPersons.values.contains(newPerson)) return "Please select valid bike";
                       return null;
                     },
-                    items: widget.persons.values.map((p) {
+                    items: appData.filteredPersons.values.map((p) {
                       return DropdownMenuItem<Person>(
                         value: p,
                         child: Row(
@@ -147,7 +149,7 @@ class _BikePageState extends State<BikePage> {
                     onChanged: (Person? newPerson) {
                       if (newPerson == null) return;
                       setState(() {
-                        person = newPerson.id;
+                        _person = newPerson.id;
                       });
                       _changeListener();
                     },

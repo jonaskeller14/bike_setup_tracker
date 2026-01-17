@@ -37,6 +37,8 @@ class _TrashPageState extends State<TrashPage> {
 
     final data = context.read<AppData>();
 
+    final lastModified = deletedItem.lastModified as DateTime;
+
     return ListTile(
       leading: switch(deletedItem) {
         Bike() => const Icon(Bike.iconData),
@@ -47,7 +49,7 @@ class _TrashPageState extends State<TrashPage> {
         _ => null,
       },
       title: Text(deletedItem.name, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text("Deleted at: ${dateFormat.format(deletedItem.lastModified)} ${timeFormat.format(deletedItem.lastModified)}"),
+      subtitle: Text("Deleted at: ${dateFormat.format(lastModified.toLocal())} ${timeFormat.format(lastModified.toLocal())}"),
       trailing: IconButton(
         icon: Icon(Icons.restore_from_trash),
         onPressed: () {

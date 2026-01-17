@@ -28,7 +28,7 @@ class BackupPage extends StatelessWidget {
         GoogleDriveBackup() => const Text("Google Drive Backup"),
         _ => const Text("Backup"),
       },
-      subtitle: Text("Created at: ${dateFormat.format(backup.createdAt)} ${timeFormat.format(backup.createdAt)}"),
+      subtitle: Text("Created at: ${dateFormat.format(backup.createdAt.toLocal())} ${timeFormat.format(backup.createdAt.toLocal())}"),
       trailing: IconButton(
         onPressed: () => Navigator.pop(context, backup),
         icon: const Icon(Icons.upload),

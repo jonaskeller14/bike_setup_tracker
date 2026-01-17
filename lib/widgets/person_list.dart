@@ -11,7 +11,7 @@ const defaultVisibleCount = 3;
 class PersonList extends StatefulWidget {
   final Map<String, Bike> bikes;
   final Map<String, Person> persons;
-  final Iterable<Setup> setups;
+  final Map<String, Setup> setups;
   final void Function(Person person) editPerson;
   final void Function(Person person) duplicatePerson;
   final void Function(Person person) removePerson;
@@ -86,7 +86,7 @@ class _PersonListState extends State<PersonList> {
                     person.name,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  enabled: widget.setups.lastWhereOrNull((s) => s.person == person.id) != null,
+                  enabled: widget.setups.values.lastWhereOrNull((s) => s.person == person.id) != null,
                   subtitle: _bikeColumn(person),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -143,7 +143,7 @@ class _PersonListState extends State<PersonList> {
                   padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
                   child: AdjustmentCompactDisplayList(
                     components: [person],
-                    adjustmentValues: widget.setups.lastWhereOrNull((s) => s.person == person.id)?.personAdjustmentValues ?? {},
+                    adjustmentValues: widget.setups.values.lastWhereOrNull((s) => s.person == person.id)?.personAdjustmentValues ?? {},
                     showComponentIcons: false,
                     missingValuesPlaceholder: true,
                     displayBikeAdjustmentValues: false,

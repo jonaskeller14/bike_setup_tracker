@@ -185,8 +185,8 @@ class _HomePageState extends State<HomePage> {
     final confirmed = await showConfirmationDialog(context, content: "All components and setups which belong to this bike will be deleted as well.");
     if (!confirmed) return;
 
-    final obsoleteComponents = data.components.where((c) => c.bike == bike.id);
-    final obsoleteSetups = data.setups.where((s) => s.bike == bike.id);
+    final obsoleteComponents = data.components.values.where((c) => c.bike == bike.id);
+    final obsoleteSetups = data.setups.values.where((s) => s.bike == bike.id);
 
     data.removeBike(bike);
 
@@ -456,7 +456,7 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    data.editComponent(oldComponent: component, newComponent: editedComponent);
+    data.editComponent(editedComponent);
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
@@ -534,7 +534,7 @@ class _HomePageState extends State<HomePage> {
       ));
       return;
     }
-    if (data.components.where((c) => !c.isDeleted).isEmpty) {
+    if (data.components.values.where((c) => !c.isDeleted).isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true, 
@@ -566,7 +566,7 @@ class _HomePageState extends State<HomePage> {
     );
     if (editedSetup == null) return;
 
-    data.editSetup(oldSetup: setup, newSetup: editedSetup);
+    data.editSetup(editedSetup);
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
@@ -594,7 +594,7 @@ class _HomePageState extends State<HomePage> {
   Setup? getPreviousSetupbyDateTime({required DateTime datetime, String? bike, String? person}) {
     final data = context.read<AppData>();
 
-    return data.setups.lastWhereOrNull((s) => !s.isDeleted && s.datetime.isBefore(datetime) && (bike == null || s.bike == bike) && (person == null || s.person == person));
+    return data.setups.values.lastWhereOrNull((s) => !s.isDeleted && s.datetime.isBefore(datetime) && (bike == null || s.bike == bike) && (person == null || s.person == person));
   }
 
   FilterChip _bikeFilterWidget() {
@@ -896,7 +896,7 @@ class _HomePageState extends State<HomePage> {
           PersonList(
             bikes: Map.fromEntries(data.bikes.entries.where((entry) => !entry.value.isDeleted)),
             persons: data.filteredPersons,
-            setups: data.setups.where((s) => !s.isDeleted),
+            setups: Map.fromEntries(data.setups.entries.where((s) => !s.value.isDeleted)),
             editPerson: _editPerson,
             duplicatePerson: _duplicatePerson,
             removePerson: _removePerson,
@@ -907,7 +907,7 @@ class _HomePageState extends State<HomePage> {
           RatingList(
             persons: data.filteredPersons,
             bikes: data.filteredBikes,
-            components: data.components.where((c) => !c.isDeleted),
+            components: Map.fromEntries(data.components.entries.where((entry) => !entry.value.isDeleted)),
             ratings: data.filteredRatings,
             editRating: _editRating,
             duplicateRating: _duplicateRating,

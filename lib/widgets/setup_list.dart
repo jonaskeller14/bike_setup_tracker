@@ -17,8 +17,8 @@ class SetupList extends StatefulWidget {
   final Map<String, Person> persons;
   final Map<String, Rating> ratings;
   final Map<String, Bike> bikes;
-  final List<Setup> setups;
-  final List<Component> components;
+  final Map<String, Setup> setups;
+  final Map<String, Component> components;
   final void Function(Setup setup) editSetup;
   final void Function(Setup setup) restoreSetup;
   final void Function(Setup setup) removeSetup;
@@ -295,7 +295,7 @@ class _SetupListState extends State<SetupList> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
                 child: AdjustmentCompactDisplayList(
-                  components: [for (var c in widget.components) c, for (var p in widget.persons.values.toList()) p, for (var r in widget.ratings.values.toList()) r],
+                  components: [for (var c in widget.components.values) c, for (var p in widget.persons.values) p, for (var r in widget.ratings.values) r],
                   adjustmentValues: {for (var e in setup.personAdjustmentValues.entries) e.key: e.value, for (var e in setup.bikeAdjustmentValues.entries) e.key: e.value, for (var e in setup.ratingAdjustmentValues.entries) e.key: e.value},
                   previousAdjustmentValues: {for (var e in (setup.previousBikeSetup?.bikeAdjustmentValues.entries ?? {}.entries)) e.key: e.value, for (var e in (setup.previousPersonSetup?.personAdjustmentValues.entries ?? {}.entries)) e.key: e.value},
                   showComponentIcons: true,
@@ -321,6 +321,8 @@ class _SetupListState extends State<SetupList> {
     final visibleCount = _expanded
         ? widget.setups.length
         : widget.setups.length.clamp(0, defaultVisibleCount);
+    
+    final setups = widget.setups.values.toList();
 
     return widget.setups.isEmpty
         ? Padding(
@@ -350,13 +352,13 @@ class _SetupListState extends State<SetupList> {
                 itemCount: visibleCount,
                 itemBuilder: (context, index) {
                   final setup = widget.accending 
-                      ? widget.setups[index] 
-                      : widget.setups[widget.setups.length - 1 - index];
+                      ? setups[index] 
+                      : setups[widget.setups.length - 1 - index];
                   return InkWell(
                     onTap: () async {
                       //FIXME: for getPreviousSetupbyDateTime we need all setups, not just the filtered ones (which are displayed in this SetupList)
                       Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDisplayPage(
-                        setups: widget.setups,
+                        setups: setups,
                         initialSetup: setup,
                       )));
                     },

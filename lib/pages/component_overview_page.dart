@@ -51,7 +51,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
     super.initState();
     final appData = context.read<AppData>();
 
-    _setups = List.from(appData.setups.where(
+    _setups = List.from(appData.setups.values.where(
         (s) => !s.isDeleted &&
                 widget.component.adjustments.any((adj) => s.bikeAdjustmentValues.containsKey(adj.id))
     ).toList().reversed);

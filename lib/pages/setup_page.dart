@@ -59,7 +59,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   late String _initialBike;
   late String? _person;
   late String? _initialPerson;
-  List<Component> _bikeComponents = [];
+  Iterable<Component> _bikeComponents = [];
   late DateTime _selectedDateTime;
   late DateTime _initialDateTime;
   Map<String, dynamic> _bikeAdjustmentValues = {};
@@ -202,11 +202,12 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     if (newBike == null) return;
     final appData = context.read<AppData>();
     final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
-    final components = appData.components.where((c) => !c.isDeleted);
+    final components = Map.fromEntries(appData.components.entries.where((e) => !e.value.isDeleted));
+
     setState(() {
       _bike = newBike;
       _person = bikes[_bike]?.person;
-      _bikeComponents = components.where((c) => c.bike == _bike).toList();
+      _bikeComponents = components.values.where((c) => c.bike == _bike).toList();
       _previousBikeSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: _bike);
       _previousPersonSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, person: _person);
       _setInitialAdjustmentValues();
@@ -506,10 +507,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     // Filter adjustmentValues to only include those relevant to the selected bike
     // Keep adjustments when editing (handle case: Component was moved to another bike and setting is edited)
     final appData = context.read<AppData>();
-    final components = appData.components.where((c) => !c.isDeleted);
+    final components = Map.fromEntries(appData.components.entries.where((e) => !e.value.isDeleted));
 
     Map<String, dynamic> filteredBikeAdjustmentValues = Map.from(bikeAdjustmentValues);
-    for (final component in components.where((c) => c.bike != _bike)) {
+    for (final component in components.values.where((c) => c.bike != _bike)) {
       for (final adjustment in component.adjustments) {
         if (widget.setup != null && widget.setup!.bikeAdjustmentValues.keys.contains(adjustment.id)) continue;
         filteredBikeAdjustmentValues.remove(adjustment.id);
@@ -630,7 +631,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
     final bikeOptions = appData.filteredBikes;
     final persons = Map.fromEntries(appData.persons.entries.where((e) => !e.value.isDeleted));
-    final components = appData.components.where((c) => !c.isDeleted);
+    final components = Map.fromEntries(appData.components.entries.where((e) => !e.value.isDeleted));
 
     return PopScope(
       canPop: !_formHasChanges,
@@ -1168,7 +1169,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                               switch (rating.filterType) {
                                                 FilterType.bike => const Icon(Bike.iconData),
                                                 FilterType.person => const Icon(Person.iconData),
-                                                FilterType.component => Icon((components.firstWhereOrNull((c) => c.id == rating.filter)?.componentType ?? ComponentType.other).getIconData()),
+                                                FilterType.component => Icon((components[rating.filter]?.componentType ?? ComponentType.other).getIconData()),
                                                 FilterType.componentType => Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData()),
                                                 FilterType.global => const SizedBox.shrink(),
                                               },
@@ -1181,7 +1182,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                                   overflow: TextOverflow.ellipsis,
                                                 ),
                                                 FilterType.component => Text(
-                                                  components.firstWhereOrNull((c) => c.id == rating.filter)?.name ?? "-",
+                                                  components[rating.filter]?.name ?? "-",
                                                   overflow: TextOverflow.ellipsis,
                                                 ),
                                                 FilterType.global => const SizedBox.shrink(),

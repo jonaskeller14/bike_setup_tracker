@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -166,8 +165,11 @@ class FileImport {
       ..addAll(remoteData.bikes);
     localData.setups
       ..clear()
-      ..addAll(remoteData.setups)
-      ..sort((a, b) => a.datetime.compareTo(b.datetime));
+      ..addAll(remoteData.setups);
+    final sortedSetupEntries = localData.setups.entries.toList();
+    sortedSetupEntries.sort((a, b) => a.value.datetime.compareTo(b.value.datetime));
+    localData.setups.clear();
+    localData.setups.addEntries(sortedSetupEntries);
     localData.components
       ..clear()
       ..addAll(remoteData.components);
@@ -250,18 +252,17 @@ class FileImport {
       // continue;
     }
 
-    for (final remoteSetup in remoteData.setups) {
-      final localSetup = localData.setups.firstWhereOrNull((setup) => setup.id == remoteSetup.id);
+    for (final remoteSetup in remoteData.setups.values) {
+      final localSetup = localData.setups[remoteSetup.id];
 
       if (localSetup == null) {
-        if (!remoteSetup.isDeleted) localData.setups.add(remoteSetup);
+        if (!remoteSetup.isDeleted) localData.setups[remoteSetup.id] = remoteSetup;
         continue;
       }
 
       final bool remoteIsNewer = remoteSetup.lastModified.isAfter(localSetup.lastModified);
       if (remoteIsNewer) {
-        final int index = localData.setups.indexOf(localSetup);
-        localData.setups[index] = remoteSetup;
+        localData.setups[remoteSetup.id] = remoteSetup;
         continue;
       }
 
@@ -272,18 +273,17 @@ class FileImport {
       // continue;
     }
 
-    for (final remoteComponent in remoteData.components) {
-      final localComponent = localData.components.firstWhereOrNull((component) => component.id == remoteComponent.id);
+    for (final remoteComponent in remoteData.components.values) {
+      final localComponent = localData.components[remoteComponent.id];
 
       if (localComponent == null) {
-        if (!remoteComponent.isDeleted) localData.components.add(remoteComponent);
+        if (!remoteComponent.isDeleted) localData.components[remoteComponent.id] = remoteComponent;
         continue;
       }
 
       final bool remoteIsNewer = remoteComponent.lastModified.isAfter(localComponent.lastModified);
       if (remoteIsNewer) {
-        final int index = localData.components.indexOf(localComponent);
-        localData.components[index] = remoteComponent;
+        localData.components[remoteComponent.id] = remoteComponent;
         continue;
       }
 
@@ -294,11 +294,14 @@ class FileImport {
       // continue;
     }
     cleanupIsDeleted(data: localData);
-    localData.setups.sort((a, b) => a.datetime.compareTo(b.datetime));
-    determineCurrentSetups(setups: localData.setups, bikes: localData.bikes);
-    determinePreviousSetups(setups: localData.setups);
-    for (final remoteSetup in remoteData.setups) {
-      FileImport.updateSetupsAfter(setups: localData.setups, setup: remoteSetup);
+    final sortedSetupEntries = localData.setups.entries.toList();
+    sortedSetupEntries.sort((a, b) => a.value.datetime.compareTo(b.value.datetime));
+    localData.setups.clear();
+    localData.setups.addEntries(sortedSetupEntries);
+    determineCurrentSetups(setups: localData.setups.values.toList(), bikes: localData.bikes);
+    determinePreviousSetups(setups: localData.setups.values);
+    for (final remoteSetup in remoteData.setups.values) {
+      FileImport.updateSetupsAfter(setups: localData.setups.values.toList(), setup: remoteSetup);
     }
     localData.onBikeTap(null); // handle case where selected bike was overwritten, filter()
   }
@@ -308,7 +311,7 @@ class FileImport {
     for (final setup in setups) {
       setup.isCurrent = false;
     }
-    final remainingBikes = Set.of(bikes.values.where((b) => !b.isDeleted).map((b) => b.id));
+    final Set<String> remainingBikes = Set.of(bikes.values.where((b) => !b.isDeleted).map((b) => b.id));
     for (final setup in setups.reversed.where((s) => !s.isDeleted)) {
       final bike = setup.bike;
       if (remainingBikes.contains(bike)) {
@@ -319,7 +322,7 @@ class FileImport {
     }
   }
 
-  static void determinePreviousSetups({required List<Setup> setups}) {
+  static void determinePreviousSetups({required Iterable<Setup> setups}) {
     // Assumes setups is sorted
     Map<String, Setup> previousBikeSetups = {};
     Map<String, Setup> previousPersonSetups = {};
@@ -390,12 +393,12 @@ class FileImport {
       if (bike.isDeleted && bike.lastModified.isBefore(deleteDateTime)) data.bikes.remove(bike.id);
     }
 
-    for (final Component component in List.from(data.components)) {
-      if ((component.isDeleted && component.lastModified.isBefore(deleteDateTime))) data.components.remove(component);
+    for (final Component component in List.from(data.components.values)) {
+      if ((component.isDeleted && component.lastModified.isBefore(deleteDateTime))) data.components.remove(component.id);
     }
 
-    for (final Setup setup in List.from(data.setups)) {
-      if ((setup.isDeleted && setup.lastModified.isBefore(deleteDateTime))) data.setups.remove(setup);
+    for (final Setup setup in List.from(data.setups.values)) {
+      if ((setup.isDeleted && setup.lastModified.isBefore(deleteDateTime))) data.setups.remove(setup.id);
     }
   }
 }

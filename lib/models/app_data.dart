@@ -11,8 +11,8 @@ import '../utils/file_import.dart';
 class AppData extends ChangeNotifier {
   final Map<String, Person> _persons = {};
   final Map<String, Bike> _bikes = {};
-  final List<Setup> _setups = [];
-  final List<Component> _components = [];
+  final Map<String, Setup> _setups = {};
+  final Map<String, Component> _components = {};
   final Map<String, Rating> _ratings = {};
 
   Bike? _selectedBike;
@@ -20,13 +20,13 @@ class AppData extends ChangeNotifier {
   Map<String, Bike> _filteredBikes = {};
   Map<String, Person> _filteredPersons = {};
   Map<String, Rating> _filteredRatings = {};
-  List<Component> _filteredComponents = [];
-  List<Setup> _filteredSetups = [];
+  Map<String, Component> _filteredComponents = {};
+  Map<String, Setup> _filteredSetups = {};
 
   Map<String, Person> get persons => _persons;
   Map<String, Bike> get bikes => _bikes;
-  List<Setup> get setups => _setups;
-  List<Component> get components => _components;
+  Map<String, Setup> get setups => _setups;
+  Map<String, Component> get components => _components;
   Map<String, Rating> get ratings => _ratings;
 
   Bike? get selectedBike => _selectedBike;
@@ -34,8 +34,8 @@ class AppData extends ChangeNotifier {
   Map<String, Bike> get filteredBikes => _filteredBikes;
   Map<String, Person> get filteredPersons => _filteredPersons;
   Map<String, Rating> get filteredRatings => _filteredRatings;
-  List<Component> get filteredComponents => _filteredComponents;
-  List<Setup> get filteredSetups => _filteredSetups;
+  Map<String, Component> get filteredComponents => _filteredComponents;
+  Map<String, Setup> get filteredSetups => _filteredSetups;
 
   Future<AppData?> load(BuildContext context) async {
     String jsonString = "{}";
@@ -46,9 +46,12 @@ class AppData extends ChangeNotifier {
       _clear();
       addJson(data: this, json: jsonData);
 
-      _setups.sort((a, b) => a.datetime.compareTo(b.datetime));
-      FileImport.determineCurrentSetups(setups: _setups, bikes: _bikes);
-      FileImport.determinePreviousSetups(setups: _setups);
+      final sortedSetupEntries = _setups.entries.toList();
+      sortedSetupEntries.sort((a, b) => a.value.datetime.compareTo(b.value.datetime));
+      _setups.clear();
+      _setups.addEntries(sortedSetupEntries);
+      FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
+      FileImport.determinePreviousSetups(setups: _setups.values);
 
       debugPrint("Loading data successfully");
 
@@ -76,36 +79,31 @@ class AppData extends ChangeNotifier {
   Map<String, dynamic> toJson() => {
     'persons': persons.values.map((p) => p.toJson()).toList(),
     'bikes': bikes.values.map((b) => b.toJson()).toList(),
-    'setups': setups.map((s) => s.toJson()).toList(),
-    'components': components.map((c) => c.toJson()).toList(),
+    'setups': setups.values.map((s) => s.toJson()).toList(),
+    'components': components.values.map((c) => c.toJson()).toList(),
     'ratings': ratings.values.map((r) => r.toJson()).toList(),
   };
 
   static AppData addJson({required AppData data, required Map<String, dynamic> json}) {
     final loadedPersons = (json['persons'] as List<dynamic>? ?? [])
-        .map((a) => Person.fromJson(a))
-        .toList();
+        .map((a) => Person.fromJson(a));
     
     final loadedBikes = (json['bikes'] as List<dynamic>? ?? [])
-        .map((a) => Bike.fromJson(a))
-        .toList();
+        .map((a) => Bike.fromJson(a));
 
     final loadedComponents = (json['components'] as List<dynamic>? ?? [])
-        .map((c) => Component.fromJson(json: c))
-        .toList();
+        .map((c) => Component.fromJson(json: c));
     
     final loadedSetups = (json['setups'] as List<dynamic>? ?? [])
-        .map((s) => Setup.fromJson(json: s))
-        .toList();
+        .map((s) => Setup.fromJson(json: s));
     
     final loadedRatings = (json['ratings'] as List<dynamic>? ?? [])
-        .map((a) => Rating.fromJson(json: a))
-        .toList();
+        .map((a) => Rating.fromJson(json: a));
     
     data.persons.addAll(<String, Person>{for (var item in loadedPersons) item.id: item});
     data.bikes.addAll(<String, Bike>{for (var item in loadedBikes) item.id: item});
-    data.components.addAll(loadedComponents);
-    data.setups.addAll(loadedSetups);
+    data.components.addAll(<String, Component>{for (var item in loadedComponents) item.id: item});
+    data.setups.addAll(<String, Setup>{for (var item in loadedSetups) item.id: item});
     data.ratings.addAll(<String, Rating>{for (var item in loadedRatings) item.id: item});
     
     data.notifyListeners(); // not strictly necessary in most cases
@@ -138,14 +136,14 @@ class AppData extends ChangeNotifier {
 
   void _filterComponents() {
     _filteredComponents = selectedBike == null
-        ? components.where((c) => !c.isDeleted).toList()
-        : components.where((c) => !c.isDeleted && c.bike == selectedBike?.id).toList();
+        ? Map.fromEntries(components.entries.where((entry) => !entry.value.isDeleted))
+        : Map.fromEntries(components.entries.where((entry) => !entry.value.isDeleted && entry.value.bike == selectedBike?.id));
   }
 
   void _filterSetups() {
     _filteredSetups = selectedBike == null
-        ? setups.where((s) => !s.isDeleted).toList()
-        : setups.where((s) => !s.isDeleted && s.bike == selectedBike?.id).toList();
+        ? Map.fromEntries(setups.entries.where((entry) => !entry.value.isDeleted))
+        : Map.fromEntries(setups.entries.where((entry) => !entry.value.isDeleted && entry.value.bike == selectedBike?.id));
   }
 
   void _filterPersons() {
@@ -211,8 +209,8 @@ class AppData extends ChangeNotifier {
       setup.isDeleted = true;
       setup.lastModified = DateTime.now();
     }
-    FileImport.determineCurrentSetups(setups: _setups, bikes: _bikes);
-    FileImport.determinePreviousSetups(setups: _setups);
+    FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
+    FileImport.determinePreviousSetups(setups: _setups.values);
     _filterSetups();
 
     notifyListeners();
@@ -223,9 +221,12 @@ class AppData extends ChangeNotifier {
       setup.isDeleted = false;
       setup.lastModified = DateTime.now();
     }
-    _setups.sort((a, b) => a.datetime.compareTo(b.datetime)); // not really necessary
-    FileImport.determineCurrentSetups(setups: _setups, bikes: _bikes);
-    FileImport.determinePreviousSetups(setups: _setups);
+    final sortedSetupEntries = _setups.entries.toList();
+    sortedSetupEntries.sort((a, b) => a.value.datetime.compareTo(b.value.datetime));
+    _setups.clear();
+    _setups.addEntries(sortedSetupEntries); // not really necessary
+    FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
+    FileImport.determinePreviousSetups(setups: _setups.values);
     _filterSetups();
     
     notifyListeners();
@@ -286,7 +287,7 @@ class AppData extends ChangeNotifier {
   }
 
   void addComponent(Component component) {
-    _components.add(component);
+    _components[component.id] = component;
     _filterComponents();
     
     notifyListeners();
@@ -308,11 +309,9 @@ class AppData extends ChangeNotifier {
     notifyListeners();
   }
 
-  void editComponent({required Component oldComponent, required Component newComponent}) {
-    final index = _components.indexOf(oldComponent);
-    if (index != -1) {
-      _components[index] = newComponent;
-    }
+  void editComponent(Component component) {
+    _components[component.id] = component;
+    
     _filterComponents();
 
     notifyListeners();
@@ -326,23 +325,28 @@ class AppData extends ChangeNotifier {
   }
 
   void addSetup(Setup setup) {
-    _setups.add(setup);
-    _setups.sort((a, b) => a.datetime.compareTo(b.datetime));
-    FileImport.determineCurrentSetups(setups: _setups, bikes: _bikes);
-    FileImport.determinePreviousSetups(setups: _setups);
-    FileImport.updateSetupsAfter(setups: _setups, setup: setup);
+    _setups[setup.id] = setup;
+    final sortedSetupEntries = _setups.entries.toList();
+    sortedSetupEntries.sort((a, b) => a.value.datetime.compareTo(b.value.datetime));
+    _setups.clear();
+    _setups.addEntries(sortedSetupEntries);
+    FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
+    FileImport.determinePreviousSetups(setups: _setups.values);
+    FileImport.updateSetupsAfter(setups: _setups.values.toList(), setup: setup);
     _filterSetups();
 
     notifyListeners();
   }
 
-  void editSetup({required Setup oldSetup, required Setup newSetup}) {
-    final index = _setups.indexOf(oldSetup);
-    if (index != -1) _setups[index] = newSetup;
-    _setups.sort((a, b) => a.datetime.compareTo(b.datetime));
-    FileImport.determineCurrentSetups(setups: _setups, bikes: _bikes);
-    FileImport.determinePreviousSetups(setups: _setups);
-    FileImport.updateSetupsAfter(setups: _setups, setup: newSetup);
+  void editSetup(Setup setup) {
+    _setups[setup.id] = setup;
+    final sortedSetupEntries = _setups.entries.toList();
+    sortedSetupEntries.sort((a, b) => a.value.datetime.compareTo(b.value.datetime));
+    _setups.clear();
+    _setups.addEntries(sortedSetupEntries);
+    FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
+    FileImport.determinePreviousSetups(setups: _setups.values);
+    FileImport.updateSetupsAfter(setups: _setups.values.toList(), setup: setup);
     _filterSetups();
   
     notifyListeners();
@@ -401,20 +405,26 @@ class AppData extends ChangeNotifier {
   }
 
   void reorderComponent(int oldIndex, int newIndex) {
-    final componentToMove = filteredComponents[oldIndex];
-    oldIndex = components.indexOf(componentToMove);
-    final targetComponent = newIndex < filteredComponents.length
-        ? filteredComponents[newIndex]
+    final componentsList = components.values.toList();
+    final filteredComponentsList = filteredComponents.values.toList();
+
+    final componentToMove = filteredComponentsList[oldIndex];
+    oldIndex = componentsList.indexOf(componentToMove);
+    final targetComponent = newIndex < filteredComponentsList.length
+        ? filteredComponentsList[newIndex]
         : null;
     newIndex = targetComponent == null
-        ? components.length 
-        : components.indexOf(targetComponent);
+        ? componentsList.length 
+        : componentsList.indexOf(targetComponent);
 
     int adjustedNewIndex = newIndex;
     if (oldIndex < newIndex) adjustedNewIndex -= 1;
 
-    final component = components.removeAt(oldIndex);
-    components.insert(adjustedNewIndex, component);
+    final person = componentsList.removeAt(oldIndex);
+    componentsList.insert(adjustedNewIndex, person);
+
+    _components.clear();
+    _components.addAll({for (var element in componentsList) element.id : element});
     _filterComponents();
 
     notifyListeners();
@@ -447,11 +457,14 @@ class AppData extends ChangeNotifier {
   }
 
   void resolveData() {
-    _setups.sort((a, b) => a.datetime.compareTo(b.datetime));
-    FileImport.determineCurrentSetups(setups: _setups, bikes: _bikes);
-    FileImport.determinePreviousSetups(setups: _setups);
-    for (final setup in _setups) {
-      FileImport.updateSetupsAfter(setups: _setups, setup: setup);
+    final sortedSetupEntries = _setups.entries.toList();
+    sortedSetupEntries.sort((a, b) => a.value.datetime.compareTo(b.value.datetime));
+    _setups.clear();
+    _setups.addEntries(sortedSetupEntries);
+    FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
+    FileImport.determinePreviousSetups(setups: _setups.values);
+    for (final setup in _setups.values) {
+      FileImport.updateSetupsAfter(setups: _setups.values.toList(), setup: setup);
     }
     _filter();
 

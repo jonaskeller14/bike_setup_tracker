@@ -398,7 +398,7 @@ class _RatingPageState extends State<RatingPage> {
                         ],
                       ),
                     )),
-                    ...componentOptions.map((c) => DropdownMenuItem<FilterFilterType>(
+                    ...componentOptions.values.map((c) => DropdownMenuItem<FilterFilterType>(
                       value: FilterFilterType(c.id, FilterType.component),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,

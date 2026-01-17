@@ -12,7 +12,7 @@ class RatingList extends StatefulWidget {
   final Map<String, Person> persons;
   final Map<String, Bike> bikes;
   final Map<String, Rating> ratings;
-  final Iterable<Component> components;
+  final Map<String, Component> components;
   final void Function(Rating rating) editRating;
   final void Function(Rating rating) duplicateRating;
   final void Function(Rating rating) removeRating;
@@ -97,7 +97,7 @@ class _RatingListState extends State<RatingList> {
                                 FilterType.global => Icon(Icons.circle_outlined, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                 FilterType.bike => Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                 FilterType.person => Icon(Person.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                FilterType.component => Icon((widget.components.firstWhereOrNull((c) => c.id == rating.filter)?.componentType ?? ComponentType.other).getIconData(), size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                FilterType.component => Icon((widget.components[rating.filter]?.componentType ?? ComponentType.other).getIconData(), size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                 FilterType.componentType => Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData(), size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                               },
 
@@ -120,7 +120,7 @@ class _RatingListState extends State<RatingList> {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 FilterType.component => Text(
-                                  widget.components.firstWhereOrNull((c) => c.id == rating.filter)?.name ?? "-",
+                                  widget.components[rating.filter]?.name ?? "-",
                                   style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                                   overflow: TextOverflow.ellipsis,
                                 ),

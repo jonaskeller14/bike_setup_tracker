@@ -56,8 +56,8 @@ Future<AppData?> showDataSelectSheet({required BuildContext context, required Ap
   if (applySelection == null) return null;
 
   final List<Bike> allBikes = data.bikes.values.toList();
-  final List<Component> allComponents = data.components;
-  final List<Setup> allSetups = data.setups;
+  final List<Component> allComponents = data.components.values.toList();
+  final List<Setup> allSetups = data.setups.values.toList();
   final List<Person> allPersons = data.persons.values.toList();
   final List<Rating> allRatings = data.ratings.values.toList();
 
@@ -383,8 +383,8 @@ Future<AppData?> showDataSelectSheet({required BuildContext context, required Ap
     final data = AppData();
     data.persons.addAll(<String, Person>{for (var item in selectedPersons) item.id: item});
     data.bikes.addAll(<String, Bike>{for (var item in selectedBikes) item.id: item});
-    data.components.addAll(selectedComponents);
-    data.setups.addAll(selectedSetups);
+    data.components.addAll(<String, Component>{for (var item in selectedComponents) item.id: item});
+    data.setups.addAll(<String, Setup>{for (var item in selectedSetups) item.id: item});
     data.ratings.addAll(<String, Rating>{for (var item in selectedRatings) item.id: item});
     return data;
   }

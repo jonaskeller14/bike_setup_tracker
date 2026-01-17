@@ -11,8 +11,8 @@ const defaultVisibleCount = 10;
 
 class ComponentList extends StatefulWidget {
   final Map<String, Bike> bikes;
-  final List<Component> components;
-  final List<Setup> setups;
+  final Map<String, Component> components;
+  final Map<String, Setup> setups;
   final Future<void> Function(Component component) editComponent;
   final Future<void> Function(Component component) duplicateComponent;
   final Future<void> Function(Component component) removeComponent;
@@ -46,8 +46,8 @@ class _ComponentListState extends State<ComponentList> {
     
     final List<InkWell> inkWells = <InkWell>[];
     for (int index = 0; index < visibleCount; index++) {
-      final component = widget.components[index];
-      final enabled = widget.setups.lastWhereOrNull((s) => !s.isDeleted && s.bike == component.bike) != null;
+      final component = widget.components.values.toList()[index];
+      final enabled = widget.setups.values.lastWhereOrNull((s) => !s.isDeleted && s.bike == component.bike) != null;
       inkWells.add(
         InkWell(
           key: ValueKey(component.id),
@@ -157,7 +157,7 @@ class _ComponentListState extends State<ComponentList> {
                   padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
                   child: AdjustmentCompactDisplayList(
                     components: [component],
-                    adjustmentValues: widget.setups.lastWhereOrNull((s) => s.bike == component.bike)?.bikeAdjustmentValues ?? {},
+                    adjustmentValues: widget.setups.values.lastWhereOrNull((s) => s.bike == component.bike)?.bikeAdjustmentValues ?? {},
                     showComponentIcons: false,
                     missingValuesPlaceholder: true,
                     displayBikeAdjustmentValues: true,

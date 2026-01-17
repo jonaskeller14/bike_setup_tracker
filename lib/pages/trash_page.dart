@@ -73,8 +73,8 @@ class _TrashPageState extends State<TrashPage> {
     final deletedCombined = <dynamic>[];
     deletedCombined.addAll(data.persons.values.where((p) => p.isDeleted).toList());
     deletedCombined.addAll(data.bikes.values.where((b) => b.isDeleted).toList());
-    deletedCombined.addAll(data.components.where((c) => c.isDeleted));
-    deletedCombined.addAll(data.setups.where((s) => s.isDeleted));
+    deletedCombined.addAll(data.components.values.where((c) => c.isDeleted));
+    deletedCombined.addAll(data.setups.values.where((s) => s.isDeleted));
     deletedCombined.addAll(data.ratings.values.where((r) => r.isDeleted).toList());
     deletedCombined.sort((a, b) => b.lastModified.compareTo(a.lastModified));
 

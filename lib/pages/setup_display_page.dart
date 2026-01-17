@@ -81,7 +81,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
     final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
     final persons = Map.fromEntries(appData.persons.entries.where((e) => !e.value.isDeleted));
     final ratings = Map.fromEntries(appData.ratings.entries.where((e) => !e.value.isDeleted));
-    final Iterable<Component> components = appData.components.where((c) => !c.isDeleted);
+    final components = Map.fromEntries(appData.components.entries.where((e) => !e.value.isDeleted));
 
     return Scaffold(
       appBar: AppBar(
@@ -96,7 +96,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
           final setup = widget.setups[index];
           
           final Bike? bike = bikes[setup.bike];
-          Iterable<Component> bikeComponents = components.where((c) => c.bike == setup.bike);
+          Iterable<Component> bikeComponents = components.values.where((c) => c.bike == setup.bike);
           final Person? person = persons[setup.person];
 
           final danglingBikeAdjustmentValues = Map.from(setup.bikeAdjustmentValues);
@@ -398,7 +398,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                                         switch (rating.filterType) {
                                           FilterType.bike => const Icon(Bike.iconData),
                                           FilterType.person => const Icon(Person.iconData),
-                                          FilterType.component => Icon((components.firstWhereOrNull((c) => c.id == rating.filter)?.componentType ?? ComponentType.other).getIconData()),
+                                          FilterType.component => Icon((components[rating.filter]?.componentType ?? ComponentType.other).getIconData()),
                                           FilterType.componentType => Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData()),
                                           FilterType.global => const SizedBox.shrink(),
                                         },
@@ -411,7 +411,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                           FilterType.component => Text(
-                                            components.firstWhereOrNull((c) => c.id == rating.filter)?.name ?? "-",
+                                            components[rating.filter]?.name ?? "-",
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                           FilterType.global => const SizedBox.shrink(),

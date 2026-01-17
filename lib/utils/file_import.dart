@@ -375,30 +375,14 @@ class FileImport {
     }
   }
 
-  static void cleanupIsDeleted({
-    required AppData data
-  }) {
-    final thirtyDays = const Duration(days: 30); 
+  static void cleanupIsDeleted({required AppData data}) {
+    final thirtyDays = const Duration(days: 30);
     final deleteDateTime = DateTime.now().subtract(thirtyDays);
-    
-    for (final Person person in List.from(data.persons.values)) {
-      if (person.isDeleted && person.lastModified.isBefore(deleteDateTime)) data.persons.remove(person.id);
-    }
 
-    for (final Rating rating in List.from(data.ratings.values)) {
-      if (rating.isDeleted && rating.lastModified.isBefore(deleteDateTime)) data.ratings.remove(rating.id);
-    }
-
-    for (final Bike bike in List.from(data.bikes.values)) {
-      if (bike.isDeleted && bike.lastModified.isBefore(deleteDateTime)) data.bikes.remove(bike.id);
-    }
-
-    for (final Component component in List.from(data.components.values)) {
-      if ((component.isDeleted && component.lastModified.isBefore(deleteDateTime))) data.components.remove(component.id);
-    }
-
-    for (final Setup setup in List.from(data.setups.values)) {
-      if ((setup.isDeleted && setup.lastModified.isBefore(deleteDateTime))) data.setups.remove(setup.id);
-    }
+    data.persons.removeWhere((_, p) => p.isDeleted && p.lastModified.isBefore(deleteDateTime));
+    data.ratings.removeWhere((_, r) => r.isDeleted && r.lastModified.isBefore(deleteDateTime));
+    data.bikes.removeWhere((_, b) => b.isDeleted && b.lastModified.isBefore(deleteDateTime));
+    data.components.removeWhere((_, c) => c.isDeleted && c.lastModified.isBefore(deleteDateTime));
+    data.setups.removeWhere((_, s) => s.isDeleted && s.lastModified.isBefore(deleteDateTime));
   }
 }

@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'sheet.dart';
 
-Future<String?> showImportSheet(BuildContext context) async {
-  return showModalBottomSheet<String?>(
+enum ImportSheetOptions {
+  file,
+  backup,
+}
+
+Future<ImportSheetOptions?> showImportSheet(BuildContext context) async {
+  return showModalBottomSheet<ImportSheetOptions?>(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
@@ -28,14 +33,14 @@ Future<String?> showImportSheet(BuildContext context) async {
                 title: const Text("Import File"),
                 subtitle: const Text("Select json file which contains data to import"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => Navigator.pop(context, 'file'),
+                onTap: () => Navigator.pop(context, ImportSheetOptions.file),
               ),
               ListTile(
                 leading: Icon(Icons.file_present_sharp, color: Theme.of(context).colorScheme.primary),
                 title: const Text("Restore Backup"),
                 subtitle: const Text("Restore local or cloud Backup"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => Navigator.pop(context, 'backup'),
+                onTap: () => Navigator.pop(context, ImportSheetOptions.backup),
               ),
             ],
           ),

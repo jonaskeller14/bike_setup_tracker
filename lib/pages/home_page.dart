@@ -82,14 +82,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _importData() async {
-    final importChoice = await showImportSheet(context);
+    final ImportSheetOptions? importChoice = await showImportSheet(context);
 
     if (!mounted) return;
     AppData? remoteData;
     switch (importChoice) {
-      case "file":
+      case ImportSheetOptions.file:
         remoteData = await FileImport.readJsonFileData(context);
-      case "backup":
+      case ImportSheetOptions.backup:
         final backup = await Navigator.push<Backup?>(context, MaterialPageRoute(builder: (context) => BackupPage(
           googleDriveService: (mounted && context.read<AppSettings>().enableGoogleDrive) ? _googleDriveService : null
         )));
@@ -100,7 +100,7 @@ class _HomePageState extends State<HomePage> {
           case LocalBackup(): remoteData = await FileImport.readBackup(context: context, path: backup.filepath);
           case GoogleDriveBackup(): remoteData = await _googleDriveService.readBackup(context: context, fileId: backup.fileId);
         }
-      default:
+      case null:
         debugPrint("showImportSheet canceled");
         return;
     }
@@ -112,18 +112,18 @@ class _HomePageState extends State<HomePage> {
 
     if (!mounted) return;
     final data = context.read<AppData>();
-    final mergeOverwriteChoice = await showImportMergeOverwriteSheet(context);
+    final ImportMergeOverwriteSheetOptions? mergeOverwriteChoice = await showImportMergeOverwriteSheet(context);
     switch (mergeOverwriteChoice) {
-      case 'overwrite':
+      case ImportMergeOverwriteSheetOptions.overwrite:
         setState(() {
           FileImport.overwrite(remoteData: remoteData!, localData: data);
         });
         data.onBikeTap(null);
-      case 'merge':
+      case ImportMergeOverwriteSheetOptions.merge:
         setState(() {
           FileImport.merge(remoteData: remoteData!, localData: data);
         });
-      default:
+      case null:
         debugPrint("showImportMergeOverwriteSheet canceled");
         return;
     }
@@ -145,11 +145,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _exportData() async {
-    final choice = await showExportSheet(context: context);
+    final ExportSheetOptions? choice = await showExportSheet(context: context);
     
     if (!mounted) return;
     switch (choice) {
-      case "file":
+      case ExportSheetOptions.file:
         final selectedData = await showDataSelectSheet(context: context, data: context.read<AppData>());
         if (selectedData == null) return;
 
@@ -158,11 +158,11 @@ class _HomePageState extends State<HomePage> {
           context: context,
           data: selectedData,
         );
-      case "backup":
+      case ExportSheetOptions.backup:
         await FileExport.saveBackup(context: context, data: context.read<AppData>(), force: true);
-      case "googleDriveBackup":
+      case ExportSheetOptions.googleDriveBackup:
         await _googleDriveService.saveBackup(context: context, force: true);
-      default:
+      case null:
         debugPrint("showExportSheet canceled.");
         return;
     }

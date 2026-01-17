@@ -4,8 +4,14 @@ import 'package:simple_icons/simple_icons.dart';
 import '../../models/app_settings.dart';
 import 'sheet.dart';
 
-Future<String?> showExportSheet({required BuildContext context}) async {
-  return showModalBottomSheet<String?>(
+enum ExportSheetOptions {
+  file,
+  backup,
+  googleDriveBackup,
+}
+
+Future<ExportSheetOptions?> showExportSheet({required BuildContext context}) async {
+  return showModalBottomSheet<ExportSheetOptions?>(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
@@ -31,14 +37,14 @@ Future<String?> showExportSheet({required BuildContext context}) async {
                 title: const Text("Download File"),
                 subtitle: const Text("Download json file containing the data"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => Navigator.pop(context, 'file'),
+                onTap: () => Navigator.pop(context, ExportSheetOptions.file),
               ),
               ListTile(
                 leading: Icon(Icons.file_present_sharp, color: Theme.of(context).colorScheme.primary),
                 title: const Text("Save Backup"),
                 subtitle: const Text("Save current state as a local backup"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => Navigator.pop(context, 'backup'),
+                onTap: () => Navigator.pop(context, ExportSheetOptions.backup),
               ),
               if (context.read<AppSettings>().enableGoogleDrive)
                 ListTile(
@@ -46,7 +52,7 @@ Future<String?> showExportSheet({required BuildContext context}) async {
                   title: const Text("Save Google Drive Backup"),
                   subtitle: const Text("Save current state as Backup in Google Drive"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => Navigator.pop(context, 'googleDriveBackup'),
+                  onTap: () => Navigator.pop(context, ExportSheetOptions.googleDriveBackup),
               ),
             ],
           ),

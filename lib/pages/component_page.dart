@@ -239,7 +239,7 @@ class _ComponentPageState extends State<ComponentPage> {
       ),
     );
   }
-  
+
   void _onReorderAdjustments(int oldIndex, int newIndex) {
     int adjustedNewIndex = newIndex;
     if (oldIndex < newIndex) adjustedNewIndex -= 1;
@@ -298,6 +298,7 @@ class _ComponentPageState extends State<ComponentPage> {
   @override
   Widget build(BuildContext context) {
     final appData = context.watch<AppData>();
+    final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
     final bikeOptions = appData.filteredBikes;
 
     return PopScope( 
@@ -334,7 +335,7 @@ class _ComponentPageState extends State<ComponentPage> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<Bike>(
-                  initialValue: bikeOptions[_bike],
+                  initialValue: bikes[_bike],
                   isExpanded: true,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: InputDecoration(
@@ -346,7 +347,7 @@ class _ComponentPageState extends State<ComponentPage> {
                   ),
                   validator: (Bike? newBike) {
                     if (newBike == null) return "Bike cannot be empty.";
-                    if (!bikeOptions.values.contains(newBike)) return "Please select valid bike";
+                    if (!bikes.values.contains(newBike)) return "Please select valid bike";
                     return null;
                   },
                   items: bikeOptions.values.map((b) {

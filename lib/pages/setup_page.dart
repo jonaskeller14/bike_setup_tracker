@@ -98,7 +98,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final appData = context.read<AppData>();
     final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
     _initialBike = widget.setup?.bike ?? appData.filteredBikes.keys.first;
-    _initialPerson = (widget.setup?.person ?? bikes[_bike]?.person);
+    _initialPerson = (widget.setup?.person ?? bikes[_initialBike]?.person);
 
     _onBikeChange(_initialBike);
 

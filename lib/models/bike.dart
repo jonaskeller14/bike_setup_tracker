@@ -52,4 +52,23 @@ class Bike {
       default: throw Exception("Json Version $version of Bike incompatible.");
     }
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Bike &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          isDeleted == other.isDeleted &&
+          lastModified == other.lastModified &&
+          name == other.name &&
+          person == other.person;
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      isDeleted.hashCode ^
+      lastModified.hashCode ^
+      name.hashCode ^
+      person.hashCode;
 }

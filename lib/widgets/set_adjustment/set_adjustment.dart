@@ -8,13 +8,13 @@ Widget nameNotesSetAdjustmentWidget({required BuildContext context, required Adj
     child: Align(
       alignment: Alignment.centerLeft,
       child: adjustment.notes == null 
-          ? Text(adjustment.name, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor))
+          ? SelectableText(adjustment.name, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor))
           : Tooltip(
               triggerMode: TooltipTriggerMode.tap,
               preferBelow: false,
               showDuration: const Duration(seconds: 5),
               message: adjustment.notes!,
-              child: Text.rich(
+              child: SelectableText.rich(
                 TextSpan(
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),
                   children: [
@@ -45,7 +45,7 @@ Widget nameSetAdjustmentWidget({required BuildContext context, required String n
   return Expanded(
     child: Align(
       alignment: Alignment.centerLeft,
-      child: Text(name, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor))
+      child: SelectableText(name, style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor))
     ),
   );
 }

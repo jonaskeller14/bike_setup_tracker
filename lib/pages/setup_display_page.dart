@@ -150,7 +150,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(setup.name, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                      SelectableText(setup.name, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                       Text(
                         "${DateFormat(appSettings.dateFormat).format(setup.datetime)} • ${DateFormat(appSettings.timeFormat).format(setup.datetime)}",
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),),
@@ -178,61 +178,61 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                 if (setup.notes != null)
                   ListTile(
                     leading: const Icon(Icons.notes),
-                    title: Text(setup.notes!),
+                    title: SelectableText(setup.notes!),
                     dense: true,
                   ),
                 if (setup.position != null)
                   ListTile(
                     leading: const Icon(Icons.my_location),
-                    title: Text("Lat: ${setup.position!.latitude?.toStringAsFixed(4)}, Lon: ${setup.position!.longitude?.toStringAsFixed(4)}"),
+                    title: SelectableText("Lat: ${setup.position!.latitude?.toStringAsFixed(4)}, Lon: ${setup.position!.longitude?.toStringAsFixed(4)}"),
                     dense: true,
                   ),
                 if (setup.place != null)
                   ListTile(
                     leading: const Icon(Icons.location_city),
-                    title: Text("${setup.place?.thoroughfare} ${setup.place?.subThoroughfare}, ${setup.place?.locality}, ${setup.place?.isoCountryCode}"),
+                    title: SelectableText("${setup.place?.thoroughfare} ${setup.place?.subThoroughfare}, ${setup.place?.locality}, ${setup.place?.isoCountryCode}"),
                     dense: true,
                   ),
                 if (setup.position?.altitude != null)
                   ListTile(
                     leading: const Icon(Icons.arrow_upward),
-                    title: Text("${Setup.convertAltitudeFromMeters(setup.position!.altitude!, appSettings.altitudeUnit).round()} ${appSettings.altitudeUnit}"),
+                    title: SelectableText("${Setup.convertAltitudeFromMeters(setup.position!.altitude!, appSettings.altitudeUnit).round()} ${appSettings.altitudeUnit}"),
                     dense: true,
                   ),
                 if (setup.weather?.currentTemperature != null)
                   ListTile(
                     leading: const Icon(Weather.currentTemperatureIconData),
-                    title: Text("${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit).round()} ${appSettings.temperatureUnit}"),
+                    title: SelectableText("${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit).round()} ${appSettings.temperatureUnit}"),
                     dense: true,
                   ),
                 if (setup.weather?.currentHumidity != null)
                   ListTile(
                     leading: const Icon(Weather.currentHumidityIconData),
-                    title: Text("${setup.weather?.currentHumidity?.round()} %"),
+                    title: SelectableText("${setup.weather?.currentHumidity?.round()} %"),
                     dense: true,
                   ),
                 if (setup.weather?.currentPrecipitation != null)
                   ListTile(
                     leading: const Icon(Weather.dayAccumulatedPrecipitationIconData),
-                    title:  Text("${Weather.convertPrecipitationFromMm(setup.weather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit).round()} ${appSettings.precipitationUnit}"),
+                    title:  SelectableText("${Weather.convertPrecipitationFromMm(setup.weather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit).round()} ${appSettings.precipitationUnit}"),
                     dense: true,
                   ),
                 if (setup.weather?.currentWindSpeed != null)
                   ListTile(
                     leading: const Icon(Weather.currentWindSpeedIconData),
-                    title:  Text("${Weather.convertWindSpeedFromKmh(setup.weather!.currentWindSpeed!, appSettings.windSpeedUnit).round()} ${appSettings.windSpeedUnit}"),
+                    title:  SelectableText("${Weather.convertWindSpeedFromKmh(setup.weather!.currentWindSpeed!, appSettings.windSpeedUnit).round()} ${appSettings.windSpeedUnit}"),
                     dense: true,
                   ),
                 if (setup.weather?.currentSoilMoisture0to7cm != null)
                   ListTile(
                     leading: const Icon(Weather.currentSoilMoisture0to7cmIconData),
-                    title:  Text("${setup.weather?.currentSoilMoisture0to7cm?.toStringAsFixed(2)} m³/m³"),
+                    title:  SelectableText("${setup.weather?.currentSoilMoisture0to7cm?.toStringAsFixed(2)} m³/m³"),
                     dense: true,
                   ),
                 if (setup.weather?.condition != null)
                   ListTile(
                     leading: Icon(setup.weather?.condition?.getIconData() ?? Icons.question_mark_sharp),
-                    title: Text(setup.weather?.condition?.value ?? "-"),
+                    title: SelectableText(setup.weather?.condition?.value ?? "-"),
                     dense: true,
                   ),
                 ListTile(
@@ -273,7 +273,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 ListTile(
-                                  title: Text(bikeComponent.name, style: TextStyle(fontWeight: FontWeight.bold)),
+                                  title: SelectableText(bikeComponent.name, style: TextStyle(fontWeight: FontWeight.bold)),
                                   subtitle: Text(Intl.plural(
                                     bikeComponent.adjustments.length,
                                     zero: "No adjustments yet.",
@@ -323,7 +323,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 ListTile(
-                                  title: Text(person.name, style: TextStyle(fontWeight: FontWeight.bold)),
+                                  title: SelectableText(person.name, style: TextStyle(fontWeight: FontWeight.bold)),
                                   subtitle: Text(Intl.plural(
                                     person.adjustments.length,
                                     zero: "No attributes yet.",
@@ -395,7 +395,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   ListTile(
-                                    title: Text(rating.name, style: TextStyle(fontWeight: FontWeight.bold)),
+                                    title: SelectableText(rating.name, style: TextStyle(fontWeight: FontWeight.bold)),
                                     subtitle: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [

@@ -48,7 +48,7 @@ class DisplayDanglingAdjustmentWidget extends StatelessWidget {
             flex: 1,
             child: Column(
               children: [
-                Text(
+                SelectableText(
                   Adjustment.formatValue(value),
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.bold,

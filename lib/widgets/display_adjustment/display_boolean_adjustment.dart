@@ -45,7 +45,7 @@ class DisplayBooleanAdjustmentWidget extends StatelessWidget {
           ),
           Column(
             children: [
-              Text(
+              SelectableText(
                 Adjustment.formatValue(value) + adjustment.unitSuffix(),
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.bold,

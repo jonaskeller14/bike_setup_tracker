@@ -32,7 +32,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> children = [];
+    List<Widget> columnChildren = [];
     bool insertDivider = false;
     for (int index = 0; index < components.length; index++) {
       final component = components[index];
@@ -79,7 +79,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
       }
       
       if (insertDivider) {
-        children.add(const Divider(
+        columnChildren.add(const Divider(
           height: 6, 
           thickness: 1, 
           indent: 0,
@@ -87,7 +87,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
         ));
       }
 
-      children.add(_AdjustmentTableRow(
+      columnChildren.add(_AdjustmentTableRow(
         component: component,
         adjustmentValues: componentAdjustmentValues,
         previousAdjustmentValues: componentPreviousAdjustmentValues,
@@ -97,7 +97,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
       ));
       insertDivider = true;
     }
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: children);
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: columnChildren);
   }
 }
 
@@ -193,6 +193,59 @@ class _AdjustmentTableCell extends StatelessWidget {
     required this.highlightInitialValues,
     this.maxWidth = 120.0,
   });
+
+  Tooltip _cellToolTip({
+    required BuildContext context,
+    required bool valueHasChanged,
+    required Color? highlightColor,
+    required Widget child,
+  }) {
+    return Tooltip(
+      triggerMode: TooltipTriggerMode.longPress,
+      preferBelow: false,
+      showDuration: const Duration(seconds: 5),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.onSecondaryContainer,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [BoxShadow(color: Theme.of(context).colorScheme.shadow, blurRadius: 4, offset: const Offset(0, 2))],
+      ),
+      padding: const EdgeInsets.all(12),
+      richMessage: WidgetSpan(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 4,
+          children: [
+            Text(
+              adjustment.name,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSecondary,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              Adjustment.formatValue(value) + adjustment.unitSuffix(),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: highlightColor ?? Theme.of(context).colorScheme.onSecondary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            if (valueHasChanged)
+              Text(
+                Adjustment.formatValue(previousValue) + adjustment.unitSuffix(),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSecondary.withValues(alpha: 0.7),
+                  decoration: TextDecoration.lineThrough,
+                  decorationColor: Theme.of(context).colorScheme.onSecondary.withValues(alpha: 0.7),
+                ),
+              ),
+          ],
+        ),
+      ),
+      child: child,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -291,49 +344,10 @@ class _AdjustmentTableCell extends StatelessWidget {
     );
 
     final highlightColor = valueIsInitial ? Colors.green : (valueHasChanged ? Colors.orange: null);
-    return Tooltip(
-      triggerMode: TooltipTriggerMode.longPress,
-      preferBelow: false,
-      showDuration: const Duration(seconds: 5),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.onSecondaryContainer,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [BoxShadow(color: Theme.of(context).colorScheme.shadow, blurRadius: 4, offset: const Offset(0, 2))],
-      ),
-      padding: const EdgeInsets.all(12),
-      richMessage: WidgetSpan(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 4,
-          children: [
-            Text(
-              adjustment.name,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSecondary,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              Adjustment.formatValue(value) + adjustment.unitSuffix(),
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: highlightColor ?? Theme.of(context).colorScheme.onSecondary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            if (valueHasChanged)
-              Text(
-                Adjustment.formatValue(previousValue) + adjustment.unitSuffix(),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSecondary.withValues(alpha: 0.7),
-                  decoration: TextDecoration.lineThrough,
-                  decorationColor: Theme.of(context).colorScheme.onSecondary.withValues(alpha: 0.7),
-                ),
-              ),
-          ],
-        ),
-      ),
+    return _cellToolTip(
+      context: context,
+      highlightColor: highlightColor,
+      valueHasChanged: valueHasChanged,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Column(

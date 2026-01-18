@@ -695,7 +695,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                               runSpacing: 4.0,
                               children: [
                                 ActionChip(
-                                  avatar: const Icon(Icons.calendar_today),
+                                  avatar: const Icon(Icons.calendar_month),
                                   label: Text(
                                     DateFormat(appSettings.dateFormat).format(_selectedDateTime),
                                   ),

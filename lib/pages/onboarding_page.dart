@@ -430,7 +430,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         spacing: 2,
                         children: [
-                          Icon(Condition.dry.getIconData(), size: 13),
+                          Icon(Condition.dry.getIconData(), size: 13, color: Condition.dry.getColor()),
                           Text("Dry", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                           ),
                         ],

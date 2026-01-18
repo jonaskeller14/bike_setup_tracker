@@ -707,8 +707,8 @@ class _HomePageState extends State<HomePage> {
       child: Row(
         spacing: 6,
         children: [
-          _bikeFilterWidget(),
           _setupListSortWidget(),
+          _bikeFilterWidget(),
           _setupListValueFilterWidget(),
         ],
       ),

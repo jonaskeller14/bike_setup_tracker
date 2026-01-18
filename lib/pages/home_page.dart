@@ -9,6 +9,7 @@ import '../models/setup.dart';
 import '../models/component.dart';
 import '../models/app_settings.dart';
 import '../models/app_data.dart';
+import '../widgets/sheets/setup_list_values_filter.dart';
 import 'bike_page.dart';
 import 'component_page.dart';
 import 'setup_page.dart';
@@ -45,8 +46,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool _setupListOnlyChanges = false;
   bool _setupListBikeAdjustmentValues = true;
-  bool _setupListPersonAdjustmentValues = false;
-  bool _setupListRatingAdjustmentValues = false;
+  bool _setupListPersonAdjustmentValues = true;
+  bool _setupListRatingAdjustmentValues = true;
   bool _setupListSortAccending = false;
 
   int currentPageIndex = 0;
@@ -115,14 +116,10 @@ class _HomePageState extends State<HomePage> {
     final ImportMergeOverwriteSheetOptions? mergeOverwriteChoice = await showImportMergeOverwriteSheet(context);
     switch (mergeOverwriteChoice) {
       case ImportMergeOverwriteSheetOptions.overwrite:
-        setState(() {
-          FileImport.overwrite(remoteData: remoteData!, localData: data);
-        });
+        FileImport.overwrite(remoteData: remoteData, localData: data);
         data.onBikeTap(null);
       case ImportMergeOverwriteSheetOptions.merge:
-        setState(() {
-          FileImport.merge(remoteData: remoteData!, localData: data);
-        });
+        FileImport.merge(remoteData: remoteData, localData: data);
       case null:
         debugPrint("showImportMergeOverwriteSheet canceled");
         return;
@@ -615,14 +612,14 @@ class _HomePageState extends State<HomePage> {
         );
         if (newSelectedBikes == null) return;
         if (newSelectedBikes.isEmpty) {
-          setState(() => data.onBikeTap(null));
+          data.onBikeTap(null);
         } else if (newSelectedBikes[0] != data.selectedBike) {
-          setState(() => data.onBikeTap(newSelectedBikes[0]));
+          data.onBikeTap(newSelectedBikes[0]);
         }
       },
       onDeleted: data.selectedBike == null 
           ? null 
-          : () => setState(() => data.onBikeTap(null)),
+          : () => data.onBikeTap(null),
     );
   }
 
@@ -635,6 +632,45 @@ class _HomePageState extends State<HomePage> {
       onSelected: (bool value) => setState(() => _setupListSortAccending = value),
       selected: _setupListSortAccending,
       showCheckmark: false,
+    );
+  }
+
+  FilterChip _setupListValueFilterWidget() {
+    return FilterChip(
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, // Removes the 48px constraint
+      avatar: const Icon(Icons.list_alt),
+      label: const Text("Values"),
+      showCheckmark: false,
+      selected: _setupListOnlyChanges || !_setupListBikeAdjustmentValues || !_setupListPersonAdjustmentValues || !_setupListRatingAdjustmentValues,
+      onSelected: (bool value) async {
+        final result = await showSetupListValuesFilterSheet(context: context, setupListValuesFilter: {
+          SetupListValuesFilterOptions.onlyChanges: _setupListOnlyChanges,
+          SetupListValuesFilterOptions.bikeValues: _setupListBikeAdjustmentValues,
+          SetupListValuesFilterOptions.personValues: _setupListPersonAdjustmentValues,
+          SetupListValuesFilterOptions.ratingValues: _setupListRatingAdjustmentValues,
+        });
+        if (result == null) return;
+        setState(() {
+          for (final resultEntry in result.entries) {
+            switch (resultEntry.key) {
+              case SetupListValuesFilterOptions.onlyChanges: _setupListOnlyChanges = resultEntry.value;
+              case SetupListValuesFilterOptions.bikeValues: _setupListBikeAdjustmentValues = resultEntry.value;
+              case SetupListValuesFilterOptions.personValues: _setupListPersonAdjustmentValues = resultEntry.value;
+              case SetupListValuesFilterOptions.ratingValues: _setupListRatingAdjustmentValues = resultEntry.value;
+            }
+          }
+        });
+      },
+      onDeleted: _setupListOnlyChanges || !_setupListBikeAdjustmentValues || !_setupListPersonAdjustmentValues || !_setupListRatingAdjustmentValues
+          ? () {
+              setState(() {
+                _setupListOnlyChanges = false;
+                _setupListBikeAdjustmentValues = true;
+                _setupListPersonAdjustmentValues = true;
+                _setupListRatingAdjustmentValues = true;
+              });
+            }
+          : null,
     );
   }
 
@@ -673,33 +709,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           _bikeFilterWidget(),
           _setupListSortWidget(),
-          FilterChip(
-            label: const Text("Only Changes"),
-            selected: _setupListOnlyChanges,
-            onSelected: (bool selected) {setState(() => _setupListOnlyChanges = selected);},
-            tooltip: "Show only changed values",
-          ),
-          if (context.read<AppSettings>().enablePerson || context.read<AppSettings>().enableRating)
-          FilterChip(
-            label: const Icon(Bike.iconData, size: 20),
-            selected: _setupListBikeAdjustmentValues,
-            onSelected: (bool selected) {setState(() => _setupListBikeAdjustmentValues = selected);},
-            tooltip: "Show bike/component related values",
-          ),
-          if (context.read<AppSettings>().enablePerson)
-            FilterChip(
-              label: const Icon(Person.iconData, size: 20),
-              selected: _setupListPersonAdjustmentValues,
-              onSelected: (bool selected) {setState(() => _setupListPersonAdjustmentValues = selected);},
-              tooltip: "Show person related values",
-            ),
-          if (context.read<AppSettings>().enableRating)
-            FilterChip(
-              label: const Icon(Rating.iconData, size: 20),
-              selected: _setupListRatingAdjustmentValues,
-              onSelected: (bool selected) {setState(() => _setupListRatingAdjustmentValues = selected);},
-              tooltip: "Show rating related values",
-            ),
+          _setupListValueFilterWidget(),
         ],
       ),
     );

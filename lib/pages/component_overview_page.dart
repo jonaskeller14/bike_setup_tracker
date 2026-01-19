@@ -259,7 +259,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                                 child: Text(
                                   Adjustment.formatValue(value), 
                                   overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(color: highlightColor),
+                                  style: TextStyle(color: highlightColor, fontWeight: highlightColor != null ? FontWeight.bold : null),
                                 ),
                               ),
                             );

@@ -16,7 +16,7 @@ void main() {
     });
 
     test("Version 1: fromJson() / toJson()", () {
-      final jsonVersion0 = {
+      final jsonVersion1 = {
         "version": 1,
         "id": "6b55cf93-4f42-4449-ba2e-88ce763bbe83",
         "isDeleted": false,
@@ -24,9 +24,9 @@ void main() {
         "name": "Raaw Madonna V2.2",
         "person": "4019a1ef-ddd8-4794-99c9-8aea0469ec1c",
       };
-      final bikeVersion0A = Bike.fromJson(jsonVersion0);
-      final bikeVersion0B = Bike.fromJson(bikeVersion0A.toJson());
-      expect(bikeVersion0A == bikeVersion0B, true);
+      final bikeVersion1A = Bike.fromJson(jsonVersion1);
+      final bikeVersion1B = Bike.fromJson(bikeVersion1A.toJson());
+      expect(bikeVersion1A == bikeVersion1B, true);
     });
 
     test('Version -1: fromJson() should throw exception for unknown version', () {

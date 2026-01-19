@@ -203,3 +203,37 @@ void main() {
     expect(find.text("TestBike #2"), findsOneWidget);
   });
 }
+
+// testWidgets('Reorderable list test', (WidgetTester tester) async {
+//   // 1. Build your app/widget
+//   await tester.pumpWidget(MyReorderableApp());
+
+//   // 2. Find the item you want to drag (e.g., the first item)
+//   final firstItemFinder = find.text('Item 0');
+//   final Offset firstItemLocation = tester.getCenter(firstItemFinder);
+
+//   // 3. Find where you want to drop it (e.g., over the third item)
+//   final thirdItemFinder = find.text('Item 2');
+//   final Offset thirdItemLocation = tester.getCenter(thirdItemFinder);
+
+//   // 4. Start the long press gesture
+//   final TestGesture gesture = await tester.startGesture(firstItemLocation);
+  
+//   // Important: ReorderableListView requires a long press delay
+//   // (The default is usually kLongPressTimeout, approx 500ms)
+//   await tester.pump(kLongPressTimeout);
+
+//   // 5. Drag to the target location
+//   // We move it slightly past the center to ensure the reorder triggers
+//   await gesture.moveTo(thirdItemLocation);
+//   await tester.pump();
+
+//   // 6. Release the pointer
+//   await gesture.up();
+  
+//   // 7. Settle the animation
+//   await tester.pumpAndSettle();
+
+//   // 8. Verify the result
+//   // (Check if your data model updated or if the UI reflected the change)
+// });

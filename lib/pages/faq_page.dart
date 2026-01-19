@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../models/app_settings.dart';
 
 class FAQPage extends StatelessWidget {
   const FAQPage({super.key});
-  static const Map<String, Map<String, String>> faqSections = {
+  static const Map<String, Map<String, String>> _faqSections = {
     'General': {
       'What is this app about?':
           'This app helps you track, manage, and optimize your bike setup adjustments for better performance.',
@@ -27,7 +29,7 @@ class FAQPage extends StatelessWidget {
     },
     'Components': {
       'How do I add components to my bike?':
-          'Go to the "Components" tab and tap the "+" button. A page open which lets you assign the component to any of your existing bikes.',
+          'Go to the "Components" tab and tap the "+" button. A page opens that lets you assign the component to any of your existing bikes.',
       'How do I move a component to a different bike?':
           'In the "Components" tab, tap the three-dot menu on a specific component and select "Edit." Change the assigned bike in the dropdown menu and save your changes.',
       'How do I reorder components?':
@@ -37,18 +39,40 @@ class FAQPage extends StatelessWidget {
     },
     'Setup': {
       'What is a "Setup"?':
-          'A Setup is a snapshot of your entire bike configuration. It captures the specific values of all your adjustments alongside context like location, weather, and trail conditions',
+          'A Setup is a snapshot of your entire bike configuration. It captures the specific values of all your adjustments alongside context like location, weather, and trail conditions.',
       'How do I record a new setup?':
           'Go to the "Setups" tab and tap the "+" button to record a new setup for your bike.',
+    },
+    "Person": {
+      'Why?':
+          'Adding a person profile allows you to link bikes to individual riders for a better overview. You can also track personal data (like body weight) that directly influences bike component behavior. Having personal data as context makes finding the optimal setup easier.',
+      'How to add a Person?':
+          'Go to the "Person" tab and tap the "+" button to add a new person.',
+      "How to link a Person to a Bike?":
+          'Navigate to the "Bikes" tab and select the bike you want to link. Tap the three-dot menu, select "Edit", and choose the person from the dropdown menu.',
+    },
+    "Rating": {
+      'What is a Rating?':
+          'A Rating defines a fixed procedure to evaluate setups. By knowing whether a setup was good or bad, you can find the optimal configuration easier.',
+      'How to add a Rating?':
+          'Go to the "Rating" tab and tap the "+" button to add a new rating. You can define the rating name and the rating procedure items.',
     },
   };
 
   @override
   Widget build(BuildContext context) {
+    final appSettings = context.read<AppSettings>();
+
+    final faqSections = Map.fromEntries(_faqSections.entries.where((entry) {
+        switch (entry.key) {
+        case "Person": return appSettings.enablePerson;
+        case "Rating": return appSettings.enableRating;
+        default: return true;
+        }
+    }));
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Frequently asked Questions'),
-      ),
+      appBar: AppBar(title: const Text('Frequently asked Questions')),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -221,7 +221,7 @@ Future<AppData?> showDataSelectSheet({required BuildContext context, required Ap
                         }
                       },
                     ),
-                    children: allSetups.map((setup) {
+                    children: allSetups.reversed.map((setup) {
                       return Card(
                         margin: const EdgeInsets.symmetric(vertical: 4.0),
                         child: CheckboxListTile(

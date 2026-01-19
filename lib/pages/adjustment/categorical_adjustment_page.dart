@@ -24,7 +24,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
     name: '',
     notes: null,
     unit: null,
-    options: [],
+    options: {},
   );
   
   @override
@@ -87,7 +87,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
         name: _nameController.text.trim(),
         notes: _previewAdjustment.notes,
         unit: null, 
-        options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList(),
+        options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
       );
     });
   }
@@ -103,7 +103,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
         name: _nameController.text.trim(),
         notes: null,
         unit: null, 
-        options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList(),
+        options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
       );
     });
   }
@@ -143,7 +143,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
 
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
-    final options = _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList();
+    final options = _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet();
     _formHasChanges = false;
     if (!mounted) return;
     if (widget.adjustment == null) {
@@ -217,7 +217,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                 name: _nameController.text.trim(),
                                 notes: _previewAdjustment.notes,
                                 unit: null, 
-                                options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList(),
+                                options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
                               );
                             });
                           },
@@ -264,7 +264,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                             name: _nameController.text.trim(),
                                             notes: _previewAdjustment.notes,
                                             unit: null, 
-                                            options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toList(),
+                                            options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
                                           );
                                         });
                                       },

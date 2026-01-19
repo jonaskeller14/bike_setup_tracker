@@ -1,7 +1,7 @@
 part of 'adjustment.dart';
 
 class CategoricalAdjustment extends Adjustment<String> {
-  List<String> options;
+  Set<String> options;
 
   static const IconData iconData = Icons.category;
 
@@ -31,7 +31,7 @@ class CategoricalAdjustment extends Adjustment<String> {
     'type': 'categorical',
     'valueType': valueType.toString(),
     'unit': unit,
-    'options': options,
+    'options': options.toList(),
   };
 
   factory CategoricalAdjustment.fromJson(Map<String, dynamic> json) {
@@ -43,7 +43,7 @@ class CategoricalAdjustment extends Adjustment<String> {
           name: json['name'],
           notes: json['notes'],
           unit: json['unit'] as String?,
-          options: List<String>.from(json['options']),
+          options: Set<String>.from(json['options']),
         );
       default: throw Exception("Json Version $version of CategoricalAdjustment incompatible.");
     }

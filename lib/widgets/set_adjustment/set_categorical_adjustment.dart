@@ -32,7 +32,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
       isInitial = false;
       highlightColor = null;
     }
-    final options = adjustment.options;
+    final Set<String> options = adjustment.options;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

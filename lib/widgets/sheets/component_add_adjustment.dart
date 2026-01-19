@@ -13,8 +13,8 @@ import 'sheet.dart';
 
 final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
   ComponentType.frame: [
-    CategoricalAdjustment(name: "Flipchip", notes: "Controls geometry and bottom bracket height", unit: null, options: ["Low", "Mid", "High"]),
-    CategoricalAdjustment(name: "Chainstay Length", notes: "Some bikes have a adjustable chainstay length", unit: null, options: ["Short", "Mid", "Long"]),
+    CategoricalAdjustment(name: "Flipchip", notes: "Controls geometry and bottom bracket height", unit: null, options: {"Low", "Mid", "High"}),
+    CategoricalAdjustment(name: "Chainstay Length", notes: "Some bikes have a adjustable chainstay length", unit: null, options: {"Short", "Mid", "Long"}),
   ],
   ComponentType.fork: [
     BooleanAdjustment(name: "Lockout", unit: null, notes: "Is the lockout lever enabled?"),
@@ -34,23 +34,23 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
   ComponentType.wheelFront: [
     NumericalAdjustment(name: "Pressure", unit: "bar", min: 0, notes: "Front tire pressure"),
     BooleanAdjustment(name: "Insert", unit: null, notes: "Tire insert installed?"),
-    CategoricalAdjustment(name: "Wear", options: ["New", "Used", "Worn Out"], unit: null, notes: "Current state of the tire tread"),
+    CategoricalAdjustment(name: "Wear", options: {"New", "Used", "Worn Out"}, unit: null, notes: "Current state of the tire tread"),
   ],
   ComponentType.wheelRear: [
     NumericalAdjustment(name: "Pressure", unit: "bar", min: 0, notes: "Rear tire pressure"),
     BooleanAdjustment(name: "Insert", unit: null, notes: "Tire insert installed?"),
-    CategoricalAdjustment(name: "Wear", options: ["New", "Used", "Worn Out"], unit: null, notes: "Current state of the tire tread"),
+    CategoricalAdjustment(name: "Wear", options: {"New", "Used", "Worn Out"}, unit: null, notes: "Current state of the tire tread"),
   ],
   ComponentType.motor: [
     NumericalAdjustment(name: "Max Power", unit: "W", min: 0, notes: "Maximum motor power output"),
     NumericalAdjustment(name: "Max Torque", unit: "Nm", min: 0, notes: "Maximum motor torque"),
-    CategoricalAdjustment(name: "Mode", notes: "Current assistance level", unit: null, options: ["Eco", "Trail", "Turbo", "Boost", "Auto"]),
+    CategoricalAdjustment(name: "Mode", notes: "Current assistance level", unit: null, options: {"Eco", "Trail", "Turbo", "Boost", "Auto"}),
   ],
   ComponentType.equipment: [
     BooleanAdjustment(name: "Backpack", notes: "Wearing a backpack? Yes/No", unit: null),
-    CategoricalAdjustment(name: "Upper clothing layer 1", notes: "First clothing layer from inside (e.g. thermal shirt, ...)", unit: null, options: ["my Clothing Item A", "my Clothing Item B"]),
-    CategoricalAdjustment(name: "Upper clothing layer 2", notes: "Second clothing layer from inside (e.g. wind jacket, ...)", unit: null, options: ["my Clothing Item A", "my Clothing Item B"]),
-    CategoricalAdjustment(name: "Cleat Position", notes: "Shoe cleat fore/aft or lateral position", unit: null, options: ["Forward", "Neutral", "Rearward"]),
+    CategoricalAdjustment(name: "Upper clothing layer 1", notes: "First clothing layer from inside (e.g. thermal shirt, ...)", unit: null, options: {"my Clothing Item A", "my Clothing Item B"}),
+    CategoricalAdjustment(name: "Upper clothing layer 2", notes: "Second clothing layer from inside (e.g. wind jacket, ...)", unit: null, options: {"my Clothing Item A", "my Clothing Item B"}),
+    CategoricalAdjustment(name: "Cleat Position", notes: "Shoe cleat fore/aft or lateral position", unit: null, options: {"Forward", "Neutral", "Rearward"}),
   ],
   ComponentType.other: [
     NumericalAdjustment(name: "Saddle Height", unit: "mm", min: 0, notes: "Distance from Bottom Bracket to top of saddle"),

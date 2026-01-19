@@ -222,15 +222,21 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                   headingTextStyle: TextStyle(fontWeight: FontWeight.bold),
                   columns: _showColumns.entries.expand((sectionShowColumnsEntry) {
                     return sectionShowColumnsEntry.value.entries.where((showColumnEntry) => showColumnEntry.value).map((showColumnEntry) {
-                      return DataColumn(
-                        label: Text(
-                          sectionShowColumnsEntry.key == "Adjustments" 
-                              ? (widget.component.adjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key)?.name ?? "-") 
-                              : showColumnEntry.key, 
-                          overflow: TextOverflow.ellipsis
-                        ),
-                        onSort: (columnIndex, ascending) => onSortColum(showColumnEntry.key, columnIndex, ascending),
-                      );
+                      if (sectionShowColumnsEntry.key == "Adjustments") {
+                        final Adjustment? adjustment = widget.component.adjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key);
+                        return DataColumn(
+                          label: Text(
+                            (adjustment?.name ?? "-") + (adjustment?.unit != null ? " [${adjustment!.unit}]" : ""),
+                            overflow: TextOverflow.ellipsis
+                          ),
+                          onSort: (columnIndex, ascending) => onSortColum(showColumnEntry.key, columnIndex, ascending),
+                        );
+                      } else {
+                        return DataColumn(
+                          label: Text(showColumnEntry.key, overflow: TextOverflow.ellipsis),
+                          onSort: (columnIndex, ascending) => onSortColum(showColumnEntry.key, columnIndex, ascending),
+                        );
+                      }               
                     }).toList();
                   }).toList(),
                   rows: _setups.map((setup) {

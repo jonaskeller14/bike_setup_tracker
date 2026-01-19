@@ -62,14 +62,16 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   Iterable<Component> _bikeComponents = [];
   late DateTime _selectedDateTime;
   late DateTime _initialDateTime;
-  Map<String, dynamic> _bikeAdjustmentValues = {};
-  Map<String, dynamic> _personAdjustmentValues = {};
+  final Map<String, dynamic> _bikeAdjustmentValues = {};
+  final Map<String, dynamic> _personAdjustmentValues = {};
   final Map<String, dynamic> _ratingAdjustmentValues = {};
   final Map<String, dynamic> _initialBikeAdjustmentValues = {};
   final Map<String, dynamic> _initialPersonAdjustmentValues = {};
   final Map<String, dynamic> _initialRatingAdjustmentValues = {};
-  Map<String, dynamic> _danglingBikeAdjustmentValues = {};
-  Map<String, dynamic> _danglingPersonAdjustmentValues = {};
+  final Map<String, dynamic> _previousBikeAdjustmentValues = {};
+  final Map<String, dynamic> _previousPersonAdjustmentValues = {};
+  final Map<String, dynamic> _danglingBikeAdjustmentValues = {};
+  final Map<String, dynamic> _danglingPersonAdjustmentValues = {};
   final Map<String, dynamic> _danglingRatingAdjustmentValues = {};
   final Map<String, Rating> _filteredRatings = {};
 
@@ -119,45 +121,62 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     }
   }
 
-  void _setAdjustmentValuesFromInitialAdjustmentValues() {
+  void _setAdjustmentValuesFromPreviousAndInitialAdjustmentValues() {
+    // ADD+EDIT SETUP
     _bikeAdjustmentValues.clear();
-    _bikeAdjustmentValues = Map.from(_initialBikeAdjustmentValues);
-    if (widget.setup != null) {
-      // Overwrite adjustment values with those from the setup being edited (no effect for current Setup)
-      _bikeAdjustmentValues.addAll(widget.setup!.bikeAdjustmentValues);
-    }
-
     _personAdjustmentValues.clear();
-    _personAdjustmentValues = Map.from(_initialPersonAdjustmentValues);
-    if (widget.setup != null) {
-      // Overwrite adjustment values with those from the setup being edited (no effect for current Setup)
-      _personAdjustmentValues.addAll(widget.setup!.personAdjustmentValues);
-    }
-
     _ratingAdjustmentValues.clear();
+
+    _bikeAdjustmentValues.addAll(_previousBikeAdjustmentValues);
+    _personAdjustmentValues.addAll(_previousPersonAdjustmentValues);
+    
     if (widget.setup != null) {
-      _ratingAdjustmentValues.addAll(widget.setup!.ratingAdjustmentValues);
+      // EDIT SETUP
+      _bikeAdjustmentValues.addAll(_initialBikeAdjustmentValues);
+      _personAdjustmentValues.addAll(_initialPersonAdjustmentValues);
+      _ratingAdjustmentValues.addAll(_initialRatingAdjustmentValues);
     }
   }
 
-  void _setInitialAdjustmentValues() {
+  void _setPreviousAdjustmentValues() {
     // Case: Component added after setups --> Date is changed to Setup without new component --> initial values need to be null
-    _initialBikeAdjustmentValues.clear();
     // All components of a bike have the same current Setup! see _HomePageState.updateSetupsAfter()
-    if (_previousBikeSetup != null) _initialBikeAdjustmentValues.addAll(_previousBikeSetup!.bikeAdjustmentValues);
+    _previousBikeAdjustmentValues.clear();
+    if (_previousBikeSetup != null) _previousBikeAdjustmentValues.addAll(_previousBikeSetup!.bikeAdjustmentValues);
 
+    _previousPersonAdjustmentValues.clear();
+    if (_previousPersonSetup != null) _previousPersonAdjustmentValues.addAll(_previousPersonSetup!.personAdjustmentValues);
+  }
 
-    _initialPersonAdjustmentValues.clear();
-    if (_previousPersonSetup != null) _initialPersonAdjustmentValues.addAll(_previousPersonSetup!.personAdjustmentValues);
+  void _setInitialAdjustmentValues() {
+    if (widget.setup == null) {
+      // ADD SETUP
+      _initialBikeAdjustmentValues.clear();
+      _initialBikeAdjustmentValues.addAll(_previousBikeAdjustmentValues);
 
-    _initialRatingAdjustmentValues.clear();
+      _initialPersonAdjustmentValues.clear();
+      _initialPersonAdjustmentValues.addAll(_previousPersonAdjustmentValues);
+
+      _initialRatingAdjustmentValues.clear();
+    } else {
+      // EDIT SETUP
+      _initialBikeAdjustmentValues.clear();
+      _initialBikeAdjustmentValues.addAll(widget.setup!.bikeAdjustmentValues);
+
+      _initialPersonAdjustmentValues.clear();
+      _initialPersonAdjustmentValues.addAll(widget.setup!.personAdjustmentValues);
+
+      _initialRatingAdjustmentValues.clear();
+      _initialRatingAdjustmentValues.addAll(widget.setup!.ratingAdjustmentValues);
+    }
   }
 
   void _setDanglingAdjustmentValues() {
     // Assumes _filteredRatings was calcualted before
     if (widget.setup == null) return;
     
-    _danglingBikeAdjustmentValues = Map.from(_bikeAdjustmentValues);
+    _danglingBikeAdjustmentValues.clear();
+    _danglingBikeAdjustmentValues.addAll(_bikeAdjustmentValues);
     for (final bikeComponent in _bikeComponents) {
       for (final bikeComponentAdj in bikeComponent.adjustments) {
         _danglingBikeAdjustmentValues.remove(bikeComponentAdj.id);
@@ -167,7 +186,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     final appData = context.read<AppData>();
     final persons = Map.fromEntries(appData.persons.entries.where((e) => !e.value.isDeleted));
-    _danglingPersonAdjustmentValues = Map.from(_personAdjustmentValues);
+    _danglingPersonAdjustmentValues.clear();
+    _danglingPersonAdjustmentValues.addAll(_personAdjustmentValues);
     for (final personAdj in persons[_person]?.adjustments ?? []) {
       _danglingPersonAdjustmentValues.remove(personAdj.id);
     }
@@ -208,10 +228,13 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _bike = newBike;
       _person = bikes[_bike]?.person;
       _bikeComponents = components.values.where((c) => c.bike == _bike).toList();
+
       _previousBikeSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: _bike);
       _previousPersonSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, person: _person);
+
+      _setPreviousAdjustmentValues();
       _setInitialAdjustmentValues();
-      _setAdjustmentValuesFromInitialAdjustmentValues();
+      _setAdjustmentValuesFromPreviousAndInitialAdjustmentValues();
       _setFilteredRatings();
       _setDanglingAdjustmentValues();
     });
@@ -300,6 +323,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   void _changeListener() {
+    const equality = DeepCollectionEquality();
+
     final hasChanges = _nameController.text.trim() != (widget.setup?.name ?? '') || 
         _notesController.text.trim() != (widget.setup?.notes ?? '') || 
         _initialDateTime != _selectedDateTime || 
@@ -317,10 +342,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         _bike != _initialBike || 
         _person != _initialPerson ||
 
-        //FIXME: Iterate over adjustmentValues instead initialADjustmentValues?
-        filterForValidBikeAdjustmentValues(_initialBikeAdjustmentValues).keys.any((adj) => _initialBikeAdjustmentValues[adj] != _bikeAdjustmentValues[adj]) || 
-        filterForValidPersonAdjustmentValues(_initialPersonAdjustmentValues).keys.any((adj) => _initialPersonAdjustmentValues[adj] != _personAdjustmentValues[adj]) || 
-        _ratingAdjustmentValues.keys.any((adj) => widget.setup?.ratingAdjustmentValues[adj] != _ratingAdjustmentValues[adj]);
+        !equality.equals(filterForValidBikeAdjustmentValues(_bikeAdjustmentValues), _initialBikeAdjustmentValues) ||
+        !equality.equals(filterForValidBikeAdjustmentValues(_personAdjustmentValues), _initialRatingAdjustmentValues) ||
+        !equality.equals(_ratingAdjustmentValues, _initialRatingAdjustmentValues);
 
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -375,6 +399,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _selectedDateTime = newDateTime;
       _previousBikeSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: _bike);
       _previousPersonSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, person: _person);
+      _setPreviousAdjustmentValues();
       _setInitialAdjustmentValues();
     });
     _changeListener();
@@ -391,7 +416,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     );
     if (result == false) return;
     setState(() {
-      _setAdjustmentValuesFromInitialAdjustmentValues();
+      _setAdjustmentValuesFromPreviousAndInitialAdjustmentValues();
     });
     _changeListener();
   }
@@ -424,6 +449,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _selectedDateTime = newDateTime;
       _previousBikeSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: _bike);
       _previousPersonSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, person: _person);
+      _setPreviousAdjustmentValues();
       _setInitialAdjustmentValues();
     });
     _changeListener();
@@ -439,7 +465,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     );
     if (result == false) return;
     setState(() {
-      _setAdjustmentValuesFromInitialAdjustmentValues();
+      _setAdjustmentValuesFromPreviousAndInitialAdjustmentValues();
     });
     _changeListener();
   }
@@ -544,8 +570,12 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final notesText = _notesController.text.trim();
     final notes = notesText.isEmpty ? null : notesText;
 
-    _bikeAdjustmentValues = filterForValidBikeAdjustmentValues(_bikeAdjustmentValues);
-    _personAdjustmentValues = filterForValidPersonAdjustmentValues(_personAdjustmentValues);
+    final filteredBikeAdjustmentValues = filterForValidBikeAdjustmentValues(_bikeAdjustmentValues);
+    _bikeAdjustmentValues.clear();
+    _bikeAdjustmentValues.addAll(filteredBikeAdjustmentValues);
+    final filteredPersonAdjustmentValues = filterForValidPersonAdjustmentValues(_personAdjustmentValues);
+    _personAdjustmentValues.clear();
+    _personAdjustmentValues.addAll(filteredPersonAdjustmentValues);
 
     _formHasChanges = false;
     if (!mounted) return;
@@ -1015,7 +1045,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                       AdjustmentSetList(
                                         key: ValueKey([bikeComponent.id, _previousBikeSetup, _bikeAdjustmentValues.values]),
                                         adjustments: bikeComponent.adjustments,
-                                        initialAdjustmentValues: _initialBikeAdjustmentValues,
+                                        initialAdjustmentValues: _previousBikeAdjustmentValues,
                                         adjustmentValues: _bikeAdjustmentValues,
                                         onAdjustmentValueChanged: _onBikeAdjustmentValueChanged,
                                         removeFromAdjustmentValues: _removeFromBikeAdjustmentValues,
@@ -1095,7 +1125,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                       AdjustmentSetList(
                                         key: ValueKey([_person, _previousPersonSetup, _personAdjustmentValues.values]),
                                         adjustments: persons[_person]!.adjustments,
-                                        initialAdjustmentValues: _initialPersonAdjustmentValues,
+                                        initialAdjustmentValues: _previousPersonAdjustmentValues,
                                         adjustmentValues: _personAdjustmentValues,
                                         onAdjustmentValueChanged: _onPersonAdjustmentValueChanged,
                                         removeFromAdjustmentValues: _removeFromPersonAdjustmentValues,

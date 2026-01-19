@@ -301,7 +301,11 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                               children: [
                                 ListTile(
                                   title: const Text("Dangling Adjustment Values", style: TextStyle(fontWeight: FontWeight.bold)),
-                                  subtitle: Text('${danglingBikeAdjustmentValues.length} adjustments found that are not associated with this bike.'),
+                                  subtitle: Text(Intl.plural(
+                                    danglingBikeAdjustmentValues.length, 
+                                    one: "1 adjustment value found that is not associated with this bike.",
+                                    other: "${danglingBikeAdjustmentValues.length} adjustment values found that are not associated with this bike.",
+                                    ), style: TextStyle(fontWeight: FontWeight.bold)),
                                   leading: Icon(Icons.question_mark),
                                 ),
                                 ...danglingBikeAdjustmentValues.entries.map((danglingAdjustmentValue) {
@@ -350,7 +354,11 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                                 children: [
                                   ListTile(
                                     title: const Text("Dangling Attribute Values", style: TextStyle(fontWeight: FontWeight.bold)),
-                                    subtitle: Text('${danglingPersonAdjustmentValues.length} attributes found that are not associated with this person'),
+                                    subtitle: Text(Intl.plural(
+                                      danglingPersonAdjustmentValues.length, 
+                                      one: "1 attribute value found that is not associated with this person.",
+                                      other: "${danglingPersonAdjustmentValues.length} attribute values found that are not associated with this person.",
+                                    ), style: TextStyle(fontWeight: FontWeight.bold)),
                                     leading: Icon(Icons.question_mark),
                                   ),
                                   ...danglingPersonAdjustmentValues.entries.map((danglingAdjustmentValue) {
@@ -450,7 +458,11 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                                 children: [
                                   ListTile(
                                     title: const Text("Dangling Rating Values", style: TextStyle(fontWeight: FontWeight.bold)),
-                                    subtitle: Text('${danglingRatingAdjustmentValues.length} rating values found that are not associated with this bike/person/components.'),
+                                    subtitle: Text(Intl.plural(
+                                      danglingRatingAdjustmentValues.length, 
+                                      one: "1 rating value found that is not associated with this bike/person/components.",
+                                      other: "${danglingRatingAdjustmentValues.length} rating values found that are not associated with this bike/person/components.",
+                                    ), style: TextStyle(fontWeight: FontWeight.bold)),
                                     leading: Icon(Icons.question_mark),
                                   ),
                                   ...danglingRatingAdjustmentValues.entries.map((danglingAdjustmentValue) {

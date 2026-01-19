@@ -12,6 +12,7 @@ import '../models/app_data.dart';
 import '../widgets/sheets/setup_list_values_filter.dart';
 import 'bike_page.dart';
 import 'component_page.dart';
+import 'setup_display_page.dart';
 import 'setup_page.dart';
 import 'person_page.dart';
 import 'rating_page.dart';
@@ -674,6 +675,66 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  SearchAnchor _setupListSearchWidget() {
+    return SearchAnchor(
+      builder:(context, controller) {
+        return FilterChip(
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          // label: Text(controller.text),
+          label: const SizedBox.shrink(),
+          labelPadding: EdgeInsets.symmetric(vertical: 2),
+          padding: EdgeInsets.zero,
+          avatar: Icon(Icons.search),
+          showCheckmark: false,
+          // selected: controller.text.isNotEmpty,
+          selected: false,
+          onSelected: (bool newValue) {controller.text = ""; controller.openView();},
+          // onDeleted: controller.text.isEmpty ? null : () => setState(() => controller.text = ""),
+        );
+      },
+      viewBuilder: (Iterable<Widget> suggestions) {
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: suggestions.length,
+          itemBuilder: (context, index) => suggestions.elementAt(index),
+        );
+      },
+      suggestionsBuilder: (context, controller) {
+        final data = context.read<AppData>();
+        final controllerText = controller.text.trim().toLowerCase();
+        final Iterable<Setup> setups = _setupListSortAccending
+            ? data.filteredSetups.values
+            : data.filteredSetups.values.toList().reversed;
+        final Iterable<Setup> suggestedSetups = setups.where((s) {
+          return s.name.toLowerCase().contains(controllerText) || 
+              (s.notes ?? "").toLowerCase().contains(controllerText);
+        });
+
+        return suggestedSetups.map((setup) {
+          return InkWell(
+            onTap: () async {
+              await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDisplayPage(
+                setupIds: suggestedSetups.map((s) => s.id).toList(),
+                initialSetup: setup,
+                editSetup: editSetup,
+              )));
+            },
+            child: SetupCard(
+              setupId: setup.id, 
+              editSetup: editSetup, 
+              restoreSetup: duplicateSetup, 
+              removeSetup: removeSetup, 
+              displayOnlyChanges: _setupListOnlyChanges, 
+              displayBikeAdjustmentValues:_setupListBikeAdjustmentValues, 
+              displayPersonAdjustmentValues: _setupListPersonAdjustmentValues, 
+              displayRatingAdjustmentValues: _setupListRatingAdjustmentValues,
+            ),
+          );
+        });
+      },
+    );
+  }
+
   SingleChildScrollView _bikeListFilterWidget() {
     return SingleChildScrollView(
       padding: const EdgeInsets.only(bottom: 8),
@@ -708,6 +769,7 @@ class _HomePageState extends State<HomePage> {
         spacing: 6,
         children: [
           _setupListSortWidget(),
+          _setupListSearchWidget(),
           _bikeFilterWidget(),
           _setupListValueFilterWidget(),
         ],
@@ -889,11 +951,7 @@ class _HomePageState extends State<HomePage> {
           filterWidget: _componentListFilterWidget(),
         ),
         SetupList(
-          persons: data.filteredPersons,
-          ratings: data.filteredRatings,
-          bikes: data.filteredBikes,
           setups: data.filteredSetups,
-          components: data.filteredComponents,
           editSetup: editSetup,
           restoreSetup: duplicateSetup,
           removeSetup: removeSetup,

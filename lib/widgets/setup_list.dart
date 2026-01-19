@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../models/app_data.dart';
 import '../models/setup.dart';
-import '../models/person.dart';
-import '../models/rating.dart';
 import '../models/bike.dart';
-import '../models/component.dart';
 import '../models/weather.dart';
 import '../models/app_settings.dart';
 import '../pages/setup_display_page.dart';
@@ -14,11 +12,7 @@ import 'adjustment_compact_display_list.dart';
 const defaultVisibleCount = 10;
 
 class SetupList extends StatefulWidget {
-  final Map<String, Person> persons;
-  final Map<String, Rating> ratings;
-  final Map<String, Bike> bikes;
   final Map<String, Setup> setups;
-  final Map<String, Component> components;
   final void Function(Setup setup) editSetup;
   final void Function(Setup setup) restoreSetup;
   final void Function(Setup setup) removeSetup;
@@ -31,11 +25,7 @@ class SetupList extends StatefulWidget {
 
   const SetupList({
     super.key,
-    required this.persons,
-    required this.ratings,
-    required this.bikes,
     required this.setups,
-    required this.components,
     required this.editSetup,
     required this.restoreSetup,
     required this.removeSetup,
@@ -54,7 +44,107 @@ class SetupList extends StatefulWidget {
 class _SetupListState extends State<SetupList> {
   bool _expanded = false;
 
-  Widget _setupCardCurrentLabel() {
+  @override
+  Widget build(BuildContext context) {
+    final visibleCount = _expanded
+        ? widget.setups.length
+        : widget.setups.length.clamp(0, defaultVisibleCount);
+    
+    final setups = widget.setups.values.toList();
+
+    return widget.setups.isEmpty
+        ? Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                widget.filterWidget,
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      'No setups yet',
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        : ListView(
+            padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
+            children: [
+              widget.filterWidget,
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: visibleCount,
+                itemBuilder: (context, index) {
+                  final setup = widget.accending 
+                      ? setups[index] 
+                      : setups[widget.setups.length - 1 - index];
+                  return InkWell(
+                    onTap: () async {
+                      Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDisplayPage(
+                        setupIds: setups.map((s) => s.id).toList(),
+                        initialSetup: setup,
+                        editSetup: widget.editSetup,
+                      )));
+                    },
+                    child: SetupCard(
+                      setupId: setup.id,
+                      editSetup: widget.editSetup,
+                      restoreSetup: widget.restoreSetup,
+                      removeSetup: widget.removeSetup,
+                      displayOnlyChanges: widget.displayOnlyChanges,
+                      displayBikeAdjustmentValues: widget.displayBikeAdjustmentValues,
+                      displayPersonAdjustmentValues: widget.displayPersonAdjustmentValues,
+                      displayRatingAdjustmentValues: widget.displayRatingAdjustmentValues,  
+                    ),
+                  ); 
+                },
+              ),
+              if (widget.setups.length > defaultVisibleCount)
+                Center(
+                  child: TextButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _expanded = !_expanded;
+                      });
+                    },
+                    icon: Icon(
+                      _expanded ? Icons.expand_less : Icons.expand_more,
+                    ),
+                    label: Text(_expanded ? "Show less" : "Show more"),
+                  ),
+                ),
+            ]
+          );
+  }
+}
+
+class SetupCard extends StatelessWidget {
+  final String setupId;
+  final void Function(Setup setup) editSetup;
+  final void Function(Setup setup) restoreSetup;
+  final void Function(Setup setup) removeSetup;
+  final bool displayOnlyChanges;
+  final bool displayBikeAdjustmentValues;
+  final bool displayPersonAdjustmentValues;
+  final bool displayRatingAdjustmentValues;
+
+  const SetupCard({
+    super.key,
+    required this.setupId,
+    required this.editSetup,
+    required this.restoreSetup,
+    required this.removeSetup,
+    required this.displayOnlyChanges,
+    required this.displayBikeAdjustmentValues,
+    required this.displayPersonAdjustmentValues,
+    required this.displayRatingAdjustmentValues,
+  });
+
+  Widget _setupCardCurrentLabel(BuildContext context) {
     return Positioned(
       top: -1, 
       right: -1, 
@@ -79,7 +169,11 @@ class _SetupListState extends State<SetupList> {
     );
   }
 
-  ListTile _setupListTile(Setup setup, {required String dateFormat, required String timeFormat, required String altitudeUnit, required String temperatureUnit}) {
+  ListTile _setupListTile(BuildContext context, Setup setup) {
+    final appSettings = context.watch<AppSettings>();
+    final appData = context.watch<AppData>();
+    final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
+    
     return ListTile(
       contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
       minTileHeight: 0,
@@ -102,7 +196,7 @@ class _SetupListState extends State<SetupList> {
                   Icon(Icons.calendar_month, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   const SizedBox(width: 2),
                   Text(
-                    DateFormat(dateFormat).format(setup.datetime),
+                    DateFormat(appSettings.dateFormat).format(setup.datetime),
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                       fontSize: 13,
@@ -117,7 +211,7 @@ class _SetupListState extends State<SetupList> {
                   Icon(Icons.access_time, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   const SizedBox(width: 2),
                   Text(
-                    DateFormat(timeFormat).format(setup.datetime),
+                    DateFormat(appSettings.timeFormat).format(setup.datetime),
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                       fontSize: 13,
@@ -132,7 +226,7 @@ class _SetupListState extends State<SetupList> {
                   Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   const SizedBox(width: 2),
                   Text(
-                    widget.bikes[setup.bike]?.name ?? "-",
+                    bikes[setup.bike]?.name ?? "-",
                     style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -161,7 +255,7 @@ class _SetupListState extends State<SetupList> {
                     Icon(Icons.arrow_upward, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     const SizedBox(width: 2),
                     Text(
-                      "${Setup.convertAltitudeFromMeters(setup.position!.altitude!, altitudeUnit).round()} $altitudeUnit",
+                      "${Setup.convertAltitudeFromMeters(setup.position!.altitude!, appSettings.altitudeUnit).round()} ${appSettings.altitudeUnit}",
                       style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                     ),
                   ],
@@ -175,7 +269,7 @@ class _SetupListState extends State<SetupList> {
                     Icon(Weather.currentTemperatureIconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     const SizedBox(width: 2),
                     Text(
-                      "${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, temperatureUnit).round()} $temperatureUnit",
+                      "${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit).round()} ${appSettings.temperatureUnit}",
                       style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                     ),
                   ],
@@ -226,11 +320,11 @@ class _SetupListState extends State<SetupList> {
       trailing: PopupMenuButton<String>(
         onSelected: (value) {
           if (value == 'edit') {
-            widget.editSetup(setup);
+            editSetup(setup);
           } else if (value == 'restore') {
-            widget.restoreSetup(setup);
+            restoreSetup(setup);
           } else if (value == 'remove') {
-            widget.removeSetup(setup);
+            removeSetup(setup);
           }
         },
         itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -269,7 +363,16 @@ class _SetupListState extends State<SetupList> {
     );
   }
 
-  Card _setupCard(Setup setup, {required String dateFormat, required String timeFormat, required String altitudeUnit, required String temperatureUnit}) {
+  @override
+  Widget build(BuildContext context) {
+    final appData = context.watch<AppData>();
+    final setups = Map.fromEntries(appData.setups.entries.where((e) => !e.value.isDeleted));
+    final components = Map.fromEntries(appData.components.entries.where((e) => !e.value.isDeleted));
+    final persons = Map.fromEntries(appData.persons.entries.where((e) => !e.value.isDeleted));
+    final ratings = Map.fromEntries(appData.ratings.entries.where((e) => !e.value.isDeleted));
+    final setup = setups[setupId];
+    if (setup == null) return const SizedBox.shrink();
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       shape: setup.isCurrent 
@@ -285,109 +388,27 @@ class _SetupListState extends State<SetupList> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _setupListTile(
-                setup,
-                dateFormat: dateFormat,
-                timeFormat: timeFormat,
-                altitudeUnit: altitudeUnit,
-                temperatureUnit: temperatureUnit, 
-              ),
+              _setupListTile(context, setup),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
                 child: AdjustmentCompactDisplayList(
-                  components: [for (var c in widget.components.values) c, for (var p in widget.persons.values) p, for (var r in widget.ratings.values) r],
+                  components: [for (var c in components.values) c, for (var p in persons.values) p, for (var r in ratings.values) r],
                   adjustmentValues: {for (var e in setup.personAdjustmentValues.entries) e.key: e.value, for (var e in setup.bikeAdjustmentValues.entries) e.key: e.value, for (var e in setup.ratingAdjustmentValues.entries) e.key: e.value},
                   previousAdjustmentValues: {for (var e in (setup.previousBikeSetup?.bikeAdjustmentValues.entries ?? {}.entries)) e.key: e.value, for (var e in (setup.previousPersonSetup?.personAdjustmentValues.entries ?? {}.entries)) e.key: e.value},
                   showComponentIcons: true,
                   highlightInitialValues: true,
-                  displayOnlyChanges: widget.displayOnlyChanges,
-                  displayBikeAdjustmentValues: widget.displayBikeAdjustmentValues,
-                  displayPersonAdjustmentValues: widget.displayPersonAdjustmentValues,
-                  displayRatingAdjustmentValues: widget.displayRatingAdjustmentValues,
+                  displayOnlyChanges: displayOnlyChanges,
+                  displayBikeAdjustmentValues: displayBikeAdjustmentValues,
+                  displayPersonAdjustmentValues: displayPersonAdjustmentValues,
+                  displayRatingAdjustmentValues: displayRatingAdjustmentValues,
                 ),
               ),
             ],
           ),
           if (setup.isCurrent)
-            _setupCardCurrentLabel(),
+            _setupCardCurrentLabel(context),
         ],
       ),
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final appSettings = context.watch<AppSettings>();
-    final visibleCount = _expanded
-        ? widget.setups.length
-        : widget.setups.length.clamp(0, defaultVisibleCount);
-    
-    final setups = widget.setups.values.toList();
-
-    return widget.setups.isEmpty
-        ? Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                widget.filterWidget,
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      'No setups yet',
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )
-        : ListView(
-            padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
-            children: [
-              widget.filterWidget,
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: visibleCount,
-                itemBuilder: (context, index) {
-                  final setup = widget.accending 
-                      ? setups[index] 
-                      : setups[widget.setups.length - 1 - index];
-                  return InkWell(
-                    onTap: () async {
-                      //FIXME: for getPreviousSetupbyDateTime we need all setups, not just the filtered ones (which are displayed in this SetupList)
-                      Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDisplayPage(
-                        setupIds: setups.map((s) => s.id).toList(),
-                        initialSetup: setup,
-                        editSetup: widget.editSetup,
-                      )));
-                    },
-                    child: _setupCard(
-                      setup,
-                      dateFormat: appSettings.dateFormat,
-                      timeFormat: appSettings.timeFormat,
-                      altitudeUnit: appSettings.altitudeUnit,
-                      temperatureUnit: appSettings.temperatureUnit, 
-                    ),
-                  ); 
-                },
-              ),
-              if (widget.setups.length > defaultVisibleCount)
-                Center(
-                  child: TextButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _expanded = !_expanded;
-                      });
-                    },
-                    icon: Icon(
-                      _expanded ? Icons.expand_less : Icons.expand_more,
-                    ),
-                    label: Text(_expanded ? "Show less" : "Show more"),
-                  ),
-                ),
-            ]
-          );
   }
 }

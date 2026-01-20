@@ -564,7 +564,21 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   void _saveSetup() {
     if (_nameController.text.trim().isEmpty) _nameController.text = "Unnamed Setup";
 
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          showCloseIcon: true,
+          closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+          duration: Duration(seconds: 2),
+          content: Text(
+            'Please check all fields for missing or invalid input.', 
+            style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)
+          ),
+          backgroundColor: Theme.of(context).colorScheme.errorContainer,
+        ),
+      );
+      return;
+    }
     final name = _nameController.text.trim();
 
     final notesText = _notesController.text.trim();
@@ -1019,138 +1033,56 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
             body: TabBarView(
               controller: _tabController,
               children: <Widget>[
-                CustomScrollView(
-                  key: const PageStorageKey<String>('tab1_bike'), // Key to keep scroll position
-                  slivers: [
-                    SliverPadding(
-                      padding: const EdgeInsets.all(16.0),
-                      sliver: SliverList(
-                        delegate: SliverChildListDelegate(
-                          [
-                            if (_bikeComponents.isEmpty)
-                              SizedBox(
-                                height: 100,
-                                child: Center(
-                                  child: Text(
-                                    'No components available.',
-                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                                  ),
-                                ),
-                              )
-                            else
-                              ..._bikeComponents.map((bikeComponent) {
-                                return Card(
-                                  margin: const EdgeInsets.symmetric(vertical: 4),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      ListTile(
-                                        title: Text(bikeComponent.name, style: TextStyle(fontWeight: FontWeight.bold)),
-                                        subtitle: Text(Intl.plural(
-                                          bikeComponent.adjustments.length,
-                                          zero: "No adjustments yet.",
-                                          one: "1 adjustment",
-                                          other: '${bikeComponent.adjustments.length} adjustments',
-                                        )),
-                                        leading: Icon(bikeComponent.componentType.getIconData()),
-                                      ),
-                                      AdjustmentSetList(
-                                        key: ValueKey([bikeComponent.id, _previousBikeSetup, _bikeAdjustmentValues.values]),
-                                        adjustments: bikeComponent.adjustments,
-                                        initialAdjustmentValues: _previousBikeAdjustmentValues,
-                                        adjustmentValues: _bikeAdjustmentValues,
-                                        onAdjustmentValueChanged: _onBikeAdjustmentValueChanged,
-                                        removeFromAdjustmentValues: _removeFromBikeAdjustmentValues,
-                                        changeListener: _changeListener,
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }),
-                            if (_danglingBikeAdjustmentValues.isNotEmpty)
-                              Opacity(
-                                opacity: 0.4,
-                                child: Card(
-                                  margin: const EdgeInsets.symmetric(vertical: 4),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      ListTile(
-                                        title: const Text("Dangling Adjustment Values", style: TextStyle(fontWeight: FontWeight.bold)),
-                                        subtitle: Text(Intl.plural(
-                                          _danglingBikeAdjustmentValues.length, 
-                                          one: "1 adjustment value found that is not associated with this bike. Cannot be edited.",
-                                          other: "${_danglingBikeAdjustmentValues.length} adjustment values found that are not associated with this bike. Cannot be edited.",
-                                        )),
-                                        leading: Icon(Icons.question_mark),
-                                      ),
-                                      ..._danglingBikeAdjustmentValues.entries.map((danglingAdjustmentValue) {
-                                        return DisplayDanglingAdjustmentWidget(
-                                          name: danglingAdjustmentValue.key, 
-                                          initialValue: _initialBikeAdjustmentValues[danglingAdjustmentValue.key], 
-                                          value: danglingAdjustmentValue.value
-                                        );
-                                      }),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            const ValueChangeLegend(),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                if (context.read<AppSettings>().enablePerson)
-                  CustomScrollView(
-                    key: const PageStorageKey<String>('tab2_person'), // Key to keep scroll position
+                TabContentWrapper(
+                  child: CustomScrollView(
+                    key: const PageStorageKey<String>('tab1_bike'), // Key to keep scroll position
                     slivers: [
                       SliverPadding(
                         padding: const EdgeInsets.all(16.0),
                         sliver: SliverList(
                           delegate: SliverChildListDelegate(
                             [
-                              if (persons[_person] == null)
+                              if (_bikeComponents.isEmpty)
                                 SizedBox(
                                   height: 100,
                                   child: Center(
                                     child: Text(
-                                      'No person linked to this bike. \nExit and edit bike to link a person.',
-                                      textAlign: TextAlign.center,
+                                      'No components available.',
                                       style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
                                     ),
                                   ),
                                 )
                               else
-                                Card(
-                                  margin: const EdgeInsets.symmetric(vertical: 4),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      ListTile(
-                                        title: Text(persons[_person]!.name, style: TextStyle(fontWeight: FontWeight.bold)),
-                                        subtitle: Text(Intl.plural(
-                                          persons[_person]!.adjustments.length,
-                                          zero: "No attributes yet.",
-                                          one: "1 attribute",
-                                          other: '${persons[_person]!.adjustments.length} attributes',
-                                        )),
-                                        leading: const Icon(Person.iconData),
-                                      ),
-                                      AdjustmentSetList(
-                                        key: ValueKey([_person, _previousPersonSetup, _personAdjustmentValues.values]),
-                                        adjustments: persons[_person]!.adjustments,
-                                        initialAdjustmentValues: _previousPersonAdjustmentValues,
-                                        adjustmentValues: _personAdjustmentValues,
-                                        onAdjustmentValueChanged: _onPersonAdjustmentValueChanged,
-                                        removeFromAdjustmentValues: _removeFromPersonAdjustmentValues,
-                                        changeListener: _changeListener,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              if (_danglingPersonAdjustmentValues.isNotEmpty)
+                                ..._bikeComponents.map((bikeComponent) {
+                                  return Card(
+                                    margin: const EdgeInsets.symmetric(vertical: 4),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        ListTile(
+                                          title: Text(bikeComponent.name, style: TextStyle(fontWeight: FontWeight.bold)),
+                                          subtitle: Text(Intl.plural(
+                                            bikeComponent.adjustments.length,
+                                            zero: "No adjustments yet.",
+                                            one: "1 adjustment",
+                                            other: '${bikeComponent.adjustments.length} adjustments',
+                                          )),
+                                          leading: Icon(bikeComponent.componentType.getIconData()),
+                                        ),
+                                        AdjustmentSetList(
+                                          key: ValueKey([bikeComponent.id, _previousBikeSetup, _bikeAdjustmentValues.values]),
+                                          adjustments: bikeComponent.adjustments,
+                                          initialAdjustmentValues: _previousBikeAdjustmentValues,
+                                          adjustmentValues: _bikeAdjustmentValues,
+                                          onAdjustmentValueChanged: _onBikeAdjustmentValueChanged,
+                                          removeFromAdjustmentValues: _removeFromBikeAdjustmentValues,
+                                          changeListener: _changeListener,
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              if (_danglingBikeAdjustmentValues.isNotEmpty)
                                 Opacity(
                                   opacity: 0.4,
                                   child: Card(
@@ -1159,19 +1091,19 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         ListTile(
-                                          title: const Text("Dangling Attribute Values", style: TextStyle(fontWeight: FontWeight.bold)),
+                                          title: const Text("Dangling Adjustment Values", style: TextStyle(fontWeight: FontWeight.bold)),
                                           subtitle: Text(Intl.plural(
-                                            _danglingPersonAdjustmentValues.length, 
-                                            one: "1 attribute value found that is not associated with this person. Cannot be edited.",
-                                            other: "${_danglingPersonAdjustmentValues.length} attribute values found that are not associated with this person. Cannot be edited.",
+                                            _danglingBikeAdjustmentValues.length, 
+                                            one: "1 adjustment value found that is not associated with this bike. Cannot be edited.",
+                                            other: "${_danglingBikeAdjustmentValues.length} adjustment values found that are not associated with this bike. Cannot be edited.",
                                           )),
                                           leading: Icon(Icons.question_mark),
                                         ),
-                                        ..._danglingPersonAdjustmentValues.entries.map((danglingAdjustmentValue) {
+                                        ..._danglingBikeAdjustmentValues.entries.map((danglingAdjustmentValue) {
                                           return DisplayDanglingAdjustmentWidget(
                                             name: danglingAdjustmentValue.key, 
-                                            initialValue: _initialPersonAdjustmentValues[danglingAdjustmentValue.key], 
-                                            value: danglingAdjustmentValue.value,
+                                            initialValue: _initialBikeAdjustmentValues[danglingAdjustmentValue.key], 
+                                            value: danglingAdjustmentValue.value
                                           );
                                         }),
                                       ],
@@ -1179,121 +1111,209 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                   ),
                                 ),
                               const ValueChangeLegend(),
-                            ]
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                if (context.read<AppSettings>().enableRating)
-                  CustomScrollView(
-                    key: const PageStorageKey<String>('tab3_rating'), // Key to keep scroll position
-                    slivers: [
-                      SliverPadding(
-                        padding: const EdgeInsets.all(16.0),
-                        sliver: SliverList(
-                          delegate: SliverChildListDelegate(
-                            [
-                              if (_filteredRatings.isEmpty)
-                                SizedBox(
-                                  height: 100,
-                                  child: Center(
-                                    child: Text(
-                                      'No ratings available. \nExit and add rating procedure.',
-                                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                                    ),
-                                  ),
-                                )
-                              else
-                                ..._filteredRatings.values.map((rating) {
-                                  return Card(
-                                    margin: const EdgeInsets.symmetric(vertical: 4),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        ListTile(
-                                          title: Text(rating.name, style: TextStyle(fontWeight: FontWeight.bold)),
-                                          subtitle: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Text(Intl.plural(
-                                                rating.adjustments.length,
-                                                zero: "No adjustments yet.",
-                                                one: "1 adjustment",
-                                                other: '${rating.adjustments.length} adjustments',
-                                              )),
-                                              Spacer(),
-                                              switch (rating.filterType) {
-                                                FilterType.bike => const Icon(Bike.iconData),
-                                                FilterType.person => const Icon(Person.iconData),
-                                                FilterType.component => Icon((components[rating.filter]?.componentType ?? ComponentType.other).getIconData()),
-                                                FilterType.componentType => Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData()),
-                                                FilterType.global => const SizedBox.shrink(),
-                                              },
-                                              const SizedBox(width: 2),
-                                              switch (rating.filterType) {
-                                                FilterType.bike => Text(bikes[rating.filter]?.name ?? "-", overflow: TextOverflow.ellipsis),
-                                                FilterType.person => Text(persons[rating.filter]?.name ?? "-", overflow: TextOverflow.ellipsis),
-                                                FilterType.componentType => Text(
-                                                  ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter)?.value ?? "-",
-                                                  overflow: TextOverflow.ellipsis,
-                                                ),
-                                                FilterType.component => Text(
-                                                  components[rating.filter]?.name ?? "-",
-                                                  overflow: TextOverflow.ellipsis,
-                                                ),
-                                                FilterType.global => const SizedBox.shrink(),
-                                              },
-                                            ],
-                                          ),
-                                          leading: const Icon(Rating.iconData),
-                                        ),
-                                        AdjustmentSetList(
-                                          key: ValueKey([rating.id, _previousBikeSetup, _bikeAdjustmentValues.values]),
-                                          adjustments: rating.adjustments,
-                                          initialAdjustmentValues: _initialRatingAdjustmentValues,
-                                          adjustmentValues: _ratingAdjustmentValues,
-                                          onAdjustmentValueChanged: _onRatingAdjustmentValueChanged,
-                                          removeFromAdjustmentValues: _removeFromRatingAdjustmentValues,
-                                          changeListener: _changeListener,
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }),
-                              if (_danglingRatingAdjustmentValues.isNotEmpty)
-                              Opacity(
-                                opacity: 0.4,
-                                child: Card(
-                                  margin: const EdgeInsets.symmetric(vertical: 4),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      ListTile(
-                                        title: const Text("Dangling Rating Values", style: TextStyle(fontWeight: FontWeight.bold)),
-                                        subtitle: Text(Intl.plural(
-                                          _danglingRatingAdjustmentValues.length, 
-                                          one: "1 rating value found that is not associated with this bike/person/components. Cannot be edited.",
-                                          other: "${_danglingRatingAdjustmentValues.length} rating values found that are not associated with this bike/person/components. Cannot be edited.",
-                                        )),
-                                        leading: Icon(Icons.question_mark),
-                                      ),
-                                      ..._danglingRatingAdjustmentValues.entries.map((danglingAdjustmentValue) {
-                                        return DisplayDanglingAdjustmentWidget(
-                                          name: danglingAdjustmentValue.key, 
-                                          initialValue: null,
-                                          value: danglingAdjustmentValue.value,
-                                        );
-                                      }),
-                                    ],
-                                  ),
-                                ),
-                              ),
                             ],
                           ),
                         ),
                       ),
                     ],
+                  ),
+                ),
+                if (context.read<AppSettings>().enablePerson)
+                  TabContentWrapper(
+                    child: CustomScrollView(
+                      key: const PageStorageKey<String>('tab2_person'), // Key to keep scroll position
+                      slivers: [
+                        SliverPadding(
+                          padding: const EdgeInsets.all(16.0),
+                          sliver: SliverList(
+                            delegate: SliverChildListDelegate(
+                              [
+                                if (persons[_person] == null)
+                                  SizedBox(
+                                    height: 100,
+                                    child: Center(
+                                      child: Text(
+                                        'No person linked to this bike. \nExit and edit bike to link a person.',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                                      ),
+                                    ),
+                                  )
+                                else
+                                  Card(
+                                    margin: const EdgeInsets.symmetric(vertical: 4),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        ListTile(
+                                          title: Text(persons[_person]!.name, style: TextStyle(fontWeight: FontWeight.bold)),
+                                          subtitle: Text(Intl.plural(
+                                            persons[_person]!.adjustments.length,
+                                            zero: "No attributes yet.",
+                                            one: "1 attribute",
+                                            other: '${persons[_person]!.adjustments.length} attributes',
+                                          )),
+                                          leading: const Icon(Person.iconData),
+                                        ),
+                                        AdjustmentSetList(
+                                          key: ValueKey([_person, _previousPersonSetup, _personAdjustmentValues.values]),
+                                          adjustments: persons[_person]!.adjustments,
+                                          initialAdjustmentValues: _previousPersonAdjustmentValues,
+                                          adjustmentValues: _personAdjustmentValues,
+                                          onAdjustmentValueChanged: _onPersonAdjustmentValueChanged,
+                                          removeFromAdjustmentValues: _removeFromPersonAdjustmentValues,
+                                          changeListener: _changeListener,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                if (_danglingPersonAdjustmentValues.isNotEmpty)
+                                  Opacity(
+                                    opacity: 0.4,
+                                    child: Card(
+                                      margin: const EdgeInsets.symmetric(vertical: 4),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          ListTile(
+                                            title: const Text("Dangling Attribute Values", style: TextStyle(fontWeight: FontWeight.bold)),
+                                            subtitle: Text(Intl.plural(
+                                              _danglingPersonAdjustmentValues.length, 
+                                              one: "1 attribute value found that is not associated with this person. Cannot be edited.",
+                                              other: "${_danglingPersonAdjustmentValues.length} attribute values found that are not associated with this person. Cannot be edited.",
+                                            )),
+                                            leading: Icon(Icons.question_mark),
+                                          ),
+                                          ..._danglingPersonAdjustmentValues.entries.map((danglingAdjustmentValue) {
+                                            return DisplayDanglingAdjustmentWidget(
+                                              name: danglingAdjustmentValue.key, 
+                                              initialValue: _initialPersonAdjustmentValues[danglingAdjustmentValue.key], 
+                                              value: danglingAdjustmentValue.value,
+                                            );
+                                          }),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                const ValueChangeLegend(),
+                              ]
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (context.read<AppSettings>().enableRating)
+                  TabContentWrapper(
+                    child: CustomScrollView(
+                      key: const PageStorageKey<String>('tab3_rating'), // Key to keep scroll position
+                      slivers: [
+                        SliverPadding(
+                          padding: const EdgeInsets.all(16.0),
+                          sliver: SliverList(
+                            delegate: SliverChildListDelegate(
+                              [
+                                if (_filteredRatings.isEmpty)
+                                  SizedBox(
+                                    height: 100,
+                                    child: Center(
+                                      child: Text(
+                                        'No ratings available. \nExit and add rating procedure.',
+                                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                                      ),
+                                    ),
+                                  )
+                                else
+                                  ..._filteredRatings.values.map((rating) {
+                                    return Card(
+                                      margin: const EdgeInsets.symmetric(vertical: 4),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          ListTile(
+                                            title: Text(rating.name, style: TextStyle(fontWeight: FontWeight.bold)),
+                                            subtitle: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(Intl.plural(
+                                                  rating.adjustments.length,
+                                                  zero: "No adjustments yet.",
+                                                  one: "1 adjustment",
+                                                  other: '${rating.adjustments.length} adjustments',
+                                                )),
+                                                Spacer(),
+                                                switch (rating.filterType) {
+                                                  FilterType.bike => const Icon(Bike.iconData),
+                                                  FilterType.person => const Icon(Person.iconData),
+                                                  FilterType.component => Icon((components[rating.filter]?.componentType ?? ComponentType.other).getIconData()),
+                                                  FilterType.componentType => Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData()),
+                                                  FilterType.global => const SizedBox.shrink(),
+                                                },
+                                                const SizedBox(width: 2),
+                                                switch (rating.filterType) {
+                                                  FilterType.bike => Text(bikes[rating.filter]?.name ?? "-", overflow: TextOverflow.ellipsis),
+                                                  FilterType.person => Text(persons[rating.filter]?.name ?? "-", overflow: TextOverflow.ellipsis),
+                                                  FilterType.componentType => Text(
+                                                    ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter)?.value ?? "-",
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                  FilterType.component => Text(
+                                                    components[rating.filter]?.name ?? "-",
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                  FilterType.global => const SizedBox.shrink(),
+                                                },
+                                              ],
+                                            ),
+                                            leading: const Icon(Rating.iconData),
+                                          ),
+                                          AdjustmentSetList(
+                                            key: ValueKey([rating.id, _previousBikeSetup, _bikeAdjustmentValues.values]),
+                                            adjustments: rating.adjustments,
+                                            initialAdjustmentValues: _initialRatingAdjustmentValues,
+                                            adjustmentValues: _ratingAdjustmentValues,
+                                            onAdjustmentValueChanged: _onRatingAdjustmentValueChanged,
+                                            removeFromAdjustmentValues: _removeFromRatingAdjustmentValues,
+                                            changeListener: _changeListener,
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }),
+                                if (_danglingRatingAdjustmentValues.isNotEmpty)
+                                Opacity(
+                                  opacity: 0.4,
+                                  child: Card(
+                                    margin: const EdgeInsets.symmetric(vertical: 4),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        ListTile(
+                                          title: const Text("Dangling Rating Values", style: TextStyle(fontWeight: FontWeight.bold)),
+                                          subtitle: Text(Intl.plural(
+                                            _danglingRatingAdjustmentValues.length, 
+                                            one: "1 rating value found that is not associated with this bike/person/components. Cannot be edited.",
+                                            other: "${_danglingRatingAdjustmentValues.length} rating values found that are not associated with this bike/person/components. Cannot be edited.",
+                                          )),
+                                          leading: Icon(Icons.question_mark),
+                                        ),
+                                        ..._danglingRatingAdjustmentValues.entries.map((danglingAdjustmentValue) {
+                                          return DisplayDanglingAdjustmentWidget(
+                                            name: danglingAdjustmentValue.key, 
+                                            initialValue: null,
+                                            value: danglingAdjustmentValue.value,
+                                          );
+                                        }),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   )
               ],
             ),
@@ -1301,5 +1321,27 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         ),
       ),
     );
+  }
+}
+
+class TabContentWrapper extends StatefulWidget {
+  // Fixes bug: Form validators on tabs that are not visible dont prevent save Setup --> leads to values which should be invalid
+  final Widget child;
+  const TabContentWrapper({super.key, required this.child});
+
+  @override
+  State<TabContentWrapper> createState() => _TabContentWrapperState();
+}
+
+class _TabContentWrapperState extends State<TabContentWrapper> 
+    with AutomaticKeepAliveClientMixin {
+  
+  @override
+  bool get wantKeepAlive => true; // This prevents the tab from being disposed
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context); // Required by the mixin
+    return widget.child;
   }
 }

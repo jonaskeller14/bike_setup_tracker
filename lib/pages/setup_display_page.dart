@@ -42,33 +42,66 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
   }
 
   Row _navigationRow(int index) {
+    final bool isSmallScreen = MediaQuery.sizeOf(context).width < 360;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
       spacing: 6,
       children: [
-        TextButton.icon(
-          onPressed: index > 0 
-            ? () => _pageController.previousPage(
-                duration: const Duration(milliseconds: 300), 
-                curve: Curves.easeInOut)
-            : null,
-          icon: const Icon(Icons.arrow_back),
-          label: const Text("Previous"),
-        ),
+        if (isSmallScreen)
+          IconButton(
+            onPressed: index > 0 
+                ? () => _pageController.previousPage(
+                    duration: const Duration(milliseconds: 300), 
+                    curve: Curves.easeInOut
+                  ) 
+                : null,
+            icon: const Icon(Icons.arrow_back),
+            color: Theme.of(context).colorScheme.primary,
+          )
+        else
+          TextButton.icon(
+            onPressed: index > 0 
+                ? () => _pageController.previousPage(
+                    duration: const Duration(milliseconds: 300), 
+                    curve: Curves.easeInOut
+                  ) 
+                : null,
+            icon: const Icon(Icons.arrow_back),
+            label: const Text("Prev"),
+            style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+          ),
+
         Text(
-          "${index + 1} of ${widget.setupIds.length}",
+          "${index + 1} / ${widget.setupIds.length}",
           style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
-        TextButton.icon(
-          onPressed: index < widget.setupIds.length - 1 
-            ? () => _pageController.nextPage(
-                duration: const Duration(milliseconds: 300), 
-                curve: Curves.easeInOut)
-            : null,
-          icon: const Icon(Icons.arrow_forward),
-          label: const Text("Next"),
-          iconAlignment: IconAlignment.end,
-        ),
+
+        if (isSmallScreen)
+          IconButton(
+            onPressed: index < widget.setupIds.length - 1 
+                ? () => _pageController.nextPage(
+                    duration: const Duration(milliseconds: 300), 
+                    curve: Curves.easeInOut
+                  ) 
+                : null,
+            icon: const Icon(Icons.arrow_forward),
+            color: Theme.of(context).colorScheme.primary,
+          )
+        else
+          TextButton.icon(
+            onPressed: index < widget.setupIds.length - 1 
+                ? () => _pageController.nextPage(
+                    duration: const Duration(milliseconds: 300), 
+                    curve: Curves.easeInOut
+                  ) 
+                : null,
+            icon: const Icon(Icons.arrow_forward),
+            label: const Text("Next"),
+            iconAlignment: IconAlignment.end,
+            style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+          ),
       ],
     );
   }

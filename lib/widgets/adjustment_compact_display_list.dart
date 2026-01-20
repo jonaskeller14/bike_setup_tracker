@@ -1,8 +1,12 @@
+import 'package:collection/collection.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter/material.dart';
+import '../models/app_data.dart';
+import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
 import '../models/adjustment/adjustment.dart';
-import 'package:flutter/material.dart';
 
 class AdjustmentCompactDisplayList extends StatelessWidget {
   final List<dynamic> components; // List<Component OR Person OR Rating>
@@ -120,6 +124,8 @@ class _AdjustmentTableRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appData = context.read<AppData>();
+    final components = Map.fromEntries(appData.components.entries.where((e) => !e.value.isDeleted));
     
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,7 +144,17 @@ class _AdjustmentTableRow extends StatelessWidget {
               child: switch (component) {
                 Component() => Icon(component.componentType.getIconData()),
                 Person() => const Icon(Person.iconData),
-                Rating() => const Icon(Rating.iconData),
+                Rating() => Badge(
+                  label: switch(component.filterType as FilterType) {
+                    FilterType.global => Text("*", style: Theme.of(context).textTheme.labelMedium),
+                    FilterType.bike => const Icon(Bike.iconData, size: 14),
+                    FilterType.componentType => Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == component.filter) ?? ComponentType.other).getIconData(), size: 14),
+                    FilterType.component => Icon((components[component.filter]?.componentType ?? ComponentType.other).getIconData(), size: 14),
+                    FilterType.person => const Icon(Person.iconData, size: 14),
+                  }, 
+                  backgroundColor: Colors.transparent,
+                  child: const Icon(Rating.iconData)
+                ),
                 _ => const Icon(Icons.question_mark),
               },
             ),

@@ -1,28 +1,24 @@
 import 'package:flutter/material.dart';
 
-class ValueChangeLegend extends StatelessWidget {
-  const ValueChangeLegend({super.key});
+class InitialChangedValueLegend extends StatelessWidget {
+  const InitialChangedValueLegend({super.key});
   Widget _buildLegendItem(BuildContext context, Color color, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 8,
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        Text(
+          text,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
-          const SizedBox(width: 8),
-          Text(
-            text,
-            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

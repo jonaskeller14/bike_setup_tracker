@@ -12,9 +12,9 @@ import '../models/bike.dart';
 import '../models/weather.dart';
 import '../widgets/display_adjustment/display_adjustment_list.dart';
 import '../widgets/display_adjustment/display_dangling_adjustment.dart';
-import '../widgets/setup_page_legend.dart';
+import '../widgets/initial_changed_value_legend.dart';
 
-class SetupDisplayPage extends StatefulWidget{
+class SetupDisplayPage extends StatefulWidget {
   final List<String> setupIds;
   final Setup? initialSetup;
   final Function editSetup;
@@ -510,7 +510,10 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                     )
                   ),
                 ],
-                const ValueChangeLegend(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: const InitialChangedValueLegend(),
+                ),
                 const SizedBox(height: 16),
               ],
             ),

@@ -28,7 +28,7 @@ import '../widgets/dialogs/set_location.dart';
 import '../widgets/dialogs/set_altitude.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/sheets/update_location_address_weather.dart';
-import '../widgets/setup_page_legend.dart';
+import '../widgets/initial_changed_value_legend.dart';
 import '../widgets/display_adjustment/display_dangling_adjustment.dart';
 
 class SetupPage extends StatefulWidget {
@@ -1110,7 +1110,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                     ),
                                   ),
                                 ),
-                              const ValueChangeLegend(),
+                              const InitialChangedValueLegend(),
                             ],
                           ),
                         ),
@@ -1195,7 +1195,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                       ),
                                     ),
                                   ),
-                                const ValueChangeLegend(),
+                                const InitialChangedValueLegend(),
                               ]
                             ),
                           ),

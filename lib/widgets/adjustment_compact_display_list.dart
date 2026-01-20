@@ -235,7 +235,7 @@ class _AdjustmentTableCell extends StatelessWidget {
                   TextSpan(
                     text: Adjustment.formatValue(value),
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: highlightColor ?? Theme.of(context).colorScheme.onSecondary,
+                      color: (highlightInitialValues ? highlightColor : null) ?? Theme.of(context).colorScheme.onSecondary,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -283,7 +283,7 @@ class _AdjustmentTableCell extends StatelessWidget {
       }
     }
 
-    final highlightColor = valueIsInitial ? Colors.green : (valueHasChanged ? Colors.orange: null);
+    final highlightColor = highlightInitialValues ? (valueIsInitial ? Colors.green : (valueHasChanged ? Colors.orange: null)) : null;
 
     // Use individual Text widgets so we can apply overflow to the main value
     // while keeping the change indicator visible.

@@ -41,38 +41,35 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
     _pageController = PageController(initialPage: _currentPageIndex);
   }
 
-  Padding _navigationRow(int index) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        spacing: 6,
-        children: [
-          TextButton.icon(
-            onPressed: index > 0 
-              ? () => _pageController.previousPage(
-                  duration: const Duration(milliseconds: 300), 
-                  curve: Curves.easeInOut)
-              : null,
-            icon: const Icon(Icons.arrow_back),
-            label: const Text("Previous"),
-          ),
-          Text(
-            "${index + 1} of ${widget.setupIds.length}",
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          TextButton.icon(
-            onPressed: index < widget.setupIds.length - 1 
-              ? () => _pageController.nextPage(
-                  duration: const Duration(milliseconds: 300), 
-                  curve: Curves.easeInOut)
-              : null,
-            icon: const Icon(Icons.arrow_forward),
-            label: const Text("Next"),
-            iconAlignment: IconAlignment.end,
-          ),
-        ],
-      ),
+  Row _navigationRow(int index) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      spacing: 6,
+      children: [
+        TextButton.icon(
+          onPressed: index > 0 
+            ? () => _pageController.previousPage(
+                duration: const Duration(milliseconds: 300), 
+                curve: Curves.easeInOut)
+            : null,
+          icon: const Icon(Icons.arrow_back),
+          label: const Text("Previous"),
+        ),
+        Text(
+          "${index + 1} of ${widget.setupIds.length}",
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        TextButton.icon(
+          onPressed: index < widget.setupIds.length - 1 
+            ? () => _pageController.nextPage(
+                duration: const Duration(milliseconds: 300), 
+                curve: Curves.easeInOut)
+            : null,
+          icon: const Icon(Icons.arrow_forward),
+          label: const Text("Next"),
+          iconAlignment: IconAlignment.end,
+        ),
+      ],
     );
   }
 

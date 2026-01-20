@@ -335,7 +335,7 @@ class _ComponentPageState extends State<ComponentPage> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<Bike>(
-                  initialValue: bikes[_bike],
+                  initialValue: bikeOptions[_bike],
                   isExpanded: true,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: InputDecoration(

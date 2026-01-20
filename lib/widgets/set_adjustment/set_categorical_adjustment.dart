@@ -62,7 +62,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
               ),
-              initialValue: value,
+              initialValue: options.contains(value) ? value : null,
               hint: const Text("Please select"),
               items: options.map<DropdownMenuItem<String>>((option) {
                 return DropdownMenuItem<String>(

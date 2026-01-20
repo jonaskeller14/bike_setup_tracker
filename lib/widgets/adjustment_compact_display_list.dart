@@ -37,7 +37,6 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Widget> columnChildren = [];
-    bool insertDivider = false;
     for (int index = 0; index < components.length; index++) {
       final component = components[index];
       if (component is Component && !displayBikeAdjustmentValues) continue;
@@ -65,30 +64,19 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
 
       if (displayOnlyChanges) {
         bool keepComponent = false;
-        final items = componentAdjustmentValues.entries.toList();
-        for (int index = 0; index < items.length; index++) {
-          final entry = items[index];
+
+        for (final entry in componentAdjustmentValues.entries) {
           final adjustment = entry.key;
           final value = entry.value;
           final previousValue = previousAdjustmentValues[adjustment.id];
 
-          final bool valueHasChanged = previousValue == null ? false : value != previousValue;
-          final bool valueIsInitial = previousValue == null;
-          if (valueHasChanged || valueIsInitial) {
+          final bool valueHasChangedOrInitial = previousValue == null || value != previousValue;
+          if (valueHasChangedOrInitial) {
             keepComponent = true;
             break;
           }
         }
         if (!keepComponent) continue;
-      }
-      
-      if (insertDivider) {
-        columnChildren.add(const Divider(
-          height: 6, 
-          thickness: 1, 
-          indent: 0,
-          endIndent: 0,
-        ));
       }
 
       columnChildren.add(_AdjustmentTableRow(
@@ -99,9 +87,21 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
         highlightInitialValues: highlightInitialValues,
         displayOnlyChanges: displayOnlyChanges,
       ));
-      insertDivider = true;
     }
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: columnChildren);
+
+    final horizontalDivider = const Divider(
+      height: 6, 
+      thickness: 1, 
+      indent: 0,
+      endIndent: 0,
+    );
+    columnChildren = columnChildren.expand((item) sync* { yield item; if (item != columnChildren.last) yield horizontalDivider; }).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start, 
+      mainAxisSize: MainAxisSize.min, 
+      children: columnChildren
+    );
   }
 }
 
@@ -162,31 +162,29 @@ class _AdjustmentTableRow extends StatelessWidget {
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final items = adjustmentValues.entries.toList();
-              List<Widget> children = [];
+              final items = adjustmentValues;
 
-              for (int index = 0; index < items.length; index++) {
-                final entry = items[index];
+              items.removeWhere((adjustment, value) {
+                final previousValue = previousAdjustmentValues[adjustment];
+                return (displayOnlyChanges && previousValue != null && value == previousValue);
+              });
+
+              List<Widget> children = items.entries.map((entry) {
                 final adjustment = entry.key;
                 final value = entry.value;
                 final previousValue = previousAdjustmentValues[adjustment];
 
-                final bool valueHasChanged = previousValue == null ? false : value != previousValue;
-                final bool valueIsInitial = previousValue == null;
-                if (displayOnlyChanges && !valueHasChanged && !valueIsInitial) continue;
-
-                children.add(
-                  _AdjustmentTableCell(
-                    adjustment: adjustment,
-                    value: value,
-                    previousValue: previousValue,
-                    highlightInitialValues: highlightInitialValues,
-                    maxWidth: items.length > 1 ? ((constraints.maxWidth - 2) / 2) : double.infinity,  // Vertical divider width = 1, rounding errors +1
-                  ),
+                return _AdjustmentTableCell(
+                  adjustment: adjustment,
+                  value: value,
+                  previousValue: previousValue,
+                  highlightInitialValues: highlightInitialValues,
+                  maxWidth: items.length > 1 ? ((constraints.maxWidth - 2*1) / 2) : double.infinity,  // Vertical divider width = 1, two dividers
                 );
-              }
-              // Add dividers
-              children = children.expand((item) sync* { yield item; if (item != children.last) yield _VerticalDivider(); }).toList();
+              }).toList();
+
+              final verticalDivider = _VerticalDivider(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5));
+              children = children.expand((item) sync* { yield item; if (item != children.last) yield verticalDivider; }).toList();
 
               return Wrap(
                 alignment: WrapAlignment.start,
@@ -283,26 +281,27 @@ class _AdjustmentTableCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Requirement: Handle all Adjustment types, long values, multi lines values (TextAdjustment)
     final bool valueHasChanged = previousValue == null ? false : value != previousValue;
     final bool valueIsInitial = previousValue == null;
-    bool isCrossed = false;
-    String change = "";
-    final String valueText = Adjustment.formatValue(value);
-    if (valueHasChanged) {
-      if (value is String || value is bool) { // Boolean, Text, Categorical
-        isCrossed = true;
-        change = Adjustment.formatValue(previousValue);
-      } else { // Numerical, Step, Duration
-        dynamic changeValue = value - previousValue;
-        change = changeValue > 0 ? "+${Adjustment.formatValue(changeValue)}" : Adjustment.formatValue(changeValue);
-      }
-    }
-
     final highlightColor = highlightInitialValues ? (valueIsInitial ? Colors.green : (valueHasChanged ? Colors.orange: null)) : null;
 
-    // Use individual Text widgets so we can apply overflow to the main value
-    // while keeping the change indicator visible.
+    final String valueText = Adjustment.formatValue(value);
+    String changeText = "";
+    TextDecoration changeDecoration = TextDecoration.none;
+    if (valueHasChanged) {
+      switch (adjustment) {
+        case BooleanAdjustment():
+        case TextAdjustment():
+        case CategoricalAdjustment():
+          changeDecoration = TextDecoration.lineThrough;
+          changeText = Adjustment.formatValue(previousValue);
+        case NumericalAdjustment():
+        case DurationAdjustment():
+        case StepAdjustment():
+          dynamic changeValue = value - previousValue;
+          changeText = changeValue > 0 ? "+${Adjustment.formatValue(changeValue)}" : Adjustment.formatValue(changeValue);
+      }
+    }
 
     final finalValueWidget = SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -330,11 +329,11 @@ class _AdjustmentTableCell extends StatelessWidget {
             Transform.translate(
               offset: const Offset(0, -6),
               child: Text(
-                change.replaceAll(RegExp(r'\n|\r'), ' '),
+                changeText.replaceAll(RegExp(r'\n|\r'), ' '),
                 style: TextStyle(
                   fontSize: 12,
                   color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-                  decoration: isCrossed ? TextDecoration.lineThrough : TextDecoration.none,
+                  decoration: changeDecoration,
                   decorationThickness: 2,
                   decorationColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                 ),
@@ -390,12 +389,16 @@ class _AdjustmentTableCell extends StatelessWidget {
 }
 
 class _VerticalDivider extends StatelessWidget {
+  final Color color;
+
+  const _VerticalDivider({required this.color});
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 1,
       height: 40,
-      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+      color: color,
     );
   }
 }

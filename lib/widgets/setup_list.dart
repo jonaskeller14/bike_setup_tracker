@@ -9,8 +9,6 @@ import '../models/app_settings.dart';
 import '../pages/setup_display_page.dart';
 import 'adjustment_compact_display_list.dart';
 
-const defaultVisibleCount = 10;
-
 class SetupList extends StatefulWidget {
   final Map<String, Setup> setups;
   final void Function(Setup setup) editSetup;
@@ -42,13 +40,12 @@ class SetupList extends StatefulWidget {
 }
 
 class _SetupListState extends State<SetupList> {
-  bool _expanded = false;
+  int _maxItemCount = 10;
+  static const int _itemCountIncrement = 10;
 
   @override
   Widget build(BuildContext context) {
-    final visibleCount = _expanded
-        ? widget.setups.length
-        : widget.setups.length.clamp(0, defaultVisibleCount);
+    final visibleItemCount = widget.setups.length.clamp(0, _maxItemCount);
     
     final setups = widget.setups.values.toList();
 
@@ -77,7 +74,7 @@ class _SetupListState extends State<SetupList> {
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: visibleCount,
+                itemCount: visibleItemCount,
                 itemBuilder: (context, index) {
                   final setup = widget.accending 
                       ? setups[index] 
@@ -103,18 +100,12 @@ class _SetupListState extends State<SetupList> {
                   ); 
                 },
               ),
-              if (widget.setups.length > defaultVisibleCount)
+              if (widget.setups.length > visibleItemCount)
                 Center(
                   child: TextButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _expanded = !_expanded;
-                      });
-                    },
-                    icon: Icon(
-                      _expanded ? Icons.expand_less : Icons.expand_more,
-                    ),
-                    label: Text(_expanded ? "Show less" : "Show more"),
+                    onPressed: () => setState(() => _maxItemCount += _itemCountIncrement),
+                    icon: const Icon(Icons.expand_more),
+                    label: const Text("Show more"),
                   ),
                 ),
             ]

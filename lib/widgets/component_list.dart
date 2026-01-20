@@ -7,8 +7,6 @@ import '../models/bike.dart';
 import 'adjustment_compact_display_list.dart';
 import '../pages/component_overview_page.dart';
 
-const defaultVisibleCount = 10;
-
 class ComponentList extends StatefulWidget {
   final Map<String, Bike> bikes;
   final Map<String, Component> components;
@@ -36,16 +34,15 @@ class ComponentList extends StatefulWidget {
 }
 
 class _ComponentListState extends State<ComponentList> {
-  bool _expanded = false;
+  int _maxItemCount = 10;
+  static const int _itemCountIncrement = 10;
 
   @override
   Widget build(BuildContext context) {
-    final visibleCount = _expanded
-        ? widget.components.length
-        : widget.components.length.clamp(0, defaultVisibleCount);
+    final visibleItemCount = widget.components.length.clamp(0, _maxItemCount);
     
     final List<InkWell> inkWells = <InkWell>[];
-    for (int index = 0; index < visibleCount; index++) {
+    for (int index = 0; index < visibleItemCount; index++) {
       final component = widget.components.values.toList()[index];
       final enabled = widget.setups.values.lastWhereOrNull((s) => !s.isDeleted && s.bike == component.bike) != null;
       inkWells.add(
@@ -208,21 +205,15 @@ class _ComponentListState extends State<ComponentList> {
             ),
           )
         : ReorderableListView.builder(
-            itemCount: visibleCount,
+            itemCount: visibleItemCount,
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
             header: widget.filterWidget,
-            footer: widget.components.length > defaultVisibleCount
+            footer: widget.components.length > visibleItemCount
                 ? Center(
                     child: TextButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          _expanded = !_expanded;
-                        });
-                      },
-                      icon: Icon(
-                        _expanded ? Icons.expand_less : Icons.expand_more,
-                      ),
-                      label: Text(_expanded ? "Show less" : "Show more"),
+                      onPressed: () => setState(() => _maxItemCount += _itemCountIncrement),
+                      icon: const Icon(Icons.expand_more),
+                      label: const Text("Show more"),
                     ),
                   )
                 : null,

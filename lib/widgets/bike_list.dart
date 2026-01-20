@@ -5,8 +5,6 @@ import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/person.dart';
 
-const defaultVisibleCount = 10;
-
 class BikeList extends StatefulWidget {
   final List<Bike> bikes;
   final Map<String, Person> persons;
@@ -34,16 +32,15 @@ class BikeList extends StatefulWidget {
 }
 
 class _BikeListState extends State<BikeList> {
-  bool _expanded = false;
+  int _maxItemCount = 10;
+  static const int _itemCountIncrement = 10;
 
   @override
   Widget build(BuildContext context) {
-    final visibleCount = _expanded
-        ? widget.bikes.length
-        : widget.bikes.length.clamp(0, defaultVisibleCount);
+    final visibleItemCount = widget.bikes.length.clamp(0, _maxItemCount);
     
     final List<InkWell> inkWells = <InkWell>[];
-    for (int index = 0; index < visibleCount; index++) {
+    for (int index = 0; index < visibleItemCount; index++) {
       final bike = widget.bikes[index];
       inkWells.add(
         InkWell(
@@ -171,21 +168,15 @@ class _BikeListState extends State<BikeList> {
             ),
           )
         : ReorderableListView.builder(
-            itemCount: visibleCount,
+            itemCount: visibleItemCount,
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
             header: widget.filterWidget,
-            footer: widget.bikes.length > defaultVisibleCount
+            footer: widget.bikes.length > visibleItemCount
                 ? Center(
                     child: TextButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          _expanded = !_expanded;
-                        });
-                      },
-                      icon: Icon(
-                        _expanded ? Icons.expand_less : Icons.expand_more,
-                      ),
-                      label: Text(_expanded ? "Show less" : "Show more"),
+                      onPressed: () => setState(() => _maxItemCount += _itemCountIncrement),
+                      icon: const Icon(Icons.expand_more),
+                      label: const Text("Show more"),
                     ),
                   )
                 : null,

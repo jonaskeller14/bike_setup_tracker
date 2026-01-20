@@ -120,37 +120,14 @@ class _AdjustmentTableRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = adjustmentValues.entries.toList();
-    List<Widget> children = [];
-
-    for (int index = 0; index < items.length; index++) {
-      final entry = items[index];
-      final adjustment = entry.key;
-      final value = entry.value;
-      final previousValue = previousAdjustmentValues[adjustment];
-
-      final bool valueHasChanged = previousValue == null ? false : value != previousValue;
-      final bool valueIsInitial = previousValue == null;
-      if (displayOnlyChanges && !valueHasChanged && !valueIsInitial) continue;
-
-      children.add(
-        _AdjustmentTableCell(
-          adjustment: adjustment,
-          value: value,
-          previousValue: previousValue,
-          highlightInitialValues: highlightInitialValues,
-          maxWidth: items.length > 1 ? 120 : double.infinity,
-        ),
-      );
-    }
-    // Add dividers
-    children = children.expand((item) sync* { yield item; if (item != children.last) yield _VerticalDivider(); }).toList();
+    
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: MainAxisSize.max,
+      spacing: 6,
       children: [
-        if (showComponentIcons) ... [
+        if (showComponentIcons)
           Tooltip(
             triggerMode: TooltipTriggerMode.longPress,
             preferBelow: false,
@@ -166,12 +143,40 @@ class _AdjustmentTableRow extends StatelessWidget {
               },
             ),
           ),
-          const SizedBox(width: 6),
-        ],
         Expanded(
-          child: Wrap(
-            alignment: WrapAlignment.start,
-            children: children,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final items = adjustmentValues.entries.toList();
+              List<Widget> children = [];
+
+              for (int index = 0; index < items.length; index++) {
+                final entry = items[index];
+                final adjustment = entry.key;
+                final value = entry.value;
+                final previousValue = previousAdjustmentValues[adjustment];
+
+                final bool valueHasChanged = previousValue == null ? false : value != previousValue;
+                final bool valueIsInitial = previousValue == null;
+                if (displayOnlyChanges && !valueHasChanged && !valueIsInitial) continue;
+
+                children.add(
+                  _AdjustmentTableCell(
+                    adjustment: adjustment,
+                    value: value,
+                    previousValue: previousValue,
+                    highlightInitialValues: highlightInitialValues,
+                    maxWidth: items.length > 1 ? ((constraints.maxWidth - 2) / 2) : double.infinity,  // Vertical divider width = 1, rounding errors +1
+                  ),
+                );
+              }
+              // Add dividers
+              children = children.expand((item) sync* { yield item; if (item != children.last) yield _VerticalDivider(); }).toList();
+
+              return Wrap(
+                alignment: WrapAlignment.start,
+                children: children,
+              );
+            },
           ),
         )
       ],
@@ -224,11 +229,23 @@ class _AdjustmentTableCell extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Text(
-              Adjustment.formatValue(value) + adjustment.unitSuffix(),
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: highlightColor ?? Theme.of(context).colorScheme.onSecondary,
-                fontWeight: FontWeight.bold,
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: Adjustment.formatValue(value),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: highlightColor ?? Theme.of(context).colorScheme.onSecondary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextSpan(
+                    text: adjustment.unitSuffix(),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onSecondary,
+                    ),
+                  ),
+                ]
               ),
             ),
             if (valueHasChanged)
@@ -237,6 +254,7 @@ class _AdjustmentTableCell extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSecondary.withValues(alpha: 0.7),
                   decoration: TextDecoration.lineThrough,
+                  decorationThickness: 2,
                   decorationColor: Theme.of(context).colorScheme.onSecondary.withValues(alpha: 0.7),
                 ),
               ),
@@ -265,90 +283,82 @@ class _AdjustmentTableCell extends StatelessWidget {
       }
     }
 
+    final highlightColor = valueIsInitial ? Colors.green : (valueHasChanged ? Colors.orange: null);
+
     // Use individual Text widgets so we can apply overflow to the main value
     // while keeping the change indicator visible.
-    final valueDisplay = Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      spacing: 4,
-      children: [
-        Flexible(
-          child: Text(
-            valueText.replaceAll(RegExp(r'\n|\r'), ' '),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-              color: (valueIsInitial && highlightInitialValues) ? Colors.green : null,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        if (valueHasChanged) ...[
-          Transform.translate(
-            offset: const Offset(0, -6),
+
+    final finalValueWidget = SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        // The Row is necessary to ensure the SingleChildScrollView's child 
+        // (the Text.rich) only takes the space it needs when it's shorter 
+        // than _max_value_width.
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        spacing: 4,
+        children: [
+          Flexible(
             child: Text(
-              change.replaceAll(RegExp(r'\n|\r'), ' '),
+              valueText.replaceAll(RegExp(r'\n|\r'), ' '),
               style: TextStyle(
-                fontSize: 12,
-                color: valueHasChanged ? Colors.red : Theme.of(context).colorScheme.onSurfaceVariant,
-                decoration: isCrossed ? TextDecoration.lineThrough : TextDecoration.none,
-                decorationColor: Colors.red,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: highlightColor,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-        ],
-        if (adjustment.unit != null)
-          Text(adjustment.unit!),
-      ],
-    );
-
-    Widget finalLabelWidget = ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: maxWidth),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        // The Row is necessary to ensure the SingleChildScrollView's child 
-        // (the Text.rich) only takes the space it needs when it's shorter 
-        // than _max_value_width.
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              adjustment.name,
-              style: TextStyle(
-                fontWeight: FontWeight.normal,
-                fontSize: 12,
+          if (valueHasChanged) ...[
+            Transform.translate(
+              offset: const Offset(0, -6),
+              child: Text(
+                change.replaceAll(RegExp(r'\n|\r'), ' '),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                  decoration: isCrossed ? TextDecoration.lineThrough : TextDecoration.none,
+                  decorationThickness: 2,
+                  decorationColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              // maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
-        ),
+          if (adjustment.unit != null)
+            Text(adjustment.unit!),
+        ],
       ),
     );
 
-    Widget finalValueWidget = ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: maxWidth),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        // The Row is necessary to ensure the SingleChildScrollView's child 
-        // (the Text.rich) only takes the space it needs when it's shorter 
-        // than _max_value_width.
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [valueDisplay],
-        ),
+    final finalLabelWidget = SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      // The Row is necessary to ensure the SingleChildScrollView's child 
+      // (the Text.rich) only takes the space it needs when it's shorter 
+      // than _max_value_width.
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            adjustment.name,
+            style: TextStyle(
+              fontWeight: FontWeight.normal,
+              fontSize: 12,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
 
-    final highlightColor = valueIsInitial ? Colors.green : (valueHasChanged ? Colors.orange: null);
     return _cellToolTip(
       context: context,
       highlightColor: highlightColor,
       valueHasChanged: valueHasChanged,
       child: Container(
+        constraints: BoxConstraints(maxWidth: maxWidth),
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,

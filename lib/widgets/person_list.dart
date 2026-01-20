@@ -42,13 +42,15 @@ class _PersonListState extends State<PersonList> {
       children: widget.bikes.values.where((b) => b.person == person.id).map((bike) {
         return Row(
           mainAxisSize: MainAxisSize.min,
+          spacing: 2,
           children: [
             Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            const SizedBox(width: 2),
-            Text(
-              bike.name,
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-              overflow: TextOverflow.ellipsis,
+            Flexible(
+              child: Text(
+                bike.name,
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         );

@@ -100,33 +100,35 @@ class _RatingListState extends State<RatingList> {
 
                               const SizedBox(width: 2),
                               
-                              switch(rating.filterType) {
-                                FilterType.global => Text(
-                                  "Global",
-                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                FilterType.bike => Text(
-                                  widget.bikes[rating.filter]?.name ?? "-",
-                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                FilterType.person => Text(
-                                  widget.persons[rating.filter]?.name ?? "-",
-                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                FilterType.component => Text(
-                                  widget.components[rating.filter]?.name ?? "-",
-                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                FilterType.componentType => Text(
-                                  ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter)?.value ?? "-",
-                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              },
+                              Flexible(
+                                child: switch(rating.filterType) {
+                                  FilterType.global => Text(
+                                    "Global",
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  FilterType.bike => Text(
+                                    widget.bikes[rating.filter]?.name ?? "-",
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  FilterType.person => Text(
+                                    widget.persons[rating.filter]?.name ?? "-",
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  FilterType.component => Text(
+                                    widget.components[rating.filter]?.name ?? "-",
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  FilterType.componentType => Text(
+                                    ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter)?.value ?? "-",
+                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                },
+                              ),
                             ],
                           ),
                         ],

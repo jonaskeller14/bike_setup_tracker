@@ -85,13 +85,16 @@ class _ComponentListState extends State<ComponentList> {
                         children: [
                           Row(
                             mainAxisSize: MainAxisSize.min,
+                            spacing: 2,
                             children: [
                               Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                              const SizedBox(width: 2),
-                              Text(
-                                widget.bikes[component.bike]?.name ?? "-",
-                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                                overflow: TextOverflow.ellipsis,
+                              Flexible(
+                                child: Text(
+                                  widget.bikes[component.bike]?.name ?? "-",
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
                               ),
                             ],
                           ),

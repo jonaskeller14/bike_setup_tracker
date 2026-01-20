@@ -183,9 +183,9 @@ class SetupCard extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
+                spacing: 2,
                 children: [
                   Icon(Icons.calendar_month, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  const SizedBox(width: 2),
                   Text(
                     DateFormat(appSettings.dateFormat).format(setup.datetime),
                     style: TextStyle(
@@ -198,14 +198,16 @@ class SetupCard extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
+                spacing: 2,
                 children: [
                   Icon(Icons.access_time, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  const SizedBox(width: 2),
-                  Text(
-                    DateFormat(appSettings.timeFormat).format(setup.datetime),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                      fontSize: 13,
+                  Flexible(
+                    child: Text(
+                      DateFormat(appSettings.timeFormat).format(setup.datetime),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                        fontSize: 13,
+                      ),
                     ),
                   ),
                 ],
@@ -213,13 +215,16 @@ class SetupCard extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
+                spacing: 2,
                 children: [
                   Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  const SizedBox(width: 2),
-                  Text(
-                    bikes[setup.bike]?.name ?? "-",
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                    overflow: TextOverflow.ellipsis,
+                  Flexible(
+                    child: Text(
+                      bikes[setup.bike]?.name ?? "-",
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
                   ),
                 ],
               ),
@@ -227,13 +232,15 @@ class SetupCard extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 2,
                   children: [
                     Icon(Icons.location_pin, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                    const SizedBox(width: 2),
-                    Text(
-                      "${setup.place?.locality}, ${setup.place?.isoCountryCode}",
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                      overflow: TextOverflow.ellipsis,
+                    Flexible(
+                      child: Text(
+                        "${setup.place?.locality}, ${setup.place?.isoCountryCode}",
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
@@ -242,12 +249,14 @@ class SetupCard extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 2,
                   children: [
                     Icon(Icons.arrow_upward, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                    const SizedBox(width: 2),
-                    Text(
-                      "${Setup.convertAltitudeFromMeters(setup.position!.altitude!, appSettings.altitudeUnit).round()} ${appSettings.altitudeUnit}",
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                    Flexible(
+                      child: Text(
+                        "${Setup.convertAltitudeFromMeters(setup.position!.altitude!, appSettings.altitudeUnit).round()} ${appSettings.altitudeUnit}",
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                      ),
                     ),
                   ],
                 )
@@ -256,12 +265,14 @@ class SetupCard extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 2,
                   children: [
                     Icon(Weather.currentTemperatureIconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                    const SizedBox(width: 2),
-                    Text(
-                      "${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit).round()} ${appSettings.temperatureUnit}",
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                    Flexible(
+                      child: Text(
+                        "${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit).round()} ${appSettings.temperatureUnit}",
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                      ),
                     ),
                   ],
                 )
@@ -270,12 +281,14 @@ class SetupCard extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 2,
                   children: [
                     Icon(setup.weather?.condition?.getIconData() ?? Icons.question_mark, size: 13, color: setup.weather?.condition?.getColor()),
-                    const SizedBox(width: 2),
-                    Text(
-                      setup.weather?.condition?.value ?? "-",
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                    Flexible(
+                      child: Text(
+                        setup.weather?.condition?.value ?? "-",
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                      ),
                     ),
                   ],
                 )

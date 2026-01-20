@@ -63,6 +63,7 @@ class DisplayDanglingAdjustmentWidget extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.lineThrough,
+                        decorationThickness: 2,
                       ),
                     ),
                   ),

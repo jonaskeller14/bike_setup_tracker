@@ -45,13 +45,25 @@ class DisplayStepAdjustmentWidget extends StatelessWidget {
           ),
           Column(
             children: [
-              SelectableText(
-                Adjustment.formatValue(value) + adjustment.unitSuffix(),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontFamily: 'monospace',
-                  fontWeight: FontWeight.bold,
-                  color: highlightColor,
-                  fontFeatures: [const FontFeature.tabularFigures()],
+              SelectableText.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: Adjustment.formatValue(value),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontFamily: 'monospace',
+                        fontWeight: FontWeight.bold,
+                        color: highlightColor,
+                        fontFeatures: [const FontFeature.tabularFigures()],
+                      ),
+                    ),
+                    TextSpan(
+                      text: adjustment.unitSuffix(),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: highlightColor,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               if (!isInitial && isChanged)
@@ -63,6 +75,7 @@ class DisplayStepAdjustmentWidget extends StatelessWidget {
                       fontFamily: 'monospace',
                       fontWeight: FontWeight.bold,
                       decoration: TextDecoration.lineThrough,
+                      decorationThickness: 2,
                       fontFeatures: [const FontFeature.tabularFigures()],
                     ),
                   ),

@@ -41,15 +41,26 @@ class DisplayBooleanAdjustmentWidget extends StatelessWidget {
                 Icon(BooleanAdjustment.iconData, color: highlightColor),
                 nameNotesSetAdjustmentWidget(context: context, adjustment: adjustment, highlightColor: highlightColor),
               ],
-            )
+            ),
           ),
           Column(
             children: [
-              SelectableText(
-                Adjustment.formatValue(value) + adjustment.unitSuffix(),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: highlightColor,
+              SelectableText.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: Adjustment.formatValue(value),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: highlightColor,
+                      ),
+                    ),
+                    TextSpan(
+                      text: adjustment.unitSuffix(),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: highlightColor,
+                      ),                    ),
+                  ],
                 ),
               ),
               if (!isInitial && isChanged)
@@ -60,6 +71,7 @@ class DisplayBooleanAdjustmentWidget extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       decoration: TextDecoration.lineThrough,
+                      decorationThickness: 2,
                     ),
                   ),
                 ),

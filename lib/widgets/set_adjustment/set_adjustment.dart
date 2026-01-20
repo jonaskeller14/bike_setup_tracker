@@ -14,7 +14,7 @@ Widget nameNotesSetAdjustmentWidget({required BuildContext context, required Adj
               preferBelow: false,
               showDuration: const Duration(seconds: 5),
               message: adjustment.notes!,
-              child: SelectableText.rich(
+              child: Text.rich( // not selectable because conflict with tooltip
                 TextSpan(
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),
                   children: [

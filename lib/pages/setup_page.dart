@@ -27,6 +27,7 @@ import '../widgets/dialogs/set_dayAccumulated_precipitation.dart';
 import '../widgets/dialogs/set_location.dart';
 import '../widgets/dialogs/set_altitude.dart';
 import '../widgets/dialogs/discard_changes.dart';
+import '../widgets/sheets/app_settings_radio_group.dart';
 import '../widgets/sheets/update_location_address_weather.dart';
 import '../widgets/initial_changed_value_legend.dart';
 import '../widgets/display_adjustment/display_dangling_adjustment.dart';
@@ -873,30 +874,36 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
             _changeListener();
           },
         ),
-        PopupMenuButton<Condition>(
-          onSelected: (value) {
-            setState(() {
-              _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-              _currentWeather = _currentWeather?.copyWith(condition: value);
-            });
-          },
-          itemBuilder: (BuildContext context) => Condition.values.map((c) => 
-            PopupMenuItem<Condition>(
-              value: c,
-              child: Row(
-                spacing: 10, 
-                children: [
-                  Icon(c.getIconData(), color: c.getColor()),
-                  Text(c.value)
-                ]
-              ),
-            ),
-          ).toList(),
-          child: Chip(
-            avatar: Icon(_currentWeather?.condition?.getIconData() ?? Icons.question_mark, color: _currentWeather?.condition?.getColor()),
-            label: _weatherService.status == WeatherStatus.searching 
-              ? _loadingIndicator()
-              : Text(_currentWeather?.condition?.value ?? "-"),
+        ActionChip(
+          avatar: Icon(_currentWeather?.condition?.getIconData() ?? Icons.question_mark, color: _currentWeather?.condition?.getColor()),
+          label: _weatherService.status == WeatherStatus.searching 
+            ? _loadingIndicator()
+            : Text(_currentWeather?.condition?.value ?? "-"),
+          onPressed: () => appSettingsRadioGroupSheet<Condition?>(
+            context: context,
+            title: "Select Trail Condition",
+            infoText: "Conditions are automatically calculated based on soil moisture (see weather data). You can manually adjust the trail condition here:",
+            value: _currentWeather?.condition,
+            optionWidgets: Map.fromEntries(Condition.values.map((condition) {
+              return MapEntry(
+                condition, 
+                Row(
+                  spacing: 8, 
+                  children: [
+                    Icon(condition.getIconData(), color: condition.getColor()), 
+                    Text(condition.value)
+                  ]
+                ),
+              );
+            })),
+            onChanged: (Condition? newValue) {
+              if (newValue == null) return;
+              setState(() {
+                _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
+                _currentWeather = _currentWeather?.copyWith(condition: newValue);
+              });
+              Navigator.pop(context);
+            }
           ),
         ),
         ActionChip(

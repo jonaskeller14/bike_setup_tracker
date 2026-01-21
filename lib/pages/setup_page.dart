@@ -369,31 +369,25 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     final pickedDate = await showDatePicker(
       context: context,
+      helpText: "Select Setup Date",
+      errorInvalidText: "Date cannot be in the future",
+      selectableDayPredicate: (DateTime pickedDate) => !_selectedDateTime.copyWith(
+        day: pickedDate.day,
+        month: pickedDate.month,
+        year: pickedDate.year,
+      ).isAfter(DateTime.now()),
       initialDate: _selectedDateTime,
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
     );
-
     if (!mounted || pickedDate == null) return;
 
-    DateTime newDateTime = DateTime(
-      pickedDate.year,
-      pickedDate.month,
-      pickedDate.day,
-      _selectedDateTime.hour,
-      _selectedDateTime.minute,
+    final DateTime newDateTime = _selectedDateTime.copyWith(
+      day: pickedDate.day,
+      month: pickedDate.month,
+      year: pickedDate.year,
     );
     if (newDateTime == _selectedDateTime) return;
-    if (newDateTime.isAfter(DateTime.now())) {
-      newDateTime = DateTime.now();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text('Date and Time must be in the past.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
-      ));
-    }
 
     setState(() {
       _selectedDateTime = newDateTime;
@@ -427,22 +421,23 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     TimeOfDay? pickedTime = await showTimePicker(
       context: context,
+      helpText: "Select Setup Time",
       initialTime: TimeOfDay.fromDateTime(_selectedDateTime),
     );
 
     if (!mounted || pickedTime == null) return;
     
-    DateTime newDateTime = _selectedDateTime.copyWith(hour: pickedTime.hour, minute: pickedTime.minute);
+    final DateTime newDateTime = _selectedDateTime.copyWith(hour: pickedTime.hour, minute: pickedTime.minute);
     if (newDateTime == _selectedDateTime) return;
     if (newDateTime.isAfter(DateTime.now())) {
-      newDateTime = DateTime.now();
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true,
         closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text('Date and Time must be in the past.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        content: Text('Date and Time cannot be in the future.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
         backgroundColor: Theme.of(context).colorScheme.errorContainer
       ));
+      return;
     }
 
     setState(() {

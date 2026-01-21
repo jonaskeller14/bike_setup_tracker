@@ -190,17 +190,6 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                 ],
               ),
             ),
-            if (_setups.isEmpty)
-              SizedBox(
-                height: 100,
-                child: Center(
-                  child: Text(
-                    'No setups yet',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                  ),
-                ),
-              ),
             if (_showColumns.values.any((v) => v.values.any((v) => v  == true)))
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -281,6 +270,17 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                 child: Center(
                   child: Text(
                     'Select a column to display the table',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                  ),
+                ),
+              ),
+            if (_setups.isEmpty)
+              SizedBox(
+                height: 100,
+                child: Center(
+                  child: Text(
+                    'No setups yet',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
                   ),

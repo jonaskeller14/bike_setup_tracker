@@ -235,6 +235,15 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                             ),
                           ],
                         ),
+                        if (widget.adjustment != null) ...[
+                          ListTile(
+                            leading: const Icon(Icons.info_outline),
+                            title: const Text('Renaming an option will not update existing setup values!'),
+                            dense: true,
+                            contentPadding: const EdgeInsets.all(0),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
                         const SizedBox(height: 8),
                         Column(
                           children: List.generate(_optionControllers.length, (index) {

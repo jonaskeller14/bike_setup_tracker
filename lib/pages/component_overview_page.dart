@@ -167,28 +167,6 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ..._showColumns.entries.map((sectionShowColumnsEntry) {
-            //   return SingleChildScrollView(
-            //     scrollDirection: Axis.horizontal,
-            //     child: Row(
-            //       spacing: 6,
-            //       children: sectionShowColumnsEntry.value.entries.map((showColumnEntry) {
-            //         return FilterChip(
-            //           selected: showColumnEntry.value,
-            //           label: Text(sectionShowColumnsEntry.key == "Adjustments" 
-            //               ? (widget.component.adjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key)?.name ?? "-") 
-            //               : showColumnEntry.key),
-            //           onSelected: (bool value) {
-            //             setState(() {
-            //               _showColumns[sectionShowColumnsEntry.key]?[showColumnEntry.key] = value;
-            //               _sortColumnIndex = null;
-            //             });
-            //           },
-            //         );
-            //       }).toList(),
-            //     ),
-            //   );
-            // }),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -212,6 +190,17 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                 ],
               ),
             ),
+            if (_setups.isEmpty)
+              SizedBox(
+                height: 100,
+                child: Center(
+                  child: Text(
+                    'No setups yet',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                  ),
+                ),
+              ),
             if (_showColumns.values.any((v) => v.values.any((v) => v  == true)))
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,

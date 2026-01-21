@@ -57,6 +57,7 @@ dependencies:
   googleapis_auth: ^2.0.0
   googleapis: ^15.0.0
   simple_icons: ^14.6.1
+  weather_icons: ^3.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:weather_icons/weather_icons.dart';
 
 enum Condition {
   dry('Dry'),
@@ -225,6 +226,94 @@ class Weather {
         return precipMm * mmToIn;
       default:
         return precipMm;
+    }
+  }
+
+  IconData getIconData() {
+    return getStaticIconData(
+      currentWeatherCode ?? -1 , 
+      isDay: currentIsDay ?? true
+    );
+  }
+
+  static IconData getStaticIconData(int code, {bool isDay = true}) {
+    switch (code) {
+      // 0: Clear sky
+      case 0:
+        return isDay ? WeatherIcons.day_sunny : WeatherIcons.night_clear;
+
+      // 1: Mainly clear
+      case 1:
+        return isDay ? WeatherIcons.day_sunny_overcast : WeatherIcons.night_alt_partly_cloudy;
+      
+      // 2: Partly cloudy
+      case 2:
+        return isDay ? WeatherIcons.day_cloudy : WeatherIcons.night_alt_cloudy;
+      
+      // 3: Overcast
+      case 3:
+        return WeatherIcons.cloudy;
+
+      // 45, 48: Fog and depositing rime fog
+      case 45:
+      case 48:
+        return isDay ? WeatherIcons.day_fog : WeatherIcons.night_fog;
+
+      // 51, 53, 55: Drizzle: Light, moderate, and dense intensity
+      case 51:
+      case 53:
+      case 55:
+        return isDay ? WeatherIcons.day_sprinkle : WeatherIcons.night_sprinkle;
+
+      // 56, 57: Freezing Drizzle: Light and dense intensity
+      case 56:
+      case 57:
+        return isDay ? WeatherIcons.day_rain_mix : WeatherIcons.night_alt_rain_mix;
+
+      // 61, 63, 65: Rain: Slight, moderate and heavy intensity
+      case 61:
+      case 63:
+      case 65:
+        return isDay ? WeatherIcons.day_rain : WeatherIcons.night_alt_rain;
+
+      // 66, 67: Freezing Rain: Light and heavy intensity
+      case 66:
+      case 67:
+        return isDay ? WeatherIcons.day_sleet : WeatherIcons.night_alt_sleet;
+
+      // 71, 73, 75: Snow fall: Slight, moderate, and heavy intensity
+      case 71:
+      case 73:
+      case 75:
+        return isDay ? WeatherIcons.day_snow : WeatherIcons.night_alt_snow;
+
+      // 77: Snow grains
+      case 77:
+        return isDay ? WeatherIcons.day_snow : WeatherIcons.night_alt_snow;
+
+      // 80, 81, 82: Rain showers: Slight, moderate, and violent
+      case 80:
+      case 81:
+      case 82:
+        return isDay ? WeatherIcons.day_showers : WeatherIcons.night_alt_showers;
+
+      // 85, 86: Snow showers slight and heavy
+      case 85:
+      case 86:
+        return isDay ? WeatherIcons.day_snow_wind : WeatherIcons.night_alt_snow_wind;
+
+      // 95: Thunderstorm: Slight or moderate
+      case 95:
+        return isDay ? WeatherIcons.day_thunderstorm : WeatherIcons.night_alt_thunderstorm;
+
+      // 96, 99: Thunderstorm with slight and heavy hail
+      case 96:
+      case 99:
+        return isDay ? WeatherIcons.day_storm_showers : WeatherIcons.night_alt_storm_showers;
+
+      // Fallback
+      default:
+        return WeatherIcons.na;
     }
   }
 }

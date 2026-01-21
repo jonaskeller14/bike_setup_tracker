@@ -38,6 +38,7 @@ class Weather {
   final double? currentPrecipitation;
   final double? currentSoilMoisture0to7cm;
   final double? dayAccumulatedPrecipitation;
+  final bool? currentIsDay;
 
   final Condition? condition;
 
@@ -56,6 +57,7 @@ class Weather {
     this.currentPrecipitation,
     this.currentSoilMoisture0to7cm,
     this.dayAccumulatedPrecipitation,
+    this.currentIsDay,
     Condition? condition,
   }) : condition = condition ?? getConditionFromSoilMoisture0to7cm(currentSoilMoisture0to7cm);
 
@@ -68,6 +70,7 @@ class Weather {
     double? currentPrecipitation,
     double? currentSoilMoisture0to7cm,
     double? dayAccumulatedPrecipitation,
+    bool? currentIsDay,
     Condition? condition,
   }) {
     return Weather(
@@ -79,6 +82,7 @@ class Weather {
       currentPrecipitation: currentPrecipitation ?? this.currentPrecipitation,
       currentSoilMoisture0to7cm: currentSoilMoisture0to7cm ?? this.currentSoilMoisture0to7cm,
       dayAccumulatedPrecipitation: dayAccumulatedPrecipitation ?? this.dayAccumulatedPrecipitation,
+      currentIsDay: currentIsDay ?? this.currentIsDay,
       condition: condition ?? this.condition,
     );
   }

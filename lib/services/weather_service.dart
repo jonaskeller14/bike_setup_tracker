@@ -42,6 +42,7 @@ class WeatherService {
           HistoricalHourly.wind_speed_10m,
           HistoricalHourly.precipitation,
           HistoricalHourly.soil_moisture_0_to_7cm,
+          HistoricalHourly.is_day,
         },
       );
       final apiDatetime = datetime.copyWith(minute: 0, second: 0, millisecond: 0, microsecond: 0);
@@ -54,6 +55,8 @@ class WeatherService {
           .map((item) => item.toDouble()) // Iterable<double>
           .fold(0.0, (accumulator, element) => accumulator + element); // Start at 0.0 and sum up
       final double? currentSoilMoisture0to7cm = response.segments[0].hourlyData[HistoricalHourly.soil_moisture_0_to_7cm]!.values[apiDatetime]?.toDouble();
+      final int? currentIsDayInt = response.segments[0].hourlyData[HistoricalHourly.is_day]!.values[apiDatetime]?.toInt();
+      final bool? currentIsDay = currentIsDayInt == null ? null : (currentIsDayInt == 1);
 
       status = WeatherStatus.success;
       return Weather(
@@ -65,6 +68,7 @@ class WeatherService {
         currentPrecipitation: currentPrecipitation,
         currentSoilMoisture0to7cm: currentSoilMoisture0to7cm,
         dayAccumulatedPrecipitation: dayAccumulatedPrecipitation,
+        currentIsDay: currentIsDay,
       );
     } on ClientException catch (e) {
       debugPrint("WeatherService: Network Error (No Internet): $e");

@@ -88,6 +88,38 @@ class Weather {
     );
   }
 
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) || 
+        other is Weather &&
+        other.currentDateTime == currentDateTime &&
+        other.currentTemperature == currentTemperature &&
+        other.currentWeatherCode == currentWeatherCode &&
+        other.currentHumidity == currentHumidity &&
+        other.currentWindSpeed == currentWindSpeed &&
+        other.currentPrecipitation == currentPrecipitation &&
+        other.currentSoilMoisture0to7cm == currentSoilMoisture0to7cm &&
+        other.dayAccumulatedPrecipitation == dayAccumulatedPrecipitation &&
+        other.currentIsDay == currentIsDay &&
+        other.condition == condition;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      currentDateTime,
+      currentTemperature,
+      currentWeatherCode,
+      currentHumidity,
+      currentWindSpeed,
+      currentPrecipitation,
+      currentSoilMoisture0to7cm,
+      dayAccumulatedPrecipitation,
+      currentIsDay,
+      condition,
+    );
+  }
+
   static Condition? getConditionFromSoilMoisture0to7cm(double? currentSoilMoisture0to7cm) {
     if (currentSoilMoisture0to7cm == null) return null;
     if (currentSoilMoisture0to7cm < 0.1) {

@@ -176,6 +176,36 @@ class Setup {
       : null,  
   };
 
+  static bool locationEqual(LocationData? l1, LocationData? l2) {
+    return identical(l1, l2) ||
+        l1 != null &&
+        l2 != null &&
+        l1.latitude == l2.latitude &&
+        l1.longitude == l2.longitude &&
+        l1.altitude == l2.altitude &&
+        l1.accuracy == l2.accuracy &&
+        l1.heading == l2.heading &&
+        l1.speed == l2.speed &&
+        l1.speedAccuracy == l2.speedAccuracy &&
+        l1.time == l2.time;
+  }
+
+  static bool placeEqual(geo.Placemark? p1, geo.Placemark? p2) {
+    return identical(p1, p2) ||
+        p1 != null &&
+        p2 != null &&
+        p1.name == p2.name &&
+        p1.administrativeArea == p2.administrativeArea &&
+        p1.country == p2.country &&
+        p1.isoCountryCode == p2.isoCountryCode &&
+        p1.locality == p2.locality &&
+        p1.postalCode == p2.postalCode &&
+        p1.subAdministrativeArea == p2.subAdministrativeArea &&
+        p1.subLocality == p2.subLocality &&
+        p1.subThoroughfare == p2.subThoroughfare &&
+        p1.thoroughfare == p2.thoroughfare;
+  }
+
   static LocationData _locationDataFromJson(Map<String, dynamic> json) {
     final int? version = json["version"];
     switch (version) {

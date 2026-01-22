@@ -54,21 +54,25 @@ class Bike {
   }
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Bike &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          isDeleted == other.isDeleted &&
-          lastModified == other.lastModified &&
-          name == other.name &&
-          person == other.person;
-
+  bool operator ==(Object other) {
+    return identical(this, other) || 
+        other is Bike &&
+        runtimeType == other.runtimeType &&
+        id == other.id &&
+        isDeleted == other.isDeleted &&
+        lastModified == other.lastModified &&
+        name == other.name &&
+        person == other.person;
+  }
+  
   @override
-  int get hashCode =>
-      id.hashCode ^
-      isDeleted.hashCode ^
-      lastModified.hashCode ^
-      name.hashCode ^
-      person.hashCode;
+  int get hashCode {
+    return Object.hash(
+      id,
+      isDeleted,
+      lastModified,
+      name,
+      person,
+    );
+  }
 }

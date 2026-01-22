@@ -12,17 +12,24 @@ enum WeatherStatus {
   success,
 }
 
-class WeatherService {
+class WeatherService extends ChangeNotifier {
   final historicalAPI = HistoricalApi(
     userAgent: "Bike Setup Tracker App v1.0",
     temperatureUnit: TemperatureUnit.celsius,
     windspeedUnit: WindspeedUnit.kmh,
     precipitationUnit: PrecipitationUnit.mm,
   );
-  WeatherStatus status = WeatherStatus.idle;
+  WeatherStatus _status = WeatherStatus.idle;
+
+  WeatherStatus get status => _status;
+
+  void setStatus(WeatherStatus newStatus) {
+    _status = newStatus;
+    notifyListeners();
+  }
 
   Future<Weather?> fetchWeather({required double lat, required double lon, required DateTime datetime, int counter = 1}) async {
-    status = WeatherStatus.searching;
+    setStatus(WeatherStatus.searching);
     try {
       if (datetime.isAfter(DateTime.now())) throw Exception("Date must be in the past.");
 
@@ -58,7 +65,7 @@ class WeatherService {
       final int? currentIsDayInt = response.segments[0].hourlyData[HistoricalHourly.is_day]!.values[apiDatetime]?.toInt();
       final bool? currentIsDay = currentIsDayInt == null ? null : (currentIsDayInt == 1);
 
-      status = WeatherStatus.success;
+      setStatus(WeatherStatus.success);
       return Weather(
         currentDateTime: apiDatetime, 
         currentTemperature: currentTemperature,
@@ -72,24 +79,24 @@ class WeatherService {
       );
     } on ClientException catch (e) {
       debugPrint("WeatherService: Network Error (No Internet): $e");
-      status = WeatherStatus.error;
+      setStatus(WeatherStatus.error);
       return null;
     } on SocketException catch (e) {
       debugPrint("WeatherService: Network Error (No Internet): $e");
-      status = WeatherStatus.error;
+      setStatus(WeatherStatus.error);
       return null;
     } catch (e) {
       debugPrint("WeatherService: Exception caught: $e");
-      status = WeatherStatus.error;
+      setStatus(WeatherStatus.error);
 
       if (counter <= 2) {
-        status = WeatherStatus.searching;
+        setStatus(WeatherStatus.searching);
         debugPrint("WeatherService Error --> Trying again after 10s.");
         await Future.delayed(const Duration(seconds: 10));
         return fetchWeather(lat: lat, lon: lon, datetime: datetime, counter: counter + 1);
+      } else {
+        return null;
       }
-
-      return null;
     }
   }
 }

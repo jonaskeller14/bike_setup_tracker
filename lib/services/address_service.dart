@@ -8,20 +8,27 @@ enum AddressStatus {
   error,
 }
 
-class AddressService {
-  AddressStatus status = AddressStatus.idle;
+class AddressService extends ChangeNotifier {
+  AddressStatus _status = AddressStatus.idle;
+
+  AddressStatus get status => _status;
+
+  void setStatus(AddressStatus newStatus) {
+    _status = newStatus;
+    notifyListeners();
+  }
 
   Future<geo.Placemark?> fetchAddress({required double lat, required double lon}) async {
-    status = AddressStatus.searching;
+    setStatus(AddressStatus.searching);
     try {
       final List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(lat, lon);
       if (placemarks.isNotEmpty) {
-        status = AddressStatus.success;
+        setStatus(AddressStatus.success);
         return placemarks.first;
       }
       return null;
     } catch (e) {
-      status = AddressStatus.error;
+      setStatus(AddressStatus.error);
       debugPrint('AddressService: Failed to get address: $e');
       return null;
     }

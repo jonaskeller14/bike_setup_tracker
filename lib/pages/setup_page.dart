@@ -251,10 +251,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   Future<void> updateLocation() async {
-    setState(() {
-      _locationService.status = LocationStatus.searching;
-    });
-
     final newLocation = await _locationService.fetchLocation();
     
     if (!mounted) return;
@@ -291,10 +287,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       return;
     }
 
-    setState(() {
-      _addressService.status = AddressStatus.searching;
-    });
-
     final newAddress = await _addressService.fetchAddress(
       lat: _currentLocation!.latitude!,
       lon: _currentLocation!.longitude!,
@@ -302,9 +294,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     if (!mounted) return;
     if (newAddress == null) {
-      setState(() {
-        _addressService.status = AddressStatus.error;
-      });
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true,
@@ -492,10 +481,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       return;
     }
 
-    setState(() {
-      _weatherService.status = WeatherStatus.searching;
-    });
-
     final currentWeather = await _weatherService.fetchWeather(
       lat: _currentLocation!.latitude!,
       lon: _currentLocation!.longitude!,
@@ -504,9 +489,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     if (!mounted) return;
     if (currentWeather == null) {
-      setState(() {
-        _weatherService.status = WeatherStatus.error;
-      });
+
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true,
@@ -702,238 +685,243 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     );
   }
 
-  Wrap _wrap() {
+  Widget _wrap() {
     final appSettings = context.read<AppSettings>();
-    return Wrap(
-      spacing: 8.0,
-      runSpacing: 4.0,
-      children: [
-        ActionChip(
-          avatar: const Icon(Icons.calendar_month),
-          label: Text(
-            DateFormat(appSettings.dateFormat).format(_selectedDateTime),
-          ),
-          backgroundColor: widget.setup != null && (_selectedDateTime.year != widget.setup?.datetime.year || _selectedDateTime.month != widget.setup?.datetime.month || _selectedDateTime.day != widget.setup?.datetime.day) ? Colors.orange.withValues(alpha: 0.08) : null,
-          onPressed: _pickDate,
-        ),
-        ActionChip(
-          avatar: const Icon(Icons.access_time),
-          label: Text(
-            DateFormat(appSettings.timeFormat).format(_selectedDateTime),
-          ),
-          backgroundColor: widget.setup != null && (_selectedDateTime.hour != widget.setup?.datetime.hour || _selectedDateTime.minute != widget.setup?.datetime.minute) ? Colors.orange.withValues(alpha: 0.08) : null,
-          onPressed: _pickTime,
-        ),
-        ActionChip(
-          backgroundColor: widget.setup != null && (_currentLocation?.latitude != widget.setup?.position?.latitude || _currentLocation?.longitude != widget.setup?.position?.longitude) ? Colors.orange.withValues(alpha: 0.08) : null,
-          onPressed: () async {
-            _locationService.status = LocationStatus.idle;
-            _addressService.status = AddressStatus.idle;
-            final result = await showSetLocationDialog(context: context, location: _currentLocation, address: _currentPlace);
-            if (result == null) return;
-            setState(() {
-              _locationService.status = LocationStatus.success;
-              _addressService.status = AddressStatus.success;
-              _currentLocation = result[0];
-              _currentPlace = result[1];
-            });
-            askAndUpdateWeather();
-            _changeListener();
-          },
-          avatar: (_locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching)
-            ? const Icon(Icons.location_searching)
-            : _currentPlace != null
-              ? const Icon(Icons.my_location)
-              : _locationService.status == LocationStatus.noPermission
-                ? const Icon(Icons.location_disabled)
-                : _locationService.status == LocationStatus.noService
-                  ? const Icon(Icons.location_disabled)
-                  : const Icon(Icons.my_location),
-          label: (_locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching)
-            ? _loadingIndicator()
-            : _currentPlace != null
-              ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}")
-              : _locationService.status == LocationStatus.noPermission
-                ? const Text("No location permision")
-                : _locationService.status == LocationStatus.noService
-                  ? const Text("No location service")
-                  : const Text("-"),
-        ),
-        ActionChip(
-          avatar: const Icon(Icons.arrow_upward),
-          label: _locationService.status == LocationStatus.searching 
-            ? _loadingIndicator() 
-            : (_currentLocation?.altitude == null 
-              ? const Text("-") 
-              : Text("${Setup.convertAltitudeFromMeters(_currentLocation!.altitude!, appSettings.altitudeUnit).round()} ${appSettings.altitudeUnit}")),
-          backgroundColor: widget.setup != null && _currentLocation?.altitude != widget.setup?.position?.altitude ? Colors.orange.withValues(alpha: 0.08) : null,
-          onPressed: () async {
-            final altitude = await showSetAltitudeDialog(context, _currentLocation?.altitude);
-            if (altitude == null) return;
-            final newMap = _currentLocation == null ? <String, dynamic>{} : Setup.locationDataToJson(_currentLocation!);
-            newMap['altitude'] = altitude;
-            newMap['time'] = newMap['time'] != null ? DateTime.parse(newMap['time']).millisecondsSinceEpoch.toDouble() : null; // convert String -> DateTime
-            setState(() {
-              _currentLocation = LocationData.fromMap(newMap);
-            });
-            _changeListener();
-          },
-        ),
-        ActionChip(
-          avatar: const Icon(Weather.currentTemperatureIconData), 
-          label: _weatherService.status == WeatherStatus.searching 
-            ? _loadingIndicator()
-            : (_currentWeather?.currentTemperature == null 
-              ? const Text("-") 
-              : Text("${Weather.convertTemperatureFromCelsius(_currentWeather!.currentTemperature!, appSettings.temperatureUnit).round()} ${appSettings.temperatureUnit}")),
-          backgroundColor: widget.setup != null && _currentWeather?.currentTemperature != widget.setup?.weather?.currentTemperature ? Colors.orange.withValues(alpha: 0.08) : null,
-          onPressed: () async {
-            final temperature = await showSetCurrentTemperatureDialog(context, _currentWeather);
-            setState(() {
-              if (temperature != null) {
-                _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                _currentWeather = _currentWeather?.copyWith(currentTemperature: temperature);
-              }
-            });
-            _changeListener();
-          },
-        ),
-        ActionChip(
-          avatar: const Icon(Weather.currentHumidityIconData), 
-          label: _weatherService.status == WeatherStatus.searching 
-            ? _loadingIndicator()
-            : (_currentWeather?.currentHumidity == null 
-              ? const Text("-") 
-              : Text("${_currentWeather?.currentHumidity?.round()} %")),
-          backgroundColor: widget.setup != null && _currentWeather?.currentHumidity != widget.setup?.weather?.currentHumidity ? Colors.orange.withValues(alpha: 0.08) : null,
-          onPressed: () async {
-            final humidity = await showSetCurrentHumidityDialog(context, _currentWeather);
-            setState(() {
-              if (humidity != null) {
-                _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                _currentWeather = _currentWeather?.copyWith(currentHumidity: humidity);
-              }
-            });
-            _changeListener();
-          },
-        ),
-        ActionChip(
-          avatar: const Icon(Weather.dayAccumulatedPrecipitationIconData), 
-          label: _weatherService.status == WeatherStatus.searching 
-            ? _loadingIndicator()
-            : (_currentWeather?.dayAccumulatedPrecipitation == null 
-              ? const Text("-") 
-              : Text("${Weather.convertPrecipitationFromMm(_currentWeather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit).round()} ${appSettings.precipitationUnit}")),
-          backgroundColor: widget.setup != null && _currentWeather?.dayAccumulatedPrecipitation != widget.setup?.weather?.dayAccumulatedPrecipitation ? Colors.orange.withValues(alpha: 0.08) : null,
-          onPressed: () async{
-            final precipitation = await showSetDayAccumulatedPrecipitationDialog(context, _currentWeather);
-            setState(() {
-              if (precipitation != null) {
-                _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                _currentWeather = _currentWeather?.copyWith(dayAccumulatedPrecipitation: precipitation);
-              }
-            });
-            _changeListener();
-          },
-        ),
-        ActionChip(
-          avatar: const Icon(Weather.currentWindSpeedIconData), 
-          label: _weatherService.status == WeatherStatus.searching 
-            ? _loadingIndicator()
-            : (_currentWeather?.currentWindSpeed == null 
-              ? const Text("-") 
-              : Text("${Weather.convertWindSpeedFromKmh(_currentWeather!.currentWindSpeed!, appSettings.windSpeedUnit).round()} ${appSettings.windSpeedUnit}")),
-          backgroundColor: widget.setup != null && _currentWeather?.currentWindSpeed != widget.setup?.weather?.currentWindSpeed ? Colors.orange.withValues(alpha: 0.08) : null,
-          onPressed: () async{
-            final windSpeed = await showSetCurrentWindSpeedDialog(context, _currentWeather);
-            setState(() {
-              if (windSpeed != null) {
-                _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                _currentWeather = _currentWeather?.copyWith(currentWindSpeed: windSpeed);
-              }
-            });
-            _changeListener();
-          },
-        ),
-        ActionChip(
-          avatar: const Icon(Weather.currentSoilMoisture0to7cmIconData), 
-          label: _weatherService.status == WeatherStatus.searching 
-            ? _loadingIndicator()
-            : (_currentWeather?.currentSoilMoisture0to7cm == null 
-              ? const Text("-") 
-              : Text("${_currentWeather?.currentSoilMoisture0to7cm?.toStringAsFixed(2)} m³/m³")),
-          backgroundColor: widget.setup != null && _currentWeather?.currentSoilMoisture0to7cm != widget.setup?.weather?.currentSoilMoisture0to7cm ? Colors.orange.withValues(alpha: 0.08) : null,
-          onPressed: () async {
-            final soilMoisture = await showSetCurrentSoilMoisture0to7cmDialog(context, _currentWeather);
-            setState(() {
-              if (soilMoisture != null) {
-                _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                _currentWeather = _currentWeather?.copyWith(currentSoilMoisture0to7cm: soilMoisture);
-              }
-            });
-            _changeListener();
-          },
-        ),
-        ActionChip(
-          avatar: Icon(_currentWeather?.condition?.getIconData() ?? Icons.question_mark, color: _currentWeather?.condition?.getColor()),
-          label: _weatherService.status == WeatherStatus.searching 
-            ? _loadingIndicator()
-            : Text(_currentWeather?.condition?.value ?? "-"),
-          onPressed: () => appSettingsRadioGroupSheet<Condition?>(
-            context: context,
-            title: "Select Trail Condition",
-            infoText: "Conditions are automatically calculated based on soil moisture (see weather data). You can manually adjust the trail condition here:",
-            value: _currentWeather?.condition,
-            optionWidgets: Map.fromEntries(Condition.values.map((condition) {
-              return MapEntry(
-                condition, 
-                Row(
-                  spacing: 8, 
-                  children: [
-                    Icon(condition.getIconData(), color: condition.getColor()), 
-                    Text(condition.value)
-                  ]
-                ),
-              );
-            })),
-            onChanged: (Condition? newValue) {
-              if (newValue == null) return;
-              setState(() {
-                _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                _currentWeather = _currentWeather?.copyWith(condition: newValue);
-              });
-              Navigator.pop(context);
-            }
-          ),
-        ),
-        ActionChip(
-          avatar: const Icon(Icons.autorenew),
-          label: const Text(""),
-          labelPadding: EdgeInsets.zero,
-          onPressed: _locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching || _weatherService.status == WeatherStatus.searching ? null : () async {
-            final UpdateLocationAddressWeatherOptions? result = await showUpdateLocationAddressWeatherSheet(
-              context, 
-              buttonsEnabled: {
-                UpdateLocationAddressWeatherOptions.locationByGPS: true,
-                UpdateLocationAddressWeatherOptions.addressByLocation: _currentLocation != null,
-                UpdateLocationAddressWeatherOptions.updateWeather: _currentLocation != null,
+    return ListenableBuilder(
+      listenable: Listenable.merge([_locationService, _addressService, _weatherService]),
+      builder: (context, child) { 
+        return Wrap(
+          spacing: 8.0,
+          runSpacing: 4.0,
+          children: [
+            ActionChip(
+              avatar: const Icon(Icons.calendar_month),
+              label: Text(
+                DateFormat(appSettings.dateFormat).format(_selectedDateTime),
+              ),
+              backgroundColor: widget.setup != null && (_selectedDateTime.year != widget.setup?.datetime.year || _selectedDateTime.month != widget.setup?.datetime.month || _selectedDateTime.day != widget.setup?.datetime.day) ? Colors.orange.withValues(alpha: 0.08) : null,
+              onPressed: _pickDate,
+            ),
+            ActionChip(
+              avatar: const Icon(Icons.access_time),
+              label: Text(
+                DateFormat(appSettings.timeFormat).format(_selectedDateTime),
+              ),
+              backgroundColor: widget.setup != null && (_selectedDateTime.hour != widget.setup?.datetime.hour || _selectedDateTime.minute != widget.setup?.datetime.minute) ? Colors.orange.withValues(alpha: 0.08) : null,
+              onPressed: _pickTime,
+            ),
+            ActionChip(
+              backgroundColor: widget.setup != null && (_currentLocation?.latitude != widget.setup?.position?.latitude || _currentLocation?.longitude != widget.setup?.position?.longitude) ? Colors.orange.withValues(alpha: 0.08) : null,
+              onPressed: () async {
+                _locationService.setStatus(LocationStatus.idle);
+                _addressService.setStatus(AddressStatus.idle);
+                final result = await showSetLocationDialog(context: context, location: _currentLocation, address: _currentPlace);
+                if (result == null) return;
+                setState(() {
+                  _locationService.setStatus(LocationStatus.success);
+                  _addressService.setStatus(AddressStatus.success);
+                  _currentLocation = result[0];
+                  _currentPlace = result[1];
+                });
+                askAndUpdateWeather();
+                _changeListener();
               },
-            );
-            switch (result) {
-              case UpdateLocationAddressWeatherOptions.locationByGPS: {
-                await updateLocation();
-                if (_currentLocation != null) {
-                  await updateAddress(); 
-                  askAndUpdateWeather();
+              avatar: (_locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching)
+                ? const Icon(Icons.location_searching)
+                : _currentPlace != null
+                  ? const Icon(Icons.my_location)
+                  : _locationService.status == LocationStatus.noPermission
+                    ? const Icon(Icons.location_disabled)
+                    : _locationService.status == LocationStatus.noService
+                      ? const Icon(Icons.location_disabled)
+                      : const Icon(Icons.my_location),
+              label: (_locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching)
+                ? _loadingIndicator()
+                : _currentPlace != null
+                  ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}")
+                  : _locationService.status == LocationStatus.noPermission
+                    ? const Text("No location permision")
+                    : _locationService.status == LocationStatus.noService
+                      ? const Text("No location service")
+                      : const Text("-"),
+            ),
+            ActionChip(
+              avatar: const Icon(Icons.arrow_upward),
+              label: _locationService.status == LocationStatus.searching 
+                ? _loadingIndicator() 
+                : (_currentLocation?.altitude == null 
+                  ? const Text("-") 
+                  : Text("${Setup.convertAltitudeFromMeters(_currentLocation!.altitude!, appSettings.altitudeUnit).round()} ${appSettings.altitudeUnit}")),
+              backgroundColor: widget.setup != null && _currentLocation?.altitude != widget.setup?.position?.altitude ? Colors.orange.withValues(alpha: 0.08) : null,
+              onPressed: () async {
+                final altitude = await showSetAltitudeDialog(context, _currentLocation?.altitude);
+                if (altitude == null) return;
+                final newMap = _currentLocation == null ? <String, dynamic>{} : Setup.locationDataToJson(_currentLocation!);
+                newMap['altitude'] = altitude;
+                newMap['time'] = newMap['time'] != null ? DateTime.parse(newMap['time']).millisecondsSinceEpoch.toDouble() : null; // convert String -> DateTime
+                setState(() {
+                  _currentLocation = LocationData.fromMap(newMap);
+                });
+                _changeListener();
+              },
+            ),
+            ActionChip(
+              avatar: const Icon(Weather.currentTemperatureIconData), 
+              label: _weatherService.status == WeatherStatus.searching 
+                ? _loadingIndicator()
+                : (_currentWeather?.currentTemperature == null 
+                  ? const Text("-") 
+                  : Text("${Weather.convertTemperatureFromCelsius(_currentWeather!.currentTemperature!, appSettings.temperatureUnit).round()} ${appSettings.temperatureUnit}")),
+              backgroundColor: widget.setup != null && _currentWeather?.currentTemperature != widget.setup?.weather?.currentTemperature ? Colors.orange.withValues(alpha: 0.08) : null,
+              onPressed: () async {
+                final temperature = await showSetCurrentTemperatureDialog(context, _currentWeather);
+                setState(() {
+                  if (temperature != null) {
+                    _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
+                    _currentWeather = _currentWeather?.copyWith(currentTemperature: temperature);
+                  }
+                });
+                _changeListener();
+              },
+            ),
+            ActionChip(
+              avatar: const Icon(Weather.currentHumidityIconData), 
+              label: _weatherService.status == WeatherStatus.searching 
+                ? _loadingIndicator()
+                : (_currentWeather?.currentHumidity == null 
+                  ? const Text("-") 
+                  : Text("${_currentWeather?.currentHumidity?.round()} %")),
+              backgroundColor: widget.setup != null && _currentWeather?.currentHumidity != widget.setup?.weather?.currentHumidity ? Colors.orange.withValues(alpha: 0.08) : null,
+              onPressed: () async {
+                final humidity = await showSetCurrentHumidityDialog(context, _currentWeather);
+                setState(() {
+                  if (humidity != null) {
+                    _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
+                    _currentWeather = _currentWeather?.copyWith(currentHumidity: humidity);
+                  }
+                });
+                _changeListener();
+              },
+            ),
+            ActionChip(
+              avatar: const Icon(Weather.dayAccumulatedPrecipitationIconData), 
+              label: _weatherService.status == WeatherStatus.searching 
+                ? _loadingIndicator()
+                : (_currentWeather?.dayAccumulatedPrecipitation == null 
+                  ? const Text("-") 
+                  : Text("${Weather.convertPrecipitationFromMm(_currentWeather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit).round()} ${appSettings.precipitationUnit}")),
+              backgroundColor: widget.setup != null && _currentWeather?.dayAccumulatedPrecipitation != widget.setup?.weather?.dayAccumulatedPrecipitation ? Colors.orange.withValues(alpha: 0.08) : null,
+              onPressed: () async{
+                final precipitation = await showSetDayAccumulatedPrecipitationDialog(context, _currentWeather);
+                setState(() {
+                  if (precipitation != null) {
+                    _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
+                    _currentWeather = _currentWeather?.copyWith(dayAccumulatedPrecipitation: precipitation);
+                  }
+                });
+                _changeListener();
+              },
+            ),
+            ActionChip(
+              avatar: const Icon(Weather.currentWindSpeedIconData), 
+              label: _weatherService.status == WeatherStatus.searching 
+                ? _loadingIndicator()
+                : (_currentWeather?.currentWindSpeed == null 
+                  ? const Text("-") 
+                  : Text("${Weather.convertWindSpeedFromKmh(_currentWeather!.currentWindSpeed!, appSettings.windSpeedUnit).round()} ${appSettings.windSpeedUnit}")),
+              backgroundColor: widget.setup != null && _currentWeather?.currentWindSpeed != widget.setup?.weather?.currentWindSpeed ? Colors.orange.withValues(alpha: 0.08) : null,
+              onPressed: () async{
+                final windSpeed = await showSetCurrentWindSpeedDialog(context, _currentWeather);
+                setState(() {
+                  if (windSpeed != null) {
+                    _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
+                    _currentWeather = _currentWeather?.copyWith(currentWindSpeed: windSpeed);
+                  }
+                });
+                _changeListener();
+              },
+            ),
+            ActionChip(
+              avatar: const Icon(Weather.currentSoilMoisture0to7cmIconData), 
+              label: _weatherService.status == WeatherStatus.searching 
+                ? _loadingIndicator()
+                : (_currentWeather?.currentSoilMoisture0to7cm == null 
+                  ? const Text("-") 
+                  : Text("${_currentWeather?.currentSoilMoisture0to7cm?.toStringAsFixed(2)} m³/m³")),
+              backgroundColor: widget.setup != null && _currentWeather?.currentSoilMoisture0to7cm != widget.setup?.weather?.currentSoilMoisture0to7cm ? Colors.orange.withValues(alpha: 0.08) : null,
+              onPressed: () async {
+                final soilMoisture = await showSetCurrentSoilMoisture0to7cmDialog(context, _currentWeather);
+                setState(() {
+                  if (soilMoisture != null) {
+                    _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
+                    _currentWeather = _currentWeather?.copyWith(currentSoilMoisture0to7cm: soilMoisture);
+                  }
+                });
+                _changeListener();
+              },
+            ),
+            ActionChip(
+              avatar: Icon(_currentWeather?.condition?.getIconData() ?? Icons.question_mark, color: _currentWeather?.condition?.getColor()),
+              label: _weatherService.status == WeatherStatus.searching 
+                ? _loadingIndicator()
+                : Text(_currentWeather?.condition?.value ?? "-"),
+              onPressed: () => appSettingsRadioGroupSheet<Condition?>(
+                context: context,
+                title: "Select Trail Condition",
+                infoText: "Conditions are automatically calculated based on soil moisture (see weather data). You can manually adjust the trail condition here:",
+                value: _currentWeather?.condition,
+                optionWidgets: Map.fromEntries(Condition.values.map((condition) {
+                  return MapEntry(
+                    condition, 
+                    Row(
+                      spacing: 8, 
+                      children: [
+                        Icon(condition.getIconData(), color: condition.getColor()), 
+                        Text(condition.value)
+                      ]
+                    ),
+                  );
+                })),
+                onChanged: (Condition? newValue) {
+                  if (newValue == null) return;
+                  setState(() {
+                    _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
+                    _currentWeather = _currentWeather?.copyWith(condition: newValue);
+                  });
+                  Navigator.pop(context);
                 }
-              }
-              case UpdateLocationAddressWeatherOptions.addressByLocation: updateAddress();
-              case UpdateLocationAddressWeatherOptions.updateWeather: updateWeather();
-              case null: return; 
-            }
-          }, 
-        ),
-      ],
+              ),
+            ),
+            ActionChip(
+              avatar: const Icon(Icons.autorenew),
+              label: const Text(""),
+              labelPadding: EdgeInsets.zero,
+              onPressed: _locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching || _weatherService.status == WeatherStatus.searching ? null : () async {
+                final UpdateLocationAddressWeatherOptions? result = await showUpdateLocationAddressWeatherSheet(
+                  context, 
+                  buttonsEnabled: {
+                    UpdateLocationAddressWeatherOptions.locationByGPS: true,
+                    UpdateLocationAddressWeatherOptions.addressByLocation: _currentLocation != null,
+                    UpdateLocationAddressWeatherOptions.updateWeather: _currentLocation != null,
+                  },
+                );
+                switch (result) {
+                  case UpdateLocationAddressWeatherOptions.locationByGPS: {
+                    await updateLocation();
+                    if (_currentLocation != null) {
+                      await updateAddress(); 
+                      askAndUpdateWeather();
+                    }
+                  }
+                  case UpdateLocationAddressWeatherOptions.addressByLocation: updateAddress();
+                  case UpdateLocationAddressWeatherOptions.updateWeather: updateWeather();
+                  case null: return; 
+                }
+              }, 
+            ),
+          ],
+        );
+      }
     );
   }
 

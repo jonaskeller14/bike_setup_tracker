@@ -12,17 +12,24 @@ enum LocationStatus {
   success,
 }
 
-class LocationService {
+class LocationService extends ChangeNotifier {
   final Location _location = Location();
-  LocationStatus status = LocationStatus.idle;
+  LocationStatus _status = LocationStatus.idle;
+
+  LocationStatus get status => _status;
+
+  void setStatus(LocationStatus newStatus) {
+    _status = newStatus;
+    notifyListeners();
+  }
 
   Future<LocationData?> fetchLocation() async {
-    status = LocationStatus.searching;
+    setStatus(LocationStatus.searching);
     bool serviceEnabled = await _location.serviceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await _location.requestService();
       if (!serviceEnabled) {
-        status = LocationStatus.noService;
+        setStatus(LocationStatus.noService);
         return null;
       }
     }
@@ -31,7 +38,7 @@ class LocationService {
     if (permissionGranted == PermissionStatus.denied) {
       permissionGranted = await _location.requestPermission();
       if (permissionGranted != PermissionStatus.granted) {
-        status = LocationStatus.noPermission;
+        setStatus(LocationStatus.noPermission);
         return null;
       }
     }
@@ -49,19 +56,19 @@ class LocationService {
           throw TimeoutException('Location retrieval timed out.');
         },
       );
-      status = LocationStatus.success;
+      setStatus(LocationStatus.success);
     } on TimeoutException catch (e) {
       debugPrint("Location Timeout Error: $e");
-      status = LocationStatus.idle;
+      setStatus(LocationStatus.idle);
       location = null;
     } catch (_) {
       location = null;
-      status = LocationStatus.noPermission;
+      setStatus(LocationStatus.noPermission);
     }    
     return location;
   }
 
-  Future<LocationData?> locationFromAddress(String address) async {
+  static Future<LocationData?> locationFromAddress(String address) async {
     geo.Location? geoLocation;
     try {
       geoLocation = (await geo.locationFromAddress(address)).first;
@@ -72,7 +79,7 @@ class LocationService {
     return LocationData.fromMap(geoLocation.toJson());
   }
 
-  LocationData setAltitude({required LocationData? location, required double? newAltitude}) {
+  static LocationData setAltitude({required LocationData? location, required double? newAltitude}) {
     final newMap = location == null ? <String, dynamic>{} : Setup.locationDataToJson(location);
     newMap['altitude'] = newAltitude;
     newMap['time'] = newMap['time'] != null ? DateTime.parse(newMap['time']).millisecondsSinceEpoch.toDouble() : null;

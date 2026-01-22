@@ -10,6 +10,11 @@ import '../utils/backup.dart';
 import '../models/app_data.dart';
 import 'package:http/http.dart' as http;
 
+enum GoogleDriveServiceStatus {
+  idle,
+  syncing,
+}
+
 class GoogleDriveService extends ChangeNotifier { 
   static const List<String> _scopes = [drive.DriveApi.driveAppdataScope];
   static const String _fileName = 'bike_setup_tracker_data.json';
@@ -22,7 +27,7 @@ class GoogleDriveService extends ChangeNotifier {
   GoogleSignInAccount? _currentUser;
   bool _isAuthorized = false;
   String _errorMessage = '';
-  bool _isSyncing = false;
+  GoogleDriveServiceStatus _status = GoogleDriveServiceStatus.idle;
 
   drive.DriveApi? _driveApi;
   final Map<String, dynamic> Function() getDataToUpload;
@@ -39,7 +44,7 @@ class GoogleDriveService extends ChangeNotifier {
   String? get photoUrl => _currentUser?.photoUrl;
   bool get isAuthorized => _isAuthorized;
   String get errorMessage => _errorMessage;
-  bool get isSyncing => _isSyncing;
+  GoogleDriveServiceStatus get status => _status;
 
   GoogleDriveService({
     required this.getDataToUpload,
@@ -51,8 +56,8 @@ class GoogleDriveService extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _setIsSyncing(bool syncing) {
-    _isSyncing = syncing;
+  void _setStatus(GoogleDriveServiceStatus newStatus) {
+    _status = newStatus;
     notifyListeners();
   }
 
@@ -143,8 +148,10 @@ class GoogleDriveService extends ChangeNotifier {
   }
 
   Future<void> interactiveSignIn() async {
+    _setStatus(GoogleDriveServiceStatus.syncing);
     if (!GoogleSignIn.instance.supportsAuthenticate()) {
       _setErrorMessage("Current Platform does not support Authentication");
+      _setStatus(GoogleDriveServiceStatus.idle);
       return;
     }
     
@@ -152,7 +159,10 @@ class GoogleDriveService extends ChangeNotifier {
 
     try {
       _currentUser = await GoogleSignIn.instance.authenticate();
-      if (_currentUser == null) return; // User cancelled
+      if (_currentUser == null) {
+        _setStatus(GoogleDriveServiceStatus.idle);
+        return;
+      } // User cancelled
       await _initializeDriveApi(); // Initialize API immediately after sign-in
     } on GoogleSignInException catch (e) {
       _setErrorMessage("Sign in error: ${_errorMessageFromSignInException(e)}");
@@ -160,15 +170,16 @@ class GoogleDriveService extends ChangeNotifier {
       _setErrorMessage("Sign in error: $e");
     }
     notifyListeners(); // Update UI after sign-in attempt
+    _setStatus(GoogleDriveServiceStatus.idle);
   }
 
   Future<void> interactiveSync() async {
-    _setIsSyncing(true);
+    _setStatus(GoogleDriveServiceStatus.syncing);
     _setErrorMessage(''); 
 
     if (_currentUser == null) await interactiveSignIn();
     if (_currentUser == null) {
-      _setIsSyncing(false);
+      _setStatus(GoogleDriveServiceStatus.idle);
       return;
     }
 
@@ -176,7 +187,7 @@ class GoogleDriveService extends ChangeNotifier {
 
     if (_driveApi == null || !_isAuthorized) await _initializeDriveApi();
     if (_driveApi == null || !_isAuthorized) {
-      _setIsSyncing(false);
+      _setStatus(GoogleDriveServiceStatus.idle);
       _setErrorMessage("Drive access requires re-authorization.");
       return;
     }
@@ -193,7 +204,7 @@ class GoogleDriveService extends ChangeNotifier {
         await handleAuthorizeScopes();
 
         if (!_isAuthorized) {
-          _setIsSyncing(false);
+          _setStatus(GoogleDriveServiceStatus.idle);
           return;
         }
 
@@ -214,7 +225,7 @@ class GoogleDriveService extends ChangeNotifier {
       _setErrorMessage('General Sync Error: $e');
     }
     
-    _setIsSyncing(false);
+    _setStatus(GoogleDriveServiceStatus.idle);
     notifyListeners();
   }
 
@@ -224,7 +235,7 @@ class GoogleDriveService extends ChangeNotifier {
     if (_driveApi == null || !_isAuthorized) await _initializeDriveApi();
     if (_driveApi == null || !_isAuthorized) return;
 
-    _setIsSyncing(true);
+    _setStatus(GoogleDriveServiceStatus.syncing);
     
     try {
       await download();
@@ -247,7 +258,7 @@ class GoogleDriveService extends ChangeNotifier {
       debugPrint('Silent Sync General Error: $e');
     }
     
-    _setIsSyncing(false);
+    _setStatus(GoogleDriveServiceStatus.idle);
   }
 
   void scheduleSilentSync() {
@@ -341,12 +352,14 @@ class GoogleDriveService extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
+    _setStatus(GoogleDriveServiceStatus.syncing);
     await GoogleSignIn.instance.disconnect();
     _currentUser = null;
     _driveApi = null;
     _isAuthorized = false;
     _errorMessage = '';
     notifyListeners();
+    _setStatus(GoogleDriveServiceStatus.idle);
   }
 
   static void setLastBackup(DateTime newValue) async {

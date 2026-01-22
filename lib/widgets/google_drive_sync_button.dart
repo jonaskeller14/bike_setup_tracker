@@ -15,7 +15,7 @@ class GoogleDriveSyncButton extends StatelessWidget {
     return ListenableBuilder(
       listenable: googleDriveService,
       builder: (context, child) {
-        final isSyncing = googleDriveService.isSyncing;
+        final isSyncing = googleDriveService.status == GoogleDriveServiceStatus.syncing;
         final isLinked = googleDriveService.isSignedIn && googleDriveService.isAuthorized;
 
         return Stack(

@@ -174,13 +174,15 @@ Future<AppData?> showDataSelectSheet({required BuildContext context, required Ap
                           ),
                           subtitle: Row(
                             mainAxisSize: MainAxisSize.min,
+                            spacing: 2,
                             children: [
                               Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                              const SizedBox(width: 2),
-                              Text(
-                                allBikes.firstWhereOrNull((b) => b.id == component.bike)?.name ?? "-",
-                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                                overflow: TextOverflow.ellipsis,
+                              Flexible(
+                                child: Text(
+                                  allBikes.firstWhereOrNull((b) => b.id == component.bike)?.name ?? "-",
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ],
                           ),
@@ -234,13 +236,15 @@ Future<AppData?> showDataSelectSheet({required BuildContext context, required Ap
                           ),
                           subtitle: Row(
                             mainAxisSize: MainAxisSize.min,
+                            spacing: 2,
                             children: [
                               Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                              const SizedBox(width: 2),
-                              Text(
-                                allBikes.firstWhereOrNull((b) => b.id == setup.bike)?.name ?? "-",
-                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                                overflow: TextOverflow.ellipsis,
+                              Flexible(
+                                child: Text(
+                                  allBikes.firstWhereOrNull((b) => b.id == setup.bike)?.name ?? "-",
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ],
                           ),

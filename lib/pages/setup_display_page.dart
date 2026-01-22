@@ -217,16 +217,16 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                     title: SelectableText("Lat: ${setup.position!.latitude?.toStringAsFixed(4)}, Lon: ${setup.position!.longitude?.toStringAsFixed(4)}"),
                     dense: true,
                   ),
-                if (setup.place != null)
-                  ListTile(
-                    leading: const Icon(Icons.location_city),
-                    title: SelectableText("${setup.place?.thoroughfare} ${setup.place?.subThoroughfare}, ${setup.place?.locality}, ${setup.place?.isoCountryCode}"),
-                    dense: true,
-                  ),
                 if (setup.position?.altitude != null)
                   ListTile(
                     leading: const Icon(Icons.arrow_upward),
                     title: SelectableText("${Setup.convertAltitudeFromMeters(setup.position!.altitude!, appSettings.altitudeUnit).round()} ${appSettings.altitudeUnit}"),
+                    dense: true,
+                  ),
+                if (setup.place != null)
+                  ListTile(
+                    leading: const Icon(Icons.location_city),
+                    title: SelectableText("${setup.place?.thoroughfare} ${setup.place?.subThoroughfare}, ${setup.place?.locality}, ${setup.place?.isoCountryCode}"),
                     dense: true,
                   ),
                 if (setup.weather?.currentTemperature != null)

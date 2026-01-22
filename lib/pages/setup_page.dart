@@ -768,26 +768,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               }
             ),
             ActionChip(
-              avatar: const Icon(Icons.arrow_upward),
-              label: _locationService.status == LocationStatus.searching 
-                ? _loadingIndicator() 
-                : (_currentLocation?.altitude == null 
-                  ? const Text("-") 
-                  : Text("${Setup.convertAltitudeFromMeters(_currentLocation!.altitude!, appSettings.altitudeUnit).round()} ${appSettings.altitudeUnit}")),
-              backgroundColor: widget.setup != null && _currentLocation?.altitude != widget.setup?.position?.altitude ? Colors.orange.withValues(alpha: 0.08) : null,
-              onPressed: () async {
-                final altitude = await showSetAltitudeDialog(context, _currentLocation?.altitude);
-                if (altitude == null) return;
-                final newMap = _currentLocation == null ? <String, dynamic>{} : Setup.locationDataToJson(_currentLocation!);
-                newMap['altitude'] = altitude;
-                newMap['time'] = newMap['time'] != null ? DateTime.parse(newMap['time']).millisecondsSinceEpoch.toDouble() : null; // convert String -> DateTime
-                setState(() {
-                  _currentLocation = LocationData.fromMap(newMap);
-                });
-                _changeListener();
-              },
-            ),
-            ActionChip(
               avatar: const Icon(Weather.currentTemperatureIconData), 
               label: _weatherService.status == WeatherStatus.searching 
                 ? _loadingIndicator()

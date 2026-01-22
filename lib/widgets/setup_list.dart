@@ -245,22 +245,6 @@ class SetupCard extends StatelessWidget {
                   ],
                 ),
               ],
-              if (setup.position?.altitude != null) ...[
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  spacing: 2,
-                  children: [
-                    Icon(Icons.arrow_upward, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                    Flexible(
-                      child: Text(
-                        "${Setup.convertAltitudeFromMeters(setup.position!.altitude!, appSettings.altitudeUnit).round()} ${appSettings.altitudeUnit}",
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                      ),
-                    ),
-                  ],
-                )
-              ],
               if (setup.weather?.currentTemperature != null) ... [
                 Row(
                   mainAxisSize: MainAxisSize.min,

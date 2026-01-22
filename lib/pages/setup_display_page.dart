@@ -232,7 +232,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                 if (setup.weather?.currentTemperature != null)
                   ListTile(
                     leading: const Icon(Weather.currentTemperatureIconData),
-                    title: SelectableText("${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit).round()} ${appSettings.temperatureUnit}"),
+                    title: SelectableText("${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}"),
                     dense: true,
                   ),
                 if (setup.weather?.currentHumidity != null)
@@ -244,13 +244,13 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                 if (setup.weather?.currentPrecipitation != null)
                   ListTile(
                     leading: const Icon(Weather.dayAccumulatedPrecipitationIconData),
-                    title:  SelectableText("${Weather.convertPrecipitationFromMm(setup.weather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit).round()} ${appSettings.precipitationUnit}"),
+                    title:  SelectableText("${Weather.convertPrecipitationFromMm(setup.weather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit)?.round()} ${appSettings.precipitationUnit}"),
                     dense: true,
                   ),
                 if (setup.weather?.currentWindSpeed != null)
                   ListTile(
                     leading: const Icon(Weather.currentWindSpeedIconData),
-                    title:  SelectableText("${Weather.convertWindSpeedFromKmh(setup.weather!.currentWindSpeed!, appSettings.windSpeedUnit).round()} ${appSettings.windSpeedUnit}"),
+                    title:  SelectableText("${Weather.convertWindSpeedFromKmh(setup.weather!.currentWindSpeed!, appSettings.windSpeedUnit)?.round()} ${appSettings.windSpeedUnit}"),
                     dense: true,
                   ),
                 if (setup.weather?.currentSoilMoisture0to7cm != null)

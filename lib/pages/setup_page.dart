@@ -711,39 +711,61 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               onPressed: _pickTime,
             ),
             ActionChip(
-              backgroundColor: widget.setup != null && (_currentLocation?.latitude != widget.setup?.position?.latitude || _currentLocation?.longitude != widget.setup?.position?.longitude) ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.setup != null && (!Setup.locationEqual(_currentLocation, widget.setup?.position) || !Setup.placeEqual(_currentPlace, widget.setup?.place)) ? Colors.orange.withValues(alpha: 0.08) : null,
               onPressed: () async {
                 _locationService.setStatus(LocationStatus.idle);
                 _addressService.setStatus(AddressStatus.idle);
                 final result = await showSetLocationDialog(context: context, location: _currentLocation, address: _currentPlace);
                 if (result == null) return;
-                setState(() {
-                  _locationService.setStatus(LocationStatus.success);
-                  _addressService.setStatus(AddressStatus.success);
+                _locationService.setStatus(LocationStatus.success);
+                _addressService.setStatus(AddressStatus.success);
+                setState(() {  
                   _currentLocation = result[0];
                   _currentPlace = result[1];
                 });
                 askAndUpdateWeather();
                 _changeListener();
               },
-              avatar: (_locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching)
-                ? const Icon(Icons.location_searching)
-                : _currentPlace != null
-                  ? const Icon(Icons.my_location)
-                  : _locationService.status == LocationStatus.noPermission
-                    ? const Icon(Icons.location_disabled)
-                    : _locationService.status == LocationStatus.noService
-                      ? const Icon(Icons.location_disabled)
-                      : const Icon(Icons.my_location),
-              label: (_locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching)
-                ? _loadingIndicator()
-                : _currentPlace != null
-                  ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}")
-                  : _locationService.status == LocationStatus.noPermission
-                    ? const Text("No location permision")
-                    : _locationService.status == LocationStatus.noService
-                      ? const Text("No location service")
+              avatar: switch (_locationService.status) {
+                LocationStatus.idle || LocationStatus.success => switch (_addressService.status) {
+                  AddressStatus.idle || 
+                  AddressStatus.searching || 
+                  AddressStatus.success => _currentLocation == null ? const Icon(Icons.location_searching) : const Icon(Icons.my_location),
+                  AddressStatus.error => Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
+                },
+                LocationStatus.searching => switch (_addressService.status) {
+                  _ => const Icon(Icons.location_searching),
+                },
+                LocationStatus.noPermission || LocationStatus.noService => switch (_addressService.status) {
+                  _ => Icon(Icons.location_disabled, color: Theme.of(context).colorScheme.error)
+                },
+              },
+              label: switch (_locationService.status) {
+                LocationStatus.idle || LocationStatus.success => switch (_addressService.status) {
+                  AddressStatus.searching => _loadingIndicator(),
+                  AddressStatus.idle || AddressStatus.success => _currentPlace != null
+                      ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}") 
                       : const Text("-"),
+                  AddressStatus.error => _currentPlace != null
+                      ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}") 
+                      : const Text("Address Error"),
+                },
+                LocationStatus.searching => switch (_addressService.status) {
+                  _ => _loadingIndicator(),
+                },
+                LocationStatus.noService => switch (_addressService.status) {
+                  AddressStatus.searching => _loadingIndicator(),
+                  AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace != null
+                      ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}") 
+                      : const Text("No GPS Service"),
+                },
+                LocationStatus.noPermission => switch (_addressService.status) {
+                  AddressStatus.searching => _loadingIndicator(),
+                  AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace != null
+                      ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}") 
+                      : const Text("No GPS Permision"),
+                },
+              }
             ),
             ActionChip(
               avatar: const Icon(Icons.arrow_upward),
@@ -771,7 +793,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 ? _loadingIndicator()
                 : (_currentWeather?.currentTemperature == null 
                   ? const Text("-") 
-                  : Text("${Weather.convertTemperatureFromCelsius(_currentWeather!.currentTemperature!, appSettings.temperatureUnit).round()} ${appSettings.temperatureUnit}")),
+                  : Text("${Weather.convertTemperatureFromCelsius(_currentWeather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}")),
               backgroundColor: widget.setup != null && _currentWeather?.currentTemperature != widget.setup?.weather?.currentTemperature ? Colors.orange.withValues(alpha: 0.08) : null,
               onPressed: () async {
                 final temperature = await showSetCurrentTemperatureDialog(context, _currentWeather);
@@ -809,7 +831,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 ? _loadingIndicator()
                 : (_currentWeather?.dayAccumulatedPrecipitation == null 
                   ? const Text("-") 
-                  : Text("${Weather.convertPrecipitationFromMm(_currentWeather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit).round()} ${appSettings.precipitationUnit}")),
+                  : Text("${Weather.convertPrecipitationFromMm(_currentWeather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit)?.round()} ${appSettings.precipitationUnit}")),
               backgroundColor: widget.setup != null && _currentWeather?.dayAccumulatedPrecipitation != widget.setup?.weather?.dayAccumulatedPrecipitation ? Colors.orange.withValues(alpha: 0.08) : null,
               onPressed: () async{
                 final precipitation = await showSetDayAccumulatedPrecipitationDialog(context, _currentWeather);
@@ -828,7 +850,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 ? _loadingIndicator()
                 : (_currentWeather?.currentWindSpeed == null 
                   ? const Text("-") 
-                  : Text("${Weather.convertWindSpeedFromKmh(_currentWeather!.currentWindSpeed!, appSettings.windSpeedUnit).round()} ${appSettings.windSpeedUnit}")),
+                  : Text("${Weather.convertWindSpeedFromKmh(_currentWeather!.currentWindSpeed!, appSettings.windSpeedUnit)?.round()} ${appSettings.windSpeedUnit}")),
               backgroundColor: widget.setup != null && _currentWeather?.currentWindSpeed != widget.setup?.weather?.currentWindSpeed ? Colors.orange.withValues(alpha: 0.08) : null,
               onPressed: () async{
                 final windSpeed = await showSetCurrentWindSpeedDialog(context, _currentWeather);

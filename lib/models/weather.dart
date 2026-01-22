@@ -171,7 +171,8 @@ class Weather {
     }
   }
 
-  static double convertTemperatureToCelsius(double temp, String currentUnit) {
+  static double? convertTemperatureToCelsius(double? temp, String currentUnit) {
+    if (temp == null) return null;
     switch (currentUnit) {
       case '°C':
         return temp;
@@ -184,7 +185,8 @@ class Weather {
     }
   }
 
-  static double convertTemperatureFromCelsius(double tempC, String targetUnit) {
+  static double? convertTemperatureFromCelsius(double? tempC, String targetUnit) {
+    if (tempC == null) return null;
     switch (targetUnit) {
       case '°C':
         return tempC;
@@ -197,7 +199,8 @@ class Weather {
     }
   }
 
-  static double convertWindSpeedToKmh(double speed, String currentUnit) {
+  static double? convertWindSpeedToKmh(double? speed, String currentUnit) {
+    if (speed == null) return null;
     const double msToKmh = 3.6;          // m/s * 3.6 = km/h
     const double mphToKmh = 1.60934;     // mph * 1.60934 = km/h
     const double ktToKmh = 1.852;        // kt * 1.852 = km/h
@@ -216,7 +219,8 @@ class Weather {
     }
   }
 
-  static double convertWindSpeedFromKmh(double speedKmh, String targetUnit) {
+  static double? convertWindSpeedFromKmh(double? speedKmh, String targetUnit) {
+    if (speedKmh == null) return null;
     const double kmhToMs = 1 / 3.6;          // 1 km/h ≈ 0.27778 m/s
     const double kmhToMph = 1 / 1.60934;     // 1 km/h ≈ 0.62137 mph
     const double kmhToKt = 1 / 1.852;        // 1 km/h ≈ 0.53996 knots
@@ -235,7 +239,8 @@ class Weather {
     }
   }
 
-  static double convertPrecipitationToMm(double precip, String currentUnit) {
+  static double? convertPrecipitationToMm(double? precip, String currentUnit) {
+    if (precip == null) return null;
     const double inToMm = 1 / 0.0393701;
 
     switch (currentUnit) {
@@ -248,7 +253,8 @@ class Weather {
     }
   }
 
-  static double convertPrecipitationFromMm(double precipMm, String targetUnit) {
+  static double? convertPrecipitationFromMm(double? precipMm, String targetUnit) {
+    if (precipMm == null) return null;
     const double mmToIn = 0.0393701;
 
     switch (targetUnit) {

@@ -206,10 +206,13 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                 ),
                 const SizedBox(height: 12),
                 if (setup.notes != null)
-                  ListTile(
-                    leading: const Icon(Icons.notes),
-                    title: SelectableText(setup.notes!),
-                    dense: true,
+                  Card.outlined(
+                    margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                    child: ListTile(
+                      leading: const Icon(Icons.notes),
+                      title: SelectableText(setup.notes!),
+                      dense: true,
+                    ),
                   ),
                 if (setup.position != null || setup.place != null)
                   Card.outlined(

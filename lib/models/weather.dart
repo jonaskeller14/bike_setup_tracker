@@ -287,8 +287,8 @@ class Weather {
 
   IconData getIconData() {
     return getStaticIconData(
-      currentWeatherCode ?? -1 , 
-      isDay: currentIsDay ?? true
+      currentWeatherCode ?? -1, 
+      isDay: currentIsDay ?? true,
     );
   }
 

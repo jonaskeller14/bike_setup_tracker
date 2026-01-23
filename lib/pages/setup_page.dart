@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:provider/provider.dart';
+import 'package:weather_icons/weather_icons.dart';
 import '../models/app_data.dart';
 import '../models/weather.dart';
 import '../models/person.dart';
@@ -19,15 +20,10 @@ import '../services/address_service.dart';
 import '../services/location_service.dart';
 import '../widgets/adjustment_set_list.dart';
 import '../widgets/dialogs/confirmation.dart';
-import '../widgets/dialogs/set_current_temperature.dart';
-import '../widgets/dialogs/set_current_windspeed.dart';
-import '../widgets/dialogs/set_current_humidity.dart';
-import '../widgets/dialogs/set_current_soilMoisture0to7cm.dart';
-import '../widgets/dialogs/set_dayAccumulated_precipitation.dart';
 import '../widgets/dialogs/set_location.dart';
-import '../widgets/dialogs/set_altitude.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/sheets/app_settings_radio_group.dart';
+import '../widgets/sheets/set_weather.dart';
 import '../widgets/sheets/update_location_address_weather.dart';
 import '../widgets/initial_changed_value_legend.dart';
 import '../widgets/display_adjustment/display_dangling_adjustment.dart';
@@ -768,99 +764,34 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               }
             ),
             ActionChip(
-              avatar: const Icon(Weather.currentTemperatureIconData), 
-              label: _weatherService.status == WeatherStatus.searching 
-                ? _loadingIndicator()
-                : (_currentWeather?.currentTemperature == null 
-                  ? const Text("-") 
-                  : Text("${Weather.convertTemperatureFromCelsius(_currentWeather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}")),
-              backgroundColor: widget.setup != null && _currentWeather?.currentTemperature != widget.setup?.weather?.currentTemperature ? Colors.orange.withValues(alpha: 0.08) : null,
-              onPressed: () async {
-                final temperature = await showSetCurrentTemperatureDialog(context, _currentWeather);
-                setState(() {
-                  if (temperature != null) {
-                    _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                    _currentWeather = _currentWeather?.copyWith(currentTemperature: temperature);
-                  }
-                });
-                _changeListener();
+              avatar: switch (_weatherService.status) {
+                WeatherStatus.idle => Icon(_currentWeather?.getIconData() ?? WeatherIcons.na),
+                WeatherStatus.searching => Icon(WeatherIcons.na),
+                WeatherStatus.success => Icon(_currentWeather?.getIconData() ?? WeatherIcons.na),
+                WeatherStatus.error => Icon(Icons.error, color: Theme.of(context).colorScheme.error),
               },
-            ),
-            ActionChip(
-              avatar: const Icon(Weather.currentHumidityIconData), 
-              label: _weatherService.status == WeatherStatus.searching 
-                ? _loadingIndicator()
-                : (_currentWeather?.currentHumidity == null 
-                  ? const Text("-") 
-                  : Text("${_currentWeather?.currentHumidity?.round()} %")),
-              backgroundColor: widget.setup != null && _currentWeather?.currentHumidity != widget.setup?.weather?.currentHumidity ? Colors.orange.withValues(alpha: 0.08) : null,
-              onPressed: () async {
-                final humidity = await showSetCurrentHumidityDialog(context, _currentWeather);
-                setState(() {
-                  if (humidity != null) {
-                    _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                    _currentWeather = _currentWeather?.copyWith(currentHumidity: humidity);
-                  }
-                });
-                _changeListener();
+              label: switch (_weatherService.status) {
+                WeatherStatus.idle => Text(_currentWeather?.getWeatherCodeLabel() ?? "-"),
+                WeatherStatus.searching => _loadingIndicator(),
+                WeatherStatus.success => Text(_currentWeather?.getWeatherCodeLabel() ?? "-"),
+                WeatherStatus.error => const Text("Weather Error"),
               },
-            ),
-            ActionChip(
-              avatar: const Icon(Weather.dayAccumulatedPrecipitationIconData), 
-              label: _weatherService.status == WeatherStatus.searching 
-                ? _loadingIndicator()
-                : (_currentWeather?.dayAccumulatedPrecipitation == null 
-                  ? const Text("-") 
-                  : Text("${Weather.convertPrecipitationFromMm(_currentWeather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit)?.round()} ${appSettings.precipitationUnit}")),
-              backgroundColor: widget.setup != null && _currentWeather?.dayAccumulatedPrecipitation != widget.setup?.weather?.dayAccumulatedPrecipitation ? Colors.orange.withValues(alpha: 0.08) : null,
-              onPressed: () async{
-                final precipitation = await showSetDayAccumulatedPrecipitationDialog(context, _currentWeather);
-                setState(() {
-                  if (precipitation != null) {
-                    _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                    _currentWeather = _currentWeather?.copyWith(dayAccumulatedPrecipitation: precipitation);
-                  }
-                });
-                _changeListener();
-              },
-            ),
-            ActionChip(
-              avatar: const Icon(Weather.currentWindSpeedIconData), 
-              label: _weatherService.status == WeatherStatus.searching 
-                ? _loadingIndicator()
-                : (_currentWeather?.currentWindSpeed == null 
-                  ? const Text("-") 
-                  : Text("${Weather.convertWindSpeedFromKmh(_currentWeather!.currentWindSpeed!, appSettings.windSpeedUnit)?.round()} ${appSettings.windSpeedUnit}")),
-              backgroundColor: widget.setup != null && _currentWeather?.currentWindSpeed != widget.setup?.weather?.currentWindSpeed ? Colors.orange.withValues(alpha: 0.08) : null,
-              onPressed: () async{
-                final windSpeed = await showSetCurrentWindSpeedDialog(context, _currentWeather);
-                setState(() {
-                  if (windSpeed != null) {
-                    _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                    _currentWeather = _currentWeather?.copyWith(currentWindSpeed: windSpeed);
-                  }
-                });
-                _changeListener();
-              },
-            ),
-            ActionChip(
-              avatar: const Icon(Weather.currentSoilMoisture0to7cmIconData), 
-              label: _weatherService.status == WeatherStatus.searching 
-                ? _loadingIndicator()
-                : (_currentWeather?.currentSoilMoisture0to7cm == null 
-                  ? const Text("-") 
-                  : Text("${_currentWeather?.currentSoilMoisture0to7cm?.toStringAsFixed(2)} m³/m³")),
-              backgroundColor: widget.setup != null && _currentWeather?.currentSoilMoisture0to7cm != widget.setup?.weather?.currentSoilMoisture0to7cm ? Colors.orange.withValues(alpha: 0.08) : null,
-              onPressed: () async {
-                final soilMoisture = await showSetCurrentSoilMoisture0to7cmDialog(context, _currentWeather);
-                setState(() {
-                  if (soilMoisture != null) {
-                    _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                    _currentWeather = _currentWeather?.copyWith(currentSoilMoisture0to7cm: soilMoisture);
-                  }
-                });
-                _changeListener();
-              },
+              backgroundColor: widget.setup != null && _currentWeather != widget.setup?.weather ? Colors.orange.withValues(alpha: 0.08) : null,
+              onPressed: _locationService.status == LocationStatus.searching || _weatherService.status == WeatherStatus.searching
+                  ? null
+                  : () async {
+                      final Weather? newWeather = await showSetWeatherSheet(
+                        context: context,
+                        currentWeather: _currentWeather,
+                        weatherService: _weatherService,
+                        locationService: _locationService,
+                        currentLocation: _currentLocation,
+                        selectedDateTime: _selectedDateTime,
+                      );
+                      if (newWeather == null) return;
+                      setState(() => _currentWeather = newWeather);
+                      _changeListener();
+                    },
             ),
             ActionChip(
               avatar: Icon(_currentWeather?.condition?.getIconData() ?? Icons.question_mark, color: _currentWeather?.condition?.getColor()),

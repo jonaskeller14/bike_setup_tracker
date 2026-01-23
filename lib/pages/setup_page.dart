@@ -315,15 +315,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         _notesController.text.trim() != (widget.setup?.notes ?? '') || 
         _initialDateTime != _selectedDateTime || 
 
-        _currentLocation?.latitude != widget.setup?.position?.latitude || 
-        _currentLocation?.longitude != widget.setup?.position?.longitude || 
-        _currentLocation?.altitude != widget.setup?.position?.altitude || 
-
-        _currentWeather?.currentTemperature != widget.setup?.weather?.currentTemperature ||
-        _currentWeather?.currentHumidity != widget.setup?.weather?.currentHumidity ||
-        _currentWeather?.dayAccumulatedPrecipitation != widget.setup?.weather?.dayAccumulatedPrecipitation ||
-        _currentWeather?.currentWindSpeed != widget.setup?.weather?.currentWindSpeed ||
-        _currentWeather?.currentSoilMoisture0to7cm != widget.setup?.weather?.currentSoilMoisture0to7cm || 
+        !Setup.locationEqual(_currentLocation, widget.setup?.position) ||
+        !Setup.placeEqual(_currentPlace, widget.setup?.place) ||
+        _currentWeather != widget.setup?.weather || 
         
         _bike != _initialBike || 
         _person != _initialPerson ||
@@ -798,6 +792,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               label: _weatherService.status == WeatherStatus.searching 
                 ? _loadingIndicator()
                 : Text(_currentWeather?.condition?.value ?? "-"),
+              backgroundColor: widget.setup != null && _currentWeather?.condition != widget.setup?.weather?.condition ? Colors.orange.withValues(alpha: 0.08) : null,
               onPressed: () => appSettingsRadioGroupSheet<Condition?>(
                 context: context,
                 title: "Select Trail Condition",

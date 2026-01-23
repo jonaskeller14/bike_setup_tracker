@@ -182,12 +182,7 @@ class Setup {
         l2 != null &&
         l1.latitude == l2.latitude &&
         l1.longitude == l2.longitude &&
-        l1.altitude == l2.altitude &&
-        l1.accuracy == l2.accuracy &&
-        l1.heading == l2.heading &&
-        l1.speed == l2.speed &&
-        l1.speedAccuracy == l2.speedAccuracy &&
-        l1.time == l2.time;
+        l1.altitude == l2.altitude;
   }
 
   static bool placeEqual(geo.Placemark? p1, geo.Placemark? p2) {
@@ -257,7 +252,8 @@ class Setup {
     }
   }
 
-  static double convertAltitudeToMeters(double alt, String currentUnit) {
+  static double? convertAltitudeToMeters(double? alt, String currentUnit) {
+    if (alt == null) return null;
     const double ftToM = 1 / 3.28084; // ft / 3.28084 = m
 
     switch (currentUnit) {
@@ -270,7 +266,8 @@ class Setup {
     }
   }
 
-  static double convertAltitudeFromMeters(double altM, String targetUnit) {
+  static double? convertAltitudeFromMeters(double? altM, String targetUnit) {
+    if (altM == null) return null;
     const double mToFt = 3.28084;
 
     switch (targetUnit) {

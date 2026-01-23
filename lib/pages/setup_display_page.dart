@@ -220,7 +220,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                 if (setup.position?.altitude != null)
                   ListTile(
                     leading: const Icon(Icons.arrow_upward),
-                    title: SelectableText("${Setup.convertAltitudeFromMeters(setup.position!.altitude!, appSettings.altitudeUnit).round()} ${appSettings.altitudeUnit}"),
+                    title: SelectableText("${Setup.convertAltitudeFromMeters(setup.position!.altitude!, appSettings.altitudeUnit)?.round()} ${appSettings.altitudeUnit}"),
                     dense: true,
                   ),
                 if (setup.place != null)

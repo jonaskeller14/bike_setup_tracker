@@ -894,10 +894,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                             _notesTextFormField(),
                             const SizedBox(height: 12),
                             _wrap(),
-                            Text(
-                              "Weather data by Open-Meteo.com",
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                            ),
                             const SizedBox(height: 12),
                             DropdownButtonFormField<Bike>(
                               initialValue: bikeOptions[_bike],

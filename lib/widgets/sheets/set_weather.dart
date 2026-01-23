@@ -16,7 +16,7 @@ Future<Weather?> showSetWeatherSheet({
   required LocationData? currentLocation,
   required DateTime selectedDateTime,
   }) async {
-  return showModalBottomSheet<Weather?>(
+  return await showModalBottomSheet<Weather?>(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
@@ -130,6 +130,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                   Flexible(
                     child: SingleChildScrollView(
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if ( widget.currentLocation?.latitude == null || widget.currentLocation?.latitude == null)
@@ -351,7 +352,13 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               });
                             },
                             onFieldSubmitted: (_) => _save(),
-                          ),                  
+                          ),
+                          
+                          const SizedBox(height: 2),
+                          Text(
+                            "Weather data by Open-Meteo.com",
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                          ),
                         ],
                       ),
                     ),

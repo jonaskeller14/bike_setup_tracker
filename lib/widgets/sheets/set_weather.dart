@@ -92,7 +92,11 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
 
   @override
   void dispose() {
-    _currentTemperatureController.dispose(); 
+    _currentTemperatureController.dispose();
+    _dayAccumulatedPrecipitationController.dispose();
+    _currentHumidityController.dispose();
+    _currentSoilMoisture0to7cmController.dispose();
+    _currentWindSpeedController.dispose();
     super.dispose();
   }
 

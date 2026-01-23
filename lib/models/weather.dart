@@ -64,27 +64,45 @@ class Weather {
 
   Weather copyWith({
     DateTime? currentDateTime,
-    double? currentTemperature,
-    int? currentWeatherCode,
-    double? currentHumidity,
-    double? currentWindSpeed,
-    double? currentPrecipitation,
-    double? currentSoilMoisture0to7cm,
-    double? dayAccumulatedPrecipitation,
-    bool? currentIsDay,
-    Condition? condition,
+    Object? currentTemperature = const _Sentinel(),
+    Object? currentWeatherCode = const _Sentinel(),
+    Object? currentHumidity = const _Sentinel(),
+    Object? currentWindSpeed = const _Sentinel(),
+    Object? currentPrecipitation = const _Sentinel(),
+    Object? currentSoilMoisture0to7cm = const _Sentinel(),
+    Object? dayAccumulatedPrecipitation = const _Sentinel(),
+    Object? currentIsDay = const _Sentinel(),
+    Object? condition = const _Sentinel(),
   }) {
     return Weather(
       currentDateTime: currentDateTime ?? this.currentDateTime,
-      currentTemperature: currentTemperature ?? this.currentTemperature,
-      currentWeatherCode: currentWeatherCode ?? this.currentWeatherCode,
-      currentHumidity: currentHumidity ?? this.currentHumidity,
-      currentWindSpeed: currentWindSpeed ?? this.currentWindSpeed,
-      currentPrecipitation: currentPrecipitation ?? this.currentPrecipitation,
-      currentSoilMoisture0to7cm: currentSoilMoisture0to7cm ?? this.currentSoilMoisture0to7cm,
-      dayAccumulatedPrecipitation: dayAccumulatedPrecipitation ?? this.dayAccumulatedPrecipitation,
-      currentIsDay: currentIsDay ?? this.currentIsDay,
-      condition: condition ?? this.condition,
+      currentTemperature: currentTemperature is _Sentinel 
+          ? this.currentTemperature 
+          : (currentTemperature as double?),
+      currentWeatherCode: currentWeatherCode is _Sentinel 
+          ? this.currentWeatherCode 
+          : (currentWeatherCode as int?),
+      currentHumidity: currentHumidity is _Sentinel 
+          ? this.currentHumidity 
+          : (currentHumidity as double?),
+      currentWindSpeed: currentWindSpeed is _Sentinel 
+          ? this.currentWindSpeed 
+          : (currentWindSpeed as double?),
+      currentPrecipitation: currentPrecipitation is _Sentinel 
+          ? this.currentPrecipitation 
+          : (currentPrecipitation as double?),
+      currentSoilMoisture0to7cm: currentSoilMoisture0to7cm is _Sentinel 
+          ? this.currentSoilMoisture0to7cm 
+          : (currentSoilMoisture0to7cm as double?),
+      dayAccumulatedPrecipitation: dayAccumulatedPrecipitation is _Sentinel 
+          ? this.dayAccumulatedPrecipitation 
+          : (dayAccumulatedPrecipitation as double?),
+      currentIsDay: currentIsDay is _Sentinel 
+          ? this.currentIsDay 
+          : (currentIsDay as bool?),
+      condition: condition is _Sentinel 
+          ? this.condition 
+          : (condition as Condition?),
     );
   }
 
@@ -407,4 +425,8 @@ class Weather {
       default: return "Unknown";
     }
   }
+}
+
+class _Sentinel {
+  const _Sentinel();
 }

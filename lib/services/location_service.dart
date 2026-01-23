@@ -68,21 +68,40 @@ class LocationService extends ChangeNotifier {
     return location;
   }
 
-  static Future<LocationData?> locationFromAddress(String address) async {
-    geo.Location? geoLocation;
+  Future<LocationData?> locationFromAddress(String address) async {
+    setStatus(LocationStatus.searching);
+
     try {
-      geoLocation = (await geo.locationFromAddress(address)).first;
+      final geoLocations = await geo.locationFromAddress(address);
+      final geoLocation = geoLocations.firstOrNull;
+      if (geoLocation == null) {
+        setStatus(LocationStatus.idle);
+        return null;
+      }
+      final locationData = LocationData.fromMap(geoLocation.toJson());
+      
+      setStatus(LocationStatus.success);
+      return locationData;
     } catch (e) {
-      geoLocation = null;
+      setStatus(LocationStatus.noService);
+      return null;
     }
-    if (geoLocation == null) return null;
-    return LocationData.fromMap(geoLocation.toJson());
   }
 
-  static LocationData setAltitude({required LocationData? location, required double? newAltitude}) {
+  static LocationData copyWithLocationData(LocationData? location, {
+    Object? latitude = const _Sentinel(),
+    Object? longitude = const _Sentinel(),
+    Object? altitude = const _Sentinel(),
+  }) {
     final newMap = location == null ? <String, dynamic>{} : Setup.locationDataToJson(location);
-    newMap['altitude'] = newAltitude;
+    if (latitude is! _Sentinel) newMap["latitude"] = latitude as double?;
+    if (longitude is! _Sentinel) newMap["longitude"] = longitude as double?;
+    if (altitude is! _Sentinel) newMap["altitude"] = altitude as double?;
     newMap['time'] = newMap['time'] != null ? DateTime.parse(newMap['time']).millisecondsSinceEpoch.toDouble() : null;
     return LocationData.fromMap(newMap);
   }
+}
+
+class _Sentinel {
+  const _Sentinel();
 }

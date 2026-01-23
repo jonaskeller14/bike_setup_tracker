@@ -20,11 +20,10 @@ import '../services/address_service.dart';
 import '../services/location_service.dart';
 import '../widgets/adjustment_set_list.dart';
 import '../widgets/dialogs/confirmation.dart';
-import '../widgets/dialogs/set_location.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/sheets/app_settings_radio_group.dart';
 import '../widgets/sheets/set_weather.dart';
-import '../widgets/sheets/update_location_address_weather.dart';
+import '../widgets/sheets/set_location_place.dart';
 import '../widgets/initial_changed_value_legend.dart';
 import '../widgets/display_adjustment/display_dangling_adjustment.dart';
 
@@ -703,17 +702,27 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
             ActionChip(
               backgroundColor: widget.setup != null && (!Setup.locationEqual(_currentLocation, widget.setup?.position) || !Setup.placeEqual(_currentPlace, widget.setup?.place)) ? Colors.orange.withValues(alpha: 0.08) : null,
               onPressed: () async {
-                _locationService.setStatus(LocationStatus.idle);
-                _addressService.setStatus(AddressStatus.idle);
-                final result = await showSetLocationDialog(context: context, location: _currentLocation, address: _currentPlace);
+                final result = await showSetLocationPlaceSheet(context: context, locationService: _locationService, currentLocation: _currentLocation, addressService: _addressService, currentPlace: _currentPlace);
                 if (result == null) return;
-                _locationService.setStatus(LocationStatus.success);
-                _addressService.setStatus(AddressStatus.success);
-                setState(() {  
-                  _currentLocation = result[0];
-                  _currentPlace = result[1];
-                });
-                askAndUpdateWeather();
+
+                final requestWeatherUpdate = !Setup.locationEqual(result.location, _currentLocation) && 
+                    result.location?.latitude != null && 
+                    result.location?.latitude != null;
+
+                if (result.location != null) {
+                  _locationService.setStatus(LocationStatus.success);
+                  setState(() => _currentLocation = result.location);
+                }
+
+                if (result.place != null) {
+                  _addressService.setStatus(AddressStatus.success);
+                  setState(() => _currentPlace = result.place);
+                }
+
+                if (requestWeatherUpdate) { // After setting new location: _currentLocation = result.location
+                  askAndUpdateWeather();
+                }
+
                 _changeListener();
               },
               avatar: switch (_locationService.status) {
@@ -819,33 +828,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                   Navigator.pop(context);
                 }
               ),
-            ),
-            ActionChip(
-              avatar: const Icon(Icons.autorenew),
-              label: const Text(""),
-              labelPadding: EdgeInsets.zero,
-              onPressed: _locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching || _weatherService.status == WeatherStatus.searching ? null : () async {
-                final UpdateLocationAddressWeatherOptions? result = await showUpdateLocationAddressWeatherSheet(
-                  context, 
-                  buttonsEnabled: {
-                    UpdateLocationAddressWeatherOptions.locationByGPS: true,
-                    UpdateLocationAddressWeatherOptions.addressByLocation: _currentLocation != null,
-                    UpdateLocationAddressWeatherOptions.updateWeather: _currentLocation != null,
-                  },
-                );
-                switch (result) {
-                  case UpdateLocationAddressWeatherOptions.locationByGPS: {
-                    await updateLocation();
-                    if (_currentLocation != null) {
-                      await updateAddress(); 
-                      askAndUpdateWeather();
-                    }
-                  }
-                  case UpdateLocationAddressWeatherOptions.addressByLocation: updateAddress();
-                  case UpdateLocationAddressWeatherOptions.updateWeather: updateWeather();
-                  case null: return; 
-                }
-              }, 
             ),
           ],
         );

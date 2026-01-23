@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:weather_icons/weather_icons.dart';
 import '../models/app_data.dart';
 import '../models/app_settings.dart';
 import '../models/setup.dart';
@@ -204,78 +205,110 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                   )
                 ),
                 const SizedBox(height: 12),
-                //TODO: Not check null, insert placeholders instead?
                 if (setup.notes != null)
                   ListTile(
                     leading: const Icon(Icons.notes),
                     title: SelectableText(setup.notes!),
                     dense: true,
                   ),
-                if (setup.position != null)
-                  ListTile(
-                    leading: const Icon(Icons.my_location),
-                    title: SelectableText("Lat: ${setup.position!.latitude?.toStringAsFixed(4)}, Lon: ${setup.position!.longitude?.toStringAsFixed(4)}"),
-                    dense: true,
+                if (setup.position != null || setup.place != null)
+                  Card.outlined(
+                    margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.my_location),
+                          title: SelectableText("Latitude/Longitude: ${setup.position?.latitude?.toStringAsFixed(4) ?? '-'}°/${setup.position?.longitude?.toStringAsFixed(4) ?? '-'}°"),
+                          dense: true,
+                          enabled: setup.position?.latitude != null || setup.position?.longitude != null,
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.arrow_upward),
+                          title: SelectableText("Altitude: ${Setup.convertAltitudeFromMeters(setup.position?.altitude, appSettings.altitudeUnit)?.round() ?? "-"} ${appSettings.altitudeUnit}"),
+                          dense: true,
+                          enabled: setup.position?.altitude != null,
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.location_city),
+                          title: SelectableText("${setup.place?.thoroughfare ?? ''} ${setup.place?.subThoroughfare ?? ''}, ${setup.place?.locality ?? ''}, ${setup.place?.isoCountryCode ?? ''}"),
+                          dense: true,
+                          enabled: setup.place != null,
+                        ),
+                      ],
+                    ),
                   ),
-                if (setup.position?.altitude != null)
-                  ListTile(
-                    leading: const Icon(Icons.arrow_upward),
-                    title: SelectableText("${Setup.convertAltitudeFromMeters(setup.position!.altitude!, appSettings.altitudeUnit)?.round()} ${appSettings.altitudeUnit}"),
-                    dense: true,
+                if (setup.weather != null)
+                  Card.outlined(
+                    margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          leading: Icon(setup.weather?.getIconData() ?? WeatherIcons.na),
+                          title: Text("Weather: ${setup.weather?.getWeatherCodeLabel() ?? '-'}"),
+                          dense: true,
+                          enabled: setup.weather?.currentWeatherCode != null,
+                        ),
+                        ListTile(
+                          leading: const Icon(Weather.currentTemperatureIconData),
+                          title: SelectableText("Temperature: ${Weather.convertTemperatureFromCelsius(setup.weather?.currentTemperature, appSettings.temperatureUnit)?.round() ?? '-'} ${appSettings.temperatureUnit}"),
+                          dense: true,
+                          enabled: setup.weather?.currentTemperature != null,
+                        ),
+                        ListTile(
+                          leading: const Icon(Weather.currentHumidityIconData),
+                          title: SelectableText("Humidity: ${setup.weather?.currentHumidity?.round() ?? '-'} %"),
+                          dense: true,
+                          enabled: setup.weather?.currentHumidity != null,
+                        ),
+                        ListTile(
+                          leading: const Icon(Weather.dayAccumulatedPrecipitationIconData),
+                          title:  SelectableText("Precipitation: ${Weather.convertPrecipitationFromMm(setup.weather?.dayAccumulatedPrecipitation, appSettings.precipitationUnit)?.round() ?? '-'} ${appSettings.precipitationUnit}"),
+                          dense: true,
+                          enabled: setup.weather?.dayAccumulatedPrecipitation != null,
+                        ),
+                        ListTile(
+                          leading: const Icon(Weather.currentWindSpeedIconData),
+                          title:  SelectableText("Windspeed: ${Weather.convertWindSpeedFromKmh(setup.weather?.currentWindSpeed, appSettings.windSpeedUnit)?.round() ?? '-'} ${appSettings.windSpeedUnit}"),
+                          dense: true,
+                          enabled: setup.weather?.currentWindSpeed != null,
+                        ),
+                        ListTile(
+                          leading: const Icon(Weather.currentSoilMoisture0to7cmIconData),
+                          title:  SelectableText("Soil Moisture: ${setup.weather?.currentSoilMoisture0to7cm?.toStringAsFixed(2) ?? '-'} m³/m³"),
+                          dense: true,
+                          enabled: setup.weather?.currentSoilMoisture0to7cm != null,
+                        ),
+                        Divider(height: 1),
+                        ListTile(
+                          leading: Icon(setup.weather?.condition?.getIconData() ?? Icons.question_mark_sharp, color: setup.weather?.condition?.getColor()),
+                          title: SelectableText('Condition: ${setup.weather?.condition?.value ?? "-"}'),
+                          dense: true,
+                          enabled: setup.weather?.condition != null,
+                        ),
+                      ],
+                    ),
                   ),
-                if (setup.place != null)
-                  ListTile(
-                    leading: const Icon(Icons.location_city),
-                    title: SelectableText("${setup.place?.thoroughfare} ${setup.place?.subThoroughfare}, ${setup.place?.locality}, ${setup.place?.isoCountryCode}"),
-                    dense: true,
-                  ),
-                if (setup.weather?.currentTemperature != null)
-                  ListTile(
-                    leading: const Icon(Weather.currentTemperatureIconData),
-                    title: SelectableText("${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}"),
-                    dense: true,
-                  ),
-                if (setup.weather?.currentHumidity != null)
-                  ListTile(
-                    leading: const Icon(Weather.currentHumidityIconData),
-                    title: SelectableText("${setup.weather?.currentHumidity?.round()} %"),
-                    dense: true,
-                  ),
-                if (setup.weather?.currentPrecipitation != null)
-                  ListTile(
-                    leading: const Icon(Weather.dayAccumulatedPrecipitationIconData),
-                    title:  SelectableText("${Weather.convertPrecipitationFromMm(setup.weather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit)?.round()} ${appSettings.precipitationUnit}"),
-                    dense: true,
-                  ),
-                if (setup.weather?.currentWindSpeed != null)
-                  ListTile(
-                    leading: const Icon(Weather.currentWindSpeedIconData),
-                    title:  SelectableText("${Weather.convertWindSpeedFromKmh(setup.weather!.currentWindSpeed!, appSettings.windSpeedUnit)?.round()} ${appSettings.windSpeedUnit}"),
-                    dense: true,
-                  ),
-                if (setup.weather?.currentSoilMoisture0to7cm != null)
-                  ListTile(
-                    leading: const Icon(Weather.currentSoilMoisture0to7cmIconData),
-                    title:  SelectableText("${setup.weather?.currentSoilMoisture0to7cm?.toStringAsFixed(2)} m³/m³"),
-                    dense: true,
-                  ),
-                if (setup.weather?.condition != null)
-                  ListTile(
-                    leading: Icon(setup.weather?.condition?.getIconData() ?? Icons.question_mark_sharp),
-                    title: SelectableText(setup.weather?.condition?.value ?? "-"),
-                    dense: true,
-                  ),
-                ListTile(
-                  leading: const Icon(Bike.iconData),
-                  title: Text(bike?.name ?? "Bike not found."),
-                  dense: true,
+                Card.outlined(
+                    margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          leading: const Icon(Bike.iconData),
+                          title: Text(bike?.name ?? "Bike not found."),
+                          dense: true,
+                        ),
+                        if (appSettings.enablePerson)
+                          ListTile(
+                            leading: setup.person != null ? const Icon(Person.iconData): const Icon(Icons.person_off),
+                            title: Text(person?.name ?? (setup.person == null ? "No person linked to this setup." : "Person not found.")),
+                            dense: true,
+                          ),
+                      ],
+                    ),
                 ),
-                if (appSettings.enablePerson)
-                  ListTile(
-                    leading: setup.person != null ? const Icon(Person.iconData): const Icon(Icons.person_off),
-                    title: Text(person?.name ?? (setup.person == null ? "No person linked to this setup." : "Person not found.")),
-                    dense: true,
-                  ),
                 const SizedBox(height: 16),
                 const Divider(),
                 Padding(

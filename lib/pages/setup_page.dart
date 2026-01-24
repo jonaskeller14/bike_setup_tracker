@@ -798,6 +798,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                         selectedDateTime: _selectedDateTime,
                       );
                       if (newWeather == null) return;
+                      _weatherService.setStatus(WeatherStatus.success);
                       setState(() => _currentWeather = newWeather);
                       _changeListener();
                     },

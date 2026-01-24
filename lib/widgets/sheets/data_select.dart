@@ -76,306 +76,313 @@ Future<AppData?> showDataSelectSheet({required BuildContext context, required Ap
     builder: (BuildContext context) {
       return StatefulBuilder(
         builder: (context, setSheetState) {
-          return SingleChildScrollView(
-            child: SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          return SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      sheetTitle(context, 'Select Data'),
+                      sheetCloseButton(context),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        sheetTitle(context, 'Select Data'),
-                        sheetCloseButton(context),
+                        ExpansionTile(
+                          title: Text("Bikes (${selectedBikes.length} / ${allBikes.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                          tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
+                          controlAffinity: ListTileControlAffinity.leading,
+                          childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
+                          shape: const Border(),
+                          collapsedShape: const Border(),
+                          trailing: Checkbox(
+                            tristate: true,
+                            value: selectedBikes.isEmpty && allBikes.isNotEmpty
+                                ? false 
+                                : (selectedBikes.length == allBikes.length ? true : null),
+                            onChanged: (bool? newValue) {
+                              switch (newValue) {
+                                case false: setSheetState(() => selectedBikes.clear());
+                                case true: setSheetState(() {selectedBikes.clear(); selectedBikes.addAll(allBikes);});
+                                case null: setSheetState(() => selectedBikes.clear());
+                              }
+                            },
+                          ),
+                          children: allBikes.map((bike) {
+                            return Card(
+                              margin: const EdgeInsets.symmetric(vertical: 4.0),
+                              child: CheckboxListTile(
+                                secondary: const Icon(Bike.iconData),
+                                title: Text(
+                                  bike.name,
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    decoration: bike.isDeleted ? TextDecoration.lineThrough : null,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                dense: true,
+                                value: selectedBikes.contains(bike),
+                                onChanged: (bool? checked) {
+                                  setSheetState(() {
+                                    if (checked == true) {
+                                      selectedBikes.add(bike);
+                                    } else {
+                                      selectedBikes.remove(bike);
+                                    }
+                                  });
+                                },
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 16),
+                        ExpansionTile(
+                          title: Text("Components (${selectedComponents.length} / ${allComponents.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                          tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
+                          controlAffinity: ListTileControlAffinity.leading,
+                          childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
+                          shape: const Border(),
+                          collapsedShape: const Border(),
+                          trailing: Checkbox(
+                            tristate: true,
+                            value: selectedComponents.isEmpty && allComponents.isNotEmpty
+                                ? false 
+                                : (selectedComponents.length == allComponents.length ? true : null),
+                            onChanged: (bool? newValue) {
+                              switch (newValue) {
+                                case false: setSheetState(() => selectedComponents.clear());
+                                case true: setSheetState(() {selectedComponents.clear(); selectedComponents.addAll(allComponents);});
+                                case null: setSheetState(() => selectedComponents.clear());
+                              }
+                            },
+                          ),
+                          children: allComponents.map((component) {
+                            return Card(
+                              margin: const EdgeInsets.symmetric(vertical: 4.0),
+                              child: CheckboxListTile(
+                                secondary: Icon(component.componentType.getIconData()),
+                                title: Text(
+                                  component.name,
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    decoration: component.isDeleted ? TextDecoration.lineThrough : null,
+                                  ),
+                                ),
+                                subtitle: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  spacing: 2,
+                                  children: [
+                                    Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                    Flexible(
+                                      child: Text(
+                                        allBikes.firstWhereOrNull((b) => b.id == component.bike)?.name ?? "-",
+                                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                dense: true,
+                                value: selectedComponents.contains(component),
+                                onChanged: (bool? checked) {
+                                  setSheetState(() {
+                                    if (checked == true) {
+                                      selectedComponents.add(component);
+                                    } else {
+                                      selectedComponents.remove(component);
+                                    }
+                                  });
+                                },
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 16),
+                        ExpansionTile(
+                          title: Text("Setups (${selectedSetups.length} / ${allSetups.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                          tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
+                          controlAffinity: ListTileControlAffinity.leading,
+                          childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
+                          shape: const Border(),
+                          collapsedShape: const Border(),
+                          trailing: Checkbox(
+                            tristate: true,
+                            value: selectedSetups.isEmpty && allSetups.isNotEmpty
+                                ? false 
+                                : (selectedSetups.length == allSetups.length ? true : null),
+                            onChanged: (bool? newValue) {
+                              switch (newValue) {
+                                case false: setSheetState(() => selectedSetups.clear());
+                                case true: setSheetState(() {selectedSetups.clear(); selectedSetups.addAll(allSetups);});
+                                case null: setSheetState(() => selectedSetups.clear());
+                              }
+                            },
+                          ),
+                          children: allSetups.reversed.map((setup) {
+                            return Card(
+                              margin: const EdgeInsets.symmetric(vertical: 4.0),
+                              child: CheckboxListTile(
+                                secondary: const Icon(Setup.iconData),
+                                title: Text(
+                                  setup.name,
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    decoration: setup.isDeleted ? TextDecoration.lineThrough : null,
+                                  ),
+                                ),
+                                subtitle: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  spacing: 2,
+                                  children: [
+                                    Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                    Flexible(
+                                      child: Text(
+                                        allBikes.firstWhereOrNull((b) => b.id == setup.bike)?.name ?? "-",
+                                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                dense: true,
+                                value: selectedSetups.contains(setup),
+                                onChanged: (bool? checked) {
+                                  setSheetState(() {
+                                    if (checked == true) {
+                                      selectedSetups.add(setup);
+                                    } else {
+                                      selectedSetups.remove(setup);
+                                    }
+                                  });
+                                },
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        if (context.read<AppSettings>().enablePerson || allPersons.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          ExpansionTile(
+                            title: Text("Profiles (${selectedPersons.length} / ${allPersons.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                            tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
+                            controlAffinity: ListTileControlAffinity.leading,
+                            childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
+                            shape: const Border(),
+                            collapsedShape: const Border(),
+                            trailing: Checkbox(
+                              tristate: true,
+                              value: selectedPersons.isEmpty && allPersons.isNotEmpty
+                                  ? false 
+                                  : (selectedPersons.length == allPersons.length ? true : null),
+                              onChanged: (bool? newValue) {
+                                switch (newValue) {
+                                  case false: setSheetState(() => selectedPersons.clear());
+                                  case true: setSheetState(() {selectedPersons.clear(); selectedPersons.addAll(allPersons);});
+                                  case null: setSheetState(() => selectedPersons.clear());
+                                }
+                              },
+                            ),
+                            children: allPersons.map((person) {
+                              return Card(
+                                margin: const EdgeInsets.symmetric(vertical: 4.0),
+                                child: CheckboxListTile(
+                                  secondary: const Icon(Person.iconData),
+                                  title: Text(
+                                    person.name,
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      decoration: person.isDeleted ? TextDecoration.lineThrough : null,
+                                    ),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  dense: true,
+                                  value: selectedPersons.contains(person),
+                                  onChanged: (bool? checked) {
+                                    setSheetState(() {
+                                      if (checked == true) {
+                                        selectedPersons.add(person);
+                                      } else {
+                                        selectedPersons.remove(person);
+                                      }
+                                    });
+                                  },
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                        if (context.read<AppSettings>().enableRating || allRatings.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          ExpansionTile(
+                            title: Text("Ratings (${selectedRatings.length} / ${allRatings.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                            tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
+                            controlAffinity: ListTileControlAffinity.leading,
+                            childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
+                            shape: const Border(),
+                            collapsedShape: const Border(),
+                            trailing: Checkbox(
+                              tristate: true,
+                              value: selectedRatings.isEmpty && allRatings.isNotEmpty
+                                  ? false 
+                                  : (selectedRatings.length == allRatings.length ? true : null),
+                              onChanged: (bool? newValue) {
+                                switch (newValue) {
+                                  case false: setSheetState(() => selectedRatings.clear());
+                                  case true: setSheetState(() {selectedRatings.clear(); selectedRatings.addAll(allRatings);});
+                                  case null: setSheetState(() => selectedRatings.clear());
+                                }
+                              },
+                            ),
+                            children: allRatings.map((rating) {
+                              return Card(
+                                margin: const EdgeInsets.symmetric(vertical: 4.0),
+                                child: CheckboxListTile(
+                                  secondary: const Icon(Person.iconData),
+                                  title: Text(
+                                    rating.name,
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      decoration: rating.isDeleted ? TextDecoration.lineThrough : null,
+                                    ),
+                                  ),
+                                  //TODO: Add subtitle with filter
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  dense: true,
+                                  value: selectedRatings.contains(rating),
+                                  onChanged: (bool? checked) {
+                                    setSheetState(() {
+                                      if (checked == true) {
+                                        selectedRatings.add(rating);
+                                      } else {
+                                        selectedRatings.remove(rating);
+                                      }
+                                    });
+                                  },
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  ExpansionTile(
-                    title: Text("Bikes (${selectedBikes.length} / ${allBikes.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                    tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
-                    controlAffinity: ListTileControlAffinity.leading,
-                    childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    shape: const Border(),
-                    collapsedShape: const Border(),
-                    trailing: Checkbox(
-                      tristate: true,
-                      value: selectedBikes.isEmpty && allBikes.isNotEmpty
-                          ? false 
-                          : (selectedBikes.length == allBikes.length ? true : null),
-                      onChanged: (bool? newValue) {
-                        switch (newValue) {
-                          case false: setSheetState(() => selectedBikes.clear());
-                          case true: setSheetState(() {selectedBikes.clear(); selectedBikes.addAll(allBikes);});
-                          case null: setSheetState(() => selectedBikes.clear());
-                        }
-                      },
-                    ),
-                    children: allBikes.map((bike) {
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 4.0),
-                        child: CheckboxListTile(
-                          secondary: const Icon(Bike.iconData),
-                          title: Text(
-                            bike.name,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              decoration: bike.isDeleted ? TextDecoration.lineThrough : null,
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          dense: true,
-                          value: selectedBikes.contains(bike),
-                          onChanged: (bool? checked) {
-                            setSheetState(() {
-                              if (checked == true) {
-                                selectedBikes.add(bike);
-                              } else {
-                                selectedBikes.remove(bike);
-                              }
-                            });
-                          },
-                        ),
-                      );
-                    }).toList(),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text("Confirm Selection"),
                   ),
-                  const SizedBox(height: 16),
-                  ExpansionTile(
-                    title: Text("Components (${selectedComponents.length} / ${allComponents.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                    tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
-                    controlAffinity: ListTileControlAffinity.leading,
-                    childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    shape: const Border(),
-                    collapsedShape: const Border(),
-                    trailing: Checkbox(
-                      tristate: true,
-                      value: selectedComponents.isEmpty && allComponents.isNotEmpty
-                          ? false 
-                          : (selectedComponents.length == allComponents.length ? true : null),
-                      onChanged: (bool? newValue) {
-                        switch (newValue) {
-                          case false: setSheetState(() => selectedComponents.clear());
-                          case true: setSheetState(() {selectedComponents.clear(); selectedComponents.addAll(allComponents);});
-                          case null: setSheetState(() => selectedComponents.clear());
-                        }
-                      },
-                    ),
-                    children: allComponents.map((component) {
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 4.0),
-                        child: CheckboxListTile(
-                          secondary: Icon(component.componentType.getIconData()),
-                          title: Text(
-                            component.name,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              decoration: component.isDeleted ? TextDecoration.lineThrough : null,
-                            ),
-                          ),
-                          subtitle: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            spacing: 2,
-                            children: [
-                              Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                              Flexible(
-                                child: Text(
-                                  allBikes.firstWhereOrNull((b) => b.id == component.bike)?.name ?? "-",
-                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          dense: true,
-                          value: selectedComponents.contains(component),
-                          onChanged: (bool? checked) {
-                            setSheetState(() {
-                              if (checked == true) {
-                                selectedComponents.add(component);
-                              } else {
-                                selectedComponents.remove(component);
-                              }
-                            });
-                          },
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 16),
-                  ExpansionTile(
-                    title: Text("Setups (${selectedSetups.length} / ${allSetups.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                    tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
-                    controlAffinity: ListTileControlAffinity.leading,
-                    childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    shape: const Border(),
-                    collapsedShape: const Border(),
-                    trailing: Checkbox(
-                      tristate: true,
-                      value: selectedSetups.isEmpty && allSetups.isNotEmpty
-                          ? false 
-                          : (selectedSetups.length == allSetups.length ? true : null),
-                      onChanged: (bool? newValue) {
-                        switch (newValue) {
-                          case false: setSheetState(() => selectedSetups.clear());
-                          case true: setSheetState(() {selectedSetups.clear(); selectedSetups.addAll(allSetups);});
-                          case null: setSheetState(() => selectedSetups.clear());
-                        }
-                      },
-                    ),
-                    children: allSetups.reversed.map((setup) {
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 4.0),
-                        child: CheckboxListTile(
-                          secondary: const Icon(Setup.iconData),
-                          title: Text(
-                            setup.name,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              decoration: setup.isDeleted ? TextDecoration.lineThrough : null,
-                            ),
-                          ),
-                          subtitle: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            spacing: 2,
-                            children: [
-                              Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                              Flexible(
-                                child: Text(
-                                  allBikes.firstWhereOrNull((b) => b.id == setup.bike)?.name ?? "-",
-                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          dense: true,
-                          value: selectedSetups.contains(setup),
-                          onChanged: (bool? checked) {
-                            setSheetState(() {
-                              if (checked == true) {
-                                selectedSetups.add(setup);
-                              } else {
-                                selectedSetups.remove(setup);
-                              }
-                            });
-                          },
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  if (context.read<AppSettings>().enablePerson || allPersons.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    ExpansionTile(
-                      title: Text("Profiles (${selectedPersons.length} / ${allPersons.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                      tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
-                      controlAffinity: ListTileControlAffinity.leading,
-                      childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
-                      shape: const Border(),
-                      collapsedShape: const Border(),
-                      trailing: Checkbox(
-                        tristate: true,
-                        value: selectedPersons.isEmpty && allPersons.isNotEmpty
-                            ? false 
-                            : (selectedPersons.length == allPersons.length ? true : null),
-                        onChanged: (bool? newValue) {
-                          switch (newValue) {
-                            case false: setSheetState(() => selectedPersons.clear());
-                            case true: setSheetState(() {selectedPersons.clear(); selectedPersons.addAll(allPersons);});
-                            case null: setSheetState(() => selectedPersons.clear());
-                          }
-                        },
-                      ),
-                      children: allPersons.map((person) {
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: CheckboxListTile(
-                            secondary: const Icon(Person.iconData),
-                            title: Text(
-                              person.name,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                decoration: person.isDeleted ? TextDecoration.lineThrough : null,
-                              ),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            dense: true,
-                            value: selectedPersons.contains(person),
-                            onChanged: (bool? checked) {
-                              setSheetState(() {
-                                if (checked == true) {
-                                  selectedPersons.add(person);
-                                } else {
-                                  selectedPersons.remove(person);
-                                }
-                              });
-                            },
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                  if (context.read<AppSettings>().enableRating || allRatings.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    ExpansionTile(
-                      title: Text("Ratings (${selectedRatings.length} / ${allRatings.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                      tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
-                      controlAffinity: ListTileControlAffinity.leading,
-                      childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
-                      shape: const Border(),
-                      collapsedShape: const Border(),
-                      trailing: Checkbox(
-                        tristate: true,
-                        value: selectedRatings.isEmpty && allRatings.isNotEmpty
-                            ? false 
-                            : (selectedRatings.length == allRatings.length ? true : null),
-                        onChanged: (bool? newValue) {
-                          switch (newValue) {
-                            case false: setSheetState(() => selectedRatings.clear());
-                            case true: setSheetState(() {selectedRatings.clear(); selectedRatings.addAll(allRatings);});
-                            case null: setSheetState(() => selectedRatings.clear());
-                          }
-                        },
-                      ),
-                      children: allRatings.map((rating) {
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: CheckboxListTile(
-                            secondary: const Icon(Person.iconData),
-                            title: Text(
-                              rating.name,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                decoration: rating.isDeleted ? TextDecoration.lineThrough : null,
-                              ),
-                            ),
-                            //TODO: Add subtitle with filter
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            dense: true,
-                            value: selectedRatings.contains(rating),
-                            onChanged: (bool? checked) {
-                              setSheetState(() {
-                                if (checked == true) {
-                                  selectedRatings.add(rating);
-                                } else {
-                                  selectedRatings.remove(rating);
-                                }
-                              });
-                            },
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: const Text("Confirm Selection"),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         }

@@ -322,8 +322,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         _bike != _initialBike || 
         _person != _initialPerson ||
 
-        !equality.equals(filterForValidBikeAdjustmentValues(_bikeAdjustmentValues), _initialBikeAdjustmentValues) ||
-        !equality.equals(filterForValidBikeAdjustmentValues(_personAdjustmentValues), _initialRatingAdjustmentValues) ||
+        !equality.equals(_bikeAdjustmentValues, _initialBikeAdjustmentValues) ||
+        !equality.equals(_personAdjustmentValues, _initialRatingAdjustmentValues) ||
         !equality.equals(_ratingAdjustmentValues, _initialRatingAdjustmentValues);
 
     if (_formHasChanges != hasChanges) {
@@ -498,38 +498,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _changeListener();
   }
 
-  Map<String, dynamic> filterForValidBikeAdjustmentValues(Map<String, dynamic> bikeAdjustmentValues) {
-    // Filter adjustmentValues to only include those relevant to the selected bike
-    // Keep adjustments when editing (handle case: Component was moved to another bike and setting is edited)
-    final appData = context.read<AppData>();
-    final components = Map.fromEntries(appData.components.entries.where((e) => !e.value.isDeleted));
-
-    Map<String, dynamic> filteredBikeAdjustmentValues = Map.from(bikeAdjustmentValues);
-    for (final component in components.values.where((c) => c.bike != _bike)) {
-      for (final adjustment in component.adjustments) {
-        if (widget.setup != null && widget.setup!.bikeAdjustmentValues.keys.contains(adjustment.id)) continue;
-        filteredBikeAdjustmentValues.remove(adjustment.id);
-      }
-    }
-    return filteredBikeAdjustmentValues;
-  }
-
-  Map<String, dynamic> filterForValidPersonAdjustmentValues(Map<String, dynamic> personAdjustmentValues) {
-    // Filter adjustmentValues to only include those relevant to the selected person
-    // Keep adjustments when editing (handle case: bike was moved to another person and setting is edited)
-    final appData = context.read<AppData>();
-    final persons = Map.fromEntries(appData.persons.entries.where((e) => !e.value.isDeleted));
-
-    Map<String, dynamic> filteredPersonAdjustmentValues = Map.from(personAdjustmentValues);
-    for (final person in persons.values.where((p) => p.id != _person)) {
-      for (final adjustment in person.adjustments) {
-        if (widget.setup != null && widget.setup!.personAdjustmentValues.keys.contains(adjustment.id)) continue;
-        filteredPersonAdjustmentValues.remove(adjustment.id);
-      }
-    }
-    return filteredPersonAdjustmentValues;
-  }
-
   void _saveSetup() {
     if (_nameController.text.trim().isEmpty) _nameController.text = "Unnamed Setup";
 
@@ -549,16 +517,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       return;
     }
     final name = _nameController.text.trim();
-
     final notesText = _notesController.text.trim();
     final notes = notesText.isEmpty ? null : notesText;
-
-    final filteredBikeAdjustmentValues = filterForValidBikeAdjustmentValues(_bikeAdjustmentValues);
-    _bikeAdjustmentValues.clear();
-    _bikeAdjustmentValues.addAll(filteredBikeAdjustmentValues);
-    final filteredPersonAdjustmentValues = filterForValidPersonAdjustmentValues(_personAdjustmentValues);
-    _personAdjustmentValues.clear();
-    _personAdjustmentValues.addAll(filteredPersonAdjustmentValues);
 
     _formHasChanges = false;
     if (!mounted) return;

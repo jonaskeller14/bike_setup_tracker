@@ -777,6 +777,19 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  SingleChildScrollView _personListFilterWidget() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 8),
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        spacing: 6,
+        children: [
+          _bikeFilterWidget(),
+        ],
+      ),
+    );
+  }
+
   SingleChildScrollView _ratingListFilterWidget() {
     return SingleChildScrollView(
       padding: const EdgeInsets.only(bottom: 8),
@@ -945,7 +958,6 @@ class _HomePageState extends State<HomePage> {
       body: <Widget>[
         BikeList(
           bikes: data.bikes.values.where((bike) => !bike.isDeleted).toList(), //include bikes which are not filtered for
-          persons: data.filteredPersons,
           selectedBike: data.selectedBike,
           onBikeTap: data.onBikeTap,
           editBike: editBike,
@@ -984,13 +996,10 @@ class _HomePageState extends State<HomePage> {
             duplicatePerson: _duplicatePerson,
             removePerson: _removePerson,
             onReorderPerson: _onReorderPerson,
-            filterWidget: const SizedBox.shrink(),
+            filterWidget: _personListFilterWidget(),
           ),
         if (context.read<AppSettings>().enableRating)
           RatingList(
-            persons: data.filteredPersons,
-            bikes: data.filteredBikes,
-            components: Map.fromEntries(data.components.entries.where((entry) => !entry.value.isDeleted)),
             ratings: data.filteredRatings,
             editRating: _editRating,
             duplicateRating: _duplicateRating,

@@ -74,6 +74,7 @@ class _BikePageState extends State<BikePage> {
   @override
   Widget build(BuildContext context) {
     final appData = context.watch<AppData>();
+    final personOptions = Map.fromEntries(appData.persons.entries.where((p) => !p.value.isDeleted));
 
     return PopScope( 
       canPop: !_formHasChanges,
@@ -117,7 +118,7 @@ class _BikePageState extends State<BikePage> {
                 if (context.read<AppSettings>().enablePerson) ...[
                   const SizedBox(height: 12),
                   DropdownButtonFormField<Person>(
-                    initialValue: appData.filteredPersons[_person],
+                    initialValue: personOptions[_person],
                     isExpanded: true,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     decoration: InputDecoration(
@@ -129,10 +130,10 @@ class _BikePageState extends State<BikePage> {
                     ),
                     validator: (Person? newPerson) {
                       if (newPerson == null) return null;
-                      if (!appData.filteredPersons.values.contains(newPerson)) return "Please select valid bike";
+                      if (!personOptions.values.contains(newPerson)) return "Please select valid bike";
                       return null;
                     },
-                    items: appData.filteredPersons.values.map((p) {
+                    items: personOptions.values.map((p) {
                       return DropdownMenuItem<Person>(
                         value: p,
                         child: Row(

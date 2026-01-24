@@ -1,13 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/app_data.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/person.dart';
 
 class BikeList extends StatefulWidget {
   final List<Bike> bikes;
-  final Map<String, Person> persons;
   final Bike? selectedBike;
   final void Function(Bike bike) onBikeTap;
   final void Function(Bike bike) editBike;
@@ -18,7 +18,6 @@ class BikeList extends StatefulWidget {
   const BikeList({
     super.key,
     required this.bikes,
-    required this.persons,
     required this.selectedBike,
     required this.onBikeTap,
     required this.editBike,
@@ -38,6 +37,9 @@ class _BikeListState extends State<BikeList> {
   @override
   Widget build(BuildContext context) {
     final visibleItemCount = widget.bikes.length.clamp(0, _maxItemCount);
+    
+    final appData = context.watch<AppData>();
+    final persons = Map.fromEntries(appData.persons.entries.where((p) => !p.value.isDeleted));
     
     final List<InkWell> inkWells = <InkWell>[];
     for (int index = 0; index < visibleItemCount; index++) {
@@ -75,7 +77,7 @@ class _BikeListState extends State<BikeList> {
                                 Icon(Person.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                 const SizedBox(width: 2),
                                 Text(
-                                  widget.persons[bike.person]?.name ?? "-",
+                                  persons[bike.person]?.name ?? "-",
                                   style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                                   overflow: TextOverflow.ellipsis,
                                 ),

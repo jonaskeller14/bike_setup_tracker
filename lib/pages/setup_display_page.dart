@@ -210,6 +210,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                     margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
                     child: ListTile(
                       leading: const Icon(Icons.notes),
+                      titleAlignment: ListTileTitleAlignment.top,
                       title: SelectableText(setup.notes!),
                       dense: true,
                     ),

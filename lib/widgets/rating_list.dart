@@ -1,16 +1,15 @@
 import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../models/app_data.dart';
 import '../models/person.dart';
 import '../models/bike.dart';
 import '../models/rating.dart';
 import '../models/component.dart';
 
 class RatingList extends StatefulWidget {
-  final Map<String, Person> persons;
-  final Map<String, Bike> bikes;
   final Map<String, Rating> ratings;
-  final Map<String, Component> components;
   final void Function(Rating rating) editRating;
   final void Function(Rating rating) duplicateRating;
   final void Function(Rating rating) removeRating;
@@ -19,10 +18,7 @@ class RatingList extends StatefulWidget {
 
   const RatingList({
     super.key,
-    required this.persons,
-    required this.bikes,
     required this.ratings,
-    required this.components,
     required this.editRating,
     required this.duplicateRating,
     required this.removeRating,
@@ -55,6 +51,11 @@ class _RatingListState extends State<RatingList> {
   @override
   Widget build(BuildContext context) {
     final visibleItemCount = widget.ratings.length.clamp(0, _maxItemCount);
+
+    final appData = context.watch<AppData>();
+    final persons = Map.fromEntries(appData.persons.entries.where((p) => !p.value.isDeleted));
+    final bikes = Map.fromEntries(appData.bikes.entries.where((b) => !b.value.isDeleted));
+    final components = Map.fromEntries(appData.components.entries.where((entry) => !entry.value.isDeleted));
     
     final List<InkWell> inkWells = <InkWell>[];
     for (int index = 0; index < visibleItemCount; index++) {
@@ -94,7 +95,7 @@ class _RatingListState extends State<RatingList> {
                                 FilterType.global => Icon(Icons.circle_outlined, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                 FilterType.bike => Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                 FilterType.person => Icon(Person.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                FilterType.component => Icon((widget.components[rating.filter]?.componentType ?? ComponentType.other).getIconData(), size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                FilterType.component => Icon((components[rating.filter]?.componentType ?? ComponentType.other).getIconData(), size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                 FilterType.componentType => Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData(), size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                               },
 
@@ -108,17 +109,17 @@ class _RatingListState extends State<RatingList> {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   FilterType.bike => Text(
-                                    widget.bikes[rating.filter]?.name ?? "-",
+                                    bikes[rating.filter]?.name ?? "-",
                                     style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   FilterType.person => Text(
-                                    widget.persons[rating.filter]?.name ?? "-",
+                                    persons[rating.filter]?.name ?? "-",
                                     style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   FilterType.component => Text(
-                                    widget.components[rating.filter]?.name ?? "-",
+                                    components[rating.filter]?.name ?? "-",
                                     style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                                     overflow: TextOverflow.ellipsis,
                                   ),

@@ -147,7 +147,9 @@ class AppData extends ChangeNotifier {
   }
 
   void _filterPersons() {
-    _filteredPersons = Map.fromEntries(persons.entries.where((entry) => !entry.value.isDeleted));
+    _filteredPersons = _selectedBike == null 
+        ? Map.fromEntries(persons.entries.where((entry) => !entry.value.isDeleted))
+        : Map.fromEntries(persons.entries.where((entry) => !entry.value.isDeleted && entry.value.id == _selectedBike?.person));
   }
 
   void _filterRatings() {

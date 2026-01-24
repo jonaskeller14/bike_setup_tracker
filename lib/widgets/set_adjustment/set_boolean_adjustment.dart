@@ -55,7 +55,7 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: value == null
                   ? OutlinedButton(
-                      style: FilledButton.styleFrom(
+                      style: OutlinedButton.styleFrom(
                         visualDensity: VisualDensity.compact,
                       ),
                       onPressed: () => onChanged(false),

@@ -23,74 +23,79 @@ Future<Map<String, Map<String, bool>>?> showColumnFilterSheet({required BuildCon
     builder: (context) {
       return StatefulBuilder(
         builder: (context, setSheetState) {
-          return SingleChildScrollView(
-            child: SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          return SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      sheetTitle(context, 'Column Select'),
+                      sheetCloseButton(context),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        sheetTitle(context, 'Column Select'),
-                        sheetCloseButton(context),
+                        ...showColumnsCopy.entries.map((sectionShowColumnsEntry) {
+                          return Padding(
+                            padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(sectionShowColumnsEntry.key, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                                const SizedBox(height: 6),
+                                Wrap(
+                                  spacing: 6,
+                                  children: sectionShowColumnsEntry.value.entries.map((showColumnEntry) {
+                                    return FilterChip(
+                                      label: Text(
+                                        sectionShowColumnsEntry.key == "Adjustments" 
+                                            ? (adjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key)?.name ?? "-") 
+                                            : showColumnEntry.key, 
+                                        overflow: TextOverflow.ellipsis
+                                      ),
+                                      selected: showColumnEntry.value,
+                                      onSelected: (bool newValue) {
+                                        setSheetState(() {
+                                          showColumnsCopy[sectionShowColumnsEntry.key]?[showColumnEntry.key] = newValue;
+                                        });
+                                      },
+                                      onDeleted: showColumnEntry.value
+                                          ? () => setSheetState(() {
+                                              showColumnsCopy[sectionShowColumnsEntry.key]?[showColumnEntry.key] = false;
+                                            })
+                                          : null,
+                                      showCheckmark: false,
+                                    );
+                                  }).toList(),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  ...showColumnsCopy.entries.map((sectionShowColumnsEntry) {
-                    return Padding(
-                      padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(sectionShowColumnsEntry.key, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 6),
-                          Wrap(
-                            spacing: 6,
-                            children: sectionShowColumnsEntry.value.entries.map((showColumnEntry) {
-                              return FilterChip(
-                                label: Text(
-                                  sectionShowColumnsEntry.key == "Adjustments" 
-                                      ? (adjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key)?.name ?? "-") 
-                                      : showColumnEntry.key, 
-                                  overflow: TextOverflow.ellipsis
-                                ),
-                                selected: showColumnEntry.value,
-                                onSelected: (bool newValue) {
-                                  setSheetState(() {
-                                    showColumnsCopy[sectionShowColumnsEntry.key]?[showColumnEntry.key] = newValue;
-                                  });
-                                },
-                                onDeleted: showColumnEntry.value
-                                    ? () => setSheetState(() {
-                                        showColumnsCopy[sectionShowColumnsEntry.key]?[showColumnEntry.key] = false;
-                                      })
-                                    : null,
-                                showCheckmark: false,
-                              );
-                            }).toList(),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-                      ),
-                    );
-                  }),
-                  Padding(
-                    padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: () {
-                          Navigator.pop(context, showColumnsCopy);
-                        },
-                        child: const Text("Confirm Selection"),
-                      ),
-                    ),
-                  )
-                ],
-              ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () => Navigator.pop(context, showColumnsCopy),
+                    child: const Text("Confirm Selection"),
+                  ),
+                ),
+              ],
             ),
           );
         },

@@ -7,6 +7,7 @@ class DisplayDanglingAdjustmentWidget extends StatelessWidget {
   final dynamic initialValue;
   final dynamic value;
   final bool highlighting;
+  final VoidCallback? onRemove;
 
   const DisplayDanglingAdjustmentWidget({
     super.key,
@@ -14,6 +15,7 @@ class DisplayDanglingAdjustmentWidget extends StatelessWidget {
     required this.initialValue,
     required this.value,
     this.highlighting = true,
+    this.onRemove,
   });
 
   @override
@@ -70,6 +72,11 @@ class DisplayDanglingAdjustmentWidget extends StatelessWidget {
               ],
             ),
           ),
+          if (onRemove != null) 
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: onRemove,
+            ),
         ],
       ),
     );

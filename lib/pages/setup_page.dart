@@ -968,7 +968,13 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                           return DisplayDanglingAdjustmentWidget(
                                             name: danglingAdjustmentValue.key, 
                                             initialValue: _initialBikeAdjustmentValues[danglingAdjustmentValue.key], 
-                                            value: danglingAdjustmentValue.value
+                                            value: danglingAdjustmentValue.value,
+                                            onRemove: () {
+                                              setState(() {
+                                                _danglingBikeAdjustmentValues.remove(danglingAdjustmentValue.key);
+                                                _bikeAdjustmentValues.remove(danglingAdjustmentValue.key);
+                                              });
+                                            },
                                           );
                                         }),
                                       ],
@@ -1054,6 +1060,12 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                               name: danglingAdjustmentValue.key, 
                                               initialValue: _initialPersonAdjustmentValues[danglingAdjustmentValue.key], 
                                               value: danglingAdjustmentValue.value,
+                                              onRemove: () {
+                                                setState(() {
+                                                  _danglingPersonAdjustmentValues.remove(danglingAdjustmentValue.key);
+                                                  _personAdjustmentValues.remove(danglingAdjustmentValue.key);
+                                                });
+                                              },
                                             );
                                           }),
                                         ],
@@ -1167,6 +1179,12 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                             name: danglingAdjustmentValue.key, 
                                             initialValue: null,
                                             value: danglingAdjustmentValue.value,
+                                            onRemove: () {
+                                              setState(() {
+                                                _danglingRatingAdjustmentValues.remove(danglingAdjustmentValue.key);
+                                                _ratingAdjustmentValues.remove(danglingAdjustmentValue.key);
+                                              });
+                                            },
                                           );
                                         }),
                                       ],

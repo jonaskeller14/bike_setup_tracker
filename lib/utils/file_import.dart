@@ -5,11 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
-import '../models/person.dart';
-import '../models/rating.dart';
 import '../models/bike.dart';
 import '../models/setup.dart';
-import '../models/component.dart';
 import '../utils/backup.dart';
 import '../models/app_data.dart';
 

@@ -117,14 +117,18 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             adjustment: adjustment,
             initialValue: widget.initialAdjustmentValues[adjustment.id]?.toDouble(),
             value: _adjustmentValues[adjustment.id]?.toDouble(), 
-            onChanged: (double newValue) {
+            onChanged: (double? newValue) {
               HapticFeedback.lightImpact();
               setState(() {
                 _adjustmentValues[adjustment.id] = newValue;
               });
             },
-            onChangedEnd: (double newValue) {
-              widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue.toInt());
+            onChangedEnd: (double? newValue) {
+              if (newValue == null) {
+                widget.removeFromAdjustmentValues(adjustment: adjustment);
+              } else {
+                widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue.toInt());
+              }
               widget.changeListener();
             },
           );

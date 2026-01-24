@@ -9,8 +9,8 @@ class SetStepAdjustmentWidget extends StatelessWidget {
   final StepAdjustment adjustment;
   final double? initialValue;
   final double? value;
-  final ValueChanged<double> onChanged;
-  final ValueChanged<double> onChangedEnd;
+  final ValueChanged<double?> onChanged;
+  final ValueChanged<double?> onChangedEnd;
   final bool highlighting;
 
   const SetStepAdjustmentWidget({
@@ -77,7 +77,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                   style: FilledButton.styleFrom(
                     visualDensity: VisualDensity.compact,
                   ),
-                  onPressed: () => onChanged(adjustment.min.toDouble()),
+                  onPressed: () {onChanged(adjustment.min.toDouble()); onChangedEnd(adjustment.min.toDouble());},
                   child: const Text("Set value"),
                 ),
               ),
@@ -131,46 +131,65 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                       primaryColor: Theme.of(context).colorScheme.primary,
                       onPrimaryColor: Theme.of(context).colorScheme.onPrimary,
                     ),
+                  if (isInitial)
+                    IconButton(
+                      onPressed: () {onChanged(null); onChangedEnd(null);}, 
+                      icon: const Icon(Icons.replay),
+                      visualDensity: VisualDensity.compact,
+                    ),
                 ],
               ),
             ),
           if (value != null && (adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButton || adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial || adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonCounterclockwiseDial))
             Flexible(
               flex: 3,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                spacing: 12,
-                children: [
-                  FilledButton(
-                    onPressed: value! - adjustment.step >= adjustment.min ? onPressedMinusButton : null,
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      minimumSize: const Size(48, 36), 
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FilledButton(
+                      onPressed: value! - adjustment.step >= adjustment.min ? onPressedMinusButton : null,
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        minimumSize: const Size(48, 36), 
+                      ),
+                      child: Text("- ${adjustment.step}"),
                     ),
-                    child: Text("- ${adjustment.step}"),
-                  ),
-                  Text(value!.toInt().toString(), style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace')),
-                  FilledButton(
-                    onPressed: value! + adjustment.step <= adjustment.max ? onPressedPlusButton : null,
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      minimumSize: const Size(48, 36), 
+                    const SizedBox(width: 6),
+                    Text(value!.toInt().toString(), style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace')),
+                    const SizedBox(width: 6),
+                    FilledButton(
+                      onPressed: value! + adjustment.step <= adjustment.max ? onPressedPlusButton : null,
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        minimumSize: const Size(48, 36), 
+                      ),
+                      child: Text("+ ${adjustment.step}"),
                     ),
-                    child: Text("+ ${adjustment.step}"),
-                  ),
-                  if (adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial || adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonCounterclockwiseDial)
-                    RotaryKnob(
-                      key: const ValueKey('RotaryKnob'),
-                      value: value!,
-                      min: adjustment.min.toDouble(),
-                      max: sliderMax,
-                      numberOfTicks: sliderDivisions + 1,
-                      clockwise: adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial,
-                      primaryColor: Theme.of(context).colorScheme.primary,
-                      onPrimaryColor: Theme.of(context).colorScheme.onPrimary,
-                    ),
-                ],
+                    if (adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial || adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonCounterclockwiseDial) ...[
+                      const SizedBox(width: 6),
+                      RotaryKnob(
+                        key: const ValueKey('RotaryKnob'),
+                        value: value!,
+                        min: adjustment.min.toDouble(),
+                        max: sliderMax,
+                        numberOfTicks: sliderDivisions + 1,
+                        clockwise: adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial,
+                        primaryColor: Theme.of(context).colorScheme.primary,
+                        onPrimaryColor: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                    ],
+                    if (isInitial) ...[
+                      IconButton(
+                        onPressed: () {onChanged(null); onChangedEnd(null);}, 
+                        icon: const Icon(Icons.replay),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ),
         ],

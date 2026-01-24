@@ -8,12 +8,19 @@ enum ElevationStatus {
   success,
 }
 
-class ElevationService {
+class ElevationService extends ChangeNotifier {
   final elevationAPI = ElevationApi(userAgent: "Bike Setup Tracker App v1.0");
-  ElevationStatus status = ElevationStatus.idle;
+  ElevationStatus _status = ElevationStatus.idle;
+
+  ElevationStatus get status => _status;
+
+  void setStatus(ElevationStatus newStatus) {
+    _status = newStatus;
+    notifyListeners();
+  }
 
   Future<double?> fetchElevation({required double lat, required double lon}) async {
-    status = ElevationStatus.searching;
+    setStatus(ElevationStatus.searching);
     try {
       final result = await elevationAPI.requestJson(latitudes: {lat}, longitudes: {lon});
 
@@ -27,14 +34,14 @@ class ElevationService {
         final elevationData = result['elevation'];
         if (elevationData is List && elevationData.isNotEmpty) {
           final newElevation = elevationData.first is double ? elevationData.first as double : null;
-          status = ElevationStatus.success;
+          setStatus(ElevationStatus.success);
           return newElevation;
         }
       }
-      status = ElevationStatus.error;
+      setStatus(ElevationStatus.error);
       return null;
     } catch (e) {
-      status = ElevationStatus.error;
+      setStatus(ElevationStatus.error);
       return null;
     }
   }

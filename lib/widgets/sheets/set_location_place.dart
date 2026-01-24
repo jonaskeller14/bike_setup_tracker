@@ -185,7 +185,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
     final appSettings = context.read<AppSettings>();
     
     return ListenableBuilder(
-      listenable: Listenable.merge([widget.locationService, widget.addressService]), 
+      listenable: Listenable.merge([widget.locationService, widget.addressService, _elevationService]), 
       builder: (context, child) {
         final enableFields = widget.locationService.status != LocationStatus.searching && widget.addressService.status != AddressStatus.searching;
         final enableUpdate = widget.locationService.status != LocationStatus.searching && widget.addressService.status != AddressStatus.searching;
@@ -212,7 +212,6 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          
                           if (widget.locationService.status == LocationStatus.noService)
                             ListTile(
                               leading: Icon(Icons.location_disabled, color: Theme.of(context).colorScheme.error),
@@ -226,6 +225,14 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               leading: Icon(Icons.location_disabled, color: Theme.of(context).colorScheme.error),
                               title: const Text("Location permission denied"),
                               subtitle: const Text("Grant permission in settings to use this feature"),
+                              dense: true,
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                          if (_elevationService.status == ElevationStatus.error)
+                            ListTile(
+                              leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
+                              title: const Text("Fetching Elevation failed"),
+                              subtitle: const Text("Check your internet connection"),
                               dense: true,
                               contentPadding: EdgeInsets.zero,
                             ),

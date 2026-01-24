@@ -6,7 +6,7 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
   final BooleanAdjustment adjustment;
   final bool? initialValue;
   final bool? value;
-  final ValueChanged<bool> onChanged;
+  final ValueChanged<bool?> onChanged;
   final bool highlighting;
 
   const SetBooleanAdjustmentWidget({
@@ -54,17 +54,26 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerRight,
               child: value == null
-                  ? FilledButton(
+                  ? OutlinedButton(
                       style: FilledButton.styleFrom(
                         visualDensity: VisualDensity.compact,
                       ),
                       onPressed: () => onChanged(false),
                       child: const Text("Set value"),
                     )
-                  : Switch(
-                      value: value!,
-                      onChanged: onChanged,
-                    ),
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Switch(value: value!, onChanged: onChanged),
+                        if (isInitial)
+                          IconButton(
+                            onPressed: () => onChanged(null), 
+                            icon: const Icon(Icons.replay),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                    ],
+                  ),
             ),
           ),
         ],

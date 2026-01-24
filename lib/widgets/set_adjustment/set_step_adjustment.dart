@@ -73,7 +73,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
               flex: 2,
               child: Align(
                 alignment: Alignment.centerRight,
-                child: FilledButton(
+                child: OutlinedButton(
                   style: FilledButton.styleFrom(
                     visualDensity: VisualDensity.compact,
                   ),

@@ -197,10 +197,10 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                       adjustment: _previewAdjustment,
                       initialValue: false, 
                       value: _previewValue, 
-                      onChanged: (bool newValue) {
+                      onChanged: (bool? newValue) {
                         HapticFeedback.lightImpact();
                         setState(() {
-                          _previewValue = newValue;
+                          _previewValue = newValue ?? false;
                         });
                       },
                       highlighting: false,

@@ -168,6 +168,7 @@ class SetupCard extends StatelessWidget {
     return ListTile(
       contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
       minTileHeight: 0,
+      titleAlignment: ListTileTitleAlignment.top,
       title: Text(
         setup.name,
         style: const TextStyle(fontWeight: FontWeight.bold),

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/app_data.dart';
 import '../models/component.dart';
+import '../models/rating.dart';
 import '../models/setup.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/weather.dart';
@@ -44,12 +45,16 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
       "Condition": false,
     },
     "Adjustments": {},
+    "Ratings": {},
   };
 
   @override
   void initState() {
     super.initState();
+    final appSettings = context.read<AppSettings>();
     final appData = context.read<AppData>();
+    final ratings = Map.fromEntries(appData.ratings.entries.where((entry) => !entry.value.isDeleted));
+    final bikes = Map.fromEntries(appData.bikes.entries.where((entry) => !entry.value.isDeleted));
 
     _setups = List.from(appData.setups.values.where(
         (s) => !s.isDeleted &&
@@ -58,6 +63,20 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
     
     for (final adjustment in widget.component.adjustments) {
       _showColumns["Adjustments"]?[adjustment.id] = true;
+    }
+
+    if (appSettings.enableRating) {
+      for (final rating in ratings.values) {
+        switch (rating.filterType) {
+          case FilterType.global: _showColumns["Ratings"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false});
+          case FilterType.componentType: if (widget.component.componentType.toString() == rating.filter) _showColumns["Ratings"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false});
+          case FilterType.component: if (widget.component.id == rating.filter) _showColumns["Ratings"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false });
+          case FilterType.bike: if (widget.component.bike == rating.filter) _showColumns["Ratings"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false });
+          case FilterType.person: if (bikes[widget.component.bike]?.person == rating.filter) _showColumns["Ratings"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false});
+        }
+      }
+    } else {
+      _showColumns.remove("Ratings");
     }
   }
 
@@ -148,6 +167,9 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
+    final appData = context.read<AppData>();
+    final ratings = Map.fromEntries(appData.ratings.entries.where((entry) => !entry.value.isDeleted));
+    final ratingAdjustments = ratings.values.where((r) => !r.isDeleted).expand((rating) => rating.adjustments);
 
     return Scaffold(
       appBar: AppBar(
@@ -178,7 +200,12 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                     label: const Text("Columns"),
                     selected: _showColumns.values.any((v) => v.values.any((v) => v  == true)),
                     onSelected: (bool newValue) async {
-                      final Map<String, Map<String, bool>>? showColumnsCopy = await showColumnFilterSheet(context: context, showColumns: _showColumns, adjustments: widget.component.adjustments);
+                      final Map<String, Map<String, bool>>? showColumnsCopy = await showColumnFilterSheet(
+                        context: context, 
+                        showColumns: _showColumns, 
+                        adjustments: widget.component.adjustments,
+                        ratingAdjustments: ratingAdjustments,
+                      );
                       if (showColumnsCopy == null) return;
                       setState(() {
                         _showColumns.clear();
@@ -200,8 +227,12 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                   headingTextStyle: TextStyle(fontWeight: FontWeight.bold),
                   columns: _showColumns.entries.expand((sectionShowColumnsEntry) {
                     return sectionShowColumnsEntry.value.entries.where((showColumnEntry) => showColumnEntry.value).map((showColumnEntry) {
-                      if (sectionShowColumnsEntry.key == "Adjustments") {
-                        final Adjustment? adjustment = widget.component.adjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key);
+                      if (sectionShowColumnsEntry.key == "Adjustments" || sectionShowColumnsEntry.key == "Ratings") {
+                        final Adjustment? adjustment = switch (sectionShowColumnsEntry.key) {
+                          "Adjustments" => widget.component.adjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key),
+                          "Ratings" => ratingAdjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key),
+                          _ => null,
+                        };
                         return DataColumn(
                           label: Text(
                             (adjustment?.name ?? "-") + (adjustment?.unit != null ? " [${adjustment!.unit}]" : ""),
@@ -221,10 +252,18 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                     return DataRow(
                       cells: _showColumns.entries.expand((sectionShowColumnsEntry) {
                         return sectionShowColumnsEntry.value.entries.where((showColumnEntry) => showColumnEntry.value).map((showColumnEntry) {
-                          if (sectionShowColumnsEntry.key == "Adjustments") {
-                            final value = setup.bikeAdjustmentValues[showColumnEntry.key];
-                            final initialValue = setup.previousBikeSetup?.bikeAdjustmentValues[showColumnEntry.key];
-                            
+                          if (sectionShowColumnsEntry.key == "Adjustments" || sectionShowColumnsEntry.key == "Ratings") {
+                            final value = switch (sectionShowColumnsEntry.key) {
+                              "Adjustments" => setup.bikeAdjustmentValues[showColumnEntry.key],
+                              "Ratings" => setup.ratingAdjustmentValues[showColumnEntry.key],
+                              _ => null,
+                            };
+                            final initialValue = switch (sectionShowColumnsEntry.key) {
+                              "Adjustments" => setup.previousBikeSetup?.bikeAdjustmentValues[showColumnEntry.key],
+                              "Ratings" => null,
+                              _ => null,
+                            };
+     
                             Color? highlightColor;
                             if (_highlighting) {
                               final bool isChanged = value != null && initialValue != value;

@@ -10,7 +10,12 @@ class SelectColumn {
   SelectColumn({required this.id, required this.label, this.selected = false});
 }
 
-Future<Map<String, Map<String, bool>>?> showColumnFilterSheet({required BuildContext context, required Map<String, Map<String, bool>> showColumns, required List<Adjustment> adjustments}) async {
+Future<Map<String, Map<String, bool>>?> showColumnFilterSheet({
+  required BuildContext context,
+  required Map<String, Map<String, bool>> showColumns,
+  required Iterable<Adjustment> adjustments,
+  required Iterable<Adjustment> ratingAdjustments,
+}) async {
   final Map<String, Map<String, bool>> showColumnsCopy = showColumns.map((key, innerMap) {
     return MapEntry(key, Map<String, bool>.from(innerMap));
   });
@@ -46,6 +51,7 @@ Future<Map<String, Map<String, bool>>?> showColumnFilterSheet({required BuildCon
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ...showColumnsCopy.entries.map((sectionShowColumnsEntry) {
+                          if (sectionShowColumnsEntry.value.entries.isEmpty) return const SizedBox.shrink();
                           return Padding(
                             padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),
                             child: Column(
@@ -58,9 +64,11 @@ Future<Map<String, Map<String, bool>>?> showColumnFilterSheet({required BuildCon
                                   children: sectionShowColumnsEntry.value.entries.map((showColumnEntry) {
                                     return FilterChip(
                                       label: Text(
-                                        sectionShowColumnsEntry.key == "Adjustments" 
-                                            ? (adjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key)?.name ?? "-") 
-                                            : showColumnEntry.key, 
+                                        switch (sectionShowColumnsEntry.key) {
+                                          "Adjustments" => adjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key)?.name ?? "-",
+                                          "Ratings" => ratingAdjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key)?.name ?? "-",
+                                          _ => showColumnEntry.key,
+                                        },
                                         overflow: TextOverflow.ellipsis
                                       ),
                                       selected: showColumnEntry.value,

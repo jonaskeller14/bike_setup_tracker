@@ -190,7 +190,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
               ),
               const SizedBox(height: 8),
               const Divider(height: 1),
-              Expanded(
+              Flexible(
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,

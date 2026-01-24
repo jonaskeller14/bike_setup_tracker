@@ -19,6 +19,7 @@ import '../services/weather_service.dart';
 import '../services/address_service.dart';
 import '../services/location_service.dart';
 import '../widgets/adjustment_set_list.dart';
+import '../widgets/soil_moisture_legend_table.dart';
 import '../widgets/dialogs/confirmation.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/sheets/app_settings_radio_group.dart';
@@ -813,6 +814,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 context: context,
                 title: "Select Trail Condition",
                 infoText: "Conditions are automatically calculated based on soil moisture (see weather data). You can manually adjust the trail condition here:",
+                contentWidget: const SoilMoistureLegendTable(),
                 value: _currentWeather?.condition,
                 optionWidgets: Map.fromEntries(Condition.values.map((condition) {
                   return MapEntry(

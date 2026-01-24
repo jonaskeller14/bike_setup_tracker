@@ -33,25 +33,26 @@ class SoilMoistureLegendTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: DataTable(
+    return ListTile(
+      dense: true,
+      leading: const SizedBox.shrink(),
+      title: DataTable(
         columnSpacing: 25,
         dataRowMinHeight: 25,
         dataRowMaxHeight: 25,
         headingRowHeight: 25,
         
-        columns: const [
+        columns: [
           DataColumn(
             label: Text(
-              'Soil Moisture',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              'Soil Moisture [m³/m³]',
+              style: Theme.of(context).textTheme.labelMedium,
             ),
           ),
           DataColumn(
             label: Text(
               'Condition',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.labelMedium,
             ),
           ),
         ],
@@ -62,7 +63,7 @@ class SoilMoistureLegendTable extends StatelessWidget {
               DataCell(
                 Text(
                   data['range']!,
-                  style: const TextStyle(fontFamily: 'monospace'),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(fontFamily: 'monospace'),
                 ),
               ),
 
@@ -72,12 +73,12 @@ class SoilMoistureLegendTable extends StatelessWidget {
                     Icon(
                       data['icon'] as IconData,
                       color: data['color'] as Color,
-                      size: 20,
+                      size: 14,
                     ),
                     const SizedBox(width: 8),
                     Text(
                       data['label']!,
-                      style: TextStyle(color: data['color'] as Color),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: data['color'] as Color),
                     ),
                   ],
                 ),

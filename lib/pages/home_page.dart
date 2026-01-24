@@ -777,6 +777,19 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  SingleChildScrollView _ratingListFilterWidget() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 8),
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        spacing: 6,
+        children: [
+          _bikeFilterWidget(),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
@@ -983,7 +996,7 @@ class _HomePageState extends State<HomePage> {
             duplicateRating: _duplicateRating,
             removeRating: _removeRating,
             onReorderRating: _onReorderRating,
-            filterWidget: const SizedBox.shrink(),
+            filterWidget: _ratingListFilterWidget(),
           ),
       ][currentPageIndex],
       floatingActionButton: <Widget>[

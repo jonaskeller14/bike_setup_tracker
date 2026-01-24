@@ -151,7 +151,18 @@ class AppData extends ChangeNotifier {
   }
 
   void _filterRatings() {
-    _filteredRatings = Map.fromEntries(ratings.entries.where((entry) => !entry.value.isDeleted));
+    _filteredRatings = Map.fromEntries(ratings.entries.where((entry) {
+      final rating = entry.value;
+      if (rating.isDeleted) return false;
+
+      switch (rating.filterType) {
+        case FilterType.global: return true;
+        case FilterType.person: return true;
+        case FilterType.bike: return _selectedBike == null ? true : rating.filter == _selectedBike!.id;
+        case FilterType.component: return _selectedBike == null ? true : filteredComponents.values.any((c) => c.id == rating.filter);
+        case FilterType.componentType: return _selectedBike == null ? true : filteredComponents.values.any((c) => c.componentType.toString() == rating.filter);
+      }
+    }));
   }
   
   void onBikeTap(Bike? newBike) {

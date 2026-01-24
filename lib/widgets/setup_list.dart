@@ -8,6 +8,7 @@ import '../models/weather.dart';
 import '../models/app_settings.dart';
 import '../pages/setup_display_page.dart';
 import 'adjustment_compact_display_list.dart';
+import 'initial_changed_value_legend.dart';
 
 class SetupList extends StatefulWidget {
   final Map<String, Setup> setups;
@@ -68,7 +69,7 @@ class _SetupListState extends State<SetupList> {
             ),
           )
         : ListView(
-            padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
+            padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16),
             children: [
               widget.filterWidget,
               ListView.builder(
@@ -108,6 +109,8 @@ class _SetupListState extends State<SetupList> {
                     label: const Text("Show more"),
                   ),
                 ),
+              const SizedBox(height: 60),
+              const InitialChangedValueLegend(),
             ]
           );
   }

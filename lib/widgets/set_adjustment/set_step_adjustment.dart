@@ -124,6 +124,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                     RotaryKnob(
                       key: const ValueKey('RotaryKnob'),
                       value: value!,
+                      initialValue: initialValue?.toInt(),
                       min: adjustment.min.toDouble(),
                       max: sliderMax,
                       numberOfTicks: sliderDivisions + 1,
@@ -173,6 +174,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                       RotaryKnob(
                         key: const ValueKey('RotaryKnob'),
                         value: value!,
+                        initialValue: initialValue?.toInt(),
                         min: adjustment.min.toDouble(),
                         max: sliderMax,
                         numberOfTicks: sliderDivisions + 1,
@@ -254,6 +256,7 @@ class CustomValueThumbShape extends SfThumbShape {
 
 class RotaryKnob extends StatelessWidget {
   final double value;
+  final int? initialValue;
   final double min;
   final double max;
   final Color primaryColor;
@@ -264,6 +267,7 @@ class RotaryKnob extends StatelessWidget {
   const RotaryKnob({
     required super.key,
     required this.value,
+    required this.initialValue,
     required this.min,
     required this.max,
     required this.numberOfTicks,
@@ -277,6 +281,9 @@ class RotaryKnob extends StatelessWidget {
     final normalizedValue = (value - min) / (max - min); // 0..1
     final angleDeg = (normalizedValue * 270.0); // in degrees
     final angleRad = angleDeg * (pi / 180.0);
+
+    final int step = ((max - min) / (numberOfTicks - 1)).toInt();
+    final int? initialIndex = initialValue == null ? null : ((initialValue! - min) / step).toInt();
     
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: angleRad, end: angleRad),
@@ -286,6 +293,7 @@ class RotaryKnob extends StatelessWidget {
           size: const Size(50, 50),
           painter: KnobPainter(
             rotationRadians: value,
+            initialIndex: initialIndex,
             primaryColor: primaryColor,
             onPrimaryColor: onPrimaryColor,
             tickColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
@@ -300,6 +308,7 @@ class RotaryKnob extends StatelessWidget {
 
 class KnobPainter extends CustomPainter {
   final double rotationRadians;
+  final int? initialIndex;
   final Color primaryColor;
   final Color onPrimaryColor;
   final Color tickColor;
@@ -308,6 +317,7 @@ class KnobPainter extends CustomPainter {
 
   KnobPainter({
     required this.rotationRadians,
+    required this.initialIndex,
     required this.primaryColor,
     required this.onPrimaryColor,
     required this.tickColor,
@@ -332,6 +342,12 @@ class KnobPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0
       ..strokeCap = StrokeCap.round;
+    
+    final initialTickPaint = Paint()
+      ..color = primaryColor
+      ..style = tickPaint.style
+      ..strokeWidth = tickPaint.strokeWidth
+      ..strokeCap = tickPaint.strokeCap;
         
     for (int i = 0; i < numberOfTicks; i++) {
       final angle = startAngleRad + sweepAngleRad * (i / (numberOfTicks - 1));
@@ -341,7 +357,11 @@ class KnobPainter extends CustomPainter {
       final x2 = center.dx + tickRadius * cos(angle);
       final y2 = center.dy + tickRadius * sin(angle);
       
-      canvas.drawLine(Offset(x1, y1), Offset(x2, y2), tickPaint);
+      if (i != initialIndex) {
+        canvas.drawLine(Offset(x1, y1), Offset(x2, y2), tickPaint);
+      } else {
+        canvas.drawLine(Offset(x1, y1), Offset(x2, y2), initialTickPaint);
+      }
     }
     
     // -----------------------------------------------------------------

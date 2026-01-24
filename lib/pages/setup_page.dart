@@ -735,7 +735,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 LocationStatus.searching => switch (_addressService.status) {
                   _ => const Icon(Icons.location_searching),
                 },
-                LocationStatus.noPermission || LocationStatus.noService => switch (_addressService.status) {
+                LocationStatus.noPermission || LocationStatus.noService || LocationStatus.error => switch (_addressService.status) {
                   _ => Icon(Icons.location_disabled, color: Theme.of(context).colorScheme.error)
                 },
               },
@@ -763,6 +763,12 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                   AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace != null
                       ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}") 
                       : const Text("No GPS Permision"),
+                },
+                LocationStatus.error => switch (_addressService.status) {
+                  AddressStatus.searching => _loadingIndicator(),
+                  AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace != null
+                      ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}") 
+                      : const Text("Location Error"),
                 },
               }
             ),

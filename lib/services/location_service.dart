@@ -9,6 +9,7 @@ enum LocationStatus {
   searching,
   noService,
   noPermission,
+  error,
   success,
 }
 
@@ -59,11 +60,11 @@ class LocationService extends ChangeNotifier {
       setStatus(LocationStatus.success);
     } on TimeoutException catch (e) {
       debugPrint("Location Timeout Error: $e");
-      setStatus(LocationStatus.idle);
+      setStatus(LocationStatus.error);
       location = null;
     } catch (_) {
       location = null;
-      setStatus(LocationStatus.noPermission);
+      setStatus(LocationStatus.error);
     }    
     return location;
   }
@@ -83,7 +84,7 @@ class LocationService extends ChangeNotifier {
       setStatus(LocationStatus.success);
       return locationData;
     } catch (e) {
-      setStatus(LocationStatus.noService);
+      setStatus(LocationStatus.error);
       return null;
     }
   }

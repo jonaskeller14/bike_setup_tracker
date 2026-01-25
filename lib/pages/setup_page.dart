@@ -737,9 +737,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
             ),
             ActionChip(
               avatar: switch (_weatherService.status) {
-                WeatherStatus.idle => Icon(_currentWeather.value?.getIconData() ?? WeatherIcons.na),
-                WeatherStatus.searching => Icon(WeatherIcons.na),
-                WeatherStatus.success => Icon(_currentWeather.value?.getIconData() ?? WeatherIcons.na),
+                WeatherStatus.idle => Icon(_currentWeather.value?.getIconData() ?? Icons.cloudy_snowing),
+                WeatherStatus.searching => Icon(Icons.cloudy_snowing),
+                WeatherStatus.success => Icon(_currentWeather.value?.getIconData() ?? Icons.cloudy_snowing),
                 WeatherStatus.error => Icon(Icons.error, color: Theme.of(context).colorScheme.error),
               },
               label: switch (_weatherService.status) {
@@ -767,7 +767,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                     },
             ),
             ActionChip(
-              avatar: Icon(_currentWeather.value?.condition?.getIconData() ?? Icons.question_mark, color: _currentWeather.value?.condition?.getColor()),
+              avatar: Icon(_currentWeather.value?.condition?.getIconData() ?? Icons.edit_road, color: _currentWeather.value?.condition?.getColor()),
               label: _weatherService.status == WeatherStatus.searching 
                 ? _loadingIndicator()
                 : Text(_currentWeather.value?.condition?.value ?? "-"),

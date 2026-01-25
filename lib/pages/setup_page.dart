@@ -73,13 +73,13 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   final Map<String, Rating> _filteredRatings = {};
 
   final LocationService _locationService = LocationService();
-  LocationData? _currentLocation;
+  final ValueNotifier<LocationData?> _currentLocation = ValueNotifier<LocationData?>(null);
 
   final AddressService _addressService = AddressService();
-  geo.Placemark? _currentPlace;
+  final ValueNotifier<geo.Placemark?> _currentPlace = ValueNotifier<geo.Placemark?>(null);
 
   final WeatherService _weatherService = WeatherService();
-  Weather? _currentWeather;
+  final ValueNotifier<Weather?> _currentWeather = ValueNotifier<Weather?>(null);
 
   @override
   void initState() {
@@ -90,9 +90,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _notesController.addListener(_changeListener);
     _selectedDateTime = widget.setup?.datetime ?? DateTime.now();
     _initialDateTime = _selectedDateTime;
-    _currentLocation = widget.setup?.position;
-    _currentPlace = widget.setup?.place;
-    _currentWeather = widget.setup?.weather;
+    _currentLocation.value = widget.setup?.position;
+    _currentPlace.value = widget.setup?.place;
+    _currentWeather.value = widget.setup?.weather;
 
     final appData = context.read<AppData>();
     final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
@@ -240,7 +240,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   Future<void> fetchLocationAddressWeather() async {
     await updateLocation();
-    if (_currentLocation == null) return;
+    if (_currentLocation.value == null) return;
 
     updateWeather();
     updateAddress();
@@ -251,7 +251,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     
     if (!mounted) return;
     if (newLocation == null) {
-      setState(() {});  // LocationStatus Error was set in _locationService.fetchLocation()
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true,
@@ -264,14 +263,12 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     }
 
     if (!mounted) return;
-    setState(() {
-      _currentLocation = newLocation;
-    });
+    _currentLocation.value = newLocation;
     _changeListener();
   }
 
   Future<void> updateAddress() async {
-    if (_currentLocation == null) {
+    if (_currentLocation.value == null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true,
@@ -284,8 +281,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     }
 
     final newAddress = await _addressService.fetchAddress(
-      lat: _currentLocation!.latitude!,
-      lon: _currentLocation!.longitude!,
+      lat: _currentLocation.value!.latitude!,
+      lon: _currentLocation.value!.longitude!,
     );
 
     if (!mounted) return;
@@ -302,9 +299,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     }
 
     if (!mounted) return;
-    setState(() {
-      _currentPlace = newAddress;
-    });
+    _currentPlace.value = newAddress;
     _changeListener();
   }
 
@@ -315,9 +310,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         _notesController.text.trim() != (widget.setup?.notes ?? '') || 
         _initialDateTime != _selectedDateTime || 
 
-        !Setup.locationEqual(_currentLocation, widget.setup?.position) ||
-        !Setup.placeEqual(_currentPlace, widget.setup?.place) ||
-        _currentWeather != widget.setup?.weather || 
+        !Setup.locationEqual(_currentLocation.value, widget.setup?.position) ||
+        !Setup.placeEqual(_currentPlace.value, widget.setup?.place) ||
+        _currentWeather.value != widget.setup?.weather || 
         
         _bike != _initialBike || 
         _person != _initialPerson ||
@@ -340,6 +335,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _nameController.dispose();
     _notesController.removeListener(_changeListener);
     _notesController.dispose();
+    _currentLocation.dispose();
+    _currentPlace.dispose();
+    _currentWeather.dispose();
     super.dispose();
   }
 
@@ -446,7 +444,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   Future<void> askAndUpdateWeather() async {
-    if (_currentLocation == null) return;
+    if (_currentLocation.value == null) return;
     final result = await showConfirmationDialog(
       context,
       title: 'Update Weather?',
@@ -459,7 +457,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   Future<void> updateWeather() async {
-    if (_currentLocation == null) {
+    if (_currentLocation.value == null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true,
@@ -472,8 +470,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     }
 
     final currentWeather = await _weatherService.fetchWeather(
-      lat: _currentLocation!.latitude!,
-      lon: _currentLocation!.longitude!,
+      lat: _currentLocation.value!.latitude!,
+      lon: _currentLocation.value!.longitude!,
       datetime: _selectedDateTime,
     );
 
@@ -492,9 +490,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     }
     
     if (!mounted) return;
-    setState(() {
-      _currentWeather = currentWeather;
-    });
+    _currentWeather.value = currentWeather;
     _changeListener();
   }
 
@@ -536,9 +532,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         bikeAdjustmentValues: _bikeAdjustmentValues,
         personAdjustmentValues: _personAdjustmentValues,
         ratingAdjustmentValues: _ratingAdjustmentValues,
-        position: _currentLocation,
-        place: _currentPlace,
-        weather: _currentWeather,
+        position: _currentLocation.value,
+        place: _currentPlace.value,
+        weather: _currentWeather.value,
         isCurrent: false,
       ),
     );
@@ -638,7 +634,13 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   Widget _wrap() {
     final appSettings = context.read<AppSettings>();
     return ListenableBuilder(
-      listenable: Listenable.merge([_locationService, _addressService, _weatherService]),
+      listenable: Listenable.merge([
+        _locationService, 
+        _addressService, 
+        _weatherService, 
+        _currentLocation,
+        _currentPlace,
+        _currentWeather]),
       builder: (context, child) { 
         return Wrap(
           spacing: 8.0,
@@ -661,23 +663,23 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               onPressed: _pickTime,
             ),
             ActionChip(
-              backgroundColor: widget.setup != null && (!Setup.locationEqual(_currentLocation, widget.setup?.position) || !Setup.placeEqual(_currentPlace, widget.setup?.place)) ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.setup != null && (!Setup.locationEqual(_currentLocation.value, widget.setup?.position) || !Setup.placeEqual(_currentPlace.value, widget.setup?.place)) ? Colors.orange.withValues(alpha: 0.08) : null,
               onPressed: () async {
-                final result = await showSetLocationPlaceSheet(context: context, locationService: _locationService, currentLocation: _currentLocation, addressService: _addressService, currentPlace: _currentPlace);
+                final result = await showSetLocationPlaceSheet(context: context, locationService: _locationService, currentLocation: _currentLocation.value, addressService: _addressService, currentPlace: _currentPlace.value);
                 if (result == null) return;
 
-                final requestWeatherUpdate = !Setup.locationEqual(result.location, _currentLocation) && 
+                final requestWeatherUpdate = !Setup.locationEqual(result.location, _currentLocation.value) && 
                     result.location?.latitude != null && 
                     result.location?.latitude != null;
 
                 if (result.location != null) {
                   _locationService.setStatus(LocationStatus.success);
-                  setState(() => _currentLocation = result.location);
+                  _currentLocation.value = result.location;
                 }
 
                 if (result.place != null) {
                   _addressService.setStatus(AddressStatus.success);
-                  setState(() => _currentPlace = result.place);
+                  _currentPlace.value = result.place;
                 }
 
                 if (requestWeatherUpdate) { // After setting new location: _currentLocation = result.location
@@ -690,8 +692,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 LocationStatus.idle || LocationStatus.success => switch (_addressService.status) {
                   AddressStatus.idle || 
                   AddressStatus.searching || 
-                  AddressStatus.success => _currentLocation == null ? const Icon(Icons.location_searching) : const Icon(Icons.my_location),
-                  AddressStatus.error => Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
+                  AddressStatus.success => _currentLocation.value == null ? const Icon(Icons.location_searching) : const Icon(Icons.my_location),
+                  AddressStatus.error => Icon(Icons.error, color: Theme.of(context).colorScheme.error),
                 },
                 LocationStatus.searching => switch (_addressService.status) {
                   _ => const Icon(Icons.location_searching),
@@ -703,11 +705,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               label: switch (_locationService.status) {
                 LocationStatus.idle || LocationStatus.success => switch (_addressService.status) {
                   AddressStatus.searching => _loadingIndicator(),
-                  AddressStatus.idle || AddressStatus.success => _currentPlace != null
-                      ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}") 
+                  AddressStatus.idle || AddressStatus.success => _currentPlace.value != null
+                      ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}") 
                       : const Text("-"),
-                  AddressStatus.error => _currentPlace != null
-                      ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}") 
+                  AddressStatus.error => _currentPlace.value != null
+                      ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}") 
                       : const Text("Address Error"),
                 },
                 LocationStatus.searching => switch (_addressService.status) {
@@ -715,67 +717,67 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 },
                 LocationStatus.noService => switch (_addressService.status) {
                   AddressStatus.searching => _loadingIndicator(),
-                  AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace != null
-                      ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}") 
+                  AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
+                      ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}") 
                       : const Text("No GPS Service"),
                 },
                 LocationStatus.noPermission => switch (_addressService.status) {
                   AddressStatus.searching => _loadingIndicator(),
-                  AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace != null
-                      ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}") 
+                  AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
+                      ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}") 
                       : const Text("No GPS Permision"),
                 },
                 LocationStatus.error => switch (_addressService.status) {
                   AddressStatus.searching => _loadingIndicator(),
-                  AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace != null
-                      ? Text("${_currentPlace?.locality}, ${_currentPlace?.isoCountryCode}") 
+                  AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
+                      ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}") 
                       : const Text("Location Error"),
                 },
               }
             ),
             ActionChip(
               avatar: switch (_weatherService.status) {
-                WeatherStatus.idle => Icon(_currentWeather?.getIconData() ?? WeatherIcons.na),
+                WeatherStatus.idle => Icon(_currentWeather.value?.getIconData() ?? WeatherIcons.na),
                 WeatherStatus.searching => Icon(WeatherIcons.na),
-                WeatherStatus.success => Icon(_currentWeather?.getIconData() ?? WeatherIcons.na),
+                WeatherStatus.success => Icon(_currentWeather.value?.getIconData() ?? WeatherIcons.na),
                 WeatherStatus.error => Icon(Icons.error, color: Theme.of(context).colorScheme.error),
               },
               label: switch (_weatherService.status) {
-                WeatherStatus.idle => Text(_currentWeather?.getWeatherCodeLabel() ?? "-"),
+                WeatherStatus.idle => Text(_currentWeather.value?.getWeatherCodeLabel() ?? "-"),
                 WeatherStatus.searching => _loadingIndicator(),
-                WeatherStatus.success => Text(_currentWeather?.getWeatherCodeLabel() ?? "-"),
+                WeatherStatus.success => Text(_currentWeather.value?.getWeatherCodeLabel() ?? "-"),
                 WeatherStatus.error => const Text("Weather Error"),
               },
-              backgroundColor: widget.setup != null && _currentWeather != widget.setup?.weather ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.setup != null && _currentWeather.value != widget.setup?.weather ? Colors.orange.withValues(alpha: 0.08) : null,
               onPressed: _locationService.status == LocationStatus.searching || _weatherService.status == WeatherStatus.searching
                   ? null
                   : () async {
                       final Weather? newWeather = await showSetWeatherSheet(
                         context: context,
-                        currentWeather: _currentWeather,
+                        currentWeather: _currentWeather.value,
                         weatherService: _weatherService,
                         locationService: _locationService,
-                        currentLocation: _currentLocation,
+                        currentLocation: _currentLocation.value,
                         selectedDateTime: _selectedDateTime,
                       );
                       if (newWeather == null) return;
                       _weatherService.setStatus(WeatherStatus.success);
-                      setState(() => _currentWeather = newWeather);
+                      _currentWeather.value = newWeather;
                       _changeListener();
                     },
             ),
             ActionChip(
-              avatar: Icon(_currentWeather?.condition?.getIconData() ?? Icons.question_mark, color: _currentWeather?.condition?.getColor()),
+              avatar: Icon(_currentWeather.value?.condition?.getIconData() ?? Icons.question_mark, color: _currentWeather.value?.condition?.getColor()),
               label: _weatherService.status == WeatherStatus.searching 
                 ? _loadingIndicator()
-                : Text(_currentWeather?.condition?.value ?? "-"),
-              backgroundColor: widget.setup != null && _currentWeather?.condition != widget.setup?.weather?.condition ? Colors.orange.withValues(alpha: 0.08) : null,
+                : Text(_currentWeather.value?.condition?.value ?? "-"),
+              backgroundColor: widget.setup != null && _currentWeather.value?.condition != widget.setup?.weather?.condition ? Colors.orange.withValues(alpha: 0.08) : null,
               onPressed: () => appSettingsRadioGroupSheet<Condition?>(
                 context: context,
                 title: "Select Trail Condition",
                 infoText: "Conditions are automatically calculated based on soil moisture (see weather data). You can manually adjust the trail condition here:",
                 contentWidget: const SoilMoistureLegendTable(),
-                value: _currentWeather?.condition,
+                value: _currentWeather.value?.condition,
                 optionWidgets: Map.fromEntries(Condition.values.map((condition) {
                   return MapEntry(
                     condition, 
@@ -790,10 +792,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 })),
                 onChanged: (Condition? newValue) {
                   if (newValue == null) return;
-                  setState(() {
-                    _currentWeather ??= Weather(currentDateTime: _selectedDateTime);
-                    _currentWeather = _currentWeather?.copyWith(condition: newValue);
-                  });
+                  _currentWeather.value ??= Weather(currentDateTime: _selectedDateTime);
+                  _currentWeather.value = _currentWeather.value?.copyWith(condition: newValue);
                   Navigator.pop(context);
                 }
               ),

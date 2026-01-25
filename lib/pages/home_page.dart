@@ -28,7 +28,6 @@ import '../widgets/rating_list.dart';
 import '../widgets/bike_list.dart';
 import '../widgets/component_list.dart';
 import '../widgets/setup_list.dart';
-import '../widgets/dialogs/confirmation.dart';
 import '../widgets/sheets/import_merge_overwrite.dart';
 import '../widgets/sheets/import.dart';
 import '../widgets/sheets/export.dart';
@@ -182,16 +181,30 @@ class _HomePageState extends State<HomePage> {
   Future<void> removeBike(Bike bike) async {
     final data = context.read<AppData>();
 
-    final confirmed = await showConfirmationDialog(context, content: "All components and setups which belong to this bike will be deleted as well.");
-    if (!confirmed) return;
-
-    final obsoleteComponents = data.components.values.where((c) => c.bike == bike.id);
-    final obsoleteSetups = data.setups.values.where((s) => s.bike == bike.id);
+    final obsoleteComponents = data.components.values.where((c) => !c.isDeleted && c.bike == bike.id).toList();
+    final obsoleteSetups = data.setups.values.where((s) => !s.isDeleted && s.bike == bike.id).toList();
 
     data.removeBike(bike);
+    data.removeComponents(obsoleteComponents);
+    data.removeSetups(obsoleteSetups);
 
-    removeComponents(obsoleteComponents, confirm: false);
-    removeSetups(obsoleteSetups, confirm: false);
+    final snackBar = SnackBar(
+      content: Text("Bike '${bike.name}' moved to trash.\n${obsoleteComponents.length} components and ${obsoleteSetups.length} setups which belong to this bike are deleted as well."),
+      duration: const Duration(seconds: 10),
+      persist: false,
+      showCloseIcon: true,
+      action: SnackBarAction(
+        label: 'UNDO',
+        onPressed: () {
+          data.restoreBike(bike);
+          data.restoreComponents(obsoleteComponents);
+          data.restoreSetups(obsoleteSetups);
+        },
+      ),
+    );
+
+    final SnackBarClosedReason reason = await ScaffoldMessenger.of(context).showSnackBar(snackBar).closed;
+    if (reason == SnackBarClosedReason.action) return; // Not save and sync
 
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);

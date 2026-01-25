@@ -14,6 +14,7 @@ Future<Map<String, Map<String, bool>>?> showColumnFilterSheet({
   required BuildContext context,
   required Map<String, Map<String, bool>> showColumns,
   required Iterable<Adjustment> adjustments,
+  required Iterable<Adjustment> personAdjustments,
   required Iterable<Adjustment> ratingAdjustments,
 }) async {
   final Map<String, Map<String, bool>> showColumnsCopy = showColumns.map((key, innerMap) {
@@ -67,6 +68,7 @@ Future<Map<String, Map<String, bool>>?> showColumnFilterSheet({
                                         switch (sectionShowColumnsEntry.key) {
                                           "Adjustments" => adjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key)?.name ?? "-",
                                           "Ratings" => ratingAdjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key)?.name ?? "-",
+                                          "Person" => personAdjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key)?.name ?? "-",
                                           _ => showColumnEntry.key,
                                         },
                                         overflow: TextOverflow.ellipsis

@@ -44,6 +44,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
       "Soil Moisture": false,
       "Condition": false,
     },
+    "Person": {},
     "Adjustments": {},
     "Ratings": {},
   };
@@ -55,6 +56,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
     final appData = context.read<AppData>();
     final ratings = Map.fromEntries(appData.ratings.entries.where((entry) => !entry.value.isDeleted));
     final bikes = Map.fromEntries(appData.bikes.entries.where((entry) => !entry.value.isDeleted));
+    final persons = Map.fromEntries(appData.persons.entries.where((entry) => !entry.value.isDeleted));
 
     _setups = List.from(appData.setups.values.where(
         (s) => !s.isDeleted &&
@@ -63,6 +65,17 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
     
     for (final adjustment in widget.component.adjustments) {
       _showColumns["Adjustments"]?[adjustment.id] = true;
+    }
+
+    if (appSettings.enablePerson) {
+      final person = persons[bikes[widget.component.bike]?.person];
+      if (person == null) {
+        _showColumns.remove("Person");  
+      } else {
+        _showColumns["Person"]?.addEntries(person.adjustments.map((adjustment) => MapEntry(adjustment.id, false)));
+      }
+    } else {
+      _showColumns.remove("Person");
     }
 
     if (appSettings.enableRating) {
@@ -170,6 +183,9 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
     final appData = context.read<AppData>();
     final ratings = Map.fromEntries(appData.ratings.entries.where((entry) => !entry.value.isDeleted));
     final ratingAdjustments = ratings.values.where((r) => !r.isDeleted).expand((rating) => rating.adjustments);
+    final bikes = Map.fromEntries(appData.bikes.entries.where((entry) => !entry.value.isDeleted));
+    final persons = Map.fromEntries(appData.persons.entries.where((entry) => !entry.value.isDeleted));
+    final personAdjustments = persons[bikes[widget.component.bike]?.person]?.adjustments ?? [];
 
     return Scaffold(
       appBar: AppBar(
@@ -205,6 +221,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                         showColumns: _showColumns, 
                         adjustments: widget.component.adjustments,
                         ratingAdjustments: ratingAdjustments,
+                        personAdjustments: personAdjustments,
                       );
                       if (showColumnsCopy == null) return;
                       setState(() {
@@ -227,10 +244,11 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                   headingTextStyle: TextStyle(fontWeight: FontWeight.bold),
                   columns: _showColumns.entries.expand((sectionShowColumnsEntry) {
                     return sectionShowColumnsEntry.value.entries.where((showColumnEntry) => showColumnEntry.value).map((showColumnEntry) {
-                      if (sectionShowColumnsEntry.key == "Adjustments" || sectionShowColumnsEntry.key == "Ratings") {
+                      if ({"Adjustments", "Ratings", "Person"}.contains(sectionShowColumnsEntry.key)) {
                         final Adjustment? adjustment = switch (sectionShowColumnsEntry.key) {
                           "Adjustments" => widget.component.adjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key),
                           "Ratings" => ratingAdjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key),
+                          "Person" => personAdjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key),
                           _ => null,
                         };
                         return DataColumn(
@@ -252,15 +270,17 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                     return DataRow(
                       cells: _showColumns.entries.expand((sectionShowColumnsEntry) {
                         return sectionShowColumnsEntry.value.entries.where((showColumnEntry) => showColumnEntry.value).map((showColumnEntry) {
-                          if (sectionShowColumnsEntry.key == "Adjustments" || sectionShowColumnsEntry.key == "Ratings") {
+                          if ({"Adjustments", "Ratings", "Person"}.contains(sectionShowColumnsEntry.key)) {
                             final value = switch (sectionShowColumnsEntry.key) {
                               "Adjustments" => setup.bikeAdjustmentValues[showColumnEntry.key],
                               "Ratings" => setup.ratingAdjustmentValues[showColumnEntry.key],
+                              "Person" => setup.personAdjustmentValues[showColumnEntry.key],
                               _ => null,
                             };
                             final initialValue = switch (sectionShowColumnsEntry.key) {
                               "Adjustments" => setup.previousBikeSetup?.bikeAdjustmentValues[showColumnEntry.key],
                               "Ratings" => null,
+                              "Person" => setup.previousPersonSetup?.personAdjustmentValues[showColumnEntry.key],
                               _ => null,
                             };
      

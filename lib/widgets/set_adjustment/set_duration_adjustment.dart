@@ -8,7 +8,7 @@ class SetDurationAdjustmentWidget extends StatelessWidget {
   final DurationAdjustment adjustment;
   final Duration? initialValue;
   final Duration? value;
-  final ValueChanged<Duration> onChanged;
+  final ValueChanged<Duration?> onChanged;
   final bool highlighting;
 
   const SetDurationAdjustmentWidget({
@@ -26,7 +26,6 @@ class SetDurationAdjustmentWidget extends StatelessWidget {
       useSafeArea: true,
       context: context,
       builder: (BuildContext context) {
-        //TODO: Add option to remove/reset value (cross in the top right corner?)
         return SizedBox(
           height: 200,
           child: CupertinoTimerPicker(
@@ -70,39 +69,57 @@ class SetDurationAdjustmentWidget extends StatelessWidget {
           Expanded(
             child: Row(
               mainAxisSize: MainAxisSize.max,
+              spacing: 10,
               children: [
                 Icon(DurationAdjustment.iconData, color: highlightColor),
-                SizedBox(width: 10),
                 nameNotesSetAdjustmentWidget(context: context, adjustment: adjustment, highlightColor: highlightColor),
               ],
             )
           ),
-          InkWell(
-            onTap: () => _showTimerPickerBottomSheet(context),
-            borderRadius: BorderRadius.circular(6),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              mainAxisSize: MainAxisSize.min,
+          if (value == null)
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+              ),
+              onPressed: () => onChanged(Duration.zero),
+              child: const Text("Set value"),
+            )
+          else
+            Row(
               children: [
-                Text(
-                  Adjustment.formatValue(value),
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontFamily: 'monospace',
-                    fontWeight: FontWeight.bold,
-                    color: highlightColor,
-                    fontFeatures: [const FontFeature.tabularFigures()],
+                InkWell(
+                  onTap: () => _showTimerPickerBottomSheet(context),
+                  borderRadius: BorderRadius.circular(6),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        Adjustment.formatValue(value),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontFamily: 'monospace',
+                          fontWeight: FontWeight.bold,
+                          color: highlightColor,
+                          fontFeatures: [const FontFeature.tabularFigures()],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        Icons.edit, 
+                        size: 20, 
+                        color: highlightColor ?? Theme.of(context).colorScheme.primary,
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                Icon(
-                  Icons.edit, 
-                  size: 20, 
-                  color: highlightColor ?? Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 4),
+                if (isInitial)
+                  IconButton(
+                    onPressed: () => onChanged(null), 
+                    icon: const Icon(Icons.replay),
+                    visualDensity: VisualDensity.compact,
+                  ),
               ],
             ),
-          ),
         ],
       ),
     );

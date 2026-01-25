@@ -181,11 +181,11 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                     child: SetDurationAdjustmentWidget(
                       key: ValueKey(_previewAdjustment),
                       adjustment: _previewAdjustment,
-                      initialValue: null,
+                      initialValue: Duration.zero,
                       value: _previewValue,
-                      onChanged: (Duration newValue) {
+                      onChanged: (Duration? newValue) {
                         setState(() {
-                          _previewValue = newValue;
+                          _previewValue = newValue ?? Duration.zero;
                         });
                       },
                       highlighting: false,

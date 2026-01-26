@@ -1,0 +1,30 @@
+name: Flutter Test Check
+
+on:
+  push:
+    branches: [ main, dev ]
+    # tags:    [ 'v*.*.*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build_and_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Flutter Analyse
+        run: flutter analyze
+
+      - name: Flutter Test
+        run: flutter test --coverage

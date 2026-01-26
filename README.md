@@ -2,6 +2,8 @@
 
 *Component setup tracker for mountain bikers & road cyclists. Log and forget!*
 
+[![Flutter Test Check](https://github.com/jonaskeller14/bike_setup_tracker/actions/workflows/flutter_test.yml/badge.svg)](https://github.com/jonaskeller14/bike_setup_tracker/actions)
+
 <a href='https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker'>
   <img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width="120"/>
 </a>

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
@@ -18,6 +19,7 @@ import '../services/weather_service.dart';
 import '../services/address_service.dart';
 import '../services/location_service.dart';
 import '../widgets/adjustment_set_list.dart';
+import '../widgets/sheets/set_tags.dart';
 import '../widgets/soil_moisture_legend_table.dart';
 import '../widgets/dialogs/confirmation.dart';
 import '../widgets/dialogs/discard_changes.dart';
@@ -63,7 +65,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   late TextEditingController _notesController;
   late TabController _tabController;
   int? _tabControllerLength;
-  
+  final Set<String> _tags = {};
   Setup? _previousBikeSetup;
   Setup? _previousPersonSetup;
   late String _bike;
@@ -107,6 +109,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _currentLocation.value = widget.setup?.position;
     _currentPlace.value = widget.setup?.place;
     _currentWeather.value = widget.setup?.weather;
+    _tags.addAll(widget.setup?.tags ?? {});
 
     final filteredData = context.read<FilteredData>();
     final bikes = filteredData.bikes;
@@ -546,6 +549,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         name: name,
         datetime: _selectedDateTime,
         notes: notes,
+        tags: _tags,
         bike: _bike,
         person: _person,
         bikeAdjustmentValues: _bikeAdjustmentValues,
@@ -820,6 +824,23 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                   Navigator.pop(context);
                 }
               ),
+            ),
+            ..._tags.map((tag) => FilterChip(
+              avatar: const Icon(Icons.tag),
+              showCheckmark: false,
+              selected: true,
+              label: Text(tag), 
+              onSelected: (_) {},
+              onDeleted: () => setState(() => _tags.remove(tag)),
+            )),
+            ActionChip(
+              avatar: const Icon(Icons.add),
+              label: _tags.isEmpty ? const Text("Tag") : const SizedBox.shrink(),
+              labelPadding: _tags.isEmpty ? null : const EdgeInsets.symmetric(vertical: 2),
+              backgroundColor: widget.setup != null && !setEquals(_tags, widget.setup?.tags) ? Colors.orange.withValues(alpha: 0.08) : null,
+              onPressed: () async {
+                await showSetTagsSheet(context: context, tags: _tags);
+              },
             ),
           ],
         );

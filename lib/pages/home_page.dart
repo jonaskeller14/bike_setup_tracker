@@ -397,11 +397,13 @@ class _HomePageState extends State<HomePage> {
 
     final setupCopy = Setup(
       name: setup.name, 
+      notes: setup.notes,
+      tags: setup.tags,
       bike: setup.bike,
       person: data.bikes[setup.bike]?.person,
       datetime: DateTime.now(),
       bikeAdjustmentValues: setup.bikeAdjustmentValues,
-      personAdjustmentValues: setup.personAdjustmentValues, //FIXME: this could lead to dangling person adj-values if bike owner has changed in the meantime
+      personAdjustmentValues: setup.personAdjustmentValues,
       ratingAdjustmentValues: {},
       isCurrent: true,
     );  //TODO: Location and waether data is null --> maybe add default constructor?

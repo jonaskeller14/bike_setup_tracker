@@ -12,6 +12,7 @@ class Setup {
   final String name;
   final DateTime datetime;
   final String? notes;
+  final Set<String> tags;
   final String bike;
   final String? person;
   final Map<String, dynamic> bikeAdjustmentValues;
@@ -34,6 +35,7 @@ class Setup {
     required this.name,
     required this.datetime,
     this.notes,
+    required this.tags,
     required this.bike,
     required this.person,
     required this.bikeAdjustmentValues,
@@ -50,13 +52,14 @@ class Setup {
        lastModified = lastModified ?? DateTime.now();
 
   Map<String, dynamic> toJson() => {
-    'version': 2,
+    'version': 3,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toIso8601String(),
     'name': name,
     'datetime': datetime.toIso8601String(),
     'notes': notes,
+    'tags': tags.toList(),
     'bike': bike,
     'person': person,
     'bikeAdjustmentValues': adjustmentValuesToJson(bikeAdjustmentValues),
@@ -73,7 +76,7 @@ class Setup {
   factory Setup.fromJson({required Map<String, dynamic> json}) {
     final int? version = json["version"];
     switch (version) {
-      case null:
+      case null || 1 || 2 || 3:
         return Setup(
           id: json['id'],
           isDeleted: json["isDeleted"],
@@ -81,46 +84,7 @@ class Setup {
           name: json['name'],
           datetime: DateTime.parse(json['datetime']),
           notes: json['notes'] != null ? json['notes'] as String : null,
-          bike: json['bike'],
-          person: json['person'],  // = null
-          bikeAdjustmentValues: adjustmentValuesFromJson((json['bikeAdjustmentValues'] ?? json['adjustmentValues']) as Map<String, dynamic>? ?? {}),
-          personAdjustmentValues: adjustmentValuesFromJson((json['personAdjustmentValues']) as Map<String, dynamic>? ?? {}),  // = {}
-          ratingAdjustmentValues: adjustmentValuesFromJson((json['ratingAdjustmentValues']) as Map<String, dynamic>? ?? {}),  // = {}
-          position: json['position'] != null ? _locationDataFromJson(json['position']) : null,
-          place: json['place'] != null ? _placemarkFromJson(json['place']) : null,
-          weather: json['weather'] != null ? Weather.fromJson(json['weather']) : null,
-          previousBikeSetup: null, // linked later
-          previousPersonSetup: null, // linked later
-          isCurrent: json['isCurrent'] ?? false, //reset later
-        );
-      case 1:
-        return Setup(
-          id: json['id'],
-          isDeleted: json["isDeleted"],
-          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
-          name: json['name'],
-          datetime: DateTime.parse(json['datetime']),
-          notes: json['notes'] != null ? json['notes'] as String : null,
-          bike: json['bike'],
-          person: json['person'],
-          bikeAdjustmentValues: adjustmentValuesFromJson((json['bikeAdjustmentValues'] ?? json['adjustmentValues']) as Map<String, dynamic>? ?? {}),
-          personAdjustmentValues: adjustmentValuesFromJson((json['personAdjustmentValues']) as Map<String, dynamic>? ?? {}),
-          ratingAdjustmentValues: adjustmentValuesFromJson((json['ratingAdjustmentValues']) as Map<String, dynamic>? ?? {}),  // = {}
-          position: json['position'] != null ? _locationDataFromJson(json['position']) : null,
-          place: json['place'] != null ? _placemarkFromJson(json['place']) : null,
-          weather: json['weather'] != null ? Weather.fromJson(json['weather']) : null,
-          previousBikeSetup: null, // linked later
-          previousPersonSetup: null, // linked later
-          isCurrent: json['isCurrent'] ?? false, //reset later
-        );
-      case 2:
-        return Setup(
-          id: json['id'],
-          isDeleted: json["isDeleted"],
-          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
-          name: json['name'],
-          datetime: DateTime.parse(json['datetime']),
-          notes: json['notes'] != null ? json['notes'] as String : null,
+          tags: (json['tags'] as List?)?.map((item) => item as String).toSet() ?? <String>{},
           bike: json['bike'],
           person: json['person'],
           bikeAdjustmentValues: adjustmentValuesFromJson((json['bikeAdjustmentValues'] ?? json['adjustmentValues']) as Map<String, dynamic>? ?? {}),

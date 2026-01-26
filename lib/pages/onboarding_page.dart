@@ -21,6 +21,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
   int _currentPage = 0;
   late List<Function> _pages;
 
+  double? _setStepAdjustmentWidgetValue;
+
   @override
   void initState() {
     super.initState();
@@ -473,7 +475,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   Widget _setStepAdjustmentWidgetAnimation() {
     const double startVal = 2.0;
     const double peakVal = 12.0;
-    const double endVal = 8.0;
+    final double endVal = _setStepAdjustmentWidgetValue ?? 8.0;
 
     final Animatable<double> sequence = TweenSequence<double>([
       TweenSequenceItem(
@@ -491,11 +493,18 @@ class _OnboardingPageState extends State<OnboardingPage> {
     ]);
 
     return TweenAnimationBuilder<double>(
-      tween: Tween<double>(begin: 0, end: 1), 
+      tween: Tween<double>(begin: 0, end: 1),
       duration: const Duration(milliseconds: 5000),
       builder: (context, value, child) {
+        // 1. Calculate the value from the animation sequence
         final double animValue = sequence.transform(value);
-        
+        // 2. Determine which value to display: 
+        // If the animation is finished (value == 1.0) and the user has touched it, use _currentValue.
+        // Otherwise, follow the animation.
+        final double displayValue = (value < 1.0) 
+            ? animValue 
+            : (_setStepAdjustmentWidgetValue ?? endVal);
+
         return SetStepAdjustmentWidget(
           key: const ValueKey("Onboarding Rebound Animation"),
           adjustment: StepAdjustment(
@@ -508,9 +517,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
             visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial,
           ),
           initialValue: startVal,
-          value: animValue,
-          onChanged: (newValue) {},
-          onChangedEnd: (newValue) {},
+          value: displayValue, 
+          onChanged: (double? newValue) => setState(() => _setStepAdjustmentWidgetValue = newValue),
+          onChangedEnd: (_) {},
           highlighting: false,
         );
       },

@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:provider/provider.dart';
-import 'package:weather_icons/weather_icons.dart';
 import '../models/app_data.dart';
 import '../models/weather.dart';
 import '../models/person.dart';
@@ -664,30 +663,32 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
             ),
             ActionChip(
               backgroundColor: widget.setup != null && (!Setup.locationEqual(_currentLocation.value, widget.setup?.position) || !Setup.placeEqual(_currentPlace.value, widget.setup?.place)) ? Colors.orange.withValues(alpha: 0.08) : null,
-              onPressed: () async {
-                final result = await showSetLocationPlaceSheet(context: context, locationService: _locationService, currentLocation: _currentLocation.value, addressService: _addressService, currentPlace: _currentPlace.value);
-                if (result == null) return;
+              onPressed: _locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching
+                  ? null
+                  : () async {
+                      final result = await showSetLocationPlaceSheet(context: context, locationService: _locationService, currentLocation: _currentLocation.value, addressService: _addressService, currentPlace: _currentPlace.value);
+                      if (result == null) return;
 
-                final requestWeatherUpdate = !Setup.locationEqual(result.location, _currentLocation.value) && 
-                    result.location?.latitude != null && 
-                    result.location?.latitude != null;
+                      final requestWeatherUpdate = !Setup.locationEqual(result.location, _currentLocation.value) && 
+                          result.location?.latitude != null && 
+                          result.location?.latitude != null;
 
-                if (result.location != null) {
-                  _locationService.setStatus(LocationStatus.success);
-                  _currentLocation.value = result.location;
-                }
+                      if (result.location != null) {
+                        _locationService.setStatus(LocationStatus.success);
+                        _currentLocation.value = result.location;
+                      }
 
-                if (result.place != null) {
-                  _addressService.setStatus(AddressStatus.success);
-                  _currentPlace.value = result.place;
-                }
+                      if (result.place != null) {
+                        _addressService.setStatus(AddressStatus.success);
+                        _currentPlace.value = result.place;
+                      }
 
-                if (requestWeatherUpdate) { // After setting new location: _currentLocation = result.location
-                  askAndUpdateWeather();
-                }
+                      if (requestWeatherUpdate) { // After setting new location: _currentLocation = result.location
+                        askAndUpdateWeather();
+                      }
 
-                _changeListener();
-              },
+                      _changeListener();
+                    },
               avatar: switch (_locationService.status) {
                 LocationStatus.idle || LocationStatus.success => switch (_addressService.status) {
                   AddressStatus.idle || 
@@ -772,24 +773,26 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 ? _loadingIndicator()
                 : Text(_currentWeather.value?.condition?.value ?? "-"),
               backgroundColor: widget.setup != null && _currentWeather.value?.condition != widget.setup?.weather?.condition ? Colors.orange.withValues(alpha: 0.08) : null,
-              onPressed: () => appSettingsRadioGroupSheet<Condition?>(
-                context: context,
-                title: "Select Trail Condition",
-                infoText: "Conditions are automatically calculated based on soil moisture (see weather data). You can manually adjust the trail condition here:",
-                contentWidget: const SoilMoistureLegendTable(),
-                value: _currentWeather.value?.condition,
-                optionWidgets: Map.fromEntries(Condition.values.map((condition) {
-                  return MapEntry(
-                    condition, 
-                    Row(
-                      spacing: 8, 
-                      children: [
-                        Icon(condition.getIconData(), color: condition.getColor()), 
-                        Text(condition.value)
-                      ]
-                    ),
-                  );
-                })),
+              onPressed: _locationService.status == LocationStatus.searching || _weatherService.status == WeatherStatus.searching
+                  ? null
+                  : () => appSettingsRadioGroupSheet<Condition?>(
+                      context: context,
+                      title: "Select Trail Condition",
+                      infoText: "Conditions are automatically calculated based on soil moisture (see weather data). You can manually adjust the trail condition here:",
+                      contentWidget: const SoilMoistureLegendTable(),
+                      value: _currentWeather.value?.condition,
+                      optionWidgets: Map.fromEntries(Condition.values.map((condition) {
+                        return MapEntry(
+                          condition, 
+                          Row(
+                            spacing: 8, 
+                            children: [
+                              Icon(condition.getIconData(), color: condition.getColor()), 
+                              Text(condition.value)
+                            ]
+                          ),
+                        );
+                      })),
                 onChanged: (Condition? newValue) {
                   if (newValue == null) return;
                   _currentWeather.value ??= Weather(currentDateTime: _selectedDateTime);

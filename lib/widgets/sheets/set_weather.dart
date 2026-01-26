@@ -113,7 +113,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
       listenable: Listenable.merge([widget.locationService, widget.weatherService]),
       builder: (context, child) {
         final enableFields = widget.weatherService.status != WeatherStatus.searching && widget.locationService.status != LocationStatus.searching;
-        final enableUpdate = enableFields && widget.currentLocation?.latitude != null && widget.currentLocation?.latitude != null;
+        final enableUpdate = enableFields && widget.currentLocation?.latitude != null && widget.currentLocation?.longitude != null;
         return Padding(
           padding: EdgeInsets.only(left: 16, right: 16, bottom: MediaQuery.of(context).viewInsets.bottom),
           child: SafeArea(
@@ -137,7 +137,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if ( widget.currentLocation?.latitude == null || widget.currentLocation?.latitude == null)
+                          if ( widget.currentLocation?.latitude == null || widget.currentLocation?.longitude == null)
                             ListTile(
                               leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
                               title: const Text("Update Weather is not possible without location."),

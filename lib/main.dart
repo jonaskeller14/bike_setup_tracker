@@ -6,6 +6,7 @@ import 'models/app_data.dart';
 import 'models/filtered_data.dart';
 import 'pages/onboarding_page.dart';
 import 'pages/home_page.dart';
+import 'services/storage_service.dart';
 
 final materialAppTheme = ThemeData(
   useMaterial3: true,
@@ -85,6 +86,10 @@ class LoadingGate extends StatelessWidget {
               ChangeNotifierProxyProvider<AppData, FilteredData>(
                 create: (context) => FilteredData(appData),
                 update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
+              ),
+              ProxyProvider<AppData, StorageService>(
+                create: (context) => StorageService(),
+                update: (context, newAppData, storageService) => storageService!..update(newAppData),
               ),
             ],
             child: const BikeSetupTrackerApp(),

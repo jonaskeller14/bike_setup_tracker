@@ -71,8 +71,7 @@ class _HomePageState extends State<HomePage> {
       if (settings.enableGoogleDrive) _googleDriveService.silentSetup();
 
       FileImport.cleanupIsDeleted(data: data);
-      FileExport.saveData(data: data);
-      FileExport.saveBackup(data: data);
+      data.callNotifyListeners();
       FileExport.deleteOldBackups();
     });
   }
@@ -118,9 +117,6 @@ class _HomePageState extends State<HomePage> {
         debugPrint("showImportMergeOverwriteSheet canceled");
         return;
     }
-
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
     
     if (!mounted) return;
@@ -200,9 +196,6 @@ class _HomePageState extends State<HomePage> {
 
     final SnackBarClosedReason reason = await ScaffoldMessenger.of(context).showSnackBar(snackBar).closed;
     if (reason == SnackBarClosedReason.action) return; // Not save and sync
-
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
@@ -223,9 +216,6 @@ class _HomePageState extends State<HomePage> {
 
     final SnackBarClosedReason reason = await ScaffoldMessenger.of(context).showSnackBar(snackBar).closed;
     if (reason == SnackBarClosedReason.action) return; // Not save and sync
-
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
@@ -248,9 +238,6 @@ class _HomePageState extends State<HomePage> {
 
     final SnackBarClosedReason reason = await ScaffoldMessenger.of(context).showSnackBar(snackBar).closed;
     if (reason == SnackBarClosedReason.action) return; // Not save and sync
-
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
@@ -283,9 +270,6 @@ class _HomePageState extends State<HomePage> {
       final SnackBarClosedReason reason = await ScaffoldMessenger.of(context).showSnackBar(snackBar).closed;
       if (reason == SnackBarClosedReason.action) return; // Not save and sync
     }
-
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
@@ -319,9 +303,6 @@ class _HomePageState extends State<HomePage> {
       final SnackBarClosedReason reason = await ScaffoldMessenger.of(context).showSnackBar(snackBar).closed;
       if (reason == SnackBarClosedReason.action) return; // Not save and sync
     }
-
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
   
@@ -335,8 +316,6 @@ class _HomePageState extends State<HomePage> {
     if (bike == null) return;
 
     data.addBike(bike);
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
@@ -351,8 +330,6 @@ class _HomePageState extends State<HomePage> {
     final data = context.read<AppData>();
 
     data.addPerson(person);
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
@@ -368,8 +345,6 @@ class _HomePageState extends State<HomePage> {
     if (newRating == null) return;
 
     data.addRating(newRating);
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
@@ -393,9 +368,6 @@ class _HomePageState extends State<HomePage> {
     if (component == null) return;
 
     data.addComponent(component);
-
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
@@ -411,8 +383,6 @@ class _HomePageState extends State<HomePage> {
     if (editedBike == null) return;
 
     data.editBike(editedBike);
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
@@ -428,8 +398,6 @@ class _HomePageState extends State<HomePage> {
     if (editedPerson == null) return;
 
     data.editPerson(editedPerson);
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
@@ -445,8 +413,6 @@ class _HomePageState extends State<HomePage> {
     if (editedRating == null) return;
 
     data.editRating(editedRating);
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
@@ -465,8 +431,6 @@ class _HomePageState extends State<HomePage> {
     }
 
     data.editComponent(editedComponent);
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
@@ -501,8 +465,6 @@ class _HomePageState extends State<HomePage> {
     final data = context.read<AppData>();
     final filteredData = context.read<FilteredData>();
     data.reorderComponent(oldIndex: oldIndex, newIndex: newIndex, filteredComponentsList: filteredData.filteredComponents.values.toList());
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
@@ -510,8 +472,6 @@ class _HomePageState extends State<HomePage> {
     final data = context.read<AppData>();
     final filteredData = context.read<FilteredData>();
     data.reorderBike(oldIndex: oldIndex, newIndex: newIndex, filteredBikesList: filteredData.bikes.values.toList());
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
@@ -519,8 +479,6 @@ class _HomePageState extends State<HomePage> {
     final data = context.read<AppData>();
     final filteredData = context.read<FilteredData>();
     data.reorderPerson(oldIndex: oldIndex, newIndex: newIndex, filteredPersonsList: filteredData.filteredPersons.values.toList());
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
@@ -528,8 +486,6 @@ class _HomePageState extends State<HomePage> {
     final data = context.read<AppData>();
     final filteredData = context.read<FilteredData>();
     data.reorderRating(oldIndex: oldIndex, newIndex: newIndex, filteredRatingsList: filteredData.filteredRatings.values.toList());
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
@@ -565,8 +521,6 @@ class _HomePageState extends State<HomePage> {
     if (newSetup == null) return;
     
     data.addSetup(newSetup);
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
@@ -580,8 +534,6 @@ class _HomePageState extends State<HomePage> {
     if (editedSetup == null) return;
 
     data.editSetup(editedSetup);
-    FileExport.saveData(data: data);
-    FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
@@ -865,8 +817,6 @@ class _HomePageState extends State<HomePage> {
                       WidgetsBinding.instance.addPostFrameCallback((_) { // Called when HomePage is not locked anymore
                         if (!mounted) return;
                         data.resolveData();
-                        FileExport.saveData(data: data);
-                        FileExport.saveBackup(data: data);
                         if (mounted && appSettings.enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
                       });
                     }

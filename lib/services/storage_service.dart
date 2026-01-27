@@ -15,4 +15,8 @@ class StorageService {
       await FileExport.saveBackup(data: data);
     });
   }
+
+  void dispose() {
+    _debounce?.cancel();
+  }
 }

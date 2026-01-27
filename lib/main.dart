@@ -88,6 +88,7 @@ class LoadingGate extends StatelessWidget {
                 update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
               ),
               ProxyProvider<AppData, StorageService>(
+                lazy: false,
                 create: (context) => StorageService(),
                 update: (context, newAppData, storageService) => storageService!..update(newAppData),
               ),

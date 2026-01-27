@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../models/app_data.dart';
+import '../models/filtered_data.dart';
 import '../models/setup.dart';
 import '../models/bike.dart';
 import '../models/weather.dart';
@@ -165,8 +165,8 @@ class SetupCard extends StatelessWidget {
 
   ListTile _setupListTile(BuildContext context, Setup setup) {
     final appSettings = context.watch<AppSettings>();
-    final appData = context.watch<AppData>();
-    final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
+    final filteredData = context.watch<FilteredData>();
+    final bikes = filteredData.bikes;
     
     return ListTile(
       contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
@@ -357,11 +357,11 @@ class SetupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appData = context.watch<AppData>();
-    final setups = Map.fromEntries(appData.setups.entries.where((e) => !e.value.isDeleted));
-    final components = Map.fromEntries(appData.components.entries.where((e) => !e.value.isDeleted));
-    final persons = Map.fromEntries(appData.persons.entries.where((e) => !e.value.isDeleted));
-    final ratings = Map.fromEntries(appData.ratings.entries.where((e) => !e.value.isDeleted));
+    final filteredData = context.watch<FilteredData>();
+    final setups = filteredData.setups;
+    final components = filteredData.components;
+    final persons = filteredData.persons;
+    final ratings = filteredData.ratings;
     final setup = setups[setupId];
     if (setup == null) return const SizedBox.shrink();
 

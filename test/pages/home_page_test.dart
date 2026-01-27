@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/models/filtered_data.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,6 +22,10 @@ void main() {
         providers: [
           ChangeNotifierProvider.value(value: appSettings),
           ChangeNotifierProvider.value(value: appData),
+          ChangeNotifierProxyProvider<AppData, FilteredData>(
+            create: (context) => FilteredData(appData),
+            update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
+          ),
         ],
         child: const BikeSetupTrackerApp(),
       ),
@@ -78,6 +83,10 @@ void main() {
         providers: [
           ChangeNotifierProvider.value(value: appSettings),
           ChangeNotifierProvider.value(value: appData),
+          ChangeNotifierProxyProvider<AppData, FilteredData>(
+            create: (context) => FilteredData(appData),
+            update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
+          ),
         ],
         child: const BikeSetupTrackerApp(),
       ),
@@ -93,16 +102,20 @@ void main() {
     expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Component')), findsNothing);
 
     appData.addBike(Bike(name: "TestBike #1", person: null, isDeleted: true));
+    await tester.pump();
+
     await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
     await tester.pumpAndSettle();
     expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Component')), findsNothing);
 
     appData.addBike(Bike(name: "TestBike #2", person: null));
+    await tester.pump();
+
     await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
     await tester.pumpAndSettle();
-    expect(find.descendant(of: find.byType(AppBar).last.last, matching: find.text('Add Component')), findsOneWidget);
+    expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Component')), findsOneWidget);
   });
 
   testWidgets('Add Setup without Bike and Components', (WidgetTester tester) async {
@@ -116,6 +129,10 @@ void main() {
         providers: [
           ChangeNotifierProvider.value(value: appSettings),
           ChangeNotifierProvider.value(value: appData),
+          ChangeNotifierProxyProvider<AppData, FilteredData>(
+            create: (context) => FilteredData(appData),
+            update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
+          ),
         ],
         child: const BikeSetupTrackerApp(),
       ),
@@ -132,12 +149,16 @@ void main() {
 
     final bike1 = Bike(name: "TestBike #1", person: null, isDeleted: true);
     appData.addBike(bike1);
+    await tester.pump();
+
     await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
     await tester.pumpAndSettle();
     expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Setup')), findsNothing);
 
     appData.addComponent(Component(name: "TestComponent #1", bike: bike1.id, componentType: ComponentType.other, adjustments: [], isDeleted: true));
+    await tester.pump();
+
     await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
     await tester.pumpAndSettle();
@@ -145,12 +166,16 @@ void main() {
 
     final bike2 = Bike(name: "TestBike #2", person: null, isDeleted: false);
     appData.addBike(bike2);
+    await tester.pump();
+
     await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
     await tester.pumpAndSettle();
     expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Setup')), findsNothing);
 
     appData.addComponent(Component(name: "TestComponent #2", bike: bike2.id, componentType: ComponentType.other, adjustments: [], isDeleted: false));
+    await tester.pump();
+
     await tester.tap(find.widgetWithIcon(FloatingActionButton, Icons.add));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
@@ -168,6 +193,10 @@ void main() {
         providers: [
           ChangeNotifierProvider.value(value: appSettings),
           ChangeNotifierProvider.value(value: appData),
+          ChangeNotifierProxyProvider<AppData, FilteredData>(
+            create: (context) => FilteredData(appData),
+            update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
+          ),
         ],
         child: const BikeSetupTrackerApp(),
       ),
@@ -178,7 +207,7 @@ void main() {
     expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Bikes')), findsOneWidget);
     
     // Add Bike and show Bike
-    appData.addBike(Bike(name: "TestBike #1", person: null, isDeleted: false));
+    appData.addBike(Bike(name: "TestBike #1", person: null, isDeleted: false));    
     await tester.pumpAndSettle();
     expect(find.text("TestBike #1"), findsOneWidget);
 

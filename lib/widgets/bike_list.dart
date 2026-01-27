@@ -1,9 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/app_data.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
+import '../models/filtered_data.dart';
 import '../models/person.dart';
 
 class BikeList extends StatefulWidget {
@@ -38,8 +38,8 @@ class _BikeListState extends State<BikeList> {
   Widget build(BuildContext context) {
     final visibleItemCount = widget.bikes.length.clamp(0, _maxItemCount);
     
-    final appData = context.watch<AppData>();
-    final persons = Map.fromEntries(appData.persons.entries.where((p) => !p.value.isDeleted));
+    final filteredData = context.watch<FilteredData>();
+    final persons = filteredData.persons;
     
     final List<InkWell> inkWells = <InkWell>[];
     for (int index = 0; index < visibleItemCount; index++) {

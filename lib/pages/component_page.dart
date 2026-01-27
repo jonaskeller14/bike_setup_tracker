@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/app_data.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/adjustment/adjustment.dart';
+import '../models/filtered_data.dart';
 import 'adjustment/boolean_adjustment_page.dart';
 import 'adjustment/numerical_adjustment_page.dart';
 import 'adjustment/step_adjustment_page.dart';
@@ -43,8 +43,8 @@ class _ComponentPageState extends State<ComponentPage> {
     _adjustments = widget.component == null ? [] : List.from(widget.component!.adjustments);
     _initialAdjustments = List.from(_adjustments);
     
-    final appData = context.read<AppData>();
-    _initialBike = widget.component?.bike ?? appData.filteredBikes.keys.first;
+    final filteredData = context.read<FilteredData>();
+    _initialBike = widget.component?.bike ?? filteredData.filteredBikes.keys.first;
     _bike = _initialBike;
 
     _componentType = widget.component?.componentType;
@@ -297,9 +297,9 @@ class _ComponentPageState extends State<ComponentPage> {
 
   @override
   Widget build(BuildContext context) {
-    final appData = context.watch<AppData>();
-    final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
-    final bikeOptions = appData.filteredBikes;
+    final filteredData = context.watch<FilteredData>();
+    final bikes = filteredData.bikes;
+    final bikeOptions = filteredData.filteredBikes;
 
     return PopScope( 
       canPop: !_formHasChanges,

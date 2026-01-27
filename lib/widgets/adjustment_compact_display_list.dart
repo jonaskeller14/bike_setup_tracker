@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import '../models/app_data.dart';
+import '../models/filtered_data.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/person.dart';
@@ -124,8 +124,8 @@ class _AdjustmentTableRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appData = context.read<AppData>();
-    final components = Map.fromEntries(appData.components.entries.where((e) => !e.value.isDeleted));
+    final filteredData = context.read<FilteredData>();
+    final components = filteredData.components;
     
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,

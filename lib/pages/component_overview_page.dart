@@ -2,8 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../models/app_data.dart';
 import '../models/component.dart';
+import '../models/filtered_data.dart';
 import '../models/rating.dart';
 import '../models/setup.dart';
 import '../models/adjustment/adjustment.dart';
@@ -53,14 +53,13 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
   void initState() {
     super.initState();
     final appSettings = context.read<AppSettings>();
-    final appData = context.read<AppData>();
-    final ratings = Map.fromEntries(appData.ratings.entries.where((entry) => !entry.value.isDeleted));
-    final bikes = Map.fromEntries(appData.bikes.entries.where((entry) => !entry.value.isDeleted));
-    final persons = Map.fromEntries(appData.persons.entries.where((entry) => !entry.value.isDeleted));
+    final filteredData = context.read<FilteredData>();
+    final ratings = filteredData.ratings;
+    final bikes = filteredData.bikes;
+    final persons = filteredData.persons;
 
-    _setups = List.from(appData.setups.values.where(
-        (s) => !s.isDeleted &&
-                widget.component.adjustments.any((adj) => s.bikeAdjustmentValues.containsKey(adj.id))
+    _setups = List.from(filteredData.setups.values.where(
+        (s) => widget.component.adjustments.any((adj) => s.bikeAdjustmentValues.containsKey(adj.id))
     ).toList().reversed);
     
     for (final adjustment in widget.component.adjustments) {
@@ -180,11 +179,11 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    final appData = context.read<AppData>();
-    final ratings = Map.fromEntries(appData.ratings.entries.where((entry) => !entry.value.isDeleted));
-    final ratingAdjustments = ratings.values.where((r) => !r.isDeleted).expand((rating) => rating.adjustments);
-    final bikes = Map.fromEntries(appData.bikes.entries.where((entry) => !entry.value.isDeleted));
-    final persons = Map.fromEntries(appData.persons.entries.where((entry) => !entry.value.isDeleted));
+    final filteredData = context.watch<FilteredData>();
+    final ratings = filteredData.ratings;
+    final ratingAdjustments = ratings.values.expand((rating) => rating.adjustments);
+    final bikes = filteredData.bikes;
+    final persons = filteredData.persons;
     final personAdjustments = persons[bikes[widget.component.bike]?.person]?.adjustments ?? [];
 
     return Scaffold(

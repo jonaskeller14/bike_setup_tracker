@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/app_data.dart';
+import '../models/filtered_data.dart';
 import '../models/person.dart';
 import '../models/bike.dart';
 import '../models/rating.dart';
@@ -52,10 +52,10 @@ class _RatingListState extends State<RatingList> {
   Widget build(BuildContext context) {
     final visibleItemCount = widget.ratings.length.clamp(0, _maxItemCount);
 
-    final appData = context.watch<AppData>();
-    final persons = Map.fromEntries(appData.persons.entries.where((p) => !p.value.isDeleted));
-    final bikes = Map.fromEntries(appData.bikes.entries.where((b) => !b.value.isDeleted));
-    final components = Map.fromEntries(appData.components.entries.where((entry) => !entry.value.isDeleted));
+    final filteredData = context.watch<FilteredData>();
+    final persons = filteredData.persons;
+    final bikes = filteredData.bikes;
+    final components = filteredData.components;
     
     final List<InkWell> inkWells = <InkWell>[];
     for (int index = 0; index < visibleItemCount; index++) {

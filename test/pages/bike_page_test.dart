@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/models/filtered_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -18,6 +19,10 @@ void main() {
         providers: [
           ChangeNotifierProvider.value(value: appSettings),
           ChangeNotifierProvider.value(value: appData),
+          ChangeNotifierProxyProvider<AppData, FilteredData>(
+            create: (context) => FilteredData(appData),
+            update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
+          ),
         ],
         child: const MaterialApp(home: BikePage()),
       ),
@@ -59,6 +64,10 @@ void main() {
         providers: [
           ChangeNotifierProvider.value(value: appSettings),
           ChangeNotifierProvider.value(value: appData),
+          ChangeNotifierProxyProvider<AppData, FilteredData>(
+            create: (context) => FilteredData(appData),
+            update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
+          ),
         ],
         child: MaterialApp(home: BikePage(bike: Bike(name: "TestBike #1", person: null))),
       ),

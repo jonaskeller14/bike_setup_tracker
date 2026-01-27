@@ -44,7 +44,7 @@ class _ComponentListState extends State<ComponentList> {
     final List<InkWell> inkWells = <InkWell>[];
     for (int index = 0; index < visibleItemCount; index++) {
       final component = widget.components.values.toList()[index];
-      final enabled = widget.setups.values.lastWhereOrNull((s) => !s.isDeleted && s.bike == component.bike) != null;
+      final enabled = widget.setups.values.lastWhereOrNull((s) => s.bike == component.bike) != null;
       inkWells.add(
         InkWell(
           key: ValueKey(component.id),

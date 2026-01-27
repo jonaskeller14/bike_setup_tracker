@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/app_data.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
+import '../models/filtered_data.dart';
 import '../models/person.dart';
 import '../widgets/dialogs/discard_changes.dart';
 
@@ -73,8 +73,8 @@ class _BikePageState extends State<BikePage> {
 
   @override
   Widget build(BuildContext context) {
-    final appData = context.watch<AppData>();
-    final personOptions = Map.fromEntries(appData.persons.entries.where((p) => !p.value.isDeleted));
+    final filteredData = context.read<FilteredData>();
+    final personOptions = filteredData.persons;
 
     return PopScope( 
       canPop: !_formHasChanges,

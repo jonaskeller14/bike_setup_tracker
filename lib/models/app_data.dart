@@ -15,27 +15,11 @@ class AppData extends ChangeNotifier {
   final Map<String, Component> _components = {};
   final Map<String, Rating> _ratings = {};
 
-  Bike? _selectedBike;
-
-  Map<String, Bike> _filteredBikes = {};
-  Map<String, Person> _filteredPersons = {};
-  Map<String, Rating> _filteredRatings = {};
-  Map<String, Component> _filteredComponents = {};
-  Map<String, Setup> _filteredSetups = {};
-
   Map<String, Person> get persons => _persons;
   Map<String, Bike> get bikes => _bikes;
   Map<String, Setup> get setups => _setups;
   Map<String, Component> get components => _components;
   Map<String, Rating> get ratings => _ratings;
-
-  Bike? get selectedBike => _selectedBike;
-
-  Map<String, Bike> get filteredBikes => _filteredBikes;
-  Map<String, Person> get filteredPersons => _filteredPersons;
-  Map<String, Rating> get filteredRatings => _filteredRatings;
-  Map<String, Component> get filteredComponents => _filteredComponents;
-  Map<String, Setup> get filteredSetups => _filteredSetups;
 
   Future<AppData?> load(BuildContext context) async {
     String jsonString = "{}";
@@ -65,15 +49,16 @@ class AppData extends ChangeNotifier {
     }
   }
 
+  void callNotifyListeners() {
+    notifyListeners();
+  }
+
   void _clear() {
     _bikes.clear();
     _persons.clear();
     _components.clear();
     _ratings.clear();
     _setups.clear();
-
-    _selectedBike = null;
-    _filter();
   }
 
   Map<String, dynamic> toJson() => {
@@ -110,81 +95,9 @@ class AppData extends ChangeNotifier {
     return data;
   }
 
-  void filter() {
-    _filter();
-    notifyListeners();
-  }
-
-  void _filter() {
-    _filterBikes();
-    _filterComponents();
-    _filterSetups();
-    _filterPersons();
-    _filterRatings();
-  }
-
-  void _filterBikes() {
-    _filteredBikes = selectedBike == null 
-        ? Map.fromEntries(bikes.entries.where((entry) => !entry.value.isDeleted))
-        : Map.fromEntries(bikes.entries.where((entry) => !entry.value.isDeleted && entry.value == selectedBike));
-  }
-
-  void filterComponents() {
-    _filterComponents();
-    notifyListeners();
-  }
-
-  void _filterComponents() {
-    _filteredComponents = selectedBike == null
-        ? Map.fromEntries(components.entries.where((entry) => !entry.value.isDeleted))
-        : Map.fromEntries(components.entries.where((entry) => !entry.value.isDeleted && entry.value.bike == selectedBike?.id));
-  }
-
-  void _filterSetups() {
-    _filteredSetups = selectedBike == null
-        ? Map.fromEntries(setups.entries.where((entry) => !entry.value.isDeleted))
-        : Map.fromEntries(setups.entries.where((entry) => !entry.value.isDeleted && entry.value.bike == selectedBike?.id));
-  }
-
-  void _filterPersons() {
-    _filteredPersons = _selectedBike == null 
-        ? Map.fromEntries(persons.entries.where((entry) => !entry.value.isDeleted))
-        : Map.fromEntries(persons.entries.where((entry) => !entry.value.isDeleted && entry.value.id == _selectedBike?.person));
-  }
-
-  void _filterRatings() {
-    _filteredRatings = Map.fromEntries(ratings.entries.where((entry) {
-      final rating = entry.value;
-      if (rating.isDeleted) return false;
-
-      switch (rating.filterType) {
-        case FilterType.global: return true;
-        case FilterType.person: return true;
-        case FilterType.bike: return _selectedBike == null ? true : rating.filter == _selectedBike!.id;
-        case FilterType.component: return _selectedBike == null ? true : filteredComponents.values.any((c) => c.id == rating.filter);
-        case FilterType.componentType: return _selectedBike == null ? true : filteredComponents.values.any((c) => c.componentType.toString() == rating.filter);
-      }
-    }));
-  }
-  
-  void onBikeTap(Bike? newBike) {
-    if (newBike == null || selectedBike == newBike) {
-      _selectedBike = null;
-    } else {
-      _selectedBike = newBike;
-    }
-    _filter();
-    notifyListeners();
-  }
-
   void removeBike(Bike bike) {
     bike.isDeleted = true;
     bike.lastModified = DateTime.now();
-    if (bike == selectedBike) {
-      onBikeTap(null);  //_filterBikes(); included
-    } else {
-      _filterBikes();
-    }
     
     notifyListeners();
   }
@@ -192,7 +105,6 @@ class AppData extends ChangeNotifier {
   void restoreBike(Bike bike) {
     bike.isDeleted = false;
     bike.lastModified = DateTime.now();
-    _filterBikes();
 
     notifyListeners();
   }
@@ -202,7 +114,6 @@ class AppData extends ChangeNotifier {
       component.isDeleted = true;
       component.lastModified = DateTime.now();
     }
-    _filterComponents();
 
     notifyListeners();
   }
@@ -212,7 +123,6 @@ class AppData extends ChangeNotifier {
       component.isDeleted = false;
       component.lastModified = DateTime.now();
     }
-    _filterComponents();
 
     notifyListeners();
   }
@@ -224,7 +134,6 @@ class AppData extends ChangeNotifier {
     }
     FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
     FileImport.determinePreviousSetups(setups: _setups.values);
-    _filterSetups();
 
     notifyListeners();
   }
@@ -240,7 +149,6 @@ class AppData extends ChangeNotifier {
     _setups.addEntries(sortedSetupEntries); // not really necessary
     FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
     FileImport.determinePreviousSetups(setups: _setups.values);
-    _filterSetups();
     
     notifyListeners();
   }
@@ -248,7 +156,6 @@ class AppData extends ChangeNotifier {
   void removePerson(Person person) {
     person.isDeleted = true;
     person.lastModified = DateTime.now();
-    _filterPersons();
 
     notifyListeners();
   }
@@ -256,7 +163,6 @@ class AppData extends ChangeNotifier {
   void restorePerson(Person person) {
     person.isDeleted = false;
     person.lastModified = DateTime.now();
-    _filterPersons();
     
     notifyListeners();
   }
@@ -264,7 +170,6 @@ class AppData extends ChangeNotifier {
   void removeRating(Rating rating) {
     rating.isDeleted = true;
     rating.lastModified = DateTime.now();
-    _filterRatings();
 
     notifyListeners();
   }
@@ -272,7 +177,6 @@ class AppData extends ChangeNotifier {
   void restoreRating(Rating rating) {
     rating.isDeleted = false;
     rating.lastModified = DateTime.now();
-    _filterRatings();
 
     notifyListeners();
   }
@@ -280,35 +184,29 @@ class AppData extends ChangeNotifier {
   void addBike(Bike bike) {
     _bikes[bike.id] = bike;
 
-    _filter();
-
     notifyListeners();
   }
 
   void addPerson(Person person) {
     _persons[person.id] = person;
-    _filterPersons();
 
     notifyListeners();
   }
 
   void addRating(Rating rating) {
     _ratings[rating.id] = rating;
-    _filterRatings();
     
     notifyListeners();
   }
 
   void addComponent(Component component) {
     _components[component.id] = component;
-    _filterComponents();
     
     notifyListeners();
   }
 
   void editPerson(Person person) {
     _persons[person.id] = person;
-    _filterPersons();
 
     notifyListeners();
   }
@@ -316,23 +214,17 @@ class AppData extends ChangeNotifier {
   void editBike(Bike bike) {
     _bikes[bike.id] = bike;
 
-    if (bike != selectedBike) _selectedBike = null;
-    _filter();
-
     notifyListeners();
   }
 
   void editComponent(Component component) {
     _components[component.id] = component;
-    
-    _filterComponents();
 
     notifyListeners();
   }
 
   void editRating(Rating rating) {
     _ratings[rating.id] = rating;
-    _filterRatings();
     
     notifyListeners();
   }
@@ -346,7 +238,6 @@ class AppData extends ChangeNotifier {
     FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
     FileImport.determinePreviousSetups(setups: _setups.values);
     FileImport.updateSetupsAfter(setups: _setups.values.toList(), setup: setup);
-    _filterSetups();
 
     notifyListeners();
   }
@@ -360,14 +251,12 @@ class AppData extends ChangeNotifier {
     FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
     FileImport.determinePreviousSetups(setups: _setups.values);
     FileImport.updateSetupsAfter(setups: _setups.values.toList(), setup: setup);
-    _filterSetups();
   
     notifyListeners();
   }
 
-  void reorderRating(int oldIndex, int newIndex) {
+  void reorderRating({required int oldIndex, required int newIndex, required List<Rating> filteredRatingsList}) {
     final ratingsList = ratings.values.toList();
-    final filteredRatingsList = filteredRatings.values.toList();
 
     final ratingToMove = filteredRatingsList[oldIndex];
     oldIndex = ratingsList.indexOf(ratingToMove);
@@ -386,14 +275,12 @@ class AppData extends ChangeNotifier {
 
     _ratings.clear();
     _ratings.addAll({for (var element in ratingsList) element.id : element});
-    _filterRatings();
     
     notifyListeners();
   }
 
-  void reorderPerson(int oldIndex, int newIndex) {
+  void reorderPerson({required int oldIndex, required int newIndex, required List<Person> filteredPersonsList}) {
     final personsList = persons.values.toList();
-    final filteredPersonsList = filteredPersons.values.toList();
 
     final personToMove = filteredPersonsList[oldIndex];
     oldIndex = personsList.indexOf(personToMove);
@@ -412,14 +299,12 @@ class AppData extends ChangeNotifier {
 
     _persons.clear();
     _persons.addAll({for (var element in personsList) element.id : element});
-    _filterPersons();
 
     notifyListeners();
   }
 
-  void reorderComponent(int oldIndex, int newIndex) {
+  void reorderComponent({required int oldIndex, required int newIndex, required List<Component> filteredComponentsList}) {
     final componentsList = components.values.toList();
-    final filteredComponentsList = filteredComponents.values.toList();
 
     final componentToMove = filteredComponentsList[oldIndex];
     oldIndex = componentsList.indexOf(componentToMove);
@@ -438,14 +323,12 @@ class AppData extends ChangeNotifier {
 
     _components.clear();
     _components.addAll({for (var element in componentsList) element.id : element});
-    _filterComponents();
 
     notifyListeners();
   }
 
-  void reorderBike(int oldIndex, int newIndex) {
+  void reorderBike({required int oldIndex, required int newIndex, required List<Bike> filteredBikesList}) {
     final bikesList = bikes.values.toList();
-    final filteredBikesList = bikesList.where((b) => !b.isDeleted).toList();
 
     final bikeToMove = filteredBikesList[oldIndex];
     oldIndex = bikesList.indexOf(bikeToMove);
@@ -464,7 +347,6 @@ class AppData extends ChangeNotifier {
 
     _bikes.clear();
     _bikes.addAll({for (var element in bikesList) element.id : element});
-    _filterBikes();
 
     notifyListeners();
   }
@@ -479,7 +361,6 @@ class AppData extends ChangeNotifier {
     for (final setup in _setups.values) {
       FileImport.updateSetupsAfter(setups: _setups.values.toList(), setup: setup);
     }
-    _filter();
 
     notifyListeners();
   }

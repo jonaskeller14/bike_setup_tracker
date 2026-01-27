@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/app_data.dart';
 import '../models/app_settings.dart';
+import '../models/filtered_data.dart';
 import '../models/rating.dart';
 import '../models/component.dart';
 import '../models/bike.dart';
@@ -308,11 +308,11 @@ class _RatingPageState extends State<RatingPage> {
 
   @override
   Widget build(BuildContext context) {
-    final appData = context.watch<AppData>();
-    final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
-    final bikeOptions = appData.filteredBikes;
-    final personOptions = appData.filteredPersons;
-    final componentOptions = appData.filteredComponents;
+    final filteredData = context.watch<FilteredData>();
+    final bikes = filteredData.bikes;
+    final bikeOptions = filteredData.filteredBikes;
+    final personOptions = filteredData.filteredPersons;
+    final componentOptions = filteredData.filteredComponents;
 
     return PopScope( 
       canPop: !_formHasChanges,

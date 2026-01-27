@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:provider/provider.dart';
-import '../models/app_data.dart';
+import '../models/filtered_data.dart';
 import '../models/weather.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
@@ -93,9 +93,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _currentPlace.value = widget.setup?.place;
     _currentWeather.value = widget.setup?.weather;
 
-    final appData = context.read<AppData>();
-    final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
-    _initialBike = widget.setup?.bike ?? appData.filteredBikes.keys.first;
+    final filteredData = context.read<FilteredData>();
+    final bikes = filteredData.bikes;
+    _initialBike = widget.setup?.bike ?? filteredData.filteredBikes.keys.first;
     _initialPerson = (widget.setup?.person ?? bikes[_initialBike]?.person);
 
     _onBikeChange(_initialBike);
@@ -180,8 +180,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     }
 
 
-    final appData = context.read<AppData>();
-    final persons = Map.fromEntries(appData.persons.entries.where((e) => !e.value.isDeleted));
+    final filteredData = context.read<FilteredData>();
+    final persons = filteredData.persons;
     _danglingPersonAdjustmentValues.clear();
     _danglingPersonAdjustmentValues.addAll(_personAdjustmentValues);
     for (final personAdj in persons[_person]?.adjustments ?? []) {
@@ -194,8 +194,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   void _setFilteredRatings() {
-    final appData = context.read<AppData>();
-    final ratings = Map.fromEntries(appData.ratings.entries.where((e) => !e.value.isDeleted));
+    final filteredData = context.read<FilteredData>();
+    final ratings = filteredData.ratings;
 
     _filteredRatings.clear();
     for (final rating in ratings.values) {
@@ -216,9 +216,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   void _onBikeChange (String? newBike) {
     if (newBike == null) return;
-    final appData = context.read<AppData>();
-    final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
-    final components = Map.fromEntries(appData.components.entries.where((e) => !e.value.isDeleted));
+    final filteredData = context.read<FilteredData>();
+    final bikes = filteredData.bikes;
+    final components = filteredData.components;
 
     setState(() {
       _bike = newBike;
@@ -809,11 +809,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    final appData = context.watch<AppData>();
-    final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
-    final bikeOptions = appData.filteredBikes;
-    final persons = Map.fromEntries(appData.persons.entries.where((e) => !e.value.isDeleted));
-    final components = Map.fromEntries(appData.components.entries.where((e) => !e.value.isDeleted));
+    final filteredData = context.watch<FilteredData>();
+    final bikes = filteredData.bikes;
+    final bikeOptions = filteredData.filteredBikes;
+    final persons = filteredData.persons;
+    final components = filteredData.components;
 
     return PopScope(
       canPop: !_formHasChanges,

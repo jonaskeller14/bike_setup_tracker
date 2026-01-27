@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_icons/weather_icons.dart';
-import '../models/app_data.dart';
 import '../models/app_settings.dart';
+import '../models/filtered_data.dart';
 import '../models/setup.dart';
 import '../models/person.dart';
 import '../models/component.dart';
@@ -110,13 +110,13 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.read<AppSettings>();
-    final appData = context.watch<AppData>();
-    final bikes = Map.fromEntries(appData.bikes.entries.where((e) => !e.value.isDeleted));
-    final persons = Map.fromEntries(appData.persons.entries.where((e) => !e.value.isDeleted));
-    final ratings = Map.fromEntries(appData.ratings.entries.where((e) => !e.value.isDeleted));
-    final components = Map.fromEntries(appData.components.entries.where((e) => !e.value.isDeleted));
+    final filteredData = context.watch<FilteredData>();
+    final bikes = filteredData.bikes;
+    final persons = filteredData.persons;
+    final ratings = filteredData.ratings;
+    final components = filteredData.components;
 
-    final List<Setup?> setups = widget.setupIds.map((setupId) => appData.setups[setupId]).toList();
+    final List<Setup?> setups = widget.setupIds.map((setupId) => filteredData.setups[setupId]).toList();
 
     return Scaffold(
       appBar: AppBar(

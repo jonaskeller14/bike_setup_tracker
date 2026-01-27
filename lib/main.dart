@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'models/app_settings.dart';
 import 'models/app_data.dart';
+import 'models/filtered_data.dart';
 import 'pages/onboarding_page.dart';
 import 'pages/home_page.dart';
 
@@ -81,6 +82,10 @@ class LoadingGate extends StatelessWidget {
             providers: [
               ChangeNotifierProvider.value(value: appSettings),
               ChangeNotifierProvider.value(value: appData),
+              ChangeNotifierProxyProvider<AppData, FilteredData>(
+                create: (context) => FilteredData(appData),
+                update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
+              ),
             ],
             child: const BikeSetupTrackerApp(),
           );

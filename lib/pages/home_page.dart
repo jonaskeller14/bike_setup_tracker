@@ -9,6 +9,7 @@ import '../models/setup.dart';
 import '../models/component.dart';
 import '../models/app_settings.dart';
 import '../models/app_data.dart';
+import '../models/filtered_data.dart';
 import '../widgets/sheets/setup_list_values_filter.dart';
 import 'bike_page.dart';
 import 'component_page.dart';
@@ -65,15 +66,9 @@ class _HomePageState extends State<HomePage> {
 
       _googleDriveService = GoogleDriveService(
         getDataToUpload: () => data.toJson(),
-        onDataDownloaded: (AppData remoteData) {
-          FileImport.merge(remoteData: remoteData, localData: data);
-          if (!data.bikes.values.contains(data.selectedBike)) data.onBikeTap(null);
-        },
+        onDataDownloaded: (AppData remoteData) => FileImport.merge(remoteData: remoteData, localData: data),
       );
       if (settings.enableGoogleDrive) _googleDriveService.silentSetup();
-
-      data.onBikeTap(null);
-      data.filter();
 
       FileImport.cleanupIsDeleted(data: data);
       FileExport.saveData(data: data);
@@ -117,7 +112,6 @@ class _HomePageState extends State<HomePage> {
     switch (mergeOverwriteChoice) {
       case ImportMergeOverwriteSheetOptions.overwrite:
         FileImport.overwrite(remoteData: remoteData, localData: data);
-        data.onBikeTap(null);
       case ImportMergeOverwriteSheetOptions.merge:
         FileImport.merge(remoteData: remoteData, localData: data);
       case null:
@@ -180,9 +174,10 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> removeBike(Bike bike) async {
     final data = context.read<AppData>();
+    final filteredData = context.read<FilteredData>();
 
-    final obsoleteComponents = data.components.values.where((c) => !c.isDeleted && c.bike == bike.id).toList();
-    final obsoleteSetups = data.setups.values.where((s) => !s.isDeleted && s.bike == bike.id).toList();
+    final obsoleteComponents = filteredData.components.values.where((c) => c.bike == bike.id).toList();
+    final obsoleteSetups = filteredData.setups.values.where((s) => s.bike == bike.id).toList();
 
     data.removeBike(bike);
     data.removeComponents(obsoleteComponents);
@@ -380,8 +375,8 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _addComponent() async {
     final data = context.read<AppData>();
-    
-    if (data.filteredBikes.isEmpty) {
+    final filteredData = context.read<FilteredData>();
+    if (filteredData.filteredBikes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true,
@@ -465,7 +460,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
     if (editedComponent == null) {
-      data.filterComponents();
+      data.callNotifyListeners();
       return;
     }
 
@@ -504,7 +499,8 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> onReorderComponents(int oldIndex, int newIndex) async {
     final data = context.read<AppData>();
-    data.reorderComponent(oldIndex, newIndex);
+    final filteredData = context.read<FilteredData>();
+    data.reorderComponent(oldIndex: oldIndex, newIndex: newIndex, filteredComponentsList: filteredData.filteredComponents.values.toList());
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
@@ -512,7 +508,8 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> onReorderBikes(int oldIndex, int newIndex) async {
     final data = context.read<AppData>();
-    data.reorderBike(oldIndex, newIndex);
+    final filteredData = context.read<FilteredData>();
+    data.reorderBike(oldIndex: oldIndex, newIndex: newIndex, filteredBikesList: filteredData.bikes.values.toList());
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
@@ -520,7 +517,8 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _onReorderPerson(int oldIndex, int newIndex) async {
     final data = context.read<AppData>();
-    data.reorderPerson(oldIndex, newIndex);
+    final filteredData = context.read<FilteredData>();
+    data.reorderPerson(oldIndex: oldIndex, newIndex: newIndex, filteredPersonsList: filteredData.filteredPersons.values.toList());
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
@@ -528,7 +526,8 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _onReorderRating(int oldIndex, int newIndex) async {
     final data = context.read<AppData>();
-    data.reorderRating(oldIndex, newIndex);
+    final filteredData = context.read<FilteredData>();
+    data.reorderRating(oldIndex: oldIndex, newIndex: newIndex, filteredRatingsList: filteredData.filteredRatings.values.toList());
     FileExport.saveData(data: data);
     FileExport.saveBackup(data: data);
     if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
@@ -536,8 +535,9 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _addSetup() async {
     final data = context.read<AppData>();
+    final filteredData = context.read<FilteredData>();
 
-    if (data.bikes.values.where((b) => !b.isDeleted).isEmpty) {
+    if (filteredData.bikes.values.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true, 
@@ -547,7 +547,7 @@ class _HomePageState extends State<HomePage> {
       ));
       return;
     }
-    if (data.components.values.where((c) => !c.isDeleted).isEmpty) {
+    if (filteredData.components.values.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true, 
@@ -605,35 +605,34 @@ class _HomePageState extends State<HomePage> {
   }
 
   Setup? getPreviousSetupbyDateTime({required DateTime datetime, String? bike, String? person}) {
-    final data = context.read<AppData>();
-
-    return data.setups.values.lastWhereOrNull((s) => !s.isDeleted && s.datetime.isBefore(datetime) && (bike == null || s.bike == bike) && (person == null || s.person == person));
+    final filteredData = context.read<FilteredData>();
+    return filteredData.setups.values.lastWhereOrNull((s) => s.datetime.isBefore(datetime) && (bike == null || s.bike == bike) && (person == null || s.person == person));
   }
 
   FilterChip _bikeFilterWidget() {
-    final data = context.watch<AppData>();
+    final filteredData = context.watch<FilteredData>();
 
     return FilterChip(
       avatar: const Icon(Bike.iconData),
-      label: data.selectedBike == null ? const Text("All Bikes") : Text(data.selectedBike!.name),
-      selected: data.selectedBike != null,
+      label: filteredData.selectedBike == null ? const Text("All Bikes") : Text(filteredData.selectedBike!.name),
+      selected: filteredData.selectedBike != null,
       showCheckmark: false,
       onSelected: (bool newValue) async {
         final List<Bike>? newSelectedBikes = await showBikeFilterSheet(
           context: context,
-          bikes: data.bikes.values.where((b) => !b.isDeleted),
-          selectedBike: data.selectedBike,
+          bikes: filteredData.bikes.values,
+          selectedBike: filteredData.selectedBike,
         );
         if (newSelectedBikes == null) return;
         if (newSelectedBikes.isEmpty) {
-          data.onBikeTap(null);
-        } else if (newSelectedBikes[0] != data.selectedBike) {
-          data.onBikeTap(newSelectedBikes[0]);
+          filteredData.onBikeTap(null);
+        } else if (newSelectedBikes[0] != filteredData.selectedBike) {
+          filteredData.onBikeTap(newSelectedBikes[0]);
         }
       },
-      onDeleted: data.selectedBike == null 
+      onDeleted: filteredData.selectedBike == null 
           ? null 
-          : () => data.onBikeTap(null),
+          : () => filteredData.onBikeTap(null),
     );
   }
 
@@ -713,11 +712,11 @@ class _HomePageState extends State<HomePage> {
         );
       },
       suggestionsBuilder: (context, controller) {
-        final data = context.read<AppData>();
+        final filteredData = context.read<FilteredData>();
         final controllerText = controller.text.trim().toLowerCase();
         final Iterable<Setup> setups = _setupListSortAccending
-            ? data.filteredSetups.values
-            : data.filteredSetups.values.toList().reversed;
+            ? filteredData.filteredSetups.values
+            : filteredData.filteredSetups.values.toList().reversed;
         final Iterable<Setup> suggestedSetups = setups.where((s) {
           return s.name.toLowerCase().contains(controllerText) || 
               (s.notes ?? "").toLowerCase().contains(controllerText);
@@ -820,6 +819,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final data = context.watch<AppData>();
+    final filteredData = context.read<FilteredData>();
     return Scaffold(
       appBar: AppBar(
         leading: Padding(
@@ -959,7 +959,7 @@ class _HomePageState extends State<HomePage> {
           });
         },
         destinations: <Widget>[
-          NavigationDestination(icon: Badge(isLabelVisible: data.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: const Icon(Bike.iconData)), label: 'Bikes'),
+          NavigationDestination(icon: Badge(isLabelVisible: filteredData.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: const Icon(Bike.iconData)), label: 'Bikes'),
           const NavigationDestination(icon: Icon(Component.iconData), label: 'Components'),
           const NavigationDestination(icon: Icon(Setup.iconData), label: 'Setups'),
           if (appSettings.enablePerson)
@@ -970,18 +970,18 @@ class _HomePageState extends State<HomePage> {
       ),
       body: <Widget>[
         BikeList(
-          bikes: data.bikes.values.where((bike) => !bike.isDeleted).toList(), //include bikes which are not filtered for
-          selectedBike: data.selectedBike,
-          onBikeTap: data.onBikeTap,
+          bikes: filteredData.bikes.values.toList(), //include bikes which are not filtered for
+          selectedBike: filteredData.selectedBike,
+          onBikeTap: filteredData.onBikeTap,
           editBike: editBike,
           removeBike: removeBike,
           onReorderBikes: onReorderBikes,
           filterWidget: _bikeListFilterWidget(),
         ),
         ComponentList(
-          bikes: data.filteredBikes,
-          components: data.filteredComponents,
-          setups: data.setups,
+          bikes: filteredData.bikes,
+          components: filteredData.filteredComponents,
+          setups: filteredData.setups,
           editComponent: editComponent,
           duplicateComponent: duplicateComponent,
           removeComponent: removeComponent,
@@ -989,7 +989,7 @@ class _HomePageState extends State<HomePage> {
           filterWidget: _componentListFilterWidget(),
         ),
         SetupList(
-          setups: data.filteredSetups,
+          setups: filteredData.filteredSetups,
           editSetup: editSetup,
           restoreSetup: duplicateSetup,
           removeSetup: removeSetup,
@@ -1002,9 +1002,9 @@ class _HomePageState extends State<HomePage> {
         ),
         if (context.read<AppSettings>().enablePerson)
           PersonList(
-            bikes: Map.fromEntries(data.bikes.entries.where((entry) => !entry.value.isDeleted)),
-            persons: data.filteredPersons,
-            setups: Map.fromEntries(data.setups.entries.where((s) => !s.value.isDeleted)),
+            bikes: filteredData.bikes,
+            persons: filteredData.filteredPersons,
+            setups: filteredData.setups,
             editPerson: _editPerson,
             duplicatePerson: _duplicatePerson,
             removePerson: _removePerson,
@@ -1013,7 +1013,7 @@ class _HomePageState extends State<HomePage> {
           ),
         if (context.read<AppSettings>().enableRating)
           RatingList(
-            ratings: data.filteredRatings,
+            ratings: filteredData.filteredRatings,
             editRating: _editRating,
             duplicateRating: _duplicateRating,
             removeRating: _removeRating,

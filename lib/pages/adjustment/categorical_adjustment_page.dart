@@ -26,7 +26,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
     unit: null,
     options: {},
   );
-  
+
   @override
   void initState() {
     super.initState();
@@ -160,7 +160,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       Navigator.pop(context, widget.adjustment);
     }
   }
-  
+
   void _handlePopInvoked(bool didPop, dynamic result) async {
     if (didPop) return;
     if (!_formHasChanges) return;
@@ -169,12 +169,12 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
     if (!shouldDiscard) return;
     Navigator.of(context).pop(null);
   }
-  
+
   String? _validateName(String? value) {
     if (value == null || value.trim().isEmpty) return 'Name is required';
     return null;
   }
-    
+
   @override
   Widget build(BuildContext context) {
     return PopScope( 
@@ -200,6 +200,16 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                       children: [
                         TextFormField(
                           controller: _nameController,
+                          onChanged: (String newValue) {
+                            setState(() {
+                              _previewAdjustment = CategoricalAdjustment(
+                                name: newValue,
+                                notes: _previewAdjustment.notes,
+                                unit: null,
+                                options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
+                              );
+                            });
+                          },
                           textInputAction: TextInputAction.next,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           autofocus: widget.adjustment == null,
@@ -211,16 +221,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                             filled: widget.adjustment != null && _nameController.text.trim() != widget.adjustment?.name,
                           ),
                           validator: _validateName,
-                          onChanged: (String value) {
-                            setState(() {
-                              _previewAdjustment = CategoricalAdjustment(
-                                name: _nameController.text.trim(),
-                                notes: _previewAdjustment.notes,
-                                unit: null, 
-                                options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
-                              );
-                            });
-                          },
+                          
                         ),
                         const SizedBox(height: 16),
                         Row(
@@ -339,49 +340,56 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                 ),
               ),
             ),
-           Stack(
-              children: [
-                Container(
-                  padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
-                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
-                  child: Card(
-                    child: SetCategoricalAdjustmentWidget(
-                      key: ValueKey(_previewAdjustment),
-                      adjustment: _previewAdjustment,
-                      initialValue: null,
-                      value: _previewValue,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          _previewValue = newValue;
-                        });
-                      },
-                      highlighting: false,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: -1, 
-                  left: -1, 
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      borderRadius: BorderRadius.only(
-                        bottomRight: const Radius.circular(6),
-                      ),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                    child: Text(
-                      'Preview only — changes won’t be saved',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.sizeOf(context).height * 0.5,
+              ),
+              child: Stack(
+                children: [
+                  Container(
+                    padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
+                    decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
+                    child: SingleChildScrollView(
+                      child: Card(
+                        child: SetCategoricalAdjustmentWidget(
+                          key: ValueKey(_previewAdjustment),
+                          adjustment: _previewAdjustment,
+                          initialValue: null,
+                          value: _previewValue,
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              _previewValue = newValue;
+                            });
+                          },
+                          highlighting: false,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ), 
+                  Positioned(
+                    top: -1, 
+                    left: -1, 
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.only(
+                          bottomRight: const Radius.circular(6),
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                      child: Text(
+                        'Preview only — changes won’t be saved',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

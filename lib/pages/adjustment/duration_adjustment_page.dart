@@ -23,7 +23,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
     notes: null,
     unit: null,
   );
-  
+
   @override
   void initState() {
     super.initState();
@@ -61,7 +61,6 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
 
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
-
     _formHasChanges = false;
     if (!mounted) return;
     if (widget.adjustment == null) {
@@ -75,6 +74,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
     } else {
       widget.adjustment!.name = name;
       widget.adjustment!.notes = notes.isEmpty ? null : notes;
+      widget.adjustment!.unit = null;
       Navigator.pop(context, widget.adjustment);
     }
   }
@@ -118,7 +118,19 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                       children: [
                         TextFormField(
                           controller: _nameController,
+                          onChanged: (String newValue) {
+                            setState(() {
+                              _previewAdjustment = DurationAdjustment(
+                                name: newValue,
+                                notes: _previewAdjustment.notes,
+                                unit: _previewAdjustment.unit,
+                                min: _previewAdjustment.min,
+                                max: _previewAdjustment.max,
+                              );
+                            });
+                          },
                           textInputAction: TextInputAction.next,
+                          onFieldSubmitted: (_) => _saveDurationAdjustment(),
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           autofocus: widget.adjustment == null,
                           decoration: InputDecoration(
@@ -129,17 +141,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                             filled: widget.adjustment != null && _nameController.text.trim() != widget.adjustment?.name,
                           ),
                           validator: _validateName,
-                          onChanged: (String value) {
-                            setState(() {
-                              _previewAdjustment = DurationAdjustment(
-                                name: _nameController.text.trim(),
-                                notes: _previewAdjustment.notes,
-                                unit: _previewAdjustment.unit,
-                                min: _previewAdjustment.min,
-                                max: _previewAdjustment.max,
-                              );
-                            });
-                          },
+                          
                         ),
                         const SizedBox(height: 12),
                         TextFormField(
@@ -172,48 +174,55 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                 ),
               ),
             ),
-            Stack(
-              children: [
-                Container(
-                  padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
-                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
-                  child: Card(
-                    child: SetDurationAdjustmentWidget(
-                      key: ValueKey(_previewAdjustment),
-                      adjustment: _previewAdjustment,
-                      initialValue: Duration.zero,
-                      value: _previewValue,
-                      onChanged: (Duration? newValue) {
-                        setState(() {
-                          _previewValue = newValue ?? Duration.zero;
-                        });
-                      },
-                      highlighting: false,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: -1, 
-                  left: -1, 
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      borderRadius: BorderRadius.only(
-                        bottomRight: const Radius.circular(6),
-                      ),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                    child: Text(
-                      'Preview only — changes won’t be saved',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.sizeOf(context).height * 0.5,
+              ),
+              child: Stack(
+                children: [
+                  Container(
+                    padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
+                    decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
+                    child: SingleChildScrollView(
+                      child: Card(
+                        child: SetDurationAdjustmentWidget(
+                          key: ValueKey(_previewAdjustment),
+                          adjustment: _previewAdjustment,
+                          initialValue: Duration.zero,
+                          value: _previewValue,
+                          onChanged: (Duration? newValue) {
+                            setState(() {
+                              _previewValue = newValue ?? Duration.zero;
+                            });
+                          },
+                          highlighting: false,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  Positioned(
+                    top: -1, 
+                    left: -1, 
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.only(
+                          bottomRight: const Radius.circular(6),
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                      child: Text(
+                        'Preview only — changes won’t be saved',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

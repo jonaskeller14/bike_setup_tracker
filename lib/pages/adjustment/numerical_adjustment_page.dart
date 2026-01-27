@@ -1,5 +1,5 @@
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_numerical_adjustment.dart';
@@ -28,7 +28,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     notes: null,
     unit: null,
   );
-  
+
   @override
   void initState() {
     super.initState();
@@ -45,7 +45,6 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
 
     if (widget.adjustment != null) {
       _previewAdjustment = widget.adjustment!;
-      
       _expanded = true;
     }
   }
@@ -166,7 +165,19 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                       children: [
                         TextFormField(
                           controller: _nameController,
+                          onChanged: (String newValue) {
+                            setState(() {
+                              _previewAdjustment = NumericalAdjustment(
+                                name: newValue,
+                                notes: _previewAdjustment.notes,
+                                unit: _unitController.text.trim(),
+                                min: double.tryParse(_minController.text.trim()),
+                                max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
+                              );
+                            });
+                          },
                           textInputAction: TextInputAction.next,
+                          onFieldSubmitted: (_) => _saveNumericalAdjustment(),
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           autofocus: widget.adjustment == null,
                           decoration: InputDecoration(
@@ -177,17 +188,6 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             filled: widget.adjustment != null && _nameController.text.trim() != widget.adjustment?.name,
                           ),
                           validator: _validateName,
-                          onChanged: (String value) {
-                            setState(() {
-                              _previewAdjustment = NumericalAdjustment(
-                                name: _nameController.text.trim(),
-                                notes: _previewAdjustment.notes,
-                                unit: _unitController.text.trim(),
-                                min: double.tryParse(_minController.text.trim()),
-                                max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
-                              );
-                            });
-                          },
                         ),
                         const SizedBox(height: 12),
                         TextFormField(
@@ -316,55 +316,62 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                               filled: widget.adjustment != null && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
                             ),
                           ),
-                        ]
+                        ],
                       ],
                     ),
                   ),
                 ),
               ),
             ),
-            Stack(
-              children: [
-                Container(
-                  padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
-                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
-                  child: Card(
-                    child: SetNumericalAdjustmentWidget(
-                      key: ValueKey(_previewAdjustment),
-                      adjustment: _previewAdjustment,
-                      initialValue: null,
-                      value: _previewValue,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          _previewValue = newValue;
-                        });
-                      },
-                      highlighting: false,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: -1, 
-                  left: -1, 
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      borderRadius: BorderRadius.only(
-                        bottomRight: const Radius.circular(6),
-                      ),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                    child: Text(
-                      'Preview only — changes won’t be saved',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.sizeOf(context).height * 0.5,
+              ),
+              child: Stack(
+                children: [
+                  Container(
+                    padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
+                    decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
+                    child: SingleChildScrollView(
+                      child: Card(
+                        child: SetNumericalAdjustmentWidget(
+                          key: ValueKey(_previewAdjustment),
+                          adjustment: _previewAdjustment,
+                          initialValue: null,
+                          value: _previewValue,
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              _previewValue = newValue;
+                            });
+                          },
+                          highlighting: false,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  Positioned(
+                    top: -1, 
+                    left: -1, 
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.only(
+                          bottomRight: const Radius.circular(6),
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                      child: Text(
+                        'Preview only — changes won’t be saved',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

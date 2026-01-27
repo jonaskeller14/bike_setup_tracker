@@ -1,6 +1,6 @@
 import 'dart:math' as math;
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_step_adjustment.dart';
@@ -57,7 +57,6 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     if (widget.adjustment != null) {
       _previewAdjustment = widget.adjustment!;
       _previewValue = _previewAdjustment.min.toDouble();
-
       _expanded = true;
     }
   }
@@ -416,57 +415,64 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               filled: widget.adjustment != null && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
                             ),
                           ),
-                        ]
+                        ],
                       ],
                     ),
                   ),
                 ),
               ),
             ),
-            Stack(
-              children: [
-                Container(
-                  padding: EdgeInsetsGeometry.fromLTRB(16, 48, 16, 16),
-                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
-                  child: Card(
-                    child: SetStepAdjustmentWidget(
-                      key: ValueKey(_previewAdjustment),
-                      adjustment: _previewAdjustment,
-                      initialValue: 0.0,
-                      value: _previewValue,
-                      onChanged: (double? newValue) {
-                        HapticFeedback.lightImpact();
-                        setState(() {
-                          _previewValue = newValue ?? _previewAdjustment.min.toDouble();
-                        });
-                      },
-                      onChangedEnd: (_) => {},
-                      highlighting: false,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: -1, 
-                  left: -1, 
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      borderRadius: BorderRadius.only(
-                        bottomRight: const Radius.circular(6),
-                      ),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                    child: Text(
-                      'Preview only — changes won’t be saved',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.sizeOf(context).height * 0.5,
+              ),
+              child: Stack(
+                children: [
+                  Container(
+                    padding: EdgeInsetsGeometry.fromLTRB(16, 48, 16, 16),
+                    decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
+                    child: SingleChildScrollView(
+                      child: Card(
+                        child: SetStepAdjustmentWidget(
+                          key: ValueKey(_previewAdjustment),
+                          adjustment: _previewAdjustment,
+                          initialValue: 0.0,
+                          value: _previewValue,
+                          onChanged: (double? newValue) {
+                            HapticFeedback.lightImpact();
+                            setState(() {
+                              _previewValue = newValue ?? _previewAdjustment.min.toDouble();
+                            });
+                          },
+                          onChangedEnd: (_) => {},
+                          highlighting: false,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  Positioned(
+                    top: -1, 
+                    left: -1, 
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.only(
+                          bottomRight: const Radius.circular(6),
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                      child: Text(
+                        'Preview only — changes won’t be saved',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

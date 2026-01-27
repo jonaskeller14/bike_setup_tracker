@@ -119,15 +119,16 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                       children: [
                         TextFormField(
                           controller: _nameController,
-                          onChanged: (String? value) {
+                          onChanged: (String newValue) {
                             setState(() {
                               _previewAdjustment = BooleanAdjustment(
-                                name: value ?? '',
+                                name: newValue,
                                 notes: _previewAdjustment.notes,
-                                unit: null
+                                unit: null,
                               );
                             });
                           },
+                          textInputAction: TextInputAction.next,
                           onFieldSubmitted: (_) => _saveBooleanAdjustment(),
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           autofocus: widget.adjustment == null,
@@ -186,49 +187,56 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                 ),
               ),
             ),
-            Stack(
-              children: [
-                Container(
-                  padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
-                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
-                  child: Card(
-                    child: SetBooleanAdjustmentWidget(
-                      key: ValueKey(_previewAdjustment),
-                      adjustment: _previewAdjustment,
-                      initialValue: false, 
-                      value: _previewValue, 
-                      onChanged: (bool? newValue) {
-                        HapticFeedback.lightImpact();
-                        setState(() {
-                          _previewValue = newValue ?? false;
-                        });
-                      },
-                      highlighting: false,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: -1, 
-                  left: -1, 
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      borderRadius: BorderRadius.only(
-                        bottomRight: const Radius.circular(6),
-                      ),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                    child: Text(
-                      'Preview only — changes won’t be saved',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.sizeOf(context).height * 0.5,
+              ),
+              child: Stack(
+                children: [
+                  Container(
+                    padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
+                    decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
+                    child: SingleChildScrollView(
+                      child: Card(
+                        child: SetBooleanAdjustmentWidget(
+                          key: ValueKey(_previewAdjustment),
+                          adjustment: _previewAdjustment,
+                          initialValue: false,
+                          value: _previewValue,
+                          onChanged: (bool? newValue) {
+                            HapticFeedback.lightImpact();
+                            setState(() {
+                              _previewValue = newValue ?? false;
+                            });
+                          },
+                          highlighting: false,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  Positioned(
+                    top: -1, 
+                    left: -1, 
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.only(
+                          bottomRight: const Radius.circular(6),
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                      child: Text(
+                        'Preview only — changes won’t be saved',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

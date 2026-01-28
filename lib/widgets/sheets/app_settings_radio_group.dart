@@ -21,8 +21,8 @@ Future<void> appSettingsRadioGroupSheet<T>({
           onChanged: onChanged,
           child: SafeArea(
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -45,6 +45,7 @@ Future<void> appSettingsRadioGroupSheet<T>({
                 Flexible(
                   child: SingleChildScrollView(
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (contentWidget != null)

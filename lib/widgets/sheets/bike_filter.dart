@@ -11,24 +11,25 @@ Future<List<Bike>?> showBikeFilterSheet({required BuildContext context, required
     builder: (context) {
       return StatefulBuilder(
         builder: (context, setSheetState) {
-          return SingleChildScrollView(
-            child: SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        sheetTitle(context, 'Bike Filter'),
-                        sheetCloseButton(context),
-                      ],
-                    ),
+          return SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      sheetTitle(context, 'Bike Filter'),
+                      sheetCloseButton(context),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),
+                ),
+                const SizedBox(height: 16),
+                Flexible(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Wrap(
                       spacing: 6,
                       children: bikes.map((bike) => FilterChip(
@@ -47,22 +48,18 @@ Future<List<Bike>?> showBikeFilterSheet({required BuildContext context, required
                             : null,
                       )).toList(),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        onPressed: () {
-                          Navigator.pop(context, selectedBike == null ? <Bike>[] : <Bike>[selectedBike!]);
-                        },
-                        child: const Text("Confirm Selection"),
-                      ),
-                    ),
                   )
-                ],
-              ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () => Navigator.pop(context, selectedBike == null ? <Bike>[] : <Bike>[selectedBike!]),
+                    child: const Text("Confirm Selection"),
+                  ),
+                ),
+              ],
             ),
           );
         },

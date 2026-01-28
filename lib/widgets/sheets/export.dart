@@ -16,46 +16,55 @@ Future<ExportSheetOptions?> showExportSheet({required BuildContext context}) asy
     showDragHandle: true,
     isScrollControlled: true,
     context: context, 
-    builder: (context) {
-      return SingleChildScrollView(
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    builder: (BuildContext context) {
+      return SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  sheetTitle(context, 'Export Data'),
+                  sheetCloseButton(context),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    sheetTitle(context, 'Export Data'),
-                    sheetCloseButton(context),
+                    ListTile(
+                      leading: Icon(Icons.insert_drive_file, color: Theme.of(context).colorScheme.primary),
+                      title: const Text("Download File"),
+                      subtitle: const Text("Download json file containing the data"),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                      onTap: () => Navigator.pop(context, ExportSheetOptions.file),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.file_present_sharp, color: Theme.of(context).colorScheme.primary),
+                      title: const Text("Save Backup"),
+                      subtitle: const Text("Save current state as a local backup"),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                      onTap: () => Navigator.pop(context, ExportSheetOptions.backup),
+                    ),
+                    if (context.read<AppSettings>().enableGoogleDrive)
+                      ListTile(
+                        leading: Icon(SimpleIcons.googledrive, color: Theme.of(context).colorScheme.primary),
+                        title: const Text("Save Google Drive Backup"),
+                        subtitle: const Text("Save current state as Backup in Google Drive"),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                        onTap: () => Navigator.pop(context, ExportSheetOptions.googleDriveBackup),
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-              ListTile(
-                leading: Icon(Icons.insert_drive_file, color: Theme.of(context).colorScheme.primary),
-                title: const Text("Download File"),
-                subtitle: const Text("Download json file containing the data"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => Navigator.pop(context, ExportSheetOptions.file),
-              ),
-              ListTile(
-                leading: Icon(Icons.file_present_sharp, color: Theme.of(context).colorScheme.primary),
-                title: const Text("Save Backup"),
-                subtitle: const Text("Save current state as a local backup"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => Navigator.pop(context, ExportSheetOptions.backup),
-              ),
-              if (context.read<AppSettings>().enableGoogleDrive)
-                ListTile(
-                  leading: Icon(SimpleIcons.googledrive, color: Theme.of(context).colorScheme.primary),
-                  title: const Text("Save Google Drive Backup"),
-                  subtitle: const Text("Save current state as Backup in Google Drive"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => Navigator.pop(context, ExportSheetOptions.googleDriveBackup),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     },

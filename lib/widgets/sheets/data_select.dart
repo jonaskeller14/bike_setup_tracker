@@ -16,37 +16,45 @@ Future<AppData?> showDataSelectSheet({required BuildContext context, required Ap
     isScrollControlled: true,
     context: context, 
     builder: (BuildContext context) {
-      return SingleChildScrollView(
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      return SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  sheetTitle(context, 'Select Data'),
+                  sheetCloseButton(context),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    sheetTitle(context, 'Select Data'),
-                    sheetCloseButton(context),
+                    ListTile(
+                      leading: Icon(Icons.select_all, color: Theme.of(context).colorScheme.primary),
+                      title: const Text("Entire dataset"),
+                      subtitle: const Text("Use all items from the provided data"),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                      onTap: () => Navigator.pop(context, false),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.list_alt, color: Theme.of(context).colorScheme.primary),
+                      title: const Text("Choose specific items"),
+                      subtitle: const Text("Pick which items to include"),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                      onTap: () => Navigator.pop(context, true),
+                    ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 16),
-              ListTile(
-                leading: Icon(Icons.select_all, color: Theme.of(context).colorScheme.primary),
-                title: const Text("Entire dataset"),
-                subtitle: const Text("Use all items from the provided data"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => Navigator.pop(context, false),
-              ),
-              ListTile(
-                leading: Icon(Icons.list_alt, color: Theme.of(context).colorScheme.primary),
-                title: const Text("Choose specific items"),
-                subtitle: const Text("Pick which items to include"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => Navigator.pop(context, true),
-              ),
-            ],
-          ),
+              )
+            ),
+          ],
         ),
       );
     },

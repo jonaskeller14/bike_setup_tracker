@@ -35,8 +35,7 @@ class GoogleDriveService extends ChangeNotifier {
 
   DateTime? lastSync;
   Timer? _syncTimer;
-  final Duration _syncMinTimeGap = const Duration(minutes: 5);
-  final Duration _syncDebounceDuration = const Duration(seconds: 3);
+  final Duration _syncDebounceDuration = const Duration(seconds: 10);
 
   bool get isSignedIn => _currentUser != null;
   String? get displayName => _currentUser?.displayName;
@@ -94,8 +93,7 @@ class GoogleDriveService extends ChangeNotifier {
     _errorMessage = '';
 
     notifyListeners();
-
-    await silentSync();
+    if (isAuthorized) scheduleSilentSync();
   }
 
   Future<void> _handleAuthenticationError(Object e) async {
@@ -262,11 +260,11 @@ class GoogleDriveService extends ChangeNotifier {
   }
 
   void scheduleSilentSync() {
-    if (lastSync != null && DateTime.now().difference(lastSync!) < _syncMinTimeGap) return;
     _syncTimer?.cancel();
-    _syncTimer = Timer(_syncDebounceDuration, () {
+
+    _syncTimer = Timer(_syncDebounceDuration, () async {
       debugPrint("Scheduled Silent Sync triggered");
-      silentSync();
+      await silentSync();
     });
   }
 
@@ -353,13 +351,20 @@ class GoogleDriveService extends ChangeNotifier {
 
   Future<void> signOut() async {
     _setStatus(GoogleDriveServiceStatus.syncing);
-    await GoogleSignIn.instance.disconnect();
-    _currentUser = null;
-    _driveApi = null;
-    _isAuthorized = false;
-    _errorMessage = '';
-    notifyListeners();
-    _setStatus(GoogleDriveServiceStatus.idle);
+    
+    try {
+      await GoogleSignIn.instance.disconnect();
+    } catch (error) {
+      debugPrint('GoogleSignIn.disconnect failed: $error');
+    } finally {
+      _currentUser = null;
+      _driveApi = null;
+      _isAuthorized = false;
+      _errorMessage = '';
+      
+      _setStatus(GoogleDriveServiceStatus.idle);
+      notifyListeners();
+    }
   }
 
   static void setLastBackup(DateTime newValue) async {

@@ -30,24 +30,31 @@ Future<List<Bike>?> showBikeFilterSheet({required BuildContext context, required
                 Flexible(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Wrap(
-                      spacing: 6,
-                      children: bikes.map((bike) => FilterChip(
-                        avatar: const Icon(Bike.iconData),
-                        label: Text(bike.name),
-                        selected: bike == selectedBike,
-                        showCheckmark: false,
-                        onSelected: (bool newValue) {
-                          switch (newValue) {
-                            case true: setSheetState(() => selectedBike = bike);
-                            case false: setSheetState(() => selectedBike = null);
-                          }
-                        },
-                        onDeleted: selectedBike != null && selectedBike == bike 
-                            ? () => setSheetState(() => selectedBike = null)
-                            : null,
-                      )).toList(),
-                    ),
+                    child: bikes.isEmpty 
+                        ? Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 32),
+                          child: Center(
+                            child: Text("No bikes yet", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5))),
+                          ),
+                        )
+                        : Wrap(
+                            spacing: 6,
+                            children: bikes.map((bike) => FilterChip(
+                              avatar: const Icon(Bike.iconData),
+                              label: Text(bike.name),
+                              selected: bike == selectedBike,
+                              showCheckmark: false,
+                              onSelected: (bool newValue) {
+                                switch (newValue) {
+                                  case true: setSheetState(() => selectedBike = bike);
+                                  case false: setSheetState(() => selectedBike = null);
+                                }
+                              },
+                              onDeleted: selectedBike != null && selectedBike == bike 
+                                  ? () => setSheetState(() => selectedBike = null)
+                                  : null,
+                            )).toList(),
+                          ),
                   )
                 ),
                 const SizedBox(height: 16),
@@ -55,7 +62,9 @@ Future<List<Bike>?> showBikeFilterSheet({required BuildContext context, required
                   padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: () => Navigator.pop(context, selectedBike == null ? <Bike>[] : <Bike>[selectedBike!]),
+                    onPressed: bikes.isEmpty
+                        ? null 
+                        : () => Navigator.pop(context, selectedBike == null ? <Bike>[] : <Bike>[selectedBike!]),
                     child: const Text("Confirm Selection"),
                   ),
                 ),

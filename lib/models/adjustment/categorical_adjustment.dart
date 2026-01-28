@@ -1,7 +1,7 @@
 part of 'adjustment.dart';
 
 class CategoricalAdjustment extends Adjustment<String> {
-  Set<String> options;
+  final Set<String> options;
 
   static const IconData iconData = Icons.category;
 

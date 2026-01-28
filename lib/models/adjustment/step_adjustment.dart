@@ -13,10 +13,10 @@ enum StepAdjustmentVisualization {
 }
 
 class StepAdjustment extends Adjustment<int> {
-  int step;
-  int min;
-  int max;
-  StepAdjustmentVisualization visualization;
+  final int step;
+  final int min;
+  final int max;
+  final StepAdjustmentVisualization visualization;
 
   static const IconData iconData = Icons.stairs_outlined;
 

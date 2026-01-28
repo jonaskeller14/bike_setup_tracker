@@ -1,8 +1,8 @@
 part of 'adjustment.dart';
 
 class DurationAdjustment extends Adjustment<double> {
-  Duration? min;
-  Duration? max;
+  final Duration? min;
+  final Duration? max;
 
   static const IconData iconData = Icons.timer_outlined;
 
@@ -11,8 +11,8 @@ class DurationAdjustment extends Adjustment<double> {
     required super.name,
     required super.notes,
     required super.unit,
-    Duration? min,
-    Duration? max,
+    this.min,
+    this.max,
   });
 
   @override

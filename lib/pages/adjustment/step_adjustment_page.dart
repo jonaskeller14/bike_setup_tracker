@@ -101,24 +101,16 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     final max = int.parse(_maxController.text.trim());
     _formHasChanges = false;
     if (!mounted) return;
-    if (widget.adjustment == null) {
-      Navigator.pop(context, StepAdjustment(
-        name: name, 
-        notes: notes.isEmpty ? null : notes, 
-        unit: null, 
-        step: step, 
-        min: min, max: 
-        max, 
-        visualization: visualization
-      ));
-    } else {
-      widget.adjustment!.name = name;
-      widget.adjustment!.notes = notes.isEmpty ? null : notes;
-      widget.adjustment!.min = min;
-      widget.adjustment!.max = max;
-      widget.adjustment!.visualization = visualization;
-      Navigator.pop(context, widget.adjustment);
-    }
+    Navigator.pop(context, StepAdjustment(
+      id: widget.adjustment?.id,
+      name: name, 
+      notes: notes.isEmpty ? null : notes, 
+      unit: null, 
+      step: step, 
+      min: min, max: 
+      max, 
+      visualization: visualization
+    ));
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {

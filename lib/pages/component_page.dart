@@ -40,7 +40,9 @@ class _ComponentPageState extends State<ComponentPage> {
     super.initState();
     _nameController = TextEditingController(text: widget.component?.name);
     _nameController.addListener(_changeListener);
-    _adjustments = widget.component == null ? [] : List.from(widget.component!.adjustments);
+    _adjustments = widget.component == null 
+        ? [] 
+        : List.from(widget.component!.adjustments);
     _initialAdjustments = List.from(_adjustments);
     
     final filteredData = context.read<FilteredData>();
@@ -149,7 +151,7 @@ class _ComponentPageState extends State<ComponentPage> {
         _adjustments[index] = editedAdjustment!;
       }
     });
-    if (widget.component != null) widget.component!.lastModified = DateTime.now();
+    _changeListener();
     return editedAdjustment;
   }
 
@@ -324,6 +326,7 @@ class _ComponentPageState extends State<ComponentPage> {
                   textInputAction: TextInputAction.next,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   autofocus: widget.component == null,
+                  onChanged: (value) => setState(() {}), // see filled/fillColor
                   decoration: InputDecoration(
                     labelText: 'Component Name',
                     border: OutlineInputBorder(),
@@ -417,6 +420,7 @@ class _ComponentPageState extends State<ComponentPage> {
                 _adjustments.isNotEmpty
                     ? AdjustmentEditList(
                         adjustments: _adjustments,
+                        initialAdjustments: widget.component != null ? Map.fromEntries(widget.component!.adjustments.map((a) => MapEntry(a.id, a))) : null,
                         editAdjustment: _editAdjustment,
                         duplicateAdjustment: _duplicateAdjustment,
                         removeAdjustment: removeAdjustment,

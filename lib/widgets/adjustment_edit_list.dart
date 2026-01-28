@@ -4,6 +4,7 @@ import '../models/adjustment/adjustment.dart';
 
 class AdjustmentEditList extends StatefulWidget {
   final List<Adjustment> adjustments;
+  final Map<String, Adjustment>? initialAdjustments;
   final void Function(Adjustment adjustment) editAdjustment;
   final void Function(Adjustment adjustment) duplicateAdjustment;
   final void Function(Adjustment adjustment) removeAdjustment;
@@ -12,6 +13,7 @@ class AdjustmentEditList extends StatefulWidget {
   const AdjustmentEditList({
     super.key,
     required this.adjustments,
+    required this.initialAdjustments,
     required this.editAdjustment,
     required this.duplicateAdjustment,
     required this.removeAdjustment,
@@ -24,8 +26,12 @@ class AdjustmentEditList extends StatefulWidget {
 
 class _AdjustmentEditListState extends State<AdjustmentEditList> {
   Card _adjustmentCard({required int index}) {
+    final adjustment = widget.adjustments[index];
     return Card(
       key: ValueKey(widget.adjustments[index]),
+      color: widget.initialAdjustments != null && widget.initialAdjustments![adjustment.id] != adjustment 
+          ? Color.lerp(Theme.of(context).colorScheme.surface, Colors.orange, 0.08) 
+          : null,
       child: ListTile(
         leading: Icon(widget.adjustments[index].getIconData()),
         contentPadding: const EdgeInsets.symmetric(

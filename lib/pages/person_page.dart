@@ -141,7 +141,7 @@ class _PersonPageState extends State<PersonPage> {
         _adjustments[index] = editedAdjustment!;
       }
     });
-    if (widget.person != null) widget.person!.lastModified = DateTime.now();
+    _changeListener();
     return editedAdjustment;
   }
 
@@ -293,6 +293,7 @@ class _PersonPageState extends State<PersonPage> {
                   onFieldSubmitted: (_) => _savePerson(),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   autofocus: widget.person == null,
+                  onChanged: (value) => setState(() {}), // see filled/fillColor
                   decoration: InputDecoration(
                     labelText: 'Person Name',
                     border: OutlineInputBorder(),
@@ -311,6 +312,7 @@ class _PersonPageState extends State<PersonPage> {
                 _adjustments.isNotEmpty
                     ? AdjustmentEditList(
                         adjustments: _adjustments,
+                        initialAdjustments: widget.person != null ? Map.fromEntries(widget.person!.adjustments.map((a) => MapEntry(a.id, a))) : null,
                         editAdjustment: _editAdjustment,
                         duplicateAdjustment: _duplicateAdjustment,
                         removeAdjustment: removeAdjustment,

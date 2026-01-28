@@ -66,18 +66,12 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
     final notes = _notesController.text.trim();
     _formHasChanges = false;
     if (!mounted) return;
-    if (widget.adjustment == null) {
-      Navigator.pop(context, BooleanAdjustment(
-        name: name, 
-        notes: notes.isEmpty ? null : notes, 
-        unit: null
-      ));
-    } else {
-      widget.adjustment!.name = name;
-      widget.adjustment!.notes = notes.isEmpty ? null : notes;
-      widget.adjustment!.unit = null;
-      Navigator.pop(context, widget.adjustment);
-    }
+    Navigator.pop(context, BooleanAdjustment(
+      id: widget.adjustment?.id,
+      name: name, 
+      notes: notes.isEmpty ? null : notes, 
+      unit: null
+    ));
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {

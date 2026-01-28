@@ -91,22 +91,14 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     final unit = unitText.isNotEmpty ? unitText : null;
     _formHasChanges = false;
     if (!mounted) return;
-    if (widget.adjustment == null) {
-      Navigator.pop(context, NumericalAdjustment(
-        name: name, 
-        notes: notes.isEmpty ? null : notes, 
-        min: min, 
-        max: max, 
-        unit: unit
-      ));
-    } else {
-      widget.adjustment!.name = name;
-      widget.adjustment!.notes = notes.isEmpty ? null : notes;
-      widget.adjustment!.unit = unit;
-      widget.adjustment!.min = min;
-      widget.adjustment!.max = max;
-      Navigator.pop(context, widget.adjustment);
-    }
+    Navigator.pop(context, NumericalAdjustment(
+      id: widget.adjustment?.id,
+      name: name, 
+      notes: notes.isEmpty ? null : notes, 
+      min: min, 
+      max: max, 
+      unit: unit
+    ));
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {

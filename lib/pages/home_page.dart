@@ -344,8 +344,9 @@ class _HomePageState extends State<HomePage> {
         builder: (context) => PersonPage(person: person),
       ),
     );
+    if (editedPerson == null) return;
 
-    data.editPerson(editedPerson ?? person);  // Handle Case: Adjustment rename, ComponentPage canceled -> need rebuild
+    data.editPerson(editedPerson);
   }
 
   Future<void> _editRating(Rating rating) async {
@@ -357,8 +358,9 @@ class _HomePageState extends State<HomePage> {
         builder: (context) => RatingPage(rating: rating),
       ),
     );
+    if (editedRating == null) return;
 
-    data.editRating(editedRating ?? rating);  // Handle Case: Adjustment rename, RatingPage canceled -> need rebuild
+    data.editRating(editedRating);
   }
 
   Future<void> editComponent(Component component) async {
@@ -370,8 +372,9 @@ class _HomePageState extends State<HomePage> {
         builder: (context) => ComponentPage(component: component),
       ),
     );
+    if (editedComponent == null) return;
 
-    data.editComponent(editedComponent ?? component); // Handle Case: Adjustment rename, ComponentPage canceled -> need rebuild
+    data.editComponent(editedComponent);
   }
 
   Future<void> duplicateComponent(Component component) async {

@@ -146,19 +146,13 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
     final options = _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet();
     _formHasChanges = false;
     if (!mounted) return;
-    if (widget.adjustment == null) {
-      Navigator.pop(context, CategoricalAdjustment(
-        name: name, 
-        notes: notes.isEmpty ? null : notes, 
-        unit: null, 
-        options: options
-      ));
-    } else {
-      widget.adjustment!.name = name;
-      widget.adjustment!.notes = notes.isEmpty ? null : notes;
-      widget.adjustment!.options = options;
-      Navigator.pop(context, widget.adjustment);
-    }
+    Navigator.pop(context, CategoricalAdjustment(
+      id: widget.adjustment?.id,
+      name: name, 
+      notes: notes.isEmpty ? null : notes, 
+      unit: null, 
+      options: options
+    ));
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {

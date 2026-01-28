@@ -1,8 +1,8 @@
 part of 'adjustment.dart';
 
 class NumericalAdjustment extends Adjustment<double> {
-  double min;
-  double max;
+  final double min;
+  final double max;
 
   static const IconData iconData = Icons.speed;
 

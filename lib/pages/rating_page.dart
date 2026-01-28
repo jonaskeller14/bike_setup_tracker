@@ -165,7 +165,7 @@ class _RatingPageState extends State<RatingPage> {
         _adjustments[index] = editedAdjustment!;
       }
     });
-    if (widget.rating != null) widget.rating!.lastModified = DateTime.now();
+    _changeListener();
     return editedAdjustment;
   }
 
@@ -337,6 +337,7 @@ class _RatingPageState extends State<RatingPage> {
                   onFieldSubmitted: (_) => _saveRating(),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   autofocus: widget.rating == null,
+                  onChanged: (value) => setState(() {}), // see filled/fillColor
                   decoration: InputDecoration(
                     labelText: 'Rating Name',
                     border: OutlineInputBorder(),
@@ -454,6 +455,7 @@ class _RatingPageState extends State<RatingPage> {
                 _adjustments.isNotEmpty
                     ? AdjustmentEditList(
                         adjustments: _adjustments,
+                        initialAdjustments: widget.rating != null ? Map.fromEntries(widget.rating!.adjustments.map((a) => MapEntry(a.id, a))) : null,
                         editAdjustment: _editAdjustment,
                         duplicateAdjustment: _duplicateAdjustment,
                         removeAdjustment: removeAdjustment,

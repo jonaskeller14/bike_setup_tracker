@@ -63,20 +63,14 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
     final notes = _notesController.text.trim();
     _formHasChanges = false;
     if (!mounted) return;
-    if (widget.adjustment == null) {
-      Navigator.pop(context, DurationAdjustment(
-        name: name, 
-        notes: notes.isEmpty ? null : notes, 
-        min: null, 
-        max: null, 
-        unit: null,
-      ));
-    } else {
-      widget.adjustment!.name = name;
-      widget.adjustment!.notes = notes.isEmpty ? null : notes;
-      widget.adjustment!.unit = null;
-      Navigator.pop(context, widget.adjustment);
-    }
+    Navigator.pop(context, DurationAdjustment(
+      id: widget.adjustment?.id,
+      name: name, 
+      notes: notes.isEmpty ? null : notes, 
+      min: null, 
+      max: null, 
+      unit: null,
+    ));
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {

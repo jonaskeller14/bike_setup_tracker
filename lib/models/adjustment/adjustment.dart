@@ -10,10 +10,10 @@ part 'duration_adjustment.dart';
 
 abstract class Adjustment<T> {
   final String id;
-  String name;
-  String? notes;
+  final String name;
+  final String? notes;
   final Type valueType;
-  String? unit;
+  final String? unit;
 
   Adjustment({String? id, required this.name, required this.notes, required this.unit})
     : valueType = T,

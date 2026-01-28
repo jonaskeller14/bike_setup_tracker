@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
@@ -302,6 +303,7 @@ class _ComponentPageState extends State<ComponentPage> {
     final filteredData = context.watch<FilteredData>();
     final bikes = filteredData.bikes;
     final bikeOptions = filteredData.filteredBikes;
+    final existingComponentsCount = filteredData.components.values.where((c) => c.bike == _bike && c.componentType == _componentType && widget.component?.id != c.id).length;
 
     return PopScope( 
       canPop: !_formHasChanges,
@@ -385,6 +387,13 @@ class _ComponentPageState extends State<ComponentPage> {
                     labelText: 'Type',
                     border: OutlineInputBorder(),
                     hintText: "Choose a type for this component",
+                    helperText: existingComponentsCount > 0
+                        ? Intl.plural(
+                            existingComponentsCount,
+                            one: "Note: There is one ${_componentType?.value}-Component already installed on this bike.",
+                            other: "Note: There are $existingComponentsCount ${_componentType?.value}-Components already installed on this bike.",
+                          )
+                        : null,
                     fillColor: Colors.orange.withValues(alpha: 0.08),
                     filled: widget.component != null && _componentType != widget.component?.componentType,
                   ),

@@ -6,6 +6,7 @@ import 'models/app_data.dart';
 import 'models/filtered_data.dart';
 import 'pages/onboarding_page.dart';
 import 'pages/home_page.dart';
+import 'services/google_drive_service.dart';
 import 'services/storage_service.dart';
 
 final materialAppTheme = ThemeData(
@@ -83,6 +84,7 @@ class LoadingGate extends StatelessWidget {
             providers: [
               ChangeNotifierProvider.value(value: appSettings),
               ChangeNotifierProvider.value(value: appData),
+
               ChangeNotifierProxyProvider<AppData, FilteredData>(
                 create: (context) => FilteredData(appData),
                 update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
@@ -91,6 +93,14 @@ class LoadingGate extends StatelessWidget {
                 lazy: false,
                 create: (context) => StorageService(),
                 update: (context, newAppData, storageService) => storageService!..update(newAppData),
+              ),
+              ChangeNotifierProxyProvider2<AppData, AppSettings, GoogleDriveService>(
+                lazy: false,
+                create: (context) => GoogleDriveService(appData),
+                update: (context, newAppData, newAppSettings, googleDriveService) {
+                  if (newAppSettings.enableGoogleDrive) googleDriveService!.update(newAppData: newAppData);
+                  return googleDriveService!;
+                },
               ),
             ],
             child: const BikeSetupTrackerApp(),

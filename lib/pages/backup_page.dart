@@ -8,8 +8,7 @@ import '../utils/file_import.dart';
 import '../utils/backup.dart';
 
 class BackupPage extends StatelessWidget {
-  final GoogleDriveService? googleDriveService;
-  const BackupPage({super.key, this.googleDriveService});
+  const BackupPage({super.key});
 
   ListTile _backupListTile({
     required BuildContext context,
@@ -43,6 +42,8 @@ class BackupPage extends StatelessWidget {
     final dateFormat = DateFormat(appSettings.dateFormat);
     final timeFormat = DateFormat(appSettings.timeFormat);
 
+    final googleDriveService = context.read<GoogleDriveService>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Import Backup'),
@@ -65,7 +66,8 @@ class BackupPage extends StatelessWidget {
             FutureBuilder<List<Backup>>(
               future: Future.wait([
                 FileImport.getBackups(context),
-                googleDriveService?.getBackups(context) ?? Future.value(<Backup>[]),
+                if (appSettings.enableGoogleDrive)
+                  googleDriveService.getBackups(context)
               ]).then((results) => results.expand((list) => list).toList()), 
               
               builder: (context, snapshot) {

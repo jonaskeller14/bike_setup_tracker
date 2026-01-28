@@ -9,28 +9,10 @@ import '../models/setup.dart';
 import '../models/rating.dart';
 import '../models/app_settings.dart';
 
-class TrashPage extends StatefulWidget{
-  final VoidCallback onChanged;
+class TrashPage extends StatelessWidget{
+  const TrashPage({super.key});
 
-  const TrashPage({
-    super.key,
-    required this.onChanged,
-  });
-
-  @override
-  State<TrashPage> createState() => _TrashPageState();
-}
-
-class _TrashPageState extends State<TrashPage> {
-  bool hasChanges = false;
-
-  @override
-  void dispose() {
-    if (hasChanges) widget.onChanged();
-    super.dispose();
-  }
-
-  ListTile _trashItem({required dynamic deletedItem}) {
+  ListTile _trashItem({required BuildContext context, required dynamic deletedItem}) {
     final appSettings = context.read<AppSettings>();
     final dateFormat = DateFormat(appSettings.dateFormat);
     final timeFormat = DateFormat(appSettings.timeFormat);
@@ -53,7 +35,6 @@ class _TrashPageState extends State<TrashPage> {
       trailing: IconButton(
         icon: Icon(Icons.restore_from_trash),
         onPressed: () {
-          hasChanges = true;
           switch (deletedItem) {
             case Bike(): data.restoreBike(deletedItem);
             case Component(): data.restoreComponents([deletedItem]);
@@ -115,7 +96,7 @@ class _TrashPageState extends State<TrashPage> {
                       return Card(
                         margin: const EdgeInsets.symmetric(vertical: 4.0),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        child: _trashItem(deletedItem: deletedItem),
+                        child: _trashItem(context: context, deletedItem: deletedItem),
                       );
                     },
                   ),

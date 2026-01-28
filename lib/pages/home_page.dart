@@ -53,29 +53,6 @@ class _HomePageState extends State<HomePage> {
 
   int currentPageIndex = 0;
 
-  late GoogleDriveService _googleDriveService;
-
-  @override
-  void initState() {
-    super.initState();
-
-    Future.microtask(() {
-      if (!mounted) return;
-      final data = context.read<AppData>();
-      final settings = context.read<AppSettings>();
-
-      _googleDriveService = GoogleDriveService(
-        getDataToUpload: () => data.toJson(),
-        onDataDownloaded: (AppData remoteData) => FileImport.merge(remoteData: remoteData, localData: data),
-      );
-      if (settings.enableGoogleDrive) _googleDriveService.silentSetup();
-
-      FileImport.cleanupIsDeleted(data: data);
-      data.callNotifyListeners();
-      FileExport.deleteOldBackups();
-    });
-  }
-
   Future<void> _importData() async {
     final ImportSheetOptions? importChoice = await showImportSheet(context);
 
@@ -85,15 +62,13 @@ class _HomePageState extends State<HomePage> {
       case ImportSheetOptions.file:
         remoteData = await FileImport.readJsonFileData(context);
       case ImportSheetOptions.backup:
-        final backup = await Navigator.push<Backup?>(context, MaterialPageRoute(builder: (context) => BackupPage(
-          googleDriveService: (mounted && context.read<AppSettings>().enableGoogleDrive) ? _googleDriveService : null
-        )));
+        final backup = await Navigator.push<Backup?>(context, MaterialPageRoute(builder: (context) => const BackupPage()));
         if (backup == null) return;
         if (!mounted) return;
 
         switch (backup) {
           case LocalBackup(): remoteData = await FileImport.readBackup(context: context, path: backup.filepath);
-          case GoogleDriveBackup(): remoteData = await _googleDriveService.readBackup(context: context, fileId: backup.fileId);
+          case GoogleDriveBackup(): remoteData = await context.read<GoogleDriveService>().readBackup(context: context, fileId: backup.fileId);
         }
       case null:
         debugPrint("showImportSheet canceled");
@@ -117,7 +92,6 @@ class _HomePageState extends State<HomePage> {
         debugPrint("showImportMergeOverwriteSheet canceled");
         return;
     }
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
     
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -150,7 +124,7 @@ class _HomePageState extends State<HomePage> {
       case ExportSheetOptions.backup:
         await FileExport.saveBackup(context: context, data: context.read<AppData>(), force: true);
       case ExportSheetOptions.googleDriveBackup:
-        await _googleDriveService.saveBackup(context: context, force: true);
+        await context.read<GoogleDriveService>().saveBackup(context: context, force: true);
       case null:
         debugPrint("showExportSheet canceled.");
         return;
@@ -179,7 +153,7 @@ class _HomePageState extends State<HomePage> {
     data.removeComponents(obsoleteComponents);
     data.removeSetups(obsoleteSetups);
 
-    final snackBar = SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text("Bike '${bike.name}' moved to trash.\n${obsoleteComponents.length} components and ${obsoleteSetups.length} setups which belong to this bike are deleted as well."),
       duration: const Duration(seconds: 10),
       persist: false,
@@ -192,18 +166,14 @@ class _HomePageState extends State<HomePage> {
           data.restoreSetups(obsoleteSetups);
         },
       ),
-    );
-
-    final SnackBarClosedReason reason = await ScaffoldMessenger.of(context).showSnackBar(snackBar).closed;
-    if (reason == SnackBarClosedReason.action) return; // Not save and sync
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
+    ));
   }
 
   Future<void> _removePerson(Person person) async {
     final data = context.read<AppData>();
     data.removePerson(person);
 
-    final snackBar = SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text("Person '${person.name}' moved to trash."),
       duration: const Duration(seconds: 5),
       persist: false,
@@ -212,18 +182,14 @@ class _HomePageState extends State<HomePage> {
         label: 'UNDO',
         onPressed: () => data.restorePerson(person),
       ),
-    );
-
-    final SnackBarClosedReason reason = await ScaffoldMessenger.of(context).showSnackBar(snackBar).closed;
-    if (reason == SnackBarClosedReason.action) return; // Not save and sync
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
+    ));
   }
 
   Future<void> _removeRating(Rating rating) async {
     final data = context.read<AppData>();
     data.removeRating(rating);
 
-    final snackBar = SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text("Rating '${rating.name}' moved to trash."),
       duration: const Duration(seconds: 5),
       persist: false,
@@ -234,11 +200,7 @@ class _HomePageState extends State<HomePage> {
           data.restoreRating(rating);
         },
       ),
-    );
-
-    final SnackBarClosedReason reason = await ScaffoldMessenger.of(context).showSnackBar(snackBar).closed;
-    if (reason == SnackBarClosedReason.action) return; // Not save and sync
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
+    ));
   }
 
   Future<void> removeSetup(Setup toRemoveSetup) async {
@@ -251,7 +213,7 @@ class _HomePageState extends State<HomePage> {
     data.removeSetups(toRemoveSetups);
 
     if (confirm) {
-      final snackBar = SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(Intl.plural(
           toRemoveSetups.length,
           zero: "No setup moved to trash.",
@@ -265,12 +227,8 @@ class _HomePageState extends State<HomePage> {
           label: 'UNDO',
           onPressed: () => data.restoreSetups(toRemoveSetups),
         ),
-      );
-
-      final SnackBarClosedReason reason = await ScaffoldMessenger.of(context).showSnackBar(snackBar).closed;
-      if (reason == SnackBarClosedReason.action) return; // Not save and sync
+      ));
     }
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> removeComponent(Component toRemoveComponent) async {
@@ -284,7 +242,7 @@ class _HomePageState extends State<HomePage> {
     data.removeComponents(toRemoveComponents);
 
     if (confirm) {
-      final snackBar = SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(Intl.plural(
           toRemoveComponents.length,
           zero: "No components moved to trash.",
@@ -298,12 +256,8 @@ class _HomePageState extends State<HomePage> {
           label: 'UNDO',
           onPressed: () => data.restoreComponents(toRemoveComponents),
         ),
-      );
-
-      final SnackBarClosedReason reason = await ScaffoldMessenger.of(context).showSnackBar(snackBar).closed;
-      if (reason == SnackBarClosedReason.action) return; // Not save and sync
+      ));
     }
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
   
   Future<void> addBike() async {
@@ -316,7 +270,6 @@ class _HomePageState extends State<HomePage> {
     if (bike == null) return;
 
     data.addBike(bike);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> _addPerson() async {
@@ -330,7 +283,6 @@ class _HomePageState extends State<HomePage> {
     final data = context.read<AppData>();
 
     data.addPerson(person);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> _addRating() async {
@@ -345,7 +297,6 @@ class _HomePageState extends State<HomePage> {
     if (newRating == null) return;
 
     data.addRating(newRating);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> _addComponent() async {
@@ -368,7 +319,6 @@ class _HomePageState extends State<HomePage> {
     if (component == null) return;
 
     data.addComponent(component);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> editBike(Bike bike) async {
@@ -383,7 +333,6 @@ class _HomePageState extends State<HomePage> {
     if (editedBike == null) return;
 
     data.editBike(editedBike);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> _editPerson(Person person) async {
@@ -395,10 +344,8 @@ class _HomePageState extends State<HomePage> {
         builder: (context) => PersonPage(person: person),
       ),
     );
-    if (editedPerson == null) return;
 
-    data.editPerson(editedPerson);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
+    data.editPerson(editedPerson ?? person);  // Handle Case: Adjustment rename, ComponentPage canceled -> need rebuild
   }
 
   Future<void> _editRating(Rating rating) async {
@@ -410,10 +357,8 @@ class _HomePageState extends State<HomePage> {
         builder: (context) => RatingPage(rating: rating),
       ),
     );
-    if (editedRating == null) return;
 
-    data.editRating(editedRating);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
+    data.editRating(editedRating ?? rating);  // Handle Case: Adjustment rename, RatingPage canceled -> need rebuild
   }
 
   Future<void> editComponent(Component component) async {
@@ -425,13 +370,8 @@ class _HomePageState extends State<HomePage> {
         builder: (context) => ComponentPage(component: component),
       ),
     );
-    if (editedComponent == null) {
-      data.callNotifyListeners();
-      return;
-    }
 
-    data.editComponent(editedComponent);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
+    data.editComponent(editedComponent ?? component); // Handle Case: Adjustment rename, ComponentPage canceled -> need rebuild
   }
 
   Future<void> duplicateComponent(Component component) async {
@@ -465,28 +405,24 @@ class _HomePageState extends State<HomePage> {
     final data = context.read<AppData>();
     final filteredData = context.read<FilteredData>();
     data.reorderComponent(oldIndex: oldIndex, newIndex: newIndex, filteredComponentsList: filteredData.filteredComponents.values.toList());
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> onReorderBikes(int oldIndex, int newIndex) async {
     final data = context.read<AppData>();
     final filteredData = context.read<FilteredData>();
     data.reorderBike(oldIndex: oldIndex, newIndex: newIndex, filteredBikesList: filteredData.bikes.values.toList());
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> _onReorderPerson(int oldIndex, int newIndex) async {
     final data = context.read<AppData>();
     final filteredData = context.read<FilteredData>();
     data.reorderPerson(oldIndex: oldIndex, newIndex: newIndex, filteredPersonsList: filteredData.filteredPersons.values.toList());
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> _onReorderRating(int oldIndex, int newIndex) async {
     final data = context.read<AppData>();
     final filteredData = context.read<FilteredData>();
     data.reorderRating(oldIndex: oldIndex, newIndex: newIndex, filteredRatingsList: filteredData.filteredRatings.values.toList());
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> _addSetup() async {
@@ -521,7 +457,6 @@ class _HomePageState extends State<HomePage> {
     if (newSetup == null) return;
     
     data.addSetup(newSetup);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> editSetup(Setup setup) async {
@@ -534,7 +469,6 @@ class _HomePageState extends State<HomePage> {
     if (editedSetup == null) return;
 
     data.editSetup(editedSetup);
-    if (mounted && context.read<AppSettings>().enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
   }
 
   Future<void> duplicateSetup(Setup setup) async {
@@ -770,7 +704,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    final data = context.watch<AppData>();
     final filteredData = context.read<FilteredData>();
     return Scaffold(
       appBar: AppBar(
@@ -798,40 +731,16 @@ class _HomePageState extends State<HomePage> {
         ][currentPageIndex],
         actions: [
           if (appSettings.enableGoogleDrive)
-            GoogleDriveSyncButton(googleDriveService: _googleDriveService),
+            const GoogleDriveSyncButton(),
           PopupMenuButton<String>(
             onSelected: (String result) {
               switch (result) {
-                case 'import':
-                  _importData();
-                  break;
-                case 'export':
-                  _exportData();
-                  break;
-                case 'share':
-                  _shareData();
-                  break;
-                case "trash":
-                  Navigator.push<void>(context, MaterialPageRoute(builder: (context) => TrashPage(
-                    onChanged: () {
-                      WidgetsBinding.instance.addPostFrameCallback((_) { // Called when HomePage is not locked anymore
-                        if (!mounted) return;
-                        data.resolveData();
-                        if (mounted && appSettings.enableGoogleDrive) {_googleDriveService.scheduleSilentSync(); _googleDriveService.saveBackup(context: context);}
-                      });
-                    }
-                  )));
-                  break;
-                case "settings":
-                  final tmpEnableGoogleDrive = context.read<AppSettings>().enableGoogleDrive;
-                  Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()))
-                    .then((_) {
-                      final newEnable = appSettings.enableGoogleDrive;
-                      if (newEnable && !tmpEnableGoogleDrive) _googleDriveService.silentSetup();
-                    });
-                case "about":
-                  Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AboutPage()));
-                  break;
+                case 'import': _importData();
+                case 'export': _exportData();
+                case 'share': _shareData();
+                case "trash": Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const TrashPage()));
+                case "settings": Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()));
+                case "about": Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AboutPage()));
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[

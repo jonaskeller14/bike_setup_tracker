@@ -1,60 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/google_drive_service.dart';
 import 'sheets/google_drive_sync.dart';
 
 class GoogleDriveSyncButton extends StatelessWidget {
-  final GoogleDriveService googleDriveService;
-
-  const GoogleDriveSyncButton({
-    super.key,
-    required this.googleDriveService,
-  });
+  const GoogleDriveSyncButton({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: googleDriveService,
-      builder: (context, child) {
-        final isSyncing = googleDriveService.status == GoogleDriveServiceStatus.syncing;
-        final isLinked = googleDriveService.isSignedIn && googleDriveService.isAuthorized;
+    final googleDriveService = context.watch<GoogleDriveService>();
 
-        return Stack(
-          alignment: Alignment.center,
-          children: [
-            IconButton(
-              icon: Icon(isLinked 
-                  ? (isSyncing 
-                      ? Icons.cloud_upload
-                      : Icons.cloud_done_outlined)
-                  : Icons.cloud_off),
-              onPressed: isSyncing 
-                  ? null 
-                  : () => showGoogleDriveSheet(context: context, googleDriveService: googleDriveService),
-              tooltip: isLinked ? "Sync Now" : "Connect Google Drive",
-            ),
-            
-            // The "Badge" with loading circle (only shown if isSyncing is true)
-            if (isSyncing)
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  width: 14,
-                  height: 14,
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    shape: BoxShape.circle,
-                  ),
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
+    final isSyncing = googleDriveService.status == GoogleDriveServiceStatus.syncing;
+    final isLinked = googleDriveService.isSignedIn && googleDriveService.isAuthorized;
+
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        IconButton(
+          icon: Icon(isLinked 
+              ? (isSyncing 
+                  ? Icons.cloud_upload
+                  : Icons.cloud_done_outlined)
+              : Icons.cloud_off),
+          onPressed: isSyncing 
+              ? null 
+              : () => showGoogleDriveSheet(context: context, googleDriveService: googleDriveService),
+          tooltip: isLinked ? "Sync Now" : "Connect Google Drive",
+        ),
+        
+        // The "Badge" with loading circle (only shown if isSyncing is true)
+        if (isSyncing)
+          Positioned(
+            top: 8,
+            right: 8,
+            child: Container(
+              width: 14,
+              height: 14,
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.onPrimary,
+                shape: BoxShape.circle,
               ),
-          ],
-        );
-      },
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ),
+      ],  
     );
   }
 }

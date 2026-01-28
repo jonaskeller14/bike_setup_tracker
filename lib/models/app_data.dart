@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/file_export.dart';
 import 'person.dart';
 import 'bike.dart';
 import 'setup.dart';
@@ -9,12 +10,14 @@ import 'rating.dart';
 import '../utils/file_import.dart';
 
 class AppData extends ChangeNotifier {
+  DateTime _lastModified = DateTime.now();
   final Map<String, Person> _persons = {};
   final Map<String, Bike> _bikes = {};
   final Map<String, Setup> _setups = {};
   final Map<String, Component> _components = {};
   final Map<String, Rating> _ratings = {};
 
+  DateTime get lastModified => _lastModified;
   Map<String, Person> get persons => _persons;
   Map<String, Bike> get bikes => _bikes;
   Map<String, Setup> get setups => _setups;
@@ -30,15 +33,18 @@ class AppData extends ChangeNotifier {
       _clear();
       addJson(data: this, json: jsonData);
 
+      FileImport.cleanupIsDeleted(data: this);
       final sortedSetupEntries = _setups.entries.toList();
       sortedSetupEntries.sort((a, b) => a.value.datetime.compareTo(b.value.datetime));
       _setups.clear();
       _setups.addEntries(sortedSetupEntries);
       FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
       FileImport.determinePreviousSetups(setups: _setups.values);
+      
+      FileExport.deleteOldBackups();
 
+      notifyListeners();
       debugPrint("Loading data successfully");
-
       return this;
     } catch (e, st) {
       debugPrint("Loading data failed: $e\n$st");
@@ -47,10 +53,6 @@ class AppData extends ChangeNotifier {
       }
       throw Exception("Loading data failed");
     }
-  }
-
-  void callNotifyListeners() {
-    notifyListeners();
   }
 
   void _clear() {
@@ -91,7 +93,6 @@ class AppData extends ChangeNotifier {
     data.setups.addAll(<String, Setup>{for (var item in loadedSetups) item.id: item});
     data.ratings.addAll(<String, Rating>{for (var item in loadedRatings) item.id: item});
     
-    data.notifyListeners(); // not strictly necessary in most cases
     return data;
   }
 
@@ -99,6 +100,7 @@ class AppData extends ChangeNotifier {
     bike.isDeleted = true;
     bike.lastModified = DateTime.now();
     
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
@@ -106,6 +108,7 @@ class AppData extends ChangeNotifier {
     bike.isDeleted = false;
     bike.lastModified = DateTime.now();
 
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
@@ -115,6 +118,7 @@ class AppData extends ChangeNotifier {
       component.lastModified = DateTime.now();
     }
 
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
@@ -124,6 +128,7 @@ class AppData extends ChangeNotifier {
       component.lastModified = DateTime.now();
     }
 
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
@@ -135,6 +140,7 @@ class AppData extends ChangeNotifier {
     FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
     FileImport.determinePreviousSetups(setups: _setups.values);
 
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
@@ -150,6 +156,7 @@ class AppData extends ChangeNotifier {
     FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
     FileImport.determinePreviousSetups(setups: _setups.values);
     
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
@@ -157,6 +164,7 @@ class AppData extends ChangeNotifier {
     person.isDeleted = true;
     person.lastModified = DateTime.now();
 
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
@@ -164,6 +172,7 @@ class AppData extends ChangeNotifier {
     person.isDeleted = false;
     person.lastModified = DateTime.now();
     
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
@@ -171,6 +180,7 @@ class AppData extends ChangeNotifier {
     rating.isDeleted = true;
     rating.lastModified = DateTime.now();
 
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
@@ -178,54 +188,63 @@ class AppData extends ChangeNotifier {
     rating.isDeleted = false;
     rating.lastModified = DateTime.now();
 
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
   void addBike(Bike bike) {
     _bikes[bike.id] = bike;
 
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
   void addPerson(Person person) {
     _persons[person.id] = person;
 
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
   void addRating(Rating rating) {
     _ratings[rating.id] = rating;
     
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
   void addComponent(Component component) {
     _components[component.id] = component;
     
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
   void editPerson(Person person) {
     _persons[person.id] = person;
 
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
   void editBike(Bike bike) {
     _bikes[bike.id] = bike;
 
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
   void editComponent(Component component) {
     _components[component.id] = component;
 
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
   void editRating(Rating rating) {
     _ratings[rating.id] = rating;
     
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
@@ -239,6 +258,7 @@ class AppData extends ChangeNotifier {
     FileImport.determinePreviousSetups(setups: _setups.values);
     FileImport.updateSetupsAfter(setups: _setups.values.toList(), setup: setup);
 
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
@@ -251,7 +271,8 @@ class AppData extends ChangeNotifier {
     FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
     FileImport.determinePreviousSetups(setups: _setups.values);
     FileImport.updateSetupsAfter(setups: _setups.values.toList(), setup: setup);
-  
+
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
@@ -276,6 +297,7 @@ class AppData extends ChangeNotifier {
     _ratings.clear();
     _ratings.addAll({for (var element in ratingsList) element.id : element});
     
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
@@ -300,6 +322,7 @@ class AppData extends ChangeNotifier {
     _persons.clear();
     _persons.addAll({for (var element in personsList) element.id : element});
 
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
@@ -324,6 +347,7 @@ class AppData extends ChangeNotifier {
     _components.clear();
     _components.addAll({for (var element in componentsList) element.id : element});
 
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 
@@ -348,6 +372,7 @@ class AppData extends ChangeNotifier {
     _bikes.clear();
     _bikes.addAll({for (var element in bikesList) element.id : element});
 
+    _lastModified = DateTime.now();
     notifyListeners();
   }
 

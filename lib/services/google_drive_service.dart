@@ -6,9 +6,10 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:googleapis/servicecontrol/v2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 import '../utils/backup.dart';
 import '../models/app_data.dart';
-import 'package:http/http.dart' as http;
+import '../utils/file_import.dart';
 
 enum GoogleDriveServiceStatus {
   idle,
@@ -24,14 +25,15 @@ class GoogleDriveService extends ChangeNotifier {
   static const String _backupSharedPreferencesInstance = "backup/googleDriveLastBackup";
   static const String _backupFolderName = 'backup';
 
+  bool _isInitialized = false;
   GoogleSignInAccount? _currentUser;
   bool _isAuthorized = false;
   String _errorMessage = '';
   GoogleDriveServiceStatus _status = GoogleDriveServiceStatus.idle;
-
   drive.DriveApi? _driveApi;
-  final Map<String, dynamic> Function() getDataToUpload;
-  final Function(AppData) onDataDownloaded;
+
+  AppData _appData;
+  DateTime? _appDataLastModified;
 
   DateTime? lastSync;
   Timer? _syncTimer;
@@ -45,10 +47,28 @@ class GoogleDriveService extends ChangeNotifier {
   String get errorMessage => _errorMessage;
   GoogleDriveServiceStatus get status => _status;
 
-  GoogleDriveService({
-    required this.getDataToUpload,
-    required this.onDataDownloaded,
-  });
+  GoogleDriveService(this._appData);
+
+  void update({required AppData newAppData}) async {
+    if (_appDataLastModified != null && !newAppData.lastModified.isAfter(_appDataLastModified!)) {
+      debugPrint("GoogleDriveService.update aborted because AppData.lastModified");
+      return;
+    }
+    if (status == GoogleDriveServiceStatus.syncing) {
+      debugPrint("GoogleDriveService.update aborted because GoogleDriveService.status == syncing");
+      return;
+    }
+
+    _appDataLastModified = newAppData.lastModified;
+    _appData = newAppData;
+
+    if (!_isInitialized) {
+      await _silentSetup();  // scheduleSilentSync() and saveBackup() included here
+    } else {
+      scheduleSilentSync();
+      saveBackup();
+    }
+  }
 
   void _setErrorMessage(String message) {
     _errorMessage = message;
@@ -60,7 +80,7 @@ class GoogleDriveService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> silentSetup() async {
+  Future<void> _silentSetup() async {
     final GoogleSignIn signIn = GoogleSignIn.instance;
 
     try {
@@ -74,9 +94,10 @@ class GoogleDriveService extends ChangeNotifier {
           .onError(_handleAuthenticationError);
       
       await signIn.attemptLightweightAuthentication(); // Silent Sign in
-      
     } catch (error) {
       _setErrorMessage("Google Sign In Setup Failed: $error");
+    } finally {
+      _isInitialized = true; // even if it has failed, silentSetup does not need to be called again, manual interactiveSignIn() instead
     }
   }
 
@@ -93,7 +114,11 @@ class GoogleDriveService extends ChangeNotifier {
     _errorMessage = '';
 
     notifyListeners();
-    if (isAuthorized) scheduleSilentSync();
+
+    if (isAuthorized) {
+      await silentSync();
+      await saveBackup();
+    }
   }
 
   Future<void> _handleAuthenticationError(Object e) async {
@@ -114,7 +139,7 @@ class GoogleDriveService extends ChangeNotifier {
     };
   }
 
-  Future<void> handleAuthorizeScopes() async {
+  Future<void> _handleAuthorizeScopes() async {
     if (_currentUser == null) return;
 
     try {
@@ -181,7 +206,7 @@ class GoogleDriveService extends ChangeNotifier {
       return;
     }
 
-    if (!_isAuthorized) await handleAuthorizeScopes();
+    if (!_isAuthorized) await _handleAuthorizeScopes();
 
     if (_driveApi == null || !_isAuthorized) await _initializeDriveApi();
     if (_driveApi == null || !_isAuthorized) {
@@ -191,15 +216,15 @@ class GoogleDriveService extends ChangeNotifier {
     }
     
     try {
-      await download(); 
-      await upload();
+      await _download(); 
+      await _upload();
       lastSync = DateTime.now();
     } on DetailedApiRequestError catch (e) {
       if (e.status == 401) { // Catch the 401 (Token Rejected)
         debugPrint("401 Unauthorized: Access token is invalid or expired. Requesting re-authorization.");
         
         await clearToken();
-        await handleAuthorizeScopes();
+        await _handleAuthorizeScopes();
 
         if (!_isAuthorized) {
           _setStatus(GoogleDriveServiceStatus.idle);
@@ -208,8 +233,8 @@ class GoogleDriveService extends ChangeNotifier {
 
         try {
           await _initializeDriveApi(); // Re-initialize API with new authorization
-          await download();
-          await upload();
+          await _download();
+          await _upload();
           lastSync = DateTime.now();
         } catch (e) {
           _setErrorMessage("Error after re-authorization: $e");
@@ -236,8 +261,8 @@ class GoogleDriveService extends ChangeNotifier {
     _setStatus(GoogleDriveServiceStatus.syncing);
     
     try {
-      await download();
-      await upload();  // only upload if download was successfull!
+      await _download();
+      await _upload();  // only upload if download was successfull!
       lastSync = DateTime.now();
       debugPrint("Silent Sync successful at $lastSync");
     } on DetailedApiRequestError catch (e) {
@@ -281,9 +306,9 @@ class GoogleDriveService extends ChangeNotifier {
     }
   }
 
-  Future<void> upload() async {
+  Future<void> _upload() async {
     if (_driveApi == null) throw Exception("Drive API not initialized");
-    final jsonString = jsonEncode(getDataToUpload());
+    final jsonString = jsonEncode(_appData.toJson());
     final List<int> fileBytes = utf8.encode(jsonString);
     final media = drive.Media(
       Stream.fromIterable([fileBytes]),
@@ -311,7 +336,7 @@ class GoogleDriveService extends ChangeNotifier {
     }
   }
 
-  Future<void> download() async {
+  Future<void> _download() async {
     if (_driveApi == null) throw Exception("Drive API not initialized");
 
     final fileId = await _getFileId();
@@ -333,7 +358,7 @@ class GoogleDriveService extends ChangeNotifier {
     final jsonString = utf8.decode(dataStore);
     final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
     final AppData remoteData = AppData.addJson(data: AppData(), json: jsonData);
-    onDataDownloaded(remoteData);
+    FileImport.merge(remoteData: remoteData, localData: _appData);
   }
 
   Future<String?> _getFileId() async {
@@ -378,11 +403,7 @@ class GoogleDriveService extends ChangeNotifier {
     return DateTime.tryParse(lastBackupStr ?? "");
   }
 
-  Future<void> saveBackup({required BuildContext context, bool force = false}) async {
-    final scaffold = ScaffoldMessenger.of(context);
-    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
-    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
-
+  Future<void> saveBackup({BuildContext? context, bool force = false}) async {
     try {
       if (_currentUser == null || _driveApi == null || !_isAuthorized) {
         throw Exception("Not authorized to backup to Google Drive. Please sign in first.");
@@ -396,7 +417,7 @@ class GoogleDriveService extends ChangeNotifier {
         return;
       }
 
-      final jsonString = jsonEncode(getDataToUpload());
+      final jsonString = jsonEncode(_appData.toJson());
       final List<int> fileBytes = utf8.encode(jsonString);
       final media = drive.Media(
         Stream.fromIterable([fileBytes]),
@@ -423,13 +444,16 @@ class GoogleDriveService extends ChangeNotifier {
       debugPrint('Successfully backed up to Google Drive: $backupFileName');
     } catch (e) {
       debugPrint('Error backing up to Google Drive: $e');
-      if (context.mounted && force) {
-        scaffold.showSnackBar(SnackBar(
+      _setErrorMessage('Error backing up to Google Drive: $e');
+      if (context != null && context.mounted) {
+        final scaffoldMessenger = ScaffoldMessenger.of(context);
+        final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
+        final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
+        scaffoldMessenger.showSnackBar(SnackBar(
           persist: false,
           showCloseIcon: true,
           closeIconColor: onErrorContainerColor,
-          content: Text(
-            "Error backing up to Google Drive: $e", 
+          content: Text("Error backing up to Google Drive: $e", 
             style: TextStyle(color: onErrorContainerColor)
           ), 
           backgroundColor: errorContainerColor,

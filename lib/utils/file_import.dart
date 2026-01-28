@@ -179,6 +179,7 @@ class FileImport {
     required AppData remoteData,
     required AppData localData,
   }) {
+    //FIXME: Preserve Order (except setups?)
     // Last Write Wins (LWW) strategy
     for (final remotePerson in remoteData.persons.values) {
       final localPerson = localData.persons[remotePerson.id];

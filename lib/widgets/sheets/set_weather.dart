@@ -384,7 +384,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                         flex: 1,
                         fit: FlexFit.tight,
                         child: FilledButton(
-                          onPressed: _save,
+                          onPressed: _currentWeather == widget.currentWeather ? null : _save,
                           child: const Text("Save"),
                         ),
                       ),

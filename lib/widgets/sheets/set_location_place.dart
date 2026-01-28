@@ -413,7 +413,9 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                         flex: 1,
                         fit: FlexFit.tight,
                         child: FilledButton(
-                          onPressed: _save,
+                          onPressed: Setup.placeEqual(widget.currentPlace, _currentPlace) && Setup.locationEqual(widget.currentLocation, _currentLocation)
+                              ? null
+                              : _save,
                           child: const Text("Save"),
                         ),
                       ),

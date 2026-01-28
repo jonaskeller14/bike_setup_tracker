@@ -5,8 +5,8 @@ class Bike {
   final String id;
   bool isDeleted;
   DateTime lastModified;
-  String name;
-  String? person;
+  final String name;
+  final String? person;
 
   static const IconData iconData = Icons.pedal_bike;
 

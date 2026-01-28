@@ -6,8 +6,8 @@ class Person {
   final String id;
   bool isDeleted;
   DateTime lastModified;
-  String name;
-  List<Adjustment> adjustments;
+  final String name;
+  final List<Adjustment> adjustments;
 
   static const IconData iconData = Icons.person;
 

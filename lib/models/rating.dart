@@ -14,9 +14,9 @@ class Rating {
   final String id;
   bool isDeleted;
   DateTime lastModified;
-  String name;
-  String? filter; // id of filter object (Bike, Component, Person)
-  FilterType filterType;
+  final String name;
+  final String? filter; // id of filter object (Bike, Component, Person)
+  final FilterType filterType;
   final List<Adjustment> adjustments;
 
   static const IconData iconData = Icons.star;

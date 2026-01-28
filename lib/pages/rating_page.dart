@@ -189,23 +189,13 @@ class _RatingPageState extends State<RatingPage> {
     final name = _nameController.text.trim();
     _formHasChanges = false;
     
-    if (widget.rating == null) {
-      Navigator.pop(context, Rating(
-        name: name, 
-        filter: _filterFilterType.filter, 
-        filterType: _filterFilterType.filterType,
-        adjustments: _adjustments,
-      ));
-    } else {
-      widget.rating!.name = name;
-      widget.rating!.lastModified = DateTime.now();
-      widget.rating!.filter = _filterFilterType.filter;
-      widget.rating!.filterType = _filterFilterType.filterType;
-      widget.rating!.adjustments
-          ..clear()
-          ..addAll(_adjustments);
-      Navigator.pop(context, widget.rating);
-    }
+    Navigator.pop(context, Rating(
+      id: widget.rating?.id,
+      name: name, 
+      filter: _filterFilterType.filter, 
+      filterType: _filterFilterType.filterType,
+      adjustments: _adjustments,
+    ));
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {

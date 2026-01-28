@@ -164,14 +164,7 @@ class _PersonPageState extends State<PersonPage> {
     if (!_formKey.currentState!.validate()) return;
     final name = _nameController.text.trim();
     _formHasChanges = false;
-    if (widget.person == null) {
-      Navigator.pop(context, Person(name: name, adjustments: _adjustments));
-    } else {
-      widget.person!.name = name;
-      widget.person!.adjustments = _adjustments;
-      widget.person!.lastModified = DateTime.now();
-      Navigator.pop(context, widget.person);
-    }
+    Navigator.pop(context, Person(id: widget.person?.id, name: name, adjustments: _adjustments));
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {

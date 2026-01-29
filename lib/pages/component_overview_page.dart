@@ -37,6 +37,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
       "Altitude": false,
     },
     "Weather Context": {
+      "Weather Code": false,
       "Temperature": false,
       "Precipitation": false,
       "Humidity": false,
@@ -119,6 +120,10 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
       case "Altitude": setState(() {ascending 
           ? _setups.sort((a, b) => (a.position?.altitude ?? double.negativeInfinity).compareTo(b.position?.altitude ?? double.negativeInfinity)) 
           : _setups.sort((a, b) => (b.position?.altitude ?? double.negativeInfinity).compareTo(a.position?.altitude ?? double.negativeInfinity));
+      });
+      case "Weather Code": setState(() {ascending 
+          ? _setups.sort((a, b) => (a.weather?.getWeatherCodeLabel() ?? '').compareTo(b.weather?.getWeatherCodeLabel() ?? '')) 
+          : _setups.sort((a, b) => (b.weather?.getWeatherCodeLabel() ?? '').compareTo(a.weather?.getWeatherCodeLabel() ?? ''));
       });
       case "Temperature": setState(() {ascending 
           ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) 
@@ -301,12 +306,13 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                             );
                           } else {
                             return switch(showColumnEntry.key) {
-                              "Name" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: Text(setup.name, overflow: TextOverflow.ellipsis))),
-                              "Notes" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: Text(setup.notes ?? '-', overflow: TextOverflow.ellipsis))),
+                              "Name" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.name, overflow: TextOverflow.ellipsis)))),
+                              "Notes" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.notes ?? '-', overflow: TextOverflow.ellipsis)))),
                               "Date" => DataCell(Text(DateFormat(appSettings.dateFormat).format(setup.datetime))),
                               "Time" => DataCell(Text(DateFormat(appSettings.timeFormat).format(setup.datetime))),
-                              "Place" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: Text(setup.place?.locality ?? '-', overflow: TextOverflow.ellipsis))),
+                              "Place" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.place?.locality ?? '-', overflow: TextOverflow.ellipsis)))),
                               "Altitude" => DataCell(Center(child: Text(setup.position?.altitude == null ? '-' : "${setup.position!.altitude!.round()} ${appSettings.altitudeUnit}"))),
+                              "Weather Code" => DataCell(Center(child: Text(setup.weather?.getWeatherCodeLabel() ?? "-"))),
                               "Temperature" => DataCell(Center(child: Text(setup.weather?.currentTemperature == null ? '-' : "${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}"))),
                               "Precipitation" => DataCell(Center(child: Text(setup.weather?.dayAccumulatedPrecipitation == null ? '-' : "${Weather.convertPrecipitationFromMm(setup.weather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit)?.round()} ${appSettings.precipitationUnit}"))),
                               "Humidity" => DataCell(Center(child: Text(setup.weather?.currentHumidity == null ? '-' : "${setup.weather!.currentHumidity!.round()} %"))),

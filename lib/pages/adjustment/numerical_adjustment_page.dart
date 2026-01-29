@@ -182,6 +182,15 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                           validator: _validateName,
                         ),
                         const SizedBox(height: 12),
+                        if (widget.adjustment != null) ...[
+                          ListTile(
+                            leading: const Icon(Icons.warning),
+                            title: const Text('WARNING: Editing Unit will not update existing setup values!'),
+                            dense: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                          const SizedBox(height: 12),
+                        ],
                         TextFormField(
                           controller: _unitController,
                           maxLength: 10,

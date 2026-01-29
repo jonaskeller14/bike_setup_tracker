@@ -232,8 +232,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                         ),
                         if (widget.adjustment != null) ...[
                           ListTile(
-                            leading: const Icon(Icons.info_outline),
-                            title: const Text('Renaming an option will not update existing setup values!'),
+                            leading: const Icon(Icons.warning),
+                            title: const Text('WARNING: Renaming an option will not update existing setup values!'),
                             dense: true,
                             contentPadding: const EdgeInsets.all(0),
                           ),

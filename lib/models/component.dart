@@ -36,7 +36,7 @@ class Component {
   final String name;
   final ComponentType componentType; 
   final List<Adjustment> adjustments;
-  final String bike;
+  final String? bike;
 
   static const IconData iconData = Icons.grid_view_sharp;
 
@@ -77,15 +77,15 @@ class Component {
     switch (version) {
       case null:
         return Component(
-          id: json["id"],
-          isDeleted: json["isDeleted"],
+          id: json["id"] as String,
+          isDeleted: json["isDeleted"] as bool,
           lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
-          name: json['name'],
+          name: json['name'] as String,
           componentType: ComponentType.values.firstWhere(
             (e) => e.toString() == json['componentType'],
             orElse: () => ComponentType.other,
           ),
-          bike: json["bike"],
+          bike: json["bike"] as String?,
           adjustments: (json["adjustments"] as List<dynamic>?)
             ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson))
             .toList()

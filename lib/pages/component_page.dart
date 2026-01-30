@@ -32,8 +32,8 @@ class _ComponentPageState extends State<ComponentPage> {
   late TextEditingController _nameController;
   late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
-  late String _bike;
-  late String _initialBike;
+  late String? _bike;
+  late String? _initialBike;
   late ComponentType? _componentType;
 
   @override
@@ -47,7 +47,7 @@ class _ComponentPageState extends State<ComponentPage> {
     _initialAdjustments = List.from(_adjustments);
     
     final filteredData = context.read<FilteredData>();
-    _initialBike = widget.component?.bike ?? filteredData.filteredBikes.keys.first;
+    _initialBike = widget.component != null ? widget.component!.bike : filteredData.filteredBikes.keys.firstOrNull;
     _bike = _initialBike;
 
     _componentType = widget.component?.componentType;
@@ -302,7 +302,6 @@ class _ComponentPageState extends State<ComponentPage> {
   Widget build(BuildContext context) {
     final filteredData = context.watch<FilteredData>();
     final bikes = filteredData.bikes;
-    final bikeOptions = filteredData.filteredBikes;
     final existingComponentsCount = filteredData.components.values.where((c) => c.bike == _bike && c.componentType == _componentType && widget.component?.id != c.id).length;
 
     return PopScope( 
@@ -339,25 +338,25 @@ class _ComponentPageState extends State<ComponentPage> {
                   validator: _validateName,
                 ),
                 const SizedBox(height: 12),
-                DropdownButtonFormField<Bike>(
-                  initialValue: bikeOptions[_bike],
+                DropdownButtonFormField<String?>(
+                  initialValue: _bike,
                   isExpanded: true,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   decoration: InputDecoration(
                     labelText: 'Bike',
                     border: OutlineInputBorder(),
                     hintText: "Choose a bike for this component",
+                    helperText: _bike == null ? "WARNING: Select Bike to install Component." : null,
                     fillColor: Colors.orange.withValues(alpha: 0.08),
                     filled: widget.component != null && _bike != widget.component?.bike,
                   ),
-                  validator: (Bike? newBike) {
-                    if (newBike == null) return "Bike cannot be empty.";
-                    if (!bikes.values.contains(newBike)) return "Please select valid bike";
+                  validator: (String? newBike) {
+                    if (newBike is String && !bikes.containsKey(newBike)) return "Please select valid bike";
                     return null;
                   },
-                  items: bikeOptions.values.map((b) {
-                    return DropdownMenuItem<Bike>(
-                      value: b,
+                  items: bikes.values.map((b) {
+                    return DropdownMenuItem<String?>(
+                      value: b.id,
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -368,12 +367,35 @@ class _ComponentPageState extends State<ComponentPage> {
                         ],
                       ),
                     );
-                  }).toList(),
-                  onChanged: (Bike? newBike) {
-                    if (newBike == null) return;
-                    setState(() {
-                      _bike = newBike.id;
-                    });
+                  }).toList() + [
+                    DropdownMenuItem<String?>(
+                      value: null,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        spacing: 8,
+                        children: [
+                          const Icon(Icons.shelves),
+                          Expanded(child: Text("NOT INSTALLED", overflow: TextOverflow.ellipsis))
+                        ],
+                      ),
+                    ),
+                    if (_bike != null && !bikes.containsKey(_bike))
+                      DropdownMenuItem<String?>(
+                        value: _bike,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          spacing: 8,
+                          children: [
+                            Icon(Bike.iconData, color: Theme.of(context).colorScheme.error),
+                            Expanded(child: Text("BIKE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+                          ],
+                        ),
+                      ),
+                  ],
+                  onChanged: (String? newBike) {
+                    setState(() => _bike = newBike);
                     _changeListener();
                   },
                 ),

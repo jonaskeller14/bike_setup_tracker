@@ -63,17 +63,17 @@ Future<AppData?> showDataSelectSheet({required BuildContext context, required Ap
   if (applySelection == false) return data;
   if (applySelection == null) return null;
 
-  final List<Bike> allBikes = data.bikes.values.toList();
-  final List<Component> allComponents = data.components.values.toList();
-  final List<Setup> allSetups = data.setups.values.toList();
-  final List<Person> allPersons = data.persons.values.toList();
-  final List<Rating> allRatings = data.ratings.values.toList();
+  final Map<String, Bike> allBikes = data.bikes;
+  final Map<String, Component> allComponents = data.components;
+  final Map<String, Setup> allSetups = data.setups;
+  final Map<String, Person> allPersons = data.persons;
+  final Map<String, Rating> allRatings = data.ratings;
 
-  final List<Bike> selectedBikes = allBikes.toList();
-  final List<Component> selectedComponents = allComponents.toList();
-  final List<Setup> selectedSetups = allSetups.toList();
-  final List<Person> selectedPersons = allPersons.toList();
-  final List<Rating> selectedRatings = allRatings.toList();
+  final List<Bike> selectedBikes = allBikes.values.toList();
+  final List<Component> selectedComponents = allComponents.values.toList();
+  final List<Setup> selectedSetups = allSetups.values.toList();
+  final List<Person> selectedPersons = allPersons.values.toList();
+  final List<Rating> selectedRatings = allRatings.values.toList();
 
   if (!context.mounted) return null;
   final selectionConfirmed = await showModalBottomSheet<bool?>(
@@ -120,12 +120,12 @@ Future<AppData?> showDataSelectSheet({required BuildContext context, required Ap
                             onChanged: (bool? newValue) {
                               switch (newValue) {
                                 case false: setSheetState(() => selectedBikes.clear());
-                                case true: setSheetState(() {selectedBikes.clear(); selectedBikes.addAll(allBikes);});
+                                case true: setSheetState(() {selectedBikes.clear(); selectedBikes.addAll(allBikes.values);});
                                 case null: setSheetState(() => selectedBikes.clear());
                               }
                             },
                           ),
-                          children: allBikes.map((bike) {
+                          children: allBikes.values.map((bike) {
                             return Card(
                               margin: const EdgeInsets.symmetric(vertical: 4.0),
                               child: CheckboxListTile(
@@ -168,12 +168,12 @@ Future<AppData?> showDataSelectSheet({required BuildContext context, required Ap
                             onChanged: (bool? newValue) {
                               switch (newValue) {
                                 case false: setSheetState(() => selectedComponents.clear());
-                                case true: setSheetState(() {selectedComponents.clear(); selectedComponents.addAll(allComponents);});
+                                case true: setSheetState(() {selectedComponents.clear(); selectedComponents.addAll(allComponents.values);});
                                 case null: setSheetState(() => selectedComponents.clear());
                               }
                             },
                           ),
-                          children: allComponents.map((component) {
+                          children: allComponents.values.map((component) {
                             return Card(
                               margin: const EdgeInsets.symmetric(vertical: 4.0),
                               child: CheckboxListTile(
@@ -188,12 +188,27 @@ Future<AppData?> showDataSelectSheet({required BuildContext context, required Ap
                                   mainAxisSize: MainAxisSize.min,
                                   spacing: 2,
                                   children: [
-                                    Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                    Icon(component.bike != null 
+                                        ? Bike.iconData 
+                                        : Icons.shelves, 
+                                      size: 13, 
+                                      color: component.bike == null || allBikes.containsKey(component.bike) 
+                                          ? Theme.of(context).colorScheme.onSurfaceVariant
+                                          : Theme.of(context).colorScheme.error,
+                                    ),
                                     Flexible(
                                       child: Text(
-                                        allBikes.firstWhereOrNull((b) => b.id == component.bike)?.name ?? "-",
-                                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                        component.bike == null 
+                                            ? "Not installed" 
+                                            : allBikes[component.bike]?.name ?? "BIKE NOT FOUND",
+                                        style: TextStyle(
+                                          color: component.bike == null || allBikes.containsKey(component.bike) 
+                                              ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                                              : Theme.of(context).colorScheme.error,
+                                          fontSize: 13
+                                        ),
                                         overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
                                       ),
                                     ),
                                   ],
@@ -230,12 +245,12 @@ Future<AppData?> showDataSelectSheet({required BuildContext context, required Ap
                             onChanged: (bool? newValue) {
                               switch (newValue) {
                                 case false: setSheetState(() => selectedSetups.clear());
-                                case true: setSheetState(() {selectedSetups.clear(); selectedSetups.addAll(allSetups);});
+                                case true: setSheetState(() {selectedSetups.clear(); selectedSetups.addAll(allSetups.values);});
                                 case null: setSheetState(() => selectedSetups.clear());
                               }
                             },
                           ),
-                          children: allSetups.reversed.map((setup) {
+                          children: allSetups.values.toList().reversed.map((setup) {
                             return Card(
                               margin: const EdgeInsets.symmetric(vertical: 4.0),
                               child: CheckboxListTile(
@@ -253,7 +268,7 @@ Future<AppData?> showDataSelectSheet({required BuildContext context, required Ap
                                     Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                                     Flexible(
                                       child: Text(
-                                        allBikes.firstWhereOrNull((b) => b.id == setup.bike)?.name ?? "-",
+                                        allBikes.values.firstWhereOrNull((b) => b.id == setup.bike)?.name ?? "-",
                                         style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -293,12 +308,12 @@ Future<AppData?> showDataSelectSheet({required BuildContext context, required Ap
                               onChanged: (bool? newValue) {
                                 switch (newValue) {
                                   case false: setSheetState(() => selectedPersons.clear());
-                                  case true: setSheetState(() {selectedPersons.clear(); selectedPersons.addAll(allPersons);});
+                                  case true: setSheetState(() {selectedPersons.clear(); selectedPersons.addAll(allPersons.values);});
                                   case null: setSheetState(() => selectedPersons.clear());
                                 }
                               },
                             ),
-                            children: allPersons.map((person) {
+                            children: allPersons.values.map((person) {
                               return Card(
                                 margin: const EdgeInsets.symmetric(vertical: 4.0),
                                 child: CheckboxListTile(
@@ -343,12 +358,12 @@ Future<AppData?> showDataSelectSheet({required BuildContext context, required Ap
                               onChanged: (bool? newValue) {
                                 switch (newValue) {
                                   case false: setSheetState(() => selectedRatings.clear());
-                                  case true: setSheetState(() {selectedRatings.clear(); selectedRatings.addAll(allRatings);});
+                                  case true: setSheetState(() {selectedRatings.clear(); selectedRatings.addAll(allRatings.values);});
                                   case null: setSheetState(() => selectedRatings.clear());
                                 }
                               },
                             ),
-                            children: allRatings.map((rating) {
+                            children: allRatings.values.map((rating) {
                               return Card(
                                 margin: const EdgeInsets.symmetric(vertical: 4.0),
                                 child: CheckboxListTile(

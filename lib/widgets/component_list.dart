@@ -87,11 +87,25 @@ class _ComponentListState extends State<ComponentList> {
                             mainAxisSize: MainAxisSize.min,
                             spacing: 2,
                             children: [
-                              Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              Icon(component.bike != null 
+                                  ? Bike.iconData 
+                                  : Icons.shelves, 
+                                size: 13, 
+                                color: component.bike == null || widget.bikes.containsKey(component.bike) 
+                                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                                    : Theme.of(context).colorScheme.error,
+                              ),
                               Flexible(
                                 child: Text(
-                                  widget.bikes[component.bike]?.name ?? "-",
-                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                  component.bike == null 
+                                      ? "Not installed" 
+                                      : widget.bikes[component.bike]?.name ?? "BIKE NOT FOUND",
+                                  style: TextStyle(
+                                    color: component.bike == null || widget.bikes.containsKey(component.bike) 
+                                        ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                                        : Theme.of(context).colorScheme.error,
+                                    fontSize: 13
+                                  ),
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
                                 ),

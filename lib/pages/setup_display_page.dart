@@ -306,8 +306,18 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               ListTile(
-                                leading: const Icon(Bike.iconData),
-                                title: Text(bike?.name ?? "Bike not found."),
+                                leading: Icon(
+                                  Bike.iconData,
+                                  color: bike == null
+                                      ? Theme.of(context).colorScheme.error
+                                      : null,
+                                ),
+                                title: Text(
+                                  bike?.name ?? "BIKE NOT FOUND", 
+                                  style: bike == null
+                                      ? TextStyle(color: Theme.of(context).colorScheme.error)
+                                      : null,
+                                ),
                                 dense: true,
                               ),
                               if (appSettings.enablePerson)

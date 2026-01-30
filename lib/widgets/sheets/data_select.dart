@@ -205,7 +205,7 @@ Future<AppData?> showDataSelectSheet({required BuildContext context, required Ap
                                           color: component.bike == null || allBikes.containsKey(component.bike) 
                                               ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
                                               : Theme.of(context).colorScheme.error,
-                                          fontSize: 13
+                                          fontSize: 13,
                                         ),
                                         overflow: TextOverflow.ellipsis,
                                         maxLines: 1,
@@ -265,12 +265,23 @@ Future<AppData?> showDataSelectSheet({required BuildContext context, required Ap
                                   mainAxisSize: MainAxisSize.min,
                                   spacing: 2,
                                   children: [
-                                    Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                    Icon(Bike.iconData, 
+                                      size: 13, 
+                                      color: allBikes.containsKey(setup.bike)
+                                          ? Theme.of(context).colorScheme.onSurfaceVariant
+                                          : Theme.of(context).colorScheme.error,
+                                    ),
                                     Flexible(
                                       child: Text(
-                                        allBikes.values.firstWhereOrNull((b) => b.id == setup.bike)?.name ?? "-",
-                                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                        allBikes[setup.bike]?.name ?? "BIKE NOT FOUND",
+                                        style: TextStyle(
+                                          color: allBikes.containsKey(setup.bike) 
+                                              ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                                              : Theme.of(context).colorScheme.error,
+                                          fontSize: 13,
+                                        ),
                                         overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
                                       ),
                                     ),
                                   ],

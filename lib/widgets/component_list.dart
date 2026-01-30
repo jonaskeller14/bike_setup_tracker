@@ -104,7 +104,7 @@ class _ComponentListState extends State<ComponentList> {
                                     color: component.bike == null || widget.bikes.containsKey(component.bike) 
                                         ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
                                         : Theme.of(context).colorScheme.error,
-                                    fontSize: 13
+                                    fontSize: 13,
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,

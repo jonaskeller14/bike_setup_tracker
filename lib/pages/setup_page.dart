@@ -811,7 +811,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     final filteredData = context.watch<FilteredData>();
     final bikes = filteredData.bikes;
-    final bikeOptions = filteredData.filteredBikes;
     final persons = filteredData.persons;
     final components = filteredData.components;
 
@@ -844,8 +843,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                             const SizedBox(height: 12),
                             _wrap(),
                             const SizedBox(height: 12),
-                            DropdownButtonFormField<Bike>(
-                              initialValue: bikeOptions[_bike],
+                            DropdownButtonFormField<String>(
+                              initialValue: _bike,
                               isExpanded: true,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
@@ -855,28 +854,38 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
                                 filled: widget.setup != null && _bike != widget.setup?.bike,
                               ),
-                              validator: (Bike? newBike) {
+                              validator: (String? newBike) {
                                 if (newBike == null) return "Bike cannot be empty.";
-                                if (!bikes.values.contains(newBike)) return "Please select valid bike";
+                                if (!bikes.keys.contains(newBike)) return "Please select valid bike";
                                 return null;
                               },
-                              items: bikeOptions.values.map((b) {
-                                return DropdownMenuItem<Bike>(
-                                  value: b,
+                              items: bikes.values.map((b) {
+                                return DropdownMenuItem<String>(
+                                  value: b.id,
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    spacing: 8,
                                     children: [
-                                      Icon(Bike.iconData),
-                                      const SizedBox(width: 8),
+                                      const Icon(Bike.iconData),
                                       Expanded(
                                         child: Text(b.name, overflow: TextOverflow.ellipsis),
                                       ),
                                     ],
                                   ),
                                 );
-                              }).toList(),
-                              onChanged: (Bike? b) => _onBikeChange(b?.id),
+                              }).toList() + [
+                                if (!bikes.containsKey(_bike))
+                                DropdownMenuItem<String>(
+                                  value: _bike,
+                                  child: Row(
+                                    spacing: 8,
+                                    children: [
+                                      Icon(Bike.iconData, color: Theme.of(context).colorScheme.error),
+                                      Expanded(child: Text("BIKE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+                                    ],
+                                  ),
+                                ),
+                              ],
+                              onChanged: (String? newBike) => _onBikeChange(newBike),
                             ),
                             const SizedBox(height: 12),
                             if (context.read<AppSettings>().enablePerson || context.read<AppSettings>().enableRating)

@@ -358,8 +358,6 @@ class _ComponentPageState extends State<ComponentPage> {
                     return DropdownMenuItem<String?>(
                       value: b.id,
                       child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
                         spacing: 8,
                         children: [
                           const Icon(Bike.iconData),
@@ -384,8 +382,6 @@ class _ComponentPageState extends State<ComponentPage> {
                       DropdownMenuItem<String?>(
                         value: _bike,
                         child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.start,
                           spacing: 8,
                           children: [
                             Icon(Bike.iconData, color: Theme.of(context).colorScheme.error),

@@ -93,7 +93,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
     }
   }
 
-  void onSortColum(String column, int columnIndex, bool ascending) {
+  void onSortColum({required String section, required Adjustment? adjustment, required String column, required int columnIndex, required bool ascending}) {
     _sortAscending = ascending;
     _sortColumnIndex = columnIndex;
     switch (column) {
@@ -150,32 +150,38 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
           : _setups.sort((a, b) => (b.weather?.condition?.value ?? '').compareTo(a.weather?.condition?.value ?? ''));
       });
       default: 
-        final Adjustment? adjustment = widget.component.adjustments.firstWhereOrNull((a) => a.id == column);
+        final column2value = switch (section) {
+          "Adjustments" => (Setup s) => s.bikeAdjustmentValues[column],
+          "Person" => (Setup s) => s.personAdjustmentValues[column],
+          "Ratings" => (Setup s) => s.ratingAdjustmentValues[column],
+          _ => null, 
+        };
+        if (column2value == null) return;
         switch (adjustment) {
           case null: return;
           case BooleanAdjustment(): setState(() {ascending 
-              ? _setups.sort((a, b) => ((a.bikeAdjustmentValues[column] ?? false) ? 1 : 0).compareTo((b.bikeAdjustmentValues[column] ?? false) ? 1 : 0)) 
-              : _setups.sort((a, b) => ((b.bikeAdjustmentValues[column] ?? false) ? 1 : 0).compareTo((a.bikeAdjustmentValues[column] ?? false) ? 1 : 0));
+              ? _setups.sort((a, b) => ((column2value(a) ?? false) ? 1 : 0).compareTo((column2value(b) ?? false) ? 1 : 0)) 
+              : _setups.sort((a, b) => ((column2value(b) ?? false) ? 1 : 0).compareTo((column2value(a) ?? false) ? 1 : 0));
           });
           case StepAdjustment(): setState(() {ascending 
-              ? _setups.sort((a, b) => ((a.bikeAdjustmentValues[column] ?? 0) as int).compareTo((b.bikeAdjustmentValues[column] ?? 0) as int)) 
-              : _setups.sort((a, b) => ((b.bikeAdjustmentValues[column] ?? 0) as int).compareTo((a.bikeAdjustmentValues[column] ?? 0) as int));
+              ? _setups.sort((a, b) => ((column2value(a) ?? 0) as int).compareTo((column2value(b) ?? 0) as int)) 
+              : _setups.sort((a, b) => ((column2value(b) ?? 0) as int).compareTo((column2value(a) ?? 0) as int));
           });
           case NumericalAdjustment(): setState(() {ascending 
-              ? _setups.sort((a, b) => ((a.bikeAdjustmentValues[column] ?? double.negativeInfinity) as double).compareTo((b.bikeAdjustmentValues[column] ?? double.negativeInfinity) as double)) 
-              : _setups.sort((a, b) => ((b.bikeAdjustmentValues[column] ?? double.negativeInfinity) as double).compareTo((a.bikeAdjustmentValues[column] ?? double.negativeInfinity) as double));
+              ? _setups.sort((a, b) => ((column2value(a) ?? double.negativeInfinity) as double).compareTo((column2value(b) ?? double.negativeInfinity) as double)) 
+              : _setups.sort((a, b) => ((column2value(b) ?? double.negativeInfinity) as double).compareTo((column2value(a) ?? double.negativeInfinity) as double));
           });
           case CategoricalAdjustment(): setState(() {ascending 
-              ? _setups.sort((a, b) => ((a.bikeAdjustmentValues[column] ?? '') as String).compareTo((b.bikeAdjustmentValues[column] ?? '') as String)) 
-              : _setups.sort((a, b) => ((b.bikeAdjustmentValues[column] ?? '') as String).compareTo((a.bikeAdjustmentValues[column] ?? '') as String));
+              ? _setups.sort((a, b) => ((column2value(a) ?? '') as String).compareTo((column2value(b) ?? '') as String)) 
+              : _setups.sort((a, b) => ((column2value(b) ?? '') as String).compareTo((column2value(a) ?? '') as String));
           });
           case TextAdjustment(): setState(() {ascending 
-              ? _setups.sort((a, b) => ((a.bikeAdjustmentValues[column] ?? '') as String).compareTo((b.bikeAdjustmentValues[column] ?? '') as String)) 
-              : _setups.sort((a, b) => ((b.bikeAdjustmentValues[column] ?? '') as String).compareTo((a.bikeAdjustmentValues[column] ?? '') as String));
+              ? _setups.sort((a, b) => ((column2value(a) ?? '') as String).compareTo((column2value(b) ?? '') as String)) 
+              : _setups.sort((a, b) => ((column2value(b) ?? '') as String).compareTo((column2value(a) ?? '') as String));
           });
           case DurationAdjustment(): setState(() {ascending 
-              ? _setups.sort((a, b) => ((a.bikeAdjustmentValues[column] ?? Duration.zero) as Duration).compareTo((b.bikeAdjustmentValues[column] ?? Duration.zero) as Duration)) 
-              : _setups.sort((a, b) => ((b.bikeAdjustmentValues[column] ?? Duration.zero) as Duration).compareTo((a.bikeAdjustmentValues[column] ?? Duration.zero) as Duration));
+              ? _setups.sort((a, b) => ((column2value(a) ?? Duration.zero) as Duration).compareTo((column2value(b) ?? Duration.zero) as Duration)) 
+              : _setups.sort((a, b) => ((column2value(b) ?? Duration.zero) as Duration).compareTo((column2value(a) ?? Duration.zero) as Duration));
           });
         }
     }
@@ -260,12 +266,24 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                             (adjustment?.name ?? "-") + (adjustment?.unit != null ? " [${adjustment!.unit}]" : ""),
                             overflow: TextOverflow.ellipsis
                           ),
-                          onSort: (columnIndex, ascending) => onSortColum(showColumnEntry.key, columnIndex, ascending),
+                          onSort: (columnIndex, ascending) => onSortColum(
+                            section: sectionShowColumnsEntry.key, 
+                            adjustment: adjustment, 
+                            column: showColumnEntry.key, 
+                            columnIndex: columnIndex, 
+                            ascending: ascending
+                          ),
                         );
                       } else {
                         return DataColumn(
                           label: Text(showColumnEntry.key, overflow: TextOverflow.ellipsis),
-                          onSort: (columnIndex, ascending) => onSortColum(showColumnEntry.key, columnIndex, ascending),
+                          onSort: (columnIndex, ascending) => onSortColum(
+                            section: sectionShowColumnsEntry.key, 
+                            adjustment: null, 
+                            column: showColumnEntry.key, 
+                            columnIndex: columnIndex, 
+                            ascending: ascending
+                          ),
                         );
                       }               
                     }).toList();

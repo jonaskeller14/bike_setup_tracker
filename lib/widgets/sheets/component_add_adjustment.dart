@@ -41,6 +41,13 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
     BooleanAdjustment(name: "Insert", unit: null, notes: "Tire insert installed?"),
     CategoricalAdjustment(name: "Wear", options: {"New", "Used", "Worn Out"}, unit: null, notes: "Current state of the tire tread"),
   ],
+  ComponentType.cockpit: [
+    NumericalAdjustment(name: "Bar Roll", unit: "°", notes: "Angle of handlebars in degrees"),
+    NumericalAdjustment(name: "Bar Width", unit: "mm", min: 0, notes: "Total width of handlebars"),
+    NumericalAdjustment(name: "Bar Rise", unit: "mm", min: 0, notes: "The vertical distance between the center of the clamp area and the center of the bar ends."),
+    NumericalAdjustment(name: "Lever Angle",  unit: "°",  notes: "Angle of brake levers relative to horizontal."),
+    NumericalAdjustment(name: "Stem Length", unit: "mm", min: 0, notes: "Measured center-to-center from the fork steerer tube to the handlebar clamp."),
+  ],
   ComponentType.motor: [
     NumericalAdjustment(name: "Max Power", unit: "W", min: 0, notes: "Maximum motor power output"),
     NumericalAdjustment(name: "Max Torque", unit: "Nm", min: 0, notes: "Maximum motor torque"),
@@ -54,8 +61,6 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
   ],
   ComponentType.other: [
     NumericalAdjustment(name: "Saddle Height", unit: "mm", min: 0, notes: "Distance from Bottom Bracket to top of saddle"),
-    NumericalAdjustment(name: "Bar Roll", unit: "°", notes: "Angle of handlebars in degrees"),
-    NumericalAdjustment(name: "Bar Width", unit: "mm", min: 0, notes: "Total width of handlebars"),
     NumericalAdjustment(name: "Stack Height", unit: "mm", min: 0, notes: "Height of spacers under the stem"),
   ],
 };

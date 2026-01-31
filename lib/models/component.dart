@@ -9,6 +9,7 @@ enum ComponentType {
   shock('Shock'),
   wheelFront('Front Wheel'),
   wheelRear('Rear Wheel'),
+  cockpit('Cockpit'),
   motor('Motor'),
   equipment('Equipment'),
   other('Other');
@@ -22,6 +23,7 @@ enum ComponentType {
       case shock: return BikeIcons.shock;
       case wheelFront: return BikeIcons.wheelFront;
       case wheelRear: return BikeIcons.wheelRear;
+      case cockpit: return BikeIcons.cockpit;
       case motor: return BikeIcons.motor;
       case equipment: return BikeIcons.equipment;
       case other: return BikeIcons.other;

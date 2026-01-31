@@ -841,9 +841,7 @@ class _HomePageState extends State<HomePage> {
           filterWidget: _bikeListFilterWidget(),
         ),
         ComponentList(
-          bikes: filteredData.bikes,
           components: filteredData.filteredComponents,
-          setups: filteredData.setups,
           editComponent: editComponent,
           duplicateComponent: duplicateComponent,
           removeComponent: removeComponent,
@@ -864,9 +862,7 @@ class _HomePageState extends State<HomePage> {
         ),
         if (context.read<AppSettings>().enablePerson)
           PersonList(
-            bikes: filteredData.bikes,
             persons: filteredData.filteredPersons,
-            setups: filteredData.setups,
             editPerson: _editPerson,
             duplicatePerson: _duplicatePerson,
             removePerson: _removePerson,

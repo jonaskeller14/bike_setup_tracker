@@ -1,16 +1,15 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
+import 'package:provider/provider.dart';
 import '../models/component.dart';
-import '../models/setup.dart';
+import '../models/filtered_data.dart';
 import '../models/bike.dart';
 import 'adjustment_compact_display_list.dart';
 import '../pages/component_overview_page.dart';
 
 class ComponentList extends StatefulWidget {
-  final Map<String, Bike> bikes;
   final Map<String, Component> components;
-  final Map<String, Setup> setups;
   final Future<void> Function(Component component) editComponent;
   final Future<void> Function(Component component) duplicateComponent;
   final Future<void> Function(Component component) removeComponent;
@@ -19,9 +18,7 @@ class ComponentList extends StatefulWidget {
 
   const ComponentList({
     super.key,
-    required this.bikes,
     required this.components,
-    required this.setups,
     required this.editComponent,
     required this.duplicateComponent,
     required this.removeComponent,
@@ -40,11 +37,15 @@ class _ComponentListState extends State<ComponentList> {
   @override
   Widget build(BuildContext context) {
     final visibleItemCount = widget.components.length.clamp(0, _maxItemCount);
+
+    final filteredData = context.watch<FilteredData>();
+    final bikes = filteredData.bikes;
+    final setups = filteredData.setups;
     
     final List<InkWell> inkWells = <InkWell>[];
     for (int index = 0; index < visibleItemCount; index++) {
       final component = widget.components.values.toList()[index];
-      final enabled = widget.setups.values.lastWhereOrNull((s) => s.bike == component.bike) != null;
+      final enabled = setups.values.lastWhereOrNull((s) => s.bike == component.bike) != null;
       inkWells.add(
         InkWell(
           key: ValueKey(component.id),
@@ -91,7 +92,7 @@ class _ComponentListState extends State<ComponentList> {
                                   ? Bike.iconData 
                                   : Icons.shelves, 
                                 size: 13, 
-                                color: component.bike == null || widget.bikes.containsKey(component.bike) 
+                                color: component.bike == null || bikes.containsKey(component.bike) 
                                     ? Theme.of(context).colorScheme.onSurfaceVariant
                                     : Theme.of(context).colorScheme.error,
                               ),
@@ -99,9 +100,9 @@ class _ComponentListState extends State<ComponentList> {
                                 child: Text(
                                   component.bike == null 
                                       ? "Not installed" 
-                                      : widget.bikes[component.bike]?.name ?? "BIKE NOT FOUND",
+                                      : bikes[component.bike]?.name ?? "BIKE NOT FOUND",
                                   style: TextStyle(
-                                    color: component.bike == null || widget.bikes.containsKey(component.bike) 
+                                    color: component.bike == null || bikes.containsKey(component.bike) 
                                         ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
                                         : Theme.of(context).colorScheme.error,
                                     fontSize: 13,
@@ -171,7 +172,7 @@ class _ComponentListState extends State<ComponentList> {
                   padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
                   child: AdjustmentCompactDisplayList(
                     components: [component],
-                    adjustmentValues: widget.setups.values.lastWhereOrNull((s) => s.bike == component.bike)?.bikeAdjustmentValues ?? {},
+                    adjustmentValues: setups.values.lastWhereOrNull((s) => s.bike == component.bike)?.bikeAdjustmentValues ?? {},
                     showComponentIcons: false,
                     missingValuesPlaceholder: true,
                     displayBikeAdjustmentValues: true,

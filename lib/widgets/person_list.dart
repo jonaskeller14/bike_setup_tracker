@@ -1,15 +1,14 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
-import '../models/setup.dart';
+import 'package:provider/provider.dart';
+import '../models/filtered_data.dart';
 import '../models/bike.dart';
 import '../models/person.dart';
 import 'adjustment_compact_display_list.dart';
 
 class PersonList extends StatefulWidget {
-  final Map<String, Bike> bikes;
   final Map<String, Person> persons;
-  final Map<String, Setup> setups;
   final void Function(Person person) editPerson;
   final void Function(Person person) duplicatePerson;
   final void Function(Person person) removePerson;
@@ -18,9 +17,7 @@ class PersonList extends StatefulWidget {
 
   const PersonList({
     super.key,
-    required this.bikes,
     required this.persons,
-    required this.setups,
     required this.editPerson,
     required this.duplicatePerson,
     required this.removePerson,
@@ -36,10 +33,10 @@ class _PersonListState extends State<PersonList> {
   int _maxItemCount = 3;
   static const int _itemCountIncrement = 3;
 
-  Column _bikeColumn(Person person) {
+  Column _bikeColumn(Person person, {required Map<String, Bike> bikes}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: widget.bikes.values.where((b) => b.person == person.id).map((bike) {
+      children: bikes.values.where((b) => b.person == person.id).map((bike) {
         return Row(
           mainAxisSize: MainAxisSize.min,
           spacing: 2,
@@ -61,6 +58,10 @@ class _PersonListState extends State<PersonList> {
   @override
   Widget build(BuildContext context) {
     final visibleItemCount = widget.persons.length.clamp(0, _maxItemCount);
+
+    final filteredData = context.watch<FilteredData>();
+    final bikes = filteredData.bikes;
+    final setups = filteredData.setups;
     
     final List<InkWell> inkWells = <InkWell>[];
     for (int index = 0; index < visibleItemCount; index++) {
@@ -85,8 +86,8 @@ class _PersonListState extends State<PersonList> {
                     person.name,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  enabled: widget.setups.values.lastWhereOrNull((s) => s.person == person.id) != null,
-                  subtitle: _bikeColumn(person),
+                  enabled: setups.values.lastWhereOrNull((s) => s.person == person.id) != null,
+                  subtitle: _bikeColumn(person, bikes: bikes),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -142,7 +143,7 @@ class _PersonListState extends State<PersonList> {
                   padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
                   child: AdjustmentCompactDisplayList(
                     components: [person],
-                    adjustmentValues: widget.setups.values.lastWhereOrNull((s) => s.person == person.id)?.personAdjustmentValues ?? {},
+                    adjustmentValues: setups.values.lastWhereOrNull((s) => s.person == person.id)?.personAdjustmentValues ?? {},
                     showComponentIcons: false,
                     missingValuesPlaceholder: true,
                     displayBikeAdjustmentValues: false,

@@ -348,7 +348,7 @@ class _ComponentPageState extends State<ComponentPage> {
                     hintText: "Choose a bike for this component",
                     helperText: _bike == null ? "WARNING: Select Bike to install Component." : null,
                     fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.component != null && _bike != widget.component?.bike,
+                    filled: widget.component != null && _bike != _initialBike,
                   ),
                   validator: (String? newBike) {
                     if (newBike is String && !bikes.containsKey(newBike)) return "Please select valid bike";
@@ -369,8 +369,6 @@ class _ComponentPageState extends State<ComponentPage> {
                     DropdownMenuItem<String?>(
                       value: null,
                       child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
                         spacing: 8,
                         children: [
                           const Icon(Icons.shelves),

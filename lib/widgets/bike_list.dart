@@ -70,21 +70,34 @@ class _BikeListState extends State<BikeList> {
                         spacing: 4,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          if (bike.person != null)
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Person.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                const SizedBox(width: 2),
-                                Text(
-                                  persons[bike.person]?.name ?? "-",
-                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                                  overflow: TextOverflow.ellipsis,
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            spacing: 2,
+                            children: [
+                              Icon(bike.person != null
+                                  ? Person.iconData 
+                                  : Icons.person_off, 
+                                size: 13, 
+                                color: bike.person == null || persons.containsKey(bike.person) 
+                                    ? Theme.of(context).colorScheme.onSurfaceVariant 
+                                    : Theme.of(context).colorScheme.error,
+                              ),
+                              if (bike.person != null)
+                                Flexible(
+                                  child: Text(
+                                    persons[bike.person]?.name ?? "PERSON NOT FOUND",
+                                    style: TextStyle(
+                                      color: bike.person == null || persons.containsKey(bike.person) 
+                                          ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) 
+                                          : Theme.of(context).colorScheme.error, 
+                                      fontSize: 13,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                  ),
                                 ),
-                              ],
-                            ),
-                          if (bike.person == null)
-                            Icon(Icons.person_off, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            ],
+                          ),
                         ],
                       )
                     : null,

@@ -91,13 +91,22 @@ class _RatingListState extends State<RatingList> {
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              switch(rating.filterType) {
-                                FilterType.global => Icon(Icons.circle_outlined, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                FilterType.bike => Icon(Bike.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                FilterType.person => Icon(Person.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                FilterType.component => Icon((components[rating.filter]?.componentType ?? ComponentType.other).getIconData(), size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                                FilterType.componentType => Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData(), size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                              },
+                              Icon(
+                                switch(rating.filterType) {
+                                  FilterType.global => Icons.circle_outlined,
+                                  FilterType.bike => Bike.iconData,
+                                  FilterType.person => Person.iconData,
+                                  FilterType.component => (components[rating.filter]?.componentType ?? ComponentType.other).getIconData(),
+                                  FilterType.componentType => (ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData(),
+                                },
+                                size: 13, 
+                                color: switch(rating.filterType) {
+                                  FilterType.global || FilterType.componentType  => Theme.of(context).colorScheme.onSurfaceVariant,
+                                  FilterType.person => persons.containsKey(rating.filter) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
+                                  FilterType.bike => bikes.containsKey(rating.filter) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
+                                  FilterType.component => components.containsKey(rating.filter) ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
+                                },
+                              ),
 
                               const SizedBox(width: 2),
                               
@@ -109,18 +118,33 @@ class _RatingListState extends State<RatingList> {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   FilterType.bike => Text(
-                                    bikes[rating.filter]?.name ?? "-",
-                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                    bikes[rating.filter]?.name ?? "BIKE NOT FOUND",
+                                    style: TextStyle(
+                                      color: bikes.containsKey(rating.filter) 
+                                          ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) 
+                                          : Theme.of(context).colorScheme.error, 
+                                      fontSize: 13
+                                    ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   FilterType.person => Text(
-                                    persons[rating.filter]?.name ?? "-",
-                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                    persons[rating.filter]?.name ?? "PERSON NOT FOUND",
+                                    style: TextStyle(
+                                      color: persons.containsKey(rating.filter) 
+                                          ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) 
+                                          : Theme.of(context).colorScheme.error,
+                                      fontSize: 13,
+                                    ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   FilterType.component => Text(
-                                    components[rating.filter]?.name ?? "-",
-                                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                    components[rating.filter]?.name ?? "COMPONENT NOT FOUND",
+                                    style: TextStyle(
+                                      color: components.containsKey(rating.filter) 
+                                          ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) 
+                                          : Theme.of(context).colorScheme.error,
+                                      fontSize: 13
+                                    ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   FilterType.componentType => Text(

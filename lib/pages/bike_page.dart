@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/filtered_data.dart';
-import '../models/person.dart';
 import '../widgets/dialogs/discard_changes.dart';
 
 class BikePage extends StatefulWidget {
@@ -20,6 +19,7 @@ class _BikePageState extends State<BikePage> {
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
 
+  String? _initialPerson;
   String? _person;
 
   @override
@@ -28,12 +28,13 @@ class _BikePageState extends State<BikePage> {
     _nameController = TextEditingController(text: widget.bike?.name);
     _nameController.addListener(_changeListener);
     
-    _person = widget.bike?.person;
+    _initialPerson = widget.bike?.person;
+    _person = _initialPerson;
   }
 
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != (widget.bike?.name ?? '') || 
-        _person != widget.bike?.person;
+        _person != _initialPerson;
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -68,7 +69,7 @@ class _BikePageState extends State<BikePage> {
   @override
   Widget build(BuildContext context) {
     final filteredData = context.read<FilteredData>();
-    final personOptions = filteredData.persons;
+    final persons = filteredData.persons;
 
     return PopScope( 
       canPop: !_formHasChanges,
@@ -111,8 +112,8 @@ class _BikePageState extends State<BikePage> {
                 ),
                 if (context.read<AppSettings>().enablePerson) ...[
                   const SizedBox(height: 12),
-                  DropdownButtonFormField<Person>(
-                    initialValue: personOptions[_person],
+                  DropdownButtonFormField<String?>(
+                    initialValue: _person,
                     isExpanded: true,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     decoration: InputDecoration(
@@ -120,19 +121,17 @@ class _BikePageState extends State<BikePage> {
                       border: OutlineInputBorder(),
                       hintText: "Choose an owner for this bike",
                       fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.bike != null && _person != widget.bike?.person,
+                      filled: widget.bike != null && _person != _initialPerson,
                     ),
-                    validator: (Person? newPerson) {
+                    validator: (String? newPerson) {
                       if (newPerson == null) return null;
-                      if (!personOptions.values.contains(newPerson)) return "Please select valid bike";
+                      if (!persons.containsKey(newPerson)) return "Please select valid person";
                       return null;
                     },
-                    items: personOptions.values.map((p) {
-                      return DropdownMenuItem<Person>(
-                        value: p,
+                    items: persons.values.map((p) {
+                      return DropdownMenuItem<String>(
+                        value: p.id,
                         child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.start,
                           spacing: 8,
                           children: [
                             const Icon(Icons.person),
@@ -140,12 +139,21 @@ class _BikePageState extends State<BikePage> {
                           ],
                         ),
                       );
-                    }).toList(),
-                    onChanged: (Person? newPerson) {
-                      if (newPerson == null) return;
-                      setState(() {
-                        _person = newPerson.id;
-                      });
+                    }).toList() + [
+                      if (_person != null && !persons.containsKey(_person))
+                       DropdownMenuItem<String>(
+                        value: _person,
+                        child: Row(
+                          spacing: 8,
+                          children: [
+                            Icon(Icons.person, color: Theme.of(context).colorScheme.error),
+                            Expanded(child: Text("PERSON NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+                          ],
+                        ),
+                      ), 
+                    ],
+                    onChanged: (String? newPerson) {
+                      setState(() => _person = newPerson);
                       _changeListener();
                     },
                   ),

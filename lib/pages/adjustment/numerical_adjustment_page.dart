@@ -199,7 +199,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                           validator: validateAdjustmentName,
                         ),
                         const SizedBox(height: 12),
-                        if (widget.adjustment != null) ...[
+                        if (widget.mode == AdjustmentPageMode.edit) ...[
                           ListTile(
                             leading: const Icon(Icons.warning),
                             title: const Text('WARNING: Editing Unit will not update existing setup values!'),

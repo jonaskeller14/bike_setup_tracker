@@ -70,7 +70,6 @@ class AdjustmentDisplayList extends StatelessWidget {
               initialValue: initialValue,
               value: value, 
             );
-          default: throw Exception('Unknown adjustment type');
         }
       }),
     );

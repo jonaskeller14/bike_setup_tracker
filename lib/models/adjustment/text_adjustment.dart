@@ -1,6 +1,6 @@
 part of 'adjustment.dart';
 
-class TextAdjustment extends Adjustment<String> {
+class TextAdjustment extends Adjustment {
   static const IconData iconData = Icons.text_snippet;
 
   TextAdjustment({
@@ -30,7 +30,6 @@ class TextAdjustment extends Adjustment<String> {
     'name': name,
     'notes': notes,
     'type': 'text',
-    'valueType': valueType.toString(),
     'unit': unit,
   };
 

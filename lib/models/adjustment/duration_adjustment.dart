@@ -1,6 +1,6 @@
 part of 'adjustment.dart';
 
-class DurationAdjustment extends Adjustment<double> {
+class DurationAdjustment extends Adjustment {
   final Duration? min;
   final Duration? max;
 
@@ -31,7 +31,6 @@ class DurationAdjustment extends Adjustment<double> {
     'name': name,
     'notes': notes,
     'type': 'duration',
-    'valueType': valueType.toString(),
     'unit': unit,
     'min': min?.toString(),
     'max': max?.toString(),

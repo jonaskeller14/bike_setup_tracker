@@ -12,7 +12,7 @@ enum StepAdjustmentVisualization {
   const StepAdjustmentVisualization(this.value);
 }
 
-class StepAdjustment extends Adjustment<int> {
+class StepAdjustment extends Adjustment {
   final int step;
   final int min;
   final int max;
@@ -47,7 +47,6 @@ class StepAdjustment extends Adjustment<int> {
     'name': name,
     'notes': notes,
     'type': 'step',
-    'valueType': valueType.toString(),
     'unit': unit,
     'step': step,
     'min': min,

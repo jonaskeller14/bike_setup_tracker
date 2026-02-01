@@ -1,6 +1,6 @@
 part of 'adjustment.dart';
 
-class NumericalAdjustment extends Adjustment<double> {
+class NumericalAdjustment extends Adjustment {
   final double min;
   final double max;
 
@@ -32,7 +32,6 @@ class NumericalAdjustment extends Adjustment<double> {
     'name': name,
     'notes': notes,
     'type': 'numerical',
-    'valueType': valueType.toString(),
     'unit': unit,
     'min': min.isFinite ? min : null,
     'max': max.isFinite ? max : null,

@@ -8,18 +8,16 @@ part 'numerical_adjustment.dart';
 part 'text_adjustment.dart';
 part 'duration_adjustment.dart';
 
-abstract class Adjustment<T> {
+abstract class Adjustment {
   final String id;
   final String name;
   final String? notes;
-  final Type valueType;
   final String? unit;
 
   Adjustment({String? id, required this.name, required this.notes, required this.unit})
-    : valueType = T,
-      id = id ?? const Uuid().v4();
+    : id = id ?? const Uuid().v4();
 
-  Adjustment<T> deepCopy();
+  Adjustment deepCopy();
   bool isValidValue(dynamic value);
   Map<String, dynamic> toJson();
   IconData getIconData();

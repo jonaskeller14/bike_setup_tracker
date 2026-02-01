@@ -1,6 +1,6 @@
 part of 'adjustment.dart';
 
-class BooleanAdjustment extends Adjustment<bool> {
+class BooleanAdjustment extends Adjustment {
   static const IconData iconData = Icons.toggle_on;
   
   BooleanAdjustment({
@@ -26,7 +26,6 @@ class BooleanAdjustment extends Adjustment<bool> {
     'name': name,
     'notes': notes,
     'type': 'boolean',
-    'valueType': valueType.toString(),
     'unit': unit,
   };
 

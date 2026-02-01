@@ -89,100 +89,82 @@ class _RatingPageState extends State<RatingPage> {
     super.dispose();
   }
 
-  Future<void> _addAdjustment<T extends Adjustment>(Widget page) async {
+  Future<void> _addAdjustment<T extends Adjustment>() async {
     final adjustment = await Navigator.push<T>(
       context,
-      MaterialPageRoute(builder: (context) => page),
+      MaterialPageRoute(builder: (context) => switch(T) {
+        const (BooleanAdjustment)       => BooleanAdjustmentPage.add(),
+        const (CategoricalAdjustment)   => CategoricalAdjustmentPage.add(),
+        const (StepAdjustment)          => StepAdjustmentPage.add(),
+        const (NumericalAdjustment)     => NumericalAdjustmentPage.add(),
+        const (TextAdjustment)          => TextAdjustmentPage.add(),
+        const (DurationAdjustment)      => DurationAdjustmentPage.add(),
+        Type() => throw UnimplementedError(),
+      }),
     );
-
     if (adjustment == null) return;
-
-    setState(() {
-      _adjustments.add(adjustment);
-    });
-    
+    setState(() => _adjustments.add(adjustment));
     _changeListener();
   }
 
   Future<void> _addAdjustmentFromPreset(Adjustment adjustment) async {
-    final newAdjustment = await _editAdjustment(adjustment.deepCopy());
+    final newAdjustment = await Navigator.push<Adjustment>(
+      context,
+      MaterialPageRoute(builder: (context) => switch (adjustment.deepCopy()) {
+        BooleanAdjustment a     => BooleanAdjustmentPage.template(adjustment: a),
+        CategoricalAdjustment a => CategoricalAdjustmentPage.template(adjustment: a),
+        StepAdjustment a        => StepAdjustmentPage.template(adjustment: a),
+        NumericalAdjustment a   => NumericalAdjustmentPage.template(adjustment: a),
+        TextAdjustment a        => TextAdjustmentPage.template(adjustment: a),
+        DurationAdjustment a    => DurationAdjustmentPage.template(adjustment: a),
+      }),
+    );
     if (newAdjustment == null) return;
-    setState(() {
-      _adjustments.add(newAdjustment);
-    });
+    setState(() => _adjustments.add(newAdjustment));
     _changeListener();
   }
 
-  Future<Adjustment?> _editAdjustment(Adjustment adjustment) async {
-    final Adjustment? editedAdjustment;
-    if (adjustment is BooleanAdjustment) {
-      editedAdjustment = await Navigator.push<BooleanAdjustment>(
-        context,
-        MaterialPageRoute(
-          builder: (context) => BooleanAdjustmentPage(adjustment: adjustment)
-        ),
-      );
-    } else if (adjustment is CategoricalAdjustment) {
-      editedAdjustment = await Navigator.push<CategoricalAdjustment>(
-        context,
-        MaterialPageRoute(
-          builder: (context) => CategoricalAdjustmentPage(adjustment: adjustment)
-        ),
-      );
-    } else if (adjustment is StepAdjustment) {
-      editedAdjustment = await Navigator.push<StepAdjustment>(
-        context,
-        MaterialPageRoute(
-          builder: (context) => StepAdjustmentPage(adjustment: adjustment)
-        ),
-      );
-    } else if (adjustment is NumericalAdjustment) {
-      editedAdjustment = await Navigator.push<NumericalAdjustment>(
-        context,
-        MaterialPageRoute(
-          builder: (context) => NumericalAdjustmentPage(adjustment: adjustment)
-        ),
-      );
-    } else if (adjustment is TextAdjustment) {
-      editedAdjustment = await Navigator.push<TextAdjustment>(
-        context,
-        MaterialPageRoute(
-          builder: (context) => TextAdjustmentPage(adjustment: adjustment)
-        ),
-      );
-    } else if (adjustment is DurationAdjustment) {
-      editedAdjustment = await Navigator.push<DurationAdjustment>(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DurationAdjustmentPage(adjustment: adjustment)
-        ),
-      );
-    } else {
-      throw Exception("Not implemented.");
-    }
-    if (editedAdjustment == null) return null;
+  Future<void> _editAdjustment(Adjustment adjustment) async {
+    final editedAdjustment = await Navigator.push<Adjustment>(
+      context,
+      MaterialPageRoute(builder: (context) => switch (adjustment) {
+        BooleanAdjustment a     => BooleanAdjustmentPage.edit(adjustment: a),
+        CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a),
+        StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a),
+        NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a),
+        TextAdjustment a        => TextAdjustmentPage.edit(adjustment: a),
+        DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a),
+      }),
+    );
+    if (editedAdjustment == null) return;
     setState(() {
       final index = _adjustments.indexOf(adjustment);
       if (index != -1) {
-        _adjustments[index] = editedAdjustment!;
+        _adjustments[index] = editedAdjustment;
       }
     });
     _changeListener();
-    return editedAdjustment;
   }
 
   Future<void> _duplicateAdjustment(Adjustment adjustment) async {
-    final newAdjustment = adjustment.deepCopy();
-    setState(() {
-      _adjustments.add(newAdjustment);
-    });
-    _editAdjustment(newAdjustment);
+    final newAdjustment = await Navigator.push<Adjustment>(
+      context,
+      MaterialPageRoute(builder: (context) => switch (adjustment.deepCopy()) {
+        BooleanAdjustment a     => BooleanAdjustmentPage.duplicate(adjustment: a),
+        CategoricalAdjustment a => CategoricalAdjustmentPage.duplicate(adjustment: a),
+        StepAdjustment a        => StepAdjustmentPage.duplicate(adjustment: a),
+        NumericalAdjustment a   => NumericalAdjustmentPage.duplicate(adjustment: a),
+        TextAdjustment a        => TextAdjustmentPage.duplicate(adjustment: a),
+        DurationAdjustment a    => DurationAdjustmentPage.duplicate(adjustment: a),
+      }),
+    );
+    if (newAdjustment == null) return;
+    setState(() => _adjustments.add(newAdjustment));
+    _changeListener();
   }
 
   Future<void> removeAdjustment(Adjustment adjustment) async {
-    setState(() {
-      _adjustments.remove(adjustment);
-    });
+    setState(() => _adjustments.remove(adjustment));
     _changeListener();
   }
 

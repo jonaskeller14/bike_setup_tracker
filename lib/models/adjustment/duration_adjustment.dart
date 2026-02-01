@@ -17,7 +17,7 @@ class DurationAdjustment extends Adjustment {
 
   @override
   DurationAdjustment deepCopy() {
-    return DurationAdjustment(name: name, notes: notes, unit: unit);
+    return DurationAdjustment(name: name, notes: notes, unit: unit, min: min, max: max);
   }
 
   @override

@@ -8,7 +8,7 @@ part 'numerical_adjustment.dart';
 part 'text_adjustment.dart';
 part 'duration_adjustment.dart';
 
-abstract class Adjustment {
+sealed class Adjustment {
   final String id;
   final String name;
   final String? notes;

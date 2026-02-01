@@ -3,10 +3,29 @@ import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_numerical_adjustment.dart';
+import 'adjustment_page.dart';
 
 class NumericalAdjustmentPage extends StatefulWidget {
   final NumericalAdjustment? adjustment;
-  const NumericalAdjustmentPage({super.key, this.adjustment});
+  final AdjustmentPageMode mode;
+
+  const NumericalAdjustmentPage._({
+    super.key,
+    this.adjustment,
+    required this.mode,
+  });
+
+  factory NumericalAdjustmentPage.add({Key? key}) => 
+    NumericalAdjustmentPage._(key: key, mode: AdjustmentPageMode.add);
+
+  factory NumericalAdjustmentPage.edit({Key? key, required NumericalAdjustment adjustment}) => 
+    NumericalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit);
+
+  factory NumericalAdjustmentPage.duplicate({Key? key, required NumericalAdjustment adjustment}) => 
+    NumericalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate);
+
+  factory NumericalAdjustmentPage.template({Key? key, required NumericalAdjustment adjustment}) => 
+    NumericalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template);
 
   @override
   State<NumericalAdjustmentPage> createState() => _NumericalAdjustmentPageState();
@@ -43,10 +62,8 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     _unitController = TextEditingController(text: widget.adjustment?.unit);
     _unitController.addListener(_changeListener);
 
-    if (widget.adjustment != null) {
-      _previewAdjustment = widget.adjustment!;
-      _expanded = true;
-    }
+    if (widget.adjustment != null) _previewAdjustment = widget.adjustment!;
+    if (widget.mode != AdjustmentPageMode.add) _expanded = true;
   }
 
   void _changeListener() {
@@ -92,7 +109,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     _formHasChanges = false;
     if (!mounted) return;
     Navigator.pop(context, NumericalAdjustment(
-      id: widget.adjustment?.id,
+      id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name, 
       notes: notes.isEmpty ? null : notes, 
       min: min, 
@@ -108,11 +125,6 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     if (!mounted) return;
     if (!shouldDiscard) return;
     Navigator.of(context).pop(null);
-  }
-
-  String? _validateName(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Name is required';
-    return null;
   }
 
   String? _validateMin(String? value) {
@@ -139,7 +151,12 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
         appBar: AppBar(
-          title: widget.adjustment == null ? const Text('Add Numerical Adjustment') : const Text('Edit Numerical Adjustment'),
+          title: switch (widget.mode) {
+            AdjustmentPageMode.add || 
+            AdjustmentPageMode.duplicate || 
+            AdjustmentPageMode.template => const Text('Add Numerical Adjustment'),
+            AdjustmentPageMode.edit => const Text('Edit Numerical Adjustment'),
+          },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveNumericalAdjustment),
           ],
@@ -171,15 +188,15 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                           textInputAction: TextInputAction.next,
                           onFieldSubmitted: (_) => _saveNumericalAdjustment(),
                           autovalidateMode: AutovalidateMode.onUserInteraction,
-                          autofocus: widget.adjustment == null,
+                          autofocus: widget.mode == AdjustmentPageMode.add,
                           decoration: InputDecoration(
                             labelText: 'Adjustment Name',
                             hintText: 'Enter Adjustment Name',
                             border: OutlineInputBorder(),
                             fillColor: Colors.orange.withValues(alpha: 0.08),
-                            filled: widget.adjustment != null && _nameController.text.trim() != widget.adjustment?.name,
+                            filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                           ),
-                          validator: _validateName,
+                          validator: validateAdjustmentName,
                         ),
                         const SizedBox(height: 12),
                         if (widget.adjustment != null) ...[
@@ -201,7 +218,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             hintText: 'Enter unit (e.g., mm, psi)',
                             border: OutlineInputBorder(),
                             fillColor: Colors.orange.withValues(alpha: 0.08),
-                            filled: widget.adjustment != null && _unitController.text.trim() != (widget.adjustment?.unit ?? ""),
+                            filled: widget.mode == AdjustmentPageMode.edit && _unitController.text.trim() != (widget.adjustment?.unit ?? ""),
                           ),
                           validator: (value) => (value != null && value.length > 10) ? "Too many characters" : null,
                           onChanged: (String value) {
@@ -246,7 +263,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                               hintText: 'Enter minimum value',
                               border: OutlineInputBorder(),
                               fillColor: Colors.orange.withValues(alpha: 0.08),
-                              filled: widget.adjustment != null && (double.tryParse(_minController.text.trim()) ?? double.negativeInfinity) != widget.adjustment?.min,
+                              filled: widget.mode == AdjustmentPageMode.edit && (double.tryParse(_minController.text.trim()) ?? double.negativeInfinity) != widget.adjustment?.min,
                             ),
                             validator: _validateMin,
                             onChanged: (String value) {
@@ -276,7 +293,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                               hintText: 'Enter maximum value',
                               border: OutlineInputBorder(),
                               fillColor: Colors.orange.withValues(alpha: 0.08),
-                              filled: widget.adjustment != null && (double.tryParse(_maxController.text.trim()) ?? double.infinity) != widget.adjustment?.max,
+                              filled: widget.mode == AdjustmentPageMode.edit && (double.tryParse(_maxController.text.trim()) ?? double.infinity) != widget.adjustment?.max,
                             ),
                             validator: _validateMax,
                             onChanged: (String value) {
@@ -314,7 +331,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                               hintText: 'Enter measuring procedure/instrument/...',
                               border: OutlineInputBorder(),
                               fillColor: Colors.orange.withValues(alpha: 0.08),
-                              filled: widget.adjustment != null && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
+                              filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
                             ),
                           ),
                         ],

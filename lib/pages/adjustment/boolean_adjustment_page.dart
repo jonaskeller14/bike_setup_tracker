@@ -3,10 +3,29 @@ import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_boolean_adjustment.dart';
+import 'adjustment_page.dart';
 
 class BooleanAdjustmentPage extends StatefulWidget {
   final BooleanAdjustment? adjustment;
-  const BooleanAdjustmentPage({super.key, this.adjustment});
+  final AdjustmentPageMode mode;
+
+  const BooleanAdjustmentPage._({
+    super.key,
+    this.adjustment,
+    required this.mode,
+  });
+
+  factory BooleanAdjustmentPage.add({Key? key}) => 
+    BooleanAdjustmentPage._(key: key, mode: AdjustmentPageMode.add);
+
+  factory BooleanAdjustmentPage.edit({Key? key, required BooleanAdjustment adjustment}) => 
+    BooleanAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit);
+
+  factory BooleanAdjustmentPage.duplicate({Key? key, required BooleanAdjustment adjustment}) => 
+    BooleanAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate);
+
+  factory BooleanAdjustmentPage.template({Key? key, required BooleanAdjustment adjustment}) => 
+    BooleanAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template);
 
   @override
   State<BooleanAdjustmentPage> createState() => _BooleanAdjustmentPageState();
@@ -34,10 +53,8 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
     _notesController = TextEditingController(text: widget.adjustment?.notes);
     _notesController.addListener(_changeListener);
 
-    if (widget.adjustment != null) {
-      _previewAdjustment = widget.adjustment!;
-      _expanded = true;
-    }
+    if (widget.adjustment != null) _previewAdjustment = widget.adjustment!;
+    if (widget.mode != AdjustmentPageMode.add) _expanded = true;
   }
 
   void _changeListener() {
@@ -67,7 +84,7 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
     _formHasChanges = false;
     if (!mounted) return;
     Navigator.pop(context, BooleanAdjustment(
-      id: widget.adjustment?.id,
+      id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name, 
       notes: notes.isEmpty ? null : notes, 
       unit: null
@@ -83,11 +100,6 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
     Navigator.of(context).pop(null);
   }
 
-  String? _validateName(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Name is required';
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     return PopScope( 
@@ -95,7 +107,12 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
         appBar: AppBar(
-          title: widget.adjustment == null ? const Text('Add On/Off Adjustment') : const Text('Edit On/Off Adjustment'),
+          title: switch (widget.mode) {
+            AdjustmentPageMode.add || 
+            AdjustmentPageMode.duplicate || 
+            AdjustmentPageMode.template => const Text('Add On/Off Adjustment'),
+            AdjustmentPageMode.edit => const Text('Edit On/Off Adjustment'),
+          },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveBooleanAdjustment),
           ],
@@ -125,15 +142,15 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                           textInputAction: TextInputAction.next,
                           onFieldSubmitted: (_) => _saveBooleanAdjustment(),
                           autovalidateMode: AutovalidateMode.onUserInteraction,
-                          autofocus: widget.adjustment == null,
+                          autofocus: widget.mode == AdjustmentPageMode.add,
                           decoration: InputDecoration(
                             labelText: 'Adjustment Name',
                             hintText: 'Enter Adjustment Name',
                             border: OutlineInputBorder(),
                             fillColor: Colors.orange.withValues(alpha: 0.08),
-                            filled: widget.adjustment != null && _nameController.text.trim() != widget.adjustment?.name,
+                            filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                           ),
-                          validator: _validateName,
+                          validator: validateAdjustmentName,
                         ),
                         if (!_expanded) ...[
                           Center(
@@ -171,7 +188,7 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                               hintText: 'Enter measuring procedure/instrument/...',
                               border: OutlineInputBorder(),
                               fillColor: Colors.orange.withValues(alpha: 0.08),
-                              filled: widget.adjustment != null && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
+                              filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
                             ),
                           ),
                         ],

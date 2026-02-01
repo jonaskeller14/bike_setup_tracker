@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_step_adjustment.dart';
+import 'adjustment_page.dart';
 
 const int _defaultStep = 1;
 const int _defaultMin = 0;
@@ -11,7 +12,25 @@ const StepAdjustmentVisualization _defaultVisualization = StepAdjustmentVisualiz
 
 class StepAdjustmentPage extends StatefulWidget {
   final StepAdjustment? adjustment;
-  const StepAdjustmentPage({super.key, this.adjustment});
+  final AdjustmentPageMode mode;
+
+  const StepAdjustmentPage._({
+    super.key,
+    this.adjustment,
+    required this.mode,
+  });
+
+  factory StepAdjustmentPage.add({Key? key}) => 
+    StepAdjustmentPage._(key: key, mode: AdjustmentPageMode.add);
+
+  factory StepAdjustmentPage.edit({Key? key, required StepAdjustment adjustment}) => 
+    StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit);
+
+  factory StepAdjustmentPage.duplicate({Key? key, required StepAdjustment adjustment}) => 
+    StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate);
+
+  factory StepAdjustmentPage.template({Key? key, required StepAdjustment adjustment}) => 
+    StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template);
 
   @override
   State<StepAdjustmentPage> createState() => _StepAdjustmentPageState();
@@ -57,8 +76,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     if (widget.adjustment != null) {
       _previewAdjustment = widget.adjustment!;
       _previewValue = _previewAdjustment.min.toDouble();
-      _expanded = true;
     }
+    if (widget.mode != AdjustmentPageMode.add) _expanded = true;
   }
 
   void _changeListener() {
@@ -102,7 +121,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     _formHasChanges = false;
     if (!mounted) return;
     Navigator.pop(context, StepAdjustment(
-      id: widget.adjustment?.id,
+      id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name, 
       notes: notes.isEmpty ? null : notes, 
       unit: null, 
@@ -120,11 +139,6 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     if (!mounted) return;
     if (!shouldDiscard) return;
     Navigator.of(context).pop(null);
-  }
-
-  String? _validateName(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Name is required';
-    return null;
   }
 
   String? _validateStep(String? value) {
@@ -159,7 +173,12 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
         appBar: AppBar(
-          title: widget.adjustment == null ? const Text('Add Step Adjustment') : const Text('Edit Step Adjustment'),
+          title: switch (widget.mode) {
+            AdjustmentPageMode.add || 
+            AdjustmentPageMode.duplicate || 
+            AdjustmentPageMode.template => const Text('Add Step Adjustment'),
+            AdjustmentPageMode.edit => const Text('Edit Step Adjustment'),
+          },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveStepAdjustment),
           ],
@@ -192,15 +211,15 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                           },
                           textInputAction: TextInputAction.next,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
-                          autofocus: widget.adjustment == null,
+                          autofocus: widget.mode == AdjustmentPageMode.add,
                           decoration: InputDecoration(
                             labelText: 'Adjustment Name',
                             hintText: 'Enter Adjustment Name',
                             border: OutlineInputBorder(),
                             fillColor: Colors.orange.withValues(alpha: 0.08),
-                            filled: widget.adjustment != null && _nameController.text.trim() != widget.adjustment?.name,
+                            filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                           ),
-                          validator: _validateName,
+                          validator: validateAdjustmentName,
                         ),
                         const SizedBox(height: 12),
                         TextFormField(
@@ -214,7 +233,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             hintText: 'Enter step value',
                             border: OutlineInputBorder(),
                             fillColor: Colors.orange.withValues(alpha: 0.08),
-                            filled: widget.adjustment != null && int.tryParse(_stepController.text.trim()) != widget.adjustment?.step,
+                            filled: widget.mode == AdjustmentPageMode.edit && int.tryParse(_stepController.text.trim()) != widget.adjustment?.step,
                           ),
                           validator: _validateStep,
                           onChanged: (String value) {
@@ -245,7 +264,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             hintText: 'Enter minimum value',
                             border: OutlineInputBorder(),
                             fillColor: Colors.orange.withValues(alpha: 0.08),
-                            filled: widget.adjustment != null && int.tryParse(_minController.text.trim()) != widget.adjustment?.min,
+                            filled: widget.mode == AdjustmentPageMode.edit && int.tryParse(_minController.text.trim()) != widget.adjustment?.min,
                           ),
                           validator: _validateMin,
                           onChanged: (String value) {
@@ -276,7 +295,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             hintText: 'Enter maximum value',
                             border: OutlineInputBorder(),
                             fillColor: Colors.orange.withValues(alpha: 0.08),
-                            filled: widget.adjustment != null && int.tryParse(_maxController.text.trim()) != widget.adjustment?.max,
+                            filled: widget.mode == AdjustmentPageMode.edit && int.tryParse(_maxController.text.trim()) != widget.adjustment?.max,
                           ),
                           validator: _validateMax,
                           onChanged: (String value) {
@@ -322,7 +341,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               border: OutlineInputBorder(),
                               hintText: "Choose a visualization for this adjustment",
                               fillColor: Colors.orange.withValues(alpha: 0.08),
-                              filled: widget.adjustment != null && visualization != widget.adjustment?.visualization,
+                              filled: widget.mode == AdjustmentPageMode.edit && visualization != widget.adjustment?.visualization,
                             ),
                             items: StepAdjustmentVisualization.values.map((v) {
                               return DropdownMenuItem<StepAdjustmentVisualization>(
@@ -404,7 +423,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               hintText: 'Enter measuring procedure/instrument/...',
                               border: OutlineInputBorder(),
                               fillColor: Colors.orange.withValues(alpha: 0.08),
-                              filled: widget.adjustment != null && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
+                              filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
                             ),
                           ),
                         ],

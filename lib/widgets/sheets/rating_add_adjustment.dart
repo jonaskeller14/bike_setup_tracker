@@ -2,12 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/adjustment/adjustment.dart';
-import '../../pages/adjustment/boolean_adjustment_page.dart';
-import '../../pages/adjustment/categorical_adjustment_page.dart';
-import '../../pages/adjustment/numerical_adjustment_page.dart';
-import '../../pages/adjustment/step_adjustment_page.dart';
-import '../../pages/adjustment/text_adjustment_page.dart';
-import '../../pages/adjustment/duration_adjustment_page.dart';
 import 'sheet.dart';
 
 final List<Adjustment> _adjustmentPresets = [
@@ -102,7 +96,7 @@ void showRatingAddAdjustmentBottomSheet({
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () {
                         Navigator.pop(context); // Close sheet first
-                        addAdjustment<NumericalAdjustment>(const NumericalAdjustmentPage()); // Then execute logic
+                        addAdjustment<NumericalAdjustment>(); // Then execute logic
                       },
                     ),
                     ListTile(
@@ -112,7 +106,7 @@ void showRatingAddAdjustmentBottomSheet({
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () {
                         Navigator.pop(context); // Close sheet first
-                        addAdjustment<StepAdjustment>(const StepAdjustmentPage()); // Then execute logic
+                        addAdjustment<StepAdjustment>(); // Then execute logic
                       },
                     ),
                     ListTile(
@@ -122,7 +116,7 @@ void showRatingAddAdjustmentBottomSheet({
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () {
                         Navigator.pop(context); // Close sheet first
-                        addAdjustment<CategoricalAdjustment>(const CategoricalAdjustmentPage()); // Then execute logic
+                        addAdjustment<CategoricalAdjustment>(); // Then execute logic
                       },
                     ),
                     ListTile(
@@ -132,7 +126,7 @@ void showRatingAddAdjustmentBottomSheet({
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () {
                         Navigator.pop(context); // Close sheet first
-                        addAdjustment<BooleanAdjustment>(const BooleanAdjustmentPage()); // Then execute logic
+                        addAdjustment<BooleanAdjustment>(); // Then execute logic
                       },
                     ),
                     if (context.read<AppSettings>().enableTextAdjustment)
@@ -143,7 +137,7 @@ void showRatingAddAdjustmentBottomSheet({
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                         onTap: () {
                           Navigator.pop(context); // Close sheet first
-                          addAdjustment<TextAdjustment>(const TextAdjustmentPage()); // Then execute logic
+                          addAdjustment<TextAdjustment>(); // Then execute logic
                         },
                       ),
                     ListTile(
@@ -153,7 +147,7 @@ void showRatingAddAdjustmentBottomSheet({
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () {
                         Navigator.pop(context); // Close sheet first
-                        addAdjustment<DurationAdjustment>(const DurationAdjustmentPage()); // Then execute logic
+                        addAdjustment<DurationAdjustment>(); // Then execute logic
                       },
                     ),
                   ],

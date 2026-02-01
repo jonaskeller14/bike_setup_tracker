@@ -2,10 +2,29 @@ import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_text_adjustment.dart';
+import 'adjustment_page.dart';
 
 class TextAdjustmentPage extends StatefulWidget {
   final TextAdjustment? adjustment;
-  const TextAdjustmentPage({super.key, this.adjustment});
+  final AdjustmentPageMode mode;
+
+  const TextAdjustmentPage._({
+    super.key,
+    this.adjustment,
+    required this.mode,
+  });
+
+  factory TextAdjustmentPage.add({Key? key}) => 
+    TextAdjustmentPage._(key: key, mode: AdjustmentPageMode.add);
+
+  factory TextAdjustmentPage.edit({Key? key, required TextAdjustment adjustment}) => 
+    TextAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit);
+
+  factory TextAdjustmentPage.duplicate({Key? key, required TextAdjustment adjustment}) => 
+    TextAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate);
+
+  factory TextAdjustmentPage.template({Key? key, required TextAdjustment adjustment}) => 
+    TextAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template);
 
   @override
   State<TextAdjustmentPage> createState() => _TextAdjustmentPageState();
@@ -33,10 +52,8 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
     _notesController = TextEditingController(text: widget.adjustment?.notes);
     _notesController.addListener(_changeListener);
 
-    if (widget.adjustment != null) {
-      _previewAdjustment = widget.adjustment!;
-      _expanded = true;
-    }
+    if (widget.adjustment != null) _previewAdjustment = widget.adjustment!;
+    if (widget.mode != AdjustmentPageMode.add) _expanded = true;
   }
 
   void _changeListener() {
@@ -66,10 +83,10 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
     _formHasChanges = false;
     if (!mounted) return;
     Navigator.pop(context, TextAdjustment(
-      id: widget.adjustment?.id,
+      id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name, 
       notes: notes.isEmpty ? null : notes, 
-      unit: null,
+      unit: null
     ));
   }
 
@@ -82,11 +99,6 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
     Navigator.of(context).pop(null);
   }
 
-  String? _validateName(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Name is required';
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     return PopScope( 
@@ -94,7 +106,12 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
         appBar: AppBar(
-          title: widget.adjustment == null ? const Text('Add Text Adjustment') : const Text('Edit Text Adjustment'),
+          title: switch (widget.mode) {
+            AdjustmentPageMode.add || 
+            AdjustmentPageMode.duplicate || 
+            AdjustmentPageMode.template => const Text('Add Text Adjustment'),
+            AdjustmentPageMode.edit => const Text('Edit Text Adjustment'),
+          },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveTextAdjustment),
           ],
@@ -123,15 +140,15 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                           },
                           onFieldSubmitted: (_) => _saveTextAdjustment(),
                           autovalidateMode: AutovalidateMode.onUserInteraction,
-                          autofocus: widget.adjustment == null,
+                          autofocus: widget.mode == AdjustmentPageMode.add,
                           decoration: InputDecoration(
                             labelText: 'Adjustment Name',
                             hintText: 'Enter Adjustment Name',
                             border: OutlineInputBorder(),
                             fillColor: Colors.orange.withValues(alpha: 0.08),
-                            filled: widget.adjustment != null && _nameController.text.trim() != widget.adjustment?.name,
+                            filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                           ),
-                          validator: _validateName,
+                          validator: validateAdjustmentName,
                         ),
                         if (!_expanded) ...[
                           Center(
@@ -169,7 +186,7 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                               hintText: 'Enter measuring procedure/instrument/...',
                               border: OutlineInputBorder(),
                               fillColor: Colors.orange.withValues(alpha: 0.08),
-                              filled: widget.adjustment != null && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
+                              filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
                             ),
                           ),
                         ],

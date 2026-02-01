@@ -2,10 +2,29 @@ import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_duration_adjustment.dart';
+import 'adjustment_page.dart';
 
 class DurationAdjustmentPage extends StatefulWidget {
   final DurationAdjustment? adjustment;
-  const DurationAdjustmentPage({super.key, this.adjustment});
+  final AdjustmentPageMode mode;
+
+  const DurationAdjustmentPage._({
+    super.key,
+    this.adjustment,
+    required this.mode,
+  });
+
+  factory DurationAdjustmentPage.add({Key? key}) => 
+    DurationAdjustmentPage._(key: key, mode: AdjustmentPageMode.add);
+
+  factory DurationAdjustmentPage.edit({Key? key, required DurationAdjustment adjustment}) => 
+    DurationAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit);
+
+  factory DurationAdjustmentPage.duplicate({Key? key, required DurationAdjustment adjustment}) => 
+    DurationAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate);
+
+  factory DurationAdjustmentPage.template({Key? key, required DurationAdjustment adjustment}) => 
+    DurationAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template);
 
   @override
   State<DurationAdjustmentPage> createState() => _DurationAdjustmentPageState();
@@ -32,9 +51,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
     _notesController = TextEditingController(text: widget.adjustment?.notes);
     _notesController.addListener(_changeListener);
 
-    if (widget.adjustment != null) {
-      _previewAdjustment = widget.adjustment!;
-    }
+    if (widget.adjustment != null) _previewAdjustment = widget.adjustment!;
   }
 
   void _changeListener() {
@@ -64,7 +81,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
     _formHasChanges = false;
     if (!mounted) return;
     Navigator.pop(context, DurationAdjustment(
-      id: widget.adjustment?.id,
+      id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name, 
       notes: notes.isEmpty ? null : notes, 
       min: null, 
@@ -82,11 +99,6 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
     Navigator.of(context).pop(null);
   }
 
-  String? _validateName(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Name is required';
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     return PopScope( 
@@ -94,7 +106,12 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
         appBar: AppBar(
-          title: widget.adjustment == null ? const Text('Add Duration Adjustment') : const Text('Edit Duration Adjustment'),
+          title: switch (widget.mode) {
+            AdjustmentPageMode.add || 
+            AdjustmentPageMode.duplicate || 
+            AdjustmentPageMode.template => const Text('Add Duration Adjustment'),
+            AdjustmentPageMode.edit => const Text('Edit Duration Adjustment'),
+          },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveDurationAdjustment),
           ],
@@ -126,15 +143,15 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                           textInputAction: TextInputAction.next,
                           onFieldSubmitted: (_) => _saveDurationAdjustment(),
                           autovalidateMode: AutovalidateMode.onUserInteraction,
-                          autofocus: widget.adjustment == null,
+                          autofocus: widget.mode == AdjustmentPageMode.add,
                           decoration: InputDecoration(
                             labelText: 'Adjustment Name',
                             hintText: 'Enter Adjustment Name',
                             border: OutlineInputBorder(),
                             fillColor: Colors.orange.withValues(alpha: 0.08),
-                            filled: widget.adjustment != null && _nameController.text.trim() != widget.adjustment?.name,
+                            filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                           ),
-                          validator: _validateName,
+                          validator: validateAdjustmentName,
                           
                         ),
                         const SizedBox(height: 12),
@@ -159,7 +176,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                             hintText: 'Enter measuring procedure/instrument/...',
                             border: OutlineInputBorder(),
                             fillColor: Colors.orange.withValues(alpha: 0.08),
-                            filled: widget.adjustment != null && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
+                            filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
                           ),
                         ),
                       ],

@@ -2,10 +2,29 @@ import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_categorical_adjustment.dart';
+import 'adjustment_page.dart';
 
 class CategoricalAdjustmentPage extends StatefulWidget {
   final CategoricalAdjustment? adjustment;
-  const CategoricalAdjustmentPage({super.key, this.adjustment});
+  final AdjustmentPageMode mode;
+
+  const CategoricalAdjustmentPage._({
+    super.key,
+    this.adjustment,
+    required this.mode,
+  });
+
+  factory CategoricalAdjustmentPage.add({Key? key}) => 
+    CategoricalAdjustmentPage._(key: key, mode: AdjustmentPageMode.add);
+
+  factory CategoricalAdjustmentPage.edit({Key? key, required CategoricalAdjustment adjustment}) => 
+    CategoricalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit);
+
+  factory CategoricalAdjustmentPage.duplicate({Key? key, required CategoricalAdjustment adjustment}) => 
+    CategoricalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate);
+
+  factory CategoricalAdjustmentPage.template({Key? key, required CategoricalAdjustment adjustment}) => 
+    CategoricalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template);
 
   @override
   State<CategoricalAdjustmentPage> createState() => _CategoricalAdjustmentPageState();
@@ -43,10 +62,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       optionController.addListener(_changeListener);
     }
 
-    if (widget.adjustment != null) {
-      _previewAdjustment = widget.adjustment!;
-      _expanded = true;
-    }
+    if (widget.adjustment != null) _previewAdjustment = widget.adjustment!;
+    if (widget.mode != AdjustmentPageMode.add) _expanded = true;
   }
 
   void _changeListener() {
@@ -147,7 +164,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
     _formHasChanges = false;
     if (!mounted) return;
     Navigator.pop(context, CategoricalAdjustment(
-      id: widget.adjustment?.id,
+      id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name, 
       notes: notes.isEmpty ? null : notes, 
       unit: null, 
@@ -164,11 +181,6 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
     Navigator.of(context).pop(null);
   }
 
-  String? _validateName(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Name is required';
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     return PopScope( 
@@ -176,7 +188,12 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
         appBar: AppBar(
-          title: widget.adjustment == null ? const Text('Add Categorical Adjustment') : const Text('Edit Categorical Adjustment'),
+          title: switch (widget.mode) {
+            AdjustmentPageMode.add || 
+            AdjustmentPageMode.duplicate || 
+            AdjustmentPageMode.template => const Text('Add Categorical Adjustment'),
+            AdjustmentPageMode.edit => const Text('Edit Categorical Adjustment'),
+          },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveCategoricalAdjustment),
           ],
@@ -206,15 +223,15 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                           },
                           textInputAction: TextInputAction.next,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
-                          autofocus: widget.adjustment == null,
+                          autofocus: widget.mode == AdjustmentPageMode.add,
                           decoration: InputDecoration(
                             labelText: 'Adjustment Name',
                             hintText: 'Enter Adjustment Name',
                             border: OutlineInputBorder(),
                             fillColor: Colors.orange.withValues(alpha: 0.08),
-                            filled: widget.adjustment != null && _nameController.text.trim() != widget.adjustment?.name,
+                            filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                           ),
-                          validator: _validateName,
+                          validator: validateAdjustmentName,
                           
                         ),
                         const SizedBox(height: 16),
@@ -230,7 +247,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                             ),
                           ],
                         ),
-                        if (widget.adjustment != null) ...[
+                        if (widget.mode == AdjustmentPageMode.edit) ...[
                           ListTile(
                             leading: const Icon(Icons.warning),
                             title: const Text('WARNING: Renaming an option will not update existing setup values!'),
@@ -258,7 +275,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                         border: const OutlineInputBorder(),
                                         errorText: _validateOptions(),
                                         fillColor: Colors.orange.withValues(alpha: 0.08),
-                                        filled: widget.adjustment != null && !widget.adjustment!.options.contains(controller.text.trim()),
+                                        filled: widget.mode == AdjustmentPageMode.edit && !widget.adjustment!.options.contains(controller.text.trim()),
                                       ),
                                       validator: _validateOption,
                                       onChanged: (String value) {
@@ -324,7 +341,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                               hintText: 'Enter measuring procedure/instrument/...',
                               border: OutlineInputBorder(),
                               fillColor: Colors.orange.withValues(alpha: 0.08),
-                              filled: widget.adjustment != null && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
+                              filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
                             ),
                           ),
                         ],

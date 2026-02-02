@@ -142,7 +142,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> removeBike(Bike bike) async {
+  Future<void> _removeBike(Bike bike) async {
     final data = context.read<AppData>();
     final filteredData = context.read<FilteredData>();
 
@@ -203,11 +203,11 @@ class _HomePageState extends State<HomePage> {
     ));
   }
 
-  Future<void> removeSetup(Setup toRemoveSetup) async {
-    removeSetups([toRemoveSetup]);
+  Future<void> _removeSetup(Setup toRemoveSetup) async {
+    _removeSetups([toRemoveSetup]);
   }
 
-  Future<void> removeSetups(Iterable<Setup> toRemoveSetups, {bool confirm = true}) async {
+  Future<void> _removeSetups(Iterable<Setup> toRemoveSetups, {bool confirm = true}) async {
     if (toRemoveSetups.isEmpty) return;
     final data = context.read<AppData>();
     data.removeSetups(toRemoveSetups);
@@ -231,11 +231,11 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> removeComponent(Component toRemoveComponent) async {
-    removeComponents([toRemoveComponent]);
+  Future<void> _removeComponent(Component toRemoveComponent) async {
+    _removeComponents([toRemoveComponent]);
   }
 
-  Future<void> removeComponents(Iterable<Component> toRemoveComponents, {bool confirm = true}) async {
+  Future<void> _removeComponents(Iterable<Component> toRemoveComponents, {bool confirm = true}) async {
     if (toRemoveComponents.isEmpty) return;
 
     final data = context.read<AppData>();
@@ -260,12 +260,12 @@ class _HomePageState extends State<HomePage> {
     }
   }
   
-  Future<void> addBike() async {
+  Future<void> _addBike() async {
     final data = context.read<AppData>();
 
     final bike = await Navigator.push<Bike>(
       context,
-      MaterialPageRoute(builder: (context) => const BikePage()),
+      MaterialPageRoute(builder: (context) => BikePage.add()),
     );
     if (bike == null) return;
 
@@ -273,14 +273,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _addPerson() async {
+    final data = context.read<AppData>();
+
     final person = await Navigator.push<Person>(
       context,
-      MaterialPageRoute(builder: (context) => const PersonPage()),
+      MaterialPageRoute(builder: (context) => PersonPage.add()),
     );
-    if (person == null) return;
-
-    if (!mounted) return;
-    final data = context.read<AppData>();
+    if (person == null) return;    
 
     data.addPerson(person);
   }
@@ -291,7 +290,7 @@ class _HomePageState extends State<HomePage> {
     final newRating = await Navigator.push<Rating>(
       context,
       MaterialPageRoute(
-        builder: (context) => const RatingPage(),
+        builder: (context) => RatingPage.add(),
       ),
     );
     if (newRating == null) return;
@@ -314,20 +313,20 @@ class _HomePageState extends State<HomePage> {
     }
     final component = await Navigator.push<Component>(
       context,
-      MaterialPageRoute(builder: (context) => const ComponentPage()),
+      MaterialPageRoute(builder: (context) => ComponentPage.add()),
     );
     if (component == null) return;
 
     data.addComponent(component);
   }
 
-  Future<void> editBike(Bike bike) async {
+  Future<void> _editBike(Bike bike) async {
     final data = context.read<AppData>();
 
     final editedBike = await Navigator.push<Bike>(
       context,
       MaterialPageRoute(
-        builder: (context) => BikePage(bike: bike),
+        builder: (context) => BikePage.edit(bike: bike),
       ),
     );
     if (editedBike == null) return;
@@ -341,7 +340,7 @@ class _HomePageState extends State<HomePage> {
     final editedPerson = await Navigator.push<Person>(
       context,
       MaterialPageRoute(
-        builder: (context) => PersonPage(person: person),
+        builder: (context) => PersonPage.edit(person: person),
       ),
     );
     if (editedPerson == null) return;
@@ -355,7 +354,7 @@ class _HomePageState extends State<HomePage> {
     final editedRating = await Navigator.push<Rating>(
       context,
       MaterialPageRoute(
-        builder: (context) => RatingPage(rating: rating),
+        builder: (context) => RatingPage.edit(rating: rating),
       ),
     );
     if (editedRating == null) return;
@@ -363,13 +362,13 @@ class _HomePageState extends State<HomePage> {
     data.editRating(editedRating);
   }
 
-  Future<void> editComponent(Component component) async {
+  Future<void> _editComponent(Component component) async {
     final data = context.read<AppData>();
 
     final editedComponent = await Navigator.push<Component>(
       context,
       MaterialPageRoute(
-        builder: (context) => ComponentPage(component: component),
+        builder: (context) => ComponentPage.edit(component: component),
       ),
     );
     if (editedComponent == null) return;
@@ -377,40 +376,55 @@ class _HomePageState extends State<HomePage> {
     data.editComponent(editedComponent);
   }
 
-  Future<void> duplicateComponent(Component component) async {
+  Future<void> _duplicateComponent(Component component) async {
     final data = context.read<AppData>();
 
-    final newComponent = component.deepCopy();
+    final newComponent = await Navigator.push<Component>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ComponentPage.duplicate(component: component.deepCopy()),
+      ),
+    );
+    if (newComponent == null) return;
+
     data.addComponent(newComponent);
-    
-    editComponent(newComponent);  // data.filterComponents();
   }
 
   Future<void> _duplicatePerson(Person person) async {
     final data = context.read<AppData>();
 
-    final newPerson = person.deepCopy();
-    data.addPerson(newPerson);
+    final newPerson = await Navigator.push<Person>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PersonPage.duplicate(person: person.deepCopy()),
+      ),
+    );
+    if (newPerson == null) return;
 
-    _editPerson(newPerson);
+    data.addPerson(newPerson);
   }
 
   Future<void> _duplicateRating(Rating rating) async {
     final data = context.read<AppData>();
 
-    final newRating = rating.deepCopy();
-    data.addRating(newRating);
+    final newRating = await Navigator.push<Rating>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RatingPage.duplicate(rating: rating.deepCopy()),
+      ),
+    );
+    if (newRating == null) return;
 
-    _editRating(newRating);
+    data.addRating(newRating);
   }
 
-  Future<void> onReorderComponents(int oldIndex, int newIndex) async {
+  Future<void> _onReorderComponents(int oldIndex, int newIndex) async {
     final data = context.read<AppData>();
     final filteredData = context.read<FilteredData>();
     data.reorderComponent(oldIndex: oldIndex, newIndex: newIndex, filteredComponentsList: filteredData.filteredComponents.values.toList());
   }
 
-  Future<void> onReorderBikes(int oldIndex, int newIndex) async {
+  Future<void> _onReorderBikes(int oldIndex, int newIndex) async {
     final data = context.read<AppData>();
     final filteredData = context.read<FilteredData>();
     data.reorderBike(oldIndex: oldIndex, newIndex: newIndex, filteredBikesList: filteredData.bikes.values.toList());
@@ -455,29 +469,29 @@ class _HomePageState extends State<HomePage> {
 
     final newSetup = await Navigator.push<Setup>(
       context,
-      MaterialPageRoute(builder: (context) => SetupPage(getPreviousSetupbyDateTime: getPreviousSetupbyDateTime)),
+      MaterialPageRoute(builder: (context) => SetupPage.add()),
     );
     if (newSetup == null) return;
     
     data.addSetup(newSetup);
   }
 
-  Future<void> editSetup(Setup setup) async {
+  Future<void> _editSetup(Setup setup) async {
     final data = context.read<AppData>();
 
     final editedSetup = await Navigator.push<Setup>(
       context,
-      MaterialPageRoute(builder: (context) => SetupPage(setup: setup, getPreviousSetupbyDateTime: getPreviousSetupbyDateTime)),
+      MaterialPageRoute(builder: (context) => SetupPage.edit(setup: setup)),
     );
     if (editedSetup == null) return;
 
     data.editSetup(editedSetup);
   }
 
-  Future<void> duplicateSetup(Setup setup) async {
+  Future<void> _duplicateSetup(Setup setup) async {
     final data = context.read<AppData>();
 
-    final newSetup = Setup(
+    final setupCopy = Setup(
       name: setup.name, 
       bike: setup.bike,
       person: data.bikes[setup.bike]?.person,
@@ -488,14 +502,13 @@ class _HomePageState extends State<HomePage> {
       isCurrent: true,
     );  //TODO: Location and waether data is null --> maybe add default constructor?
 
+    final newSetup = await Navigator.push<Setup>(
+      context,
+      MaterialPageRoute(builder: (context) => SetupPage.duplicate(setup: setupCopy)),
+    );
+    if (newSetup == null) return;
+
     data.addSetup(newSetup);
-
-    editSetup(newSetup); // Sorting setups, filterSetups(), etc.
-  }
-
-  Setup? getPreviousSetupbyDateTime({required DateTime datetime, String? bike, String? person}) {
-    final filteredData = context.read<FilteredData>();
-    return filteredData.setups.values.lastWhereOrNull((s) => s.datetime.isBefore(datetime) && (bike == null || s.bike == bike) && (person == null || s.person == person));
   }
 
   FilterChip _bikeFilterWidget() {
@@ -617,14 +630,14 @@ class _HomePageState extends State<HomePage> {
               await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDisplayPage(
                 setupIds: suggestedSetups.map((s) => s.id).toList(),
                 initialSetup: setup,
-                editSetup: editSetup,
+                editSetup: _editSetup,
               )));
             },
             child: SetupCard(
               setupId: setup.id, 
-              editSetup: editSetup, 
-              restoreSetup: duplicateSetup, 
-              removeSetup: removeSetup, 
+              editSetup: _editSetup, 
+              restoreSetup: _duplicateSetup, 
+              removeSetup: _removeSetup, 
               displayOnlyChanges: _setupListOnlyChanges, 
               displayBikeAdjustmentValues:_setupListBikeAdjustmentValues, 
               displayPersonAdjustmentValues: _setupListPersonAdjustmentValues, 
@@ -835,24 +848,24 @@ class _HomePageState extends State<HomePage> {
           bikes: filteredData.bikes.values.toList(), //include bikes which are not filtered for
           selectedBike: filteredData.selectedBike,
           onBikeTap: filteredData.onBikeTap,
-          editBike: editBike,
-          removeBike: removeBike,
-          onReorderBikes: onReorderBikes,
+          editBike: _editBike,
+          removeBike: _removeBike,
+          onReorderBikes: _onReorderBikes,
           filterWidget: _bikeListFilterWidget(),
         ),
         ComponentList(
           components: filteredData.filteredComponents,
-          editComponent: editComponent,
-          duplicateComponent: duplicateComponent,
-          removeComponent: removeComponent,
-          onReorderComponent: onReorderComponents,
+          editComponent: _editComponent,
+          duplicateComponent: _duplicateComponent,
+          removeComponent: _removeComponent,
+          onReorderComponent: _onReorderComponents,
           filterWidget: _componentListFilterWidget(),
         ),
         SetupList(
           setups: filteredData.filteredSetups,
-          editSetup: editSetup,
-          restoreSetup: duplicateSetup,
-          removeSetup: removeSetup,
+          editSetup: _editSetup,
+          restoreSetup: _duplicateSetup,
+          removeSetup: _removeSetup,
           displayOnlyChanges: _setupListOnlyChanges,
           displayBikeAdjustmentValues: _setupListBikeAdjustmentValues,
           displayPersonAdjustmentValues: _setupListPersonAdjustmentValues,
@@ -882,7 +895,7 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: <Widget>[
         FloatingActionButton(
           heroTag: "addBike",
-          onPressed: addBike,
+          onPressed: _addBike,
           tooltip: 'Add Bike',
           child: const Icon(Icons.add),
         ),

@@ -5,10 +5,26 @@ import '../models/bike.dart';
 import '../models/filtered_data.dart';
 import '../widgets/dialogs/discard_changes.dart';
 
+enum BikePageMode {
+  add,
+  edit,
+  duplicate,
+}
+
 class BikePage extends StatefulWidget {
   final Bike? bike;
+  final BikePageMode mode;
 
-  const BikePage({super.key, this.bike});
+  const BikePage._({super.key, this.bike, required this.mode});
+
+  factory BikePage.add({Key? key}) => 
+    BikePage._(key: key, mode: BikePageMode.add);
+
+  factory BikePage.edit({Key? key, required Bike bike}) => 
+    BikePage._(key: key, bike: bike, mode: BikePageMode.edit);
+
+  factory BikePage.duplicate({Key? key, required Bike bike}) => 
+    BikePage._(key: key, bike: bike, mode: BikePageMode.duplicate);
 
   @override
   State<BikePage> createState() => _BikePageState();
@@ -54,7 +70,11 @@ class _BikePageState extends State<BikePage> {
     final name = _nameController.text.trim();
     _formHasChanges = false;
 
-    Navigator.pop(context, Bike(id: widget.bike?.id, name: name, person: _person));
+    Navigator.pop(context, Bike(
+      id: widget.mode == BikePageMode.edit ? widget.bike!.id : null, 
+      name: name, 
+      person: _person
+    ));
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {
@@ -76,7 +96,10 @@ class _BikePageState extends State<BikePage> {
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
         appBar: AppBar(
-          title: widget.bike == null ? const Text('Add Bike') : const Text('Edit Bike'),
+          title: switch (widget.mode) {
+            BikePageMode.add || BikePageMode.duplicate => const Text('Add Bike'),
+            BikePageMode.edit => const Text('Edit Bike'),
+          },
           actions: [
             IconButton(
               icon: const Icon(Icons.check), 
@@ -95,13 +118,13 @@ class _BikePageState extends State<BikePage> {
                   controller: _nameController,
                   onFieldSubmitted: (_) => _saveBike(),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  autofocus: widget.bike == null,
+                  autofocus: widget.mode == BikePageMode.add,
                   decoration: InputDecoration(
                     labelText: 'Bike Name',
                     border: OutlineInputBorder(),
                     hintText: 'Enter bike name',
                     fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.bike != null && _nameController.text.trim() != widget.bike?.name,
+                    filled: widget.mode == BikePageMode.edit && _nameController.text.trim() != widget.bike?.name,
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -121,7 +144,7 @@ class _BikePageState extends State<BikePage> {
                       border: OutlineInputBorder(),
                       hintText: "Choose an owner for this bike",
                       fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.bike != null && _person != _initialPerson,
+                      filled: widget.mode == BikePageMode.edit && _person != _initialPerson,
                     ),
                     validator: (String? newPerson) {
                       if (newPerson == null) return null;

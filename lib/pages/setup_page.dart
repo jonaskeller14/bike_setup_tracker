@@ -27,15 +27,30 @@ import '../widgets/sheets/set_location_place.dart';
 import '../widgets/initial_changed_value_legend.dart';
 import '../widgets/display_adjustment/display_dangling_adjustment.dart';
 
+enum SetupPageMode {
+  add,
+  edit,
+  duplicate,
+}
+
 class SetupPage extends StatefulWidget {
   final Setup? setup;
-  final Setup? Function({required DateTime datetime, String? bike, String? person}) getPreviousSetupbyDateTime;
+  final SetupPageMode mode;
 
-  const SetupPage({
+  const SetupPage._({
     super.key,
     this.setup,
-    required this.getPreviousSetupbyDateTime,
+    required this.mode,
   });
+
+  factory SetupPage.add({Key? key}) => 
+    SetupPage._(key: key, mode: SetupPageMode.add);
+
+  factory SetupPage.edit({Key? key, required Setup setup}) => 
+    SetupPage._(key: key, setup: setup, mode: SetupPageMode.edit);
+
+  factory SetupPage.duplicate({Key? key, required Setup setup}) => 
+    SetupPage._(key: key, setup: setup, mode: SetupPageMode.duplicate);
 
   @override
   State<SetupPage> createState() => _SetupPageState();
@@ -115,6 +130,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         vsync: this,
       );
     }
+  }
+
+  Setup? getPreviousSetupbyDateTime({required DateTime datetime, String? bike, String? person}) {
+    final filteredData = context.read<FilteredData>();
+    return filteredData.setups.values.lastWhereOrNull((s) => s.datetime.isBefore(datetime) && (bike == null || s.bike == bike) && (person == null || s.person == person));
   }
 
   void _setAdjustmentValuesFromPreviousAndInitialAdjustmentValues() {
@@ -225,8 +245,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _person = bikes[_bike]?.person;
       _bikeComponents = components.values.where((c) => c.bike == _bike).toList();
 
-      _previousBikeSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: _bike);
-      _previousPersonSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, person: _person);
+      _previousBikeSetup = getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: _bike);
+      _previousPersonSetup = getPreviousSetupbyDateTime(datetime: _selectedDateTime, person: _person);
 
       _setPreviousAdjustmentValues();
       _setInitialAdjustmentValues();
@@ -368,8 +388,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     setState(() {
       _selectedDateTime = newDateTime;
-      _previousBikeSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: _bike);
-      _previousPersonSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, person: _person);
+      _previousBikeSetup = getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: _bike);
+      _previousPersonSetup = getPreviousSetupbyDateTime(datetime: _selectedDateTime, person: _person);
       _setPreviousAdjustmentValues();
       _setInitialAdjustmentValues();
     });
@@ -419,8 +439,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     setState(() {
       _selectedDateTime = newDateTime;
-      _previousBikeSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: _bike);
-      _previousPersonSetup = widget.getPreviousSetupbyDateTime(datetime: _selectedDateTime, person: _person);
+      _previousBikeSetup = getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: _bike);
+      _previousPersonSetup = getPreviousSetupbyDateTime(datetime: _selectedDateTime, person: _person);
       _setPreviousAdjustmentValues();
       _setInitialAdjustmentValues();
     });
@@ -520,7 +540,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     Navigator.pop(
       context,
       Setup(
-        id: widget.setup?.id,
+        id: widget.mode == SetupPageMode.edit ? widget.setup?.id : null,
         isDeleted: widget.setup?.isDeleted,
         lastModified: DateTime.now(),
         name: name,
@@ -605,7 +625,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         border: OutlineInputBorder(),
         hintText: 'Enter setup name',
         fillColor: Colors.orange.withValues(alpha: 0.08),
-        filled: widget.setup != null && _nameController.text.trim() != widget.setup?.name,
+        filled: widget.mode == SetupPageMode.edit && _nameController.text.trim() != widget.setup?.name,
       ),
       validator: _validateName,
     );
@@ -625,7 +645,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         border: OutlineInputBorder(),
         hintText: 'Add notes (optional)',
         fillColor: Colors.orange.withValues(alpha: 0.08),
-        filled: widget.setup != null && (_notesController.text.trim() != (widget.setup?.notes ?? '')),
+        filled: widget.mode == SetupPageMode.edit && (_notesController.text.trim() != (widget.setup?.notes ?? '')),
       ),
     );
   }
@@ -650,7 +670,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               label: Text(
                 DateFormat(appSettings.dateFormat).format(_selectedDateTime),
               ),
-              backgroundColor: widget.setup != null && (_selectedDateTime.year != widget.setup?.datetime.year || _selectedDateTime.month != widget.setup?.datetime.month || _selectedDateTime.day != widget.setup?.datetime.day) ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.mode == SetupPageMode.edit && (_selectedDateTime.year != widget.setup?.datetime.year || _selectedDateTime.month != widget.setup?.datetime.month || _selectedDateTime.day != widget.setup?.datetime.day) ? Colors.orange.withValues(alpha: 0.08) : null,
               onPressed: _pickDate,
             ),
             ActionChip(
@@ -658,11 +678,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               label: Text(
                 DateFormat(appSettings.timeFormat).format(_selectedDateTime),
               ),
-              backgroundColor: widget.setup != null && (_selectedDateTime.hour != widget.setup?.datetime.hour || _selectedDateTime.minute != widget.setup?.datetime.minute) ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.mode == SetupPageMode.edit && (_selectedDateTime.hour != widget.setup?.datetime.hour || _selectedDateTime.minute != widget.setup?.datetime.minute) ? Colors.orange.withValues(alpha: 0.08) : null,
               onPressed: _pickTime,
             ),
             ActionChip(
-              backgroundColor: widget.setup != null && (!Setup.locationEqual(_currentLocation.value, widget.setup?.position) || !Setup.placeEqual(_currentPlace.value, widget.setup?.place)) ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.mode == SetupPageMode.edit && (!Setup.locationEqual(_currentLocation.value, widget.setup?.position) || !Setup.placeEqual(_currentPlace.value, widget.setup?.place)) ? Colors.orange.withValues(alpha: 0.08) : null,
               onPressed: _locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching
                   ? null
                   : () async {
@@ -749,7 +769,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 WeatherStatus.success => Text(_currentWeather.value?.getWeatherCodeLabel() ?? "-"),
                 WeatherStatus.error => const Text("Weather Error"),
               },
-              backgroundColor: widget.setup != null && _currentWeather.value != widget.setup?.weather ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.mode == SetupPageMode.edit && _currentWeather.value != widget.setup?.weather ? Colors.orange.withValues(alpha: 0.08) : null,
               onPressed: _locationService.status == LocationStatus.searching || _weatherService.status == WeatherStatus.searching
                   ? null
                   : () async {
@@ -772,7 +792,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               label: _weatherService.status == WeatherStatus.searching 
                 ? _loadingIndicator()
                 : Text(_currentWeather.value?.condition?.value ?? "-"),
-              backgroundColor: widget.setup != null && _currentWeather.value?.condition != widget.setup?.weather?.condition ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.mode == SetupPageMode.edit && _currentWeather.value?.condition != widget.setup?.weather?.condition ? Colors.orange.withValues(alpha: 0.08) : null,
               onPressed: _locationService.status == LocationStatus.searching || _weatherService.status == WeatherStatus.searching
                   ? null
                   : () => appSettingsRadioGroupSheet<Condition?>(
@@ -819,7 +839,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
         appBar: AppBar(
-          title: widget.setup == null ? const Text('Add Setup') : const Text('Edit Setup'),
+          title: switch (widget.mode) {
+            SetupPageMode.add || SetupPageMode.duplicate => const Text('Add Setup'),
+            SetupPageMode.edit => const Text('Edit Setup'),
+          },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveSetup),
           ],
@@ -852,7 +875,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                 border: OutlineInputBorder(),
                                 hintText: "Choose a bike for this component",
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
-                                filled: widget.setup != null && _bike != widget.setup?.bike,
+                                filled: widget.mode == SetupPageMode.edit && _bike != widget.setup?.bike,
                               ),
                               validator: (String? newBike) {
                                 if (newBike == null) return "Bike cannot be empty.";

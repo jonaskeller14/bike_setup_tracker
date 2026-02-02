@@ -13,10 +13,26 @@ import '../widgets/adjustment_edit_list.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/sheets/person_add_adjustment.dart';
 
+enum PersonPageMode {
+  add,
+  edit,
+  duplicate,
+}
+
 class PersonPage extends StatefulWidget {
   final Person? person;
+  final PersonPageMode mode;
 
-  const PersonPage({super.key, this.person});
+  const PersonPage._({super.key, this.person, required this.mode});
+
+  factory PersonPage.add({Key? key}) => 
+    PersonPage._(key: key, mode: PersonPageMode.add);
+
+  factory PersonPage.edit({Key? key, required Person person}) => 
+    PersonPage._(key: key, person: person, mode: PersonPageMode.edit);
+
+  factory PersonPage.duplicate({Key? key, required Person person}) => 
+    PersonPage._(key: key, person: person, mode: PersonPageMode.duplicate);
 
   @override
   State<PersonPage> createState() => _PersonPageState();
@@ -146,7 +162,11 @@ class _PersonPageState extends State<PersonPage> {
     if (!_formKey.currentState!.validate()) return;
     final name = _nameController.text.trim();
     _formHasChanges = false;
-    Navigator.pop(context, Person(id: widget.person?.id, name: name, adjustments: _adjustments));
+    Navigator.pop(context, Person(
+      id: widget.mode == PersonPageMode.edit ? widget.person?.id : null, 
+      name: name, 
+      adjustments: _adjustments
+    ));
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {
@@ -250,7 +270,10 @@ class _PersonPageState extends State<PersonPage> {
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
         appBar: AppBar(
-          title: widget.person == null ? const Text('Add person') : const Text('Edit person'),
+          title: switch (widget.mode) {
+            PersonPageMode.add || PersonPageMode.duplicate => const Text('Add Person'),
+            PersonPageMode.edit => const Text('Edit Person'),
+          },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _savePerson),
           ],
@@ -267,14 +290,14 @@ class _PersonPageState extends State<PersonPage> {
                   controller: _nameController,
                   onFieldSubmitted: (_) => _savePerson(),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  autofocus: widget.person == null,
+                  autofocus: widget.mode == PersonPageMode.add,
                   onChanged: (value) => setState(() {}), // see filled/fillColor
                   decoration: InputDecoration(
                     labelText: 'Person Name',
                     border: OutlineInputBorder(),
                     hintText: 'Enter Person name',
                     fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.person != null && _nameController.text.trim() != widget.person?.name,
+                    filled: widget.mode == PersonPageMode.edit && _nameController.text.trim() != widget.person?.name,
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -287,7 +310,7 @@ class _PersonPageState extends State<PersonPage> {
                 _adjustments.isNotEmpty
                     ? AdjustmentEditList(
                         adjustments: _adjustments,
-                        initialAdjustments: widget.person != null ? Map.fromEntries(widget.person!.adjustments.map((a) => MapEntry(a.id, a))) : null,
+                        initialAdjustments: widget.mode == PersonPageMode.edit ? Map.fromEntries(widget.person!.adjustments.map((a) => MapEntry(a.id, a))) : null,
                         editAdjustment: _editAdjustment,
                         duplicateAdjustment: _duplicateAdjustment,
                         removeAdjustment: removeAdjustment,

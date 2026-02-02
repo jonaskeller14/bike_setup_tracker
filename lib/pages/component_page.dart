@@ -16,10 +16,26 @@ import '../widgets/adjustment_edit_list.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/sheets/component_add_adjustment.dart';
 
+enum ComponentPageMode {
+  add,
+  edit,
+  duplicate,
+}
+
 class ComponentPage extends StatefulWidget {
   final Component? component;
+  final ComponentPageMode mode;
 
-  const ComponentPage({super.key, this.component});
+  const ComponentPage._({super.key, this.component, required this.mode});
+
+  factory ComponentPage.add({Key? key}) => 
+    ComponentPage._(key: key, mode: ComponentPageMode.add);
+
+  factory ComponentPage.edit({Key? key, required Component component}) => 
+    ComponentPage._(key: key, component: component, mode: ComponentPageMode.edit);
+
+  factory ComponentPage.duplicate({Key? key, required Component component}) => 
+    ComponentPage._(key: key, component: component, mode: ComponentPageMode.duplicate);
 
   @override
   State<ComponentPage> createState() => _ComponentPageState();
@@ -172,7 +188,7 @@ class _ComponentPageState extends State<ComponentPage> {
     Navigator.pop(
       context,
       Component(
-        id: widget.component?.id,
+        id: widget.mode == ComponentPageMode.edit ? widget.component?.id : null, 
         name: name,
         componentType: _componentType!,
         bike: _bike,
@@ -291,7 +307,10 @@ class _ComponentPageState extends State<ComponentPage> {
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
         appBar: AppBar(
-          title: widget.component == null ? const Text('Add Component') : const Text('Edit Component'),
+          title: switch (widget.mode) {
+            ComponentPageMode.add || ComponentPageMode.duplicate => const Text('Add Component'),
+            ComponentPageMode.edit => const Text('Edit Component'),
+          },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveComponent),
           ],
@@ -308,14 +327,14 @@ class _ComponentPageState extends State<ComponentPage> {
                   controller: _nameController,
                   textInputAction: TextInputAction.next,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  autofocus: widget.component == null,
+                  autofocus: widget.mode == ComponentPageMode.add,
                   onChanged: (value) => setState(() {}), // see filled/fillColor
                   decoration: InputDecoration(
                     labelText: 'Component Name',
                     border: OutlineInputBorder(),
                     hintText: 'Enter component name',
                     fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.component != null && _nameController.text.trim() != widget.component?.name,
+                    filled: widget.mode == ComponentPageMode.edit && _nameController.text.trim() != widget.component?.name,
                   ),
                   validator: _validateName,
                 ),
@@ -330,7 +349,7 @@ class _ComponentPageState extends State<ComponentPage> {
                     hintText: "Choose a bike for this component",
                     helperText: _bike == null ? "WARNING: Select Bike to install Component." : null,
                     fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.component != null && _bike != _initialBike,
+                    filled: widget.mode == ComponentPageMode.edit && _bike != _initialBike,
                   ),
                   validator: (String? newBike) {
                     if (newBike is String && !bikes.containsKey(newBike)) return "Please select valid bike";
@@ -393,7 +412,7 @@ class _ComponentPageState extends State<ComponentPage> {
                           )
                         : null,
                     fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.component != null && _componentType != widget.component?.componentType,
+                    filled: widget.mode == ComponentPageMode.edit && _componentType != widget.component?.componentType,
                   ),
                   items: ComponentType.values.map((componentType) {
                     return DropdownMenuItem<ComponentType>(
@@ -427,7 +446,7 @@ class _ComponentPageState extends State<ComponentPage> {
                 _adjustments.isNotEmpty
                     ? AdjustmentEditList(
                         adjustments: _adjustments,
-                        initialAdjustments: widget.component != null ? Map.fromEntries(widget.component!.adjustments.map((a) => MapEntry(a.id, a))) : null,
+                        initialAdjustments: widget.mode == ComponentPageMode.edit ? Map.fromEntries(widget.component!.adjustments.map((a) => MapEntry(a.id, a))) : null,
                         editAdjustment: _editAdjustment,
                         duplicateAdjustment: _duplicateAdjustment,
                         removeAdjustment: removeAdjustment,

@@ -17,10 +17,26 @@ import '../widgets/adjustment_edit_list.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/sheets/rating_add_adjustment.dart';
 
+enum RatingPageMode {
+  add,
+  edit,
+  duplicate,
+}
+
 class RatingPage extends StatefulWidget {
   final Rating? rating;
+  final RatingPageMode mode;
 
-  const RatingPage({super.key, this.rating});
+  const RatingPage._({super.key, this.rating, required this.mode});
+
+  factory RatingPage.add({Key? key}) => 
+    RatingPage._(key: key, mode: RatingPageMode.add);
+
+  factory RatingPage.edit({Key? key, required Rating rating}) => 
+    RatingPage._(key: key, rating: rating, mode: RatingPageMode.edit);
+
+  factory RatingPage.duplicate({Key? key, required Rating rating}) => 
+    RatingPage._(key: key, rating: rating, mode: RatingPageMode.duplicate);
 
   @override
   State<RatingPage> createState() => _RatingPageState();
@@ -174,7 +190,7 @@ class _RatingPageState extends State<RatingPage> {
     _formHasChanges = false;
     
     Navigator.pop(context, Rating(
-      id: widget.rating?.id,
+      id: widget.mode == RatingPageMode.edit ? widget.rating?.id : null, 
       name: name, 
       filter: _filterFilterType.filter, 
       filterType: _filterFilterType.filterType,
@@ -300,7 +316,10 @@ class _RatingPageState extends State<RatingPage> {
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
         appBar: AppBar(
-          title: widget.rating == null ? const Text('Add Rating') : const Text('Edit Rating'),
+          title: switch (widget.mode) {
+            RatingPageMode.add || RatingPageMode.duplicate => const Text('Add Rating'),
+            RatingPageMode.edit => const Text('Edit Rating'),
+          },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveRating),
           ],
@@ -317,14 +336,14 @@ class _RatingPageState extends State<RatingPage> {
                   controller: _nameController,
                   onFieldSubmitted: (_) => _saveRating(),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  autofocus: widget.rating == null,
+                  autofocus: widget.mode == RatingPageMode.add,
                   onChanged: (value) => setState(() {}), // see filled/fillColor
                   decoration: InputDecoration(
                     labelText: 'Rating Name',
                     border: OutlineInputBorder(),
                     hintText: 'Enter rating name',
                     fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.rating != null && _nameController.text.trim() != widget.rating?.name,
+                    filled: widget.mode == RatingPageMode.edit && _nameController.text.trim() != widget.rating?.name,
                   ),
                   validator: _validateName,
                 ),
@@ -338,7 +357,7 @@ class _RatingPageState extends State<RatingPage> {
                     border: OutlineInputBorder(),
                     hintText: "Choose an object which the filter should be applied for",
                     fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.rating != null && _filterFilterType.filter != widget.rating?.filter,
+                    filled: widget.mode == RatingPageMode.edit && _filterFilterType.filter != widget.rating?.filter,
                   ),
                   validator: (FilterFilterType? newValue) {
                     if (!filterOptions.containsKey(newValue)) return "Invalid Filter.";
@@ -445,7 +464,7 @@ class _RatingPageState extends State<RatingPage> {
                 _adjustments.isNotEmpty
                     ? AdjustmentEditList(
                         adjustments: _adjustments,
-                        initialAdjustments: widget.rating != null ? Map.fromEntries(widget.rating!.adjustments.map((a) => MapEntry(a.id, a))) : null,
+                        initialAdjustments: widget.mode == RatingPageMode.edit ? Map.fromEntries(widget.rating!.adjustments.map((a) => MapEntry(a.id, a))) : null,
                         editAdjustment: _editAdjustment,
                         duplicateAdjustment: _duplicateAdjustment,
                         removeAdjustment: removeAdjustment,

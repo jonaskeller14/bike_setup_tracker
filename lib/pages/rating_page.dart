@@ -402,7 +402,9 @@ class _RatingPageState extends State<RatingPage> {
                                         : Theme.of(context).colorScheme.error,
                                   ), 
                                   Expanded(child: Text(
-                                    bikes[object.bike]?.name ?? "BIKE NOT FOUND",
+                                    object.bike == null
+                                        ? "Not installed"
+                                        : bikes[object.bike]?.name ?? "BIKE NOT FOUND",
                                     style: object.bike == null || bikes.containsKey(object.bike) 
                                         ? null 
                                         : TextStyle(color: Theme.of(context).colorScheme.error), 

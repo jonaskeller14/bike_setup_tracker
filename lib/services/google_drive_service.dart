@@ -442,6 +442,16 @@ class GoogleDriveService extends ChangeNotifier {
 
       setLastBackup(now);
       debugPrint('Successfully backed up to Google Drive: $backupFileName');
+      if (context != null && context.mounted) {
+        final scaffoldMessenger = ScaffoldMessenger.of(context);
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            persist: false,
+            showCloseIcon: true,
+            content: Text('Successfully created Google Drive Backup'),
+          ),
+        );
+      }
     } catch (e) {
       debugPrint('Error backing up to Google Drive: $e');
       _setErrorMessage('Error backing up to Google Drive: $e');

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/person.dart';
@@ -105,30 +104,6 @@ class _HomePageState extends State<HomePage> {
         } 
       )
     );
-  }
-
-  Future<void> _exportData() async {
-    final ExportSheetOptions? choice = await showExportSheet(context: context);
-    
-    if (!mounted) return;
-    switch (choice) {
-      case ExportSheetOptions.file:
-        final selectedData = await showDataSelectSheet(context: context, data: context.read<AppData>());
-        if (selectedData == null) return;
-
-        if (!mounted) return;
-        await FileExport.downloadJson(
-          context: context,
-          data: selectedData,
-        );
-      case ExportSheetOptions.backup:
-        await FileExport.saveBackup(context: context, data: context.read<AppData>(), force: true);
-      case ExportSheetOptions.googleDriveBackup:
-        await context.read<GoogleDriveService>().saveBackup(context: context, force: true);
-      case null:
-        debugPrint("showExportSheet canceled.");
-        return;
-    }
   }
 
   Future<void> _shareData() async {
@@ -752,7 +727,7 @@ class _HomePageState extends State<HomePage> {
             onSelected: (String result) {
               switch (result) {
                 case 'import': _importData();
-                case 'export': _exportData();
+                case 'export': exportData(context);
                 case 'share': _shareData();
                 case "trash": Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const TrashPage()));
                 case "settings": Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()));

@@ -24,7 +24,7 @@ void main() {
             update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
           ),
         ],
-        child: const MaterialApp(home: BikePage()),
+        child: MaterialApp(home: BikePage.add()),
       ),
     );
 
@@ -69,7 +69,7 @@ void main() {
             update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
           ),
         ],
-        child: MaterialApp(home: BikePage(bike: Bike(name: "TestBike #1", person: null))),
+        child: MaterialApp(home: BikePage.edit(bike: Bike(name: "TestBike #1", person: null))),
       ),
     );
 

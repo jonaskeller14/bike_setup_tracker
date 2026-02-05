@@ -1,4 +1,4 @@
-abstract class Backup {
+sealed class Backup {
   final DateTime createdAt;
 
   Backup({required this.createdAt});

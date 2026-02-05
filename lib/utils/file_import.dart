@@ -11,16 +11,12 @@ import '../utils/backup.dart';
 import '../models/app_data.dart';
 
 class FileImport {
-  static Future<List<LocalBackup>> getBackups(BuildContext context) async {
-    final scaffold = ScaffoldMessenger.of(context);
-    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
-    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
-
+  static Future<GetLocalBackupsResult> getBackups() async {
     final List<LocalBackup> backups = [];
     try {
       final dir = await getApplicationDocumentsDirectory();  //catch MissingPlatformDirectoryException
       final backupDir = Directory('${dir.path}/backup');
-      if (!await backupDir.exists()) return backups;
+      if (!await backupDir.exists()) return GetLocalBackupsResult.success(backups);
       
       await for (final entity in backupDir.list()) {
         if (entity is File) {
@@ -28,27 +24,13 @@ class FileImport {
           backups.add(LocalBackup(createdAt: stat.modified, filepath: entity.path));
         }
       }
-      return backups;
-    } catch (e, st) {
-      debugPrint("Getting local backups failed: $e\n$st");
-      if (context.mounted) {
-        scaffold.showSnackBar(SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: onErrorContainerColor,
-          content: Text("Getting local backups failed: $e", style: TextStyle(color: onErrorContainerColor)), 
-          backgroundColor: errorContainerColor,
-        ));
-      }
-      return backups;
+      return GetLocalBackupsResult.success(backups);
+    } catch (e) {
+      return GetLocalBackupsResult.failure("Getting local backups failed: $e");
     }
   }
 
-  static Future<AppData?> readBackup({required BuildContext context, required String path}) async {
-    final scaffold = ScaffoldMessenger.of(context);
-    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
-    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
-
+  static Future<ReadLocalBackupResult> readBackup({required String path}) async {
     try {
       final file = File(path);
       if (!await file.exists()) throw Exception("File does not exist");
@@ -56,34 +38,21 @@ class FileImport {
       final jsonString = await file.readAsString();
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      return AppData.addJson(data: AppData(), json: jsonData);
+      return ReadLocalBackupResult.success(AppData.addJson(data: AppData(), json: jsonData));
     } catch (e, st) {
       debugPrint("Reading backup failed: $e\n$st");
-      if (context.mounted) {
-        scaffold.showSnackBar(SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: onErrorContainerColor,
-          content: Text("Reading backup failed: $e", style: TextStyle(color: onErrorContainerColor)), 
-          backgroundColor: errorContainerColor,
-        ));
-      }
-      return null;
+      return ReadLocalBackupResult.failure("Reading backup failed: $e");
     }
   }
 
-  static Future<AppData?> readJsonFileData(BuildContext context) async {
-    final scaffold = ScaffoldMessenger.of(context);
-    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
-    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
-
+  static Future<ReadJsonFileResult> pickAndReadJsonFile() async {
     try {
       // Step 1 — pick a file
       final picked = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
-      if (picked == null || picked.files.isEmpty) return null;  // no error message
+      if (picked == null || picked.files.isEmpty) return ReadJsonFileResult.failure("No file was selected.");  // no error message
 
       Uint8List fileBytes;
 
@@ -94,36 +63,16 @@ class FileImport {
         // Works in Android / iOS
         fileBytes = await File(picked.files.single.path!).readAsBytes();
       } else {
-        scaffold.showSnackBar(SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: onErrorContainerColor,
-          content: Text("Cannot read file!", style: TextStyle(color: onErrorContainerColor)), 
-          backgroundColor: errorContainerColor,
-        ));
-        return null;
+        return ReadJsonFileResult.failure("Cannot open and read file!");
       }
 
       final jsonString = utf8.decode(fileBytes);
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      scaffold.showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        duration: Duration(seconds: 2),
-        content: Text("Imported ${picked.files.single.name} successfully")
-      ));
-      return AppData.addJson(data: AppData(), json: jsonData);
-    } catch (e, st) {
-      debugPrint("Import failed: $e\n$st");
-      scaffold.showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: onErrorContainerColor,
-        content: Text("Import failed: $e", style: TextStyle(color: onErrorContainerColor)), 
-        backgroundColor: errorContainerColor,
-      ));
-      return null;
+      return ReadJsonFileResult.success(AppData.addJson(data: AppData(), json: jsonData));
+    } catch (e) {
+      debugPrint("Import failed: $e");
+      return ReadJsonFileResult.failure("Import failed: $e");
     }
   }
 
@@ -374,4 +323,31 @@ class FileImport {
     data.components.removeWhere((_, c) => c.isDeleted && c.lastModified.isBefore(deleteDateTime));
     data.setups.removeWhere((_, s) => s.isDeleted && s.lastModified.isBefore(deleteDateTime));
   }
+}
+
+class GetLocalBackupsResult {
+  final List<LocalBackup> backups;
+  final String? errorMessage;
+  final bool isError;
+
+  GetLocalBackupsResult.success(this.backups) : errorMessage = null, isError = false;
+  GetLocalBackupsResult.failure(this.errorMessage) : backups = [], isError = true;
+}
+
+class ReadLocalBackupResult {
+  final AppData? appData;
+  final String? errorMessage;
+  final bool isError;
+
+  ReadLocalBackupResult.success(this.appData) : errorMessage = null, isError = false;
+  ReadLocalBackupResult.failure(this.errorMessage) : appData = null, isError = true;
+}
+
+class ReadJsonFileResult {
+  final AppData? appData;
+  final String? errorMessage;
+  final bool isError;
+
+  ReadJsonFileResult.success(this.appData) : errorMessage = null, isError = false;
+  ReadJsonFileResult.failure(this.errorMessage) : appData = null, isError = true;
 }

@@ -19,22 +19,17 @@ import 'rating_page.dart';
 import 'trash_page.dart';
 import 'app_settings_page.dart';
 import 'about_page.dart';
-import 'backup_page.dart';
-import '../utils/backup.dart';
 import '../utils/file_export.dart';
-import '../utils/file_import.dart';
 import '../widgets/person_list.dart';
 import '../widgets/rating_list.dart';
 import '../widgets/bike_list.dart';
 import '../widgets/component_list.dart';
 import '../widgets/setup_list.dart';
-import '../widgets/sheets/import_merge_overwrite.dart';
 import '../widgets/sheets/import.dart';
 import '../widgets/sheets/export.dart';
 import '../widgets/sheets/bike_filter.dart';
 import '../widgets/sheets/data_select.dart';
 import '../widgets/google_drive_sync_button.dart';
-import '../services/google_drive_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -51,60 +46,6 @@ class _HomePageState extends State<HomePage> {
   bool _setupListSortAccending = false;
 
   int currentPageIndex = 0;
-
-  Future<void> _importData() async {
-    final ImportSheetOptions? importChoice = await showImportSheet(context);
-
-    if (!mounted) return;
-    AppData? remoteData;
-    switch (importChoice) {
-      case ImportSheetOptions.file:
-        remoteData = await FileImport.readJsonFileData(context);
-      case ImportSheetOptions.backup:
-        final backup = await Navigator.push<Backup?>(context, MaterialPageRoute(builder: (context) => const BackupPage()));
-        if (backup == null) return;
-        if (!mounted) return;
-
-        switch (backup) {
-          case LocalBackup(): remoteData = await FileImport.readBackup(context: context, path: backup.filepath);
-          case GoogleDriveBackup(): remoteData = await context.read<GoogleDriveService>().readBackup(context: context, fileId: backup.fileId);
-        }
-      case null:
-        debugPrint("showImportSheet canceled");
-        return;
-    }
-    if (remoteData == null) return;
-
-    if (!mounted) return;
-    final selectedRemoteData = await showDataSelectSheet(context: context, data: remoteData);
-    if (selectedRemoteData == null) return;
-
-    if (!mounted) return;
-    final data = context.read<AppData>();
-    final ImportMergeOverwriteSheetOptions? mergeOverwriteChoice = await showImportMergeOverwriteSheet(context);
-    switch (mergeOverwriteChoice) {
-      case ImportMergeOverwriteSheetOptions.overwrite:
-        FileImport.overwrite(remoteData: remoteData, localData: data);
-      case ImportMergeOverwriteSheetOptions.merge:
-        FileImport.merge(remoteData: remoteData, localData: data);
-      case null:
-        debugPrint("showImportMergeOverwriteSheet canceled");
-        return;
-    }
-    
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        content: switch (mergeOverwriteChoice) {
-          ImportMergeOverwriteSheetOptions.merge => const Text("Data merged successfully"),
-          ImportMergeOverwriteSheetOptions.overwrite => const Text("Data overwritten successfully"),
-          null => const Text("ERROR"), 
-        } 
-      )
-    );
-  }
 
   Future<void> _shareData() async {
     final selectedData = await showDataSelectSheet(context: context, data: context.read<AppData>());    
@@ -726,7 +667,7 @@ class _HomePageState extends State<HomePage> {
           PopupMenuButton<String>(
             onSelected: (String result) {
               switch (result) {
-                case 'import': _importData();
+                case 'import': importData(context);
                 case 'export': exportData(context);
                 case 'share': _shareData();
                 case "trash": Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const TrashPage()));

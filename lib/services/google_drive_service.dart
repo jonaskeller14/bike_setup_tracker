@@ -494,11 +494,7 @@ class GoogleDriveService extends ChangeNotifier {
     return createdFolder.id!;
   }
 
-  Future<List<GoogleDriveBackup>> getBackups(BuildContext context) async {
-    final scaffold = ScaffoldMessenger.of(context);
-    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
-    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
-
+  Future<GetGoogleDriveBackupsResult> getBackups() async {
     final List<GoogleDriveBackup> backups = [];
     try {
       if (_driveApi == null) await _initializeDriveApi();
@@ -511,7 +507,7 @@ class GoogleDriveService extends ChangeNotifier {
         $fields: 'files(id, name, modifiedTime)',
       );
 
-      if (fileList.files == null || fileList.files!.isEmpty) return backups;
+      if (fileList.files == null || fileList.files!.isEmpty) return GetGoogleDriveBackupsResult.success(backups);
 
       for (final file in fileList.files!) {
         final modified = file.modifiedTime;
@@ -519,42 +515,17 @@ class GoogleDriveService extends ChangeNotifier {
           backups.add(GoogleDriveBackup(createdAt: modified, fileId: file.id!));
         }
       }
-      return backups;
+      return GetGoogleDriveBackupsResult.success(backups);
     } on SocketException {
-        debugPrint("Getting Google Drive backups failed: No internet connection. Please connect to a network.");
-        if (context.mounted) {
-          scaffold.showSnackBar(SnackBar(
-            persist: false,
-            showCloseIcon: true,
-            closeIconColor: onErrorContainerColor,
-            content: Text(
-              "Getting Google Drive backups failed: No internet connection. Please connect to a network.", 
-              style: TextStyle(color: onErrorContainerColor)
-            ), 
-            backgroundColor: errorContainerColor,
-          ));
-        }
-        return backups;
-    } catch (e, st) {
-      debugPrint("Getting Google Drive backups failed: $e\n$st");
-      if (context.mounted) {
-        scaffold.showSnackBar(SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: onErrorContainerColor,
-          content: Text("Getting Google Drive backups failed: $e", style: TextStyle(color: onErrorContainerColor)), 
-          backgroundColor: errorContainerColor,
-        ));
-      }
-      return backups;
+      return GetGoogleDriveBackupsResult.failure("Getting Google Drive backups failed: No internet connection. Please connect to a network.");
+    } on DetailedApiRequestError catch (e) {
+      return GetGoogleDriveBackupsResult.failure("Google Drive Error: ${e.message}");
+    } catch (e) {
+      return GetGoogleDriveBackupsResult.failure("An unexpected error occurred.");
     }
   }
 
-  Future<AppData?> readBackup({required BuildContext context, required String fileId}) async {
-    final scaffold = ScaffoldMessenger.of(context);
-    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
-    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
-
+  Future<ReadGoogleDriveBackupResult> readBackup({required String fileId}) async {
     try {
       if (_driveApi == null) await _initializeDriveApi();
       if (_driveApi == null) throw Exception("Drive API not initialized");
@@ -571,19 +542,10 @@ class GoogleDriveService extends ChangeNotifier {
 
       final jsonString = utf8.decode(dataStore);
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
-      return AppData.addJson(data: AppData(), json: jsonData);
-    } catch (e, st) {
-      debugPrint('Reading Google Drive backup failed: $fileId: $e\n$st');
-      if (context.mounted) {
-        scaffold.showSnackBar(SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: onErrorContainerColor,
-          content: Text("Reading Google Drive backup failed: $e", style: TextStyle(color: onErrorContainerColor)), 
-          backgroundColor: errorContainerColor,
-        ));
-      }
-      return null;
+      return ReadGoogleDriveBackupResult.success(AppData.addJson(data: AppData(), json: jsonData));
+    } catch (e) {
+      debugPrint('Reading Google Drive backup failed: $fileId: $e');
+      return ReadGoogleDriveBackupResult.failure("Reading Google Drive backup failed: $e");
     }
   }
 
@@ -637,4 +599,22 @@ class AuthenticatedClient extends http.BaseClient {
     request.headers.addAll(_headers);
     return _baseClient.send(request);
   }
+}
+
+class GetGoogleDriveBackupsResult {
+  final List<GoogleDriveBackup> backups;
+  final String? errorMessage;
+  final bool isError;
+
+  GetGoogleDriveBackupsResult.success(this.backups) : errorMessage = null, isError = false;
+  GetGoogleDriveBackupsResult.failure(this.errorMessage) : backups = [], isError = true;
+}
+
+class ReadGoogleDriveBackupResult {
+  final AppData? appData;
+  final String? errorMessage;
+  final bool isError;
+
+  ReadGoogleDriveBackupResult.success(this.appData) : errorMessage = null, isError = false;
+  ReadGoogleDriveBackupResult.failure(this.errorMessage) : appData = null, isError = true;
 }

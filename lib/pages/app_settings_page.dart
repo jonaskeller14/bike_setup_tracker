@@ -94,7 +94,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 optionWidgets: _themeModeOptionWidgets, 
                 onChanged: (ThemeMode? newValue) {
                   if (newValue == null) return;
-                  appSettingsWriter.setThemeMode(newValue);
+                  appSettingsWriter.themeMode = newValue;
                   Navigator.pop(context);
                 }
               ),
@@ -119,7 +119,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 optionWidgets: _dateFormatOptionWidgets, 
                 onChanged: (String? newValue) {
                   if (newValue == null) return;
-                  appSettingsWriter.setDateFormat(newValue);
+                  appSettingsWriter.dateFormat = newValue;
                   Navigator.pop(context);
                 }
               ),
@@ -136,7 +136,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 optionWidgets: _timeFormatOptionWidgets, 
                 onChanged: (String? newValue) {
                   if (newValue == null) return;
-                  appSettingsWriter.setTimeFormat(newValue);
+                  appSettingsWriter.timeFormat = newValue;
                   Navigator.pop(context);
                 }
               ),
@@ -161,7 +161,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 optionWidgets: _altitudeUnitOptionWidgets, 
                 onChanged: (String? newValue) {
                   if (newValue == null) return;
-                  appSettingsWriter.setAltitudeUnit(newValue);
+                  appSettingsWriter.altitudeUnit = newValue;
                   Navigator.pop(context);
                 }
               ),
@@ -178,7 +178,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 optionWidgets: _tempUnitOptionWidgets, 
                 onChanged: (String? newValue) {
                   if (newValue == null) return;
-                  appSettingsWriter.setTemperatureUnit(newValue);
+                  appSettingsWriter.temperatureUnit = newValue;
                   Navigator.pop(context);
                 }
               ),
@@ -195,7 +195,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 optionWidgets: _windSpeedUnitOptionWidgets, 
                 onChanged: (String? newValue) {
                   if (newValue == null) return;
-                  appSettingsWriter.setWindSpeedUnit(newValue);
+                  appSettingsWriter.windSpeedUnit = newValue;
                   Navigator.pop(context);
                 }
               ),
@@ -212,7 +212,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 optionWidgets: _precipitationUnitOptionWidgets, 
                 onChanged: (String? newValue) {
                   if (newValue == null) return;
-                  appSettingsWriter.setPrecipitationUnit(newValue);
+                  appSettingsWriter.precipitationUnit = newValue;
                   Navigator.pop(context);
                 }
               ),
@@ -242,7 +242,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 optionWidgets: _offOnOptionWidgets, 
                 onChanged: (bool? newValue) {
                   if (newValue == null) return;
-                  appSettingsWriter.setEnableGoogleDrive(newValue);
+                  appSettingsWriter.enableGoogleDrive = newValue;
                   Navigator.pop(context);
                 },
                 infoText: 'Sync your data across devices and keep secure backups in your Google Drive. Your data is stored privately in your own account; we never have access to it.',
@@ -260,7 +260,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 optionWidgets: _offOnOptionWidgets, 
                 onChanged: (bool? newValue) {
                   if (newValue == null) return;
-                  appSettingsWriter.setEnableTextAdjustment(newValue);
+                  appSettingsWriter.enableTextAdjustment = newValue;
                   Navigator.pop(context);
                 },
                 infoText: 'Adds a Text Adjustment type that provides a free-form text field.',
@@ -278,7 +278,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 optionWidgets: _offOnOptionWidgets, 
                 onChanged: (bool? newValue) {
                   if (newValue == null) return;
-                  appSettingsWriter.setEnableSetupTags(newValue);
+                  appSettingsWriter.enableSetupTags = newValue;
                   Navigator.pop(context);
                 },
                 infoText: 'Adds the option to add tags to Setups',

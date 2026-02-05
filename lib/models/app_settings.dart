@@ -31,91 +31,91 @@ class AppSettings extends ChangeNotifier {
   bool get enableRating => _enableRating;
   bool get enableSetupTags => _enableSetupTags;
 
-  void setShowOnboarding(bool newShowOnboarding) {
+  set showOnboarding(bool newShowOnboarding) {
     if (_showOnboarding == newShowOnboarding) return;
     _showOnboarding = newShowOnboarding;
     notifyListeners();
     saveAppSettings();
   }
 
-  void setThemeMode(ThemeMode newThemeMode) {
+  set themeMode(ThemeMode newThemeMode) {
     if (_themeMode == newThemeMode) return; 
     _themeMode = newThemeMode;
     notifyListeners();
     saveAppSettings();
   }
 
-  void setDateFormat(String newDateFormat) {
+  set dateFormat(String newDateFormat) {
     if (newDateFormat == _dateFormat) return;
     _dateFormat = newDateFormat;
     notifyListeners();
     saveAppSettings();
   }
 
-  void setTimeFormat(String newTimeFormat) {
+  set timeFormat(String newTimeFormat) {
     if (newTimeFormat == _timeFormat) return;
     _timeFormat = newTimeFormat;
     notifyListeners();
     saveAppSettings();
   }
   
-  void setTemperatureUnit(String newUnit) {
+  set temperatureUnit(String newUnit) {
     if (newUnit == _temperatureUnit) return;
     _temperatureUnit = newUnit;
     notifyListeners();
     saveAppSettings();
   }
 
-  void setWindSpeedUnit(String newUnit) {
+  set windSpeedUnit(String newUnit) {
     if (newUnit == _windSpeedUnit) return;
     _windSpeedUnit = newUnit;
     notifyListeners();
     saveAppSettings();
   }
 
-  void setAltitudeUnit(String newUnit) {
+  set altitudeUnit(String newUnit) {
     if (newUnit == _altitudeUnit) return;
     _altitudeUnit = newUnit;
     notifyListeners();
     saveAppSettings();
   }
 
-  void setPrecipitationUnit(String newUnit) {
+  set precipitationUnit(String newUnit) {
     if (newUnit == _precipitationUnit) return;
     _precipitationUnit = newUnit;
     notifyListeners();
     saveAppSettings();
   }
 
-  void setEnableGoogleDrive(bool newValue) {
+  set enableGoogleDrive(bool newValue) {
     if (newValue == _enableGoogleDrive) return;
     _enableGoogleDrive = newValue;
     notifyListeners();
     saveAppSettings();
   }
 
-  void setEnableTextAdjustment(bool newValue) {
+  set enableTextAdjustment(bool newValue) {
     if (newValue == _enableTextAdjustment) return;
     _enableTextAdjustment = newValue;
     notifyListeners();
     saveAppSettings();
   }
 
-  void setEnablePerson(bool newValue) {
+  set enablePerson(bool newValue) {
     if (newValue == _enablePerson) return;
     _enablePerson = newValue;
     notifyListeners();
     saveAppSettings();
   }
 
-  void setEnableRating(bool newValue) {
+  set enableRating(bool newValue) {
     if (newValue == _enableRating) return;
     _enableRating = newValue;
     notifyListeners();
     saveAppSettings();
   }
 
-  void setEnableSetupTags(bool newValue) {
+  set enableSetupTags(bool newValue) {
     if (newValue == _enableSetupTags) return;
     _enableSetupTags = newValue;
     notifyListeners();

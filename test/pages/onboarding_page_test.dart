@@ -55,7 +55,7 @@ void main() {
 
   testWidgets('Not Show OnBoarding', (WidgetTester tester) async {
     final appSettings = AppSettings();
-    appSettings.setShowOnboarding(false);
+    appSettings.showOnboarding = false;
 
     final appData = AppData();
 

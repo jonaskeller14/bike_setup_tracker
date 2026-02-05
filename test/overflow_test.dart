@@ -65,6 +65,7 @@ void main() async {
     data.addSetup(Setup(
       name: "Setup #$idx: $loremIpsum", 
       notes: loremIpsum,
+      tags: {},
       bike: data.bikes.values.first.id, 
       datetime: DateTime(2000).add(Duration(minutes: idx)),
       person: null,

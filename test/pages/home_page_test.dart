@@ -14,7 +14,7 @@ import 'package:bike_setup_tracker/models/component.dart';
 void main() {
   testWidgets('Home Page BottomNavigationBar', (WidgetTester tester) async {
     final appSettings = AppSettings();
-    appSettings.setShowOnboarding(false);
+    appSettings.showOnboarding = false;
 
     final appData = AppData();
 
@@ -75,7 +75,7 @@ void main() {
 
    testWidgets('Add Component without Bike', (WidgetTester tester) async {
     final appSettings = AppSettings();
-    appSettings.setShowOnboarding(false);
+    appSettings.showOnboarding = false;
 
     final appData = AppData();
 
@@ -121,7 +121,7 @@ void main() {
 
   testWidgets('Add Setup without Bike and Components', (WidgetTester tester) async {
     final appSettings = AppSettings();
-    appSettings.setShowOnboarding(false);
+    appSettings.showOnboarding = false;
 
     final appData = AppData();
 
@@ -185,7 +185,7 @@ void main() {
 
   testWidgets('BikeList: Add/Remove/Restore Bike and not show deleted', (WidgetTester tester) async {
     final appSettings = AppSettings();
-    appSettings.setShowOnboarding(false);
+    appSettings.showOnboarding = false;
 
     final appData = AppData();
 
@@ -235,7 +235,7 @@ void main() {
 
   testWidgets('ComponentList/Edit Adjustmenet with saving Component', (WidgetTester tester) async {
     final appSettings = AppSettings();
-    appSettings.setShowOnboarding(false);
+    appSettings.showOnboarding = false;
 
     final appData = AppData();
 
@@ -299,7 +299,7 @@ void main() {
 
   testWidgets('ComponentList/Edit Adjustmenet without saving Component', (WidgetTester tester) async {
     final appSettings = AppSettings();
-    appSettings.setShowOnboarding(false);
+    appSettings.showOnboarding = false;
 
     final appData = AppData();
 

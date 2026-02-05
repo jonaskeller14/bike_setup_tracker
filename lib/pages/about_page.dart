@@ -204,7 +204,7 @@ Current Time: $now
               subtitle: Text("Show onboarding slides to get started."),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
               onTap: () {
-                context.read<AppSettings>().setShowOnboarding(true);
+                context.read<AppSettings>().showOnboarding = true;
                 Navigator.pop(context);
               },
             ),

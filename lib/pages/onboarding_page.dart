@@ -55,7 +55,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
             top: 50,
             right: 20,
             child: TextButton(
-              onPressed: () => context.read<AppSettings>().setShowOnboarding(false),
+              onPressed: () => context.read<AppSettings>().showOnboarding = false,
               child: const Text("Skip"),
             ),
           ),
@@ -82,7 +82,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
             child: ElevatedButton.icon(
               onPressed: () {
                 if (_currentPage == _pages.length - 1) {
-                  context.read<AppSettings>().setShowOnboarding(false);
+                  context.read<AppSettings>().showOnboarding = false;
                 } else {
                   _controller.nextPage(
                     duration: const Duration(milliseconds: 300),

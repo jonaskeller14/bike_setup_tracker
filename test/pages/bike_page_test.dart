@@ -10,7 +10,7 @@ import 'package:bike_setup_tracker/pages/bike_page.dart';
 void main() {
   testWidgets('BikePage/Add input validation', (WidgetTester tester) async {
     final appSettings = AppSettings();
-    appSettings.setShowOnboarding(false);
+    appSettings.showOnboarding = false;
 
     final appData = AppData();
 
@@ -55,7 +55,7 @@ void main() {
 
     testWidgets('BikePage/Edit input validation', (WidgetTester tester) async {
     final appSettings = AppSettings();
-    appSettings.setShowOnboarding(false);
+    appSettings.showOnboarding = false;
 
     final appData = AppData();
 

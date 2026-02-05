@@ -7,7 +7,7 @@ import '../models/filtered_data.dart';
 import '../models/person.dart';
 
 class BikeList extends StatefulWidget {
-  final List<Bike> bikes;
+  final Map<String, Bike> bikes;
   final void Function(Bike bike) editBike;
   final void Function(Bike bike) removeBike;
   final void Function(int oldIndex, int newIndex) onReorderBikes;
@@ -38,8 +38,9 @@ class _BikeListState extends State<BikeList> {
     final persons = filteredData.persons;
     
     final List<InkWell> inkWells = <InkWell>[];
+    final bikes = widget.bikes.values.toList();
     for (int index = 0; index < visibleItemCount; index++) {
-      final bike = widget.bikes[index];
+      final bike = bikes[index];
       inkWells.add(
         InkWell(
           key: ValueKey(bike.id),

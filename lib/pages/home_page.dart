@@ -767,7 +767,7 @@ class _HomePageState extends State<HomePage> {
       ),
       body: <Widget>[
         BikeList(
-          bikes: filteredData.bikes.values.toList(), //include bikes which are not filtered for
+          bikes: filteredData.bikes,  //include bikes which are not filtered for
           editBike: _editBike,
           removeBike: _removeBike,
           onReorderBikes: _onReorderBikes,

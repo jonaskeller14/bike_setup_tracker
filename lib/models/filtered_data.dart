@@ -22,6 +22,9 @@ class FilteredData extends ChangeNotifier {
   Map<String, Component> get components => _components;
   Map<String, Rating> get ratings => _ratings;
 
+  Set<String> _setupTags = {};
+  Set<String> get setupTags => _setupTags;
+
   // Filtered Items
   Bike? _selectedBike;
 
@@ -54,6 +57,8 @@ class FilteredData extends ChangeNotifier {
     _setups = Map.fromEntries(_appData.setups.entries.where((entry) => !entry.value.isDeleted));
     _persons = Map.fromEntries(_appData.persons.entries.where((entry) => !entry.value.isDeleted));
     _ratings = Map.fromEntries(_appData.ratings.entries.where((entry) => !entry.value.isDeleted));
+
+    _setupTags = _setups.values.map((s) => s.tags).expand((tags) => tags).toSet();
   }
 
   void filter() {

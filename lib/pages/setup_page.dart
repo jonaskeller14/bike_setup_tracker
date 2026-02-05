@@ -65,7 +65,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   late TextEditingController _notesController;
   late TabController _tabController;
   int? _tabControllerLength;
-  final Set<String> _tags = {};
+  Set<String> _tags = {};
   Setup? _previousBikeSetup;
   Setup? _previousPersonSetup;
   late String _bike;
@@ -825,23 +825,27 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 }
               ),
             ),
-            ..._tags.map((tag) => FilterChip(
-              avatar: const Icon(Icons.tag),
-              showCheckmark: false,
-              selected: true,
-              label: Text(tag), 
-              onSelected: (_) {},
-              onDeleted: () => setState(() => _tags.remove(tag)),
-            )),
-            ActionChip(
-              avatar: const Icon(Icons.add),
-              label: _tags.isEmpty ? const Text("Tag") : const SizedBox.shrink(),
-              labelPadding: _tags.isEmpty ? null : const EdgeInsets.symmetric(vertical: 2),
-              backgroundColor: widget.setup != null && !setEquals(_tags, widget.setup?.tags) ? Colors.orange.withValues(alpha: 0.08) : null,
-              onPressed: () async {
-                await showSetTagsSheet(context: context, tags: _tags);
-              },
-            ),
+            if (appSettings.enableSetupTags) ... [
+              ..._tags.map((tag) => FilterChip(
+                avatar: const Icon(Icons.tag),
+                showCheckmark: false,
+                selected: true,
+                label: Text(tag), 
+                onSelected: (_) {},
+                onDeleted: () => setState(() => _tags.remove(tag)),
+              )),
+              ActionChip(
+                avatar: const Icon(Icons.add),
+                label: _tags.isEmpty ? const Text("Tags") : const SizedBox.shrink(),
+                labelPadding: _tags.isEmpty ? null : const EdgeInsets.symmetric(vertical: 2),
+                backgroundColor: widget.setup != null && !setEquals(_tags, widget.setup?.tags) ? Colors.orange.withValues(alpha: 0.08) : null,
+                onPressed: () async {
+                  final newTags = await showSetTagsSheet(context: context, tags: _tags);
+                  if (newTags == null) return;
+                  setState(() => _tags = newTags);
+                },
+              ),
+            ],
           ],
         );
       }

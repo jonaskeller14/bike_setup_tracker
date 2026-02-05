@@ -276,7 +276,7 @@ class SetupCard extends StatelessWidget {
                   ],
                 )
               ],
-              if (setup.weather?.condition != null) ... [
+              if (setup.weather?.condition != null)
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -290,8 +290,24 @@ class SetupCard extends StatelessWidget {
                       ),
                     ),
                   ],
-                )
-              ],
+                ),
+              if (appSettings.enableSetupTags) 
+                ...setup.tags.map((tag) {
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    spacing: 2,
+                    children: [
+                      Icon(Icons.tag, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      Flexible(
+                        child: Text(
+                          tag,
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                        ),
+                      ),
+                    ],
+                  );
+                })
             ],
           ),
           if (setup.notes != null && setup.notes!.isNotEmpty)

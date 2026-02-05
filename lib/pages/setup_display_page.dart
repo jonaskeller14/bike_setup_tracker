@@ -300,6 +300,20 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                             ],
                           ),
                         ),
+                      if (setup.tags.isNotEmpty && appSettings.enableSetupTags)
+                        Card.outlined(
+                          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: setup.tags.map((tag) {
+                              return ListTile(
+                                leading: const Icon(Icons.tag),
+                                title: Text(tag),
+                                dense: true,
+                              );
+                            }).toList(),
+                          ),
+                        ),
                       Card.outlined(
                           margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
                           child: Column(

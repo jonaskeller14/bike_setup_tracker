@@ -15,6 +15,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableTextAdjustment = false;
   bool _enablePerson = false;
   bool _enableRating = false;
+  bool _enableSetupTags = false;
 
   bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;
@@ -28,6 +29,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableTextAdjustment => _enableTextAdjustment;
   bool get enablePerson => _enablePerson;
   bool get enableRating => _enableRating;
+  bool get enableSetupTags => _enableSetupTags;
 
   void setShowOnboarding(bool newShowOnboarding) {
     if (_showOnboarding == newShowOnboarding) return;
@@ -134,6 +136,7 @@ class AppSettings extends ChangeNotifier {
       _enableTextAdjustment = json['enableTextAdjustment'] ?? _enableTextAdjustment;
       _enablePerson = json['enablePerson'] ?? _enablePerson;
       _enableRating = json['enableRating'] ?? _enableRating;
+      _enableSetupTags = json['enableSetupTags'] ?? _enableSetupTags;
       
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
@@ -156,6 +159,7 @@ class AppSettings extends ChangeNotifier {
       'enableTextAdjustment': _enableTextAdjustment,
       'enablePerson': _enablePerson,
       'enableRating': _enableRating,
+      'enableSetupTags': _enableSetupTags,
     });
     await prefs.setString('app_settings', jsonData);
   }

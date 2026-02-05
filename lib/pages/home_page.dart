@@ -26,7 +26,7 @@ import '../widgets/component_list.dart';
 import '../widgets/setup_list.dart';
 import '../widgets/sheets/import.dart';
 import '../widgets/sheets/export.dart';
-import '../widgets/sheets/bike_filter.dart';
+import '../widgets/sheets/filter.dart';
 import '../widgets/sheets/share.dart';
 import '../widgets/google_drive_sync_button.dart';
 
@@ -417,30 +417,46 @@ class _HomePageState extends State<HomePage> {
     data.addSetup(newSetup);
   }
 
-  FilterChip _bikeFilterWidget() {
+  FilterChip _filterWidget({bool enableSetupTagFilter = false}) {
     final filteredData = context.watch<FilteredData>();
 
     return FilterChip(
-      avatar: const Icon(Bike.iconData),
-      label: filteredData.selectedBike == null ? const Text("All Bikes") : Text(filteredData.persons[filteredData.selectedBike]?.name ?? ''),
-      selected: filteredData.selectedBike != null,
+      avatar: enableSetupTagFilter
+          ? const Icon(Icons.filter_alt)
+          : const Icon(Bike.iconData),
+      label: enableSetupTagFilter
+          ? filteredData.selectedBike != null
+              ? filteredData.selectedSetupTags.isNotEmpty
+                  ? Text("${filteredData.bikes[filteredData.selectedBike]?.name ?? ''} + ${filteredData.selectedSetupTags.length} ${filteredData.selectedSetupTags.length > 1 ? 'Tags' : 'Tag'}")
+                  : Text(filteredData.bikes[filteredData.selectedBike]?.name ?? '')
+              : filteredData.selectedSetupTags.isNotEmpty
+                  ? Text("${filteredData.selectedSetupTags.length} ${filteredData.selectedSetupTags.length > 1 ? 'Tags' : 'Tag'}")
+                  : const Text("Filter")
+          : filteredData.selectedBike == null 
+              ? const Text("All Bikes") 
+              : Text(filteredData.bikes[filteredData.selectedBike]?.name ?? ''),
+      selected: enableSetupTagFilter
+          ? filteredData.selectedBike != null || filteredData.selectedSetupTags.isNotEmpty
+          : filteredData.selectedBike != null,
       showCheckmark: false,
       onSelected: (bool newValue) async {
-        final List<String>? newSelectedBikes = await showBikeFilterSheet(
+        await showFilterSheet(
           context: context,
-          bikes: filteredData.bikes.values,
-          selectedBike: filteredData.selectedBike,
+          enableSetupTagFilter: enableSetupTagFilter,
         );
-        if (newSelectedBikes == null) return;
-        if (newSelectedBikes.isEmpty) {
-          filteredData.onBikeTap(null);
-        } else if (newSelectedBikes[0] != filteredData.selectedBike) {
-          filteredData.onBikeTap(newSelectedBikes[0]);
-        }
       },
-      onDeleted: filteredData.selectedBike == null 
-          ? null 
-          : () => filteredData.onBikeTap(null),
+      onDeleted: enableSetupTagFilter
+          ? filteredData.selectedBike == null && filteredData.selectedSetupTags.isEmpty
+              ? null 
+              : () {
+                  filteredData.onBikeTap(null);
+                  filteredData.deselectAllSetupTags();
+                }
+          : filteredData.selectedBike == null
+              ? null 
+              : () {
+                  filteredData.onBikeTap(null);
+                },
     );
   }
 
@@ -562,7 +578,7 @@ class _HomePageState extends State<HomePage> {
       child: Row(
         spacing: 6,
         children: [
-          _bikeFilterWidget(),
+          _filterWidget(enableSetupTagFilter: false),
         ],
       ),
     );
@@ -575,7 +591,7 @@ class _HomePageState extends State<HomePage> {
       child: Row(
         spacing: 6,
         children: [
-          _bikeFilterWidget(),
+          _filterWidget(enableSetupTagFilter: false),
         ],
       ),
     );
@@ -590,7 +606,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           _setupListSortWidget(),
           _setupListSearchWidget(),
-          _bikeFilterWidget(),
+          _filterWidget(enableSetupTagFilter: context.watch<AppSettings>().enableSetupTags),
           _setupListValueFilterWidget(),
         ],
       ),
@@ -604,7 +620,7 @@ class _HomePageState extends State<HomePage> {
       child: Row(
         spacing: 6,
         children: [
-          _bikeFilterWidget(),
+          _filterWidget(enableSetupTagFilter: false),
         ],
       ),
     );
@@ -617,7 +633,7 @@ class _HomePageState extends State<HomePage> {
       child: Row(
         spacing: 6,
         children: [
-          _bikeFilterWidget(),
+          _filterWidget(enableSetupTagFilter: false),
         ],
       ),
     );

@@ -221,13 +221,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             Padding(
               padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
               child: Text(
-                'Experimental Features',
+                'Advanced Features',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
             ListTile(
               leading: const Icon(Icons.info_outline),
-              title: const Text('Experimental features are optional features which can lead to unexpected behavior. They can be enabled or disabled at any time.'),
+              title: const Text('Enable these to add specific functionality to your workflow. Keep them disabled to maintain a simpler interface.'),
               dense: true,
             ),
             ListTile(
@@ -264,6 +264,24 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   Navigator.pop(context);
                 },
                 infoText: 'Adds a Text Adjustment type that provides a free-form text field.',
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.tag, color: Theme.of(context).colorScheme.primary),
+              title: const Text("Setup Tags"),
+              subtitle: _offOnOptionWidgets[appSettingsReader.enableSetupTags] ?? const Text("-"),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+              onTap: () => appSettingsRadioGroupSheet<bool>(
+                context: context,
+                title: "Setup Tags", 
+                value: appSettingsReader.enableSetupTags,
+                optionWidgets: _offOnOptionWidgets, 
+                onChanged: (bool? newValue) {
+                  if (newValue == null) return;
+                  appSettingsWriter.setEnableSetupTags(newValue);
+                  Navigator.pop(context);
+                },
+                infoText: 'Adds the option to add tags to Setups',
               ),
             ),
           ],

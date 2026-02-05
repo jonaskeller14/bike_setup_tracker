@@ -27,6 +27,7 @@ class FilteredData extends ChangeNotifier {
 
   // Filtered Items
   String? _selectedBike;
+  final Set<String> _selectedSetupTags = {}; 
 
   Map<String, Bike> _filteredBikes = {};
   Map<String, Person> _filteredPersons = {};
@@ -35,6 +36,7 @@ class FilteredData extends ChangeNotifier {
   Map<String, Setup> _filteredSetups = {};
 
   String? get selectedBike => _selectedBike;
+  Set<String> get selectedSetupTags => _selectedSetupTags;
 
   Map<String, Bike> get filteredBikes => _filteredBikes;
   Map<String, Person> get filteredPersons => _filteredPersons;
@@ -70,6 +72,7 @@ class FilteredData extends ChangeNotifier {
     if (selectedBike != null && !bikes.containsKey(_selectedBike!)) {
       _selectedBike = null;
     }
+    _selectedSetupTags.removeWhere((tag) => !setupTags.contains(tag));
 
     _filterBikes();
     _filterComponents();
@@ -91,9 +94,7 @@ class FilteredData extends ChangeNotifier {
   }
 
   void _filterSetups() {
-    _filteredSetups = selectedBike == null
-        ? setups
-        : Map.fromEntries(setups.entries.where((entry) => entry.value.bike == selectedBike));
+    _filteredSetups = Map.fromEntries(setups.entries.where((entry) => (selectedBike == null ? true : entry.value.bike == selectedBike) && (selectedSetupTags.isEmpty ? true : entry.value.tags.containsAll(selectedSetupTags))));
   }
 
   void _filterPersons() {
@@ -124,6 +125,28 @@ class FilteredData extends ChangeNotifier {
       _selectedBike = newBike;
     }
     _filter();
+    notifyListeners();
+  }
+
+  void selectSetupTag(String newTag) {
+    if (!setupTags.contains(newTag)) return;
+    _selectedSetupTags.add(newTag);
+
+    _filterSetups();
+    notifyListeners();
+  }
+
+  void deselectSetupTag(String tag) {
+    _selectedSetupTags.remove(tag);
+
+    _filterSetups();
+    notifyListeners();
+  }
+
+  void deselectAllSetupTags() {
+    _selectedSetupTags.clear();
+
+    _filterSetups();
     notifyListeners();
   }
 }

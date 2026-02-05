@@ -115,6 +115,13 @@ class AppSettings extends ChangeNotifier {
     saveAppSettings();
   }
 
+  void setEnableSetupTags(bool newValue) {
+    if (newValue == _enableSetupTags) return;
+    _enableSetupTags = newValue;
+    notifyListeners();
+    saveAppSettings();
+  }
+
   Future<void> loadAppSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();

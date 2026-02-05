@@ -65,6 +65,7 @@ class _SetTagsSheetContentState extends State<SetTagsSheetContent> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
@@ -82,6 +83,7 @@ class _SetTagsSheetContentState extends State<SetTagsSheetContent> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [                  
                   const SizedBox(height: 16),

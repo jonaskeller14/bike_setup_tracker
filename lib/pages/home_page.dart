@@ -19,7 +19,6 @@ import 'rating_page.dart';
 import 'trash_page.dart';
 import 'app_settings_page.dart';
 import 'about_page.dart';
-import '../utils/file_export.dart';
 import '../widgets/person_list.dart';
 import '../widgets/rating_list.dart';
 import '../widgets/bike_list.dart';
@@ -28,7 +27,7 @@ import '../widgets/setup_list.dart';
 import '../widgets/sheets/import.dart';
 import '../widgets/sheets/export.dart';
 import '../widgets/sheets/bike_filter.dart';
-import '../widgets/sheets/data_select.dart';
+import '../widgets/sheets/share.dart';
 import '../widgets/google_drive_sync_button.dart';
 
 class HomePage extends StatefulWidget {
@@ -46,17 +45,6 @@ class _HomePageState extends State<HomePage> {
   bool _setupListSortAccending = false;
 
   int currentPageIndex = 0;
-
-  Future<void> _shareData() async {
-    final selectedData = await showDataSelectSheet(context: context, data: context.read<AppData>());    
-    if (selectedData == null) return;
-    
-    if (!mounted) return;
-    FileExport.shareJson(
-      context: context,
-      data: selectedData,
-    );
-  }
 
   Future<void> _removeBike(Bike bike) async {
     final data = context.read<AppData>();
@@ -669,7 +657,7 @@ class _HomePageState extends State<HomePage> {
               switch (result) {
                 case 'import': importData(context);
                 case 'export': exportData(context);
-                case 'share': _shareData();
+                case 'share': shareData(context);
                 case "trash": Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const TrashPage()));
                 case "settings": Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()));
                 case "about": Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AboutPage()));

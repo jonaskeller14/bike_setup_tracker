@@ -482,6 +482,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                 selectedData.components.addAll(<String, Component>{for (var item in selectedComponents) item.id: item});
                 selectedData.setups.addAll(<String, Setup>{for (var item in selectedSetups) item.id: item});
                 selectedData.ratings.addAll(<String, Rating>{for (var item in selectedRatings) item.id: item});
+                selectedData.resolveData();
                 widget.onConfirm(selectedData);
               },
               child: const Text("Confirm Selection"),

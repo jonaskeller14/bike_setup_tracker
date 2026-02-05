@@ -90,7 +90,7 @@ class _SetTagsSheetContentState extends State<SetTagsSheetContent> {
                   Form(
                     key: _formKey,
                     child: TextFormField(
-                      textInputAction: TextInputAction.search,
+                      textInputAction: TextInputAction.done,
                       controller: _controller,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       maxLines: 1,

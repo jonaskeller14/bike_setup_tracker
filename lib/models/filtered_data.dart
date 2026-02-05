@@ -26,7 +26,7 @@ class FilteredData extends ChangeNotifier {
   Set<String> get setupTags => _setupTags;
 
   // Filtered Items
-  Bike? _selectedBike;
+  String? _selectedBike;
 
   Map<String, Bike> _filteredBikes = {};
   Map<String, Person> _filteredPersons = {};
@@ -34,7 +34,7 @@ class FilteredData extends ChangeNotifier {
   Map<String, Component> _filteredComponents = {};
   Map<String, Setup> _filteredSetups = {};
 
-  Bike? get selectedBike => _selectedBike;
+  String? get selectedBike => _selectedBike;
 
   Map<String, Bike> get filteredBikes => _filteredBikes;
   Map<String, Person> get filteredPersons => _filteredPersons;
@@ -67,7 +67,7 @@ class FilteredData extends ChangeNotifier {
   }
 
   void _filter() {
-    if (selectedBike != null && !bikes.containsValue(_selectedBike!)) {
+    if (selectedBike != null && !bikes.containsKey(_selectedBike!)) {
       _selectedBike = null;
     }
 
@@ -81,25 +81,25 @@ class FilteredData extends ChangeNotifier {
   void _filterBikes() {
     _filteredBikes = selectedBike == null 
         ? bikes
-        : Map.fromEntries(bikes.entries.where((entry) => entry.value == selectedBike));
+        : Map.fromEntries(bikes.entries.where((entry) => entry.key == selectedBike));
   }
 
   void _filterComponents() {
     _filteredComponents = selectedBike == null
         ? components
-        : Map.fromEntries(components.entries.where((entry) => entry.value.bike == selectedBike?.id));
+        : Map.fromEntries(components.entries.where((entry) => entry.value.bike == selectedBike));
   }
 
   void _filterSetups() {
     _filteredSetups = selectedBike == null
         ? setups
-        : Map.fromEntries(setups.entries.where((entry) => entry.value.bike == selectedBike?.id));
+        : Map.fromEntries(setups.entries.where((entry) => entry.value.bike == selectedBike));
   }
 
   void _filterPersons() {
     _filteredPersons = _selectedBike == null 
         ? persons
-        : Map.fromEntries(persons.entries.where((entry) => entry.value.id == _selectedBike?.person));
+        : Map.fromEntries(persons.entries.where((entry) => entry.value.id == bikes[_selectedBike]?.person));
   }
 
   void _filterRatings() {
@@ -110,14 +110,14 @@ class FilteredData extends ChangeNotifier {
       switch (rating.filterType) {
         case FilterType.global: return true;
         case FilterType.person: return true;
-        case FilterType.bike: return _selectedBike == null ? true : rating.filter == _selectedBike!.id;
+        case FilterType.bike: return _selectedBike == null ? true : rating.filter == _selectedBike;
         case FilterType.component: return _selectedBike == null ? true : filteredComponents.values.any((c) => c.id == rating.filter);
         case FilterType.componentType: return _selectedBike == null ? true : filteredComponents.values.any((c) => c.componentType.toString() == rating.filter);
       }
     }));
   }
 
-  void onBikeTap(Bike? newBike) {
+  void onBikeTap(String? newBike) {
     if (newBike == null || selectedBike == newBike) {
       _selectedBike = null;
     } else {

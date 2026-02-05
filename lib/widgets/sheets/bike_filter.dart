@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../../models/bike.dart';
 import 'sheet.dart';
 
-Future<List<Bike>?> showBikeFilterSheet({required BuildContext context, required Iterable<Bike> bikes, required Bike? selectedBike}) async {
-  return showModalBottomSheet<List<Bike>?>(
+Future<List<String>?> showBikeFilterSheet({required BuildContext context, required Iterable<Bike> bikes, required String? selectedBike}) async {
+  return showModalBottomSheet<List<String>?>(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
@@ -42,15 +42,15 @@ Future<List<Bike>?> showBikeFilterSheet({required BuildContext context, required
                             children: bikes.map((bike) => FilterChip(
                               avatar: const Icon(Bike.iconData),
                               label: Text(bike.name),
-                              selected: bike == selectedBike,
+                              selected: bike.id == selectedBike,
                               showCheckmark: false,
                               onSelected: (bool newValue) {
                                 switch (newValue) {
-                                  case true: setSheetState(() => selectedBike = bike);
+                                  case true: setSheetState(() => selectedBike = bike.id);
                                   case false: setSheetState(() => selectedBike = null);
                                 }
                               },
-                              onDeleted: selectedBike != null && selectedBike == bike 
+                              onDeleted: selectedBike != null && selectedBike == bike.id 
                                   ? () => setSheetState(() => selectedBike = null)
                                   : null,
                             )).toList(),
@@ -64,7 +64,7 @@ Future<List<Bike>?> showBikeFilterSheet({required BuildContext context, required
                   child: FilledButton(
                     onPressed: bikes.isEmpty
                         ? null 
-                        : () => Navigator.pop(context, selectedBike == null ? <Bike>[] : <Bike>[selectedBike!]),
+                        : () => Navigator.pop(context, selectedBike == null ? <String>[] : <String>[selectedBike!]),
                     child: const Text("Confirm Selection"),
                   ),
                 ),

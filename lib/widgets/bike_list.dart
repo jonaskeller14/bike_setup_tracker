@@ -8,8 +8,6 @@ import '../models/person.dart';
 
 class BikeList extends StatefulWidget {
   final List<Bike> bikes;
-  final Bike? selectedBike;
-  final void Function(Bike bike) onBikeTap;
   final void Function(Bike bike) editBike;
   final void Function(Bike bike) removeBike;
   final void Function(int oldIndex, int newIndex) onReorderBikes;
@@ -18,8 +16,6 @@ class BikeList extends StatefulWidget {
   const BikeList({
     super.key,
     required this.bikes,
-    required this.selectedBike,
-    required this.onBikeTap,
     required this.editBike,
     required this.removeBike,
     required this.onReorderBikes,
@@ -47,12 +43,11 @@ class _BikeListState extends State<BikeList> {
       inkWells.add(
         InkWell(
           key: ValueKey(bike.id),
-          onTap: null, //TODO
           child: Card(
-            color: bike == widget.selectedBike ? Theme.of(context).colorScheme.secondaryContainer : null,
+            color: bike.id == filteredData.selectedBike ? Theme.of(context).colorScheme.secondaryContainer : null,
             margin: const EdgeInsets.symmetric(vertical: 4.0),
             child: Opacity(
-              opacity: bike == widget.selectedBike || widget.selectedBike == null ? 1 : 0.3,
+              opacity: bike.id == filteredData.selectedBike || filteredData.selectedBike == null ? 1 : 0.3,
                 child: ListTile(
                 dense: true,
                 leading: const Icon(Bike.iconData),
@@ -64,7 +59,7 @@ class _BikeListState extends State<BikeList> {
                   bike.name,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                onTap: () => widget.onBikeTap(bike),
+                onTap: () => filteredData.onBikeTap(bike.id),
                 subtitle: context.read<AppSettings>().enablePerson
                     ? Wrap(
                         spacing: 4,

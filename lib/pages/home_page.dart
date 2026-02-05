@@ -422,11 +422,11 @@ class _HomePageState extends State<HomePage> {
 
     return FilterChip(
       avatar: const Icon(Bike.iconData),
-      label: filteredData.selectedBike == null ? const Text("All Bikes") : Text(filteredData.selectedBike!.name),
+      label: filteredData.selectedBike == null ? const Text("All Bikes") : Text(filteredData.persons[filteredData.selectedBike]?.name ?? ''),
       selected: filteredData.selectedBike != null,
       showCheckmark: false,
       onSelected: (bool newValue) async {
-        final List<Bike>? newSelectedBikes = await showBikeFilterSheet(
+        final List<String>? newSelectedBikes = await showBikeFilterSheet(
           context: context,
           bikes: filteredData.bikes.values,
           selectedBike: filteredData.selectedBike,
@@ -752,8 +752,6 @@ class _HomePageState extends State<HomePage> {
       body: <Widget>[
         BikeList(
           bikes: filteredData.bikes.values.toList(), //include bikes which are not filtered for
-          selectedBike: filteredData.selectedBike,
-          onBikeTap: filteredData.onBikeTap,
           editBike: _editBike,
           removeBike: _removeBike,
           onReorderBikes: _onReorderBikes,

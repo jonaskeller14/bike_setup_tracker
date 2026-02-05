@@ -167,7 +167,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name, 
       notes: notes.isEmpty ? null : notes, 
-      unit: null, 
+      unit: widget.adjustment?.unit, 
       options: options
     ));
   }

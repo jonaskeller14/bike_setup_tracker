@@ -84,9 +84,9 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
       id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name, 
       notes: notes.isEmpty ? null : notes, 
-      min: null, 
-      max: null, 
-      unit: null,
+      min: widget.adjustment?.min, 
+      max: widget.adjustment?.max, 
+      unit: widget.adjustment?.unit,
     ));
   }
 

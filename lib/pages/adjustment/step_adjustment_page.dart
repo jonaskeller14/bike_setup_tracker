@@ -124,7 +124,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
       id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name, 
       notes: notes.isEmpty ? null : notes, 
-      unit: null, 
+      unit: widget.adjustment?.unit, 
       step: step, 
       min: min, max: 
       max, 

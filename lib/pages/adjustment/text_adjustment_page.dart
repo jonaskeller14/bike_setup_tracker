@@ -86,7 +86,7 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
       id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name, 
       notes: notes.isEmpty ? null : notes, 
-      unit: null
+      unit: widget.adjustment?.unit
     ));
   }
 

@@ -87,7 +87,7 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
       id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name, 
       notes: notes.isEmpty ? null : notes, 
-      unit: null
+      unit: widget.adjustment?.unit
     ));
   }
 

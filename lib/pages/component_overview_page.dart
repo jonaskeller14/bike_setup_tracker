@@ -31,6 +31,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
     "General Context": {
       "Name": true,
       "Notes": false,
+      "Tags": false,
       "Date": true,
       "Time": false,
       "Place": false,
@@ -65,6 +66,10 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
     
     for (final adjustment in widget.component.adjustments) {
       _showColumns["Adjustments"]?[adjustment.id] = true;
+    }
+
+    if (!appSettings.enableSetupTags) {
+      _showColumns["General Context"]?.remove("Tags");
     }
 
     if (appSettings.enablePerson) {
@@ -104,6 +109,10 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
       case "Notes": setState(() {ascending 
           ? _setups.sort((a, b) => (a.notes ?? '').compareTo(b.notes ?? '')) 
           : _setups.sort((a, b) => (b.notes ?? '').compareTo(a.notes ?? ''));
+      });
+      case "Tags": setState(() {ascending 
+          ? _setups.sort((a, b) => (a.tags.join('; ')).compareTo(b.tags.join('; '))) 
+          : _setups.sort((a, b) => (b.tags.join('; ')).compareTo(a.tags.join('; ')));
       });
       case "Date": setState(() {ascending 
           ? _setups.sort((a, b) => a.datetime.compareTo(b.datetime)) 
@@ -326,6 +335,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                             return switch(showColumnEntry.key) {
                               "Name" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.name, overflow: TextOverflow.ellipsis)))),
                               "Notes" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.notes ?? '-', overflow: TextOverflow.ellipsis)))),
+                              "Tags" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.tags.join('; '), overflow: TextOverflow.ellipsis)))),
                               "Date" => DataCell(Text(DateFormat(appSettings.dateFormat).format(setup.datetime))),
                               "Time" => DataCell(Text(DateFormat(appSettings.timeFormat).format(setup.datetime))),
                               "Place" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.place?.locality ?? '-', overflow: TextOverflow.ellipsis)))),

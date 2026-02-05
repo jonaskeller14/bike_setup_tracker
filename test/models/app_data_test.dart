@@ -39,9 +39,9 @@ void main() {
       expect(filteredData.filteredBikes.containsValue(bike1), true);
     });
     test("AppData/removeBike (selected)", () {
-      filteredData.onBikeTap(bike1);
+      filteredData.onBikeTap(bike1.id);
 
-      expect(filteredData.selectedBike == bike1, true);
+      expect(filteredData.selectedBike == bike1.id, true);
       expect(data.bikes.containsValue(bike1), true);
       expect(filteredData.bikes.containsValue(bike1), true);
       expect(filteredData.filteredBikes.containsValue(bike1), true);
@@ -98,6 +98,7 @@ void main() {
     final component1 = Component(name: "Component #1", bike: bike1.id, componentType: ComponentType.fork, adjustments: []);
     final setup1 = Setup(
       name: "Setup #1", 
+      tags: {},
       datetime: DateTime(2000),
       bike: bike1.id, 
       person: null, 

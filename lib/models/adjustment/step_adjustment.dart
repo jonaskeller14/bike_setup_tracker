@@ -82,4 +82,33 @@ class StepAdjustment extends Adjustment {
   String getProperties() {
     return "Range ${Adjustment.formatValue(min)}..${Adjustment.formatValue(max)}, Step $step";
   }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is StepAdjustment &&
+        runtimeType == other.runtimeType &&
+        id == other.id &&
+        name == other.name &&
+        notes == other.notes &&
+        unit == other.unit &&
+        step == other.step &&
+        min == other.min &&
+        max == other.max &&
+        visualization == other.visualization;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      id,
+      name,
+      notes,
+      unit,
+      step,
+      min,
+      max,
+      visualization,
+    );
+  }
 }

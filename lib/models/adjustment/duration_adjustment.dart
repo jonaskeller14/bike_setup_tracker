@@ -60,6 +60,31 @@ class DurationAdjustment extends Adjustment {
     return "Range ${min == null ? '-∞' : Adjustment.formatValue(min)}..${max == null ? '∞' : Adjustment.formatValue(max)}";
   }
 
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is DurationAdjustment &&
+        runtimeType == other.runtimeType &&
+        id == other.id &&
+        name == other.name &&
+        notes == other.notes &&
+        unit == other.unit &&
+        min == other.min &&
+        max == other.max;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      id,
+      name,
+      notes,
+      unit,
+      min,
+      max,
+    );
+  }
+
   static Duration? tryParseDurationString(String? durationString) {
     if (durationString == null || durationString.isEmpty) return null;
 

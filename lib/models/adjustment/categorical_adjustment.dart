@@ -55,4 +55,27 @@ class CategoricalAdjustment extends Adjustment {
   String getProperties() {
     return options.join('/');
   }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is CategoricalAdjustment &&
+        runtimeType == other.runtimeType &&
+        id == other.id &&
+        name == other.name &&
+        notes == other.notes &&
+        unit == other.unit &&
+        setEquals(options, other.options);
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      id,
+      name,
+      notes,
+      unit,
+      Object.hashAllUnordered(options),
+    );
+  }
 }

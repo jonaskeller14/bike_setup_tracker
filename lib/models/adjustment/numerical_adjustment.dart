@@ -60,4 +60,29 @@ class NumericalAdjustment extends Adjustment {
   String getProperties() {
     return "Range ${min == double.negativeInfinity ? '-∞' : Adjustment.formatValue(min)}..${max == double.infinity ? '∞' : Adjustment.formatValue(max)}";
   }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is NumericalAdjustment &&
+        runtimeType == other.runtimeType &&
+        id == other.id &&
+        name == other.name &&
+        notes == other.notes &&
+        unit == other.unit &&
+        min == other.min &&
+        max == other.max;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      id,
+      name,
+      notes,
+      unit,
+      min,
+      max,
+    );
+  }
 }

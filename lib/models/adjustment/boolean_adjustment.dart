@@ -50,4 +50,25 @@ class BooleanAdjustment extends Adjustment {
   String getProperties() {
     return "On/Off";
   }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is BooleanAdjustment &&
+        runtimeType == other.runtimeType &&
+        id == other.id &&
+        name == other.name &&
+        notes == other.notes &&
+        unit == other.unit;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      id,
+      name,
+      notes,
+      unit,
+    );
+  }
 }

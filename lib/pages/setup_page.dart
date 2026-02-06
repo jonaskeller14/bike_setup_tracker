@@ -829,11 +829,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               ..._tags.map((tag) => FilterChip(
                 avatar: const Icon(Icons.tag),
                 showCheckmark: false,
-                selected: false,
+                selected: widget.mode != SetupPageMode.edit,
                 label: Text(tag), 
                 onSelected: (_) {},
                 onDeleted: () => setState(() => _tags.remove(tag)),
-                backgroundColor: widget.setup != null && !widget.setup!.tags.contains(tag) ? Colors.orange.withValues(alpha: 0.08) : null,
+                backgroundColor: widget.mode == SetupPageMode.edit && !widget.setup!.tags.contains(tag) ? Colors.orange.withValues(alpha: 0.08) : null,
               )),
               ActionChip(
                 avatar: const Icon(Icons.add),

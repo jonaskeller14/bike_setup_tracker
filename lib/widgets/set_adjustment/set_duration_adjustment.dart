@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
+import '../sheets/set_duration.dart';
 import "set_adjustment.dart";
 
 class SetDurationAdjustmentWidget extends StatelessWidget {
@@ -19,28 +18,6 @@ class SetDurationAdjustmentWidget extends StatelessWidget {
     required this.onChanged,
     this.highlighting = true,
   });
-
-  void _showTimerPickerBottomSheet(BuildContext context) async {
-    return await showModalBottomSheet<void>(
-      showDragHandle: true,
-      useSafeArea: true,
-      context: context,
-      builder: (BuildContext context) {
-        return SizedBox(
-          height: 200,
-          child: CupertinoTimerPicker(
-            mode: CupertinoTimerPickerMode.hms,
-            initialTimerDuration: value ?? Duration(),
-            onTimerDurationChanged: (Duration newValue) {
-              HapticFeedback.lightImpact();
-              //FIXME: Add min/max validation --> Clamp duration and show snackbar
-              onChanged(newValue);
-            },
-          ),
-        );
-      }
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +65,12 @@ class SetDurationAdjustmentWidget extends StatelessWidget {
             Row(
               children: [
                 InkWell(
-                  onTap: () => _showTimerPickerBottomSheet(context),
+                  onTap: () => showSetDurationSheet(
+                    context: context,
+                    adjustment: adjustment,
+                    value: value,
+                    onChanged: onChanged, 
+                  ),
                   borderRadius: BorderRadius.circular(6),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,

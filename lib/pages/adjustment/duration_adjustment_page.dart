@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
+import '../../widgets/sheets/set_duration.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_duration_adjustment.dart';
 import 'adjustment_page.dart';
@@ -33,10 +34,16 @@ class DurationAdjustmentPage extends StatefulWidget {
 class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
+  bool _expanded = false;
   late TextEditingController _nameController;
   late TextEditingController _notesController;
+  late TextEditingController _minController;
+  late TextEditingController _maxController;
 
-  Duration _previewValue = Duration();
+  final FocusNode _minFocusNode = FocusNode(canRequestFocus: false);
+  final FocusNode _maxFocusNode = FocusNode(canRequestFocus: false);
+
+  Duration _previewValue = Duration.zero;
   DurationAdjustment _previewAdjustment = DurationAdjustment(
     name: '', 
     notes: null,
@@ -50,13 +57,23 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
     _nameController.addListener(_changeListener);
     _notesController = TextEditingController(text: widget.adjustment?.notes);
     _notesController.addListener(_changeListener);
+    _minController = TextEditingController(text: widget.adjustment?.min == null ? null : Adjustment.formatValue(widget.adjustment?.min));
+    _minController.addListener(_changeListener);
+    _maxController = TextEditingController(text: widget.adjustment?.max == null ? null : Adjustment.formatValue(widget.adjustment?.max));
+    _maxController.addListener(_changeListener);
 
-    if (widget.adjustment != null) _previewAdjustment = widget.adjustment!;
+    if (widget.adjustment != null) {
+      _previewAdjustment = widget.adjustment!;
+      _previewValue = widget.adjustment!.min ?? Duration.zero;
+    }
+    if (widget.mode != AdjustmentPageMode.add) _expanded = true;
   }
 
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '') || 
-        _notesController.text.trim() != (widget.adjustment?.notes ?? '');
+        _notesController.text.trim() != (widget.adjustment?.notes ?? '') ||
+        _previewAdjustment.min != widget.adjustment?.min ||
+        _previewAdjustment.max != widget.adjustment?.max;
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -70,6 +87,12 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
     _nameController.dispose();
     _notesController.removeListener(_changeListener);
     _notesController.dispose();
+    _minController.removeListener(_changeListener);
+    _minController.dispose();
+    _maxController.removeListener(_changeListener);
+    _maxController.dispose();
+    _minFocusNode.dispose();
+    _maxFocusNode.dispose();
     super.dispose();
   }
 
@@ -84,8 +107,8 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
       id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name, 
       notes: notes.isEmpty ? null : notes, 
-      min: widget.adjustment?.min, 
-      max: widget.adjustment?.max, 
+      min: _previewAdjustment.min, 
+      max: _previewAdjustment.max, 
       unit: widget.adjustment?.unit,
     ));
   }
@@ -155,30 +178,152 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                           
                         ),
                         const SizedBox(height: 12),
-                        TextFormField(
-                          controller: _notesController,
-                          minLines: 2,
-                          maxLines: null,
-                          onChanged: (String? value) {
-                            setState(() {
-                              _previewAdjustment = DurationAdjustment(
-                                name: _nameController.text.trim(),
-                                notes: (value == null || value.isEmpty) ? null : value,
-                                unit: _previewAdjustment.unit, 
-                                min: _previewAdjustment.min,
-                                max: _previewAdjustment.max,
-                              );
-                            });
-                          },
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          decoration: InputDecoration(
-                            labelText: 'Notes (optional)',
-                            hintText: 'Enter measuring procedure/instrument/...',
-                            border: OutlineInputBorder(),
-                            fillColor: Colors.orange.withValues(alpha: 0.08),
-                            filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
+                        if (!_expanded) ...[
+                          Center(
+                            child: TextButton.icon(
+                              onPressed: () {
+                                setState(() {
+                                  if (!_expanded) _expanded = !_expanded;
+                                });
+                              },
+                              icon: Icon(
+                                _expanded ? Icons.expand_less : Icons.expand_more,
+                              ),
+                              label: Text(_expanded ? "Hide Additional Fields" : "Show Additional Fields"),
+                            ),
                           ),
-                        ),
+                        ],
+                        if (_expanded) ...[
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _minController,
+                            readOnly: true,
+                            enableInteractiveSelection: false,
+                            focusNode: _minFocusNode,
+                            onTap: () {
+                              FocusScope.of(context).unfocus();
+                              showSetDurationSheet(
+                                context: context,
+                                adjustment: DurationAdjustment(name: 'Min', notes: null, unit: null, max: _previewAdjustment.max),
+                                value: _previewAdjustment.min,
+                                onChanged: (Duration newValue) {
+                                  setState(() {
+                                    _previewAdjustment = DurationAdjustment(
+                                      id: _previewAdjustment.id,
+                                      name: _previewAdjustment.name,
+                                      notes: _previewAdjustment.notes,
+                                      unit: _previewAdjustment.unit,
+                                      min: newValue,
+                                      max: _previewAdjustment.max,
+                                    );
+                                    _minController.text = Adjustment.formatValue(newValue);
+                                  });
+                                }
+                              );
+                            },
+                            decoration: InputDecoration(
+                              labelText: 'Min Duration (optional)',
+                              hintText: 'Select minimum duration',
+                              border: OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.vertical_align_bottom),
+                              suffixIcon: _previewAdjustment.min != null ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    _previewAdjustment = DurationAdjustment(
+                                      id: _previewAdjustment.id,
+                                      name: _previewAdjustment.name,
+                                      notes: _previewAdjustment.notes,
+                                      unit: _previewAdjustment.unit,
+                                      min: null,
+                                      max: _previewAdjustment.max,
+                                    );
+                                    _minController.clear();
+                                  });
+                                },
+                              ) : null,
+                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              filled: widget.mode == AdjustmentPageMode.edit && _previewAdjustment.min != widget.adjustment?.min,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _maxController,
+                            readOnly: true,
+                            enableInteractiveSelection: false,
+                            focusNode: _maxFocusNode,
+                            onTap: () {
+                              FocusScope.of(context).unfocus();
+                              showSetDurationSheet(
+                                context: context,
+                                adjustment: DurationAdjustment(name: 'Max', notes: null, unit: null, min: _previewAdjustment.min),
+                                value: _previewAdjustment.max,
+                                onChanged: (Duration newValue) {
+                                  setState(() {
+                                    _previewAdjustment = DurationAdjustment(
+                                      id: _previewAdjustment.id,
+                                      name: _previewAdjustment.name,
+                                      notes: _previewAdjustment.notes,
+                                      unit: _previewAdjustment.unit,
+                                      min: _previewAdjustment.min,
+                                      max: newValue,
+                                    );
+                                    _maxController.text = Adjustment.formatValue(newValue);
+                                  });
+                                }
+                              );
+                            },
+                            decoration: InputDecoration(
+                              labelText: 'Max Duration (optional)',
+                              hintText: 'Select maximum duration',
+                              border: OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.vertical_align_top),
+                              suffixIcon: _previewAdjustment.max != null ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    _previewAdjustment = DurationAdjustment(
+                                      id: _previewAdjustment.id,
+                                      name: _previewAdjustment.name,
+                                      notes: _previewAdjustment.notes,
+                                      unit: _previewAdjustment.unit,
+                                      min: _previewAdjustment.min,
+                                      max: null,
+                                    );
+                                    _maxController.clear();
+                                  });
+                                },
+                              ) : null,
+                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              filled: widget.mode == AdjustmentPageMode.edit && _previewAdjustment.max != widget.adjustment?.max,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _notesController,
+                            minLines: 2,
+                            maxLines: null,
+                            onChanged: (String? value) {
+                              setState(() {
+                                _previewAdjustment = DurationAdjustment(
+                                  name: _nameController.text.trim(),
+                                  notes: (value == null || value.isEmpty) ? null : value,
+                                  unit: _previewAdjustment.unit, 
+                                  min: _previewAdjustment.min,
+                                  max: _previewAdjustment.max,
+                                );
+                              });
+                            },
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            decoration: InputDecoration(
+                              labelText: 'Notes (optional)',
+                              hintText: 'Enter measuring procedure/instrument/...',
+                              border: OutlineInputBorder(),
+                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),

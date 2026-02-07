@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'adjustment/adjustment.dart';
@@ -50,5 +51,28 @@ class Person {
         );
       default: throw Exception("Json Version $version of Person incompatible.");
     }
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is Person &&
+        runtimeType == other.runtimeType &&
+        id == other.id &&
+        isDeleted == other.isDeleted &&
+        lastModified == other.lastModified &&
+        name == other.name &&
+        listEquals(adjustments, other.adjustments);
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      id,
+      isDeleted,
+      lastModified,
+      name,
+      Object.hashAll(adjustments),
+    );
   }
 }

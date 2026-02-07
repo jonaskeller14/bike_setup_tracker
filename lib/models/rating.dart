@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'adjustment/adjustment.dart';
@@ -75,5 +76,31 @@ class Rating {
         );
       default: throw Exception("Json Version $version of Rating incompatible.");
     }
+  }
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is Rating &&
+        runtimeType == other.runtimeType &&
+        id == other.id &&
+        isDeleted == other.isDeleted &&
+        lastModified == other.lastModified &&
+        name == other.name &&
+        filter == other.filter &&
+        filterType == other.filterType &&
+        listEquals(adjustments, other.adjustments);
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      id,
+      isDeleted,
+      lastModified,
+      name,
+      filter,
+      filterType,
+      Object.hashAll(adjustments),
+    );
   }
 }

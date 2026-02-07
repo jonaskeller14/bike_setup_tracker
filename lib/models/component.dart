@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'adjustment/adjustment.dart';
@@ -95,5 +96,32 @@ class Component {
         );
       default: throw Exception("Json Version $version of Component incompatible."); 
     }
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is Component &&
+        runtimeType == other.runtimeType &&
+        id == other.id &&
+        isDeleted == other.isDeleted &&
+        lastModified == other.lastModified &&
+        name == other.name &&
+        componentType == other.componentType &&
+        bike == other.bike &&
+        listEquals(adjustments, other.adjustments);
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      id,
+      isDeleted,
+      lastModified,
+      name,
+      componentType,
+      bike,
+      Object.hashAll(adjustments),
+    );
   }
 }

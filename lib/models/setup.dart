@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'weather.dart';
@@ -242,5 +243,47 @@ class Setup {
       default:
         return altM;
     }
+  }
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is Setup &&
+        runtimeType == other.runtimeType &&
+        id == other.id &&
+        isDeleted == other.isDeleted &&
+        lastModified == other.lastModified &&
+        name == other.name &&
+        datetime == other.datetime &&
+        notes == other.notes &&
+        setEquals(tags, other.tags) &&
+        bike == other.bike &&
+        person == other.person &&
+        mapEquals(bikeAdjustmentValues, other.bikeAdjustmentValues) &&
+        mapEquals(personAdjustmentValues, other.personAdjustmentValues) &&
+        mapEquals(ratingAdjustmentValues, other.ratingAdjustmentValues) &&
+        locationEqual(position, other.position) &&
+        placeEqual(place, other.place) &&
+        weather == other.weather;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hashAll([
+      id,
+      isDeleted,
+      lastModified,
+      name,
+      datetime,
+      notes,
+      Object.hashAll(tags),
+      bike,
+      person,
+      Object.hashAll(bikeAdjustmentValues.entries),
+      Object.hashAll(personAdjustmentValues.entries),
+      Object.hashAll(ratingAdjustmentValues.entries),
+      position,
+      place,
+      weather,
+    ]);
   }
 }

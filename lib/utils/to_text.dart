@@ -18,11 +18,11 @@ String toText({
   //TODO: Highlight deleted items
   final appSettings = context.read<AppSettings>();
 
-  List<String> sections = [];
+  final List<String> sections = [];
   
   final persons = appData.persons.values.where((p) => selectedPersons.contains(p.id));
   if (appSettings.enablePerson && persons.isNotEmpty) {
-    List<String> sectionItems = ["PROFILES:"];
+    final List<String> sectionItems = ["PROFILES:"];
     sectionItems.addAll(persons.map((p) => "👤 ${p.name}${p.isDeleted ? ' [DELETED]' : ''}"));
 
     sections.add(sectionItems.join("\n"));
@@ -30,19 +30,23 @@ String toText({
 
   final bikes = appData.bikes.values.where((b) => selectedBikes.contains(b.id));
   if (bikes.isNotEmpty) {
-    List<String> sectionItems = ["BIKES:"];
-    if (appSettings.enablePerson) {
-      sectionItems.addAll(bikes.map((b) => "🚲 ${b.name} (${appData.persons[b.person]?.name ?? '-'})${b.isDeleted ? ' [DELETED]' : ''}"));
-    } else {
-      sectionItems.addAll(bikes.map((b) => "🚲 ${b.name}${b.isDeleted ? ' [DELETED]' : ''}"));
+    final List<String> sectionItems = ["BIKES:"];
+    for (final b in bikes) {
+      if (appSettings.enablePerson) {
+        sectionItems.add("🚲 ${b.name} (${appData.persons[b.person]?.name ?? '-'})${b.isDeleted ? ' [DELETED]' : ''}");
+
+      } else {
+        sectionItems.add("🚲 ${b.name}${b.isDeleted ? ' [DELETED]' : ''}");
+      }
+      if (b.notes != null) sectionItems.add(b.notes!);
     }
-    
+
     sections.add(sectionItems.join("\n"));
   }
 
   final setups = appData.setups.values.where((s) => selectedSetups.contains(s.id));
   if (setups.isNotEmpty) {
-    List<String> sectionItems = ["SETUPS:"];
+    final List<String> sectionItems = ["SETUPS:"];
     for (final setup in setups) {
       final dateString = DateFormat(appSettings.dateFormat).format(setup.datetime);
       final timeString = DateFormat(appSettings.timeFormat).format(setup.datetime);

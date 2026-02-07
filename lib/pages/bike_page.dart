@@ -32,8 +32,10 @@ class BikePage extends StatefulWidget {
 
 class _BikePageState extends State<BikePage> {
   late TextEditingController _nameController;
+  late TextEditingController _notesController;
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
+  bool _expanded = false;
 
   String? _initialPerson;
   String? _person;
@@ -43,13 +45,17 @@ class _BikePageState extends State<BikePage> {
     super.initState();
     _nameController = TextEditingController(text: widget.bike?.name);
     _nameController.addListener(_changeListener);
+    _notesController = TextEditingController(text: widget.bike?.notes);
+    _notesController.addListener(_changeListener);
     
     _initialPerson = widget.bike?.person;
     _person = _initialPerson;
+    if (widget.mode != BikePageMode.add) _expanded = true;
   }
 
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != (widget.bike?.name ?? '') || 
+        _notesController.text.trim() != (widget.bike?.notes ?? '') ||
         _person != _initialPerson;
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -62,17 +68,21 @@ class _BikePageState extends State<BikePage> {
   void dispose() {
     _nameController.removeListener(_changeListener);
     _nameController.dispose();
+    _notesController.removeListener(_changeListener);
+    _notesController.dispose();
     super.dispose();
   }
 
   void _saveBike() {
     if (!_formKey.currentState!.validate()) return;
     final name = _nameController.text.trim();
+    final notes = _notesController.text.trim();
     _formHasChanges = false;
 
     Navigator.pop(context, Bike(
       id: widget.mode == BikePageMode.edit ? widget.bike!.id : null, 
       name: name, 
+      notes: notes.isEmpty ? null : notes,
       person: _person
     ));
   }
@@ -179,6 +189,36 @@ class _BikePageState extends State<BikePage> {
                       setState(() => _person = newPerson);
                       _changeListener();
                     },
+                  ),
+                ],
+                if (!_expanded)
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          if (!_expanded) _expanded = !_expanded;
+                        });
+                      },
+                      icon: Icon(
+                        _expanded ? Icons.expand_less : Icons.expand_more,
+                      ),
+                      label: Text(_expanded ? "Hide Additional Fields" : "Show Additional Fields"),
+                    ),
+                  ),
+                if (_expanded) ...[
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _notesController,
+                    minLines: 2,
+                    maxLines: null,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(
+                      labelText: 'Notes (optional)',
+                      hintText: 'Enter Bike brand, model, size, year, costs, ...',
+                      border: OutlineInputBorder(),
+                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      filled: widget.mode == BikePageMode.edit && _notesController.text.trim() != (widget.bike?.notes ?? ""),
+                    ),
                   ),
                 ],
               ],

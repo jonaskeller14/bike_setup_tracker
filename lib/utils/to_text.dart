@@ -15,7 +15,7 @@ String toText({
   required List<String> selectedSetups,
 }) {
   //TODO: Location, Address, Weather context, person values, rating values
-  //TODO: Highlight deleted items
+  //Add components section or list them below bike (with Component.notes)
   final appSettings = context.read<AppSettings>();
 
   final List<String> sections = [];

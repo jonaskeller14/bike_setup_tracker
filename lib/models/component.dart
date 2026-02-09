@@ -40,6 +40,7 @@ class Component {
   final ComponentType componentType; 
   final List<Adjustment> adjustments;
   final String? bike;
+  final String? notes;
 
   static const IconData iconData = Icons.grid_view_sharp;
 
@@ -50,6 +51,7 @@ class Component {
     required this.name,
     required this.bike,
     required this.componentType,
+    this.notes,
     List<Adjustment>? adjustments,
   }) : adjustments = adjustments ?? [],
        id = id ?? const Uuid().v4(),
@@ -61,24 +63,27 @@ class Component {
       name: name,
       bike: bike,
       componentType: componentType,
+      notes: notes,
       adjustments: adjustments.map((a) => a.deepCopy()).toList(),
     );
   }
 
   Map<String, dynamic> toJson() => {
+    'version': 1,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toIso8601String(),
     'name': name,
     'componentType': componentType.toString(),
     'bike': bike,
+    'notes': notes,
     'adjustments': adjustments.map((a) => a.toJson()).toList(),
   };
 
   factory Component.fromJson({required Map<String, dynamic> json}) {
     final int? version = json["version"];
     switch (version) {
-      case null:
+      case null || 1:
         return Component(
           id: json["id"] as String,
           isDeleted: json["isDeleted"] as bool,
@@ -89,6 +94,7 @@ class Component {
             orElse: () => ComponentType.other,
           ),
           bike: json["bike"] as String?,
+          notes: json["notes"] as String?,
           adjustments: (json["adjustments"] as List<dynamic>?)
             ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson))
             .toList()
@@ -109,6 +115,7 @@ class Component {
         name == other.name &&
         componentType == other.componentType &&
         bike == other.bike &&
+        notes == other.notes &&
         listEquals(adjustments, other.adjustments);
   }
 
@@ -121,6 +128,7 @@ class Component {
       name,
       componentType,
       bike,
+      notes,
       Object.hashAll(adjustments),
     );
   }

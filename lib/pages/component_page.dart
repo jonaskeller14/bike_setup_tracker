@@ -46,11 +46,13 @@ class _ComponentPageState extends State<ComponentPage> {
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
   late TextEditingController _nameController;
+  late TextEditingController _notesController;
   late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
   late String? _bike;
   late String? _initialBike;
   late ComponentType? _componentType;
+  bool _expanded = false;
 
   @override
   void initState() {
@@ -67,10 +69,14 @@ class _ComponentPageState extends State<ComponentPage> {
     _bike = _initialBike;
 
     _componentType = widget.component?.componentType;
+    _notesController = TextEditingController(text: widget.component?.notes);
+    _notesController.addListener(_changeListener);
+    if (widget.mode != ComponentPageMode.add) _expanded = true;
   }
 
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != (widget.component?.name ?? '') || 
+        _notesController.text.trim() != (widget.component?.notes ?? '') ||
         _bike != _initialBike || 
         _componentType != widget.component?.componentType ||
         _initialAdjustments.length != _adjustments.length || 
@@ -87,6 +93,8 @@ class _ComponentPageState extends State<ComponentPage> {
   void dispose() {
     _nameController.removeListener(_changeListener);
     _nameController.dispose();
+    _notesController.removeListener(_changeListener);
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -183,6 +191,7 @@ class _ComponentPageState extends State<ComponentPage> {
       return;
     }
     final name = _nameController.text.trim();
+    final notes = _notesController.text.trim();
     _formHasChanges = false;
     if (!mounted) return;
     Navigator.pop(
@@ -192,6 +201,7 @@ class _ComponentPageState extends State<ComponentPage> {
         name: name,
         componentType: _componentType!,
         bike: _bike,
+        notes: notes.isEmpty ? null : notes,
         adjustments: _adjustments,
       ),
     );
@@ -442,6 +452,36 @@ class _ComponentPageState extends State<ComponentPage> {
                     return null;
                   },
                 ),
+                if (!_expanded)
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          if (!_expanded) _expanded = !_expanded;
+                        });
+                      },
+                      icon: Icon(
+                        _expanded ? Icons.expand_less : Icons.expand_more,
+                      ),
+                      label: Text(_expanded ? "Hide Additional Fields" : "Show Additional Fields"),
+                    ),
+                  ),
+                if (_expanded) ...[
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _notesController,
+                    minLines: 2,
+                    maxLines: null,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(
+                      labelText: 'Notes (optional)',
+                      hintText: 'Enter brand, model, serial number, costs, ...',
+                      border: OutlineInputBorder(),
+                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      filled: widget.mode == ComponentPageMode.edit && _notesController.text.trim() != (widget.component?.notes ?? ""),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 16),
                 _adjustments.isNotEmpty
                     ? AdjustmentEditList(

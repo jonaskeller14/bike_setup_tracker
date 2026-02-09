@@ -261,6 +261,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                   sortColumnIndex: _sortColumnIndex,
                   columnSpacing: 20,
                   headingTextStyle: TextStyle(fontWeight: FontWeight.bold),
+                  dataRowMaxHeight: double.infinity,
                   columns: _showColumns.entries.expand((sectionShowColumnsEntry) {
                     return sectionShowColumnsEntry.value.entries.where((showColumnEntry) => showColumnEntry.value).map((showColumnEntry) {
                       if ({"Adjustments", "Ratings", "Person"}.contains(sectionShowColumnsEntry.key)) {

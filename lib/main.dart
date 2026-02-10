@@ -8,6 +8,16 @@ import 'pages/onboarding_page.dart';
 import 'pages/home_page.dart';
 import 'services/google_drive_service.dart';
 import 'services/storage_service.dart';
+import 'services/strava_service.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  // Handle background message
+  debugPrint("Handling background message: ${message.messageId}");
+}
 
 final materialAppTheme = ThemeData(
   useMaterial3: true,
@@ -25,8 +35,11 @@ final materialAppDarkTheme = ThemeData(
   ),
 );
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
@@ -102,6 +115,7 @@ class LoadingGate extends StatelessWidget {
                   return googleDriveService!;
                 },
               ),
+              ChangeNotifierProvider(create: (context) => StravaService()),
             ],
             child: const BikeSetupTrackerApp(),
           );

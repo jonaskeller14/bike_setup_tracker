@@ -47,5 +47,17 @@
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs access to location when in the background.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>bike-setup-tracker</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

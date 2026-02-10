@@ -1,0 +1,200 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import '../models/strava_activity.dart';
+import 'strava_secret.dart';
+
+enum StravaServiceStatus {
+  idle,
+  syncing,
+}
+
+class StravaService extends ChangeNotifier {
+  static const String _redirectUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/exchangeToken";
+  static const String _scope = "read,profile:read_all,activity:read_all";
+
+  StravaServiceStatus _status = StravaServiceStatus.idle;
+  String _errorMessage = '';
+
+  StravaServiceStatus get status => _status;
+  String get errorMessage => _errorMessage;
+  String? _userId;
+  String? get userId => _userId;
+  bool _isConnected = false;
+  bool get isConnected => _isConnected;
+  final List<StravaActivity> _activities = [];
+  List<StravaActivity> get activities => List.unmodifiable(_activities);
+
+  StreamSubscription? _activitiesSubscription;
+  bool _isDisposed = false;
+
+  StravaService() {
+    _init();
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    _activitiesSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void notifyListeners() {
+    if (!_isDisposed) {
+      super.notifyListeners();
+    }
+  }
+
+  Future<void> _init() async {
+    await _loadUserId();
+    await _checkInitialConnection();
+    await _loadLocalActivities();
+    _listenToActivities();
+    _registerFcmToken();
+  }
+
+  Future<void> _checkInitialConnection() async {
+    if (_userId == null) return;
+    status = StravaServiceStatus.syncing;
+    try {
+      final doc = await FirebaseFirestore.instance.collection('users').doc(_userId).get().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => throw TimeoutException("Connection check timed out"),
+      );
+      _isConnected = doc.exists && (doc.data()?['strava_connected'] ?? false);
+      errorMessage = "";
+      status = StravaServiceStatus.idle;
+    } catch (e) {
+      debugPrint("Error checking Strava connection: $e");
+      errorMessage = "Could not verify connection (No internet?)";
+      status = StravaServiceStatus.idle;
+    }
+  }
+
+  Future<void> _loadLocalActivities() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? encoded = prefs.getString('strava_activities');
+    if (encoded != null) {
+      final List<dynamic> decoded = jsonDecode(encoded);
+      _activities.clear();
+      _activities.addAll(decoded.map((a) => StravaActivity.fromJson(a)));
+      notifyListeners();
+    }
+  }
+
+  Future<void> _saveLocalActivities() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String encoded = jsonEncode(_activities.map((a) => a.toJson()).toList());
+    await prefs.setString('strava_activities', encoded);
+  }
+
+  void _listenToActivities() {
+    if (_userId == null) return;
+
+    _activitiesSubscription?.cancel();
+    _activitiesSubscription = FirebaseFirestore.instance
+        .collection('users')
+        .doc(_userId)
+        .collection('activities')
+        .orderBy('synced_at', descending: true)
+        .snapshots()
+        .listen((snapshot) {
+      bool changed = false;
+      for (var doc in snapshot.docs) {
+        final activity = StravaActivity.fromFirestore(doc.data());
+        if (!_activities.any((a) => a.id == activity.id)) {
+          _activities.insert(0, activity);
+          changed = true;
+          debugPrint("New Strava activity imported: ${activity.name}");
+        }
+      }
+      if (changed) {
+        _saveLocalActivities();
+        notifyListeners();
+      }
+    }, onError: (e) {
+      debugPrint("Strava sync stream error: $e");
+      errorMessage = "Background sync error (Internet issue?)";
+    });
+  }
+
+  Future<void> _registerFcmToken() async {
+    if (_userId == null) return;
+    try {
+      final messaging = FirebaseMessaging.instance;
+      NotificationSettings settings = await messaging.requestPermission();
+      
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        String? token = await messaging.getToken();
+        if (token != null) {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(_userId)
+              .set({'fcm_token': token}, SetOptions(merge: true));
+          debugPrint("FCM Token registered for $_userId");
+        }
+      }
+    } catch (e) {
+      debugPrint("Error registering FCM token: $e");
+    }
+  }
+
+  Future<void> _loadUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    _userId = prefs.getString('strava_user_id');
+    if (_userId == null || _userId!.isEmpty) {
+      _userId = const Uuid().v4();
+      await prefs.setString('strava_user_id', _userId!);
+    }
+    notifyListeners();
+  }
+
+  set errorMessage(String message) {
+    _errorMessage = message;
+    notifyListeners();
+  }
+
+  set status(StravaServiceStatus newStatus) {
+    _status = newStatus;
+    notifyListeners();
+  }
+
+  Future<void> launchStravaLogin() async {
+    try {
+      if (_userId == null) await _loadUserId();
+      status = StravaServiceStatus.syncing;
+
+      final Uri authUrl = Uri.parse(
+        "https://www.strava.com/oauth/mobile/authorize"
+        "?client_id=$stravaClientId"
+        "&redirect_uri=$_redirectUri"
+        "&response_type=code"
+        "&approval_prompt=auto"
+        "&scope=$_scope"
+        "&state=$_userId"
+      );
+
+      if (await canLaunchUrl(authUrl)) {
+        await launchUrl(
+          authUrl,
+          mode: LaunchMode.externalApplication, // use Strava App if existing
+        );
+      } else {
+        throw 'Could not open Strava-Login';
+      }
+
+      status = StravaServiceStatus.idle;
+      errorMessage = "";
+    } catch (e) {
+      status = StravaServiceStatus.idle;
+      errorMessage = "Login failed: $e";
+    }
+  }
+}

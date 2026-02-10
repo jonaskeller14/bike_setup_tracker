@@ -10,6 +10,7 @@ import '../models/app_settings.dart';
 import '../models/app_data.dart';
 import '../models/filtered_data.dart';
 import '../widgets/sheets/setup_list_values_filter.dart';
+import '../widgets/strava_sync_button.dart';
 import 'bike_page.dart';
 import 'component_page.dart';
 import 'setup_display_page.dart';
@@ -668,6 +669,8 @@ class _HomePageState extends State<HomePage> {
             const Text("Ratings"),
         ][currentPageIndex],
         actions: [
+          if (appSettings.enableStrava)
+            const StravaSyncButton(),
           if (appSettings.enableGoogleDrive)
             const GoogleDriveSyncButton(),
           PopupMenuButton<String>(

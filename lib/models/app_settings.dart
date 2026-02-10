@@ -16,6 +16,7 @@ class AppSettings extends ChangeNotifier {
   bool _enablePerson = false;
   bool _enableRating = false;
   bool _enableSetupTags = false;
+  bool _enableStrava = false;
 
   bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;
@@ -30,6 +31,7 @@ class AppSettings extends ChangeNotifier {
   bool get enablePerson => _enablePerson;
   bool get enableRating => _enableRating;
   bool get enableSetupTags => _enableSetupTags;
+  bool get enableStrava => _enableStrava;
 
   set showOnboarding(bool newShowOnboarding) {
     if (_showOnboarding == newShowOnboarding) return;
@@ -122,6 +124,13 @@ class AppSettings extends ChangeNotifier {
     saveAppSettings();
   }
 
+  set enableStrava(bool newValue) {
+    if (newValue == _enableStrava) return;
+    _enableStrava = newValue;
+    notifyListeners();
+    saveAppSettings();
+  }
+
   Future<void> loadAppSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -144,6 +153,7 @@ class AppSettings extends ChangeNotifier {
       _enablePerson = json['enablePerson'] ?? _enablePerson;
       _enableRating = json['enableRating'] ?? _enableRating;
       _enableSetupTags = json['enableSetupTags'] ?? _enableSetupTags;
+      _enableStrava = json['enableStrava'] ?? _enableStrava;
       
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
@@ -167,6 +177,7 @@ class AppSettings extends ChangeNotifier {
       'enablePerson': _enablePerson,
       'enableRating': _enableRating,
       'enableSetupTags': _enableSetupTags,
+      'enableStrava': _enableStrava,
     });
     await prefs.setString('app_settings', jsonData);
   }

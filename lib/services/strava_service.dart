@@ -9,7 +9,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
 import '../models/strava_activity.dart';
-import 'strava_secret.dart';
 
 enum StravaServiceStatus {
   idle,
@@ -17,6 +16,7 @@ enum StravaServiceStatus {
 }
 
 class StravaService extends ChangeNotifier {
+  static const String _stravaClientId = "193047";
   static const String _redirectUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/exchangeToken";
   static const String _deauthorizeUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/deauthorizeUser";
   static const String _scope = "read,profile:read_all,activity:read_all";
@@ -180,7 +180,7 @@ class StravaService extends ChangeNotifier {
 
       final Uri authUrl = Uri.parse(
         "https://www.strava.com/oauth/mobile/authorize"
-        "?client_id=$stravaClientId"
+        "?client_id=$_stravaClientId"
         "&redirect_uri=$_redirectUri"
         "&response_type=code"
         "&approval_prompt=auto"

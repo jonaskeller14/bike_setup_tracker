@@ -262,21 +262,42 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                                       ),
                                       children: [
                                         TileLayer(
-                                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                          urlTemplate: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
+                                          subdomains: const ['a', 'b', 'c'], // Cyclosm uses subdomains for faster loading
                                           userAgentPackageName: 'com.jonaskeller.bike_setup_tracker',
+                                          tileDisplay: TileDisplay.fadeIn(),
+                                          tileBuilder: (context, tileWidget, tile) {
+                                            return ColorFiltered(
+                                              colorFilter: const ColorFilter.matrix(<double>[
+                                                0.6, 0.3, 0.1, 0, 0,  // Muted Red
+                                                0.1, 0.8, 0.1, 0, 0,  // Muted Green
+                                                0.1, 0.3, 0.6, 0, 0,  // Muted Blue
+                                                0,   0,   0,   1, 0,  // Alpha (no change)
+                                              ]),
+                                              child: tileWidget,
+                                            );
+                                          },
                                         ),
                                         MarkerLayer(
                                           markers: [
                                             Marker(
                                               point: LatLng(setup.position!.latitude!, setup.position!.longitude!),
-                                              child: const Icon(Icons.location_on, size: 40),
+                                              width: 40,
+                                              height: 40,
+                                              child: Icon(
+                                                Icons.location_pin,
+                                                size: 40,
+                                                color: Theme.of(context).primaryColor,
+                                                shadows: [Shadow(blurRadius: 10, color: Colors.black26)],
+                                              ),
                                             ),
                                           ],
                                         ),
                                         RichAttributionWidget(
+                                          showFlutterMapAttribution: false,
                                           attributions: [
                                             TextSourceAttribution(
-                                              'OpenStreetMap contributors',
+                                              'OpenStreetMap | Cyclosm',
                                               onTap: () => launchUrlString('https://openstreetmap.org/copyright'),
                                             ),
                                           ],

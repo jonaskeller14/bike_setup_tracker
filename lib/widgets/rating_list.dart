@@ -158,6 +158,30 @@ class _RatingListState extends State<RatingList> {
                           ),
                         ],
                       ),
+                      if (rating.notes != null && rating.notes!.isNotEmpty)
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 3),
+                              child: Icon(
+                                Icons.notes,
+                                size: 13,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(width: 2),
+                            Expanded(
+                              child: Text(
+                                rating.notes!,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                   trailing: Row(

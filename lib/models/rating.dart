@@ -16,6 +16,7 @@ class Rating {
   bool isDeleted;
   DateTime lastModified;
   final String name;
+  final String? notes;
   final String? filter; // id of filter object (Bike, Component, Person)
   final FilterType filterType;
   final List<Adjustment> adjustments;
@@ -27,6 +28,7 @@ class Rating {
     bool? isDeleted,
     DateTime? lastModified,
     required this.name,
+    this.notes,
     required this.filter,
     required this.filterType,
     List<Adjustment>? adjustments,
@@ -39,6 +41,7 @@ class Rating {
   Rating deepCopy() {
     return Rating(
       name: name,
+      notes: notes,
       filter: filter,
       filterType: filterType,
       adjustments: adjustments.map((a) => a.deepCopy()).toList(),
@@ -46,10 +49,12 @@ class Rating {
   }
   
   Map<String, dynamic> toJson() => {
+    'version': 1,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toIso8601String(),
     'name': name,
+    'notes': notes,
     "filter": filter,
     "filterType": filterType.toString(),
     'adjustments': adjustments.map((a) => a.toJson()).toList(),
@@ -58,12 +63,13 @@ class Rating {
   factory Rating.fromJson({required Map<String, dynamic> json}) {
     final int? version = json["version"];
     switch (version) {
-      case null:
+      case null || 1:
         return Rating(
           id: json["id"],
           isDeleted: json["isDeleted"],
           lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
           name: json['name'],
+          notes: json['notes'],
           filter: json["filter"],
           filterType: FilterType.values.firstWhere(
             (e) => e.toString() == json["filterType"],
@@ -86,6 +92,7 @@ class Rating {
         isDeleted == other.isDeleted &&
         lastModified == other.lastModified &&
         name == other.name &&
+        notes == other.notes &&
         filter == other.filter &&
         filterType == other.filterType &&
         listEquals(adjustments, other.adjustments);
@@ -98,6 +105,7 @@ class Rating {
       isDeleted,
       lastModified,
       name,
+      notes,
       filter,
       filterType,
       Object.hashAll(adjustments),

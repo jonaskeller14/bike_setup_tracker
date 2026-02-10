@@ -62,8 +62,10 @@ class FilterFilterType {
 
 class _RatingPageState extends State<RatingPage> {
   late TextEditingController _nameController;
+  late TextEditingController _notesController;
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
+  bool _expanded = false;
 
   late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
@@ -84,10 +86,14 @@ class _RatingPageState extends State<RatingPage> {
       widget.rating?.filterType ?? FilterType.global,
     );
     _filterFilterType = _initialFilterFilterType;
+    _notesController = TextEditingController(text: widget.rating?.notes);
+    _notesController.addListener(_changeListener);
+    if (widget.mode != RatingPageMode.add) _expanded = true;
   }
 
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != (widget.rating?.name ?? '') ||
+        _notesController.text.trim() != (widget.rating?.notes ?? '') ||
         _filterFilterType != _initialFilterFilterType ||
         _initialAdjustments.length != _adjustments.length || 
         _adjustments.asMap().entries.any((entry) => entry.value != _initialAdjustments[entry.key]);
@@ -102,6 +108,8 @@ class _RatingPageState extends State<RatingPage> {
   void dispose() {
     _nameController.removeListener(_changeListener);
     _nameController.dispose();
+    _notesController.removeListener(_changeListener);
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -187,11 +195,13 @@ class _RatingPageState extends State<RatingPage> {
   void _saveRating() {
     if (!_formKey.currentState!.validate()) return;
     final name = _nameController.text.trim();
+    final notes = _notesController.text.trim();
     _formHasChanges = false;
     
     Navigator.pop(context, Rating(
       id: widget.mode == RatingPageMode.edit ? widget.rating?.id : null, 
       name: name, 
+      notes: notes.isEmpty ? null : notes,
       filter: _filterFilterType.filter, 
       filterType: _filterFilterType.filterType,
       adjustments: _adjustments,
@@ -457,11 +467,41 @@ class _RatingPageState extends State<RatingPage> {
                         ),
                       ),
                   ],
-                  onChanged: (FilterFilterType? newValue) {
-                    setState(() => _filterFilterType = newValue ?? FilterFilterType(null, FilterType.global));
-                    _changeListener();
-                  },
-                ),
+                    onChanged: (FilterFilterType? newValue) {
+                      setState(() => _filterFilterType = newValue ?? FilterFilterType(null, FilterType.global));
+                      _changeListener();
+                    },
+                  ),
+                  if (!_expanded)
+                    Center(
+                      child: TextButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            if (!_expanded) _expanded = !_expanded;
+                          });
+                        },
+                        icon: Icon(
+                          _expanded ? Icons.expand_less : Icons.expand_more,
+                        ),
+                        label: Text(_expanded ? "Hide Additional Fields" : "Show Additional Fields"),
+                      ),
+                    ),
+                  if (_expanded) ...[
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _notesController,
+                      minLines: 2,
+                      maxLines: null,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'Notes (optional)',
+                        hintText: 'Describe the rating procedure, guidelines, instructions, ...',
+                        border: OutlineInputBorder(),
+                        fillColor: Colors.orange.withValues(alpha: 0.08),
+                        filled: widget.mode == RatingPageMode.edit && _notesController.text.trim() != (widget.rating?.notes ?? ""),
+                      ),
+                    ),
+                  ],
                 const SizedBox(height: 16),
                 _adjustments.isNotEmpty
                     ? AdjustmentEditList(

@@ -244,7 +244,14 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                               ),
                               ListTile(
                                 leading: const Icon(Icons.location_city),
-                                title: SelectableText("${setup.place?.thoroughfare ?? ''} ${setup.place?.subThoroughfare ?? ''}, ${setup.place?.locality ?? ''}, ${setup.place?.isoCountryCode ?? ''}"),
+                                title: setup.place == null 
+                                    ? const Text("No Address available")
+                                    : SelectableText(
+                                        "${setup.place!.thoroughfare ?? ''} ${setup.place!.subThoroughfare ?? ''}, "
+                                        "${setup.place!.locality ?? ''}, ${setup.place!.isoCountryCode ?? ''}"
+                                          .replaceAll(RegExp(r' ,'), '')
+                                          .trim(),
+                                      ),
                                 dense: true,
                                 enabled: setup.place != null,
                               ),

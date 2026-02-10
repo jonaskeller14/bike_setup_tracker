@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:http/http.dart' as http;
 import '../models/strava_activity.dart';
 import 'strava_secret.dart';
 
@@ -17,6 +18,7 @@ enum StravaServiceStatus {
 
 class StravaService extends ChangeNotifier {
   static const String _redirectUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/exchangeToken";
+  static const String _deauthorizeUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/deauthorizeUser";
   static const String _scope = "read,profile:read_all,activity:read_all";
 
   StravaServiceStatus _status = StravaServiceStatus.idle;
@@ -166,6 +168,11 @@ class StravaService extends ChangeNotifier {
     notifyListeners();
   }
 
+  static void openActivityOnStrava(int activityId) async {
+    final url = Uri.parse("https://www.strava.com/activities/$activityId");
+    await launchUrl(url, mode: LaunchMode.externalApplication);
+  }
+
   Future<void> launchStravaLogin() async {
     try {
       if (_userId == null) await _loadUserId();
@@ -195,6 +202,39 @@ class StravaService extends ChangeNotifier {
     } catch (e) {
       status = StravaServiceStatus.idle;
       errorMessage = "Login failed: $e";
+    }
+  }
+
+  Future<void> disconnect() async {
+    if (_userId == null) return;
+    
+    status = StravaServiceStatus.syncing;
+    errorMessage = "Disconnecting...";
+    
+    try {
+      // 1. Call Backend Cleanup
+      final response = await http.get(Uri.parse("$_deauthorizeUri?state=$_userId"));
+      if (response.statusCode != 200) {
+        throw "Backend cleanup failed: ${response.body}";
+      }
+
+      // 2. Clear Local State
+      _activities.clear();
+      _isConnected = false;
+      
+      // 3. Clear SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('strava_activities');
+
+      errorMessage = "";
+      status = StravaServiceStatus.idle;
+      notifyListeners();
+      debugPrint("Strava disconnected and data wiped.");
+
+    } catch (e) {
+      debugPrint("Error disconnecting Strava: $e");
+      errorMessage = "Disconnection failed: $e";
+      status = StravaServiceStatus.idle;
     }
   }
 }

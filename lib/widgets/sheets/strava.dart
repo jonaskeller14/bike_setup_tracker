@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
+import '../../models/app_settings.dart';
 import '../../services/strava_service.dart';
 import 'sheet.dart';
 
@@ -19,6 +21,7 @@ class StravaSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appSettings = context.read<AppSettings>();
     final stravaService = context.watch<StravaService>();
     
     return SafeArea(
@@ -36,7 +39,7 @@ class StravaSheet extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   spacing: 6,
                   children: [
-                    Icon(SimpleIcons.googledrive, color: Theme.of(context).colorScheme.onSurface),
+                    Icon(SimpleIcons.strava, color: const Color(0xFFFC4C02)), // Strava Brand Orange
                     sheetTitle(context, 'Strava Sync'),
                   ],
                 ),
@@ -69,37 +72,56 @@ class StravaSheet extends StatelessWidget {
                         contentPadding: EdgeInsets.zero,
                       ),
                     const SizedBox(height: 8),
-                    Text("User ID: ${stravaService.userId ?? 'Loading...'}", 
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey)),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Icon(
-                          stravaService.isConnected ? Icons.check_circle : Icons.radio_button_unchecked,
-                          color: stravaService.isConnected ? Colors.green : Colors.grey,
-                          size: 16,
+                    ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: stravaService.isConnected
+                            ? Colors.transparent
+                            : Theme.of(context).colorScheme.surfaceContainerHigh,
+                        child: Icon(
+                          stravaService.isConnected ? Icons.person : Icons.person_off,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          stravaService.isConnected ? "Connected to Strava" : "Not connected",
-                          style: TextStyle(
-                            color: stravaService.isConnected ? Colors.green : Colors.grey,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                      ),
+                      title: Text(
+                        stravaService.isConnected ? "Strava User" : "Not connected",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                        stravaService.isConnected 
+                            ? "Athlete ID: ${stravaService.userId?.substring(0, 8)}..." 
+                            : "Connect to sync your rides",
+                      ),
+                      contentPadding: EdgeInsets.zero,
                     ),
+                    if (stravaService.isConnected) ...[
+                      ListTile(
+                        leading: const Icon(Icons.sync_alt),
+                        title: Text("Auto-sync is active"),
+                        subtitle: const Text("Activities import automatically after your ride"),
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ],
                     const SizedBox(height: 16),
                     if (stravaService.activities.isNotEmpty) ...[
                       const Divider(),
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 8),
-                        child: Text("Synced Activities (Debug):", style: TextStyle(fontWeight: FontWeight.bold)),
+                        child: Text("Synced Activities:", style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
                       ...stravaService.activities.map((activity) => ListTile(
                             title: Text(activity.name),
                             subtitle: Text("${activity.type} • ${(activity.distance / 1000).toStringAsFixed(2)} km"),
-                            trailing: Text(activity.startDate.toString().split(' ')[0]),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text("${DateFormat(appSettings.dateFormat).format(activity.startDate)} • ${DateFormat(appSettings.timeFormat).format(activity.startDate)}"),
+                                IconButton(
+                                  icon: const Icon(Icons.open_in_new, size: 18),
+                                  onPressed: () => StravaService.openActivityOnStrava(activity.id),
+                                ),
+                              ],
+                            ),
                             dense: true,
                             contentPadding: EdgeInsets.zero,
                           )),
@@ -115,18 +137,86 @@ class StravaSheet extends StatelessWidget {
               )
             ),
             const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: (stravaService.isConnected || stravaService.status == StravaServiceStatus.syncing)
-                    ? null 
-                    : () => stravaService.launchStravaLogin(),
-                icon: Icon(stravaService.isConnected ? Icons.check : Icons.login),
-                label: Text(stravaService.isConnected ? "Successfully Connected" : "Sign in to Strava"),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              spacing: 16,
+              children: [
+                if (stravaService.isConnected) ...[
+                  OutlinedButton.icon(
+                    onPressed: stravaService.status == StravaServiceStatus.syncing 
+                        ? null 
+                        : () => _showDisconnectConfirmation(context, stravaService),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.error,
+                      side: BorderSide(color: Theme.of(context).colorScheme.error),
+                    ),
+                    icon: const Icon(Icons.logout),
+                    label: const Text("Disconnect"),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: stravaService.status == StravaServiceStatus.syncing
+                            ? null
+                            : null,  //FIXME
+                        icon: stravaService.status == StravaServiceStatus.syncing
+                            ? const SizedBox(
+                                height: 16,
+                                width: 16,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.sync),
+                        label: const Text("Sync"),
+                      ),
+                    ),
+                  ),
+                ] else ...[
+                  Expanded(
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: stravaService.status == StravaServiceStatus.syncing
+                            ? null
+                            : () => stravaService.launchStravaLogin(),
+                        icon: const Icon(Icons.login),
+                        label: const Text("Sign in to Strava"),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showDisconnectConfirmation(BuildContext context, StravaService stravaService) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Disconnect Strava?"),
+        content: const Text(
+          "This will revoke the app's access and delete all your synced activities from our secure storage. "
+          "Your Strava account itself will not be affected."
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              stravaService.disconnect();
+            },
+            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
+            child: const Text("Disconnect"),
+          ),
+        ],
       ),
     );
   }

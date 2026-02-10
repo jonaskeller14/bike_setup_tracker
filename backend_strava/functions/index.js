@@ -115,6 +115,60 @@ async function getValidAccessToken(userId) {
 }
 
 /**
+ * STRATEGY: Deauthorization
+ * Wipes user's Strava data from Firestore and tells Strava to revoke access.
+ */
+exports.deauthorizeUser = onRequest(
+  async (req, res) => {
+    const userId = req.query.state; // We expect the userId in query params
+
+    if (!userId) {
+      return res.status(400).send("Missing user identification");
+    }
+
+    try {
+      const userRef = db.collection("users").doc(userId);
+      const doc = await userRef.get();
+      
+      if (!doc.exists || !doc.data().strava_auth) {
+        return res.status(200).send("Already disconnected");
+      }
+
+      const accessToken = doc.data().strava_auth.access_token;
+
+      // 1. Tell Strava to revoke access
+      await fetch("https://www.strava.com/oauth/deauthorize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ access_token: accessToken }),
+      });
+
+      // 2. Clean up Firestore
+      // Delete activities subcollection
+      const activitiesSnapshot = await userRef.collection("activities").get();
+      const batch = db.batch();
+      activitiesSnapshot.forEach(doc => batch.delete(doc.ref));
+      
+      // Update user doc to remove Strava fields
+      batch.update(userRef, {
+        strava_auth: admin.firestore.FieldValue.delete(),
+        strava_connected: false,
+        strava_deauthorized_at: admin.firestore.FieldValue.serverTimestamp()
+      });
+
+      await batch.commit();
+
+      logger.info("USER_DEAUTHORIZED", { userId });
+      return res.status(200).send("DEAUTHORIZED_SUCCESSFUL");
+
+    } catch (error) {
+      logger.error("DEAUTHORIZE_ERROR", error);
+      return res.status(500).send("Deauthorization failed");
+    }
+  }
+);
+
+/**
  * STRATEGY: Webhook Listener
  * Strava calls this endpoint whenever an activity is created, updated, or deleted.
  * Calls FCM and fetches details when a new activity is created.
@@ -222,6 +276,38 @@ exports.stravaWebhook = onRequest(
         else if (aspectType === 'delete') {
           // TODO: 1. Remove activity from Firestore to keep app in sync
           logger.info(`DELETED ACTIVITY: ${activityId}`);
+        }
+      } 
+      else if (objectType === 'athlete') {
+        if (aspectType === 'update' && event.updates && event.updates.authorized === "false") {
+          logger.info(`ATHLETE_DEAUTHORIZED_ON_STRAVA: ${athleteId}`);
+          try {
+            // Find user by athleteId
+            const usersSnapshot = await db.collection("users")
+              .where("strava_auth.athlete_id", "==", athleteId)
+              .limit(1)
+              .get();
+
+            if (!usersSnapshot.empty) {
+              const userId = usersSnapshot.docs[0].id;
+              const userRef = db.collection("users").doc(userId);
+              
+              const activitiesSnapshot = await userRef.collection("activities").get();
+              const batch = db.batch();
+              activitiesSnapshot.forEach(doc => batch.delete(doc.ref));
+              
+              batch.update(userRef, {
+                strava_auth: admin.firestore.FieldValue.delete(),
+                strava_connected: false,
+                strava_deauthorized_on_strava_at: admin.firestore.FieldValue.serverTimestamp()
+              });
+
+              await batch.commit();
+              logger.info(`CLEANUP_SUCCESS_FOR_WEBHOOK_DEAUTH: ${userId}`);
+            }
+          } catch (error) {
+            logger.error("CLEANUP_FAILED_FOR_WEBHOOK_DEAUTH", error);
+          }
         }
       }
       

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_icons/weather_icons.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import '../models/app_settings.dart';
 import '../models/filtered_data.dart';
 import '../models/setup.dart';
@@ -245,6 +248,43 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                                 dense: true,
                                 enabled: setup.place != null,
                               ),
+                              if (setup.position?.latitude != null && setup.position?.longitude != null)
+                                SizedBox(
+                                  height: 200,
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+                                    child: FlutterMap(
+                                      options: MapOptions(
+                                        initialCenter: LatLng(setup.position!.latitude!, setup.position!.longitude!),
+                                        initialZoom: 13,
+                                        onTap: (_, _) => launchUrlString('geo:${setup.position!.latitude},${setup.position!.longitude}?q=${setup.position!.latitude},${setup.position!.longitude}(${Uri.encodeComponent(setup.name)})'),
+                                        interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
+                                      ),
+                                      children: [
+                                        TileLayer(
+                                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                          userAgentPackageName: 'com.jonaskeller.bike_setup_tracker',
+                                        ),
+                                        MarkerLayer(
+                                          markers: [
+                                            Marker(
+                                              point: LatLng(setup.position!.latitude!, setup.position!.longitude!),
+                                              child: const Icon(Icons.location_on, size: 40),
+                                            ),
+                                          ],
+                                        ),
+                                        RichAttributionWidget(
+                                          attributions: [
+                                            TextSourceAttribution(
+                                              'OpenStreetMap contributors',
+                                              onTap: () => launchUrlString('https://openstreetmap.org/copyright'),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
                             ],
                           ),
                         ),

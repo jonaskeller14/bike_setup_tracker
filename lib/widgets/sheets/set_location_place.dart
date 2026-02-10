@@ -8,6 +8,7 @@ import '../../models/setup.dart';
 import '../../services/address_service.dart';
 import '../../services/elevation_service.dart';
 import '../../services/location_service.dart';
+import '../dialogs/discard_changes.dart';
 import 'sheet.dart';
 
 class LocationAndPlace {
@@ -180,6 +181,20 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
     ));
   }
 
+  void _handlePopInvoked(bool didPop, dynamic result) async {
+    if (didPop) return;
+    final hasChanges = !Setup.placeEqual(widget.currentPlace, _currentPlace) || !Setup.locationEqual(widget.currentLocation, _currentLocation);
+    if (!hasChanges) {
+      Navigator.of(context).pop(null);
+      return;
+    }
+
+    final shouldDiscard = await showDiscardChangesDialog(context);
+    if (!mounted) return;
+    if (!shouldDiscard) return;
+    Navigator.of(context).pop(null);
+  }
+
   @override
   Widget build(BuildContext context) {
     final appSettings = context.read<AppSettings>();
@@ -190,238 +205,242 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
         final enableFields = widget.locationService.status != LocationStatus.searching && widget.addressService.status != AddressStatus.searching;
         final enableUpdate = widget.locationService.status != LocationStatus.searching && widget.addressService.status != AddressStatus.searching;
         final enableUpdatePlace = enableUpdate && _currentLocation?.latitude != null && _currentLocation?.longitude != null;
-        return Padding(
-          padding: EdgeInsets.only(left: 16, right: 16, bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: SafeArea(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      sheetTitle(context, 'Location Context'),
-                      sheetCloseButton(context),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Flexible(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (widget.locationService.status == LocationStatus.noService)
-                            ListTile(
-                              leading: Icon(Icons.location_disabled, color: Theme.of(context).colorScheme.error),
-                              title: const Text("Location services are disabled"),
-                              subtitle: const Text("Please enable GPS in your device settings"),
-                              dense: true,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                          if (widget.locationService.status == LocationStatus.noPermission)
-                            ListTile(
-                              leading: Icon(Icons.location_disabled, color: Theme.of(context).colorScheme.error),
-                              title: const Text("Location permission denied"),
-                              subtitle: const Text("Grant permission in settings to use this feature"),
-                              dense: true,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                          if (_elevationService.status == ElevationStatus.error)
-                            ListTile(
-                              leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                              title: const Text("Fetching Elevation failed"),
-                              subtitle: const Text("Check your internet connection"),
-                              dense: true,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                          if (widget.addressService.status == AddressStatus.error)
-                            ListTile(
-                              leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                              title: const Text("Fetching Address failed"),
-                              subtitle: const Text("Check your internet connection and spelling"),
-                              dense: true,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                          
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            enabled: enableFields,
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
-                            controller: _latitudeController,
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
-                            decoration: InputDecoration(
-                              labelText: "Latitude",
-                              border: OutlineInputBorder(),
-                              isDense: true,
-                              hintText: 'Latitude',
-                              suffixText: "°",
-                              fillColor: Colors.orange.withValues(alpha: 0.08),
-                              filled: _currentLocation?.latitude != widget.currentLocation?.latitude,
-                              icon: const Icon(Icons.my_location),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) return null;
-                              final parsedValue = double.tryParse(value);
-                              if (parsedValue == null) return "Please enter valid number";
-                              if (parsedValue.abs() > 90) return "Latitude must be between -90..90°";
-                              return null;
-                            },
-                            onChanged: (String newValue) {
-                              setState(() {
-                                _currentLocation = LocationService.copyWithLocationData(
-                                  _currentLocation, 
-                                  latitude: double.tryParse(newValue),
-                                );
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 12),
-                          TextFormField(
-                            enabled: enableFields,
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
-                            controller: _longitudeController,
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
-                            decoration: InputDecoration(
-                              labelText: "Longitude",
-                              border: OutlineInputBorder(),
-                              isDense: true,
-                              hintText: 'Longitude',
-                              suffixText: "°",
-                              fillColor: Colors.orange.withValues(alpha: 0.08),
-                              filled: _currentLocation?.longitude != widget.currentLocation?.longitude,
-                              icon: const Icon(Icons.my_location, color: Colors.transparent), // Placeholder
-                            ),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) return null;
-                              final parsedValue = double.tryParse(value);
-                              if (parsedValue == null) return "Please enter valid number";
-                              if (parsedValue.abs() > 180) return "Longitude must be between -180..180°";
-                              return null;
-                            },
-                            onChanged: (String newValue) {
-                              setState(() {
-                                _currentLocation = LocationService.copyWithLocationData(
-                                  _currentLocation, 
-                                  longitude: double.tryParse(newValue),
-                                );
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 12),
-                          TextFormField(
-                            enabled: enableFields,
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
-                            controller: _altitudeController,
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
-                            decoration: InputDecoration(
-                              labelText: "Altitude in ${appSettings.altitudeUnit}",
-                              border: OutlineInputBorder(),
-                              isDense: true,
-                              hintText: 'Altitude',
-                              suffixText: appSettings.altitudeUnit,
-                              fillColor: Colors.orange.withValues(alpha: 0.08),
-                              filled: _currentLocation?.altitude != widget.currentLocation?.altitude,
-                              icon: const Icon(Icons.arrow_upward),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) return null;
-                              final parsedValue = double.tryParse(value);
-                              if (parsedValue == null) return "Please enter valid number";
-                              return null;
-                            },
-                            onChanged: (String newValue) {
-                              setState(() {
-                                _currentLocation = LocationService.copyWithLocationData(
-                                  _currentLocation, 
-                                  altitude: Setup.convertAltitudeToMeters(double.tryParse(newValue), appSettings.altitudeUnit),
-                                );
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 32),
-                          
-                          SizedBox(
-                            width: double.infinity,
-                            child: TextButton.icon(
-                              onPressed: enableUpdatePlace ? _updatePlace : null,
-                              icon: widget.addressService.status == AddressStatus.searching 
-                                  ? const SizedBox(
-                                      height: 16,
-                                      width: 16,
-                                      child: CircularProgressIndicator(strokeWidth: 2),
-                                    ) 
-                                  : null,
-                              label: const Text("Update Address from Latitude/Longitude"),
-                            ),
-                          ),
-                          TextFormField(
-                            enabled: enableFields,
-                            textInputAction: TextInputAction.search,
-                            controller: _addressController,
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
-                            maxLines: null,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                              isDense: true,
-                              labelText: "Enter street, city, or landmark and press Search Icon",
-                              hintText: 'Address',
-                              contentPadding: const EdgeInsets.all(8),
-                              errorText: _addressTextFieldErrorText,
-                              icon: const Icon(Icons.location_city),
-                              suffixIcon: IconButton(
-                                onPressed: () => _searchAddress(), 
-                                icon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: _handlePopInvoked,
+          child: Padding(
+            padding: EdgeInsets.only(left: 16, right: 16, bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: SafeArea(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        sheetTitle(context, 'Location Context'),
+                        sheetCloseButton(context),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Flexible(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (widget.locationService.status == LocationStatus.noService)
+                              ListTile(
+                                leading: Icon(Icons.location_disabled, color: Theme.of(context).colorScheme.error),
+                                title: const Text("Location services are disabled"),
+                                subtitle: const Text("Please enable GPS in your device settings"),
+                                dense: true,
+                                contentPadding: EdgeInsets.zero,
                               ),
-                              fillColor: Colors.orange.withValues(alpha: 0.08),
-                              filled: !Setup.placeEqual(widget.currentPlace, _currentPlace),
+                            if (widget.locationService.status == LocationStatus.noPermission)
+                              ListTile(
+                                leading: Icon(Icons.location_disabled, color: Theme.of(context).colorScheme.error),
+                                title: const Text("Location permission denied"),
+                                subtitle: const Text("Grant permission in settings to use this feature"),
+                                dense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            if (_elevationService.status == ElevationStatus.error)
+                              ListTile(
+                                leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
+                                title: const Text("Fetching Elevation failed"),
+                                subtitle: const Text("Check your internet connection"),
+                                dense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            if (widget.addressService.status == AddressStatus.error)
+                              ListTile(
+                                leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
+                                title: const Text("Fetching Address failed"),
+                                subtitle: const Text("Check your internet connection and spelling"),
+                                dense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              enabled: enableFields,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
+                              controller: _latitudeController,
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                              decoration: InputDecoration(
+                                labelText: "Latitude",
+                                border: OutlineInputBorder(),
+                                isDense: true,
+                                hintText: 'Latitude',
+                                suffixText: "°",
+                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                filled: _currentLocation?.latitude != widget.currentLocation?.latitude,
+                                icon: const Icon(Icons.my_location),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) return null;
+                                final parsedValue = double.tryParse(value);
+                                if (parsedValue == null) return "Please enter valid number";
+                                if (parsedValue.abs() > 90) return "Latitude must be between -90..90°";
+                                return null;
+                              },
+                              onChanged: (String newValue) {
+                                setState(() {
+                                  _currentLocation = LocationService.copyWithLocationData(
+                                    _currentLocation, 
+                                    latitude: double.tryParse(newValue),
+                                  );
+                                });
+                              },
                             ),
-                            validator: null,
-                            onFieldSubmitted: (value) {
-                              () => _searchAddress();
-                            },
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              enabled: enableFields,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
+                              controller: _longitudeController,
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                              decoration: InputDecoration(
+                                labelText: "Longitude",
+                                border: OutlineInputBorder(),
+                                isDense: true,
+                                hintText: 'Longitude',
+                                suffixText: "°",
+                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                filled: _currentLocation?.longitude != widget.currentLocation?.longitude,
+                                icon: const Icon(Icons.my_location, color: Colors.transparent), // Placeholder
+                              ),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) return null;
+                                final parsedValue = double.tryParse(value);
+                                if (parsedValue == null) return "Please enter valid number";
+                                if (parsedValue.abs() > 180) return "Longitude must be between -180..180°";
+                                return null;
+                              },
+                              onChanged: (String newValue) {
+                                setState(() {
+                                  _currentLocation = LocationService.copyWithLocationData(
+                                    _currentLocation, 
+                                    longitude: double.tryParse(newValue),
+                                  );
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              enabled: enableFields,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),],
+                              controller: _altitudeController,
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                              decoration: InputDecoration(
+                                labelText: "Altitude in ${appSettings.altitudeUnit}",
+                                border: OutlineInputBorder(),
+                                isDense: true,
+                                hintText: 'Altitude',
+                                suffixText: appSettings.altitudeUnit,
+                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                filled: _currentLocation?.altitude != widget.currentLocation?.altitude,
+                                icon: const Icon(Icons.arrow_upward),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) return null;
+                                final parsedValue = double.tryParse(value);
+                                if (parsedValue == null) return "Please enter valid number";
+                                return null;
+                              },
+                              onChanged: (String newValue) {
+                                setState(() {
+                                  _currentLocation = LocationService.copyWithLocationData(
+                                    _currentLocation, 
+                                    altitude: Setup.convertAltitudeToMeters(double.tryParse(newValue), appSettings.altitudeUnit),
+                                  );
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 32),
+                            
+                            SizedBox(
+                              width: double.infinity,
+                              child: TextButton.icon(
+                                onPressed: enableUpdatePlace ? _updatePlace : null,
+                                icon: widget.addressService.status == AddressStatus.searching 
+                                    ? const SizedBox(
+                                        height: 16,
+                                        width: 16,
+                                        child: CircularProgressIndicator(strokeWidth: 2),
+                                      ) 
+                                    : null,
+                                label: const Text("Update Address from Latitude/Longitude"),
+                              ),
+                            ),
+                            TextFormField(
+                              enabled: enableFields,
+                              textInputAction: TextInputAction.search,
+                              controller: _addressController,
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                              maxLines: null,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                isDense: true,
+                                labelText: "Enter street, city, or landmark and press Search Icon",
+                                hintText: 'Address',
+                                contentPadding: const EdgeInsets.all(8),
+                                errorText: _addressTextFieldErrorText,
+                                icon: const Icon(Icons.location_city),
+                                suffixIcon: IconButton(
+                                  onPressed: () => _searchAddress(), 
+                                  icon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
+                                ),
+                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                filled: !Setup.placeEqual(widget.currentPlace, _currentPlace),
+                              ),
+                              validator: null,
+                              onFieldSubmitted: (value) {
+                                () => _searchAddress();
+                              },
+                            ),
+                          ],
+                        ),
+                      )
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    Row(
+                      spacing: 8,
+                      children: [ 
+                        Flexible(
+                          flex: 2,
+                          fit: FlexFit.tight,
+                          child: OutlinedButton.icon(
+                            onPressed: enableUpdate ? _updateLocationPlace : null,
+                            icon: widget.locationService.status == LocationStatus.searching || widget.addressService.status == AddressStatus.searching 
+                                ? const SizedBox(
+                                    height: 16,
+                                    width: 16,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  ) 
+                                : const Icon(Icons.my_location),
+                            label: const Text("Find Location via GPS"),
                           ),
-                        ],
-                      ),
-                    )
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  Row(
-                    spacing: 8,
-                    children: [ 
-                      Flexible(
-                        flex: 2,
-                        fit: FlexFit.tight,
-                        child: OutlinedButton.icon(
-                          onPressed: enableUpdate ? _updateLocationPlace : null,
-                          icon: widget.locationService.status == LocationStatus.searching || widget.addressService.status == AddressStatus.searching 
-                              ? const SizedBox(
-                                  height: 16,
-                                  width: 16,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
-                                ) 
-                              : const Icon(Icons.my_location),
-                          label: const Text("Find Location via GPS"),
                         ),
-                      ),
-                      Flexible(
-                        flex: 1,
-                        fit: FlexFit.tight,
-                        child: FilledButton(
-                          onPressed: Setup.placeEqual(widget.currentPlace, _currentPlace) && Setup.locationEqual(widget.currentLocation, _currentLocation)
-                              ? null
-                              : _save,
-                          child: const Text("Save"),
+                        Flexible(
+                          flex: 1,
+                          fit: FlexFit.tight,
+                          child: FilledButton(
+                            onPressed: Setup.placeEqual(widget.currentPlace, _currentPlace) && Setup.locationEqual(widget.currentLocation, _currentLocation)
+                                ? null
+                                : _save,
+                            child: const Text("Save"),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

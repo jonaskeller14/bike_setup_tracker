@@ -192,15 +192,14 @@ class StravaSheet extends StatelessWidget {
                   ),
                 ] else ...[
                   Expanded(
-                    child: Center(
-                      child: InkWell(
-                        onTap: stravaService.status == StravaServiceStatus.syncing
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: stravaService.status == StravaServiceStatus.syncing
                             ? null
                             : () => stravaService.launchStravaLogin(),
-                        child: Image.asset(
-                          'assets/strava/1.1-Connect-with-Strava-Buttons/1.1 Connect with Strava Buttons/Connect with Strava Orange/btn_strava_connect_with_orange.png',
-                          height: 48,
-                        ),
+                        icon: const Icon(Icons.login),
+                        label: const Text("Sign in to Strava"),
                       ),
                     ),
                   ),

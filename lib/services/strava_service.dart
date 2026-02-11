@@ -23,6 +23,7 @@ class StravaService extends ChangeNotifier {
 
   StravaServiceStatus _status = StravaServiceStatus.idle;
   String _errorMessage = '';
+  bool _isInitialized = false;
 
   StravaServiceStatus get status => _status;
   String get errorMessage => _errorMessage;
@@ -36,9 +37,7 @@ class StravaService extends ChangeNotifier {
   StreamSubscription? _activitiesSubscription;
   bool _isDisposed = false;
 
-  StravaService() {
-    _init();
-  }
+  StravaService();
 
   @override
   void dispose() {
@@ -54,12 +53,20 @@ class StravaService extends ChangeNotifier {
     }
   }
 
-  Future<void> _init() async {
-    await _loadUserId();
-    await _checkInitialConnection();
-    await _loadLocalActivities();
-    _listenToActivities();
-    _registerFcmToken();
+  Future<void> update() async {
+    if (_isInitialized) return;
+    _isInitialized = true;
+
+    try {
+      await _loadUserId();
+      await _checkInitialConnection();
+      await _loadLocalActivities();
+      _listenToActivities();
+      _registerFcmToken();
+    } catch (e) {
+      _isInitialized = false;
+      debugPrint("StravaService.update failed: $e");
+    }
   }
 
   Future<void> _checkInitialConnection() async {

@@ -115,7 +115,13 @@ class LoadingGate extends StatelessWidget {
                   return googleDriveService!;
                 },
               ),
-              ChangeNotifierProvider(create: (context) => StravaService()),
+              ChangeNotifierProxyProvider<AppSettings, StravaService>(
+                create: (context) => StravaService(),
+                update: (context, appSettings, stravaService) {
+                  if (appSettings.enableStrava) stravaService!.update();
+                  return stravaService!;
+                },
+              ),
             ],
             child: const BikeSetupTrackerApp(),
           );

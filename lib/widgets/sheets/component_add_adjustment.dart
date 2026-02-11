@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/component.dart';
-import '../../pages/adjustment/boolean_adjustment_page.dart';
 import 'sheet.dart';
 
 final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
@@ -178,7 +177,7 @@ void showComponentAddAdjustmentBottomSheet({
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () {
                         Navigator.pop(context); // Close sheet first
-                        addAdjustment<BooleanAdjustment>(BooleanAdjustmentPage.add()); // Then execute logic
+                        addAdjustment<BooleanAdjustment>(); // Then execute logic
                       },
                     ),
                     if (context.read<AppSettings>().enableTextAdjustment)

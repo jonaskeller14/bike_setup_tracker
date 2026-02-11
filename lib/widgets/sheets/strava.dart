@@ -91,6 +91,16 @@ class StravaSheet extends StatelessWidget {
                             ? "Athlete ID: ${stravaService.userId?.substring(0, 8)}..." 
                             : "Connect to sync your rides",
                       ),
+                      trailing: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxHeight: 48,
+                          maxWidth: 80,
+                        ),
+                        child: Image.asset(
+                          'assets/strava/1.2-Strava-API-Logos/1.2-Strava-API-Logos/Powered by Strava/pwrdBy_strava_orange/api_logo_pwrdBy_strava_stack_orange.png',
+                          fit: BoxFit.contain,
+                        ),
+                      ),
                       contentPadding: EdgeInsets.zero,
                     ),
                     if (stravaService.isConnected) ...[
@@ -112,13 +122,21 @@ class StravaSheet extends StatelessWidget {
                       ...stravaService.activities.map((activity) => ListTile(
                             title: Text(activity.name),
                             subtitle: Text("${activity.type} • ${(activity.distance / 1000).toStringAsFixed(2)} km"),
-                            trailing: Row(
+                            trailing: Column(
                               mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text("${DateFormat(appSettings.dateFormat).format(activity.startDate)} • ${DateFormat(appSettings.timeFormat).format(activity.startDate)}"),
-                                IconButton(
-                                  icon: const Icon(Icons.open_in_new, size: 18),
-                                  onPressed: () => StravaService.openActivityOnStrava(activity.id),
+                                GestureDetector(
+                                  onTap: () => StravaService.openActivityOnStrava(activity.id),
+                                  child: const Text(
+                                    "View on Strava",
+                                    style: TextStyle(
+                                      color: Color(0xFFFC5200),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -174,14 +192,15 @@ class StravaSheet extends StatelessWidget {
                   ),
                 ] else ...[
                   Expanded(
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: stravaService.status == StravaServiceStatus.syncing
+                    child: Center(
+                      child: InkWell(
+                        onTap: stravaService.status == StravaServiceStatus.syncing
                             ? null
                             : () => stravaService.launchStravaLogin(),
-                        icon: const Icon(Icons.login),
-                        label: const Text("Sign in to Strava"),
+                        child: Image.asset(
+                          'assets/strava/1.1-Connect-with-Strava-Buttons/1.1 Connect with Strava Buttons/Connect with Strava Orange/btn_strava_connect_with_orange.png',
+                          height: 48,
+                        ),
                       ),
                     ),
                   ),

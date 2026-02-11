@@ -282,37 +282,6 @@ class FileImport {
     }
   }
 
-  static void updateSetupsAfter({required List<Setup> setups, required Setup setup}) {
-    // Call after sorting setups!
-    // Handles case: New Component, New Setup with new component with date in the past
-    // --> Solves Bug: component references current setup with missing values for new component
-    if (setup.isCurrent) return;
-    final index = setups.indexOf(setup);
-    if (index == -1) return;
-    if (index == setups.length -1) return; // ==isCurrent
-    final afterSetups = setups.sublist(index + 1);
-
-    final afterBikeSetups = afterSetups.where((s) => s.bike == setup.bike);
-    for (final adjustmentValue in setup.bikeAdjustmentValues.entries) {
-      final adjustment = adjustmentValue.key;
-      final value = adjustmentValue.value;
-      for (final afterBikeSetup in afterBikeSetups) {
-        if (afterBikeSetup.bikeAdjustmentValues.containsKey(adjustment)) continue;
-        afterBikeSetup.bikeAdjustmentValues[adjustment] = value;
-      }
-    }
-
-    final afterPersonSetups = afterSetups.where((s) => s.person != null && s.person == setup.person);
-    for (final adjustmentValue in setup.personAdjustmentValues.entries) {
-      final adjustment = adjustmentValue.key;
-      final value = adjustmentValue.value;
-      for (final afterPersonSetup in afterPersonSetups) {
-        if (afterPersonSetup.personAdjustmentValues.containsKey(adjustment)) continue;
-        afterPersonSetup.personAdjustmentValues[adjustment] = value;
-      }
-    }
-  }
-
   static void cleanupIsDeleted({required AppData data}) {
     final thirtyDays = const Duration(days: 30);
     final deleteDateTime = DateTime.now().subtract(thirtyDays);

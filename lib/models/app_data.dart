@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/file_export.dart';
+import 'adjustment/adjustment.dart';
 import 'person.dart';
 import 'bike.dart';
 import 'setup.dart';
@@ -256,7 +258,7 @@ class AppData extends ChangeNotifier {
     _setups.addEntries(sortedSetupEntries);
     FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
     FileImport.determinePreviousSetups(setups: _setups.values);
-    FileImport.updateSetupsAfter(setups: _setups.values.toList(), setup: setup);
+    _updateSetupsAfter(setup: setup);
 
     _lastModified = DateTime.now();
     notifyListeners();
@@ -270,7 +272,7 @@ class AppData extends ChangeNotifier {
     _setups.addEntries(sortedSetupEntries);
     FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
     FileImport.determinePreviousSetups(setups: _setups.values);
-    FileImport.updateSetupsAfter(setups: _setups.values.toList(), setup: setup);
+    _updateSetupsAfter(setup: setup);
 
     _lastModified = DateTime.now();
     notifyListeners();
@@ -376,6 +378,49 @@ class AppData extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _updateSetupsAfter({required Setup setup}) {
+    // Call after sorting setups!
+    // Handles case: New Component, New Setup with new component with date in the past
+    // --> Solves Bug: component references current setup with missing values for new component
+    final setupsList = _setups.values.toList();
+
+
+    if (setup.isCurrent) return;
+    final index = setupsList.indexOf(setup);
+    if (index == -1) return;
+    if (index == setupsList.length -1) return; // ==isCurrent
+    final afterSetups = setupsList.sublist(index + 1);
+
+    final afterBikeSetups = afterSetups.where((s) => s.bike == setup.bike);
+    for (final adjustmentValue in setup.bikeAdjustmentValues.entries) {
+      final adjustment = adjustmentValue.key;
+      final value = adjustmentValue.value;
+      for (final afterBikeSetup in afterBikeSetups) {
+        if (afterBikeSetup.bikeAdjustmentValues.containsKey(adjustment)) continue;
+        afterBikeSetup.bikeAdjustmentValues[adjustment] = value;
+      }
+    }
+
+    final person = _persons[setup.person];
+    if (person != null) {
+      final afterPersonSetups = afterSetups.where((s) => s.person != null && s.person == setup.person);
+      for (final adjustmentValue in setup.personAdjustmentValues.entries) {
+        final adjustmentId = adjustmentValue.key;
+        final Adjustment? adjustment = person.adjustments.firstWhereOrNull((a) => a.id == adjustmentId);
+        switch (adjustment?.category) {
+          case AdjustmentCategory.nutrition: continue;  // Not propagate
+          case AdjustmentCategory.equipment: continue;  // Not propagate
+          default: break;
+        }
+        final value = adjustmentValue.value;
+        for (final afterPersonSetup in afterPersonSetups) {
+          if (afterPersonSetup.personAdjustmentValues.containsKey(adjustmentId)) continue;
+          afterPersonSetup.personAdjustmentValues[adjustmentId] = value;
+        }
+      }
+    }
+  }
+
   void resolveData() {
     final sortedSetupEntries = _setups.entries.toList();
     sortedSetupEntries.sort((a, b) => a.value.datetime.compareTo(b.value.datetime));
@@ -384,7 +429,7 @@ class AppData extends ChangeNotifier {
     FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
     FileImport.determinePreviousSetups(setups: _setups.values);
     for (final setup in _setups.values) {
-      FileImport.updateSetupsAfter(setups: _setups.values.toList(), setup: setup);
+      _updateSetupsAfter(setup: setup);
     }
 
     notifyListeners();

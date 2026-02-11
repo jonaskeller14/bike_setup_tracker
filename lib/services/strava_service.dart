@@ -35,6 +35,7 @@ class StravaService extends ChangeNotifier {
   List<StravaActivity> get activities => List.unmodifiable(_activities);
 
   StreamSubscription? _activitiesSubscription;
+  StreamSubscription? _userDocSubscription;
   bool _isDisposed = false;
 
   StravaService();
@@ -43,6 +44,7 @@ class StravaService extends ChangeNotifier {
   void dispose() {
     _isDisposed = true;
     _activitiesSubscription?.cancel();
+    _userDocSubscription?.cancel();
     super.dispose();
   }
 
@@ -59,7 +61,7 @@ class StravaService extends ChangeNotifier {
 
     try {
       await _loadUserId();
-      await _checkInitialConnection();
+      _listenToUserDocument();
       await _loadLocalActivities();
       _listenToActivities();
       _registerFcmToken();
@@ -69,22 +71,29 @@ class StravaService extends ChangeNotifier {
     }
   }
 
-  Future<void> _checkInitialConnection() async {
+  void _listenToUserDocument() {
     if (_userId == null) return;
-    status = StravaServiceStatus.syncing;
-    try {
-      final doc = await FirebaseFirestore.instance.collection('users').doc(_userId).get().timeout(
-        const Duration(seconds: 10),
-        onTimeout: () => throw TimeoutException("Connection check timed out"),
-      );
-      _isConnected = doc.exists && (doc.data()?['strava_connected'] ?? false);
-      errorMessage = "";
-      status = StravaServiceStatus.idle;
-    } catch (e) {
-      debugPrint("Error checking Strava connection: $e");
+    
+    _userDocSubscription?.cancel();
+    _userDocSubscription = FirebaseFirestore.instance
+        .collection('users')
+        .doc(_userId)
+        .snapshots()
+        .listen((snapshot) {
+      if (snapshot.exists) {
+        final bool wasConnected = _isConnected;
+        _isConnected = snapshot.data()?['strava_connected'] ?? false;
+        
+        // If connection status changed, notify listeners
+        if (wasConnected != _isConnected) {
+          debugPrint("Strava connection status changed: $_isConnected");
+          notifyListeners();
+        }
+      }
+    }, onError: (e) {
+      debugPrint("Error listening to user document: $e");
       errorMessage = "Could not verify connection (No internet?)";
-      status = StravaServiceStatus.idle;
-    }
+    });
   }
 
   Future<void> _loadLocalActivities() async {

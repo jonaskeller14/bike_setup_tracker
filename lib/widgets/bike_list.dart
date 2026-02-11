@@ -8,9 +8,9 @@ import '../models/person.dart';
 
 class BikeList extends StatefulWidget {
   final Map<String, Bike> bikes;
-  final void Function(Bike bike) editBike;
-  final void Function(Bike bike) removeBike;
-  final void Function(int oldIndex, int newIndex) onReorderBikes;
+  final Future<void> Function(Bike bike) editBike;
+  final Future<void> Function(Bike bike) removeBike;
+  final Future<void> Function(int oldIndex, int newIndex) onReorderBikes;
   final Widget filterWidget;
 
   const BikeList({

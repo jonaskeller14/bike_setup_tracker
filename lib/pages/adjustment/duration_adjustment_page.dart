@@ -8,24 +8,28 @@ import 'adjustment_page.dart';
 class DurationAdjustmentPage extends StatefulWidget {
   final DurationAdjustment? adjustment;
   final AdjustmentPageMode mode;
+  final Set<AdjustmentCategory> categories;
+  final bool showCategorySelection;
 
   const DurationAdjustmentPage._({
     super.key,
     this.adjustment,
     required this.mode,
+    required this.categories,
+    this.showCategorySelection = false,
   });
 
-  factory DurationAdjustmentPage.add({Key? key}) => 
-    DurationAdjustmentPage._(key: key, mode: AdjustmentPageMode.add);
+  factory DurationAdjustmentPage.add({Key? key, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
+    DurationAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, categories: categories, showCategorySelection: showCategorySelection);
 
-  factory DurationAdjustmentPage.edit({Key? key, required DurationAdjustment adjustment}) => 
-    DurationAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit);
+  factory DurationAdjustmentPage.edit({Key? key, required DurationAdjustment adjustment, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
+    DurationAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, categories: categories, showCategorySelection: showCategorySelection);
 
-  factory DurationAdjustmentPage.duplicate({Key? key, required DurationAdjustment adjustment}) => 
-    DurationAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate);
+  factory DurationAdjustmentPage.duplicate({Key? key, required DurationAdjustment adjustment, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
+    DurationAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, categories: categories, showCategorySelection: showCategorySelection);
 
-  factory DurationAdjustmentPage.template({Key? key, required DurationAdjustment adjustment}) => 
-    DurationAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template);
+  factory DurationAdjustmentPage.template({Key? key, required DurationAdjustment adjustment, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
+    DurationAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template, categories: categories, showCategorySelection: showCategorySelection);
 
   @override
   State<DurationAdjustmentPage> createState() => _DurationAdjustmentPageState();
@@ -44,11 +48,8 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
   final FocusNode _maxFocusNode = FocusNode(canRequestFocus: false);
 
   Duration _previewValue = Duration.zero;
-  DurationAdjustment _previewAdjustment = DurationAdjustment(
-    name: '', 
-    notes: null,
-    unit: null,
-  );
+  late AdjustmentCategory _category;
+  late DurationAdjustment _previewAdjustment;
 
   @override
   void initState() {
@@ -62,10 +63,17 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
     _maxController = TextEditingController(text: widget.adjustment?.max == null ? null : Adjustment.formatValue(widget.adjustment?.max));
     _maxController.addListener(_changeListener);
 
-    if (widget.adjustment != null) {
-      _previewAdjustment = widget.adjustment!;
-      _previewValue = widget.adjustment!.min ?? Duration.zero;
-    }
+    _category = widget.adjustment?.category 
+        ?? widget.categories.firstOrNull 
+        ?? AdjustmentCategory.component;
+
+    _previewAdjustment = widget.adjustment ?? DurationAdjustment(
+      name: '', 
+      notes: null,
+      unit: null,
+      category: _category,
+    );
+    _previewValue = _previewAdjustment.min ?? Duration.zero;
     if (widget.mode != AdjustmentPageMode.add) _expanded = true;
   }
 
@@ -110,6 +118,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
       min: _previewAdjustment.min, 
       max: _previewAdjustment.max, 
       unit: widget.adjustment?.unit,
+      category: _category,
     ));
   }
 
@@ -160,6 +169,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                 unit: _previewAdjustment.unit,
                                 min: _previewAdjustment.min,
                                 max: _previewAdjustment.max,
+                                category: _category,
                               );
                             });
                           },
@@ -175,8 +185,54 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                             filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                           ),
                           validator: validateAdjustmentName,
-                          
                         ),
+                        if (widget.showCategorySelection && widget.categories.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          DropdownButtonFormField<AdjustmentCategory>(
+                            initialValue: _category,
+                            isExpanded: true,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            decoration: InputDecoration(
+                              labelText: 'Category',
+                              border: OutlineInputBorder(),
+                              hintText: "Choose a category for this adjustment",
+                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              filled: widget.mode == AdjustmentPageMode.edit && _category != widget.adjustment!.category
+                            ),
+                            validator: (AdjustmentCategory? newValue) {
+                              if (newValue == null) return "Please select a category";
+                              return null;
+                            },
+                            items: widget.categories.map((category) {
+                              return DropdownMenuItem<AdjustmentCategory>(
+                                value: category,
+                                child: Row(
+                                  spacing: 8,
+                                  children: [
+                                    Icon(category.getIconData()),
+                                    Expanded(child: Text(category.value, overflow: TextOverflow.ellipsis))
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (AdjustmentCategory? newValue) {
+                              if (newValue != null) {
+                                setState(() {
+                                  _category = newValue;
+                                  _previewAdjustment = DurationAdjustment(
+                                    name: _nameController.text.trim(),
+                                    notes: _previewAdjustment.notes,
+                                    unit: _previewAdjustment.unit,
+                                    min: _previewAdjustment.min,
+                                    max: _previewAdjustment.max,
+                                    category: newValue,
+                                  );
+                                });
+                                _changeListener();
+                              }
+                            },
+                          ),
+                        ],
                         const SizedBox(height: 12),
                         if (!_expanded) ...[
                           Center(
@@ -204,7 +260,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                               FocusScope.of(context).unfocus();
                               showSetDurationSheet(
                                 context: context,
-                                adjustment: DurationAdjustment(name: 'Min', notes: null, unit: null, max: _previewAdjustment.max),
+                                adjustment: DurationAdjustment(name: 'Min', notes: null, unit: null, max: _previewAdjustment.max, category: _category),
                                 value: _previewAdjustment.min,
                                 onChanged: (Duration newValue) {
                                   setState(() {
@@ -215,6 +271,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                       unit: _previewAdjustment.unit,
                                       min: newValue,
                                       max: _previewAdjustment.max,
+                                      category: _category,
                                     );
                                     _minController.text = Adjustment.formatValue(newValue);
                                   });
@@ -237,6 +294,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                       unit: _previewAdjustment.unit,
                                       min: null,
                                       max: _previewAdjustment.max,
+                                      category: _category,
                                     );
                                     _minController.clear();
                                   });
@@ -256,7 +314,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                               FocusScope.of(context).unfocus();
                               showSetDurationSheet(
                                 context: context,
-                                adjustment: DurationAdjustment(name: 'Max', notes: null, unit: null, min: _previewAdjustment.min),
+                                adjustment: DurationAdjustment(name: 'Max', notes: null, unit: null, min: _previewAdjustment.min, category: _category),
                                 value: _previewAdjustment.max,
                                 onChanged: (Duration newValue) {
                                   setState(() {
@@ -267,6 +325,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                       unit: _previewAdjustment.unit,
                                       min: _previewAdjustment.min,
                                       max: newValue,
+                                      category: _category,
                                     );
                                     _maxController.text = Adjustment.formatValue(newValue);
                                   });
@@ -289,6 +348,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                       unit: _previewAdjustment.unit,
                                       min: _previewAdjustment.min,
                                       max: null,
+                                      category: _category,
                                     );
                                     _maxController.clear();
                                   });
@@ -311,6 +371,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                   unit: _previewAdjustment.unit, 
                                   min: _previewAdjustment.min,
                                   max: _previewAdjustment.max,
+                                  category: _category,
                                 );
                               });
                             },

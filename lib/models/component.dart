@@ -96,7 +96,7 @@ class Component {
           bike: json["bike"] as String?,
           notes: json["notes"] as String?,
           adjustments: (json["adjustments"] as List<dynamic>?)
-            ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson))
+            ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson, defaultCategory: AdjustmentCategory.component))
             .toList()
             ?? <Adjustment>[],
         );

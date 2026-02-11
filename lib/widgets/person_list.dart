@@ -9,10 +9,10 @@ import 'adjustment_compact_display_list.dart';
 
 class PersonList extends StatefulWidget {
   final Map<String, Person> persons;
-  final void Function(Person person) editPerson;
-  final void Function(Person person) duplicatePerson;
-  final void Function(Person person) removePerson;
-  final void Function(int oldIndex, int newIndex) onReorderPerson;
+  final Future<void> Function(Person person) editPerson;
+  final Future<void> Function(Person person) duplicatePerson;
+  final Future<void> Function(Person person) removePerson;
+  final Future<void> Function(int oldIndex, int newIndex) onReorderPerson;
   final Widget filterWidget;
 
   const PersonList({

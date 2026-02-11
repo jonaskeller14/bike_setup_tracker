@@ -14,6 +14,7 @@ void main() {
       min: 0,
       max: 10,
       visualization: StepAdjustmentVisualization.slider,
+      category: AdjustmentCategory.component,
     );
 
     StepAdjustment? result;
@@ -26,7 +27,7 @@ void main() {
               result = await Navigator.push<StepAdjustment>(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => StepAdjustmentPage.edit(adjustment: initial),
+                  builder: (context) => StepAdjustmentPage.edit(adjustment: initial, categories: AdjustmentCategory.values.toSet()),
                 ),
               );
             },

@@ -10,6 +10,7 @@ void main() {
       name: 'Test Boolean',
       notes: 'Some notes',
       unit: 'some unit',
+      category: AdjustmentCategory.component,
     );
 
     BooleanAdjustment? result;
@@ -22,7 +23,7 @@ void main() {
               result = await Navigator.push<BooleanAdjustment>(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => BooleanAdjustmentPage.edit(adjustment: initial),
+                  builder: (context) => BooleanAdjustmentPage.edit(adjustment: initial, categories: AdjustmentCategory.values.toSet()),
                 ),
               );
             },

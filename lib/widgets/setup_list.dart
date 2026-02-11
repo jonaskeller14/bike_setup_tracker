@@ -12,9 +12,9 @@ import 'initial_changed_value_legend.dart';
 
 class SetupList extends StatefulWidget {
   final Map<String, Setup> setups;
-  final void Function(Setup setup) editSetup;
-  final void Function(Setup setup) restoreSetup;
-  final void Function(Setup setup) removeSetup;
+  final Future<void> Function(Setup setup) editSetup;
+  final Future<void> Function(Setup setup) restoreSetup;
+  final Future<void> Function(Setup setup) removeSetup;
   final bool displayOnlyChanges;
   final Widget filterWidget;
   final bool displayBikeAdjustmentValues;

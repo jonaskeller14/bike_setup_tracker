@@ -13,24 +13,28 @@ const StepAdjustmentVisualization _defaultVisualization = StepAdjustmentVisualiz
 class StepAdjustmentPage extends StatefulWidget {
   final StepAdjustment? adjustment;
   final AdjustmentPageMode mode;
+  final Set<AdjustmentCategory> categories;
+  final bool showCategorySelection;
 
   const StepAdjustmentPage._({
     super.key,
     this.adjustment,
     required this.mode,
+    required this.categories,
+    this.showCategorySelection = false,
   });
 
-  factory StepAdjustmentPage.add({Key? key}) => 
-    StepAdjustmentPage._(key: key, mode: AdjustmentPageMode.add);
+  factory StepAdjustmentPage.add({Key? key, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
+    StepAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, categories: categories, showCategorySelection: showCategorySelection);
 
-  factory StepAdjustmentPage.edit({Key? key, required StepAdjustment adjustment}) => 
-    StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit);
+  factory StepAdjustmentPage.edit({Key? key, required StepAdjustment adjustment, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
+    StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, categories: categories, showCategorySelection: showCategorySelection);
 
-  factory StepAdjustmentPage.duplicate({Key? key, required StepAdjustment adjustment}) => 
-    StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate);
+  factory StepAdjustmentPage.duplicate({Key? key, required StepAdjustment adjustment, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
+    StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, categories: categories, showCategorySelection: showCategorySelection);
 
-  factory StepAdjustmentPage.template({Key? key, required StepAdjustment adjustment}) => 
-    StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template);
+  factory StepAdjustmentPage.template({Key? key, required StepAdjustment adjustment, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
+    StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template, categories: categories, showCategorySelection: showCategorySelection);
 
   @override
   State<StepAdjustmentPage> createState() => _StepAdjustmentPageState();
@@ -47,16 +51,9 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
   late TextEditingController _maxController;
   late StepAdjustmentVisualization visualization;
 
-  double _previewValue = _defaultMin.toDouble();
-  StepAdjustment _previewAdjustment = StepAdjustment(
-    name: '',
-    notes: null,
-    unit: null,
-    step: _defaultStep, 
-    min: _defaultMin,
-    max: 5,
-    visualization: _defaultVisualization,
-  );
+  late double _previewValue;
+  late AdjustmentCategory _category;
+  late StepAdjustment _previewAdjustment;
 
   @override
   void initState() {
@@ -73,10 +70,22 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     _maxController.addListener(_changeListener);
     visualization = widget.adjustment?.visualization ?? _defaultVisualization;
 
-    if (widget.adjustment != null) {
-      _previewAdjustment = widget.adjustment!;
-      _previewValue = _previewAdjustment.min.toDouble();
-    }
+
+    _category = widget.adjustment?.category 
+        ?? widget.categories.firstOrNull 
+        ?? AdjustmentCategory.component;
+
+    _previewAdjustment = widget.adjustment ?? StepAdjustment(
+      name: '',
+      notes: null,
+      unit: null,
+      step: _defaultStep, 
+      min: _defaultMin,
+      max: 5,
+      visualization: _defaultVisualization,
+      category: _category,
+    );
+    _previewValue = _previewAdjustment.min.toDouble();
     if (widget.mode != AdjustmentPageMode.add) _expanded = true;
   }
 
@@ -128,7 +137,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
       step: step, 
       min: min, max: 
       max, 
-      visualization: visualization
+      visualization: visualization,
+      category: _category,
     ));
   }
 
@@ -206,6 +216,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                 step: _previewAdjustment.step, 
                                 unit: null,
                                 visualization: _previewAdjustment.visualization,
+                                category: _category,
                               );
                             });
                           },
@@ -221,6 +232,55 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                           ),
                           validator: validateAdjustmentName,
                         ),
+                        if (widget.showCategorySelection && widget.categories.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          DropdownButtonFormField<AdjustmentCategory>(
+                            initialValue: _category,
+                            isExpanded: true,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            decoration: InputDecoration(
+                              labelText: 'Category',
+                              border: OutlineInputBorder(),
+                              hintText: "Choose a category for this adjustment",
+                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              filled: widget.mode == AdjustmentPageMode.edit && _category != widget.adjustment!.category
+                            ),
+                            validator: (AdjustmentCategory? newValue) {
+                              if (newValue == null) return "Please select a category";
+                              return null;
+                            },
+                            items: widget.categories.map((category) {
+                              return DropdownMenuItem<AdjustmentCategory>(
+                                value: category,
+                                child: Row(
+                                  spacing: 8,
+                                  children: [
+                                    Icon(category.getIconData()),
+                                    Expanded(child: Text(category.value, overflow: TextOverflow.ellipsis))
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (AdjustmentCategory? newValue) {
+                              if (newValue != null) {
+                                setState(() {
+                                  _category = newValue;
+                                  _previewAdjustment = StepAdjustment(
+                                    name: _nameController.text.trim(),
+                                    notes: _previewAdjustment.notes,
+                                    min: _previewAdjustment.min,
+                                    max: _previewAdjustment.max,
+                                    step: _previewAdjustment.step,
+                                    unit: null,
+                                    visualization: visualization,
+                                    category: newValue,
+                                  );
+                                });
+                                _changeListener();
+                              }
+                            },
+                          ),
+                        ],
                         const SizedBox(height: 12),
                         TextFormField(
                           controller: _stepController,
@@ -247,6 +307,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                 step: newStep, 
                                 unit: null,
                                 visualization: _previewAdjustment.visualization,
+                                category: _category,
                               );
                               _previewValue = _previewAdjustment.min.toDouble();
                             });
@@ -278,6 +339,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                 step: _previewAdjustment.step, 
                                 unit: null,
                                 visualization: _previewAdjustment.visualization,
+                                category: _category,
                               );
                               _previewValue = _previewAdjustment.min.toDouble();
                             });
@@ -309,6 +371,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                 step: _previewAdjustment.step, 
                                 unit: null,
                                 visualization: _previewAdjustment.visualization,
+                                category: _category,
                               );
                               _previewValue = _previewAdjustment.min.toDouble();
                             });
@@ -388,6 +451,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                   step: _previewAdjustment.step, 
                                   unit: _previewAdjustment.unit,
                                   visualization: newVisualization,
+                                  category: _category,
                                 );
                               });
                               _changeListener();
@@ -414,6 +478,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                   step: _previewAdjustment.step, 
                                   unit: _previewAdjustment.unit,
                                   visualization: _previewAdjustment.visualization,
+                                  category: _category,
                                 );
                               });
                             },

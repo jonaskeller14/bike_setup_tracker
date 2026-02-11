@@ -5,15 +5,15 @@ import '../../models/adjustment/adjustment.dart';
 import 'sheet.dart';
 
  final List<Adjustment> _adjustmentPresets = [
-  NumericalAdjustment(name: 'Riding weight', unit: 'kg', min: 0.0, notes: "Weight including all gear (helmet, shoes, hydration pack)."), 
-  NumericalAdjustment(name: 'Height', unit: 'cm', min: 0.0, notes: "Body height"),
-  CategoricalAdjustment(name: 'Riding Style', unit: null, options: {'Plush/Comfort', 'Balanced', 'Aggressive/Race'}, notes: "Aggressive riders usually require higher support (more compression damping)."),
+  NumericalAdjustment(name: 'Riding weight', unit: 'kg', min: 0.0, category: AdjustmentCategory.body, notes: "Weight including all gear (helmet, shoes, hydration pack)."), 
+  NumericalAdjustment(name: 'Height', unit: 'cm', min: 0.0, category: AdjustmentCategory.body, notes: "Body height"),
+  CategoricalAdjustment(name: 'Riding Style', unit: null, category: AdjustmentCategory.body, options: {'Plush/Comfort', 'Balanced', 'Aggressive/Race'}, notes: "Aggressive riders usually require higher support (more compression damping)."),
 ];
 
 void showPersonAddAdjustmentBottomSheet({
   required BuildContext context,
-  required Function addAdjustmentFromPreset,
-  required Function addAdjustment,
+  required Future<void> Function(Adjustment adjustment) addAdjustmentFromPreset,
+  required Future<void> Function<T extends Adjustment>() addAdjustment,
 }) {
   showModalBottomSheet(
     useSafeArea: true,

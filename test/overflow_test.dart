@@ -26,12 +26,14 @@ void main() async {
           name: "BooleanAdjustment #1: $loremIpsum", 
           notes: loremIpsum, 
           unit: null,
+          category: AdjustmentCategory.component,
         ),
         CategoricalAdjustment(
           name: "CategoricalAdjustment #1: $loremIpsum", 
           notes: loremIpsum, 
           unit: null,
           options: {loremIpsum},
+          category: AdjustmentCategory.component,
         ),
         StepAdjustment(
           name: "StepAdjustment #1: $loremIpsum",  
@@ -41,21 +43,25 @@ void main() async {
           min: 0, 
           max: 10, 
           visualization: StepAdjustmentVisualization.slider,
+          category: AdjustmentCategory.component,
         ),
         NumericalAdjustment(
           name: "NumericalAdjustment #1: $loremIpsum",
           notes: loremIpsum, 
           unit: null,
+          category: AdjustmentCategory.component,
         ),
         DurationAdjustment(
           name: "DurationAdjustment #1: $loremIpsum",
           notes: loremIpsum, 
           unit: null,
+          category: AdjustmentCategory.component,
         ),
         TextAdjustment(
           name: "TextAdjustment #1: $loremIpsum",
           notes: loremIpsum, 
           unit: null,
+          category: AdjustmentCategory.component,
         )
       ]
     ));

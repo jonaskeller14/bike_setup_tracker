@@ -21,7 +21,7 @@ import '../widgets/initial_changed_value_legend.dart';
 class SetupDisplayPage extends StatefulWidget {
   final List<String> setupIds;
   final Setup? initialSetup;
-  final Function editSetup;
+  final Future<void> Function(Setup) editSetup;
 
   const SetupDisplayPage({
     super.key, 
@@ -127,7 +127,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
         title: _navigationRow(_currentPageIndex),
         actions: [
           IconButton(
-            onPressed: () => widget.editSetup(setups[_currentPageIndex]), 
+            onPressed: () => widget.editSetup(setups[_currentPageIndex]!), 
             icon: const Icon(Icons.edit),
           )
         ],

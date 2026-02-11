@@ -17,7 +17,7 @@ void main() {
           initialValue: invalidOption1,
           value: validOption,
           onChanged: (_) {},
-          adjustment: CategoricalAdjustment(name: "CategoricalAdjustment #1", notes: null, unit: null, options: options),
+          adjustment: CategoricalAdjustment(name: "CategoricalAdjustment #1", notes: null, unit: null, options: options, category: AdjustmentCategory.component),
         ),
       ),
     ));
@@ -32,7 +32,7 @@ void main() {
           initialValue: null,
           value: invalidOption1,
           onChanged: (_) {},
-          adjustment: CategoricalAdjustment(name: "CategoricalAdjustment #1", notes: null, unit: null, options: options),
+          adjustment: CategoricalAdjustment(name: "CategoricalAdjustment #1", notes: null, unit: null, options: options, category: AdjustmentCategory.component),
         ),
       ),
     ));
@@ -46,7 +46,7 @@ void main() {
           initialValue: validOption,
           value: invalidOption1,
           onChanged: (_) {},
-          adjustment: CategoricalAdjustment(name: "CategoricalAdjustment #1", notes: null, unit: null, options: options),
+          adjustment: CategoricalAdjustment(name: "CategoricalAdjustment #1", notes: null, unit: null, options: options, category: AdjustmentCategory.component),
         ),
       ),
     ));
@@ -61,7 +61,7 @@ void main() {
           initialValue: invalidOption1,
           value: invalidOption2,
           onChanged: (_) {},
-          adjustment: CategoricalAdjustment(name: "CategoricalAdjustment #1", notes: null, unit: null, options: options),
+          adjustment: CategoricalAdjustment(name: "CategoricalAdjustment #1", notes: null, unit: null, options: options, category: AdjustmentCategory.component),
         ),
       ),
     ));

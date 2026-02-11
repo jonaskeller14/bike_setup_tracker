@@ -25,6 +25,7 @@ class StepAdjustment extends Adjustment {
     required super.name,
     required super.notes,
     required super.unit,
+    required super.category,
     required this.step,
     required this.min,
     required this.max,
@@ -33,7 +34,16 @@ class StepAdjustment extends Adjustment {
 
   @override
   StepAdjustment deepCopy() {
-    return StepAdjustment(name: name, notes: notes, unit: unit, step: step, min: min, max: max, visualization: visualization);
+    return StepAdjustment(
+      name: name,
+      notes: notes,
+      unit: unit,
+      category: category,
+      step: step,
+      min: min,
+      max: max,
+      visualization: visualization,
+    );
   }
 
   @override
@@ -43,11 +53,13 @@ class StepAdjustment extends Adjustment {
 
   @override
   Map<String, dynamic> toJson() => {
+    'version': 1,
     'id': id,
     'name': name,
     'notes': notes,
     'type': 'step',
     'unit': unit,
+    'category': category.toString(),
     'step': step,
     'min': min,
     'max': max,
@@ -57,12 +69,15 @@ class StepAdjustment extends Adjustment {
   factory StepAdjustment.fromJson(Map<String, dynamic> json) {
     final int? version = json["version"];
     switch (version) {
-      case null:
+      case null || 1:
         return StepAdjustment(
           id: json["id"],
           name: json['name'],
           notes: json['notes'],
           unit: json['unit'] as String?,
+          category: AdjustmentCategory.values.firstWhere(
+            (e) => e.toString() == json['category'],
+          ),
           step: (json['step'] as num).toInt(),
           min: (json['min'] as num).toInt(),
           max: (json['max'] as num).toInt(),
@@ -92,6 +107,7 @@ class StepAdjustment extends Adjustment {
         name == other.name &&
         notes == other.notes &&
         unit == other.unit &&
+        category == other.category &&
         step == other.step &&
         min == other.min &&
         max == other.max &&
@@ -105,6 +121,7 @@ class StepAdjustment extends Adjustment {
       name,
       notes,
       unit,
+      category,
       step,
       min,
       max,

@@ -11,6 +11,7 @@ class NumericalAdjustment extends Adjustment {
     required super.name,
     required super.notes,
     required super.unit,
+    required super.category,
     double? min,
     double? max,
   }) : min = min ?? double.negativeInfinity,
@@ -18,7 +19,14 @@ class NumericalAdjustment extends Adjustment {
 
   @override
   NumericalAdjustment deepCopy() {
-    return NumericalAdjustment(name: name, notes: notes, unit: unit, min: min, max: max);
+    return NumericalAdjustment(
+      name: name,
+      notes: notes,
+      unit: unit,
+      category: category,
+      min: min,
+      max: max,
+    );
   }
 
   @override
@@ -28,11 +36,13 @@ class NumericalAdjustment extends Adjustment {
 
   @override
   Map<String, dynamic> toJson() => {
+    'version': 1,
     'id': id,
     'name': name,
     'notes': notes,
     'type': 'numerical',
     'unit': unit,
+    'category': category.toString(),
     'min': min.isFinite ? min : null,
     'max': max.isFinite ? max : null,
   };
@@ -40,12 +50,15 @@ class NumericalAdjustment extends Adjustment {
   factory NumericalAdjustment.fromJson(Map<String, dynamic> json) {
     final int? version = json["version"];
     switch (version) {
-      case null:
+      case null || 1:
         return NumericalAdjustment(
           id: json["id"],
           name: json['name'],
           notes: json['notes'],
           unit: json['unit'] as String?,
+          category: AdjustmentCategory.values.firstWhere(
+            (e) => e.toString() == json['category'],
+          ),
           min: (json['min'] as num?)?.toDouble(),
           max: (json['max'] as num?)?.toDouble(),
         );
@@ -70,6 +83,7 @@ class NumericalAdjustment extends Adjustment {
         name == other.name &&
         notes == other.notes &&
         unit == other.unit &&
+        category == other.category &&
         min == other.min &&
         max == other.max;
   }
@@ -81,6 +95,7 @@ class NumericalAdjustment extends Adjustment {
       name,
       notes,
       unit,
+      category,
       min,
       max,
     );

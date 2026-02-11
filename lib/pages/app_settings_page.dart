@@ -319,7 +319,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             //   ),
             // ),
             // ListTile(
-            //   leading: Icon(SimpleIcons.strava, color: Theme.of(context).colorScheme.primary),
+            //   leading: const Icon(SimpleIcons.strava, color: Color(0xFFFC4C02)), // Strava Brand Orange
             //   title: const Text("Strava Sync"),
             //   subtitle: _offOnOptionWidgets[appSettingsReader.enableStrava] ?? const Text("-"),
             //   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),

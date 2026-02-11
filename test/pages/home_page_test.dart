@@ -254,7 +254,7 @@ void main() {
     );
 
     final bike1 = Bike(name: "Bike #1", person: null);
-    final booleanAdjustment1 = BooleanAdjustment(name: "BooleanAdjustment #1", notes: null, unit: null);
+    final booleanAdjustment1 = BooleanAdjustment(name: "BooleanAdjustment #1", notes: null, unit: null, category: AdjustmentCategory.component);
     final component1 = Component(
       name: "Component #1", 
       bike: bike1.id, 
@@ -318,7 +318,7 @@ void main() {
     );
 
     final bike1 = Bike(name: "Bike #1", person: null);
-    final booleanAdjustment1 = BooleanAdjustment(name: "BooleanAdjustment #1", notes: null, unit: null);
+    final booleanAdjustment1 = BooleanAdjustment(name: "BooleanAdjustment #1", notes: null, unit: null, category: AdjustmentCategory.component);
     final component1 = Component(
       name: "Component #1", 
       bike: bike1.id, 

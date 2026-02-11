@@ -10,10 +10,10 @@ import '../models/component.dart';
 
 class RatingList extends StatefulWidget {
   final Map<String, Rating> ratings;
-  final void Function(Rating rating) editRating;
-  final void Function(Rating rating) duplicateRating;
-  final void Function(Rating rating) removeRating;
-  final void Function(int oldIndex, int newIndex) onReorderRating;
+  final Future<void> Function(Rating rating) editRating;
+  final Future<void> Function(Rating rating) duplicateRating;
+  final Future<void> Function(Rating rating) removeRating;
+  final Future<void> Function(int oldIndex, int newIndex) onReorderRating;
   final Widget filterWidget;
 
   const RatingList({

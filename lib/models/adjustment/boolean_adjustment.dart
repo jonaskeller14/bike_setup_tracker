@@ -8,11 +8,17 @@ class BooleanAdjustment extends Adjustment {
     required super.name,
     required super.notes,
     required super.unit,
+    required super.category,
   });
 
   @override
   BooleanAdjustment deepCopy() {
-    return BooleanAdjustment(name: name, notes: notes, unit: unit);
+    return BooleanAdjustment(
+      name: name,
+      notes: notes,
+      unit: unit,
+      category: category,
+    );
   }
   
   @override
@@ -22,22 +28,27 @@ class BooleanAdjustment extends Adjustment {
 
   @override
   Map<String, dynamic> toJson() => {
+    'version': 1,
     'id': id,
     'name': name,
     'notes': notes,
     'type': 'boolean',
     'unit': unit,
+    'category': category.toString(),
   };
 
   factory BooleanAdjustment.fromJson(Map<String, dynamic> json) {
     final int? version = json["version"];
     switch (version) {
-      case null:
+      case null || 1:
         return BooleanAdjustment(
           id: json["id"],
           name: json['name'],
           notes: json['notes'],
           unit: json['unit'] as String?,
+          category: AdjustmentCategory.values.firstWhere(
+            (e) => e.toString() == json['category'],
+          ),
         );
       default: throw Exception("Json Version $version of BooleanAdjustment incompatible.");
     }
@@ -59,7 +70,8 @@ class BooleanAdjustment extends Adjustment {
         id == other.id &&
         name == other.name &&
         notes == other.notes &&
-        unit == other.unit;
+        unit == other.unit &&
+        category == other.category;
   }
 
   @override
@@ -69,6 +81,7 @@ class BooleanAdjustment extends Adjustment {
       name,
       notes,
       unit,
+      category,
     );
   }
 }

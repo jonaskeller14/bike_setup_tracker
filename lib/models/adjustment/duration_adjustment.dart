@@ -11,13 +11,21 @@ class DurationAdjustment extends Adjustment {
     required super.name,
     required super.notes,
     required super.unit,
+    required super.category,
     this.min,
     this.max,
   });
 
   @override
   DurationAdjustment deepCopy() {
-    return DurationAdjustment(name: name, notes: notes, unit: unit, min: min, max: max);
+    return DurationAdjustment(
+      name: name,
+      notes: notes,
+      unit: unit,
+      category: category,
+      min: min,
+      max: max,
+    );
   }
 
   @override
@@ -27,11 +35,13 @@ class DurationAdjustment extends Adjustment {
 
   @override
   Map<String, dynamic> toJson() => {
+    'version': 1,
     'id': id,
     'name': name,
     'notes': notes,
     'type': 'duration',
     'unit': unit,
+    'category': category.toString(),
     'min': min?.toString(),
     'max': max?.toString(),
   };
@@ -39,12 +49,15 @@ class DurationAdjustment extends Adjustment {
   factory DurationAdjustment.fromJson(Map<String, dynamic> json) {
     final int? version = json["version"];
     switch (version) {
-      case null:
+      case null || 1:
         return DurationAdjustment(
           id: json["id"],
           name: json['name'],
           notes: json['notes'],
           unit: json['unit'] as String?,
+          category: AdjustmentCategory.values.firstWhere(
+            (e) => e.toString() == json['category'],
+          ),
           min: DurationAdjustment.tryParseDurationString(json["min"]),
           max: DurationAdjustment.tryParseDurationString(json["max"]),
         );
@@ -69,6 +82,7 @@ class DurationAdjustment extends Adjustment {
         name == other.name &&
         notes == other.notes &&
         unit == other.unit &&
+        category == other.category &&
         min == other.min &&
         max == other.max;
   }
@@ -80,6 +94,7 @@ class DurationAdjustment extends Adjustment {
       name,
       notes,
       unit,
+      category,
       min,
       max,
     );

@@ -76,7 +76,7 @@ class Rating {
             orElse: () => FilterType.global,
           ),
           adjustments: (json["adjustments"] as List<dynamic>?)
-            ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson))
+            ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson, defaultCategory: AdjustmentCategory.rating))
             .toList()
             ?? <Adjustment>[],
         );

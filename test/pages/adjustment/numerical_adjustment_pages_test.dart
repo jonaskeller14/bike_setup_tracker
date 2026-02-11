@@ -12,6 +12,7 @@ void main() {
       unit: 'mm',
       min: 0,
       max: 100,
+      category: AdjustmentCategory.component,
     );
 
     NumericalAdjustment? result;
@@ -24,7 +25,7 @@ void main() {
               result = await Navigator.push<NumericalAdjustment>(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => NumericalAdjustmentPage.edit(adjustment: initial),
+                  builder: (context) => NumericalAdjustmentPage.edit(adjustment: initial, categories: AdjustmentCategory.values.toSet()),
                 ),
               );
             },

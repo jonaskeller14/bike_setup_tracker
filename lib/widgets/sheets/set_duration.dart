@@ -7,7 +7,7 @@ void showSetDurationSheet({
   required BuildContext context, 
   required DurationAdjustment adjustment, 
   required Duration? value, 
-  required Function(Duration) onChanged
+  required ValueChanged<Duration> onChanged
 }) async {
   Duration currentValue = value ?? Duration.zero;
   return await showModalBottomSheet<void>(

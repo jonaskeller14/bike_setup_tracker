@@ -7,24 +7,28 @@ import 'adjustment_page.dart';
 class CategoricalAdjustmentPage extends StatefulWidget {
   final CategoricalAdjustment? adjustment;
   final AdjustmentPageMode mode;
+  final Set<AdjustmentCategory> categories;
+  final bool showCategorySelection;
 
   const CategoricalAdjustmentPage._({
     super.key,
     this.adjustment,
     required this.mode,
+    required this.categories,
+    this.showCategorySelection = false,
   });
 
-  factory CategoricalAdjustmentPage.add({Key? key}) => 
-    CategoricalAdjustmentPage._(key: key, mode: AdjustmentPageMode.add);
+  factory CategoricalAdjustmentPage.add({Key? key, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
+    CategoricalAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, categories: categories, showCategorySelection: showCategorySelection);
 
-  factory CategoricalAdjustmentPage.edit({Key? key, required CategoricalAdjustment adjustment}) => 
-    CategoricalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit);
+  factory CategoricalAdjustmentPage.edit({Key? key, required CategoricalAdjustment adjustment, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
+    CategoricalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, categories: categories, showCategorySelection: showCategorySelection);
 
-  factory CategoricalAdjustmentPage.duplicate({Key? key, required CategoricalAdjustment adjustment}) => 
-    CategoricalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate);
+  factory CategoricalAdjustmentPage.duplicate({Key? key, required CategoricalAdjustment adjustment, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
+    CategoricalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, categories: categories, showCategorySelection: showCategorySelection);
 
-  factory CategoricalAdjustmentPage.template({Key? key, required CategoricalAdjustment adjustment}) => 
-    CategoricalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template);
+  factory CategoricalAdjustmentPage.template({Key? key, required CategoricalAdjustment adjustment, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
+    CategoricalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template, categories: categories, showCategorySelection: showCategorySelection);
 
   @override
   State<CategoricalAdjustmentPage> createState() => _CategoricalAdjustmentPageState();
@@ -37,14 +41,10 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
   late TextEditingController _nameController;
   late TextEditingController _notesController;
   late List<TextEditingController> _optionControllers;
+  late AdjustmentCategory _category;
 
   String? _previewValue;
-  CategoricalAdjustment _previewAdjustment = CategoricalAdjustment(
-    name: '',
-    notes: null,
-    unit: null,
-    options: {},
-  );
+  late CategoricalAdjustment _previewAdjustment;
 
   @override
   void initState() {
@@ -62,7 +62,17 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       optionController.addListener(_changeListener);
     }
 
-    if (widget.adjustment != null) _previewAdjustment = widget.adjustment!;
+    _category = widget.adjustment?.category 
+        ?? widget.categories.firstOrNull 
+        ?? AdjustmentCategory.component;
+
+    _previewAdjustment = widget.adjustment ?? CategoricalAdjustment(
+      name: '',
+      notes: null,
+      unit: null,
+      options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
+      category: _category,
+    );
     if (widget.mode != AdjustmentPageMode.add) _expanded = true;
   }
 
@@ -105,6 +115,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
         notes: _previewAdjustment.notes,
         unit: null, 
         options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
+        category: _category,
       );
     });
   }
@@ -121,6 +132,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
         notes: null,
         unit: null, 
         options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
+        category: _category,
       );
     });
   }
@@ -168,7 +180,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       name: name, 
       notes: notes.isEmpty ? null : notes, 
       unit: widget.adjustment?.unit, 
-      options: options
+      options: options,
+      category: _category,
     ));
   }
 
@@ -218,6 +231,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                 notes: _previewAdjustment.notes,
                                 unit: null,
                                 options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
+                                category: _category,
                               );
                             });
                           },
@@ -232,8 +246,53 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                             filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                           ),
                           validator: validateAdjustmentName,
-                          
                         ),
+                        if (widget.showCategorySelection && widget.categories.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          DropdownButtonFormField<AdjustmentCategory>(
+                            initialValue: _category,
+                            isExpanded: true,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            decoration: InputDecoration(
+                              labelText: 'Category',
+                              border: OutlineInputBorder(),
+                              hintText: "Choose a category for this adjustment",
+                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              filled: widget.mode == AdjustmentPageMode.edit && _category != widget.adjustment!.category
+                            ),
+                            validator: (AdjustmentCategory? newValue) {
+                              if (newValue == null) return "Please select a category";
+                              return null;
+                            },
+                            items: widget.categories.map((category) {
+                              return DropdownMenuItem<AdjustmentCategory>(
+                                value: category,
+                                child: Row(
+                                  spacing: 8,
+                                  children: [
+                                    Icon(category.getIconData()),
+                                    Expanded(child: Text(category.value, overflow: TextOverflow.ellipsis))
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (AdjustmentCategory? newValue) {
+                              if (newValue != null) {
+                                setState(() {
+                                  _category = newValue;
+                                  _previewAdjustment = CategoricalAdjustment(
+                                    name: _nameController.text.trim(),
+                                    notes: _previewAdjustment.notes,
+                                    unit: null,
+                                    options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
+                                    category: newValue,
+                                  );
+                                });
+                                _changeListener();
+                              }
+                            },
+                          ),
+                        ],
                         const SizedBox(height: 16),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -286,6 +345,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                             notes: _previewAdjustment.notes,
                                             unit: null, 
                                             options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
+                                            category: _category,
                                           );
                                         });
                                       },
@@ -331,7 +391,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                   name: _previewAdjustment.name, 
                                   notes: (value == null || value.isEmpty) ? null : value,
                                   options: _previewAdjustment.options,
-                                  unit: null
+                                  unit: null,
+                                  category: _category,
                                 );
                               });
                             },

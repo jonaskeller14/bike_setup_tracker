@@ -47,7 +47,9 @@ class Person {
           isDeleted: json["isDeleted"],
           lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
           name: json['name'],
-          adjustments: (json["adjustments"] as List<dynamic>?)?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson)).toList() ?? <Adjustment>[],
+          adjustments: (json["adjustments"] as List<dynamic>?)?.map((adjustmentJson) => Adjustment.fromJson(
+            adjustmentJson, 
+            defaultCategory: AdjustmentCategory.body)).toList() ?? <Adjustment>[],
         );
       default: throw Exception("Json Version $version of Person incompatible.");
     }

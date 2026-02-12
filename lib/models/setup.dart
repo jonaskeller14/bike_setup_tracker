@@ -11,7 +11,8 @@ class Setup {
   bool isDeleted;
   DateTime lastModified;
   final String name;
-  final DateTime datetime;
+  final DateTime datetime;  // UTC
+  final DateTime datetimeLocal;
   final String? notes;
   final Set<String> tags;
   final String bike;
@@ -35,6 +36,7 @@ class Setup {
     DateTime? lastModified,
     required this.name,
     required this.datetime,
+    required this.datetimeLocal,
     this.notes,
     required this.tags,
     required this.bike,
@@ -50,15 +52,16 @@ class Setup {
     required this.isCurrent,
   }) : id = id ?? const Uuid().v4(),
        isDeleted = isDeleted ?? false,
-       lastModified = lastModified ?? DateTime.now();
+       lastModified = lastModified ?? DateTime.now().toUtc();
 
   Map<String, dynamic> toJson() => {
-    'version': 3,
+    'version': 4,
     'id': id,
     "isDeleted": isDeleted,
-    "lastModified": lastModified.toIso8601String(),
+    "lastModified": lastModified.toUtc().toIso8601String(),
     'name': name,
-    'datetime': datetime.toIso8601String(),
+    'datetime': datetime.toUtc().toIso8601String(),
+    'datetimeLocal': datetimeLocal.toIso8601String(),
     'notes': notes,
     'tags': tags.toList(),
     'bike': bike,
@@ -77,13 +80,14 @@ class Setup {
   factory Setup.fromJson({required Map<String, dynamic> json}) {
     final int? version = json["version"];
     switch (version) {
-      case null || 1 || 2 || 3:
+      case null || 1 || 2 || 3 || 4:
         return Setup(
           id: json['id'],
           isDeleted: json["isDeleted"],
           lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
           name: json['name'],
-          datetime: DateTime.parse(json['datetime']),
+          datetime: DateTime.parse(json['datetime']).toUtc(),
+          datetimeLocal: DateTime.tryParse(json['datetimeLocal']) ?? DateTime.parse(json['datetime']),
           notes: json['notes'] != null ? json['notes'] as String : null,
           tags: (json['tags'] as List?)?.map((item) => item as String).toSet() ?? <String>{},
           bike: json['bike'],
@@ -254,6 +258,7 @@ class Setup {
         lastModified == other.lastModified &&
         name == other.name &&
         datetime == other.datetime &&
+        datetimeLocal == other.datetimeLocal &&
         notes == other.notes &&
         setEquals(tags, other.tags) &&
         bike == other.bike &&
@@ -274,6 +279,7 @@ class Setup {
       lastModified,
       name,
       datetime,
+      datetimeLocal,
       notes,
       Object.hashAll(tags),
       bike,

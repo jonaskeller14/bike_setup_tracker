@@ -35,7 +35,7 @@ class Rating {
   }) : adjustments = adjustments ?? [],
        id = id ?? const Uuid().v4(),
        isDeleted = isDeleted ?? false,
-       lastModified = lastModified ?? DateTime.now(),
+       lastModified = lastModified ?? DateTime.now().toUtc(),
        assert ((filter == null && filterType == FilterType.global) || (filter != null && filterType != FilterType.global));
   
   Rating deepCopy() {
@@ -52,7 +52,7 @@ class Rating {
     'version': 1,
     'id': id,
     "isDeleted": isDeleted,
-    "lastModified": lastModified.toIso8601String(),
+    "lastModified": lastModified.toUtc().toIso8601String(),
     'name': name,
     'notes': notes,
     "filter": filter,

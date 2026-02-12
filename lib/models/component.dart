@@ -56,7 +56,7 @@ class Component {
   }) : adjustments = adjustments ?? [],
        id = id ?? const Uuid().v4(),
        isDeleted = isDeleted ?? false,
-       lastModified = lastModified ?? DateTime.now();
+       lastModified = lastModified ?? DateTime.now().toUtc();
     
   Component deepCopy() {
     return Component(
@@ -72,7 +72,7 @@ class Component {
     'version': 1,
     'id': id,
     "isDeleted": isDeleted,
-    "lastModified": lastModified.toIso8601String(),
+    "lastModified": lastModified.toUtc().toIso8601String(),
     'name': name,
     'componentType': componentType.toString(),
     'bike': bike,

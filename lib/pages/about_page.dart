@@ -20,7 +20,7 @@ class AboutPage extends StatelessWidget {
   static const String eulaUrl = 'https://jonaskeller14.com/bike_setup_tracker/eula.html';
   
 String _getEmailContext() {
-    final now = DateTime.now().toIso8601String().substring(0, 16);
+    final now = DateTime.now().toUtc().toIso8601String();
     return '''
 ------------------
 App Version: $appVersion

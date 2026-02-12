@@ -93,7 +93,7 @@ class FileExport {
       final String? lastBackupStr = prefs.getString(_backupSharedPreferencesInstance);
       final DateTime? lastBackup = DateTime.tryParse(lastBackupStr ?? "");
 
-      final now = DateTime.now();
+      final now = DateTime.now().toUtc();
 
       if (!force && lastBackup != null && lastBackup.add(_backupFrequency).isAfter(now)) {
         // debugPrint('Backup already exists.');
@@ -152,7 +152,7 @@ class FileExport {
       final backupDir = Directory('${dir.path}/backup');
       if (!await backupDir.exists()) return;
 
-      final cutoffDateTime = DateTime.now().subtract(_backupStoreDuration);
+      final cutoffDateTime = DateTime.now().toUtc().subtract(_backupStoreDuration);
       await for (final fileEntity in backupDir.list()) {
         if (fileEntity is File) {
           try {

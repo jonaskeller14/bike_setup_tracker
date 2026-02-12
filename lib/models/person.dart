@@ -21,7 +21,7 @@ class Person {
   }) : adjustments = adjustments ?? [],
        id = id ?? const Uuid().v4(),
        isDeleted = isDeleted ?? false,
-       lastModified = lastModified ?? DateTime.now();
+       lastModified = lastModified ?? DateTime.now().toUtc();
 
   Person deepCopy() {
     return Person(
@@ -33,7 +33,7 @@ class Person {
   Map<String, dynamic> toJson() => {
     'id': id,
     "isDeleted": isDeleted,
-    "lastModified": lastModified.toIso8601String(),
+    "lastModified": lastModified.toUtc().toIso8601String(),
     'name': name,
     'adjustments': adjustments.map((a) => a.toJson()).toList(),
   };

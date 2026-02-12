@@ -218,7 +218,7 @@ class GoogleDriveService extends ChangeNotifier {
     try {
       await _download(); 
       await _upload();
-      lastSync = DateTime.now();
+      lastSync = DateTime.now().toUtc();
     } on DetailedApiRequestError catch (e) {
       if (e.status == 401) { // Catch the 401 (Token Rejected)
         debugPrint("401 Unauthorized: Access token is invalid or expired. Requesting re-authorization.");
@@ -235,7 +235,7 @@ class GoogleDriveService extends ChangeNotifier {
           await _initializeDriveApi(); // Re-initialize API with new authorization
           await _download();
           await _upload();
-          lastSync = DateTime.now();
+          lastSync = DateTime.now().toUtc();
         } catch (e) {
           _setErrorMessage("Error after re-authorization: $e");
         }
@@ -263,7 +263,7 @@ class GoogleDriveService extends ChangeNotifier {
     try {
       await _download();
       await _upload();  // only upload if download was successfull!
-      lastSync = DateTime.now();
+      lastSync = DateTime.now().toUtc();
       debugPrint("Silent Sync successful at $lastSync");
     } on DetailedApiRequestError catch (e) {
       if (e.status == 401) {  // Refresh token failed. Cannot re-authorize silently.
@@ -410,7 +410,7 @@ class GoogleDriveService extends ChangeNotifier {
       }
 
       final lastBackup = await _getLastBackup();
-      final now = DateTime.now();
+      final now = DateTime.now().toUtc();
 
       if (!force && lastBackup != null && lastBackup.add(_backupFrequency).isAfter(now)) {
         debugPrint('Drive backup already exists. Skipping.');
@@ -557,7 +557,7 @@ class GoogleDriveService extends ChangeNotifier {
 
     try {
       final backupFolderId = await _getOrCreateBackupFolder();
-      final cutoffDateTime = DateTime.now().subtract(_backupStoreDuration);
+      final cutoffDateTime = DateTime.now().toUtc().subtract(_backupStoreDuration);
 
       final fileList = await _driveApi!.files.list(
         spaces: 'appDataFolder',

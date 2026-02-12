@@ -12,7 +12,7 @@ import 'rating.dart';
 import '../utils/file_import.dart';
 
 class AppData extends ChangeNotifier {
-  DateTime _lastModified = DateTime.now();
+  DateTime _lastModified = DateTime.now().toUtc();
   final Map<String, Person> _persons = {};
   final Map<String, Bike> _bikes = {};
   final Map<String, Setup> _setups = {};
@@ -100,56 +100,56 @@ class AppData extends ChangeNotifier {
 
   void removeBike(Bike bike) {
     bike.isDeleted = true;
-    bike.lastModified = DateTime.now();
+    bike.lastModified = DateTime.now().toUtc();
     
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
   void restoreBike(Bike bike) {
     bike.isDeleted = false;
-    bike.lastModified = DateTime.now();
+    bike.lastModified = DateTime.now().toUtc();
 
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
   void removeComponents(Iterable<Component> components) {
     for (var component in components) {
       component.isDeleted = true;
-      component.lastModified = DateTime.now();
+      component.lastModified = DateTime.now().toUtc();
     }
 
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
   void restoreComponents(Iterable<Component> components) {
     for (var component in components) {
       component.isDeleted = false;
-      component.lastModified = DateTime.now();
+      component.lastModified = DateTime.now().toUtc();
     }
 
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
   void removeSetups(Iterable<Setup> setups) {
     for (var setup in setups) {
       setup.isDeleted = true;
-      setup.lastModified = DateTime.now();
+      setup.lastModified = DateTime.now().toUtc();
     }
     FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
     FileImport.determinePreviousSetups(setups: _setups.values);
 
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
   void restoreSetups(Iterable<Setup> setups) {
     for (var setup in setups) {
       setup.isDeleted = false;
-      setup.lastModified = DateTime.now();
+      setup.lastModified = DateTime.now().toUtc();
     }
     final sortedSetupEntries = _setups.entries.toList();
     sortedSetupEntries.sort((a, b) => a.value.datetime.compareTo(b.value.datetime));
@@ -158,95 +158,95 @@ class AppData extends ChangeNotifier {
     FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
     FileImport.determinePreviousSetups(setups: _setups.values);
     
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
   void removePerson(Person person) {
     person.isDeleted = true;
-    person.lastModified = DateTime.now();
+    person.lastModified = DateTime.now().toUtc();
 
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
   void restorePerson(Person person) {
     person.isDeleted = false;
-    person.lastModified = DateTime.now();
+    person.lastModified = DateTime.now().toUtc();
     
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
   void removeRating(Rating rating) {
     rating.isDeleted = true;
-    rating.lastModified = DateTime.now();
+    rating.lastModified = DateTime.now().toUtc();
 
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
   void restoreRating(Rating rating) {
     rating.isDeleted = false;
-    rating.lastModified = DateTime.now();
+    rating.lastModified = DateTime.now().toUtc();
 
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
   void addBike(Bike bike) {
     _bikes[bike.id] = bike;
 
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
   void addPerson(Person person) {
     _persons[person.id] = person;
 
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
   void addRating(Rating rating) {
     _ratings[rating.id] = rating;
     
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
   void addComponent(Component component) {
     _components[component.id] = component;
     
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
   void editPerson(Person person) {
     _persons[person.id] = person;
 
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
   void editBike(Bike bike) {
     _bikes[bike.id] = bike;
 
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
   void editComponent(Component component) {
     _components[component.id] = component;
 
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
   void editRating(Rating rating) {
     _ratings[rating.id] = rating;
     
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
@@ -260,7 +260,7 @@ class AppData extends ChangeNotifier {
     FileImport.determinePreviousSetups(setups: _setups.values);
     _updateSetupsAfter(setup: setup);
 
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
@@ -274,7 +274,7 @@ class AppData extends ChangeNotifier {
     FileImport.determinePreviousSetups(setups: _setups.values);
     _updateSetupsAfter(setup: setup);
 
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
@@ -299,7 +299,7 @@ class AppData extends ChangeNotifier {
     _ratings.clear();
     _ratings.addAll({for (var element in ratingsList) element.id : element});
     
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
@@ -324,7 +324,7 @@ class AppData extends ChangeNotifier {
     _persons.clear();
     _persons.addAll({for (var element in personsList) element.id : element});
 
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
@@ -349,7 +349,7 @@ class AppData extends ChangeNotifier {
     _components.clear();
     _components.addAll({for (var element in componentsList) element.id : element});
 
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
@@ -374,7 +374,7 @@ class AppData extends ChangeNotifier {
     _bikes.clear();
     _bikes.addAll({for (var element in bikesList) element.id : element});
 
-    _lastModified = DateTime.now();
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 

@@ -396,13 +396,16 @@ class _HomePageState extends State<HomePage> {
   Future<void> _duplicateSetup(Setup setup) async {
     final data = context.read<AppData>();
 
+    final now = DateTime.now();
+
     final setupCopy = Setup(
       name: setup.name, 
       notes: setup.notes,
       tags: setup.tags,
       bike: setup.bike,
       person: data.bikes[setup.bike]?.person,
-      datetime: DateTime.now(),
+      datetime: now.toUtc(),
+      datetimeLocal: now,
       bikeAdjustmentValues: setup.bikeAdjustmentValues,
       personAdjustmentValues: setup.personAdjustmentValues,
       ratingAdjustmentValues: {},

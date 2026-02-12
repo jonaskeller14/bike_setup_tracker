@@ -284,7 +284,7 @@ class FileImport {
 
   static void cleanupIsDeleted({required AppData data}) {
     final thirtyDays = const Duration(days: 30);
-    final deleteDateTime = DateTime.now().subtract(thirtyDays);
+    final deleteDateTime = DateTime.now().toUtc().subtract(thirtyDays);
 
     data.persons.removeWhere((_, p) => p.isDeleted && p.lastModified.isBefore(deleteDateTime));
     data.ratings.removeWhere((_, r) => r.isDeleted && r.lastModified.isBefore(deleteDateTime));

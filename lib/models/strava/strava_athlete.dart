@@ -37,7 +37,7 @@ class StravaAthlete {
           firstname: json['firstname'] as String?,
           lastname: json['lastname'] as String?,
           profile: json['profile'] as String?,
-          gears: Set<String>.from(json['gears'] as List<String>),
+          gears: (json['gears'] as List<dynamic>? ?? []).map((e) => e.toString()).toSet(),
         );
       default: throw Exception("Json Version $version of StravaAthlete incompatible.");
     }
@@ -53,7 +53,7 @@ class StravaAthlete {
           firstname: json['firstname'] as String?,
           lastname: json['lastname'] as String?,
           profile: json['profile'] as String?,
-          gears: Set<String>.from(json['gears'] as List<String>),
+          gears: (json['gears'] as List<dynamic>? ?? []).map((e) => e.toString()).toSet(),
         );
       default: throw Exception("Json Version $version of StravaAthlete incompatible.");
     }

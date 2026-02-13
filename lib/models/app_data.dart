@@ -11,6 +11,8 @@ import 'component.dart';
 import 'rating.dart';
 import 'strava/strava_activity.dart';
 import '../utils/file_import.dart';
+import 'strava/strava_gear.dart';
+import 'strava/strava_athlete.dart';
 
 class AppData extends ChangeNotifier {
   DateTime _lastModified = DateTime.now().toUtc();
@@ -19,7 +21,9 @@ class AppData extends ChangeNotifier {
   final Map<String, Setup> _setups = {};
   final Map<String, Component> _components = {};
   final Map<String, Rating> _ratings = {};
+  final Map<int, StravaAthlete> _stravaAthletes = {};
   final Map<int, StravaActivity> _stravaActivities = {};
+  final Map<String, StravaGear> _stravaGears = {};
 
   DateTime get lastModified => _lastModified;
   Map<String, Person> get persons => _persons;
@@ -27,7 +31,9 @@ class AppData extends ChangeNotifier {
   Map<String, Setup> get setups => _setups;
   Map<String, Component> get components => _components;
   Map<String, Rating> get ratings => _ratings;
+  Map<int, StravaAthlete> get stravaAthletes => _stravaAthletes;
   Map<int, StravaActivity> get stravaActivities => _stravaActivities;
+  Map<String, StravaGear> get stravaGears => _stravaGears;
 
   Future<AppData?> load(BuildContext context) async {
     String jsonString = "{}";
@@ -75,6 +81,8 @@ class AppData extends ChangeNotifier {
     'setups': setups.values.map((s) => s.toJson()).toList(),
     'components': components.values.map((c) => c.toJson()).toList(),
     'ratings': ratings.values.map((r) => r.toJson()).toList(),
+    'stravaAthletes': _stravaAthletes.values.map((a) => a.toJson()).toList(),
+    'stravaGears': _stravaGears.values.map((g) => g.toJson()).toList(),
     'stravaActivities': stravaActivities.values.map((a) => a.toJson()).toList(),
   };
 
@@ -93,6 +101,12 @@ class AppData extends ChangeNotifier {
     
     final loadedRatings = (json['ratings'] as List<dynamic>? ?? [])
         .map((a) => Rating.fromJson(json: a));
+        
+    final loadedStravaAthletes = (json['stravaAthletes'] as List<dynamic>? ?? [])
+        .map((a) => StravaAthlete.fromJson(a));
+
+    final loadedStravaGears = (json['stravaGears'] as List<dynamic>? ?? [])
+        .map((g) => StravaGear.fromJson(g));
     
     final loadedStravaActivities = (json['stravaActivities'] as List<dynamic>? ?? [])
         .map((a) => StravaActivity.fromJson(a));
@@ -102,6 +116,8 @@ class AppData extends ChangeNotifier {
     data.components.addAll(<String, Component>{for (var item in loadedComponents) item.id: item});
     data.setups.addAll(<String, Setup>{for (var item in loadedSetups) item.id: item});
     data.ratings.addAll(<String, Rating>{for (var item in loadedRatings) item.id: item});
+    data._stravaAthletes.addAll(<int, StravaAthlete>{for (var item in loadedStravaAthletes) item.id: item});
+    data._stravaGears.addAll(<String, StravaGear>{for (var item in loadedStravaGears) item.id: item});
     data.stravaActivities.addAll(<int, StravaActivity>{for (var item in loadedStravaActivities) item.id: item});
     
     return data;
@@ -454,8 +470,22 @@ class AppData extends ChangeNotifier {
     notifyListeners();
   }
 
-  void clearStravaActivities() {
+  void updateStravaAthlete(StravaAthlete athlete) {
+    _stravaAthletes[athlete.id] = athlete;
+    _lastModified = DateTime.now().toUtc();
+    notifyListeners();
+  }
+
+  void updateStravaGear(StravaGear gear) {
+    _stravaGears[gear.id] = gear;
+    _lastModified = DateTime.now().toUtc();
+    notifyListeners();
+  }
+  
+  void clearStravaData() {
     _stravaActivities.clear();
+    _stravaAthletes.clear();
+    _stravaGears.clear();
 
     _lastModified = DateTime.now().toUtc();
     notifyListeners();

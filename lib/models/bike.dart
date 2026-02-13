@@ -8,6 +8,7 @@ class Bike {
   final String name;
   final String? notes;
   final String? person;
+  final String? stravaGear;
 
   static const IconData iconData = Icons.pedal_bike;
 
@@ -18,25 +19,27 @@ class Bike {
     required this.name,
     this.notes,
     required this.person,
+    this.stravaGear,
   })
     : id = id ?? const Uuid().v4(),
       isDeleted = isDeleted ?? false,
       lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
 
   Map<String, dynamic> toJson() => {
-    'version': 2,
+    'version': 3,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
     'name': name,
     'notes': notes,
     'person': person,
+    'stravaGear': stravaGear,
   };
 
   factory Bike.fromJson(Map<String, dynamic> json) {
     final int? version = json["version"];
     switch (version) {
-      case null || 1 || 2:
+      case null || 1 || 2 || 3:
         return Bike(
           id: json["id"],
           isDeleted: json["isDeleted"],
@@ -44,6 +47,7 @@ class Bike {
           name: json['name'],
           notes: json['notes'], // = null
           person: json['person'], // = null
+          stravaGear: json['stravaGear'], // = null
         );
       default: throw Exception("Json Version $version of Bike incompatible.");
     }
@@ -59,7 +63,8 @@ class Bike {
         lastModified == other.lastModified &&
         name == other.name &&
         notes == other.notes &&
-        person == other.person;
+        person == other.person && 
+        stravaGear == other.stravaGear;
   }
   
   @override
@@ -71,6 +76,7 @@ class Bike {
       name,
       notes,
       person,
+      stravaGear,
     );
   }
 }

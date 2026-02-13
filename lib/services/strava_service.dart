@@ -9,6 +9,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
 import '../models/app_data.dart';
 import '../models/strava/strava_activity.dart';
+import '../models/strava/strava_athlete.dart';
+import '../models/strava/strava_gear.dart';
 
 enum StravaServiceStatus {
   idle,
@@ -35,6 +37,8 @@ class StravaService extends ChangeNotifier {
 
   StreamSubscription? _activitiesSubscription;
   StreamSubscription? _userDocSubscription;
+  StreamSubscription? _athleteSubscription;
+  StreamSubscription? _gearSubscription;
   bool _isDisposed = false;
   
   AppData _appData;
@@ -46,6 +50,8 @@ class StravaService extends ChangeNotifier {
     _isDisposed = true;
     _activitiesSubscription?.cancel();
     _userDocSubscription?.cancel();
+    _athleteSubscription?.cancel();
+    _gearSubscription?.cancel();
     super.dispose();
   }
 
@@ -66,6 +72,8 @@ class StravaService extends ChangeNotifier {
       await _loadUserId();
       _listenToUserDocument();
       _listenToActivities();
+      _listenToAthlete();
+      _listenToGear();
       _registerFcmToken();
     } catch (e) {
       _isInitialized = false;
@@ -109,10 +117,55 @@ class StravaService extends ChangeNotifier {
         .orderBy('synced_at', descending: true)
         .snapshots()
         .listen((snapshot) {
-      _appData.updateStravaActivities(snapshot.docs.map((doc) => StravaActivity.fromFirestore(doc.data())));
+      _appData.updateStravaActivities(snapshot.docs.map((doc) => StravaActivity.fromFirestore(doc.data()))); //FIXME -> how to handle delete?
     }, onError: (e) {
       debugPrint("Strava sync stream error: $e");
       errorMessage = "Background sync error (Internet issue?)";
+    });
+  }
+
+  
+
+  void _listenToAthlete() {
+    if (_userId == null) return;
+
+    _athleteSubscription?.cancel();
+    _athleteSubscription = FirebaseFirestore.instance
+        .collection('users')
+        .doc(_userId)
+        .collection('athletes')
+        .doc('athlete')
+        .snapshots()
+        .listen((snapshot) {
+      if (snapshot.exists && snapshot.data() != null) {
+        final athlete = StravaAthlete.fromFireStore(snapshot.data()!);
+        _appData.updateStravaAthlete(athlete);
+        debugPrint("Strava athlete synced: ${athlete.firstname} ${athlete.lastname}");
+      }
+    }, onError: (e) {
+      debugPrint("Strava athlete sync error: $e");
+    });
+  }
+
+  void _listenToGear() {
+    if (_userId == null) return;
+
+    _gearSubscription?.cancel();
+    _gearSubscription = FirebaseFirestore.instance
+        .collection('users')
+        .doc(_userId)
+        .collection('gears')
+        .snapshots()
+        .listen((snapshot) {
+      for (var doc in snapshot.docs) {
+        final gear = StravaGear.fromFireStore(doc.data());
+        _appData.updateStravaGear(gear);
+      }
+      if (snapshot.docs.isNotEmpty) {
+        debugPrint("Strava gear synced: ${snapshot.docs.length} items");
+      }
+    }, onError: (e) {
+      debugPrint("Strava gear sync error: $e");
     });
   }
 
@@ -208,7 +261,7 @@ class StravaService extends ChangeNotifier {
       }
 
       // 2. Clear Local State
-      _appData.clearStravaActivities();
+      _appData.clearStravaData();
 
       _isConnected = false;
       errorMessage = "";

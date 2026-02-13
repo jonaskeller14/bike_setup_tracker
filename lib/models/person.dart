@@ -8,6 +8,8 @@ class Person {
   bool isDeleted;
   DateTime lastModified;
   final String name;
+  final String? notes;
+  final int? stravaAthlete;
   final List<Adjustment> adjustments;
 
   static const IconData iconData = Icons.person;
@@ -17,6 +19,8 @@ class Person {
     bool? isDeleted,
     DateTime? lastModified,
     required this.name,
+    this.notes,
+    this.stravaAthlete,
     List<Adjustment>? adjustments,
   }) : adjustments = adjustments ?? [],
        id = id ?? const Uuid().v4(),
@@ -26,6 +30,8 @@ class Person {
   Person deepCopy() {
     return Person(
       name: name,
+      notes: notes,
+      stravaAthlete: stravaAthlete,
       adjustments: adjustments.map((a) => a.deepCopy()).toList(),
     );
   }
@@ -35,6 +41,8 @@ class Person {
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
     'name': name,
+    'notes': notes,
+    'stravaAthlete': stravaAthlete,
     'adjustments': adjustments.map((a) => a.toJson()).toList(),
   };
 
@@ -47,6 +55,8 @@ class Person {
           isDeleted: json["isDeleted"],
           lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
           name: json['name'],
+          notes: json['notes'],
+          stravaAthlete: json['stravaAthlete'],
           adjustments: (json["adjustments"] as List<dynamic>?)?.map((adjustmentJson) => Adjustment.fromJson(
             adjustmentJson, 
             defaultCategory: AdjustmentCategory.body)).toList() ?? <Adjustment>[],
@@ -64,6 +74,8 @@ class Person {
         isDeleted == other.isDeleted &&
         lastModified == other.lastModified &&
         name == other.name &&
+        notes == other.notes &&
+        stravaAthlete == other.stravaAthlete &&
         listEquals(adjustments, other.adjustments);
   }
 
@@ -74,6 +86,8 @@ class Person {
       isDeleted,
       lastModified,
       name,
+      notes,
+      stravaAthlete,
       Object.hashAll(adjustments),
     );
   }

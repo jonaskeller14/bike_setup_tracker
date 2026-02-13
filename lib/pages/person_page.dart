@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_icons/simple_icons.dart';
+import '../models/app_data.dart';
 import '../models/app_settings.dart';
 import '../models/person.dart';
 import '../models/adjustment/adjustment.dart';
@@ -41,8 +43,13 @@ class PersonPage extends StatefulWidget {
 class _PersonPageState extends State<PersonPage> {
   static const _enableDurationAdjustment = false;
   late TextEditingController _nameController;
+  late TextEditingController _notesController;
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
+  bool _expanded = false;
+
+  int? _initialStravaAthlete;
+  int? _stravaAthlete;
 
   late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
@@ -52,6 +59,14 @@ class _PersonPageState extends State<PersonPage> {
     super.initState();
     _nameController = TextEditingController(text: widget.person?.name);
     _nameController.addListener(_changeListener);
+    _notesController = TextEditingController(text: widget.person?.notes);
+    _notesController.addListener(_changeListener);
+
+    _initialStravaAthlete = widget.person?.stravaAthlete;
+    _stravaAthlete = _initialStravaAthlete;
+
+    if (widget.mode != PersonPageMode.add) _expanded = true;
+
     _adjustments = widget.person == null 
         ? [
             NumericalAdjustment(name: 'Body weight', notes: null, unit: 'kg', min: 0.0, category: AdjustmentCategory.body), 
@@ -63,6 +78,8 @@ class _PersonPageState extends State<PersonPage> {
 
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != (widget.person?.name ?? '') ||
+        _notesController.text.trim() != (widget.person?.notes ?? '') ||
+        _stravaAthlete != _initialStravaAthlete ||
         _initialAdjustments.length != _adjustments.length || 
         _adjustments.asMap().entries.any((entry) => entry.value != _initialAdjustments[entry.key]);
     if (_formHasChanges != hasChanges) {
@@ -76,6 +93,8 @@ class _PersonPageState extends State<PersonPage> {
   void dispose() {
     _nameController.removeListener(_changeListener);
     _nameController.dispose();
+    _notesController.removeListener(_changeListener);
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -161,10 +180,13 @@ class _PersonPageState extends State<PersonPage> {
   void _savePerson() {
     if (!_formKey.currentState!.validate()) return;
     final name = _nameController.text.trim();
+    final notes = _notesController.text.trim();
     _formHasChanges = false;
     Navigator.pop(context, Person(
       id: widget.mode == PersonPageMode.edit ? widget.person?.id : null, 
       name: name, 
+      notes: notes.isEmpty ? null : notes,
+      stravaAthlete: _stravaAthlete,
       adjustments: _adjustments
     ));
   }
@@ -306,6 +328,85 @@ class _PersonPageState extends State<PersonPage> {
                     return null;
                   },
                 ),
+                if (!_expanded)
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          if (!_expanded) _expanded = !_expanded;
+                        });
+                      },
+                      icon: Icon(
+                        _expanded ? Icons.expand_less : Icons.expand_more,
+                      ),
+                      label: Text(_expanded ? "Hide Additional Fields" : "Show Additional Fields"),
+                    ),
+                  ),
+                if (_expanded) ...[
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _notesController,
+                    minLines: 2,
+                    maxLines: null,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(
+                      labelText: 'Notes (optional)',
+                      hintText: 'Enter notes about the person...',
+                      border: OutlineInputBorder(),
+                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      filled: widget.mode == PersonPageMode.edit && _notesController.text.trim() != (widget.person?.notes ?? ""),
+                    ),
+                  ),
+                  if (context.read<AppSettings>().enableStrava) ...[
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<int?>(
+                      initialValue: _stravaAthlete,
+                      isExpanded: true,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'Strava Athlete',
+                        border: OutlineInputBorder(),
+                        hintText: "Link Strava Athlete",
+                        prefixIcon: const Icon(Icons.link),
+                        fillColor: Colors.orange.withValues(alpha: 0.08),
+                        filled: widget.mode == PersonPageMode.edit && _stravaAthlete != _initialStravaAthlete,
+                      ),
+                      validator: (int? newStravaAthlete) {
+                        if (newStravaAthlete == null) return null;
+                        if (!context.read<AppData>().stravaAthletes.containsKey(newStravaAthlete)) return "Please select valid Athlete";
+                        return null;
+                      },
+                      items: context.read<AppData>().stravaAthletes.values.map((a) {
+                        return DropdownMenuItem<int>(
+                          value: a.id,
+                          child: Row(
+                            spacing: 8,
+                            children: [
+                              const Icon(SimpleIcons.strava),
+                              Expanded(child: Text("${a.firstname} ${a.lastname}", overflow: TextOverflow.ellipsis))
+                            ],
+                          ),
+                        );
+                      }).toList() + [
+                        if (_stravaAthlete != null && !context.read<AppData>().stravaAthletes.containsKey(_stravaAthlete))
+                          DropdownMenuItem<int>(
+                          value: _stravaAthlete,
+                          child: Row(
+                            spacing: 8,
+                            children: [
+                              Icon(SimpleIcons.strava, color: Theme.of(context).colorScheme.error),
+                              Expanded(child: Text("ATHLETE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+                            ],
+                          ),
+                        ), 
+                      ],
+                      onChanged: (int? newStravaAthlete) {
+                        setState(() => _stravaAthlete = newStravaAthlete);
+                        _changeListener();
+                      },
+                    ),
+                  ]
+                ],
                 const SizedBox(height: 16),
                 _adjustments.isNotEmpty
                     ? AdjustmentEditList(

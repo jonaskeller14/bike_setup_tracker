@@ -367,21 +367,69 @@ exports.syncActivities = onRequest(
     try {
       const userToken = await getValidAccessToken(userId);
 
-      // Fetch last 50 activities
-      const response = await fetch("https://www.strava.com/api/v3/athlete/activities?per_page=50", {
+      // 1. Fetch Athlete Profile (includes gear summary)
+      const athleteResponse = await fetch("https://www.strava.com/api/v3/athlete", {
         headers: { "Authorization": `Bearer ${userToken}` }
       });
-      
-      if (!response.ok) {
-        throw new Error(`Strava API failed: ${response.statusText}`);
+
+      if (!athleteResponse.ok) {
+        throw new Error(`Strava Athlete API failed: ${athleteResponse.statusText}`);
       }
 
-      const activities = await response.json();
+      const athlete = await athleteResponse.json();
       
       const userRef = db.collection("users").doc(userId);
       const batch = db.batch();
       let operationCount = 0;
 
+      // 1.1 Save Athlete Profile
+      // Path: users/{userId}/athletes/athlete
+      const athleteRef = userRef.collection("athletes").doc("athlete");
+      
+      const cleanAthlete = {
+        id: athlete.id,
+        lastModified: admin.firestore.FieldValue.serverTimestamp(),
+        firstname: athlete.firstname,
+        lastname: athlete.lastname,
+        profile: athlete.profile,
+        gears: [
+          ...(athlete.bikes || []).map(b => b.id),
+        ]
+      };
+      
+      batch.set(athleteRef, cleanAthlete, { merge: true });
+      operationCount++;
+
+      // 1.2 Save Gear (Bikes only)
+      // Path: users/{userId}/gears/{gearId}
+      const allGear = [...(athlete.bikes || [])];
+      
+      for (const gear of allGear) {
+        const gearRef = userRef.collection("gears").doc(String(gear.id));
+        const cleanGear = {
+          id: gear.id,
+          lastModified: admin.firestore.FieldValue.serverTimestamp(),
+          name: gear.name,
+          // primary: gear.primary, // Optional: needed? User didn't ask for it in model yet.
+          // distance: gear.distance,
+          // brand_name: gear.brand_name,
+          // model_name: gear.model_name,
+        };
+        batch.set(gearRef, cleanGear, { merge: true });
+        operationCount++;
+      }
+
+      // 2. Fetch last 50 activities
+      const response = await fetch("https://www.strava.com/api/v3/athlete/activities?per_page=50", {
+        headers: { "Authorization": `Bearer ${userToken}` }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Strava Activities API failed: ${response.statusText}`);
+      }
+
+      const activities = await response.json();
+      
       for (const activity of activities) {
         // Extract lat/lon if available
         let startLat = null;
@@ -426,8 +474,8 @@ exports.syncActivities = onRequest(
         await batch.commit();
       }
 
-      logger.info("MANUAL_SYNC_SUCCESSFUL", { userId, count: activities.length });
-      return res.status(200).send(`SYNC_SUCCESSFUL: ${activities.length} activities processed.`);
+      logger.info("MANUAL_SYNC_SUCCESSFUL", { userId, count: activities.length, gearCount: allGear.length });
+      return res.status(200).send(`SYNC_SUCCESSFUL: ${activities.length} activities, ${allGear.length} gear items processed.`);
 
     } catch (error) {
       logger.error("MANUAL_SYNC_FAILED", error);

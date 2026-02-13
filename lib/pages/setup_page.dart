@@ -146,7 +146,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _ratingAdjustmentValues.clear();
 
     _bikeAdjustmentValues.addAll(_previousBikeAdjustmentValues);
-    _personAdjustmentValues.addAll(_previousPersonAdjustmentValues);
+    _personAdjustmentValues.addAll(_previousPersonAdjustmentValues); //FIXME: only Body category. 
     
     if (widget.setup != null) {
       // EDIT SETUP

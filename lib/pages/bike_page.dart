@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_icons/simple_icons.dart';
+import '../models/app_data.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/filtered_data.dart';
@@ -40,6 +42,9 @@ class _BikePageState extends State<BikePage> {
   String? _initialPerson;
   String? _person;
 
+  String? _initialStravaGear;
+  String? _stravaGear;
+
   @override
   void initState() {
     super.initState();
@@ -50,13 +55,18 @@ class _BikePageState extends State<BikePage> {
     
     _initialPerson = widget.bike?.person;
     _person = _initialPerson;
+
+    _initialStravaGear = widget.bike?.stravaGear;
+    _stravaGear = _initialStravaGear;
+
     if (widget.mode != BikePageMode.add) _expanded = true;
   }
 
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != (widget.bike?.name ?? '') || 
         _notesController.text.trim() != (widget.bike?.notes ?? '') ||
-        _person != _initialPerson;
+        _person != _initialPerson || 
+        _stravaGear != _initialStravaGear;
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -83,7 +93,8 @@ class _BikePageState extends State<BikePage> {
       id: widget.mode == BikePageMode.edit ? widget.bike!.id : null, 
       name: name, 
       notes: notes.isEmpty ? null : notes,
-      person: _person
+      person: _person,
+      stravaGear: _stravaGear,
     ));
   }
 
@@ -98,8 +109,11 @@ class _BikePageState extends State<BikePage> {
 
   @override
   Widget build(BuildContext context) {
+    final appSettings = context.read<AppSettings>();
     final filteredData = context.read<FilteredData>();
     final persons = filteredData.persons;
+    final appData = context.read<AppData>();
+    final stravaGears = appData.stravaGears;
 
     return PopScope( 
       canPop: !_formHasChanges,
@@ -143,7 +157,7 @@ class _BikePageState extends State<BikePage> {
                     return null;
                   },
                 ),
-                if (context.read<AppSettings>().enablePerson) ...[
+                if (appSettings.enablePerson) ...[
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String?>(
                     initialValue: _person,
@@ -220,6 +234,55 @@ class _BikePageState extends State<BikePage> {
                       filled: widget.mode == BikePageMode.edit && _notesController.text.trim() != (widget.bike?.notes ?? ""),
                     ),
                   ),
+                  if (appSettings.enableStrava) ...[
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String?>(
+                    initialValue: _stravaGear,
+                    isExpanded: true,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(
+                      labelText: 'Strava Gear',
+                      border: OutlineInputBorder(),
+                      hintText: "Link Strava Gear",
+                      prefixIcon: const Icon(Icons.link),
+                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      filled: widget.mode == BikePageMode.edit && _stravaGear != _initialStravaGear,
+                    ),
+                    validator: (String? newStravaGear) {
+                      if (newStravaGear == null) return null;
+                      if (!stravaGears.containsKey(newStravaGear)) return "Please select valid Gear";
+                      return null;
+                    },
+                    items: stravaGears.values.map((g) {
+                      return DropdownMenuItem<String>(
+                        value: g.id,
+                        child: Row(
+                          spacing: 8,
+                          children: [
+                            const Icon(SimpleIcons.strava),
+                            Expanded(child: Text(g.name, overflow: TextOverflow.ellipsis))
+                          ],
+                        ),
+                      );
+                    }).toList() + [
+                      if (_stravaGear != null && !stravaGears.containsKey(_stravaGear))
+                       DropdownMenuItem<String>(
+                        value: _stravaGear,
+                        child: Row(
+                          spacing: 8,
+                          children: [
+                            Icon(SimpleIcons.strava, color: Theme.of(context).colorScheme.error),
+                            Expanded(child: Text("GEAR NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+                          ],
+                        ),
+                      ), 
+                    ],
+                    onChanged: (String? newStravaGear) {
+                      setState(() => _stravaGear = newStravaGear);
+                      _changeListener();
+                    },
+                  ),
+                  ]
                 ],
               ],
             ),

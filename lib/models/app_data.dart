@@ -9,6 +9,7 @@ import 'bike.dart';
 import 'setup.dart';
 import 'component.dart';
 import 'rating.dart';
+import 'strava/strava_activity.dart';
 import '../utils/file_import.dart';
 
 class AppData extends ChangeNotifier {
@@ -18,6 +19,7 @@ class AppData extends ChangeNotifier {
   final Map<String, Setup> _setups = {};
   final Map<String, Component> _components = {};
   final Map<String, Rating> _ratings = {};
+  final Map<int, StravaActivity> _stravaActivities = {};
 
   DateTime get lastModified => _lastModified;
   Map<String, Person> get persons => _persons;
@@ -25,6 +27,7 @@ class AppData extends ChangeNotifier {
   Map<String, Setup> get setups => _setups;
   Map<String, Component> get components => _components;
   Map<String, Rating> get ratings => _ratings;
+  Map<int, StravaActivity> get stravaActivities => _stravaActivities;
 
   Future<AppData?> load(BuildContext context) async {
     String jsonString = "{}";
@@ -63,6 +66,7 @@ class AppData extends ChangeNotifier {
     _components.clear();
     _ratings.clear();
     _setups.clear();
+    _stravaActivities.clear();
   }
 
   Map<String, dynamic> toJson() => {
@@ -71,6 +75,7 @@ class AppData extends ChangeNotifier {
     'setups': setups.values.map((s) => s.toJson()).toList(),
     'components': components.values.map((c) => c.toJson()).toList(),
     'ratings': ratings.values.map((r) => r.toJson()).toList(),
+    'stravaActivities': stravaActivities.values.map((a) => a.toJson()).toList(),
   };
 
   static AppData addJson({required AppData data, required Map<String, dynamic> json}) {
@@ -89,11 +94,15 @@ class AppData extends ChangeNotifier {
     final loadedRatings = (json['ratings'] as List<dynamic>? ?? [])
         .map((a) => Rating.fromJson(json: a));
     
+    final loadedStravaActivities = (json['stravaActivities'] as List<dynamic>? ?? [])
+        .map((a) => StravaActivity.fromJson(a));
+    
     data.persons.addAll(<String, Person>{for (var item in loadedPersons) item.id: item});
     data.bikes.addAll(<String, Bike>{for (var item in loadedBikes) item.id: item});
     data.components.addAll(<String, Component>{for (var item in loadedComponents) item.id: item});
     data.setups.addAll(<String, Setup>{for (var item in loadedSetups) item.id: item});
     data.ratings.addAll(<String, Rating>{for (var item in loadedRatings) item.id: item});
+    data.stravaActivities.addAll(<int, StravaActivity>{for (var item in loadedStravaActivities) item.id: item});
     
     return data;
   }
@@ -432,6 +441,23 @@ class AppData extends ChangeNotifier {
       _updateSetupsAfter(setup: setup);
     }
 
+
+    notifyListeners();
+  }
+
+  void updateStravaActivities(Iterable<StravaActivity> activities) {
+    for (final activity in activities) {
+      _stravaActivities[activity.id] = activity;
+    }
+    
+    _lastModified = DateTime.now().toUtc();
+    notifyListeners();
+  }
+
+  void clearStravaActivities() {
+    _stravaActivities.clear();
+
+    _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 }

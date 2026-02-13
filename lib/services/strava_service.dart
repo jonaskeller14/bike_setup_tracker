@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -8,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
+import '../models/app_data.dart';
 import '../models/strava/strava_activity.dart';
 
 enum StravaServiceStatus {
@@ -32,14 +32,14 @@ class StravaService extends ChangeNotifier {
   String? get userId => _userId;
   bool _isConnected = false;
   bool get isConnected => _isConnected;
-  final List<StravaActivity> _activities = [];
-  List<StravaActivity> get activities => List.unmodifiable(_activities);
 
   StreamSubscription? _activitiesSubscription;
   StreamSubscription? _userDocSubscription;
   bool _isDisposed = false;
+  
+  AppData _appData;
 
-  StravaService();
+  StravaService(this._appData);
 
   @override
   void dispose() {
@@ -56,14 +56,15 @@ class StravaService extends ChangeNotifier {
     }
   }
 
-  Future<void> update() async {
+  Future<void> update({required AppData newAppData}) async {
+    _appData = newAppData;
+
     if (_isInitialized) return;
     _isInitialized = true;
 
     try {
       await _loadUserId();
       _listenToUserDocument();
-      await _loadLocalActivities();
       _listenToActivities();
       _registerFcmToken();
     } catch (e) {
@@ -97,23 +98,6 @@ class StravaService extends ChangeNotifier {
     });
   }
 
-  Future<void> _loadLocalActivities() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? encoded = prefs.getString('strava_activities');
-    if (encoded != null) {
-      final List<dynamic> decoded = jsonDecode(encoded);
-      _activities.clear();
-      _activities.addAll(decoded.map((a) => StravaActivity.fromJson(a)));
-      notifyListeners();
-    }
-  }
-
-  Future<void> _saveLocalActivities() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String encoded = jsonEncode(_activities.map((a) => a.toJson()).toList());
-    await prefs.setString('strava_activities', encoded);
-  }
-
   void _listenToActivities() {
     if (_userId == null) return;
 
@@ -125,19 +109,7 @@ class StravaService extends ChangeNotifier {
         .orderBy('synced_at', descending: true)
         .snapshots()
         .listen((snapshot) {
-      bool changed = false;
-      for (var doc in snapshot.docs) {
-        final activity = StravaActivity.fromFirestore(doc.data());
-        if (!_activities.any((a) => a.id == activity.id)) { //FIXME: merge logic
-          _activities.insert(0, activity);
-          changed = true;
-          debugPrint("New Strava activity imported: ${activity.name}");
-        }
-      }
-      if (changed) {
-        _saveLocalActivities();
-        notifyListeners();
-      }
+      _appData.updateStravaActivities(snapshot.docs.map((doc) => StravaActivity.fromFirestore(doc.data())));
     }, onError: (e) {
       debugPrint("Strava sync stream error: $e");
       errorMessage = "Background sync error (Internet issue?)";
@@ -236,13 +208,9 @@ class StravaService extends ChangeNotifier {
       }
 
       // 2. Clear Local State
-      _activities.clear();
-      _isConnected = false;
-      
-      // 3. Clear SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('strava_activities');
+      _appData.clearStravaActivities();
 
+      _isConnected = false;
       errorMessage = "";
       status = StravaServiceStatus.idle;
       notifyListeners();

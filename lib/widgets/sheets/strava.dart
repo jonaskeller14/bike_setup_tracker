@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
+import '../../models/app_data.dart';
 import '../../models/app_settings.dart';
 import '../../services/strava_service.dart';
 import 'sheet.dart';
@@ -22,6 +23,7 @@ class StravaSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.read<AppSettings>();
+    final appData = context.watch<AppData>();
     final stravaService = context.watch<StravaService>();
     
     return SafeArea(
@@ -113,13 +115,13 @@ class StravaSheet extends StatelessWidget {
                       ),
                     ],
                     const SizedBox(height: 16),
-                    if (stravaService.activities.isNotEmpty) ...[
+                    if (appData.stravaActivities.isNotEmpty) ...[
                       const Divider(),
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 8),
                         child: Text("Synced Activities:", style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
-                      ...stravaService.activities.map((activity) => ListTile(
+                      ...appData.stravaActivities.values.map((activity) => ListTile(
                             title: Text(activity.name),
                             subtitle: Text(activity.sportType),
                             trailing: Column(

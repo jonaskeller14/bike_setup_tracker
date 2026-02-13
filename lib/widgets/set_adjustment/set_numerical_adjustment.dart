@@ -118,12 +118,12 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                   visualDensity: VisualDensity.compact,
                 ),
               ),
-              validator: (value) {
-                if ((value == null || value.trim().isEmpty) && widget.initialValue != null) {
+              validator: (String? newValue) {
+                if ((newValue == null || newValue.trim().isEmpty) && widget.initialValue != null) {
                   return 'Please enter a value';
                 }
-                if (value != null && value.trim().isNotEmpty) {
-                  final parsedValue = double.tryParse(value);
+                if (newValue != null && newValue.trim().isNotEmpty) {
+                  final parsedValue = double.tryParse(newValue);
                   if (parsedValue == null) return "Please enter valid number";
                   final max = widget.adjustment.max;
                   if (parsedValue > max) return "Value exceeds maximum of $max";

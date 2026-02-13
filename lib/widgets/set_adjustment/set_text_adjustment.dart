@@ -117,6 +117,9 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
                 ),
               ),
               validator: (String? newValue) {
+                if ((newValue == null || newValue.trim().isEmpty) && widget.initialValue != null) {
+                  return 'Please enter a value';
+                }
                 if (DurationAdjustment.tryParseDurationString(newValue) != null) {
                   return "Pure Duration Format not allowed. Add characters or use Duration Adjustment type.";
                 }

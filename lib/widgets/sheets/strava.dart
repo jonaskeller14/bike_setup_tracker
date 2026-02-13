@@ -25,6 +25,7 @@ class StravaSheet extends StatelessWidget {
     final appSettings = context.read<AppSettings>();
     final appData = context.watch<AppData>();
     final stravaService = context.watch<StravaService>();
+    final athletes = appData.stravaAthletes.values;
     
     return SafeArea(
       child: Padding(
@@ -74,37 +75,50 @@ class StravaSheet extends StatelessWidget {
                         contentPadding: EdgeInsets.zero,
                       ),
                     const SizedBox(height: 8),
-                    ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: stravaService.isConnected
-                            ? Colors.transparent
-                            : Theme.of(context).colorScheme.surfaceContainerHigh,
-                        child: Icon(
-                          stravaService.isConnected ? Icons.person : Icons.person_off,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    if (athletes.isEmpty)
+                      ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.transparent,
+                          child: Icon(Icons.person_off, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ),
-                      ),
-                      title: Text(
-                        stravaService.isConnected ? "Strava User" : "Not connected",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(
-                        stravaService.isConnected 
-                            ? "Athlete ID: ${stravaService.userId?.substring(0, 8)}..." 
-                            : "Connect to sync your rides",
-                      ),
-                      trailing: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          maxHeight: 48,
-                          maxWidth: 80,
+                        title: Text("Strava User not connected", style: const TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: const Text("Connect to sync your rides"),
+                        trailing: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxHeight: 48,
+                            maxWidth: 80,
+                          ),
+                          child: Image.asset(
+                            'assets/strava/1.2-Strava-API-Logos/1.2-Strava-API-Logos/Powered by Strava/pwrdBy_strava_orange/api_logo_pwrdBy_strava_stack_orange.png',
+                            fit: BoxFit.contain,
+                          ),
                         ),
-                        child: Image.asset(
-                          'assets/strava/1.2-Strava-API-Logos/1.2-Strava-API-Logos/Powered by Strava/pwrdBy_strava_orange/api_logo_pwrdBy_strava_stack_orange.png',
-                          fit: BoxFit.contain,
+                        contentPadding: EdgeInsets.zero,
+                      )
+                    else
+                      ...athletes.map((athlete) => ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.transparent, 
+                          foregroundImage: athlete.profile == null 
+                              ? null 
+                              : NetworkImage(athlete.profile!), 
+                          onForegroundImageError: (exception, stackTrace) {},
+                          child: Icon(Icons.person, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ),
-                      ),
-                      contentPadding: EdgeInsets.zero,
-                    ),
+                        title: Text("${athlete.firstname} ${athlete.lastname}", style: const TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: Text("Athlete ID: ${athlete.id}"),
+                        trailing: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            maxHeight: 48,
+                            maxWidth: 80,
+                          ),
+                          child: Image.asset(
+                            'assets/strava/1.2-Strava-API-Logos/1.2-Strava-API-Logos/Powered by Strava/pwrdBy_strava_orange/api_logo_pwrdBy_strava_stack_orange.png',
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.zero,
+                      )),
                     if (stravaService.isConnected) ...[
                       ListTile(
                         leading: const Icon(Icons.sync_alt),

@@ -52,20 +52,13 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
       }
 
       // Step 3: Set defaults (null, min, false, ...)
-      if (adjustment is BooleanAdjustment) { 
-        _adjustmentValues[adjustment.id] = null;
-      } else if (adjustment is NumericalAdjustment) {
-        _adjustmentValues[adjustment.id] = null;
-      } else if (adjustment is StepAdjustment) {
-        _adjustmentValues[adjustment.id] = null;
-      } else if (adjustment is CategoricalAdjustment) {
-        _adjustmentValues[adjustment.id] = null;
-      } else if (adjustment is TextAdjustment) {
-        _adjustmentValues[adjustment.id] = null;
-      } else if (adjustment is DurationAdjustment) {
-        _adjustmentValues[adjustment.id] = null;
-      } else {
-        throw Exception('Unknown adjustment type');
+      switch (adjustment) {
+        case BooleanAdjustment(): _adjustmentValues[adjustment.id] = null;
+        case NumericalAdjustment(): _adjustmentValues[adjustment.id] = null;
+        case StepAdjustment(): _adjustmentValues[adjustment.id] = null;
+        case CategoricalAdjustment(): _adjustmentValues[adjustment.id] = null;
+        case TextAdjustment(): _adjustmentValues[adjustment.id] = null;
+        case DurationAdjustment(): _adjustmentValues[adjustment.id] = null;
       }
     }
   }
@@ -76,111 +69,110 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
       mainAxisSize: MainAxisSize.min,
       children: List.generate(widget.adjustments.length, (index) {
         final adjustment = widget.adjustments[index];
-        if (adjustment is BooleanAdjustment) {
-          return SetBooleanAdjustmentWidget(
-            key: ValueKey(adjustment),
-            adjustment: adjustment,
-            initialValue: widget.initialAdjustmentValues[adjustment.id],
-            value: _adjustmentValues[adjustment.id],
-            onChanged: (bool? newValue) {
-              HapticFeedback.lightImpact();
-              setState(() => _adjustmentValues[adjustment.id] = newValue);
-              if (newValue == null) {
-                widget.removeFromAdjustmentValues(adjustment: adjustment);
-              } else {
+        switch (adjustment) {
+          case BooleanAdjustment(): 
+            return SetBooleanAdjustmentWidget(
+              key: ValueKey(adjustment),
+              adjustment: adjustment,
+              initialValue: widget.initialAdjustmentValues[adjustment.id],
+              value: _adjustmentValues[adjustment.id],
+              onChanged: (bool? newValue) {
+                HapticFeedback.lightImpact();
+                setState(() => _adjustmentValues[adjustment.id] = newValue);
+                if (newValue == null) {
+                  widget.removeFromAdjustmentValues(adjustment: adjustment);
+                } else {
+                  widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
+                }
+                widget.changeListener();
+              },
+            );
+          case NumericalAdjustment():
+            return SetNumericalAdjustmentWidget(
+              key: ValueKey(adjustment),
+              adjustment: adjustment,
+              initialValue: widget.initialAdjustmentValues[adjustment.id],
+              value: _adjustmentValues[adjustment.id]?.toString(),
+              onChanged: (String newValue) {
+                setState(() => _adjustmentValues[adjustment.id] = newValue);
+                final parsedValue = double.tryParse(newValue);
+                if (parsedValue != null) {                
+                  widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: parsedValue);
+                } else {
+                  widget.removeFromAdjustmentValues(adjustment: adjustment);
+                }
+                widget.changeListener();
+              },
+            );
+          case StepAdjustment():
+            return SetStepAdjustmentWidget(
+              key: ValueKey(adjustment), 
+              adjustment: adjustment,
+              initialValue: widget.initialAdjustmentValues[adjustment.id]?.toDouble(),
+              value: _adjustmentValues[adjustment.id]?.toDouble(), 
+              onChanged: (double? newValue) {
+                HapticFeedback.lightImpact();
+                setState(() {
+                  _adjustmentValues[adjustment.id] = newValue;
+                });
+              },
+              onChangedEnd: (double? newValue) {
+                if (newValue == null) {
+                  widget.removeFromAdjustmentValues(adjustment: adjustment);
+                } else {
+                  widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue.toInt());
+                }
+                widget.changeListener();
+              },
+            );
+          case CategoricalAdjustment():
+            return SetCategoricalAdjustmentWidget(
+              key: ValueKey(adjustment), 
+              adjustment: adjustment, 
+              initialValue: widget.initialAdjustmentValues[adjustment.id],
+              value: _adjustmentValues[adjustment.id], 
+              onChanged: (String? newValue) {
+                setState(() {
+                  _adjustmentValues[adjustment.id] = newValue;
+                });
                 widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
-              }
-              widget.changeListener();
-            },
-          );
-        } else if (adjustment is NumericalAdjustment) {
-          return SetNumericalAdjustmentWidget(
-            key: ValueKey(adjustment),
-            adjustment: adjustment,
-            initialValue: widget.initialAdjustmentValues[adjustment.id],
-            value: _adjustmentValues[adjustment.id]?.toString(),
-            onChanged: (String newValue) {
-              setState(() => _adjustmentValues[adjustment.id] = newValue);
-              final parsedValue = double.tryParse(newValue);
-              if (parsedValue != null) {                
-                widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: parsedValue);
-              } else {
-                widget.removeFromAdjustmentValues(adjustment: adjustment);
-              }
-              widget.changeListener();
-            },
-          );
-          
-        } else if (adjustment is StepAdjustment) {
-          return SetStepAdjustmentWidget(
-            key: ValueKey(adjustment), 
-            adjustment: adjustment,
-            initialValue: widget.initialAdjustmentValues[adjustment.id]?.toDouble(),
-            value: _adjustmentValues[adjustment.id]?.toDouble(), 
-            onChanged: (double? newValue) {
-              HapticFeedback.lightImpact();
-              setState(() {
-                _adjustmentValues[adjustment.id] = newValue;
-              });
-            },
-            onChangedEnd: (double? newValue) {
-              if (newValue == null) {
-                widget.removeFromAdjustmentValues(adjustment: adjustment);
-              } else {
-                widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue.toInt());
-              }
-              widget.changeListener();
-            },
-          );
-        } else if (adjustment is CategoricalAdjustment) {
-          return SetCategoricalAdjustmentWidget(
-            key: ValueKey(adjustment), 
-            adjustment: adjustment, 
-            initialValue: widget.initialAdjustmentValues[adjustment.id],
-            value: _adjustmentValues[adjustment.id], 
-            onChanged: (String? newValue) {
-              setState(() {
-                _adjustmentValues[adjustment.id] = newValue;
-              });
-              widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
-              widget.changeListener();
-            },
-          );
-        } else if (adjustment is TextAdjustment) {
-          return SetTextAdjustmentWidget(
-            key: ValueKey(adjustment), 
-            adjustment: adjustment, 
-            initialValue: widget.initialAdjustmentValues[adjustment.id],
-            value: _adjustmentValues[adjustment.id], 
-            onChanged: (String newValue) {
-              setState(() => _adjustmentValues[adjustment.id] = newValue);
-              if (newValue.isNotEmpty) {        
-                widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
-              } else {
-                widget.removeFromAdjustmentValues(adjustment: adjustment);
-              }
-              widget.changeListener();
-            },
-          );
-        } else if (adjustment is DurationAdjustment) {
-          return SetDurationAdjustmentWidget(
-            key: ValueKey(adjustment),
-            adjustment: adjustment,
-            initialValue: widget.initialAdjustmentValues[adjustment.id],
-            value: _adjustmentValues[adjustment.id], 
-            onChanged: (Duration? newValue) {
-              if (!mounted) return;
-              setState(() => _adjustmentValues[adjustment.id] = newValue);
-              if (newValue != null) {        
-                widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
-              } else {
-                widget.removeFromAdjustmentValues(adjustment: adjustment);
-              }
-              widget.changeListener();
-            },
-          );
+                widget.changeListener();
+              },
+            );
+          case TextAdjustment():
+            return SetTextAdjustmentWidget(
+              key: ValueKey(adjustment), 
+              adjustment: adjustment, 
+              initialValue: widget.initialAdjustmentValues[adjustment.id],
+              value: _adjustmentValues[adjustment.id], 
+              onChanged: (String newValue) {
+                setState(() => _adjustmentValues[adjustment.id] = newValue);
+                if (newValue.isNotEmpty) {
+                  widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
+                } else {
+                  widget.removeFromAdjustmentValues(adjustment: adjustment);
+                }
+                widget.changeListener();
+              },
+            );
+          case DurationAdjustment():
+            return SetDurationAdjustmentWidget(
+              key: ValueKey(adjustment),
+              adjustment: adjustment,
+              initialValue: widget.initialAdjustmentValues[adjustment.id],
+              value: _adjustmentValues[adjustment.id], 
+              onChanged: (Duration? newValue) {
+                if (!mounted) return;
+                setState(() => _adjustmentValues[adjustment.id] = newValue);
+                if (newValue != null) {        
+                  widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
+                } else {
+                  widget.removeFromAdjustmentValues(adjustment: adjustment);
+                }
+                widget.changeListener();
+              },
+            );
         }
-        throw Exception('Unknown adjustment type');
       }),
     );
   }

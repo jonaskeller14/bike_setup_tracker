@@ -54,11 +54,12 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final String? parsedValue = _controller.text.trim().isEmpty ? null : _controller.text.trim();
     late bool isChanged;
     late bool isInitial;
     late Color? highlightColor; 
     if (widget.highlighting) {
-      isChanged = widget.initialValue != _controller.text.trim();
+      isChanged = widget.initialValue != parsedValue;
       isInitial = widget.initialValue == null;
       highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
     } else {
@@ -111,7 +112,8 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
                     _controller.text = widget.initialValue ?? '';
                     widget.onChanged(_controller.text.trim());
                   }, 
-                  icon: const Icon(Icons.replay)
+                  icon: const Icon(Icons.replay),
+                  visualDensity: VisualDensity.compact,
                 ),
               ),
               validator: (String? newValue) {
@@ -119,8 +121,8 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
                   return "Pure Duration Format not allowed. Add characters or use Duration Adjustment type.";
                 }
                 return null;
-              }
-            ), 
+              },
+            ),
           ),
         ],
       ),

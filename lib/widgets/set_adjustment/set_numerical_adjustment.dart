@@ -55,7 +55,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
 
   @override
   Widget build(BuildContext context) {
-    double? parsedValue = double.tryParse(widget.value ?? '');
+    final double? parsedValue = double.tryParse(widget.value ?? '');
     late bool isChanged;
     late bool isInitial;
     late Color? highlightColor; 
@@ -131,8 +131,8 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                   if (parsedValue < min) return "Value is below minimum of $min";
                 }
                 return null;
-              },   
-            ),  
+              },
+            ),
           ),
         ],
       ),

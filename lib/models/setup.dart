@@ -52,7 +52,7 @@ class Setup {
     required this.isCurrent,
   }) : id = id ?? const Uuid().v4(),
        isDeleted = isDeleted ?? false,
-       lastModified = lastModified ?? DateTime.now().toUtc();
+       lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
 
   Map<String, dynamic> toJson() => {
     'version': 4,
@@ -87,7 +87,7 @@ class Setup {
           lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
           name: json['name'],
           datetime: DateTime.parse(json['datetime']).toUtc(),
-          datetimeLocal: DateTime.tryParse(json['datetimeLocal']) ?? DateTime.parse(json['datetime']),
+          datetimeLocal: DateTime.tryParse(json['datetimeLocal'] ?? '') ?? DateTime.parse(json['datetime']),
           notes: json['notes'] != null ? json['notes'] as String : null,
           tags: (json['tags'] as List?)?.map((item) => item as String).toSet() ?? <String>{},
           bike: json['bike'],

@@ -99,7 +99,8 @@ void main() {
     final setup1 = Setup(
       name: "Setup #1", 
       tags: {},
-      datetime: DateTime(2000),
+      datetime: DateTime(2000).toUtc(),
+      datetimeLocal: DateTime(2000).toLocal(),
       bike: bike1.id, 
       person: null, 
       bikeAdjustmentValues: {}, 

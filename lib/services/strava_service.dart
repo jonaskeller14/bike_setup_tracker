@@ -8,7 +8,7 @@ import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
-import '../models/strava_activity.dart';
+import '../models/strava/strava_activity.dart';
 
 enum StravaServiceStatus {
   idle,
@@ -19,6 +19,7 @@ class StravaService extends ChangeNotifier {
   static const String _stravaClientId = "193047";
   static const String _redirectUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/exchangeToken";
   static const String _deauthorizeUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/deauthorizeUser";
+  static const String _syncUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/syncActivities";
   static const String _scope = "read,profile:read_all,activity:read_all";
 
   StravaServiceStatus _status = StravaServiceStatus.idle;
@@ -127,7 +128,7 @@ class StravaService extends ChangeNotifier {
       bool changed = false;
       for (var doc in snapshot.docs) {
         final activity = StravaActivity.fromFirestore(doc.data());
-        if (!_activities.any((a) => a.id == activity.id)) {
+        if (!_activities.any((a) => a.id == activity.id)) { //FIXME: merge logic
           _activities.insert(0, activity);
           changed = true;
           debugPrint("New Strava activity imported: ${activity.name}");
@@ -250,6 +251,29 @@ class StravaService extends ChangeNotifier {
     } catch (e) {
       debugPrint("Error disconnecting Strava: $e");
       errorMessage = "Disconnection failed: $e";
+      status = StravaServiceStatus.idle;
+    }
+  }
+
+  Future<void> triggerManualSync() async {
+    if (_userId == null) return;
+    
+    status = StravaServiceStatus.syncing;
+    errorMessage = ""; // Clear previous errors
+    
+    try {
+      final response = await http.get(Uri.parse("$_syncUri?state=$_userId"));
+      
+      if (response.statusCode != 200) {
+        throw "Sync failed: ${response.body}";
+      }
+      
+      debugPrint("Manual sync successful: ${response.body}");
+      status = StravaServiceStatus.idle;
+      
+    } catch (e) {
+      debugPrint("Error manually syncing Strava: $e");
+      errorMessage = "Sync failed: $e";
       status = StravaServiceStatus.idle;
     }
   }

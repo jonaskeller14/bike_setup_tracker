@@ -21,7 +21,7 @@ class Person {
   }) : adjustments = adjustments ?? [],
        id = id ?? const Uuid().v4(),
        isDeleted = isDeleted ?? false,
-       lastModified = lastModified ?? DateTime.now().toUtc();
+       lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
 
   Person deepCopy() {
     return Person(

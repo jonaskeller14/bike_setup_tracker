@@ -56,7 +56,7 @@ class Component {
   }) : adjustments = adjustments ?? [],
        id = id ?? const Uuid().v4(),
        isDeleted = isDeleted ?? false,
-       lastModified = lastModified ?? DateTime.now().toUtc();
+       lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
     
   Component deepCopy() {
     return Component(

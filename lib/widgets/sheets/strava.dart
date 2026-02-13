@@ -121,7 +121,7 @@ class StravaSheet extends StatelessWidget {
                       ),
                       ...stravaService.activities.map((activity) => ListTile(
                             title: Text(activity.name),
-                            subtitle: Text("${activity.type} • ${(activity.distance / 1000).toStringAsFixed(2)} km"),
+                            subtitle: Text(activity.sportType),
                             trailing: Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.end,
@@ -178,7 +178,7 @@ class StravaSheet extends StatelessWidget {
                       child: FilledButton.icon(
                         onPressed: stravaService.status == StravaServiceStatus.syncing
                             ? null
-                            : null,  //FIXME
+                            : () => stravaService.triggerManualSync(),
                         icon: stravaService.status == StravaServiceStatus.syncing
                             ? const SizedBox(
                                 height: 16,

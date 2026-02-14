@@ -61,7 +61,7 @@ class Setup {
     "lastModified": lastModified.toUtc().toIso8601String(),
     'name': name,
     'datetime': datetime.toUtc().toIso8601String(),
-    'datetimeLocal': datetimeLocal.toIso8601String(),
+    'datetimeLocal': datetimeLocal.toLocal().toIso8601String(),
     'notes': notes,
     'tags': tags.toList(),
     'bike': bike,

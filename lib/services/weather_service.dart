@@ -31,6 +31,11 @@ class WeatherService extends ChangeNotifier {
   Future<Weather?> fetchWeather({required double lat, required double lon, required DateTime datetime, int counter = 1}) async {
     setStatus(WeatherStatus.searching);
     try {
+      if (datetime.isUtc) {
+        debugPrint("WARNING: fetchWeather() is called with UTC Time");
+        datetime = datetime.toLocal();
+      }
+
       if (datetime.isAfter(DateTime.now())) throw Exception("Date must be in the past.");
 
       final response = await historicalAPI.request(
@@ -38,8 +43,8 @@ class WeatherService extends ChangeNotifier {
           OpenMeteoLocation(
             latitude: lat,
             longitude: lon,
-            startDate: DateTime(datetime.year, datetime.month, datetime.day),
-            endDate: DateTime(datetime.year, datetime.month, datetime.day),
+            startDate: datetime,
+            endDate: datetime,
           )
         },
         hourly: {
@@ -52,7 +57,7 @@ class WeatherService extends ChangeNotifier {
           HistoricalHourly.is_day,
         },
       );
-      final apiDatetime = datetime.copyWith(minute: 0, second: 0, millisecond: 0, microsecond: 0);
+      final apiDatetime = datetime.copyWith(minute: 0, second: 0, millisecond: 0, microsecond: 0, isUtc: false);
       final double? currentTemperature = response.segments[0].hourlyData[HistoricalHourly.temperature_2m]!.values[apiDatetime]?.toDouble();
       final int? currentWeatherCode = response.segments[0].hourlyData[HistoricalHourly.weather_code]!.values[apiDatetime]?.toInt();
       final double? currentHumidity = response.segments[0].hourlyData[HistoricalHourly.relative_humidity_2m]!.values[apiDatetime]?.toDouble();

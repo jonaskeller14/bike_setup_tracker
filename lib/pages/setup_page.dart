@@ -72,8 +72,12 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   late String? _person;
   late String? _initialPerson;
   Iterable<Component> _bikeComponents = [];
-  late DateTime _selectedDateTime;
-  late DateTime _initialDateTime;
+
+  late DateTime _selectedDateTimeUtc;
+  late DateTime _initialDateTimeUtc;
+  late DateTime _selectedDateTimeLocal;
+  late DateTime _initialDateTimeLocal;
+  
   final Map<String, dynamic> _bikeAdjustmentValues = {};
   final Map<String, dynamic> _personAdjustmentValues = {};
   final Map<String, dynamic> _ratingAdjustmentValues = {};
@@ -103,8 +107,13 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _nameController.addListener(_changeListener);
     _notesController = TextEditingController(text: widget.setup?.notes);
     _notesController.addListener(_changeListener);
-    _selectedDateTime = widget.setup?.datetime ?? DateTime.now();
-    _initialDateTime = _selectedDateTime;
+
+    final now = DateTime.now();
+    _selectedDateTimeUtc = widget.setup?.datetime ?? now.toUtc();
+    _initialDateTimeUtc = _selectedDateTimeUtc;
+    _selectedDateTimeLocal = widget.setup?.datetimeLocal ?? now;
+    _initialDateTimeLocal = _selectedDateTimeLocal;
+    
     _currentLocation.value = widget.setup?.position;
     _currentPlace.value = widget.setup?.place;
     _currentWeather.value = widget.setup?.weather;
@@ -135,6 +144,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   Setup? getPreviousSetupbyDateTime({required DateTime datetime, String? bike, String? person}) {
+    if (!datetime.isUtc) {
+      debugPrint("WARNING: getPreviousSetupbyDateTime() called with local DateTime");
+      datetime = datetime.toUtc();
+    }
     final filteredData = context.read<FilteredData>();
     return filteredData.setups.values.lastWhereOrNull((s) => s.datetime.isBefore(datetime) && (bike == null || s.bike == bike) && (person == null || s.person == person));
   }
@@ -247,8 +260,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _person = bikes[_bike]?.person;
       _bikeComponents = components.values.where((c) => c.bike == _bike).toList();
 
-      _previousBikeSetup = getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: _bike);
-      _previousPersonSetup = getPreviousSetupbyDateTime(datetime: _selectedDateTime, person: _person);
+      _previousBikeSetup = getPreviousSetupbyDateTime(datetime: _selectedDateTimeUtc, bike: _bike);
+      _previousPersonSetup = getPreviousSetupbyDateTime(datetime: _selectedDateTimeUtc, person: _person);
 
       _setPreviousAdjustmentValues();
       _setInitialAdjustmentValues();
@@ -329,7 +342,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     final hasChanges = _nameController.text.trim() != (widget.setup?.name ?? '') || 
         _notesController.text.trim() != (widget.setup?.notes ?? '') || 
-        _initialDateTime != _selectedDateTime || 
+        _initialDateTimeUtc != _selectedDateTimeUtc || 
+        _initialDateTimeLocal != _selectedDateTimeLocal ||
 
         !Setup.locationEqual(_currentLocation.value, widget.setup?.position) ||
         !Setup.placeEqual(_currentPlace.value, widget.setup?.place) ||
@@ -370,28 +384,29 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       context: context,
       helpText: "Select Setup Date",
       errorInvalidText: "Date cannot be in the future",
-      selectableDayPredicate: (DateTime pickedDate) => !_selectedDateTime.copyWith(
+      selectableDayPredicate: (DateTime pickedDate) => !_selectedDateTimeLocal.copyWith(
         day: pickedDate.day,
         month: pickedDate.month,
         year: pickedDate.year,
       ).isAfter(DateTime.now()),
-      initialDate: _selectedDateTime,
+      initialDate: _selectedDateTimeLocal,
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
     );
     if (!mounted || pickedDate == null) return;
 
-    final DateTime newDateTime = _selectedDateTime.copyWith(
+    final DateTime newDateTimeLocal = _selectedDateTimeLocal.copyWith(
       day: pickedDate.day,
       month: pickedDate.month,
       year: pickedDate.year,
     );
-    if (newDateTime == _selectedDateTime) return;
+    if (newDateTimeLocal == _selectedDateTimeLocal) return;
 
     setState(() {
-      _selectedDateTime = newDateTime;
-      _previousBikeSetup = getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: _bike);
-      _previousPersonSetup = getPreviousSetupbyDateTime(datetime: _selectedDateTime, person: _person);
+      _selectedDateTimeLocal = newDateTimeLocal;
+      _selectedDateTimeUtc = newDateTimeLocal.toUtc();
+      _previousBikeSetup = getPreviousSetupbyDateTime(datetime: _selectedDateTimeUtc, bike: _bike);
+      _previousPersonSetup = getPreviousSetupbyDateTime(datetime: _selectedDateTimeUtc, person: _person);
       _setPreviousAdjustmentValues();
       _setInitialAdjustmentValues();
     });
@@ -421,14 +436,14 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       helpText: "Select Setup Time",
-      initialTime: TimeOfDay.fromDateTime(_selectedDateTime),
+      initialTime: TimeOfDay.fromDateTime(_selectedDateTimeLocal),
     );
 
     if (!mounted || pickedTime == null) return;
     
-    final DateTime newDateTime = _selectedDateTime.copyWith(hour: pickedTime.hour, minute: pickedTime.minute);
-    if (newDateTime == _selectedDateTime) return;
-    if (newDateTime.isAfter(DateTime.now())) {
+    final DateTime newDateTimeLocal = _selectedDateTimeLocal.copyWith(hour: pickedTime.hour, minute: pickedTime.minute);
+    if (newDateTimeLocal == _selectedDateTimeLocal) return;
+    if (newDateTimeLocal.isAfter(DateTime.now())) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         persist: false,
         showCloseIcon: true,
@@ -440,9 +455,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     }
 
     setState(() {
-      _selectedDateTime = newDateTime;
-      _previousBikeSetup = getPreviousSetupbyDateTime(datetime: _selectedDateTime, bike: _bike);
-      _previousPersonSetup = getPreviousSetupbyDateTime(datetime: _selectedDateTime, person: _person);
+      _selectedDateTimeLocal = newDateTimeLocal;
+      _selectedDateTimeUtc = newDateTimeLocal.toUtc();
+      _previousBikeSetup = getPreviousSetupbyDateTime(datetime: _selectedDateTimeUtc, bike: _bike);
+      _previousPersonSetup = getPreviousSetupbyDateTime(datetime: _selectedDateTimeUtc, person: _person);
       _setPreviousAdjustmentValues();
       _setInitialAdjustmentValues();
     });
@@ -493,7 +509,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final currentWeather = await _weatherService.fetchWeather(
       lat: _currentLocation.value!.latitude!,
       lon: _currentLocation.value!.longitude!,
-      datetime: _selectedDateTime,
+      datetime: _selectedDateTimeLocal,
     );
 
     if (!mounted) return;
@@ -546,8 +562,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         isDeleted: widget.setup?.isDeleted,
         lastModified: DateTime.now(),
         name: name,
-        datetime: _selectedDateTime.toUtc(),
-        datetimeLocal: _selectedDateTime,
+        datetime: _selectedDateTimeUtc,
+        datetimeLocal: _selectedDateTimeLocal,
         notes: notes,
         tags: _tags,
         bike: _bike,
@@ -672,17 +688,17 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
             ActionChip(
               avatar: const Icon(Icons.calendar_month),
               label: Text(
-                DateFormat(appSettings.dateFormat).format(_selectedDateTime),
+                DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal),
               ),
-              backgroundColor: widget.mode == SetupPageMode.edit && (_selectedDateTime.year != widget.setup?.datetime.year || _selectedDateTime.month != widget.setup?.datetime.month || _selectedDateTime.day != widget.setup?.datetime.day) ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.mode == SetupPageMode.edit && (_selectedDateTimeUtc.year != _initialDateTimeUtc.year || _selectedDateTimeUtc.month != _initialDateTimeUtc.month || _selectedDateTimeUtc.day != _initialDateTimeUtc.day) ? Colors.orange.withValues(alpha: 0.08) : null,
               onPressed: _pickDate,
             ),
             ActionChip(
               avatar: const Icon(Icons.access_time),
               label: Text(
-                DateFormat(appSettings.timeFormat).format(_selectedDateTime),
+                DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal),
               ),
-              backgroundColor: widget.mode == SetupPageMode.edit && (_selectedDateTime.hour != widget.setup?.datetime.hour || _selectedDateTime.minute != widget.setup?.datetime.minute) ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.mode == SetupPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute) ? Colors.orange.withValues(alpha: 0.08) : null,
               onPressed: _pickTime,
             ),
             ActionChip(
@@ -783,7 +799,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                         weatherService: _weatherService,
                         locationService: _locationService,
                         currentLocation: _currentLocation.value,
-                        selectedDateTime: _selectedDateTime,
+                        selectedDateTime: _selectedDateTimeLocal,
                       );
                       if (newWeather == null) return;
                       _weatherService.setStatus(WeatherStatus.success);
@@ -819,7 +835,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       })),
                 onChanged: (Condition? newValue) {
                   if (newValue == null) return;
-                  _currentWeather.value ??= Weather(currentDateTime: _selectedDateTime);
+                  _currentWeather.value ??= Weather(currentDateTime: _selectedDateTimeLocal);
                   _currentWeather.value = _currentWeather.value?.copyWith(condition: newValue);
                   Navigator.pop(context);
                 }

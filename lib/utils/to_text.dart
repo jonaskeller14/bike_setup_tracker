@@ -48,8 +48,8 @@ String toText({
   if (setups.isNotEmpty) {
     final List<String> sectionItems = ["SETUPS:"];
     for (final setup in setups) {
-      final dateString = DateFormat(appSettings.dateFormat).format(setup.datetime);
-      final timeString = DateFormat(appSettings.timeFormat).format(setup.datetime);
+      final dateString = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
+      final timeString = DateFormat(appSettings.timeFormat).format(setup.datetimeLocal);
 
       if (appSettings.enablePerson) {
         sectionItems.add("🎛️ $dateString $timeString - ${setup.name} (${appData.bikes[setup.bike]?.name ?? '-'} | ${appData.persons[setup.person]?.name ?? '-'})${setup.isDeleted ? ' [DELETED]' : ''}");

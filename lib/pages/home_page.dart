@@ -25,6 +25,7 @@ import '../widgets/rating_list.dart';
 import '../widgets/bike_list.dart';
 import '../widgets/component_list.dart';
 import '../widgets/setup_list.dart';
+import '../widgets/setup_list_card.dart';
 import '../widgets/sheets/import.dart';
 import '../widgets/sheets/export.dart';
 import '../widgets/sheets/filter.dart';
@@ -559,7 +560,7 @@ class _HomePageState extends State<HomePage> {
                 editSetup: _editSetup,
               )));
             },
-            child: SetupCard(
+            child: SetupListCard(
               setupId: setup.id, 
               editSetup: _editSetup, 
               restoreSetup: _duplicateSetup, 

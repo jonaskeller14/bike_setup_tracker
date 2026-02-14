@@ -1,14 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
-import 'package:provider/provider.dart';
 import '../models/component.dart';
-import '../models/filtered_data.dart';
-import '../models/bike.dart';
-import 'adjustment_compact_display_list.dart';
-import '../pages/component_overview_page.dart';
+import 'component_list_card.dart';
 
-class ComponentList extends StatefulWidget {
+class ComponentList extends StatelessWidget {
   final Map<String, Component> components;
   final Future<void> Function(Component component) editComponent;
   final Future<void> Function(Component component) duplicateComponent;
@@ -26,190 +21,29 @@ class ComponentList extends StatefulWidget {
     required this.filterWidget,
   });
 
-  @override
-  State<ComponentList> createState() => _ComponentListState();
-}
-
-class _ComponentListState extends State<ComponentList> {
-  int _maxItemCount = 10;
-  static const int _itemCountIncrement = 10;
+  Widget _emptyPlaceholder(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          filterWidget,
+          Expanded(
+            child: Center(
+              child: Text(
+                'No components yet',
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final visibleItemCount = widget.components.length.clamp(0, _maxItemCount);
-
-    final filteredData = context.watch<FilteredData>();
-    final bikes = filteredData.bikes;
-    final setups = filteredData.setups;
-    
-    final List<InkWell> inkWells = <InkWell>[];
-    for (int index = 0; index < visibleItemCount; index++) {
-      final component = widget.components.values.toList()[index];
-      final enabled = setups.values.lastWhereOrNull((s) => s.bike == component.bike) != null;
-      inkWells.add(
-        InkWell(
-          key: ValueKey(component.id),
-          onTap: enabled
-              ? () async {
-                  await Navigator.push<Component>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ComponentOverviewPage(component: component),
-                    ),
-                  );
-                }
-              : null,
-          child: Card(
-            margin: const EdgeInsets.symmetric(vertical: 4.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ListTile(
-                  leading: Icon(component.componentType.getIconData()),
-                  minTileHeight: 0,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 0,
-                  ),
-                  title: Text(
-                    component.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  enabled: enabled,
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 2,
-                    children: [
-                      Wrap(
-                        spacing: 4,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            spacing: 2,
-                            children: [
-                              Icon(component.bike != null 
-                                  ? Bike.iconData 
-                                  : Icons.shelves, 
-                                size: 13, 
-                                color: component.bike == null || bikes.containsKey(component.bike) 
-                                    ? Theme.of(context).colorScheme.onSurfaceVariant
-                                    : Theme.of(context).colorScheme.error,
-                              ),
-                              Flexible(
-                                child: Text(
-                                  component.bike == null 
-                                      ? "Not installed" 
-                                      : bikes[component.bike]?.name ?? "BIKE NOT FOUND",
-                                  style: TextStyle(
-                                    color: component.bike == null || bikes.containsKey(component.bike) 
-                                        ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                                        : Theme.of(context).colorScheme.error,
-                                    fontSize: 13,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      if (component.notes != null && component.notes!.isNotEmpty)
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 3),
-                              child: Icon(
-                                Icons.notes,
-                                size: 13,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                            const SizedBox(width: 2),
-                            Expanded(
-                              child: Text(
-                                component.notes!,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ReorderableDragStartListener(
-                        index: index,
-                        child: const Icon(Icons.drag_handle),
-                      ),
-                      PopupMenuButton<String>(
-                        onSelected: (value) {
-                          switch (value) {
-                            case 'edit': widget.editComponent(component);
-                            case 'duplicate': widget.duplicateComponent(component);
-                            case 'remove': widget.removeComponent(component);
-                          }
-                        },
-                        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                          const PopupMenuItem<String>(
-                            value: 'edit',
-                            child: Row(
-                              children: [
-                                Icon(Icons.edit, size: 20),
-                                SizedBox(width: 10),
-                                Text('Edit'),
-                              ],
-                            ),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: 'duplicate',
-                            child: Row(
-                              children: [
-                                Icon(Icons.copy, size: 20),
-                                SizedBox(width: 10),
-                                Text('Duplicate'),
-                              ],
-                            ),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: 'remove',
-                            child: Row(
-                              children: [
-                                Icon(Icons.delete, size: 20),
-                                SizedBox(width: 10),
-                                Text('Remove'),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
-                  child: AdjustmentCompactDisplayList(
-                    components: [component],
-                    adjustmentValues: setups.values.lastWhereOrNull((s) => s.bike == component.bike)?.bikeAdjustmentValues ?? {},
-                    showComponentIcons: false,
-                    missingValuesPlaceholder: true,
-                    displayBikeAdjustmentValues: true,
-                    displayPersonAdjustmentValues: false,
-                    displayRatingAdjustmentValues: false,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
+    final componentsList = components.values.toList();
 
     Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
       return AnimatedBuilder(
@@ -218,51 +52,40 @@ class _ComponentListState extends State<ComponentList> {
           final double animValue = Curves.easeInOut.transform(animation.value);
           final double elevation = lerpDouble(1, 6, animValue)!;
           final double scale = lerpDouble(1, 1.03, animValue)!;
-          final card = inkWells[index].child! as Card;
           return Transform.scale(
             scale: scale,
-            child: Card(elevation: elevation, color: card.color, child: card.child),
+            child: ComponentListCard(
+              component: componentsList[index],
+              index: index,
+              elevation: elevation,
+              editComponent: editComponent,
+              duplicateComponent: duplicateComponent,
+              removeComponent: removeComponent,
+            ),
           );
         },
         child: child,
       );
     }
 
-    return widget.components.isEmpty
-        ? Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                widget.filterWidget,
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      'No components yet',
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )
+    return components.isEmpty
+        ? _emptyPlaceholder(context)
         : ReorderableListView.builder(
-            itemCount: visibleItemCount,
+            itemCount: componentsList.length,
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
-            header: widget.filterWidget,
-            footer: widget.components.length > visibleItemCount
-                ? Center(
-                    child: TextButton.icon(
-                      onPressed: () => setState(() => _maxItemCount += _itemCountIncrement),
-                      icon: const Icon(Icons.expand_more),
-                      label: const Text("Show more"),
-                    ),
-                  )
-                : null,
+            header: filterWidget,
             proxyDecorator: proxyDecorator,
-            onReorder: widget.onReorderComponent,
+            onReorder: onReorderComponent,
             itemBuilder: (context, index) {
-              return inkWells[index];
+              final component = componentsList[index];
+              return ComponentListCard(
+                key: ValueKey(component.id),
+                component: component,
+                index: index,
+                editComponent: editComponent,
+                duplicateComponent: duplicateComponent,
+                removeComponent: removeComponent
+              );
             },
           );
   }

@@ -27,6 +27,7 @@ class StravaSheet extends StatelessWidget {
     final filteredData = context.watch<FilteredData>();
     final stravaService = context.watch<StravaService>();
     final athletes = filteredData.stravaAthletes.values;
+    final gears = filteredData.stravaGears.values;
     final latestActivities = filteredData.stravaActivities.values.sortedBy((a) => a.startDate).reversed.take(3);
     
     return SafeArea(
@@ -130,7 +131,35 @@ class StravaSheet extends StatelessWidget {
                         contentPadding: EdgeInsets.zero,
                       ),
                     ],
-                    const SizedBox(height: 16),
+                    if (gears.isNotEmpty) ...[
+                      const Divider(),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: Text("Strava Gear:", style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      Wrap(
+                        alignment: WrapAlignment.start,
+                        spacing: 4,
+                        runSpacing: 4,
+                        children: gears.map((g) {
+                          final linkedBike = filteredData.bikes.values.firstWhereOrNull((b) => b.stravaGear == g.id);
+                          return Tooltip(
+                            triggerMode: TooltipTriggerMode.tap,
+                            preferBelow: false,
+                            showDuration: const Duration(seconds: 5),
+                            message: linkedBike == null
+                                ? "Strava Gear is not linked yet. For linking, edit the Bike you want to link in the Bike tab."
+                                : "Strava Gear is linked to the Bike '${linkedBike.name}'",
+                            child: Chip(
+                              avatar: linkedBike == null
+                                  ? Icon(Icons.link_off, color: Theme.of(context).colorScheme.error)
+                                  : Icon(Icons.link),
+                              label: Text(g.name),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
                     if (latestActivities.isNotEmpty) ...[
                       const Divider(),
                       const Padding(

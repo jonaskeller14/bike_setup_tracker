@@ -552,7 +552,8 @@ class _HomePageState extends State<HomePage> {
         });
 
         return suggestedSetups.map((setup) {
-          return InkWell(
+          return SetupListCard(
+            setupId: setup.id, 
             onTap: () async {
               await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDisplayPage(
                 setupIds: suggestedSetups.map((s) => s.id).toList(),
@@ -560,16 +561,13 @@ class _HomePageState extends State<HomePage> {
                 editSetup: _editSetup,
               )));
             },
-            child: SetupListCard(
-              setupId: setup.id, 
-              editSetup: _editSetup, 
-              restoreSetup: _duplicateSetup, 
-              removeSetup: _removeSetup, 
-              displayOnlyChanges: _setupListOnlyChanges, 
-              displayBikeAdjustmentValues:_setupListBikeAdjustmentValues, 
-              displayPersonAdjustmentValues: _setupListPersonAdjustmentValues, 
-              displayRatingAdjustmentValues: _setupListRatingAdjustmentValues,
-            ),
+            editSetup: _editSetup, 
+            restoreSetup: _duplicateSetup, 
+            removeSetup: _removeSetup, 
+            displayOnlyChanges: _setupListOnlyChanges, 
+            displayBikeAdjustmentValues:_setupListBikeAdjustmentValues, 
+            displayPersonAdjustmentValues: _setupListPersonAdjustmentValues, 
+            displayRatingAdjustmentValues: _setupListRatingAdjustmentValues,
           );
         });
       },
@@ -789,7 +787,6 @@ class _HomePageState extends State<HomePage> {
           filterWidget: _componentListFilterWidget(),
         ),
         SetupList(
-          setups: filteredData.filteredSetups,
           editSetup: _editSetup,
           restoreSetup: _duplicateSetup,
           removeSetup: _removeSetup,

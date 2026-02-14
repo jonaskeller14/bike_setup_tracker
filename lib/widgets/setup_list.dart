@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/setup.dart';
+import '../models/strava/strava_activity.dart';
+import '../models/filtered_data.dart';
 import '../pages/setup_display_page.dart';
-import 'initial_changed_value_legend.dart';
 import 'setup_list_card.dart';
+import 'strava_list_tile.dart';
 
-class SetupList extends StatefulWidget {
-  final Map<String, Setup> setups;
+class SetupList extends StatelessWidget {
   final Future<void> Function(Setup setup) editSetup;
   final Future<void> Function(Setup setup) restoreSetup;
   final Future<void> Function(Setup setup) removeSetup;
@@ -18,7 +20,6 @@ class SetupList extends StatefulWidget {
 
   const SetupList({
     super.key,
-    required this.setups,
     required this.editSetup,
     required this.restoreSetup,
     required this.removeSetup,
@@ -30,82 +31,84 @@ class SetupList extends StatefulWidget {
     required this.accending,
   });
 
-  @override
-  State<SetupList> createState() => _SetupListState();
-}
-
-class _SetupListState extends State<SetupList> {
-  int _maxItemCount = 10;
-  static const int _itemCountIncrement = 10;
-
-  @override
-  Widget build(BuildContext context) {
-    final visibleItemCount = widget.setups.length.clamp(0, _maxItemCount);
-    
-    final setups = widget.setups.values.toList();
-
-    return widget.setups.isEmpty
-        ? Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                widget.filterWidget,
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      'No setups yet',
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                    ),
-                  ),
-                ),
-              ],
+  Widget _emptyPlaceholder(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          filterWidget,
+          Expanded(
+            child: Center(
+              child: Text(
+                'No setups yet',
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+              ),
             ),
-          )
-        : ListView(
-            padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16),
-            children: [
-              widget.filterWidget,
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: visibleItemCount,
-                itemBuilder: (context, index) {
-                  final setup = widget.accending 
-                      ? setups[index] 
-                      : setups[widget.setups.length - 1 - index];
-                  return InkWell(
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {    
+    final filteredData = context.watch<FilteredData>();
+    final setupsList = filteredData.filteredSetups.values;
+    final stravaActivities = filteredData.filteredStravaActivities.values;
+
+    final List<TimelineEntry> entries =  [...setupsList.map((s) => SetupEntry(s)), ...stravaActivities.map((a) => StravaEntry(a))];
+    entries.sort((a, b) => accending ? a.date.compareTo(b.date) : b.date.compareTo(a.date));
+
+    return setupsList.isEmpty
+        ? _emptyPlaceholder(context)
+        : ListView.builder(
+            padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
+            itemCount: entries.length + 1, // 1 header
+            itemBuilder: (context, index) {
+              if (index == 0) return filterWidget;
+              
+              final entry = entries[index - 1];
+              switch (entry) {
+                case StravaEntry(): 
+                  return StravaListTile(stravaActivity: entry.activity);
+                case SetupEntry():
+                  final setup = entry.setup;
+                  return SetupListCard(
+                    setupId: setup.id,
                     onTap: () async {
                       Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDisplayPage(
-                        setupIds: setups.map((s) => s.id).toList(),
+                        setupIds: setupsList.map((s) => s.id).toList(),
                         initialSetup: setup,
-                        editSetup: widget.editSetup,
+                        editSetup: editSetup,
                       )));
                     },
-                    child: SetupListCard(
-                      setupId: setup.id,
-                      editSetup: widget.editSetup,
-                      restoreSetup: widget.restoreSetup,
-                      removeSetup: widget.removeSetup,
-                      displayOnlyChanges: widget.displayOnlyChanges,
-                      displayBikeAdjustmentValues: widget.displayBikeAdjustmentValues,
-                      displayPersonAdjustmentValues: widget.displayPersonAdjustmentValues,
-                      displayRatingAdjustmentValues: widget.displayRatingAdjustmentValues,  
-                    ),
+                    editSetup: editSetup,
+                    restoreSetup: restoreSetup,
+                    removeSetup: removeSetup,
+                    displayOnlyChanges: displayOnlyChanges,
+                    displayBikeAdjustmentValues: displayBikeAdjustmentValues,
+                    displayPersonAdjustmentValues: displayPersonAdjustmentValues,
+                    displayRatingAdjustmentValues: displayRatingAdjustmentValues,
                   ); 
-                },
-              ),
-              if (widget.setups.length > visibleItemCount)
-                Center(
-                  child: TextButton.icon(
-                    onPressed: () => setState(() => _maxItemCount += _itemCountIncrement),
-                    icon: const Icon(Icons.expand_more),
-                    label: const Text("Show more"),
-                  ),
-                ),
-              const SizedBox(height: 60),
-              const InitialChangedValueLegend(),
-            ]
+              }
+            },
           );
   }
+}
+
+sealed class TimelineEntry {
+  DateTime get date;
+}
+
+class SetupEntry extends TimelineEntry {
+  final Setup setup;
+  SetupEntry(this.setup);
+  @override DateTime get date => setup.datetime;
+}
+
+class StravaEntry extends TimelineEntry {
+  final StravaActivity activity;
+  StravaEntry(this.activity);
+  @override DateTime get date => activity.startDate;
 }

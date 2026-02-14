@@ -1,8 +1,9 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
-import '../../models/app_data.dart';
+import '../../models/filtered_data.dart';
 import '../../models/app_settings.dart';
 import '../../services/strava_service.dart';
 import 'sheet.dart';
@@ -23,9 +24,10 @@ class StravaSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.read<AppSettings>();
-    final appData = context.watch<AppData>();
+    final filteredData = context.watch<FilteredData>();
     final stravaService = context.watch<StravaService>();
-    final athletes = appData.stravaAthletes.values;
+    final athletes = filteredData.stravaAthletes.values;
+    final latestActivities = filteredData.stravaActivities.values.sortedBy((a) => a.startDate).reversed.take(3);
     
     return SafeArea(
       child: Padding(
@@ -78,10 +80,10 @@ class StravaSheet extends StatelessWidget {
                     if (athletes.isEmpty)
                       ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: Colors.transparent,
+                          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                           child: Icon(Icons.person_off, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         ),
-                        title: Text("Strava User not connected", style: const TextStyle(fontWeight: FontWeight.bold)),
+                        title: Text("Not connected", style: const TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: const Text("Connect to sync your rides"),
                         trailing: ConstrainedBox(
                           constraints: const BoxConstraints(
@@ -129,36 +131,36 @@ class StravaSheet extends StatelessWidget {
                       ),
                     ],
                     const SizedBox(height: 16),
-                    if (appData.stravaActivities.isNotEmpty) ...[
+                    if (latestActivities.isNotEmpty) ...[
                       const Divider(),
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 8),
-                        child: Text("Synced Activities:", style: TextStyle(fontWeight: FontWeight.bold)),
+                        child: Text("Latest Synced Activities:", style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
-                      ...appData.stravaActivities.values.map((activity) => ListTile(
-                            title: Text(activity.name),
-                            subtitle: Text(activity.sportType),
-                            trailing: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text("${DateFormat(appSettings.dateFormat).format(activity.startDate)} • ${DateFormat(appSettings.timeFormat).format(activity.startDate)}"),
-                                GestureDetector(
-                                  onTap: () => StravaService.openActivityOnStrava(activity.id),
-                                  child: const Text(
-                                    "View on Strava",
-                                    style: TextStyle(
-                                      color: Color(0xFFFC5200),
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                    ),
-                                  ),
+                      ...latestActivities.map((activity) => ListTile(
+                        title: Text(activity.name),
+                        subtitle: Text(activity.sportType.label),
+                        trailing: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text("${DateFormat(appSettings.dateFormat).format(activity.startDate)} • ${DateFormat(appSettings.timeFormat).format(activity.startDate)}"),
+                            GestureDetector(
+                              onTap: () => StravaService.openActivityOnStrava(activity.id),
+                              child: const Text(
+                                "View on Strava",
+                                style: TextStyle(
+                                  color: Color(0xFFFC5200),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
                                 ),
-                              ],
+                              ),
                             ),
-                            dense: true,
-                            contentPadding: EdgeInsets.zero,
-                          )),
+                          ],
+                        ),
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                      )),
                     ] else
                       const Center(
                         child: Padding(

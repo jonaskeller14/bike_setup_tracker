@@ -18,9 +18,7 @@ class StravaSyncButton extends StatelessWidget {
       children: [
         IconButton(
           icon: const Icon(SimpleIcons.strava),
-          onPressed: isSyncing 
-              ? null 
-              : () => showStravaSheet(context: context),
+          onPressed: () => showStravaSheet(context: context),
         ),
         
         // The "Badge" with loading circle (only shown if isSyncing is true)

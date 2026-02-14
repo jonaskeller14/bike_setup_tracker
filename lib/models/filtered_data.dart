@@ -5,6 +5,9 @@ import 'component.dart';
 import 'person.dart';
 import 'setup.dart';
 import 'rating.dart';
+import 'strava/strava_activity.dart';
+import 'strava/strava_athlete.dart';
+import 'strava/strava_gear.dart';
 
 class FilteredData extends ChangeNotifier {
   AppData _appData;
@@ -21,6 +24,9 @@ class FilteredData extends ChangeNotifier {
   Map<String, Setup> get setups => _setups;
   Map<String, Component> get components => _components;
   Map<String, Rating> get ratings => _ratings;
+  Map<int, StravaAthlete> get stravaAthletes => _appData.stravaAthletes;
+  Map<int, StravaActivity> get stravaActivities => _appData.stravaActivities;
+  Map<String, StravaGear> get stravaGears => _appData.stravaGears;
 
   Set<String> _setupTags = {};
   Set<String> get setupTags => _setupTags;
@@ -34,6 +40,7 @@ class FilteredData extends ChangeNotifier {
   Map<String, Rating> _filteredRatings = {};
   Map<String, Component> _filteredComponents = {};
   Map<String, Setup> _filteredSetups = {};
+  Map<int, StravaActivity> _filteredStravaActivities = {};
 
   String? get selectedBike => _selectedBike;
   Set<String> get selectedSetupTags => _selectedSetupTags;
@@ -43,6 +50,7 @@ class FilteredData extends ChangeNotifier {
   Map<String, Rating> get filteredRatings => _filteredRatings;
   Map<String, Component> get filteredComponents => _filteredComponents;
   Map<String, Setup> get filteredSetups => _filteredSetups;
+  Map<int, StravaActivity> get filteredStravaActivities => _filteredStravaActivities;
 
   FilteredData(this._appData);
 
@@ -79,6 +87,7 @@ class FilteredData extends ChangeNotifier {
     _filterSetups();
     _filterPersons();
     _filterRatings();
+    _filterStravaActivities();
   }
 
   void _filterBikes() {
@@ -115,6 +124,22 @@ class FilteredData extends ChangeNotifier {
         case FilterType.component: return _selectedBike == null ? true : filteredComponents.values.any((c) => c.id == rating.filter);
         case FilterType.componentType: return _selectedBike == null ? true : filteredComponents.values.any((c) => c.componentType.toString() == rating.filter);
       }
+    }));
+  }
+
+  void _filterStravaActivities() {
+    if (_selectedBike == null) {
+      _filteredStravaActivities = stravaActivities;
+      return;
+    }
+    final selectedStravaGear = bikes[_selectedBike]?.stravaGear;
+    if (selectedStravaGear == null) {
+      _filteredStravaActivities = stravaActivities;
+      return;
+    }
+
+    _filteredStravaActivities = Map.fromEntries(stravaActivities.entries.where((entry) {
+      return entry.value.gearId == selectedStravaGear;
     }));
   }
 

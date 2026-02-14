@@ -22,7 +22,7 @@ class StravaService extends ChangeNotifier {
   static const String _redirectUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/exchangeToken";
   static const String _deauthorizeUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/deauthorizeUser";
   static const String _syncUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/syncActivities";
-  // static const String _syncUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/syncFullHistory";
+  static const String _syncFullHistoryUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/syncFullHistory";
   static const String _scope = "read,profile:read_all,activity:read_all";
 
   StravaServiceStatus _status = StravaServiceStatus.idle;

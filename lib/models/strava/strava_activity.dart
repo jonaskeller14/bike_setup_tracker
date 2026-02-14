@@ -1,11 +1,69 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// ignore_for_file: constant_identifier_names
+enum SportType {
+  AlpineSki("Alpine Ski"),
+  BackcountrySki("Backcountry Ski"),
+  Badminton("Badminton"),
+  Canoeing("Canoeing"),
+  Crossfit("Crossfit"),
+  EBikeRide("E-Bike Ride"),
+  Elliptical("Elliptical"),
+  EMountainBikeRide("E-Mountain Bike Ride"),
+  Golf("Golf"),
+  GravelRide("Gravel Ride"),
+  Handcycle("Handcycle"),
+  HighIntensityIntervalTraining("HIIT"),
+  Hike("Hike"),
+  IceSkate("Ice Skate"),
+  InlineSkate("Inline Skate"),
+  Kayaking("Kayaking"),
+  Kitesurf("Kitesurf"),
+  MountainBikeRide("Mountain Bike Ride"),
+  NordicSki("Nordic Ski"),
+  Pickleball("Pickleball"),
+  Pilates("Pilates"),
+  Racquetball("Racquetball"),
+  Ride("Ride"),
+  RockClimbing("Rock Climbing"),
+  RollerSki("Roller Ski"),
+  Rowing("Rowing"),
+  Run("Run"),
+  Sail("Sail"),
+  Skateboard("Skateboard"),
+  Snowboard("Snowboard"),
+  Snowshoe("Snowshoe"),
+  Soccer("Soccer"),
+  Squash("Squash"),
+  StairStepper("Stair Stepper"),
+  StandUpPaddling("Stand Up Paddling"),
+  Surfing("Surfing"),
+  Swim("Swim"),
+  TableTennis("Table Tennis"),
+  Tennis("Tennis"),
+  TrailRun("Trail Run"),
+  Velomobile("Velomobile"),
+  VirtualRide("Virtual Ride"),
+  VirtualRow("Virtual Row"),
+  VirtualRun("Virtual Run"),
+  Walk("Walk"),
+  WeightTraining("Weight Training"),
+  Wheelchair("Wheelchair"),
+  Windsurf("Windsurf"),
+  Workout("Workout"),
+  Yoga("Yoga"),
+  Other("Other");
+
+  final String label;
+  const SportType(this.label);
+}
+
 class StravaActivity {
   final int id;
   DateTime lastModified;
   final String name;
   final int athlete;
-  final String sportType;
+  final SportType sportType;
   final DateTime startDate;
   final DateTime startDateLocal;
   final String? gearId;
@@ -39,7 +97,7 @@ class StravaActivity {
     "lastModified": lastModified.toUtc().toIso8601String(),
     'name': name,
     'athleteId': athlete,
-    'sportType': sportType,
+    'sportType': sportType.name,
     'startDate': startDate.toUtc().toIso8601String(),
     'startDateLocal': startDateLocal.toIso8601String(),
     'gearId': gearId,
@@ -60,7 +118,7 @@ class StravaActivity {
           lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
           name: json['name'] as String,
           athlete: json['athleteId'] as int,
-          sportType: json['sportType'] as String,
+          sportType: _parseSportType(json['sportType'] as String?),
           startDate: DateTime.parse(json['startDate']),
           startDateLocal: DateTime.parse(json['startDateLocal']),
           gearId: json['gearId'] as String?,
@@ -84,7 +142,7 @@ class StravaActivity {
           lastModified: (json["lastModified"] as Timestamp?)?.toDate().toUtc(),
           name: json['name'] as String,
           athlete: json['athleteId'] as int,
-          sportType: json['sportType'] as String,
+          sportType: _parseSportType(json['sportType'] as String?),
           startDate: DateTime.parse(json['startDate']),
           startDateLocal: DateTime.parse(json['startDateLocal']),
           gearId: json['gearId'] as String?,
@@ -96,6 +154,15 @@ class StravaActivity {
           elapsedTime: Duration(seconds: json['elapsedTime'] as int),
         );
       default: throw Exception("Json Version $version of StravaActivitiy incompatible.");
+    }
+  }
+
+  static SportType _parseSportType(String? value) {
+    if (value == null) return SportType.Other;
+    try {
+      return SportType.values.byName(value);
+    } catch (_) {
+      return SportType.Other;
     }
   }
 

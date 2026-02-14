@@ -10,6 +10,7 @@ import 'adjustment_compact_display_list.dart';
 
 class SetupListCard extends StatelessWidget {
   final String setupId;
+  final void Function()? onTap;
   final void Function(Setup setup) editSetup;
   final void Function(Setup setup) restoreSetup;
   final void Function(Setup setup) removeSetup;
@@ -21,6 +22,7 @@ class SetupListCard extends StatelessWidget {
   const SetupListCard({
     super.key,
     required this.setupId,
+    required this.onTap,
     required this.editSetup,
     required this.restoreSetup,
     required this.removeSetup,
@@ -83,7 +85,7 @@ class SetupListCard extends StatelessWidget {
                 children: [
                   Icon(Icons.calendar_month, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   Text(
-                    DateFormat(appSettings.dateFormat).format(setup.datetime),
+                    DateFormat(appSettings.dateFormat).format(setup.datetimeLocal),
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                       fontSize: 13,
@@ -99,7 +101,7 @@ class SetupListCard extends StatelessWidget {
                   Icon(Icons.access_time, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   Flexible(
                     child: Text(
-                      DateFormat(appSettings.timeFormat).format(setup.datetime),
+                      DateFormat(appSettings.timeFormat).format(setup.datetimeLocal),
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                         fontSize: 13,
@@ -294,31 +296,35 @@ class SetupListCard extends StatelessWidget {
               width: 2,
             ))
           : null,
-      child: Stack(
-        children: [ 
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _setupListTile(context, setup),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
-                child: AdjustmentCompactDisplayList(
-                  components: [for (var c in components.values) c, for (var p in persons.values) p, for (var r in ratings.values) r],
-                  adjustmentValues: {for (var e in setup.personAdjustmentValues.entries) e.key: e.value, for (var e in setup.bikeAdjustmentValues.entries) e.key: e.value, for (var e in setup.ratingAdjustmentValues.entries) e.key: e.value},
-                  previousAdjustmentValues: {for (var e in (setup.previousBikeSetup?.bikeAdjustmentValues.entries ?? {}.entries)) e.key: e.value, for (var e in (setup.previousPersonSetup?.personAdjustmentValues.entries ?? {}.entries)) e.key: e.value},
-                  showComponentIcons: true,
-                  highlightInitialValues: true,
-                  displayOnlyChanges: displayOnlyChanges,
-                  displayBikeAdjustmentValues: displayBikeAdjustmentValues,
-                  displayPersonAdjustmentValues: displayPersonAdjustmentValues,
-                  displayRatingAdjustmentValues: displayRatingAdjustmentValues,
+      clipBehavior: Clip.antiAlias, // Borderradius for InkWell,
+      child: InkWell(
+        onTap: onTap,
+        child: Stack(
+          children: [ 
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _setupListTile(context, setup),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
+                  child: AdjustmentCompactDisplayList(
+                    components: [for (var c in components.values) c, for (var p in persons.values) p, for (var r in ratings.values) r],
+                    adjustmentValues: {for (var e in setup.personAdjustmentValues.entries) e.key: e.value, for (var e in setup.bikeAdjustmentValues.entries) e.key: e.value, for (var e in setup.ratingAdjustmentValues.entries) e.key: e.value},
+                    previousAdjustmentValues: {for (var e in (setup.previousBikeSetup?.bikeAdjustmentValues.entries ?? {}.entries)) e.key: e.value, for (var e in (setup.previousPersonSetup?.personAdjustmentValues.entries ?? {}.entries)) e.key: e.value},
+                    showComponentIcons: true,
+                    highlightInitialValues: true,
+                    displayOnlyChanges: displayOnlyChanges,
+                    displayBikeAdjustmentValues: displayBikeAdjustmentValues,
+                    displayPersonAdjustmentValues: displayPersonAdjustmentValues,
+                    displayRatingAdjustmentValues: displayRatingAdjustmentValues,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          if (setup.isCurrent)
-            _setupCardCurrentLabel(context),
-        ],
+              ],
+            ),
+            if (setup.isCurrent)
+              _setupCardCurrentLabel(context),
+          ],
+        ),
       ),
     );
   }

@@ -70,8 +70,8 @@ class GoogleDriveSheet extends StatelessWidget {
                             ? NetworkImage(googleDriveService.photoUrl!)
                             : null,
                         child: !isSignedIn
-                            ? Icon(Icons.person, color: Theme.of(context).colorScheme.onSurfaceVariant)
-                            : null,
+                            ? Icon(Icons.person_off, color: Theme.of(context).colorScheme.onSurfaceVariant)
+                            : Icon(Icons.person, color: Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                       title: Text(
                         isSignedIn

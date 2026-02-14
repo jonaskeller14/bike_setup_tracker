@@ -92,13 +92,33 @@ class StravaService extends ChangeNotifier {
         .snapshots()
         .listen((snapshot) {
       if (snapshot.exists) {
+        final data = snapshot.data();
+        if (data == null) return;
+
         final bool wasConnected = _isConnected;
-        _isConnected = snapshot.data()?['strava_connected'] ?? false;
+        _isConnected = data['strava_connected'] ?? false;
+
+        // Sync Status tracking (Idle, Syncing, Error)
+        final String remoteStatus = data['strava_sync_status'] ?? 'idle';
+        final String remoteError = data['strava_sync_error'] ?? '';
+
+        if (remoteStatus == 'syncing') {
+          _status = StravaServiceStatus.syncing;
+          _errorMessage = ''; 
+        } else if (remoteStatus == 'error') {
+          _status = StravaServiceStatus.idle;
+          _errorMessage = remoteError.isNotEmpty ? remoteError : 'Sync failed';
+        } else {
+          _status = StravaServiceStatus.idle;
+          // Don't clear error if it was set by a local failure (e.g. timeout) 
+          // but usually the backend will reset it to idle + empty error on new attempts
+        }
         
-        // If connection status changed, notify listeners
+        // If status or connection changed, notify listeners
+        notifyListeners();
+
         if (wasConnected != _isConnected) {
           debugPrint("Strava connection status changed: $_isConnected");
-          notifyListeners();
         }
       }
     }, onError: (e) {
@@ -294,6 +314,29 @@ class StravaService extends ChangeNotifier {
     } catch (e) {
       debugPrint("Error manually syncing Strava: $e");
       errorMessage = "Sync failed: $e";
+      status = StravaServiceStatus.idle;
+    }
+  }
+
+  Future<void> triggerFullHistorySync() async {
+    if (_userId == null) return;
+    
+    status = StravaServiceStatus.syncing;
+    errorMessage = ""; // Clear previous errors
+    
+    try {
+      final response = await http.get(Uri.parse("$_syncFullHistoryUri?state=$_userId"));
+      
+      if (response.statusCode != 200) {
+        throw "Full history sync triggered fail: ${response.body}";
+      }
+      
+      debugPrint("Full history sync triggered successfully: ${response.body}");
+      status = StravaServiceStatus.idle;
+      
+    } catch (e) {
+      debugPrint("Error triggering full history sync: $e");
+      errorMessage = "Full history sync fail: $e";
       status = StravaServiceStatus.idle;
     }
   }

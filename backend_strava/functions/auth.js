@@ -1,5 +1,6 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { db, logger, admin } = require("./firebase");
+const { syncFullHistory } = require("./sync");
 
 /**
  * STRATEGY: OAuth Token Exchange
@@ -51,7 +52,10 @@ exports.exchangeToken = onRequest(
 
       logger.info("STRAVA_AUTH_SUCCESSFUL", { userId });
 
-      // 3. Redirect back to the App using Deep Linking
+      // 3. Trigger Full Sync in background (non-blocking)
+      syncFullHistory(userId).catch(err => logger.error("BACKGROUND_FULL_SYNC_FAILED", { userId, error: err.message }));
+
+      // 4. Redirect back to the App using Deep Linking
       const redirectUrl = `bike-setup-tracker://strava-auth?success=true`;
       return res.redirect(redirectUrl);
 

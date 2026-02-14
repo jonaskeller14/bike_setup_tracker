@@ -16,4 +16,4 @@ exports.stravaWebhook = webhook.stravaWebhook;
 
 // Sync
 exports.syncActivities = sync.syncActivities;
-exports.syncFullHistory = sync.syncFullHistory;
+exports.syncFullHistory = sync.syncFullHistoryCloud;

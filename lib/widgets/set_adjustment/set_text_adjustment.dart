@@ -92,7 +92,7 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
             flex: 3,
             child: TextFormField(
               controller: _controller,
-              textInputAction: TextInputAction.next,
+              textInputAction: TextInputAction.newline,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onChanged: widget.onChanged,
               onFieldSubmitted: widget.onChanged,

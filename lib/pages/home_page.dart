@@ -399,20 +399,22 @@ class _HomePageState extends State<HomePage> {
 
     final now = DateTime.now();
 
-    final setupCopy = Setup(
-      name: setup.name, 
-      notes: setup.notes,
-      tags: setup.tags,
-      bike: setup.bike,
-      person: data.bikes[setup.bike]?.person,
+    final setupCopy = setup.copyWith(
+      id: null,
+      lastModified: null,
       datetime: now.toUtc(),
       datetimeLocal: now,
-      bikeAdjustmentValues: setup.bikeAdjustmentValues,
-      personAdjustmentValues: setup.personAdjustmentValues,
-      ratingAdjustmentValues: {},
       isCurrent: true,
-    );  //TODO: Location and waether data is null --> maybe add default constructor?
-
+      position: null,
+      place: null,
+      weather: null,
+      ratingAdjustmentValues: {},
+      previousBikeSetup: null,
+      previousPersonSetup: null,
+    );
+    //TODO: Not copy personAdjustmentValues: Nutritition and Equipment
+    //TOOD: trigger new fetch of position, place, weather
+    
     final newSetup = await Navigator.push<Setup>(
       context,
       MaterialPageRoute(builder: (context) => SetupPage.duplicate(setup: setupCopy)),

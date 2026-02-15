@@ -248,6 +248,89 @@ class Setup {
         return altM;
     }
   }
+
+  Setup copyWith({
+    Object? id = const _Sentinel(),
+    Object? isDeleted= const _Sentinel(),
+    Object? lastModified = const _Sentinel(),
+    Object? name = const _Sentinel(),
+    Object? notes = const _Sentinel(),
+    Object? datetime = const _Sentinel(),
+    Object? datetimeLocal = const _Sentinel(),
+    Object? tags = const _Sentinel(),
+    Object? bike = const _Sentinel(),
+    Object? person = const _Sentinel(),
+    Object? bikeAdjustmentValues = const _Sentinel(),
+    Object? personAdjustmentValues = const _Sentinel(),
+    Object? ratingAdjustmentValues = const _Sentinel(),
+    Object? position = const _Sentinel(),
+    Object? place = const _Sentinel(),
+    Object? weather = const _Sentinel(),
+    Object? previousBikeSetup= const _Sentinel(),
+    Object? previousPersonSetup= const _Sentinel(),
+    Object? isCurrent = const _Sentinel(),
+  }) {
+    return Setup(
+      id: id is _Sentinel
+          ? this.id
+          : (id as String),
+      isDeleted: isDeleted is _Sentinel
+          ? this.isDeleted
+          : (isDeleted as bool),
+      lastModified: lastModified is _Sentinel
+          ? this.lastModified
+          : (lastModified as DateTime),
+      name: name is _Sentinel
+          ? this.name
+          : (notes as String), 
+      notes: name is _Sentinel
+          ? this.name
+          : (notes as String?),
+      datetime: datetime is _Sentinel
+          ? this.datetime
+          : (datetime as DateTime), 
+      datetimeLocal: datetimeLocal is _Sentinel
+          ? this.datetimeLocal
+          : (datetimeLocal as DateTime), 
+      tags: tags is _Sentinel
+          ? this.tags
+          : (tags as Set<String>), 
+      bike: bike is _Sentinel
+          ? this.bike
+          : (bike as String), 
+      person: person is _Sentinel
+          ? this.person
+          : (person as String?),
+      bikeAdjustmentValues: bikeAdjustmentValues is _Sentinel
+          ? this.bikeAdjustmentValues
+          : (bikeAdjustmentValues as Map<String, dynamic>), 
+      personAdjustmentValues: personAdjustmentValues is _Sentinel
+          ? this.personAdjustmentValues
+          : (personAdjustmentValues as Map<String, dynamic>), 
+      ratingAdjustmentValues: ratingAdjustmentValues is _Sentinel
+          ? this.ratingAdjustmentValues
+          : (ratingAdjustmentValues as Map<String, dynamic>),
+      position: position is _Sentinel
+          ? this.position
+          : (position as LocationData?),
+      place: place is _Sentinel
+          ? this.place
+          : (place as geo.Placemark?),
+      weather: weather is _Sentinel
+          ? this.weather
+          : (weather as Weather?),
+      previousBikeSetup: previousBikeSetup is _Sentinel
+          ? this.previousBikeSetup
+          : (previousBikeSetup as Setup?),
+      previousPersonSetup: previousPersonSetup is _Sentinel
+          ? this.previousPersonSetup
+          : (previousPersonSetup as Setup?),
+      isCurrent: isCurrent is _Sentinel
+          ? this.isCurrent
+          : (isCurrent as bool),
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
@@ -292,4 +375,8 @@ class Setup {
       weather,
     ]);
   }
+}
+
+class _Sentinel {
+  const _Sentinel();
 }

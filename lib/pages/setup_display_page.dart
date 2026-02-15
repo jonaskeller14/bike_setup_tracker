@@ -126,6 +126,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
           SelectableText(
             setup.name,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            maxLines: 1,
           ),
           Text(
             "${DateFormat(appSettings.dateFormat).format(setup.datetimeLocal)} • ${DateFormat(appSettings.timeFormat).format(setup.datetimeLocal)}",
@@ -254,8 +255,8 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
                                     child: Icon(
                                       Icons.location_pin,
                                       size: 40,
-                                      color: Theme.of(context).primaryColor,
-                                      shadows: [Shadow(blurRadius: 10, color: Colors.black26)],
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      shadows: [Shadow(blurRadius: 12, color: Colors.black26, offset: Offset(0, 2))],
                                     ),
                                   ),
                                 ],

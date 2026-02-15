@@ -73,10 +73,7 @@ exports.exchangeToken = onRequest(
 exports.deauthorizeUser = onRequest(
   async (req, res) => {
     const userId = req.query.state; // We expect the userId in query params
-
-    if (!userId) {
-      return res.status(400).send("Missing user identification");
-    }
+    if (!userId) return res.status(400).send("Missing user identification");
 
     try {
       const userRef = db.collection("users").doc(userId);
@@ -95,20 +92,19 @@ exports.deauthorizeUser = onRequest(
         body: JSON.stringify({ access_token: accessToken }),
       });
 
-      // 2. Clean up Firestore
-      // Delete activities subcollection
-      const activitiesSnapshot = await userRef.collection("activities").get();
-      const batch = db.batch();
-      activitiesSnapshot.forEach(doc => batch.delete(doc.ref));
+      // 2. Clean up Firestore (Delete Strava-specific subcollections)
+      // We use recursiveDelete to automatically handle pagination and the 500-operation limit
+      const subcollections = ["activities", "athletes", "gears"];
+      for (const collName of subcollections) {
+        await db.recursiveDelete(userRef.collection(collName));
+      }
       
-      // Update user doc to remove Strava fields
-      batch.update(userRef, {
+      // 3. Update main user document to remove Strava fields
+      await userRef.update({
         strava_auth: admin.firestore.FieldValue.delete(),
         strava_connected: false,
         strava_deauthorized_at: admin.firestore.FieldValue.serverTimestamp()
       });
-
-      await batch.commit();
 
       logger.info("USER_DEAUTHORIZED", { userId });
       return res.status(200).send("DEAUTHORIZED_SUCCESSFUL");

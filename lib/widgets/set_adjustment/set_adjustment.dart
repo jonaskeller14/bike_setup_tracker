@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 
@@ -13,7 +11,72 @@ Widget nameNotesSetAdjustmentWidget({required BuildContext context, required Adj
               triggerMode: TooltipTriggerMode.tap,
               preferBelow: false,
               showDuration: const Duration(seconds: 5),
-              message: adjustment.notes!,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.onSecondaryContainer,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [BoxShadow(color: Theme.of(context).colorScheme.shadow, blurRadius: 4, offset: const Offset(0, 2))],
+              ),
+              padding: const EdgeInsets.all(12),
+              richMessage: WidgetSpan(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 4,
+                  children: [
+                    Text(
+                      adjustment.name,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSecondary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 3), // tweak to match font size
+                          child: Icon(Icons.info_outline, size: 13, color: Theme.of(context).colorScheme.onSecondary),
+                        ),
+                        const SizedBox(width: 2),
+                        Expanded(
+                          child: Text(
+                            adjustment.getProperties(),
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary, fontSize: 13),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (adjustment.notes != null)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 3), // tweak to match font size
+                            child: Icon(
+                              Icons.notes,
+                              size: 13,
+                              color: Theme.of(context).colorScheme.onSecondary,
+                            ),
+                          ),
+                          const SizedBox(width: 2),
+                          Expanded(
+                            child: Text(
+                              adjustment.notes!,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSecondary,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
               child: Text.rich( // not selectable because conflict with tooltip
                 TextSpan(
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: highlightColor),

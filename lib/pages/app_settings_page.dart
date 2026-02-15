@@ -284,58 +284,61 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 infoText: 'Adds the option to add tags to Setups',
               ),
             ),
-            // ListTile(
-            //   leading: Icon(Icons.person, color: Theme.of(context).colorScheme.primary),
-            //   title: const Text("Profile"),
-            //   subtitle: _offOnOptionWidgets[appSettingsReader.enablePerson] ?? const Text("-"),
-            //   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-            //   onTap: () => appSettingsRadioGroupSheet<bool>(
-            //     context: context,
-            //     title: "Profile", 
-            //     value: appSettingsReader.enablePerson,
-            //     optionWidgets: _offOnOptionWidgets, 
-            //     onChanged: (bool? newValue) {
-            //       if (newValue == null) return;
-            //       appSettingsWriter.enablePerson = newValue;
-            //       Navigator.pop(context);
-            //     },
-            //   ),
-            // ),
-            // ListTile(
-            //   leading: Icon(Icons.star, color: Theme.of(context).colorScheme.primary),
-            //   title: const Text("Rating"),
-            //   subtitle: _offOnOptionWidgets[appSettingsReader.enableRating] ?? const Text("-"),
-            //   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-            //   onTap: () => appSettingsRadioGroupSheet<bool>(
-            //     context: context,
-            //     title: "Rating", 
-            //     value: appSettingsReader.enableRating,
-            //     optionWidgets: _offOnOptionWidgets, 
-            //     onChanged: (bool? newValue) {
-            //       if (newValue == null) return;
-            //       appSettingsWriter.enableRating = newValue;
-            //       Navigator.pop(context);
-            //     },
-            //   ),
-            // ),
-            // ListTile(
-            //   leading: const Icon(SimpleIcons.strava, color: Color(0xFFFC4C02)), // Strava Brand Orange
-            //   title: const Text("Strava Sync"),
-            //   subtitle: _offOnOptionWidgets[appSettingsReader.enableStrava] ?? const Text("-"),
-            //   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-            //   onTap: () => appSettingsRadioGroupSheet<bool>(
-            //     context: context,
-            //     title: "Strava Sync", 
-            //     value: appSettingsReader.enableStrava,
-            //     optionWidgets: _offOnOptionWidgets, 
-            //     onChanged: (bool? newValue) {
-            //       if (newValue == null) return;
-            //       appSettingsWriter.enableStrava = newValue;
-            //       Navigator.pop(context);
-            //     },
-            //     infoText: 'Enable Strava Sync to import Strava Activities',
-            //   ),
-            // ),
+            if (appSettingsReader.enablePerson)
+              ListTile(
+                leading: Icon(Icons.person, color: Theme.of(context).colorScheme.primary),
+                title: const Text("Profile"),
+                subtitle: _offOnOptionWidgets[appSettingsReader.enablePerson] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<bool>(
+                  context: context,
+                  title: "Profile", 
+                  value: appSettingsReader.enablePerson,
+                  optionWidgets: _offOnOptionWidgets, 
+                  onChanged: (bool? newValue) {
+                    if (newValue == null) return;
+                    appSettingsWriter.enablePerson = newValue;
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+            if (appSettingsReader.enableRating)
+              ListTile(
+                leading: Icon(Icons.star, color: Theme.of(context).colorScheme.primary),
+                title: const Text("Rating"),
+                subtitle: _offOnOptionWidgets[appSettingsReader.enableRating] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<bool>(
+                  context: context,
+                  title: "Rating", 
+                  value: appSettingsReader.enableRating,
+                  optionWidgets: _offOnOptionWidgets, 
+                  onChanged: (bool? newValue) {
+                    if (newValue == null) return;
+                    appSettingsWriter.enableRating = newValue;
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+            if (appSettingsReader.enableStrava)
+              ListTile(
+                leading: const Icon(SimpleIcons.strava, color: Color(0xFFFC4C02)), // Strava Brand Orange
+                title: const Text("Strava Sync"),
+                subtitle: _offOnOptionWidgets[appSettingsReader.enableStrava] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<bool>(
+                  context: context,
+                  title: "Strava Sync", 
+                  value: appSettingsReader.enableStrava,
+                  optionWidgets: _offOnOptionWidgets, 
+                  onChanged: (bool? newValue) {
+                    if (newValue == null) return;
+                    appSettingsWriter.enableStrava = newValue;
+                    Navigator.pop(context);
+                  },
+                  infoText: 'Enable Strava Sync to import Strava Activities',
+                ),
+              ),
           ],
         ),
       ),

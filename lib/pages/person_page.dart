@@ -230,7 +230,19 @@ class _PersonPageState extends State<PersonPage> {
     );
   }
 
-  void _onReorderAdjustments(int oldIndex, int newIndex) {
+  void _onReorderAdjustments(int oldIndex, int newIndex, {required AdjustmentCategory adjustmentCategory}) {
+    final adjustmentSubList = _adjustments.where((a) => a.category == adjustmentCategory).toList();
+
+    final adjustmentToMove = adjustmentSubList[oldIndex];
+    oldIndex = _adjustments.indexOf(adjustmentToMove);
+    final targetAdjustment = newIndex < adjustmentSubList.length
+        ? adjustmentSubList[newIndex]
+        : null;
+    
+    newIndex = targetAdjustment == null
+        ? _adjustments.length
+        : _adjustments.indexOf(targetAdjustment);
+    
     int adjustedNewIndex = newIndex;
     if (oldIndex < newIndex) adjustedNewIndex -= 1;
 
@@ -408,16 +420,78 @@ class _PersonPageState extends State<PersonPage> {
                   ]
                 ],
                 const SizedBox(height: 16),
-                _adjustments.isNotEmpty
-                    ? AdjustmentEditList(
-                        adjustments: _adjustments,
-                        initialAdjustments: widget.mode == PersonPageMode.edit ? Map.fromEntries(widget.person!.adjustments.map((a) => MapEntry(a.id, a))) : null,
-                        editAdjustment: _editAdjustment,
-                        duplicateAdjustment: _duplicateAdjustment,
-                        removeAdjustment: removeAdjustment,
-                        onReorderAdjustments: _onReorderAdjustments,
-                      ) 
-                    : _emptyAdjustmentsInfo(),
+                if (_adjustments.isNotEmpty) ...[
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Text(AdjustmentCategory.body.value, style: Theme.of(context).textTheme.titleMedium),
+                  ),
+                  _adjustments.any((a) => a.category == AdjustmentCategory.body)
+                      ? AdjustmentEditList(
+                          adjustments: _adjustments.where((a) => a.category == AdjustmentCategory.body).toList(),
+                          initialAdjustments: widget.mode == PersonPageMode.edit ? Map.fromEntries(widget.person!.adjustments.map((a) => MapEntry(a.id, a))) : null,
+                          editAdjustment: _editAdjustment,
+                          duplicateAdjustment: _duplicateAdjustment,
+                          removeAdjustment: removeAdjustment,
+                          onReorderAdjustments: (int oldIndex, int newIndex) => _onReorderAdjustments(oldIndex, newIndex, adjustmentCategory: AdjustmentCategory.body),
+                        )
+                      : SizedBox(
+                          height: 100,
+                          child: Center(
+                            child: Text(
+                              'No Body Attributes yet.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                            ),
+                          ),
+                        ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Text(AdjustmentCategory.nutrition.value, style: Theme.of(context).textTheme.titleMedium),
+                  ),
+                  _adjustments.any((a) => a.category == AdjustmentCategory.nutrition)
+                      ? AdjustmentEditList(
+                          adjustments: _adjustments.where((a) => a.category == AdjustmentCategory.nutrition).toList(),
+                          initialAdjustments: widget.mode == PersonPageMode.edit ? Map.fromEntries(widget.person!.adjustments.map((a) => MapEntry(a.id, a))) : null,
+                          editAdjustment: _editAdjustment,
+                          duplicateAdjustment: _duplicateAdjustment,
+                          removeAdjustment: removeAdjustment,
+                          onReorderAdjustments: (int oldIndex, int newIndex) => _onReorderAdjustments(oldIndex, newIndex, adjustmentCategory: AdjustmentCategory.nutrition),
+                        )
+                      : SizedBox(
+                          height: 100,
+                          child: Center(
+                            child: Text(
+                              'No Nutrition Attributes yet.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                            ),
+                          ),
+                        ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Text(AdjustmentCategory.equipment.value, style: Theme.of(context).textTheme.titleMedium),
+                  ),
+                  _adjustments.any((a) => a.category == AdjustmentCategory.equipment)
+                      ? AdjustmentEditList(
+                          adjustments: _adjustments.where((a) => a.category == AdjustmentCategory.equipment).toList(),
+                          initialAdjustments: widget.mode == PersonPageMode.edit ? Map.fromEntries(widget.person!.adjustments.map((a) => MapEntry(a.id, a))) : null,
+                          editAdjustment: _editAdjustment,
+                          duplicateAdjustment: _duplicateAdjustment,
+                          removeAdjustment: removeAdjustment,
+                          onReorderAdjustments: (int oldIndex, int newIndex) => _onReorderAdjustments(oldIndex, newIndex, adjustmentCategory: AdjustmentCategory.equipment),
+                        )
+                      : SizedBox(
+                          height: 100,
+                          child: Center(
+                            child: Text(
+                              'No Equipment Attributes yet.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                            ),
+                          ),
+                        )
+                ] else 
+                  _emptyAdjustmentsInfo(),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(

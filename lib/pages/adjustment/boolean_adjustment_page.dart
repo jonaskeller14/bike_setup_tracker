@@ -263,7 +263,7 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
               child: Stack(
                 children: [
                   Container(
-                    padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
+                    padding: const EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
                     decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
                     child: SingleChildScrollView(
                       child: Card(
@@ -283,27 +283,7 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                       ),
                     ),
                   ),
-                  Positioned(
-                    top: -1, 
-                    left: -1, 
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.only(
-                          bottomRight: const Radius.circular(6),
-                        ),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                      child: Text(
-                        'Preview only — changes won’t be saved',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ),
+                  previewLabel(context),
                 ],
               ),
             ),

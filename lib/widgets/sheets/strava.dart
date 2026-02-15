@@ -1,12 +1,11 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import '../../models/filtered_data.dart';
-import '../../models/app_settings.dart';
 import '../../services/strava_service.dart';
 import 'sheet.dart';
+import '../strava_list_tile.dart';
 
 Future<void> showStravaSheet({required BuildContext context}) async {
   return await showModalBottomSheet<void>(
@@ -23,7 +22,6 @@ class StravaSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appSettings = context.read<AppSettings>();
     final filteredData = context.watch<FilteredData>();
     final stravaService = context.watch<StravaService>();
     final athletes = filteredData.stravaAthletes.values;
@@ -166,28 +164,8 @@ class StravaSheet extends StatelessWidget {
                         padding: EdgeInsets.symmetric(vertical: 8),
                         child: Text("Latest Synced Activities:", style: TextStyle(fontWeight: FontWeight.bold)),
                       ),
-                      ...latestActivities.map((activity) => ListTile(
-                        title: Text(activity.name),
-                        subtitle: Text(activity.sportType.label),
-                        trailing: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text("${DateFormat(appSettings.dateFormat).format(activity.startDate)} • ${DateFormat(appSettings.timeFormat).format(activity.startDate)}"),
-                            GestureDetector(
-                              onTap: () => StravaService.openActivityOnStrava(activity.id),
-                              child: const Text(
-                                "View on Strava",
-                                style: TextStyle(
-                                  color: Color(0xFFFC5200),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        dense: true,
+                      ...latestActivities.map((activity) => StravaListTile(
+                        stravaActivity: activity,
                         contentPadding: EdgeInsets.zero,
                       )),
                     ] else

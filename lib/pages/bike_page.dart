@@ -109,8 +109,9 @@ class _BikePageState extends State<BikePage> {
 
   @override
   Widget build(BuildContext context) {
-    final appSettings = context.read<AppSettings>();
-    final filteredData = context.read<FilteredData>();
+    final appSettings = context.watch<AppSettings>();
+    final filteredData = context.watch<FilteredData>();
+    final existingBikes = filteredData.bikes;
     final persons = filteredData.persons;
     final appData = context.read<AppData>();
     final stravaGears = appData.stravaGears;
@@ -245,6 +246,9 @@ class _BikePageState extends State<BikePage> {
                       border: OutlineInputBorder(),
                       hintText: "Link Strava Gear",
                       prefixIcon: const Icon(Icons.link),
+                      helperText: existingBikes.values.any((b) => b.id != widget.bike?.id && b.stravaGear != null && b.stravaGear == _stravaGear)
+                          ? "WARNING: Strava Gear already assigned to another Bike"
+                          : null,
                       fillColor: Colors.orange.withValues(alpha: 0.08),
                       filled: widget.mode == BikePageMode.edit && _stravaGear != _initialStravaGear,
                     ),

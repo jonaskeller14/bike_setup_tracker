@@ -417,8 +417,8 @@ class _ComponentPageState extends State<ComponentPage> {
                     helperText: existingComponentsCount > 0
                         ? Intl.plural(
                             existingComponentsCount,
-                            one: "Note: There is one ${_componentType?.value}-Component already installed on this bike.",
-                            other: "Note: There are $existingComponentsCount ${_componentType?.value}-Components already installed on this bike.",
+                            one: "WARNING: There is one ${_componentType?.value}-Component already installed on this bike.",
+                            other: "WARNING: There are $existingComponentsCount ${_componentType?.value}-Components already installed on this bike.",
                           )
                         : null,
                     fillColor: Colors.orange.withValues(alpha: 0.08),

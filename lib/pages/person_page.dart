@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import '../models/app_data.dart';
 import '../models/app_settings.dart';
+import '../models/filtered_data.dart';
 import '../models/person.dart';
 import '../models/adjustment/adjustment.dart';
 import 'adjustment/boolean_adjustment_page.dart';
@@ -299,6 +300,8 @@ class _PersonPageState extends State<PersonPage> {
 
   @override
   Widget build(BuildContext context) {
+    final filteredData = context.watch<FilteredData>();
+    final existingPersons = filteredData.persons;
     return PopScope( 
       canPop: !_formHasChanges,
       onPopInvokedWithResult: _handlePopInvoked,
@@ -380,6 +383,9 @@ class _PersonPageState extends State<PersonPage> {
                         border: OutlineInputBorder(),
                         hintText: "Link Strava Athlete",
                         prefixIcon: const Icon(Icons.link),
+                        helperText: existingPersons.values.any((p) => p.id != widget.person?.id && p.stravaAthlete != null && p.stravaAthlete == _stravaAthlete)
+                          ? "WARNING: Strava Athlete already assigned to another Person"
+                          : null,
                         fillColor: Colors.orange.withValues(alpha: 0.08),
                         filled: widget.mode == PersonPageMode.edit && _stravaAthlete != _initialStravaAthlete,
                       ),

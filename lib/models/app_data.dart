@@ -469,14 +469,16 @@ class AppData extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateStravaAthlete(StravaAthlete athlete) {
-    _stravaAthletes[athlete.id] = athlete;
+  void setStravaAthletes(Iterable<StravaAthlete> athletes) {
+    _stravaAthletes.clear();
+    _stravaAthletes.addEntries(athletes.map((a) => MapEntry(a.id, a)));
     _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
-  void updateStravaGear(StravaGear gear) {
-    _stravaGears[gear.id] = gear;
+  void setStravaGears(Iterable<StravaGear> gears) {
+    _stravaGears.clear();
+    _stravaGears.addEntries(gears.map((g) => MapEntry(g.id, g)));
     _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }

@@ -120,6 +120,7 @@ class StravaSheet extends StatelessWidget {
                         ),
                         contentPadding: EdgeInsets.zero,
                       )),
+                    //TODO: Show last sync datetime and next possible sync datetime if syn is not enabled
                     if (stravaService.isConnected) ...[
                       ListTile(
                         leading: const Icon(Icons.sync_alt),
@@ -127,6 +128,17 @@ class StravaSheet extends StatelessWidget {
                         subtitle: const Text("Activities import automatically after your ride"),
                         dense: true,
                         contentPadding: EdgeInsets.zero,
+                        trailing: Tooltip(
+                          triggerMode: TooltipTriggerMode.tap,
+                          preferBelow: false,
+                          showDuration: const Duration(seconds: 5),
+                          message: "Bike Setup Tracker automatically imports new, updated, or deleted Strava activities in real-time. While most updates are instant, a full background sync also runs weekly to catch any missed changes. You can also trigger a manual sync once a week.",
+                          child: Icon(
+                            Icons.info_outline,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            size: Theme.of(context).textTheme.bodyLarge?.fontSize,
+                          ),
+                        ),
                       ),
                     ],
                     if (gears.isNotEmpty) ...[
@@ -201,9 +213,9 @@ class StravaSheet extends StatelessWidget {
                     child: SizedBox(
                       width: double.infinity,
                       child: FilledButton.icon(
-                        onPressed: stravaService.status == StravaServiceStatus.syncing
-                            ? null
-                            : () => stravaService.triggerManualSync(),
+                        onPressed: stravaService.canSyncRecent
+                            ? () => stravaService.triggerManualSync()
+                            : null,
                         icon: stravaService.status == StravaServiceStatus.syncing
                             ? const SizedBox(
                                 height: 16,
@@ -211,7 +223,7 @@ class StravaSheet extends StatelessWidget {
                                 child: CircularProgressIndicator(strokeWidth: 2),
                               )
                             : const Icon(Icons.sync),
-                        label: const Text("Sync"),
+                        label: Text(stravaService.canSyncRecent ? "Sync" : "Recently Synced"),
                       ),
                     ),
                   ),

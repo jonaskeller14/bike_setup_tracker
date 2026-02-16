@@ -53,6 +53,11 @@ exports.syncActivities = onRequest(
 
       await batch.commit();
 
+      // 3. Mark last recent sync time
+      await db.collection("users").doc(userId).update({
+        strava_sync_last_recent: admin.firestore.FieldValue.serverTimestamp()
+      });
+
       logger.info("MANUAL_SYNC_SUCCESSFUL", { userId, count: activities.length, gearCount });
       return res.status(200).send(`SYNC_SUCCESSFUL: ${activities.length} activities, ${gearCount} gear items processed.`);
 

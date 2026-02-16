@@ -42,6 +42,8 @@ class StravaService extends ChangeNotifier {
   StreamSubscription? _gearSubscription;
   bool _isDisposed = false;
   
+  DateTime? _lastRecentSync;
+  
   AppData _appData;
 
   StravaService(this._appData);
@@ -114,6 +116,17 @@ class StravaService extends ChangeNotifier {
           // but usually the backend will reset it to idle + empty error on new attempts
         }
         
+        // Parse last sync time
+        final dynamic lastSyncData = data['strava_sync_last_recent'];
+        if (lastSyncData is Timestamp) {
+          _lastRecentSync = lastSyncData.toDate();
+        } else if (lastSyncData is String) {
+          _lastRecentSync = DateTime.tryParse(lastSyncData);
+        }
+
+        // Check if we should trigger a periodic sync
+        _checkPeriodicSync();
+
         // If status or connection changed, notify listeners
         notifyListeners();
 
@@ -167,8 +180,10 @@ class StravaService extends ChangeNotifier {
         .listen((snapshot) {
       if (snapshot.exists && snapshot.data() != null) {
         final athlete = StravaAthlete.fromFireStore(snapshot.data()!);
-        _appData.updateStravaAthlete(athlete);
+        _appData.setStravaAthletes([athlete]);
         debugPrint("Strava athlete synced: ${athlete.firstname} ${athlete.lastname}");
+      } else {
+        _appData.setStravaAthletes([]);
       }
     }, onError: (e) {
       debugPrint("Strava athlete sync error: $e");
@@ -185,12 +200,10 @@ class StravaService extends ChangeNotifier {
         .collection('gears')
         .snapshots()
         .listen((snapshot) {
-      for (var doc in snapshot.docs) {
-        final gear = StravaGear.fromFireStore(doc.data());
-        _appData.updateStravaGear(gear);
-      }
-      if (snapshot.docs.isNotEmpty) {
-        debugPrint("Strava gear synced: ${snapshot.docs.length} items");
+      final gears = snapshot.docs.map((doc) => StravaGear.fromFireStore(doc.data())).toList();
+      _appData.setStravaGears(gears);
+      if (gears.isNotEmpty) {
+        debugPrint("Strava gear synced: ${gears.length} items");
       }
     }, onError: (e) {
       debugPrint("Strava gear sync error: $e");
@@ -236,6 +249,27 @@ class StravaService extends ChangeNotifier {
   set status(StravaServiceStatus newStatus) {
     _status = newStatus;
     notifyListeners();
+  }
+
+  DateTime? get lastRecentSync => _lastRecentSync;
+
+  /// Manual sync can be triggered if it's been more than 7 days
+  /// Or if it has never been synced before.
+  bool get canSyncRecent {
+    if (!_isConnected) return false;
+    if (_status == StravaServiceStatus.syncing) return false;
+    if (_lastRecentSync == null) return true;
+    
+    final difference = DateTime.now().difference(_lastRecentSync!);
+    return difference.inDays >= 7;
+  }
+
+  /// Automatically triggers a manual sync if last sync was > 7 days ago
+  void _checkPeriodicSync() {
+    if (canSyncRecent && _status != StravaServiceStatus.syncing) {
+      debugPrint("Auto-triggering periodic Strava sync...");
+      triggerManualSync();
+    }
   }
 
   static void openActivityOnStrava(int activityId) async {

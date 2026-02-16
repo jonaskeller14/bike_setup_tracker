@@ -81,50 +81,122 @@ async function saveAthleteAndGear(athlete, userId, batch) {
 }
 
 /**
- * Helper: Transforms and Saves a single Activity to Firestore.
+ * Helper: Transforms and Saves a single Activity to a Batch document.
  * Standardizes how we save activities from both Webhook and Manual Sync.
+ * Uses Hybrid Batching (Map for data, Array for indexing).
  */
-async function saveActivity(activity, userId, batch) {
-  // Extract lat/lon if available
-  let startLat = null;
-  let startLon = null;
-  if (activity.start_latlng && Array.isArray(activity.start_latlng) && activity.start_latlng.length === 2) {
-    startLat = activity.start_latlng[0];
-    startLon = activity.start_latlng[1];
+async function saveActivityToBatch(activity, userId, batch = null) {
+  const isDelete = activity.isDeleted === true;
+  const activityId = activity.id;
+  const userRef = db.collection("users").doc(userId);
+  const batchesRef = userRef.collection("activity_batches");
+
+  // 1. Transform activity to clean format
+  let cleanActivity = null;
+  if (!isDelete) {
+    let startLat = null;
+    let startLon = null;
+    if (activity.start_latlng && Array.isArray(activity.start_latlng) && activity.start_latlng.length === 2) {
+      startLat = activity.start_latlng[0];
+      startLon = activity.start_latlng[1];
+    }
+
+    cleanActivity = {
+      id: activity.id,
+      lastModified: admin.firestore.Timestamp.now(),
+      name: activity.name,
+      athleteId: activity.athlete ? activity.athlete.id : null,
+      sportType: activity.sport_type || activity.type,
+      startDate: activity.start_date,
+      startDateLocal: activity.start_date_local,
+      gearId: activity.gear_id || null,
+      startLat: startLat,
+      startLon: startLon,
+      distance: activity.distance,
+      totalElevationGain: activity.total_elevation_gain,
+      movingTime: activity.moving_time,
+      elapsedTime: activity.elapsed_time,
+    };
   }
 
-  // Handle differences between Webhook "SummaryActivity" and detailed "DetailedActivity"
-  // Detailed activities from manual sync usually have more fields, but we stick to the common ones.
-  // Note: Webhook sends a partial update or we fetch full details. 
-  // In `stravaWebhook`, we fetch full details, so `activity` is full there.
-  // In `syncActivities`, we fetch "SummaryActivity" list, which has most of this.
+  // 2. Lookup existing batch
+  const existingBatchQuery = await batchesRef
+    .where("activityIds", "array-contains", activityId)
+    .limit(1)
+    .get();
 
-  const cleanActivity = {
-    id: activity.id,
-    lastModified: admin.firestore.FieldValue.serverTimestamp(),
-    name: activity.name,
-    athleteId: activity.athlete ? activity.athlete.id : null, // Handle if athlete obj is missing (rare in full fetch)
-    sportType: activity.sport_type || activity.type, // Fallback for older API versions if needed
-    startDate: activity.start_date,
-    startDateLocal: activity.start_date_local,
-    gearId: activity.gear_id || null,
-    startLat: startLat,
-    startLon: startLon,
-    distance: activity.distance,
-    totalElevationGain: activity.total_elevation_gain,
-    movingTime: activity.moving_time,
-    elapsedTime: activity.elapsed_time,
-    synced_at: admin.firestore.FieldValue.serverTimestamp(),
-  };
+  if (!existingBatchQuery.empty) {
+    const batchDoc = existingBatchQuery.docs[0];
+    const updateData = {
+      lastModified: admin.firestore.FieldValue.serverTimestamp(),
+    };
 
-  const activityRef = db.collection("users").doc(userId)
-    .collection("activities").doc(String(activity.id));
+    if (isDelete) {
+      // DELETE Case
+      updateData[`activities.${activityId}`] = admin.firestore.FieldValue.delete();
+      updateData.activityIds = admin.firestore.FieldValue.arrayRemove(activityId);
+    } else {
+      // UPDATE Case
+      updateData[`activities.${activityId}`] = cleanActivity;
+    }
 
-  batch.set(activityRef, cleanActivity, { merge: true });
+    if (batch) {
+      batch.update(batchDoc.ref, updateData);
+    } else {
+      await batchDoc.ref.update(updateData);
+    }
+    return;
+  }
+
+  if (isDelete) return; // Activity to delete not found
+
+  // 3. New Activity -> Find latest batch or create new
+  const latestBatchQuery = await batchesRef
+    .orderBy("id", "desc")
+    .limit(1)
+    .get();
+
+  let targetBatchDoc = !latestBatchQuery.empty ? latestBatchQuery.docs[0] : null;
+  
+  if (targetBatchDoc && targetBatchDoc.data().activityIds.length < 500) {
+    const updateData = {
+      lastModified: admin.firestore.FieldValue.serverTimestamp(),
+      [`activities.${activityId}`]: cleanActivity,
+      activityIds: admin.firestore.FieldValue.arrayUnion(activityId),
+    };
+
+    if (batch) {
+      batch.update(targetBatchDoc.ref, updateData);
+    } else {
+      await targetBatchDoc.ref.update(updateData);
+    }
+  } else {
+    // 4. Create New Batch
+    const newBatchId = targetBatchDoc 
+      ? `batch_${String(parseInt(targetBatchDoc.id.split('_')[1]) + 1).padStart(3, '0')}`
+      : "batch_001";
+    
+    const newBatchData = {
+      id: newBatchId,
+      userId,
+      lastModified: admin.firestore.FieldValue.serverTimestamp(),
+      activityIds: [activityId],
+      activities: {
+        [`${activityId}`]: cleanActivity
+      }
+    };
+
+    const newBatchRef = batchesRef.doc(newBatchId);
+    if (batch) {
+      batch.set(newBatchRef, newBatchData);
+    } else {
+      await newBatchRef.set(newBatchData);
+    }
+  }
 }
 
 module.exports = {
   getValidAccessToken,
   saveAthleteAndGear,
-  saveActivity,
+  saveActivityToBatch,
 };

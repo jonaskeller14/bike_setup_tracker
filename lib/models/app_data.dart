@@ -461,10 +461,9 @@ class AppData extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateStravaActivities(Iterable<StravaActivity> activities) {
-    for (final activity in activities) {
-      _stravaActivities[activity.id] = activity;
-    }
+  void setStravaActivities(Iterable<StravaActivity> activities) {
+    _stravaActivities.clear();
+    _stravaActivities.addEntries(activities.map((a) => MapEntry(a.id, a)));
     
     _lastModified = DateTime.now().toUtc();
     notifyListeners();

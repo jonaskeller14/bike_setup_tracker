@@ -1,6 +1,6 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { db, logger, admin } = require("./firebase");
-const { getValidAccessToken, saveActivity } = require("./common");
+const { getValidAccessToken, saveActivityToBatch } = require("./common");
 
 /**
  * STRATEGY: Webhook Listener
@@ -64,10 +64,8 @@ exports.stravaWebhook = onRequest(
                 if (!response.ok) throw new Error("Activity fetch failed");
                 if (activity.errors) throw new Error(`Activity fetch errors: ${JSON.stringify(activity.errors)}`);
 
-                // Save to Firestore using shared helper
-                const batch = db.batch();
-                await saveActivity(activity, userId, batch);
-                await batch.commit();
+                // Save to Firestore using shared batch helper
+                await saveActivityToBatch(activity, userId);
 
                 // Send FCM Notification to wake up the phone
                 const fcmToken = usersSnapshot.docs[0].data().fcm_token;
@@ -93,14 +91,51 @@ exports.stravaWebhook = onRequest(
               break;
 
             case 'update':
-              // This happens when a user renames an activity or changes privacy settings
-              logger.info(`UPDATED ACTIVITY: ${activityId}. Changes:`, event.updates);
-              // TODO: Can implement update logic using saveActivity if needed
+              // This happens when a user renames an activity in Strava
+              logger.info(`UPDATED ACTIVITY: ${activityId} for athlete ${athleteId}`);
+              
+              try {
+                const usersSnapshot = await db.collection("users")
+                  .where("strava_auth.athlete_id", "==", athleteId)
+                  .limit(1)
+                  .get();
+
+                if (!usersSnapshot.empty) {
+                  const userId = usersSnapshot.docs[0].id;
+                  const userToken = await getValidAccessToken(userId);
+
+                  // Fetch full activity details (Strava webhooks don't send all data, just what changed)
+                  const response = await fetch(`https://www.strava.com/api/v3/activities/${activityId}`, {
+                    headers: { "Authorization": `Bearer ${userToken}` }
+                  });
+                  const activity = await response.json();
+                  
+                  if (response.ok) {
+                    await saveActivityToBatch(activity, userId);
+                    logger.info(`SUCCESSFULLY_UPDATED_BATCH: ${activityId}`);
+                  }
+                }
+              } catch (error) {
+                logger.error("WEBHOOK_UPDATE_FAILED", error);
+              }
               break;
 
             case 'delete':
-              // TODO: 1. Remove activity from Firestore to keep app in sync
-              logger.info(`DELETED ACTIVITY: ${activityId}`);
+              logger.info(`DELETED ACTIVITY: ${activityId} for athlete ${athleteId}`);
+              try {
+                const usersSnapshot = await db.collection("users")
+                  .where("strava_auth.athlete_id", "==", athleteId)
+                  .limit(1)
+                  .get();
+
+                if (!usersSnapshot.empty) {
+                  const userId = usersSnapshot.docs[0].id;
+                  await saveActivityToBatch({ id: activityId, isDeleted: true }, userId);
+                  logger.info(`SUCCESSFULLY_DELETED_BATCH: ${activityId}`);
+                }
+              } catch (error) {
+                logger.error("WEBHOOK_DELETE_FAILED", error);
+              }
               break;
               
             default:
@@ -123,10 +158,10 @@ exports.stravaWebhook = onRequest(
                 const userId = usersSnapshot.docs[0].id;
                 const userRef = db.collection("users").doc(userId);
                 
-                // Clean up activities
-                const activitiesSnapshot = await userRef.collection("activities").get();
+                // Clean up activities (Batches)
+                const batchesSnapshot = await userRef.collection("activity_batches").get();
                 const batch = db.batch();
-                activitiesSnapshot.forEach(doc => batch.delete(doc.ref));
+                batchesSnapshot.forEach(doc => batch.delete(doc.ref));
                 
                 batch.update(userRef, {
                   strava_auth: admin.firestore.FieldValue.delete(),

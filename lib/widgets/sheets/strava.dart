@@ -215,6 +215,25 @@ class StravaSheet extends StatelessWidget {
                       ),
                     ),
                   ),
+                  // Expanded(
+                  //   flex: 2,
+                  //   child: SizedBox(
+                  //     width: double.infinity,
+                  //     child: FilledButton.icon(
+                  //       onPressed: stravaService.status == StravaServiceStatus.syncing
+                  //           ? null
+                  //           : () => stravaService.triggerFullHistorySync(),
+                  //       icon: stravaService.status == StravaServiceStatus.syncing
+                  //           ? const SizedBox(
+                  //               height: 16,
+                  //               width: 16,
+                  //               child: CircularProgressIndicator(strokeWidth: 2),
+                  //             )
+                  //           : const Icon(Icons.sync),
+                  //       label: const Text("Full Sync"),
+                  //     ),
+                  //   ),
+                  // ),
                 ] else ...[
                   Expanded(
                     child: SizedBox(

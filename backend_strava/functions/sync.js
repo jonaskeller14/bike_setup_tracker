@@ -1,6 +1,6 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { db, logger, admin } = require("./firebase");
-const { getValidAccessToken, saveAthleteAndGear, saveActivity } = require("./common");
+const { getValidAccessToken, saveAthleteAndGear, saveActivityToBatch } = require("./common");
 
 /**
  * STRATEGY: Manual Sync (Recent)
@@ -46,9 +46,9 @@ exports.syncActivities = onRequest(
 
       const activities = await response.json();
       
-      // 2.1 Save Activities
+      // 2.1 Save Activities to Batches
       for (const activity of activities) {
-        await saveActivity(activity, userId, batch);
+        await saveActivityToBatch(activity, userId); // Individual processing for manual recent sync
       }
 
       await batch.commit();
@@ -100,10 +100,15 @@ async function syncFullHistory(userId) {
     const perPage = 100; 
     let allActivitiesSaved = 0;
     let keepFetching = true;
+    let currentBatchActivities = [];
 
-    // Reset batch for activities
-    batch = db.batch();
-    let operationCount = 0;
+    // Clear old batches for clean migration (as requested: overwrite/repopulate)
+    const oldBatches = await userRef.collection("activity_batches").get();
+    if (!oldBatches.empty) {
+      const deleteBatch = db.batch();
+      oldBatches.forEach(doc => deleteBatch.delete(doc.ref));
+      await deleteBatch.commit();
+    }
 
     while (keepFetching) {
       const response = await fetch(`https://www.strava.com/api/v3/athlete/activities?page=${page}&per_page=${perPage}`, {
@@ -122,15 +127,37 @@ async function syncFullHistory(userId) {
       }
 
       for (const activity of activities) {
-        await saveActivity(activity, userId, batch);
-        operationCount++;
+        // Transform to local format
+        let startLat = null;
+        let startLon = null;
+        if (activity.start_latlng && Array.isArray(activity.start_latlng) && activity.start_latlng.length === 2) {
+          startLat = activity.start_latlng[0];
+          startLon = activity.start_latlng[1];
+        }
+
+        currentBatchActivities.push({
+          id: activity.id,
+          lastModified: admin.firestore.Timestamp.now(),
+          name: activity.name,
+          athleteId: activity.athlete ? activity.athlete.id : null,
+          sportType: activity.sport_type || activity.type,
+          startDate: activity.start_date,
+          startDateLocal: activity.start_date_local,
+          gearId: activity.gear_id || null,
+          startLat: startLat,
+          startLon: startLon,
+          distance: activity.distance,
+          totalElevationGain: activity.total_elevation_gain,
+          movingTime: activity.moving_time,
+          elapsedTime: activity.elapsed_time,
+        });
+
         allActivitiesSaved++;
 
-        // Commit every ~450 writes to avoid the 500 limit
-        if (operationCount >= 450) {
-          await batch.commit();
-          batch = db.batch(); // New batch
-          operationCount = 0;
+        // When we have 500, write a batch doc
+        if (currentBatchActivities.length >= 500) {
+          await writeBatchDoc(userId, currentBatchActivities, allActivitiesSaved);
+          currentBatchActivities = [];
         }
       }
 
@@ -139,8 +166,8 @@ async function syncFullHistory(userId) {
     }
 
     // Commit any remaining operations
-    if (operationCount > 0) {
-      await batch.commit();
+    if (currentBatchActivities.length > 0) {
+      await writeBatchDoc(userId, currentBatchActivities, allActivitiesSaved);
     }
 
     // 4. Success -> Reset status
@@ -163,6 +190,34 @@ async function syncFullHistory(userId) {
     
     throw error;
   }
+}
+
+/**
+ * Internal Helper: Writes a single chunk of activities to Firestore as a batch.
+ */
+async function writeBatchDoc(userId, activitiesRaw, totalCountSoFar) {
+  const batchNum = Math.ceil(totalCountSoFar / 500);
+  const batchId = `batch_${String(batchNum).padStart(3, '0')}`;
+  
+  const activityIds = activitiesRaw.map(a => a.id);
+  const activitiesMap = {};
+  activitiesRaw.forEach(a => {
+    activitiesMap[String(a.id)] = a;
+  });
+
+  const batchData = {
+    id: batchId,
+    userId,
+    lastModified: admin.firestore.FieldValue.serverTimestamp(),
+    activityIds,
+    activities: activitiesMap
+  };
+
+  await db.collection("users").doc(userId)
+    .collection("activity_batches").doc(batchId)
+    .set(batchData);
+  
+  logger.info("BATCH_WRITE_SUCCESS", { userId, batchId, count: activitiesRaw.length });
 }
 
 /**

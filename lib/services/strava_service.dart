@@ -134,11 +134,20 @@ class StravaService extends ChangeNotifier {
     _activitiesSubscription = FirebaseFirestore.instance
         .collection('users')
         .doc(_userId)
-        .collection('activities')
-        .orderBy('synced_at', descending: true)
+        .collection('activity_batches')
         .snapshots()
         .listen((snapshot) {
-      _appData.updateStravaActivities(snapshot.docs.map((doc) => StravaActivity.fromFirestore(doc.data()))); //FIXME -> how to handle delete?
+      final List<StravaActivity> allActivities = [];
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        if (data.containsKey('activities')) {
+          final Map<String, dynamic> activitiesMap = data['activities'];
+          for (var activityData in activitiesMap.values) {
+            allActivities.add(StravaActivity.fromFirestore(activityData));
+          }
+        }
+      }
+      _appData.setStravaActivities(allActivities);
     }, onError: (e) {
       debugPrint("Strava sync stream error: $e");
       errorMessage = "Background sync error (Internet issue?)";

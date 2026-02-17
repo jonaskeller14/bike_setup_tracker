@@ -22,9 +22,7 @@ class GoogleDriveSyncButton extends StatelessWidget {
                   ? Icons.cloud_upload
                   : Icons.cloud_done_outlined)
               : Icons.cloud_off),
-          onPressed: isSyncing 
-              ? null 
-              : () => showGoogleDriveSheet(context: context, googleDriveService: googleDriveService),
+          onPressed: () => showGoogleDriveSheet(context: context),
           tooltip: isLinked ? "Sync Now" : "Connect Google Drive",
         ),
         
@@ -37,10 +35,6 @@ class GoogleDriveSyncButton extends StatelessWidget {
               width: 14,
               height: 14,
               padding: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onPrimary,
-                shape: BoxShape.circle,
-              ),
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 color: Theme.of(context).colorScheme.primary,

@@ -6,27 +6,23 @@ import '../../models/app_settings.dart';
 import '../../services/google_drive_service.dart';
 import 'sheet.dart';
 
-Future<void> showGoogleDriveSheet({required BuildContext context, required GoogleDriveService googleDriveService}) async {
+Future<void> showGoogleDriveSheet({required BuildContext context}) async {
   return await showModalBottomSheet<void>(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
     context: context, 
-    builder: (BuildContext context) => GoogleDriveSheet(googleDriveService: googleDriveService),
+    builder: (BuildContext context) => GoogleDriveSheet(),
   );
 }
 
 class GoogleDriveSheet extends StatelessWidget {
-  final GoogleDriveService googleDriveService;
-
-  const GoogleDriveSheet({
-    super.key,
-    required this.googleDriveService
-  });
+  const GoogleDriveSheet({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final appSettings = context.read<AppSettings>();
+    final appSettings = context.watch<AppSettings>();
+    final googleDriveService = context.watch<GoogleDriveService>();
     return SafeArea(
       child: Padding(
         padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),

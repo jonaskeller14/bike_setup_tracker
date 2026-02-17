@@ -13,6 +13,7 @@ import '../widgets/sheets/setup_list_values_filter.dart';
 import '../widgets/strava_sync_button.dart';
 import 'bike_page.dart';
 import 'component_page.dart';
+import 'map_page.dart';
 import 'setup_display_page.dart';
 import 'setup_page.dart';
 import 'person_page.dart';
@@ -512,6 +513,21 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _setupListMapChip() {
+    return FilterChip(
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      label: const SizedBox.shrink(),
+      labelPadding: EdgeInsets.symmetric(vertical: 2),
+      padding: EdgeInsets.zero,
+      avatar: Icon(Icons.map_outlined),
+      showCheckmark: false,
+      selected: false,
+      onSelected: (_) async {
+        await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const MapPage()));
+      },
+    );
+  }
+
   SearchAnchor _setupListSearchWidget() {
     return SearchAnchor(
       builder:(context, controller) {
@@ -597,6 +613,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   SingleChildScrollView _setupListFilterWidget() {
+    final appSettings = context.watch<AppSettings>();
     return SingleChildScrollView(
       padding: const EdgeInsets.only(bottom: 8),
       scrollDirection: Axis.horizontal,
@@ -605,6 +622,8 @@ class _HomePageState extends State<HomePage> {
         children: [
           _setupListSortWidget(),
           _setupListSearchWidget(),
+          if (appSettings.enableMap)
+          _setupListMapChip(),
           _filterWidget(enableSetupTagFilter: context.watch<AppSettings>().enableSetupTags),
           _setupListValueFilterWidget(),
         ],

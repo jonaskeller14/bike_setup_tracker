@@ -394,6 +394,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             decoration: InputDecoration(
                               labelText: 'Notes (optional)',
                               hintText: 'Enter measuring procedure/instrument/...',
+                              helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
                               border: OutlineInputBorder(),
                               fillColor: Colors.orange.withValues(alpha: 0.08),
                               filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),

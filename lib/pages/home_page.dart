@@ -487,23 +487,17 @@ class _HomePageState extends State<HomePage> {
       showCheckmark: false,
       selected: _setupListOnlyChanges || !_setupListBikeAdjustmentValues || !_setupListPersonAdjustmentValues || !_setupListRatingAdjustmentValues,
       onSelected: (bool value) async {
-        final result = await showSetupListValuesFilterSheet(context: context, setupListValuesFilter: {
-          SetupListValuesFilterOptions.onlyChanges: _setupListOnlyChanges,
-          SetupListValuesFilterOptions.bikeValues: _setupListBikeAdjustmentValues,
-          SetupListValuesFilterOptions.personValues: _setupListPersonAdjustmentValues,
-          SetupListValuesFilterOptions.ratingValues: _setupListRatingAdjustmentValues,
-        });
-        if (result == null) return;
-        setState(() {
-          for (final resultEntry in result.entries) {
-            switch (resultEntry.key) {
-              case SetupListValuesFilterOptions.onlyChanges: _setupListOnlyChanges = resultEntry.value;
-              case SetupListValuesFilterOptions.bikeValues: _setupListBikeAdjustmentValues = resultEntry.value;
-              case SetupListValuesFilterOptions.personValues: _setupListPersonAdjustmentValues = resultEntry.value;
-              case SetupListValuesFilterOptions.ratingValues: _setupListRatingAdjustmentValues = resultEntry.value;
-            }
-          }
-        });
+        await showSetupListValuesFilterSheet(
+          context: context,
+          onlyChanges: _setupListOnlyChanges,
+          bikeValues: _setupListBikeAdjustmentValues,
+          personValues: _setupListPersonAdjustmentValues,
+          ratingValues: _setupListRatingAdjustmentValues,
+          onOnlyChangesChanged: (bool val) => setState(() => _setupListOnlyChanges = val),
+          onBikeValuesChanged: (bool val) => setState(() => _setupListBikeAdjustmentValues = val),
+          onPersonValuesChanged: (bool val) => setState(() => _setupListPersonAdjustmentValues = val),
+          onRatingValuesChanged: (bool val) => setState(() => _setupListRatingAdjustmentValues = val),
+        );
       },
       onDeleted: _setupListOnlyChanges || !_setupListBikeAdjustmentValues || !_setupListPersonAdjustmentValues || !_setupListRatingAdjustmentValues
           ? () {

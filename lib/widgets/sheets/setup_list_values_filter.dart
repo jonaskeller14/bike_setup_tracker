@@ -6,18 +6,18 @@ import '../../models/person.dart';
 import '../../models/rating.dart';
 import 'sheet.dart';
 
-enum SetupListValuesFilterOptions {
-  onlyChanges,
-  bikeValues,
-  personValues,
-  ratingValues,
-}
-
-Future<Map<SetupListValuesFilterOptions, bool>?> showSetupListValuesFilterSheet({
+Future<void> showSetupListValuesFilterSheet({
   required BuildContext context, 
-  required Map<SetupListValuesFilterOptions, bool> setupListValuesFilter
-  }) async {
-  return showModalBottomSheet<Map<SetupListValuesFilterOptions, bool>?>(
+  required bool onlyChanges,
+  required bool bikeValues,
+  required bool personValues,
+  required bool ratingValues,
+  required ValueChanged<bool> onOnlyChangesChanged,
+  required ValueChanged<bool> onBikeValuesChanged,
+  required ValueChanged<bool> onPersonValuesChanged,
+  required ValueChanged<bool> onRatingValuesChanged,
+}) async {
+  return showModalBottomSheet<void>(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
@@ -61,11 +61,17 @@ Future<Map<SetupListValuesFilterOptions, bool>?> showSetupListValuesFilterSheet(
                                     // avatar: const Icon(Icons.published_with_changes),
                                     label: const Text("Display Only Changes"),
                                     showCheckmark: false,
-                                    selected: setupListValuesFilter[SetupListValuesFilterOptions.onlyChanges] ?? false,
-                                    onSelected: (bool selected) {setSheetState(() => setupListValuesFilter[SetupListValuesFilterOptions.onlyChanges] = selected);},
+                                    selected: onlyChanges,
+                                    onSelected: (bool selected) {
+                                      setSheetState(() => onlyChanges = selected);
+                                      onOnlyChangesChanged(selected);
+                                    },
                                     tooltip: "Show only changed values",
-                                    onDeleted: setupListValuesFilter[SetupListValuesFilterOptions.onlyChanges] ?? true
-                                        ? () => setSheetState(() => setupListValuesFilter[SetupListValuesFilterOptions.onlyChanges] = false)
+                                    onDeleted: onlyChanges
+                                        ? () {
+                                            setSheetState(() => onlyChanges = false);
+                                            onOnlyChangesChanged(false);
+                                          }
                                         : null
                                   ),
                                 ],
@@ -89,11 +95,17 @@ Future<Map<SetupListValuesFilterOptions, bool>?> showSetupListValuesFilterSheet(
                                       avatar: const Icon(Bike.iconData, size: 20),
                                       showCheckmark: false,
                                       label: const Text("Bike Values"),
-                                      selected: setupListValuesFilter[SetupListValuesFilterOptions.bikeValues] ?? false,
-                                      onSelected: (bool selected) {setSheetState(() => setupListValuesFilter[SetupListValuesFilterOptions.bikeValues] = selected);},
+                                      selected: bikeValues,
+                                      onSelected: (bool selected) {
+                                        setSheetState(() => bikeValues = selected);
+                                        onBikeValuesChanged(selected);
+                                      },
                                       tooltip: "Show bike/component related values",
-                                      onDeleted: setupListValuesFilter[SetupListValuesFilterOptions.bikeValues] ?? true
-                                            ? () => setSheetState(() => setupListValuesFilter[SetupListValuesFilterOptions.bikeValues] = false)
+                                      onDeleted: bikeValues
+                                            ? () {
+                                                setSheetState(() => bikeValues = false);
+                                                onBikeValuesChanged(false);
+                                              }
                                             : null
                                     ),
                                     if (context.read<AppSettings>().enablePerson)
@@ -101,11 +113,17 @@ Future<Map<SetupListValuesFilterOptions, bool>?> showSetupListValuesFilterSheet(
                                         avatar: const Icon(Person.iconData, size: 20),
                                         showCheckmark: false,
                                         label: const Text("Person Values"),
-                                        selected: setupListValuesFilter[SetupListValuesFilterOptions.personValues] ?? false,
-                                        onSelected: (bool selected) {setSheetState(() => setupListValuesFilter[SetupListValuesFilterOptions.personValues] = selected);},
+                                        selected: personValues,
+                                        onSelected: (bool selected) {
+                                          setSheetState(() => personValues = selected);
+                                          onPersonValuesChanged(selected);
+                                        },
                                         tooltip: "Show person related values",
-                                        onDeleted: setupListValuesFilter[SetupListValuesFilterOptions.personValues] ?? true
-                                            ? () => setSheetState(() => setupListValuesFilter[SetupListValuesFilterOptions.personValues] = false)
+                                        onDeleted: personValues
+                                            ? () {
+                                                setSheetState(() => personValues = false);
+                                                onPersonValuesChanged(false);
+                                              }
                                             : null
                                       ),
                                     if (context.read<AppSettings>().enableRating)
@@ -113,11 +131,17 @@ Future<Map<SetupListValuesFilterOptions, bool>?> showSetupListValuesFilterSheet(
                                         avatar: const Icon(Rating.iconData, size: 20),
                                         showCheckmark: false,
                                         label: const Text("Rating Values"),
-                                        selected: setupListValuesFilter[SetupListValuesFilterOptions.ratingValues] ?? false,
-                                        onSelected: (bool selected) {setSheetState(() => setupListValuesFilter[SetupListValuesFilterOptions.ratingValues] = selected);},
+                                        selected: ratingValues,
+                                        onSelected: (bool selected) {
+                                          setSheetState(() => ratingValues = selected);
+                                          onRatingValuesChanged(selected);
+                                        },
                                         tooltip: "Show rating related values",
-                                        onDeleted: setupListValuesFilter[SetupListValuesFilterOptions.ratingValues] ?? true
-                                            ? () => setSheetState(() => setupListValuesFilter[SetupListValuesFilterOptions.ratingValues] = false)
+                                        onDeleted: ratingValues
+                                            ? () {
+                                                setSheetState(() => ratingValues = false);
+                                                onRatingValuesChanged(false);
+                                              }
                                             : null
                                       ),
                                   ],
@@ -128,17 +152,6 @@ Future<Map<SetupListValuesFilterOptions, bool>?> showSetupListValuesFilterSheet(
                         ],
                       ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () {
-                      Navigator.pop(context, setupListValuesFilter);
-                    },
-                    child: const Text("Confirm Selection"),
                   ),
                 ),
               ],

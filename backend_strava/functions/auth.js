@@ -94,7 +94,7 @@ exports.deauthorizeUser = onRequest(
 
       // 2. Clean up Firestore (Delete Strava-specific subcollections)
       // We use recursiveDelete to automatically handle pagination and the 500-operation limit
-      const subcollections = ["activities", "athletes", "gears"];
+      const subcollections = ["activity_batches", "activities", "athletes", "gears"];
       for (const collName of subcollections) {
         await db.recursiveDelete(userRef.collection(collName));
       }

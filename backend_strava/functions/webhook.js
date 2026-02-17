@@ -35,128 +35,108 @@ exports.stravaWebhook = onRequest(
       const athleteId = event.owner_id;
 
       switch (objectType) {
-        case 'activity':
+        case 'activity': {
+          // 1. Find ALL users linked to this athlete
+          const usersSnapshot = await db.collection("users")
+            .where("strava_auth.athlete_id", "==", athleteId)
+            .get();
+
+          if (usersSnapshot.empty) {
+            logger.info("EVENT_RECEIVED_BUT_NO_USER_FOUND", { athleteId });
+            return res.status(200).send("EVENT_RECEIVED_NO_USER");
+          }
+
+          // 2. Handle based on aspect
           switch (aspectType) {
             case 'create':
-              logger.info(`NEW ACTIVITY: ${activityId} for athlete ${athleteId}`);
-
+              logger.info(`CREATE ACTIVITY: ${activityId} for athlete ${athleteId}`);
               try {
-                // Find user by athleteId
-                const usersSnapshot = await db.collection("users")
-                  .where("strava_auth.athlete_id", "==", athleteId)
-                  .limit(1)
-                  .get();
-
-                if (usersSnapshot.empty) {
-                  logger.error("ATHLETE_NOT_LINKED", { athleteId });
-                  return res.status(200).send("NOT_LINKED");
-                }
-
-                const userId = usersSnapshot.docs[0].id;
-                const userToken = await getValidAccessToken(userId);
-
-                // Fetch full activity details
+                // Fetch activity details ONCE using the first user's token
+                const firstUserId = usersSnapshot.docs[0].id;
+                const userToken = await getValidAccessToken(firstUserId);
                 const response = await fetch(`https://www.strava.com/api/v3/activities/${activityId}`, {
                   headers: { "Authorization": `Bearer ${userToken}` }
                 });
+                if (!response.ok) throw new Error(`Strava API failed: ${response.statusText}`);
                 const activity = await response.json();
 
-                if (!response.ok) throw new Error("Activity fetch failed");
-                if (activity.errors) throw new Error(`Activity fetch errors: ${JSON.stringify(activity.errors)}`);
+                // Save to EVERY user's batches
+                for (const userDoc of usersSnapshot.docs) {
+                  const userId = userDoc.id;
+                  await saveActivityToBatch(activity, userId);
 
-                // Save to Firestore using shared batch helper
-                await saveActivityToBatch(activity, userId);
-
-                // Send FCM Notification to wake up the phone
-                const fcmToken = usersSnapshot.docs[0].data().fcm_token;
-                if (fcmToken) {
-                  await admin.messaging().send({
-                    token: fcmToken,
-                    notification: {
-                      title: "New Activity!",
-                      body: `We imported your ride: ${activity.name}`,
-                    },
-                    data: {
-                      type: "strava_sync",
-                      activityId: String(activityId),
-                    }
-                  });
+                  // Send FCM Notification
+                  const fcmToken = userDoc.data().fcm_token;
+                  if (fcmToken) {
+                    await admin.messaging().send({
+                      token: fcmToken,
+                      notification: {
+                        title: "New Activity!",
+                        body: `We imported your ride: ${activity.name}`,
+                      },
+                      data: {
+                        type: "strava_sync",
+                        activityId: String(activityId),
+                      }
+                    }).catch(err => logger.error("FCM_SEND_FAILED", { userId, error: err.message }));
+                  }
                 }
-
-                logger.info(`SUCCESSFULLY_SYNCED: ${activityId} for user ${userId}`);
-
+                logger.info(`SUCCESSFULLY_PROCESSED_CREATE: ${activityId} for ${usersSnapshot.size} users`);
               } catch (error) {
-                logger.error("WEBHOOK_PROCESSING_FAILED", error);
+                logger.error("WEBHOOK_CREATE_FAILED", { activityId, error: error.message });
               }
               break;
 
             case 'update':
-              // This happens when a user renames an activity in Strava
-              logger.info(`UPDATED ACTIVITY: ${activityId} for athlete ${athleteId}`);
-              
+              logger.info(`UPDATE ACTIVITY: ${activityId} for athlete ${athleteId}`);
               try {
-                const usersSnapshot = await db.collection("users")
-                  .where("strava_auth.athlete_id", "==", athleteId)
-                  .limit(1)
-                  .get();
+                const firstUserId = usersSnapshot.docs[0].id;
+                const userToken = await getValidAccessToken(firstUserId);
+                const response = await fetch(`https://www.strava.com/api/v3/activities/${activityId}`, {
+                  headers: { "Authorization": `Bearer ${userToken}` }
+                });
+                if (!response.ok) throw new Error(`Strava API failed: ${response.statusText}`);
+                const activity = await response.json();
 
-                if (!usersSnapshot.empty) {
-                  const userId = usersSnapshot.docs[0].id;
-                  const userToken = await getValidAccessToken(userId);
-
-                  // Fetch full activity details (Strava webhooks don't send all data, just what changed)
-                  const response = await fetch(`https://www.strava.com/api/v3/activities/${activityId}`, {
-                    headers: { "Authorization": `Bearer ${userToken}` }
-                  });
-                  const activity = await response.json();
-                  
-                  if (response.ok) {
-                    await saveActivityToBatch(activity, userId);
-                    logger.info(`SUCCESSFULLY_UPDATED_BATCH: ${activityId}`);
-                  }
+                for (const userDoc of usersSnapshot.docs) {
+                  await saveActivityToBatch(activity, userDoc.id);
                 }
+                logger.info(`SUCCESSFULLY_PROCESSED_UPDATE: ${activityId} for ${usersSnapshot.size} users`);
               } catch (error) {
-                logger.error("WEBHOOK_UPDATE_FAILED", error);
+                logger.error("WEBHOOK_UPDATE_FAILED", { activityId, error: error.message });
               }
               break;
 
             case 'delete':
-              logger.info(`DELETED ACTIVITY: ${activityId} for athlete ${athleteId}`);
+              logger.info(`DELETE ACTIVITY: ${activityId} for athlete ${athleteId}`);
               try {
-                const usersSnapshot = await db.collection("users")
-                  .where("strava_auth.athlete_id", "==", athleteId)
-                  .limit(1)
-                  .get();
-
-                if (!usersSnapshot.empty) {
-                  const userId = usersSnapshot.docs[0].id;
-                  await saveActivityToBatch({ id: activityId, isDeleted: true }, userId);
-                  logger.info(`SUCCESSFULLY_DELETED_BATCH: ${activityId}`);
+                for (const userDoc of usersSnapshot.docs) {
+                  await saveActivityToBatch({ id: activityId, isDeleted: true }, userDoc.id);
                 }
+                logger.info(`SUCCESSFULLY_DELETED: ${activityId} for ${usersSnapshot.size} users`);
               } catch (error) {
-                logger.error("WEBHOOK_DELETE_FAILED", error);
+                logger.error("WEBHOOK_DELETE_FAILED", { activityId, error: error.message });
               }
               break;
-              
+
             default:
               logger.info(`UNKNOWN_ACTIVITY_ASPECT: ${aspectType}`);
               break;
           }
           break;
+        }
 
         case 'athlete':
           if (aspectType === 'update' && event.updates && event.updates.authorized === "false") {
             logger.info(`ATHLETE_DEAUTHORIZED_ON_STRAVA: ${athleteId}`);
             try {
-              // Find user by athleteId
               const usersSnapshot = await db.collection("users")
                 .where("strava_auth.athlete_id", "==", athleteId)
-                .limit(1)
                 .get();
 
-              if (!usersSnapshot.empty) {
-                const userId = usersSnapshot.docs[0].id;
-                const userRef = db.collection("users").doc(userId);
+              for (const userDoc of usersSnapshot.docs) {
+                const userId = userDoc.id;
+                const userRef = userDoc.ref;
                 
                 // Clean up activities (Batches)
                 const batchesSnapshot = await userRef.collection("activity_batches").get();
@@ -171,8 +151,6 @@ exports.stravaWebhook = onRequest(
 
                 await batch.commit();
                 logger.info(`CLEANUP_SUCCESS_FOR_WEBHOOK_DEAUTH: ${userId}`);
-              } else {
-                logger.warn(`Deauth webhook received for athlete ${athleteId} but no matching user found.`);
               }
             } catch (error) {
               logger.error("CLEANUP_FAILED_FOR_WEBHOOK_DEAUTH", error);
@@ -184,7 +162,7 @@ exports.stravaWebhook = onRequest(
           logger.info(`UNKNOWN_OBJECT_TYPE: ${objectType}`);
           break;
       }
-      
+
       return res.status(200).send("EVENT_RECEIVED");
     }
 

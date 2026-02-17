@@ -892,80 +892,76 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
           child: NestedScrollView(
             headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
               return <Widget>[
-                SliverList(
-                  delegate: SliverChildListDelegate(
-                    [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _nameTextFormField(),
-                            const SizedBox(height: 12),
-                            _notesTextFormField(),
-                            const SizedBox(height: 12),
-                            _wrap(),
-                            const SizedBox(height: 12),
-                            DropdownButtonFormField<String>(
-                              initialValue: _bike,
-                              isExpanded: true,
-                              autovalidateMode: AutovalidateMode.onUserInteraction,
-                              decoration: InputDecoration(
-                                labelText: 'Bike',
-                                border: OutlineInputBorder(),
-                                hintText: "Choose a bike for this component",
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
-                                filled: widget.mode == SetupPageMode.edit && _bike != widget.setup?.bike,
-                              ),
-                              validator: (String? newBike) {
-                                if (newBike == null) return "Bike cannot be empty.";
-                                if (!bikes.keys.contains(newBike)) return "Please select valid bike";
-                                return null;
-                              },
-                              items: bikes.values.map((b) {
-                                return DropdownMenuItem<String>(
-                                  value: b.id,
-                                  child: Row(
-                                    spacing: 8,
-                                    children: [
-                                      const Icon(Bike.iconData),
-                                      Expanded(
-                                        child: Text(b.name, overflow: TextOverflow.ellipsis),
-                                      ),
-                                    ],
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _nameTextFormField(),
+                        const SizedBox(height: 12),
+                        _notesTextFormField(),
+                        const SizedBox(height: 12),
+                        _wrap(),
+                        const SizedBox(height: 12),
+                        DropdownButtonFormField<String>(
+                          initialValue: _bike,
+                          isExpanded: true,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          decoration: InputDecoration(
+                            labelText: 'Bike',
+                            border: OutlineInputBorder(),
+                            hintText: "Choose a bike for this component",
+                            fillColor: Colors.orange.withValues(alpha: 0.08),
+                            filled: widget.mode == SetupPageMode.edit && _bike != widget.setup?.bike,
+                          ),
+                          validator: (String? newBike) {
+                            if (newBike == null) return "Bike cannot be empty.";
+                            if (!bikes.keys.contains(newBike)) return "Please select valid bike";
+                            return null;
+                          },
+                          items: bikes.values.map((b) {
+                            return DropdownMenuItem<String>(
+                              value: b.id,
+                              child: Row(
+                                spacing: 8,
+                                children: [
+                                  const Icon(Bike.iconData),
+                                  Expanded(
+                                    child: Text(b.name, overflow: TextOverflow.ellipsis),
                                   ),
-                                );
-                              }).toList() + [
-                                if (!bikes.containsKey(_bike))
-                                DropdownMenuItem<String>(
-                                  value: _bike,
-                                  child: Row(
-                                    spacing: 8,
-                                    children: [
-                                      Icon(Bike.iconData, color: Theme.of(context).colorScheme.error),
-                                      Expanded(child: Text("BIKE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
-                                    ],
-                                  ),
-                                ),
-                              ],
-                              onChanged: (String? newBike) => _onBikeChange(newBike),
-                            ),
-                            const SizedBox(height: 12),
-                            if (context.read<AppSettings>().enablePerson || context.read<AppSettings>().enableRating)
-                              TabBar.secondary(
-                                controller: _tabController,
-                                tabs: <Widget>[
-                                  const Tab(icon: Icon(Bike.iconData)),
-                                  if (context.read<AppSettings>().enablePerson)
-                                    const Tab(icon: Icon(Person.iconData)),
-                                  if (context.read<AppSettings>().enableRating)
-                                  const Tab(icon: Icon(Rating.iconData)),
                                 ],
                               ),
+                            );
+                          }).toList() + [
+                            if (!bikes.containsKey(_bike))
+                            DropdownMenuItem<String>(
+                              value: _bike,
+                              child: Row(
+                                spacing: 8,
+                                children: [
+                                  Icon(Bike.iconData, color: Theme.of(context).colorScheme.error),
+                                  Expanded(child: Text("BIKE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+                                ],
+                              ),
+                            ),
                           ],
+                          onChanged: (String? newBike) => _onBikeChange(newBike),
                         ),
-                      ),    
-                    ],
+                        const SizedBox(height: 12),
+                        if (context.read<AppSettings>().enablePerson || context.read<AppSettings>().enableRating)
+                          TabBar.secondary(
+                            controller: _tabController,
+                            tabs: <Widget>[
+                              const Tab(icon: Icon(Bike.iconData)),
+                              if (context.read<AppSettings>().enablePerson)
+                                const Tab(icon: Icon(Person.iconData)),
+                              if (context.read<AppSettings>().enableRating)
+                              const Tab(icon: Icon(Rating.iconData)),
+                            ],
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ];
@@ -979,9 +975,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                     slivers: [
                       SliverPadding(
                         padding: const EdgeInsets.all(16.0),
-                        sliver: SliverList(
-                          delegate: SliverChildListDelegate(
-                            [
+                        sliver: SliverToBoxAdapter(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               if (_bikeComponents.isEmpty)
                                 SizedBox(
                                   height: 100,
@@ -1071,9 +1069,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       slivers: [
                         SliverPadding(
                           padding: const EdgeInsets.all(16.0),
-                          sliver: SliverList(
-                            delegate: SliverChildListDelegate(
-                              [
+                          sliver: SliverToBoxAdapter(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 if (persons[_person] == null)
                                   SizedBox(
                                     height: 100,
@@ -1162,9 +1162,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       slivers: [
                         SliverPadding(
                           padding: const EdgeInsets.all(16.0),
-                          sliver: SliverList(
-                            delegate: SliverChildListDelegate(
-                              [
+                          sliver: SliverToBoxAdapter(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 if (_filteredRatings.isEmpty)
                                   SizedBox(
                                     height: 100,

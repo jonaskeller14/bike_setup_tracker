@@ -847,14 +847,13 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 showCheckmark: false,
                 selected: widget.mode != SetupPageMode.edit,
                 label: Text(tag), 
-                onSelected: (_) {},
+                onSelected: (_) => setState(() => _tags.remove(tag)),
                 onDeleted: () => setState(() => _tags.remove(tag)),
                 backgroundColor: widget.mode == SetupPageMode.edit && !widget.setup!.tags.contains(tag) ? Colors.orange.withValues(alpha: 0.08) : null,
               )),
               ActionChip(
                 avatar: const Icon(Icons.add),
-                label: _tags.isEmpty ? const Text("Tags") : const SizedBox.shrink(),
-                labelPadding: _tags.isEmpty ? null : const EdgeInsets.symmetric(vertical: 2),
+                label: const Text("Tags"),
                 onPressed: () async {
                   final newTags = await showSetTagsSheet(context: context, tags: _tags);
                   if (newTags == null) return;

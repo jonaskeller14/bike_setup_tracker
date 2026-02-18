@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../models/filtered_data.dart';
 import '../models/setup.dart';
 import 'setup_display_page.dart';
-import 'strava_activitiy_page.dart';
+import '../widgets/sheets/strava_activity.dart';
 
 class MapPage extends StatefulWidget {
   final Future<void> Function(Setup setup) editSetup;
@@ -55,12 +55,9 @@ class _MapPageState extends State<MapPage> {
             width: 40,
             height: 40,
             child: GestureDetector(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => StravaActivityPage(stravaActivity: activity),
-                ),
-              ),
+              onTap: () async {
+                await showStravaActivitySheet(context: context, stravaActivity: activity);
+              },
               child: const Icon(
                 Icons.location_pin,
                 size: 40,
@@ -148,6 +145,7 @@ class _MapPageState extends State<MapPage> {
         spacing: 8,
         children: [
           FloatingActionButton(
+            heroTag: 'map_zoom_in',
             mini: true,
             onPressed: () {
               _mapController.move(
@@ -158,6 +156,7 @@ class _MapPageState extends State<MapPage> {
             child: const Icon(Icons.add),
           ),
           FloatingActionButton(
+            heroTag: 'map_zoom_out',
             mini: true,
             onPressed: () {
               _mapController.move(
@@ -169,6 +168,7 @@ class _MapPageState extends State<MapPage> {
           ),
           if (markers.isNotEmpty) ...[
             FloatingActionButton(
+              heroTag: 'map_center_focus',
               mini: true,
               onPressed: () {
                 final points = markers.map((m) => m.point).toList();

@@ -46,8 +46,14 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This app needs access to location when in the background.</string>
+	<string>This app uses your location to automatically add location data to your bike setups.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>https</string>
+		<string>http</string>
+		<string>mailto</string>
+		<string>tel</string>
+	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -56,8 +62,15 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>bike-setup-tracker</string>
+				<!-- Project 1 (Firebase/Strava) REVERSED_CLIENT_ID from GoogleService-Info.plist -->
+				<!-- not needed? -->
+				
+				<!-- Project 2 (Google Drive | iOS-Client 1 20260218) iOS URL Scheme from Google Cloud Console -->
+				<string>com.googleusercontent.apps.473188600318-q3uf3l53eo2bp4rtmvp29sdehtn5tp5l</string>
 			</array>
 		</dict>
 	</array>
+	<key>FlutterDeepLinkingEnabled</key>
+	<true/>
 </dict>
 </plist>

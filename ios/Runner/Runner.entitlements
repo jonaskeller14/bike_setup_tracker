@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- 
+	aps-environment: 
+	- 'development' is used for testing via Xcode on your device/simulator.
+	- Xcode automatically handles the switch to 'production' when you Archive for the App Store.
+	
+	Purpose: This file (Entitlements) tells iOS that the app is allowed to use 
+	specific system services, in this case, Push Notifications (Firebase Messaging).
+	-->
+	<key>aps-environment</key>
+	<string>development</string>
+</dict>
+</plist>

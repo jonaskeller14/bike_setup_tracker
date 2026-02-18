@@ -23,8 +23,8 @@ class _MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
     final filteredData = context.watch<FilteredData>();
-    final setups = filteredData.setups.values.where((s) => s.position?.latitude != null && s.position?.longitude != null);
-    final stravaActivities = filteredData.stravaActivities.values.where((a) => a.startLat != null && a.startLon != null);
+    final setups = filteredData.filteredSetups.values.where((s) => s.position?.latitude != null && s.position?.longitude != null);
+    final stravaActivities = filteredData.filteredStravaActivities.values.where((a) => a.startLat != null && a.startLon != null);
 
     final List<Marker> markers = [
       ...setups.map((setup) => Marker(
@@ -36,7 +36,7 @@ class _MapPageState extends State<MapPage> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => SetupDisplayPage(
-                    setupIds: filteredData.setups.keys.toList(),
+                    setupIds: filteredData.filteredSetups.keys.toList(),
                     initialSetup: setup,
                     editSetup: widget.editSetup,
                   ),
@@ -143,16 +143,49 @@ class _MapPageState extends State<MapPage> {
           ),
         ],
       ),
-      floatingActionButton: markers.isNotEmpty ? FloatingActionButton(
-        mini: true,
-        onPressed: () {
-          if (markers.isEmpty) return;
-          final points = markers.map((m) => m.point).toList();
-          final bounds = LatLngBounds.fromPoints(points);
-          _mapController.fitCamera(CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(50)));
-        },
-        child: const Icon(Icons.center_focus_strong),
-      ) : null,
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 8,
+        children: [
+          FloatingActionButton(
+            mini: true,
+            onPressed: () {
+              _mapController.move(
+                _mapController.camera.center,
+                (_mapController.camera.zoom + 1),
+              );
+            },
+            child: const Icon(Icons.add),
+          ),
+          FloatingActionButton(
+            mini: true,
+            onPressed: () {
+              _mapController.move(
+                _mapController.camera.center,
+                (_mapController.camera.zoom - 1),
+              );
+            },
+            child: const Icon(Icons.remove),
+          ),
+          if (markers.isNotEmpty) ...[
+            FloatingActionButton(
+              mini: true,
+              onPressed: () {
+                final points = markers.map((m) => m.point).toList();
+                final bounds = LatLngBounds.fromPoints(points);
+                _mapController.fitCamera(
+                  CameraFit.bounds(
+                    bounds: bounds,
+                    padding: const EdgeInsets.all(50),
+                  ),
+                );
+                _mapController.rotate(0);
+              },
+              child: const Icon(Icons.center_focus_strong),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

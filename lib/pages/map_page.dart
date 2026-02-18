@@ -5,13 +5,13 @@ import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../models/filtered_data.dart';
 import '../models/setup.dart';
-import '../models/app_data.dart';
 import 'setup_display_page.dart';
 import 'strava_activitiy_page.dart';
-import 'setup_page.dart';
 
 class MapPage extends StatefulWidget {
-  const MapPage({super.key});
+  final Future<void> Function(Setup setup) editSetup;
+
+  const MapPage({super.key, required this.editSetup});
 
   @override
   State<MapPage> createState() => _MapPageState();
@@ -19,16 +19,6 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage> {
   final MapController _mapController = MapController();
-
-  Future<void> _editSetup(Setup setup) async {
-    final data = context.read<AppData>();
-    final editedSetup = await Navigator.push<Setup>(
-      context,
-      MaterialPageRoute(builder: (context) => SetupPage.edit(setup: setup)),
-    );
-    if (editedSetup == null) return;
-    data.editSetup(editedSetup);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +38,7 @@ class _MapPageState extends State<MapPage> {
                   builder: (context) => SetupDisplayPage(
                     setupIds: filteredData.setups.keys.toList(),
                     initialSetup: setup,
-                    editSetup: _editSetup,
+                    editSetup: widget.editSetup,
                   ),
                 ),
               ),

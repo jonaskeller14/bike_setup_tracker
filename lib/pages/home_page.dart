@@ -523,7 +523,9 @@ class _HomePageState extends State<HomePage> {
       showCheckmark: false,
       selected: false,
       onSelected: (_) async {
-        await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const MapPage()));
+        await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => MapPage(
+          editSetup: _editSetup,
+        )));
       },
     );
   }

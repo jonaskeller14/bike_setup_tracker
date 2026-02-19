@@ -5,8 +5,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../models/filtered_data.dart';
 import '../models/setup.dart';
-import 'setup_display_page.dart';
 import '../widgets/sheets/strava_activity.dart';
+import '../widgets/sheets/setup_display.dart';
 
 class MapPage extends StatefulWidget {
   final Future<void> Function(Setup setup) editSetup;
@@ -32,16 +32,9 @@ class _MapPageState extends State<MapPage> {
             width: 40,
             height: 40,
             child: GestureDetector(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SetupDisplayPage(
-                    setupIds: filteredData.filteredSetups.keys.toList(),
-                    initialSetup: setup,
-                    editSetup: widget.editSetup,
-                  ),
-                ),
-              ),
+              onTap: () async {
+                await showSetupDisplaySheet(context: context, setup: setup);
+              },
               child: Icon(
                 Icons.location_pin,
                 size: 40,

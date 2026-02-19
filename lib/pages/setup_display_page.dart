@@ -110,7 +110,44 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
     );
   }
 
-  SliverAppBar _setupTitle(Setup setup) {
+  @override
+  Widget build(BuildContext context) {
+    final filteredData = context.watch<FilteredData>();
+
+    final List<Setup?> setups = widget.setupIds.map((setupId) => filteredData.setups[setupId]).toList();
+
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: _navigationRow(_currentPageIndex),
+        actions: [
+          IconButton(
+            onPressed: () => widget.editSetup(setups[_currentPageIndex]!), 
+            icon: const Icon(Icons.edit),
+          )
+        ],
+      ),
+      body: PageView.builder(
+        controller: _pageController,
+        onPageChanged: (index) => setState(() => _currentPageIndex = index),
+        itemCount: setups.length,
+        itemBuilder: (context, index) {
+          final Setup? setup = setups[index];
+          if (setup == null) return Expanded(child: Center(child: const Text("Setup not found.")));
+
+          return SetupDisplayPageContent(setup: setup);
+        },
+      )
+    );
+  }
+}
+
+class SetupDisplayPageContent extends StatelessWidget {
+  final Setup setup;
+
+  const SetupDisplayPageContent({super.key, required this.setup});
+
+  SliverAppBar _setupTitle(BuildContext context, {required Setup setup}) {
     final appSettings = context.read<AppSettings>();
     
     return SliverAppBar(
@@ -146,7 +183,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
     );
   }
 
-  PinnedHeaderSliver _sectionTitle(String title) {
+  PinnedHeaderSliver _sectionTitle(BuildContext context, {required String title}) {
     return PinnedHeaderSliver(
       child: Container(
         color: Theme.of(context).colorScheme.surface,
@@ -167,7 +204,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
     );
   }
 
-  SliverToBoxAdapter _contextSection(Setup setup, {required Bike? bike, required Person? person}) {
+  SliverToBoxAdapter _contextSection(BuildContext context, {required Setup setup, required Bike? bike, required Person? person}) {
     final appSettings = context.read<AppSettings>();
     return SliverToBoxAdapter(
       child: Padding(
@@ -379,15 +416,16 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
   }
 
   SliverToBoxAdapter _legend() {
-    return SliverToBoxAdapter(
+    return const SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-        child: const InitialChangedValueLegend(),
+        padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+        child: InitialChangedValueLegend(),
       ),
     );
   }
 
-  SliverToBoxAdapter _ratingSection(Setup setup, {
+  SliverToBoxAdapter _ratingSection(BuildContext context, {
+    required Setup setup,
     required Map<String, Rating> filteredRatings, 
     required Map<String, dynamic> danglingRatingAdjustmentValues
   }) {
@@ -499,7 +537,8 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
     );
   }
 
-  SliverToBoxAdapter _valueSection(Setup setup, {
+  SliverToBoxAdapter _valueSection(BuildContext context, {
+    required Setup setup,
     required Iterable<Component> bikeComponents,
     required Person? person,
     required Map<String, dynamic> danglingBikeAdjustmentValues,
@@ -638,109 +677,87 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
 
   @override
   Widget build(BuildContext context) {
-    final appSettings = context.read<AppSettings>();
+    final appSettings = context.watch<AppSettings>();
     final filteredData = context.watch<FilteredData>();
     final bikes = filteredData.bikes;
     final persons = filteredData.persons;
     final ratings = filteredData.ratings;
     final components = filteredData.components;
 
-    final List<Setup?> setups = widget.setupIds.map((setupId) => filteredData.setups[setupId]).toList();
+    final Bike? bike = bikes[setup.bike];
+    Iterable<Component> bikeComponents = components.values.where((c) => c.bike == setup.bike);
+    final Person? person = persons[setup.person];
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: _navigationRow(_currentPageIndex),
-        actions: [
-          IconButton(
-            onPressed: () => widget.editSetup(setups[_currentPageIndex]!), 
-            icon: const Icon(Icons.edit),
-          )
-        ],
-      ),
-      body: PageView.builder(
-        controller: _pageController,
-        onPageChanged: (index) => setState(() => _currentPageIndex = index),
-        itemCount: setups.length,
-        itemBuilder: (context, index) {
-          final Setup? setup = setups[index];
-          if (setup == null) return Expanded(child: Center(child: const Text("Setup not found.")));
-          
-          final Bike? bike = bikes[setup.bike];
-          Iterable<Component> bikeComponents = components.values.where((c) => c.bike == setup.bike);
-          final Person? person = persons[setup.person];
+    final Map<String, dynamic> danglingBikeAdjustmentValues = Map.from(setup.bikeAdjustmentValues);
+    for (final bikeComponent in bikeComponents) {
+      for (final bikeComponentAdj in bikeComponent.adjustments) {
+        danglingBikeAdjustmentValues.remove(bikeComponentAdj.id);
+      }
+    }
 
-          final Map<String, dynamic> danglingBikeAdjustmentValues = Map.from(setup.bikeAdjustmentValues);
-          for (final bikeComponent in bikeComponents) {
-            for (final bikeComponentAdj in bikeComponent.adjustments) {
-              danglingBikeAdjustmentValues.remove(bikeComponentAdj.id);
-            }
-          }
+    final Map<String, dynamic> danglingPersonAdjustmentValues = Map.from(setup.personAdjustmentValues);
+    for (final personAdj in (person?.adjustments ?? [])) {
+      danglingPersonAdjustmentValues.remove(personAdj.id);
+    }
 
-          final Map<String, dynamic> danglingPersonAdjustmentValues = Map.from(setup.personAdjustmentValues);
-          for (final personAdj in (person?.adjustments ?? [])) {
-            danglingPersonAdjustmentValues.remove(personAdj.id);
-          }
+    final filteredRatings = <String, Rating>{};
+    for (final rating in ratings.values) {
+      switch (rating.filterType) {
+        case FilterType.global:
+          filteredRatings[rating.id] = rating;
+        case FilterType.bike:
+          if (rating.filter == setup.bike) filteredRatings[rating.id] = rating;
+        case FilterType.componentType:
+          if (bikeComponents.any((c) => c.componentType.toString() == rating.filter)) filteredRatings[rating.id] = rating;
+        case FilterType.component:
+          if (bikeComponents.any((c) => c.id == rating.filter)) filteredRatings[rating.id] = rating;
+        case FilterType.person:
+          if (rating.filter == setup.person) filteredRatings[rating.id] = rating;
+      }
+    }
 
-          final filteredRatings = <String, Rating>{};
-          for (final rating in ratings.values) {
-            switch (rating.filterType) {
-              case FilterType.global:
-                filteredRatings[rating.id] = rating;
-              case FilterType.bike:
-                if (rating.filter == setup.bike) filteredRatings[rating.id] = rating;
-              case FilterType.componentType:
-                if (bikeComponents.any((c) => c.componentType.toString() == rating.filter)) filteredRatings[rating.id] = rating;
-              case FilterType.component:
-                if (bikeComponents.any((c) => c.id == rating.filter)) filteredRatings[rating.id] = rating;
-              case FilterType.person:
-                if (rating.filter == setup.person) filteredRatings[rating.id] = rating;
-            }
-          }
-
-          final Map<String, dynamic> danglingRatingAdjustmentValues = Map.fromEntries(setup.ratingAdjustmentValues.entries);
-          danglingRatingAdjustmentValues.removeWhere((adjId, _) => filteredRatings.values.any((r) => r.adjustments.map((a) => a.id).contains(adjId)));
-          
-          return CustomScrollView(
+    final Map<String, dynamic> danglingRatingAdjustmentValues = Map.fromEntries(setup.ratingAdjustmentValues.entries);
+    danglingRatingAdjustmentValues.removeWhere((adjId, _) => filteredRatings.values.any((r) => r.adjustments.map((a) => a.id).contains(adjId)));
+    
+    return CustomScrollView(
+      slivers: [
+        _setupTitle(context, setup: setup),
+        SliverMainAxisGroup(
+          slivers: [
+            _sectionTitle(context, title: "Context"),
+            _contextSection(context, setup: setup, bike: bike, person: person),
+          ],
+        ),
+        SliverMainAxisGroup(
+          slivers: [
+            const SliverToBoxAdapter(child: Divider(height: 8)),
+            _sectionTitle(context, title: "Values"),
+            _valueSection(
+              context,
+              setup: setup,
+              person: person, 
+              bikeComponents: bikeComponents,
+              danglingBikeAdjustmentValues: danglingBikeAdjustmentValues,
+              danglingPersonAdjustmentValues: danglingPersonAdjustmentValues,
+            ),
+          ]
+        ),
+        if (appSettings.enableRating) ...[
+          SliverMainAxisGroup(
             slivers: [
-              _setupTitle(setup),
-              SliverMainAxisGroup(
-                slivers: [
-                  _sectionTitle("Context"),
-                  _contextSection(setup, bike: bike, person: person),
-                ],
+              const SliverToBoxAdapter(child: Divider(height: 8)),
+              _sectionTitle(context, title: "Rating"),
+              _ratingSection(
+                context,
+                setup: setup, 
+                filteredRatings: filteredRatings, 
+                danglingRatingAdjustmentValues: danglingRatingAdjustmentValues
               ),
-              SliverMainAxisGroup(
-                slivers: [
-                  const SliverToBoxAdapter(child: Divider(height: 8)),
-                  _sectionTitle("Values"),
-                  _valueSection(
-                    setup,
-                    person: person, 
-                    bikeComponents: bikeComponents,
-                    danglingBikeAdjustmentValues: danglingBikeAdjustmentValues,
-                    danglingPersonAdjustmentValues: danglingPersonAdjustmentValues,
-                  ),
-                ]
-              ),
-              if (appSettings.enableRating) ...[
-                SliverMainAxisGroup(
-                  slivers: [
-                    const SliverToBoxAdapter(child: Divider(height: 8)),
-                    _sectionTitle("Rating"),
-                    _ratingSection(
-                      setup, 
-                      filteredRatings: filteredRatings, 
-                      danglingRatingAdjustmentValues: danglingRatingAdjustmentValues
-                    ),
-                  ]
-                ),
-              ],
-              _legend(),
-            ],
-          );
-        },
-      )
+            ]
+          ),
+        ],
+        _legend(),
+      ],
     );
   }
 }

@@ -17,7 +17,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableRating = false;
   bool _enableSetupTags = false;
   bool _enableStrava = false;
-  static const bool _enableMap = false;
+  static const bool _enableMap = true;
 
   bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;

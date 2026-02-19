@@ -9,6 +9,7 @@ import '../models/component.dart';
 import '../models/app_settings.dart';
 import '../models/app_data.dart';
 import '../models/filtered_data.dart';
+import '../widgets/chips/bike_and_tags_filter.dart';
 import '../widgets/sheets/setup_list_values_filter.dart';
 import '../widgets/strava_sync_button.dart';
 import 'bike_page.dart';
@@ -29,7 +30,6 @@ import '../widgets/setup_list.dart';
 import '../widgets/setup_list_card.dart';
 import '../widgets/sheets/import.dart';
 import '../widgets/sheets/export.dart';
-import '../widgets/sheets/filter.dart';
 import '../widgets/sheets/share.dart';
 import '../widgets/google_drive_sync_button.dart';
 
@@ -425,49 +425,6 @@ class _HomePageState extends State<HomePage> {
     data.addSetup(newSetup);
   }
 
-  FilterChip _filterWidget({bool enableSetupTagFilter = false}) {
-    final filteredData = context.watch<FilteredData>();
-
-    return FilterChip(
-      avatar: enableSetupTagFilter
-          ? const Icon(Icons.filter_alt)
-          : const Icon(Bike.iconData),
-      label: enableSetupTagFilter
-          ? filteredData.selectedBike != null
-              ? filteredData.selectedSetupTags.isNotEmpty
-                  ? Text("${filteredData.bikes[filteredData.selectedBike]?.name ?? ''} + ${filteredData.selectedSetupTags.length} ${filteredData.selectedSetupTags.length > 1 ? 'Tags' : 'Tag'}")
-                  : Text(filteredData.bikes[filteredData.selectedBike]?.name ?? '')
-              : filteredData.selectedSetupTags.isNotEmpty
-                  ? Text("${filteredData.selectedSetupTags.length} ${filteredData.selectedSetupTags.length > 1 ? 'Tags' : 'Tag'}")
-                  : const Text("Filter")
-          : filteredData.selectedBike == null 
-              ? const Text("All Bikes") 
-              : Text(filteredData.bikes[filteredData.selectedBike]?.name ?? ''),
-      selected: enableSetupTagFilter
-          ? filteredData.selectedBike != null || filteredData.selectedSetupTags.isNotEmpty
-          : filteredData.selectedBike != null,
-      showCheckmark: false,
-      onSelected: (bool newValue) async {
-        await showFilterSheet(
-          context: context,
-          enableSetupTagFilter: enableSetupTagFilter,
-        );
-      },
-      onDeleted: enableSetupTagFilter
-          ? filteredData.selectedBike == null && filteredData.selectedSetupTags.isEmpty
-              ? null 
-              : () {
-                  filteredData.onBikeTap(null);
-                  filteredData.deselectAllSetupTags();
-                }
-          : filteredData.selectedBike == null
-              ? null 
-              : () {
-                  filteredData.onBikeTap(null);
-                },
-    );
-  }
-
   FilterChip _setupListSortWidget() {
     return FilterChip(
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, // Removes the 48px constraint
@@ -525,7 +482,6 @@ class _HomePageState extends State<HomePage> {
       onSelected: (_) async {
         await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => MapPage(
           editSetup: _editSetup,
-          filterWidget: _mapFilterWidget(),
         )));
       },
     );
@@ -589,32 +545,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  SingleChildScrollView _bikeListFilterWidget() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 8),
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        spacing: 6,
-        children: [
-          _filterWidget(enableSetupTagFilter: false),
-        ],
-      ),
-    );
-  }
-
-  SingleChildScrollView _componentListFilterWidget() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 8),
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        spacing: 6,
-        children: [
-          _filterWidget(enableSetupTagFilter: false),
-        ],
-      ),
-    );
-  }
-
   SingleChildScrollView _setupListFilterWidget() {
     final appSettings = context.watch<AppSettings>();
     return SingleChildScrollView(
@@ -627,48 +557,8 @@ class _HomePageState extends State<HomePage> {
           _setupListSearchWidget(),
           if (appSettings.enableMap)
           _setupListMapChip(),
-          _filterWidget(enableSetupTagFilter: appSettings.enableSetupTags),
+          BikeAndTagsFilterChip(enableSetupTagFilter: appSettings.enableSetupTags),
           _setupListValueFilterWidget(),
-        ],
-      ),
-    );
-  }
-
-  SingleChildScrollView _mapFilterWidget() {
-    final appSettings = context.watch<AppSettings>();
-    return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 8),
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        spacing: 6,
-        children: [
-          _filterWidget(enableSetupTagFilter: appSettings.enableSetupTags),
-        ],
-      ),
-    );
-  }
-
-  SingleChildScrollView _personListFilterWidget() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 8),
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        spacing: 6,
-        children: [
-          _filterWidget(enableSetupTagFilter: false),
-        ],
-      ),
-    );
-  }
-
-  SingleChildScrollView _ratingListFilterWidget() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 8),
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        spacing: 6,
-        children: [
-          _filterWidget(enableSetupTagFilter: false),
         ],
       ),
     );
@@ -808,7 +698,6 @@ class _HomePageState extends State<HomePage> {
           editBike: _editBike,
           removeBike: _removeBike,
           onReorderBikes: _onReorderBikes,
-          filterWidget: _bikeListFilterWidget(),
         ),
         ComponentList(
           components: filteredData.filteredComponents,
@@ -816,7 +705,6 @@ class _HomePageState extends State<HomePage> {
           duplicateComponent: _duplicateComponent,
           removeComponent: _removeComponent,
           onReorderComponent: _onReorderComponents,
-          filterWidget: _componentListFilterWidget(),
         ),
         SetupList(
           editSetup: _editSetup,
@@ -836,7 +724,6 @@ class _HomePageState extends State<HomePage> {
             duplicatePerson: _duplicatePerson,
             removePerson: _removePerson,
             onReorderPerson: _onReorderPerson,
-            filterWidget: _personListFilterWidget(),
           ),
         if (context.read<AppSettings>().enableRating)
           RatingList(
@@ -845,7 +732,6 @@ class _HomePageState extends State<HomePage> {
             duplicateRating: _duplicateRating,
             removeRating: _removeRating,
             onReorderRating: _onReorderRating,
-            filterWidget: _ratingListFilterWidget(),
           ),
       ][currentPageIndex],
       floatingActionButton: <Widget>[

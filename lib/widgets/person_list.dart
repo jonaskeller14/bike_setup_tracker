@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../models/person.dart';
+import 'chips/person_list_filter_widget.dart';
 import 'person_list_card.dart';
 
 class PersonList extends StatelessWidget {
@@ -9,7 +10,6 @@ class PersonList extends StatelessWidget {
   final Future<void> Function(Person person) duplicatePerson;
   final Future<void> Function(Person person) removePerson;
   final Future<void> Function(int oldIndex, int newIndex) onReorderPerson;
-  final Widget filterWidget;
 
   const PersonList({
     super.key,
@@ -18,7 +18,6 @@ class PersonList extends StatelessWidget {
     required this.duplicatePerson,
     required this.removePerson,
     required this.onReorderPerson,
-    required this.filterWidget,
   });
 
   Widget _emptyPlaceholder(BuildContext context) {
@@ -27,7 +26,7 @@ class PersonList extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          filterWidget,
+          PersonListFilterWidget(),
           Expanded(
             child: Center(
               child: Text(
@@ -73,7 +72,7 @@ class PersonList extends StatelessWidget {
         : ReorderableListView.builder(
             itemCount: personsList.length,
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
-            header: filterWidget,
+            header: PersonListFilterWidget(),
             proxyDecorator: proxyDecorator,
             onReorder: onReorderPerson,
             itemBuilder: (context, index) {

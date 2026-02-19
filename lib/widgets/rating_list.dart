@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../models/rating.dart';
+import 'chips/rating_list_filter_widget.dart';
 import 'rating_list_card.dart';
 
 class RatingList extends StatelessWidget {
@@ -9,7 +10,6 @@ class RatingList extends StatelessWidget {
   final Future<void> Function(Rating rating) duplicateRating;
   final Future<void> Function(Rating rating) removeRating;
   final Future<void> Function(int oldIndex, int newIndex) onReorderRating;
-  final Widget filterWidget;
 
   const RatingList({
     super.key,
@@ -18,7 +18,6 @@ class RatingList extends StatelessWidget {
     required this.duplicateRating,
     required this.removeRating,
     required this.onReorderRating,
-    required this.filterWidget,
   });
 
   Widget _emptyPlaceholder(BuildContext context) {
@@ -27,7 +26,7 @@ class RatingList extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          filterWidget,
+          RatingListFilterWidget(),
           Expanded(
             child: Center(
               child: Text(
@@ -73,7 +72,7 @@ class RatingList extends StatelessWidget {
         : ReorderableListView.builder(
             itemCount: ratingsList.length,
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
-            header: filterWidget,
+            header: RatingListFilterWidget(),
             proxyDecorator: proxyDecorator,
             onReorder: onReorderRating,
             itemBuilder: (context, index) {

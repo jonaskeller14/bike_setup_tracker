@@ -2,13 +2,13 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../models/bike.dart';
 import 'bike_list_card.dart';
+import 'chips/bike_list_filter_widget.dart';
 
 class BikeList extends StatelessWidget {
   final Map<String, Bike> bikes;
   final Future<void> Function(Bike bike) editBike;
   final Future<void> Function(Bike bike) removeBike;
   final Future<void> Function(int oldIndex, int newIndex) onReorderBikes;
-  final Widget filterWidget;
 
   const BikeList({
     super.key,
@@ -16,7 +16,6 @@ class BikeList extends StatelessWidget {
     required this.editBike,
     required this.removeBike,
     required this.onReorderBikes,
-    required this.filterWidget,
   });
 
   Widget _emptyPlaceholder(BuildContext context) {
@@ -25,7 +24,7 @@ class BikeList extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          filterWidget,
+          BikeListFilterWidget(),
           Expanded(
             child: Center(
               child: Text(
@@ -70,7 +69,7 @@ class BikeList extends StatelessWidget {
         : ReorderableListView.builder(
             itemCount: bikesList.length,
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
-            header: filterWidget,
+            header: BikeListFilterWidget(),
             proxyDecorator: proxyDecorator,
             onReorder: onReorderBikes,
             itemBuilder: (context, index) {

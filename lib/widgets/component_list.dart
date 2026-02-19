@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../models/component.dart';
 import 'component_list_card.dart';
+import 'chips/component_list_filter_widget.dart';
 
 class ComponentList extends StatelessWidget {
   final Map<String, Component> components;
@@ -9,7 +10,6 @@ class ComponentList extends StatelessWidget {
   final Future<void> Function(Component component) duplicateComponent;
   final Future<void> Function(Component component) removeComponent;
   final Future<void> Function(int oldIndex, int newIndex) onReorderComponent;
-  final Widget filterWidget;
 
   const ComponentList({
     super.key,
@@ -18,7 +18,6 @@ class ComponentList extends StatelessWidget {
     required this.duplicateComponent,
     required this.removeComponent,
     required this.onReorderComponent,
-    required this.filterWidget,
   });
 
   Widget _emptyPlaceholder(BuildContext context) {
@@ -27,7 +26,7 @@ class ComponentList extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          filterWidget,
+          ComponentListFilterWidget(),
           Expanded(
             child: Center(
               child: Text(
@@ -73,7 +72,7 @@ class ComponentList extends StatelessWidget {
         : ReorderableListView.builder(
             itemCount: componentsList.length,
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
-            header: filterWidget,
+            header: ComponentListFilterWidget(),
             proxyDecorator: proxyDecorator,
             onReorder: onReorderComponent,
             itemBuilder: (context, index) {

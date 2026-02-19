@@ -525,6 +525,7 @@ class _HomePageState extends State<HomePage> {
       onSelected: (_) async {
         await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => MapPage(
           editSetup: _editSetup,
+          filterWidget: _mapFilterWidget(),
         )));
       },
     );
@@ -626,8 +627,22 @@ class _HomePageState extends State<HomePage> {
           _setupListSearchWidget(),
           if (appSettings.enableMap)
           _setupListMapChip(),
-          _filterWidget(enableSetupTagFilter: context.watch<AppSettings>().enableSetupTags),
+          _filterWidget(enableSetupTagFilter: appSettings.enableSetupTags),
           _setupListValueFilterWidget(),
+        ],
+      ),
+    );
+  }
+
+  SingleChildScrollView _mapFilterWidget() {
+    final appSettings = context.watch<AppSettings>();
+    return SingleChildScrollView(
+      padding: const EdgeInsets.only(bottom: 8),
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        spacing: 6,
+        children: [
+          _filterWidget(enableSetupTagFilter: appSettings.enableSetupTags),
         ],
       ),
     );

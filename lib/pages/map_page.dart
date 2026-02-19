@@ -10,8 +10,9 @@ import '../widgets/sheets/setup_display.dart';
 
 class MapPage extends StatefulWidget {
   final Future<void> Function(Setup setup) editSetup;
+  final Widget filterWidget;
 
-  const MapPage({super.key, required this.editSetup});
+  const MapPage({super.key, required this.editSetup, required this.filterWidget});
 
   @override
   State<MapPage> createState() => _MapPageState();
@@ -83,53 +84,61 @@ class _MapPageState extends State<MapPage> {
         title: const Text("Map View"),
         centerTitle: true,
       ),
-      body: FlutterMap(
-        mapController: _mapController,
-        options: MapOptions(
-          initialCenter: initialCenter,
-          initialZoom: initialZoom,
-          initialCameraFit: markers.isNotEmpty 
-            ? CameraFit.bounds(
-                bounds: LatLngBounds.fromPoints(markers.map((m) => m.point).toList()), 
-                padding: const EdgeInsets.all(50),
-              )
-            : null,
-        ),
+      body: Stack(
         children: [
-          TileLayer(
-            urlTemplate: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
-            subdomains: const ['a', 'b', 'c'],
-            userAgentPackageName: 'com.jonaskeller.bike_setup_tracker',
-            tileDisplay: const TileDisplay.fadeIn(),
-            tileBuilder: (context, tileWidget, tile) {
-              return ColorFiltered(
-                colorFilter: const ColorFilter.matrix(<double>[
-                  0.6, 0.3, 0.1, 0, 0,  // Muted Red
-                  0.1, 0.8, 0.1, 0, 0,  // Muted Green
-                  0.1, 0.3, 0.6, 0, 0,  // Muted Blue
-                  0,   0,   0,   1, 0,  // Alpha (no change)
-                ]),
-                child: tileWidget,
-              );
-            },
-          ),
-          MarkerLayer(markers: markers),
-          RichAttributionWidget(
-            showFlutterMapAttribution: false,
-            attributions: [
-              TextSourceAttribution(
-                'OpenStreetMap | Cyclosm',
-                onTap: () => launchUrlString('https://openstreetmap.org/copyright'),
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: initialCenter,
+              initialZoom: initialZoom,
+              initialCameraFit: markers.isNotEmpty 
+                ? CameraFit.bounds(
+                    bounds: LatLngBounds.fromPoints(markers.map((m) => m.point).toList()), 
+                    padding: const EdgeInsets.all(50),
+                  )
+                : null,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
+                subdomains: const ['a', 'b', 'c'],
+                userAgentPackageName: 'com.jonaskeller.bike_setup_tracker',
+                tileDisplay: const TileDisplay.fadeIn(),
+                tileBuilder: (context, tileWidget, tile) {
+                  return ColorFiltered(
+                    colorFilter: const ColorFilter.matrix(<double>[
+                      0.6, 0.3, 0.1, 0, 0,  // Muted Red
+                      0.1, 0.8, 0.1, 0, 0,  // Muted Green
+                      0.1, 0.3, 0.6, 0, 0,  // Muted Blue
+                      0,   0,   0,   1, 0,  // Alpha (no change)
+                    ]),
+                    child: tileWidget,
+                  );
+                },
               ),
-              if (stravaActivities.isNotEmpty)
-                const LogoSourceAttribution(
-                  Image(
-                    image: AssetImage('assets/strava/1.2-Strava-API-Logos/1.2-Strava-API-Logos/Powered by Strava/pwrdBy_strava_orange/api_logo_pwrdBy_strava_stack_orange.png'),
-                    height: 24,
+              MarkerLayer(markers: markers),
+              RichAttributionWidget(
+                showFlutterMapAttribution: false,
+                attributions: [
+                  TextSourceAttribution(
+                    'OpenStreetMap | Cyclosm',
+                    onTap: () => launchUrlString('https://openstreetmap.org/copyright'),
                   ),
-                  tooltip: 'Powered by Strava',
-                ),
+                  if (stravaActivities.isNotEmpty)
+                    const LogoSourceAttribution(
+                      Image(
+                        image: AssetImage('assets/strava/1.2-Strava-API-Logos/1.2-Strava-API-Logos/Powered by Strava/pwrdBy_strava_orange/api_logo_pwrdBy_strava_stack_orange.png'),
+                        height: 24,
+                      ),
+                      tooltip: 'Powered by Strava',
+                    ),
+                ],
+              ),
             ],
+          ),
+          Padding(
+            padding: const EdgeInsetsGeometry.all(8),
+            child: widget.filterWidget,
           ),
         ],
       ),

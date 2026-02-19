@@ -567,7 +567,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    final filteredData = context.read<FilteredData>();
+    final filteredData = context.watch<FilteredData>();
     return Scaffold(
       appBar: AppBar(
         leading: Padding(

@@ -19,18 +19,49 @@ class WeatherService extends ChangeNotifier {
     windspeedUnit: WindspeedUnit.kmh,
     precipitationUnit: PrecipitationUnit.mm,
   );
+  
+  static const int _maxRequestsPerHour = 12;
+  final List<DateTime> _requestTimestamps = [];
+
   WeatherStatus _status = WeatherStatus.idle;
+  String _errorMessage = '';
 
   WeatherStatus get status => _status;
+  String get errorMessage => _errorMessage;
+
+  set errorMessage(String message) {
+    _errorMessage = message;
+    notifyListeners();
+  }
 
   void setStatus(WeatherStatus newStatus) {
     _status = newStatus;
+    if (newStatus != WeatherStatus.error) {
+      _errorMessage = '';
+    }
     notifyListeners();
+  }
+
+  void _checkRateLimit() {
+    final now = DateTime.now();
+    _requestTimestamps.removeWhere((timestamp) => now.difference(timestamp).inHours >= 1);
+
+    if (_requestTimestamps.length >= _maxRequestsPerHour) {
+      final resetTime = _requestTimestamps.first.add(const Duration(hours: 1));
+      final resetTimeString = "${resetTime.hour.toString().padLeft(2, '0')}:${resetTime.minute.toString().padLeft(2, '0')}";
+      final msg = "Rate limit exceeded ($_maxRequestsPerHour/h). Try again after $resetTimeString";
+      debugPrint("WeatherService: $msg");
+      errorMessage = msg;
+      throw Exception(msg);
+    }
+    _requestTimestamps.add(now);
   }
 
   Future<Weather?> fetchWeather({required double lat, required double lon, required DateTime datetime, int counter = 1}) async {
     setStatus(WeatherStatus.searching);
     try {
+      _checkRateLimit();
+
       if (datetime.isUtc) {
         debugPrint("WARNING: fetchWeather() is called with UTC Time");
         datetime = datetime.toLocal();
@@ -84,17 +115,24 @@ class WeatherService extends ChangeNotifier {
       );
     } on ClientException catch (e) {
       debugPrint("WeatherService: Network Error (No Internet): $e");
+      errorMessage = "Network Error (No Internet).";
       setStatus(WeatherStatus.error);
       return null;
     } on SocketException catch (e) {
       debugPrint("WeatherService: Network Error (No Internet): $e");
+      errorMessage = "Network Error (No Internet).";
       setStatus(WeatherStatus.error);
       return null;
     } catch (e) {
       debugPrint("WeatherService: Exception caught: $e");
+      
+      // If error message wasn't set by rate limit or network error
+      if (errorMessage.isEmpty) {
+        errorMessage = "Error occured during weather update.";
+      }
       setStatus(WeatherStatus.error);
 
-      if (counter <= 2) {
+      if (counter <= 2 && !errorMessage.contains("Rate limit exceeded")) {
         setStatus(WeatherStatus.searching);
         debugPrint("WeatherService Error --> Trying again after 10s.");
         await Future.delayed(const Duration(seconds: 10));

@@ -162,10 +162,10 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),
-                            if (widget.weatherService.status == WeatherStatus.error)
+                            if (widget.weatherService.status == WeatherStatus.error && widget.weatherService.errorMessage.isNotEmpty)
                               ListTile(
                                 leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                                title: const Text("Error occured during weather update."),
+                                title: Text(widget.weatherService.errorMessage),
                                 dense: true,
                                 contentPadding: const EdgeInsets.only(bottom: 16),
                               ),

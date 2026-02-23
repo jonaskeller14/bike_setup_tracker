@@ -1,6 +1,6 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { db, logger, admin } = require("./firebase");
-const { getValidAccessToken, saveActivityToBatch, checkStravaResponse } = require("./common");
+const { getValidAccessToken, saveActivityToBatch, checkStravaResponse, isBikeActivity } = require("./common");
 
 /**
  * STRATEGY: Webhook Listener
@@ -60,7 +60,7 @@ exports.stravaWebhook = onRequest(
                 checkStravaResponse(response, "Strava Activity API");
                 const activity = await response.json();
 
-                // Save to EVERY user's batches
+                // Save to EVERY user's batches (delegates bike-only filtering and conversion logic)
                 for (const userDoc of usersSnapshot.docs) {
                   const userId = userDoc.id;
                   await saveActivityToBatch(activity, userId);

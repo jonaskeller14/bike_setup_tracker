@@ -127,19 +127,44 @@ async function saveAthleteAndGear(athlete, userId, batch) {
 }
 
 /**
+ * Helper: Decides which activity should be synced.
+ * Only sync bike activities (mtb, roadbike, gravel, velomobil, ....).
+ */
+function isBikeActivity(activity) {
+  const sportType = activity.sport_type || activity.type;
+  const bikeTypes = [
+    "Ride",
+    "MountainBikeRide",
+    "EMountainBikeRide",
+    "EBikeRide",
+    "GravelRide",
+    "Velomobile",
+    "Handcycle",
+    "VirtualRide"
+  ];
+  return bikeTypes.includes(sportType);
+}
+
+/**
  * Helper: Transforms and Saves a single Activity to a Batch document.
  * Standardizes how we save activities from both Webhook and Manual Sync.
  * Uses Hybrid Batching (Map for data, Array for indexing).
  */
 async function saveActivityToBatch(activity, userId, batch = null) {
-  const isDelete = activity.isDeleted === true;
+  const isDeleteRequest = activity.isDeleted === true;
+  const isBike = isBikeActivity(activity);
+  
+  // If it's a real activity (not a delete) and it's NOT a bike, treat it as a delete.
+  // This handles the case where a user changes an activity type from "Ride" to "Run" on Strava.
+  const effectiveDelete = isDeleteRequest || (!isDeleteRequest && !isBike);
+
   const activityId = activity.id;
   const userRef = db.collection("users").doc(userId);
   const batchesRef = userRef.collection("activity_batches");
 
   // 1. Transform activity to clean format
   let cleanActivity = null;
-  if (!isDelete) {
+  if (!effectiveDelete) {
     let startLat = null;
     let startLon = null;
     if (activity.start_latlng && Array.isArray(activity.start_latlng) && activity.start_latlng.length === 2) {
@@ -177,8 +202,8 @@ async function saveActivityToBatch(activity, userId, batch = null) {
       lastModified: admin.firestore.FieldValue.serverTimestamp(),
     };
 
-    if (isDelete) {
-      // DELETE Case
+    if (effectiveDelete) {
+      // DELETE Case (or converted-to-delete case)
       updateData[`activities.${activityId}`] = admin.firestore.FieldValue.delete();
       updateData.activityIds = admin.firestore.FieldValue.arrayRemove(activityId);
     } else {
@@ -194,7 +219,7 @@ async function saveActivityToBatch(activity, userId, batch = null) {
     return;
   }
 
-  if (isDelete) return; // Activity to delete not found
+  if (effectiveDelete) return; // Activity to delete not found, or new non-bike activity.
 
   // 3. New Activity -> Find latest batch or create new
   const latestBatchQuery = await batchesRef
@@ -247,4 +272,5 @@ module.exports = {
   getValidAccessToken,
   saveAthleteAndGear,
   saveActivityToBatch,
+  isBikeActivity,
 };

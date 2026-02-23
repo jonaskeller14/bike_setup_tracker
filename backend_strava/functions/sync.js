@@ -1,6 +1,6 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { db, logger, admin } = require("./firebase");
-const { getValidAccessToken, saveAthleteAndGear, saveActivityToBatch, checkStravaResponse } = require("./common");
+const { getValidAccessToken, saveAthleteAndGear, saveActivityToBatch, checkStravaResponse, isBikeActivity } = require("./common");
 
 /**
  * STRATEGY: Manual Sync (Recent)
@@ -124,6 +124,8 @@ async function syncFullHistory(userId) {
       }
 
       for (const activity of activities) {
+        if (!isBikeActivity(activity)) continue;
+
         // Transform to local format
         let startLat = null;
         let startLon = null;

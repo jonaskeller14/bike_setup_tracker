@@ -114,12 +114,13 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _selectedDateTimeLocal = widget.setup?.datetimeLocal ?? now;
     _initialDateTimeLocal = _selectedDateTimeLocal;
     
+    final filteredData = context.read<FilteredData>();
+
     _currentLocation.value = widget.setup?.position;
     _currentPlace.value = widget.setup?.place;
     _currentWeather.value = widget.setup?.weather;
-    _tags.addAll(widget.setup?.tags ?? {});
+    _tags.addAll(widget.setup?.tags ?? filteredData.selectedSetupTags);
 
-    final filteredData = context.read<FilteredData>();
     final bikes = filteredData.bikes;
     _initialBike = widget.setup?.bike ?? filteredData.filteredBikes.keys.first;
     _initialPerson = (widget.setup?.person ?? bikes[_initialBike]?.person);

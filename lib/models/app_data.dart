@@ -203,17 +203,21 @@ class AppData extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeRating(Rating rating) {
-    rating.isDeleted = true;
-    rating.lastModified = DateTime.now().toUtc();
+  void removeRatings(Iterable<Rating> ratings) {
+    for (var rating in ratings) {
+      rating.isDeleted = true;
+      rating.lastModified = DateTime.now().toUtc();
+    }
 
     _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }
 
-  void restoreRating(Rating rating) {
-    rating.isDeleted = false;
-    rating.lastModified = DateTime.now().toUtc();
+  void restoreRatings(Iterable<Rating> ratings) {
+    for (var rating in ratings) {
+      rating.isDeleted = false;
+      rating.lastModified = DateTime.now().toUtc();
+    }
 
     _lastModified = DateTime.now().toUtc();
     notifyListeners();

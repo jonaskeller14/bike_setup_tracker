@@ -89,13 +89,25 @@ class _HomePageState extends State<HomePage> {
 
     final obsoleteComponents = filteredData.components.values.where((c) => c.bike == bike.id).toList();
     final obsoleteSetups = filteredData.setups.values.where((s) => s.bike == bike.id).toList();
+    final obsoleteRatings = filteredData.ratings.values.where((r) => r.filterType == FilterType.bike && r.filter == bike.id);
 
     data.removeBike(bike);
     data.removeComponents(obsoleteComponents);
     data.removeSetups(obsoleteSetups);
+    data.removeRatings(obsoleteRatings);
 
+    String message = "Bike '${bike.name}' moved to trash.";
+    if (context.read<AppSettings>().enableRating) {
+      if (obsoleteComponents.isNotEmpty || obsoleteSetups.isNotEmpty || obsoleteRatings.isNotEmpty) {
+        message += "\n${obsoleteComponents.length} Components, ${obsoleteSetups.length} Setups and ${obsoleteRatings.length} Ratings which belong to this Bike are deleted as well.";
+      }
+    } else {
+      if (obsoleteComponents.isNotEmpty || obsoleteSetups.isNotEmpty) {
+        message += "\n${obsoleteComponents.length} Components, ${obsoleteSetups.length} Setups which belong to this Bike are deleted as well.";
+      }
+    }
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text("Bike '${bike.name}' moved to trash.\n${obsoleteComponents.length} components and ${obsoleteSetups.length} setups which belong to this bike are deleted as well."),
+      content: Text(message),
       duration: const Duration(seconds: 10),
       persist: false,
       showCloseIcon: true,
@@ -105,6 +117,7 @@ class _HomePageState extends State<HomePage> {
           data.restoreBike(bike);
           data.restoreComponents(obsoleteComponents);
           data.restoreSetups(obsoleteSetups);
+          data.restoreRatings(obsoleteRatings);
         },
       ),
     ));
@@ -112,10 +125,19 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _removePerson(Person person) async {
     final data = context.read<AppData>();
-    data.removePerson(person);
+    final filteredData = context.read<FilteredData>();
 
+    final obsoleteRatings = filteredData.ratings.values.where((r) => r.filterType == FilterType.person && r.filter == person.id);
+
+    data.removePerson(person);
+    data.removeRatings(obsoleteRatings);
+
+    String message = "Person '${person.name}' moved to trash.";
+    if (obsoleteRatings.isNotEmpty && context.read<AppSettings>().enableRating) {
+      message += "\n${obsoleteRatings.length} Ratings which belong to this person are deleted as well.";
+    }
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text("Person '${person.name}' moved to trash."),
+      content: Text(message),
       duration: const Duration(seconds: 5),
       persist: false,
       showCloseIcon: true,
@@ -128,7 +150,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _removeRating(Rating rating) async {
     final data = context.read<AppData>();
-    data.removeRating(rating);
+    data.removeRatings([rating]);
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text("Rating '${rating.name}' moved to trash."),
@@ -138,67 +160,42 @@ class _HomePageState extends State<HomePage> {
       action: SnackBarAction(
         label: 'UNDO',
         onPressed: () {
-          data.restoreRating(rating);
+          data.restoreRatings([rating]);
         },
       ),
     ));
   }
 
-  Future<void> _removeSetup(Setup toRemoveSetup) async {
-    _removeSetups([toRemoveSetup]);
-  }
-
-  Future<void> _removeSetups(Iterable<Setup> toRemoveSetups, {bool confirm = true}) async {
-    if (toRemoveSetups.isEmpty) return;
+  Future<void> _removeSetup(Setup setup) async {
     final data = context.read<AppData>();
-    data.removeSetups(toRemoveSetups);
+    data.removeSetups([setup]);
 
-    if (confirm) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(Intl.plural(
-          toRemoveSetups.length,
-          zero: "No setup moved to trash.",
-          one: "One setup moved to trash.",
-          other: '${toRemoveSetups.length} setups moved to trash.',
-        )),
-        duration: const Duration(seconds: 5),
-        persist: false,
-        showCloseIcon: true,
-        action: SnackBarAction(
-          label: 'UNDO',
-          onPressed: () => data.restoreSetups(toRemoveSetups),
-        ),
-      ));
-    }
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text("Setup '${setup.name}' moved to trash."),
+      duration: const Duration(seconds: 5),
+      persist: false,
+      showCloseIcon: true,
+      action: SnackBarAction(
+        label: 'UNDO',
+        onPressed: () => data.restoreSetups([setup]),
+      ),
+    ));
   }
 
-  Future<void> _removeComponent(Component toRemoveComponent) async {
-    _removeComponents([toRemoveComponent]);
-  }
-
-  Future<void> _removeComponents(Iterable<Component> toRemoveComponents, {bool confirm = true}) async {
-    if (toRemoveComponents.isEmpty) return;
-
+  Future<void> _removeComponent(Component component) async {
     final data = context.read<AppData>();
-    data.removeComponents(toRemoveComponents);
+    data.removeComponents([component]);
 
-    if (confirm) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(Intl.plural(
-          toRemoveComponents.length,
-          zero: "No components moved to trash.",
-          one: "One component moved to trash.",
-          other: '${toRemoveComponents.length} components moved to trash.',
-        )),
-        duration: const Duration(seconds: 5),
-        persist: false,
-        showCloseIcon: true,
-        action: SnackBarAction(
-          label: 'UNDO',
-          onPressed: () => data.restoreComponents(toRemoveComponents),
-        ),
-      ));
-    }
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text("Component '${component.name}' moved to trash."),
+      duration: const Duration(seconds: 5),
+      persist: false,
+      showCloseIcon: true,
+      action: SnackBarAction(
+        label: 'UNDO',
+        onPressed: () => data.restoreComponents([component]),
+      ),
+    ));
   }
   
   Future<void> _addBike() async {

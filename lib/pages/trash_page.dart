@@ -40,7 +40,7 @@ class TrashPage extends StatelessWidget{
             case Component(): data.restoreComponents([deletedItem]);
             case Setup(): data.restoreSetups([deletedItem]);
             case Person(): data.restorePerson(deletedItem);
-            case Rating(): data.restoreRating(deletedItem);
+            case Rating(): data.restoreRatings([deletedItem]);
           }
         },
       ),

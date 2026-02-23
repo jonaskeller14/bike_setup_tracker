@@ -184,7 +184,7 @@ void main() {
       expect(filteredData.filteredRatings.containsValue(rating1), true);
     });
     test("AppData/removePerson", () {
-      data.removeRating(rating1);
+      data.removeRatings([rating1]);
       filteredData.update(data);
 
       expect(rating1.isDeleted, true);
@@ -193,7 +193,7 @@ void main() {
       expect(filteredData.filteredRatings.containsValue(rating1), false);
     });
     test("AppData/restorePerson", () {
-      data.restoreRating(rating1);
+      data.restoreRatings([rating1]);
       filteredData.update(data);
 
       expect(rating1.isDeleted, false);

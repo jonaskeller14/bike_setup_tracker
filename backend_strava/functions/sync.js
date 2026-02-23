@@ -1,6 +1,6 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { db, logger, admin } = require("./firebase");
-const { getValidAccessToken, saveAthleteAndGear, saveActivityToBatch } = require("./common");
+const { getValidAccessToken, saveAthleteAndGear, saveActivityToBatch, checkStravaResponse } = require("./common");
 
 /**
  * STRATEGY: Manual Sync (Recent)
@@ -24,9 +24,7 @@ exports.syncActivities = onRequest(
         headers: { "Authorization": `Bearer ${userToken}` }
       });
 
-      if (!athleteResponse.ok) {
-        throw new Error(`Strava Athlete API failed: ${athleteResponse.statusText}`);
-      }
+      checkStravaResponse(athleteResponse, "Strava Athlete API");
 
       const athlete = await athleteResponse.json();
       
@@ -40,9 +38,7 @@ exports.syncActivities = onRequest(
         headers: { "Authorization": `Bearer ${userToken}` }
       });
       
-      if (!response.ok) {
-        throw new Error(`Strava Activities API failed: ${response.statusText}`);
-      }
+      checkStravaResponse(response, "Strava Activities API");
 
       const activities = await response.json();
       
@@ -89,9 +85,7 @@ async function syncFullHistory(userId) {
       headers: { "Authorization": `Bearer ${userToken}` }
     });
 
-    if (!athleteResponse.ok) {
-      throw new Error(`Strava Athlete API failed: ${athleteResponse.statusText}`);
-    }
+    checkStravaResponse(athleteResponse, "Strava Athlete API");
 
     const athlete = await athleteResponse.json();
     
@@ -120,9 +114,7 @@ async function syncFullHistory(userId) {
         headers: { "Authorization": `Bearer ${userToken}` }
       });
 
-      if (!response.ok) {
-        throw new Error(`Strava Activities API failed on page ${page}: ${response.statusText}`);
-      }
+      checkStravaResponse(response, `Strava Activities API (page ${page})`);
 
       const activities = await response.json();
 

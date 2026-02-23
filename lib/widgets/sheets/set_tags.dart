@@ -78,7 +78,12 @@ class _SetTagsSheetContentState extends State<SetTagsSheetContent> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const ListTile(
+            leading: Icon(Icons.info_outline),
+            title: Text("Use tags to group and organize your setups. For example, to categorize by specific test sessions, tracks, or terrains."),
+            dense: true,
+          ),
+          const SizedBox(height: 12),
           Flexible(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 16),

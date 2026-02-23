@@ -47,7 +47,8 @@ exports.exchangeToken = onRequest(
           athlete_id: data.athlete.id,
           updated_at: admin.firestore.FieldValue.serverTimestamp(),
         },
-        strava_connected: true
+        strava_connected: true,
+        sync_day: new Date().getDay(), // 0=Sun, 1=Mon, ..., 6=Sat — used by scheduledWeeklySync
       }, { merge: true });
 
       logger.info("STRAVA_AUTH_SUCCESSFUL", { userId });

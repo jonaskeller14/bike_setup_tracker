@@ -1,6 +1,6 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { db, logger, admin } = require("./firebase");
-const { getValidAccessToken, saveActivityToBatch } = require("./common");
+const { getValidAccessToken, saveActivityToBatch, checkStravaResponse } = require("./common");
 
 /**
  * STRATEGY: Webhook Listener
@@ -57,7 +57,7 @@ exports.stravaWebhook = onRequest(
                 const response = await fetch(`https://www.strava.com/api/v3/activities/${activityId}`, {
                   headers: { "Authorization": `Bearer ${userToken}` }
                 });
-                if (!response.ok) throw new Error(`Strava API failed: ${response.statusText}`);
+                checkStravaResponse(response, "Strava Activity API");
                 const activity = await response.json();
 
                 // Save to EVERY user's batches
@@ -95,7 +95,7 @@ exports.stravaWebhook = onRequest(
                 const response = await fetch(`https://www.strava.com/api/v3/activities/${activityId}`, {
                   headers: { "Authorization": `Bearer ${userToken}` }
                 });
-                if (!response.ok) throw new Error(`Strava API failed: ${response.statusText}`);
+                checkStravaResponse(response, "Strava Activity API");
                 const activity = await response.json();
 
                 for (const userDoc of usersSnapshot.docs) {

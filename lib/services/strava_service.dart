@@ -43,6 +43,8 @@ class StravaService extends ChangeNotifier {
   bool _isDisposed = false;
   
   DateTime? _lastRecentSync;
+  DateTime? _lastFullSync;
+  int? _syncDay;
   
   AppData _appData;
 
@@ -112,20 +114,26 @@ class StravaService extends ChangeNotifier {
           _errorMessage = remoteError.isNotEmpty ? remoteError : 'Sync failed';
         } else {
           _status = StravaServiceStatus.idle;
-          // Don't clear error if it was set by a local failure (e.g. timeout) 
-          // but usually the backend will reset it to idle + empty error on new attempts
         }
         
-        // Parse last sync time
-        final dynamic lastSyncData = data['strava_sync_last_recent'];
-        if (lastSyncData is Timestamp) {
-          _lastRecentSync = lastSyncData.toDate();
-        } else if (lastSyncData is String) {
-          _lastRecentSync = DateTime.tryParse(lastSyncData);
+        // Parse last recent sync time
+        final dynamic lastRecentData = data['strava_sync_last_recent'];
+        if (lastRecentData is Timestamp) {
+          _lastRecentSync = lastRecentData.toDate();
+        } else if (lastRecentData is String) {
+          _lastRecentSync = DateTime.tryParse(lastRecentData);
         }
 
-        // Check if we should trigger a periodic sync
-        _checkPeriodicSync();
+        // Parse last full sync time
+        final dynamic lastFullData = data['strava_sync_last_full'];
+        if (lastFullData is Timestamp) {
+          _lastFullSync = lastFullData.toDate();
+        } else if (lastFullData is String) {
+          _lastFullSync = DateTime.tryParse(lastFullData);
+        }
+
+        // Parse sync day (0=Sun, 1=Mon, ..., 6=Sat)
+        _syncDay = data['sync_day'] as int?;
 
         // If status or connection changed, notify listeners
         notifyListeners();
@@ -252,9 +260,28 @@ class StravaService extends ChangeNotifier {
   }
 
   DateTime? get lastRecentSync => _lastRecentSync;
+  DateTime? get lastFullSync => _lastFullSync;
+  int? get syncDay => _syncDay;
+
+  /// Computes the next scheduled full sync date based on sync_day.
+  /// Returns null if sync_day is not set or no full sync has happened yet.
+  DateTime? get nextFullSync {
+    if (_syncDay == null) return null;
+    
+    final now = DateTime.now();
+    // Find the next occurrence of sync_day
+    // sync_day: 0=Sun, 1=Mon, ..., 6=Sat (JS convention, same as DateTime.sunday=7 in Dart)
+    // Dart: 1=Mon, 2=Tue, ..., 7=Sun
+    final dartWeekday = _syncDay == 0 ? DateTime.sunday : _syncDay!;
+    
+    int daysUntil = dartWeekday - now.weekday;
+    if (daysUntil <= 0) daysUntil += 7;
+    
+    return DateTime(now.year, now.month, now.day + daysUntil);
+  }
 
   /// Manual sync can be triggered if it's been more than 7 days
-  /// Or if it has never been synced before.
+  /// since the last manual sync, or if it has never been synced.
   bool get canSyncRecent {
     if (!_isConnected) return false;
     if (_status == StravaServiceStatus.syncing) return false;
@@ -264,12 +291,11 @@ class StravaService extends ChangeNotifier {
     return difference.inDays >= 7;
   }
 
-  /// Automatically triggers a manual sync if last sync was > 7 days ago
-  void _checkPeriodicSync() {
-    if (canSyncRecent && _status != StravaServiceStatus.syncing) {
-      debugPrint("Auto-triggering periodic Strava sync...");
-      triggerManualSync();
-    }
+  /// Returns the date when the next manual sync becomes available.
+  /// Returns null if manual sync is already available.
+  DateTime? get manualSyncAvailableAt {
+    if (canSyncRecent || _lastRecentSync == null) return null;
+    return _lastRecentSync!.add(const Duration(days: 7));
   }
 
   static void openActivityOnStrava(int activityId) async {

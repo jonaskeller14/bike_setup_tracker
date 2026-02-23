@@ -1,6 +1,52 @@
 const { db, logger, admin } = require("./firebase");
 
 /**
+ * Custom error for Strava API rate limiting (HTTP 429).
+ * Parses X-RateLimit-Limit and X-RateLimit-Usage headers to distinguish
+ * between the 15-minute limit and the daily limit.
+ *
+ * Headers format: "15min_value,daily_value"
+ * Example: X-RateLimit-Limit: 100,1000 / X-RateLimit-Usage: 95,500
+ */
+class StravaRateLimitError extends Error {
+  constructor(response) {
+    const limitHeader = response.headers.get("X-RateLimit-Limit") || "100,1000";
+    const usageHeader = response.headers.get("X-RateLimit-Usage") || "0,0";
+
+    const [limit15min, limitDaily] = limitHeader.split(",").map(Number);
+    const [usage15min, usageDaily] = usageHeader.split(",").map(Number);
+
+    const isDailyLimitHit = usageDaily >= limitDaily;
+
+    super(
+      `Strava rate limit exceeded (${isDailyLimitHit ? "daily" : "15-min"}): ` +
+      `usage ${usage15min}/${limit15min} (15min), ${usageDaily}/${limitDaily} (daily)`
+    );
+
+    this.name = "StravaRateLimitError";
+    this.usage15min = usage15min;
+    this.limit15min = limit15min;
+    this.usageDaily = usageDaily;
+    this.limitDaily = limitDaily;
+    this.isDailyLimitHit = isDailyLimitHit;
+  }
+}
+
+/**
+ * Helper: Checks a Strava API response and throws appropriate errors.
+ * Throws StravaRateLimitError on 429, generic Error on other failures.
+ */
+function checkStravaResponse(response, context = "Strava API") {
+  if (response.ok) return;
+
+  if (response.status === 429) {
+    throw new StravaRateLimitError(response);
+  }
+
+  throw new Error(`${context} failed: ${response.statusText}`);
+}
+
+/**
  * Helper: Refreshes Strava access token if expired.
  */
 async function getValidAccessToken(userId) {
@@ -196,6 +242,8 @@ async function saveActivityToBatch(activity, userId, batch = null) {
 }
 
 module.exports = {
+  StravaRateLimitError,
+  checkStravaResponse,
   getValidAccessToken,
   saveAthleteAndGear,
   saveActivityToBatch,

@@ -1,7 +1,9 @@
 import 'package:collection/collection.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
+import '../../models/app_settings.dart';
 import '../../models/filtered_data.dart';
 import '../../services/strava_service.dart';
 import 'sheet.dart';
@@ -120,26 +122,8 @@ class StravaSheet extends StatelessWidget {
                         ),
                         contentPadding: EdgeInsets.zero,
                       )),
-                    //TODO: Show last sync datetime and next possible sync datetime if syn is not enabled
                     if (stravaService.isConnected) ...[
-                      ListTile(
-                        leading: const Icon(Icons.sync_alt),
-                        title: Text("Auto-sync is active"),
-                        subtitle: const Text("Activities import automatically after your ride"),
-                        dense: true,
-                        contentPadding: EdgeInsets.zero,
-                        trailing: Tooltip(
-                          triggerMode: TooltipTriggerMode.tap,
-                          preferBelow: false,
-                          showDuration: const Duration(seconds: 5),
-                          message: "Bike Setup Tracker automatically imports new, updated, or deleted Strava activities in real-time. While most updates are instant, a full background sync also runs weekly to catch any missed changes. You can also trigger a manual sync once a week.",
-                          child: Icon(
-                            Icons.info_outline,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            size: Theme.of(context).textTheme.bodyLarge?.fontSize,
-                          ),
-                        ),
-                      ),
+                      _buildSyncInfoSection(context, stravaService),
                     ],
                     if (gears.isNotEmpty) ...[
                       const Divider(),
@@ -292,6 +276,60 @@ class StravaSheet extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSyncInfoSection(BuildContext context, StravaService stravaService) {
+    final appSettings = context.watch<AppSettings>();
+    final lastFull = stravaService.lastFullSync;
+    final nextFull = stravaService.nextFullSync;
+    final manualAvailableAt = stravaService.manualSyncAvailableAt;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ListTile(
+          leading: const Icon(Icons.sync_alt),
+          title: const Text("Auto-sync is active"),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                lastFull != null
+                    ? "Last full sync: ${DateFormat(appSettings.dateFormat).format(lastFull)} ${DateFormat(appSettings.timeFormat).format(lastFull)}"
+                    : "No full sync yet",
+              ),
+              if (nextFull != null)
+                Text(
+                  "Next scheduled sync: ${DateFormat(appSettings.dateFormat).format(nextFull)} ${DateFormat(appSettings.timeFormat).format(nextFull)}",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              if (manualAvailableAt != null)
+                Text(
+                  "Manual sync available: ${DateFormat(appSettings.dateFormat).format(manualAvailableAt)} ${DateFormat(appSettings.timeFormat).format(manualAvailableAt)}",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+            ],
+          ),
+          dense: true,
+          contentPadding: EdgeInsets.zero,
+          trailing: Tooltip(
+            triggerMode: TooltipTriggerMode.tap,
+            preferBelow: false,
+            showDuration: const Duration(seconds: 5),
+            message: "Bike Setup Tracker automatically imports new, updated, or deleted Strava activities in real-time. While most updates are instant, a full background sync also runs weekly to catch any missed changes. You can also trigger a manual sync once a week.",
+            child: Icon(
+              Icons.info_outline,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              size: Theme.of(context).textTheme.bodyLarge?.fontSize,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -6,6 +6,7 @@
 const auth = require("./auth");
 const webhook = require("./webhook");
 const sync = require("./sync");
+const scheduledSync = require("./scheduled_sync");
 
 // Auth
 exports.exchangeToken = auth.exchangeToken;
@@ -17,3 +18,4 @@ exports.stravaWebhook = webhook.stravaWebhook;
 // Sync
 exports.syncActivities = sync.syncActivities;
 exports.syncFullHistory = sync.syncFullHistoryCloud;
+exports.scheduledWeeklySync = scheduledSync.scheduledWeeklySync;

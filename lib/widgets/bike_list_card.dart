@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_icons/simple_icons.dart';
 import '../models/app_settings.dart';
 import '../models/filtered_data.dart';
 import '../models/person.dart';
@@ -38,7 +39,21 @@ class BikeListCard extends StatelessWidget{
           opacity: bike.id == filteredData.selectedBike || filteredData.selectedBike == null ? 1 : 0.3,
           child: ListTile(
             dense: true,
-            leading: const Icon(Bike.iconData),
+            leading: context.watch<AppSettings>().enableStrava 
+                ? Badge(
+                    label: bike.stravaGear == null
+                        ? Icon(
+                            Icons.link_off, 
+                            size: 11, 
+                            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                          )
+                        : !filteredData.stravaGears.containsKey(bike.stravaGear)
+                            ? Icon(Icons.error_outline, size: 11, color: Theme.of(context).colorScheme.error)
+                            : const Icon(SimpleIcons.strava, size: 10, color: Color(0xFFFC4C02)),
+                    backgroundColor: Colors.transparent,
+                    child: const Icon(Bike.iconData),
+                  )
+                : const Icon(Bike.iconData),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 8,

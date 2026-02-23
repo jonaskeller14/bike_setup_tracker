@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
-import '../models/app_data.dart';
 import '../models/app_settings.dart';
 import '../models/filtered_data.dart';
 import '../models/person.dart';
@@ -302,6 +301,8 @@ class _PersonPageState extends State<PersonPage> {
   Widget build(BuildContext context) {
     final filteredData = context.watch<FilteredData>();
     final existingPersons = filteredData.persons;
+    final stravaAthletes = filteredData.stravaAthletes;
+
     return PopScope( 
       canPop: !_formHasChanges,
       onPopInvokedWithResult: _handlePopInvoked,
@@ -382,7 +383,6 @@ class _PersonPageState extends State<PersonPage> {
                         labelText: 'Strava Athlete',
                         border: OutlineInputBorder(),
                         hintText: "Link Strava Athlete",
-                        prefixIcon: const Icon(Icons.link),
                         helperText: existingPersons.values.any((p) => p.id != widget.person?.id && p.stravaAthlete != null && p.stravaAthlete == _stravaAthlete)
                           ? "WARNING: Strava Athlete already assigned to another Person"
                           : null,
@@ -391,22 +391,33 @@ class _PersonPageState extends State<PersonPage> {
                       ),
                       validator: (int? newStravaAthlete) {
                         if (newStravaAthlete == null) return null;
-                        if (!context.read<AppData>().stravaAthletes.containsKey(newStravaAthlete)) return "Please select valid Athlete";
+                        if (!stravaAthletes.containsKey(newStravaAthlete)) return "Please select valid Athlete";
                         return null;
                       },
-                      items: context.read<AppData>().stravaAthletes.values.map((a) {
-                        return DropdownMenuItem<int>(
-                          value: a.id,
+                      items: [
+                        DropdownMenuItem<int?>(
+                          value: null,
                           child: Row(
                             spacing: 8,
                             children: [
-                              const Icon(SimpleIcons.strava),
-                              Expanded(child: Text("${a.firstname} ${a.lastname}", overflow: TextOverflow.ellipsis))
+                              const Icon(Icons.link_off),
+                              const Expanded(child: Text("NOT LINKED", overflow: TextOverflow.ellipsis))
                             ],
                           ),
-                        );
-                      }).toList() + [
-                        if (_stravaAthlete != null && !context.read<AppData>().stravaAthletes.containsKey(_stravaAthlete))
+                        ),
+                        ...stravaAthletes.values.map((a) {
+                          return DropdownMenuItem<int>(
+                            value: a.id,
+                            child: Row(
+                              spacing: 8,
+                              children: [
+                                const Icon(SimpleIcons.strava),
+                                Expanded(child: Text("${a.firstname} ${a.lastname}", overflow: TextOverflow.ellipsis))
+                              ],
+                            ),
+                          );
+                        }),
+                        if (_stravaAthlete != null && !stravaAthletes.containsKey(_stravaAthlete))
                           DropdownMenuItem<int>(
                           value: _stravaAthlete,
                           child: Row(

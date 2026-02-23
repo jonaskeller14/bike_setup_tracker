@@ -113,8 +113,7 @@ class _BikePageState extends State<BikePage> {
     final filteredData = context.watch<FilteredData>();
     final existingBikes = filteredData.bikes;
     final persons = filteredData.persons;
-    final appData = context.read<AppData>();
-    final stravaGears = appData.stravaGears;
+    final stravaGears = filteredData.stravaGears;
 
     return PopScope( 
       canPop: !_formHasChanges,
@@ -245,7 +244,6 @@ class _BikePageState extends State<BikePage> {
                       labelText: 'Strava Gear',
                       border: OutlineInputBorder(),
                       hintText: "Link Strava Gear",
-                      prefixIcon: const Icon(Icons.link),
                       helperText: existingBikes.values.any((b) => b.id != widget.bike?.id && b.stravaGear != null && b.stravaGear == _stravaGear)
                           ? "WARNING: Strava Gear already assigned to another Bike"
                           : null,
@@ -257,18 +255,29 @@ class _BikePageState extends State<BikePage> {
                       if (!stravaGears.containsKey(newStravaGear)) return "Please select valid Gear";
                       return null;
                     },
-                    items: stravaGears.values.map((g) {
-                      return DropdownMenuItem<String>(
-                        value: g.id,
+                    items: [
+                      DropdownMenuItem<String?>(
+                        value: null,
                         child: Row(
                           spacing: 8,
                           children: [
-                            const Icon(SimpleIcons.strava),
-                            Expanded(child: Text(g.name, overflow: TextOverflow.ellipsis))
+                            const Icon(Icons.link_off),
+                            const Expanded(child: Text("NOT LINKED", overflow: TextOverflow.ellipsis))
                           ],
                         ),
-                      );
-                    }).toList() + [
+                      ),
+                      ...stravaGears.values.map((g) {
+                        return DropdownMenuItem<String>(
+                          value: g.id,
+                          child: Row(
+                            spacing: 8,
+                            children: [
+                              const Icon(SimpleIcons.strava),
+                              Expanded(child: Text(g.name, overflow: TextOverflow.ellipsis))
+                            ],
+                          ),
+                        );
+                      }),
                       if (_stravaGear != null && !stravaGears.containsKey(_stravaGear))
                        DropdownMenuItem<String>(
                         value: _stravaGear,

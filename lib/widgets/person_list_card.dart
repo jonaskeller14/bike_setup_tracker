@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_icons/simple_icons.dart';
+import '../models/app_settings.dart';
 import '../models/filtered_data.dart';
 import '../models/bike.dart';
 import '../models/person.dart';
@@ -62,7 +64,21 @@ class PersonListCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
-              leading: const Icon(Person.iconData),
+              leading: context.watch<AppSettings>().enableStrava 
+                  ? Badge(
+                      label: person.stravaAthlete == null
+                          ? Icon(
+                              Icons.link_off, 
+                              size: 11, 
+                              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                            )
+                          : !filteredData.stravaAthletes.containsKey(person.stravaAthlete)
+                              ? Icon(Icons.error_outline, size: 11, color: Theme.of(context).colorScheme.error)
+                              : const Icon(SimpleIcons.strava, size: 10, color: Color(0xFFFC4C02)),
+                      backgroundColor: Colors.transparent,
+                      child: const Icon(Person.iconData),
+                    )
+                  : const Icon(Person.iconData),
               minTileHeight: 0,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,

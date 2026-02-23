@@ -1,0 +1,70 @@
+import 'dart:async';
+import 'package:app_links/app_links.dart';
+import 'package:flutter/material.dart';
+import '../pages/home_page.dart';
+import 'navigation_service.dart';
+
+class DeepLinkService {
+  static final DeepLinkService _instance = DeepLinkService._internal();
+  factory DeepLinkService() => _instance;
+  
+  // Internal constructor for singleton and test injection
+  @visibleForTesting
+  DeepLinkService.test(this._appLinks);
+  
+  DeepLinkService._internal() : _appLinks = AppLinks();
+
+  final AppLinks _appLinks;
+  StreamSubscription<Uri>? _linkSubscription;
+  bool _isInitialized = false;
+  Uri? _lastHandledUri;
+  DateTime? _lastHandledTime;
+
+  void init() {
+    if (_isInitialized) return;
+    _isInitialized = true;
+
+    _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
+      _handleDeepLink(uri);
+    }, onError: (err) {
+      debugPrint('DeepLinkService error: $err');
+    });
+
+    // Check for initial link
+    _appLinks.getInitialLink().then((uri) {
+      if (uri != null) {
+        _handleDeepLink(uri);
+      }
+    });
+  }
+
+  void dispose() {
+    _linkSubscription?.cancel();
+  }
+
+  void _handleDeepLink(Uri uri) async {
+    // Prevent duplicate handling (especially during startup when stream and initialLink might both fire)
+    if (_lastHandledUri == uri && 
+        _lastHandledTime != null && 
+        DateTime.now().difference(_lastHandledTime!).inMilliseconds < 1000) {
+      debugPrint('Ignoring duplicate deep link: $uri');
+      return;
+    }
+
+    _lastHandledUri = uri;
+    _lastHandledTime = DateTime.now();
+
+    debugPrint('Received deep link: $uri');
+
+    if (uri.scheme == 'bike-setup-tracker' && uri.host == 'add-setup') {
+      _triggerAddSetup();
+    }
+  }
+
+  Future<void> _triggerAddSetup() async {
+    final context = NavigationService.context;
+    if (context == null) return;
+
+    await HomePage.addSetup(context);
+  }
+}

@@ -9,6 +9,8 @@ import 'pages/home_page.dart';
 import 'services/google_drive_service.dart';
 import 'services/storage_service.dart';
 import 'services/strava_service.dart';
+import 'services/navigation_service.dart';
+import 'services/deep_link_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -124,7 +126,13 @@ class LoadingGate extends StatelessWidget {
                 },
               ),
             ],
-            child: const BikeSetupTrackerApp(),
+            child: Builder(
+              builder: (context) {
+                // Initialize DeepLinkService after Snapshots are done and context is available
+                DeepLinkService().init();
+                return const BikeSetupTrackerApp();
+              },
+            ),
           );
         } else {
           return MaterialApp(
@@ -156,6 +164,7 @@ class BikeSetupTrackerApp extends StatelessWidget {
       theme: materialAppTheme,
       darkTheme: materialAppDarkTheme,
       themeMode: appSettings.themeMode,
+      navigatorKey: NavigationService.navigatorKey,
       home: appSettings.showOnboarding ? const OnboardingPage() : const HomePage(),
       debugShowCheckedModeBanner: false,
     );

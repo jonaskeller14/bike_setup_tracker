@@ -38,6 +38,40 @@ class HomePage extends StatefulWidget {
 
   @override
   State<HomePage> createState() => _HomePageState();
+
+  static Future<void> addSetup(BuildContext context) async {
+    final data = context.read<AppData>();
+    final filteredData = context.read<FilteredData>();
+
+    if (filteredData.bikes.values.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        persist: false,
+        showCloseIcon: true, 
+        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        content: Text("Add a bike first", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        backgroundColor: Theme.of(context).colorScheme.errorContainer
+      ));
+      return;
+    }
+    if (filteredData.components.values.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        persist: false,
+        showCloseIcon: true, 
+        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        content: Text("Add a component first", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        backgroundColor: Theme.of(context).colorScheme.errorContainer
+      ));
+      return;
+    }
+
+    final newSetup = await Navigator.push<Setup>(
+      context,
+      MaterialPageRoute(builder: (context) => SetupPage.add()),
+    );
+    if (newSetup == null) return;
+    
+    data.addSetup(newSetup);
+  }
 }
 
 class _HomePageState extends State<HomePage> {
@@ -350,37 +384,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _addSetup() async {
-    final data = context.read<AppData>();
-    final filteredData = context.read<FilteredData>();
-
-    if (filteredData.bikes.values.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true, 
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text("Add a bike first", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
-      ));
-      return;
-    }
-    if (filteredData.components.values.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true, 
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text("Add a component first", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
-      ));
-      return;
-    }
-
-    final newSetup = await Navigator.push<Setup>(
-      context,
-      MaterialPageRoute(builder: (context) => SetupPage.add()),
-    );
-    if (newSetup == null) return;
-    
-    data.addSetup(newSetup);
+    await HomePage.addSetup(context);
   }
 
   Future<void> _editSetup(Setup setup) async {

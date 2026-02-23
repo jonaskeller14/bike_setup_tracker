@@ -16,7 +16,7 @@ class BikeAndTagsFilterChip extends StatelessWidget {
 
     return FilterChip(
       avatar: enableSetupTagFilter
-          ? const Icon(Icons.filter_alt)
+          ? const Icon(Icons.filter_alt_outlined)
           : const Icon(Bike.iconData),
       label: enableSetupTagFilter
           ? filteredData.selectedBike != null

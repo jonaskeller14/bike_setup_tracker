@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -98,7 +99,7 @@ class _ComponentPageState extends State<ComponentPage> {
     super.dispose();
   }
 
-  Future<void> _addAdjustment<T extends Adjustment>() async {
+  Future<void> _addAdjustment<T extends Adjustment>({VoidCallback? onChanged}) async {
     final adjustment = await Navigator.push<T>(
       context,
       MaterialPageRoute(builder: (context) => switch(T) {
@@ -114,9 +115,10 @@ class _ComponentPageState extends State<ComponentPage> {
     if (adjustment == null) return;
     setState(() => _adjustments.add(adjustment));
     _changeListener();
+    onChanged?.call();
   }
 
-  Future<void> _addAdjustmentFromPreset(Adjustment adjustment) async {
+  Future<void> _addAdjustmentFromPreset(Adjustment adjustment, {VoidCallback? onChanged}) async {
     final newAdjustment = await Navigator.push<Adjustment>(
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment.deepCopy()) {
@@ -131,9 +133,10 @@ class _ComponentPageState extends State<ComponentPage> {
     if (newAdjustment == null) return;
     setState(() => _adjustments.add(newAdjustment));
     _changeListener();
+    onChanged?.call();
   }
 
-  Future<void> _editAdjustment(Adjustment adjustment) async {
+  Future<void> _editAdjustment(Adjustment adjustment, {VoidCallback? onChanged}) async {
     final editedAdjustment = await Navigator.push<Adjustment>(
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment) {
@@ -153,9 +156,10 @@ class _ComponentPageState extends State<ComponentPage> {
       }
     });
     _changeListener();
+    onChanged?.call();
   }
 
-  Future<void> _duplicateAdjustment(Adjustment adjustment) async {
+  Future<void> _duplicateAdjustment(Adjustment adjustment, {VoidCallback? onChanged}) async {
     final newAdjustment = await Navigator.push<Adjustment>(
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment.deepCopy()) {
@@ -170,26 +174,18 @@ class _ComponentPageState extends State<ComponentPage> {
     if (newAdjustment == null) return;
     setState(() => _adjustments.add(newAdjustment));
     _changeListener();
+    onChanged?.call();
   }
 
-  Future<void> removeAdjustment(Adjustment adjustment) async {
+  Future<void> removeAdjustment(Adjustment adjustment, {VoidCallback? onChanged}) async {
     setState(() => _adjustments.remove(adjustment));
     _changeListener();
+    onChanged?.call();
   }
 
   void _saveComponent() {
     if (!_formKey.currentState!.validate()) return;
-    if (_adjustments.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text("You need to add at least one adjustment", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer,
-        duration: Duration(seconds: 2),
-      ));
-      return;
-    }
+    
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
     _formHasChanges = false;
@@ -251,7 +247,7 @@ class _ComponentPageState extends State<ComponentPage> {
     );
   }
 
-  void _onReorderAdjustments(int oldIndex, int newIndex) {
+  void _onReorderAdjustments(int oldIndex, int newIndex, {VoidCallback? onChanged}) {
     int adjustedNewIndex = newIndex;
     if (oldIndex < newIndex) adjustedNewIndex -= 1;
 
@@ -260,51 +256,87 @@ class _ComponentPageState extends State<ComponentPage> {
       _adjustments.insert(adjustedNewIndex, adjustment);
     });
     _changeListener();
+    onChanged?.call();
   }
 
-  Widget _emptyAdjustmentsInfo() => Container(
-    width: double.infinity,
-    margin: const EdgeInsets.only(top: 8),
-    padding: const EdgeInsets.all(8),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _emptyAdjustmentsInfo({String? errorText, VoidCallback? onTap}) {
+    return Column(
       children: [
-        Row(
-          children: [
-            Icon(Icons.help_outline, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)),
-            const SizedBox(width: 8),
-            Text(
-              "No adjustments yet",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                fontSize: Theme.of(context).textTheme.titleLarge?.fontSize ?? 16,
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: CustomPaint(
+            painter: _DashedBorderPainter(
+              color: errorText != null 
+                  ? Theme.of(context).colorScheme.error 
+                  : Theme.of(context).colorScheme.outlineVariant,
+              strokeWidth: 1.5,
+              dashWidth: 6,
+              dashSpace: 4,
+              borderRadius: 12,
+            ),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    errorText != null ? Icons.warning_amber_rounded : Icons.add_circle_outline, 
+                    size: 32, 
+                    color: errorText != null 
+                        ? Theme.of(context).colorScheme.error 
+                        : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    errorText ?? "No adjustments yet",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: errorText != null 
+                          ? Theme.of(context).colorScheme.error 
+                          : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    errorText != null 
+                        ? "Tap here to add the first adjustment" 
+                        : "Tap 'Add Adjustment' to define settings for this component",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: errorText != null 
+                          ? Theme.of(context).colorScheme.error.withValues(alpha: 0.7) 
+                          : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
         const SizedBox(height: 8),
-        Text(
-          "Define what settings you can tweak on this component by tapping the button below.",
-          style: TextStyle(height: 1.4, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Column(
+            children: [
+              _buildGuideRow(NumericalAdjustment.iconData, "Numerical", "Pressure (psi/bar), Length, Angle, Weight"),
+              _buildGuideRow(StepAdjustment.iconData, "Step", "Rebound/Compression Clicks, Spacers"),
+              _buildGuideRow(CategoricalAdjustment.iconData, "Categorical", "Tire Compound (Soft/Hard), Model, Brand"),
+              _buildGuideRow(BooleanAdjustment.iconData, "On/Off", "Lockout Lever, Climb Switch, Tire insert installed?"),
+              if (context.read<AppSettings>().enableTextAdjustment)
+                _buildGuideRow(TextAdjustment.iconData, "Text", "Flexible field for any other setup specifications"),
+              if (_enableDurationAdjustment)
+                _buildGuideRow(DurationAdjustment.iconData, "Duration", "Time span"),  //TODO: improve help text
+            ],
+          ),
         ),
-        const SizedBox(height: 8),
-        Text(
-          "Examples:",
-          style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)),
-        ),
-        const SizedBox(height: 4),
-        _buildGuideRow(NumericalAdjustment.iconData, "Numerical", "Pressure (psi/bar), Length, Angle, Weight"),
-        _buildGuideRow(StepAdjustment.iconData, "Step", "Rebound/Compression Clicks, Spacers"),
-        _buildGuideRow(CategoricalAdjustment.iconData, "Categorical", "Tire Compound (Soft/Hard), Model, Brand"),
-        _buildGuideRow(BooleanAdjustment.iconData, "On/Off", "Lockout Lever, Climb Switch, Tire insert installed?"),
-        if (context.read<AppSettings>().enableTextAdjustment)
-          _buildGuideRow(TextAdjustment.iconData, "Text", "Flexible field for any other setup specifications"),
-        if (_enableDurationAdjustment)
-          _buildGuideRow(DurationAdjustment.iconData, "Duration", "Time span"),  //TODO: improve help text
       ],
-    ),
-  );
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -483,29 +515,69 @@ class _ComponentPageState extends State<ComponentPage> {
                   ),
                 ],
                 const SizedBox(height: 16),
-                _adjustments.isNotEmpty
-                    ? AdjustmentEditList(
-                        adjustments: _adjustments,
-                        initialAdjustments: widget.mode == ComponentPageMode.edit ? Map.fromEntries(widget.component!.adjustments.map((a) => MapEntry(a.id, a))) : null,
-                        editAdjustment: _editAdjustment,
-                        duplicateAdjustment: _duplicateAdjustment,
-                        removeAdjustment: removeAdjustment,
-                        onReorderAdjustments: _onReorderAdjustments,
-                      ) 
-                    : _emptyAdjustmentsInfo(),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    onPressed: () => showComponentAddAdjustmentBottomSheet(
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
+                  child: Text("Adjustments", style: Theme.of(context).textTheme.titleMedium),
+                ),
+                FormField<List<Adjustment>>(
+                  initialValue: _adjustments,
+                  validator: (_) { // Evaluate _adjustments for robustness
+                    if (_adjustments.isEmpty) {
+                      return 'You need to add at least one adjustment';
+                    }
+                    return null;
+                  },
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  builder: (FormFieldState<List<Adjustment>> field) {
+                    void notify() => field.didChange(List.from(_adjustments));
+ 
+                    void showAddBottomSheet() => showComponentAddAdjustmentBottomSheet(
                       context: context,
                       componentType: _componentType,
                       enableDurationAdjustment: _enableDurationAdjustment,
-                      addAdjustmentFromPreset: _addAdjustmentFromPreset,
-                      addAdjustment: _addAdjustment,
-                    ),
-                    icon: const Icon(Icons.add),
-                    label: const Text("Add Adjustment"),
-                  ),
+                      addAdjustmentFromPreset: (a) => _addAdjustmentFromPreset(a, onChanged: notify),
+                      addAdjustment: <T extends Adjustment>() => _addAdjustment<T>(onChanged: notify),
+                    );
+ 
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _adjustments.isNotEmpty
+                            ? AdjustmentEditList(
+                                adjustments: _adjustments,
+                                initialAdjustments: widget.mode == ComponentPageMode.edit ? Map.fromEntries(widget.component!.adjustments.map((a) => MapEntry(a.id, a))) : null,
+                                editAdjustment: (a) => _editAdjustment(a, onChanged: notify),
+                                duplicateAdjustment: (a) => _duplicateAdjustment(a, onChanged: notify),
+                                removeAdjustment: (a) => removeAdjustment(a, onChanged: notify),
+                                onReorderAdjustments: (oldIndex, newIndex) => _onReorderAdjustments(oldIndex, newIndex, onChanged: notify),
+                              ) 
+                            : _emptyAdjustmentsInfo(
+                                errorText: field.errorText,
+                                onTap: showAddBottomSheet,
+                              ),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          width: double.infinity,
+                          child: FilledButton.icon(
+                            onPressed: showAddBottomSheet,
+                            icon: const Icon(Icons.add),
+                            label: const Text("Add Adjustment"),
+                          ),
+                        ),
+                        if (field.hasError && _adjustments.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+                            child: Text(
+                              field.errorText!,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
@@ -514,4 +586,57 @@ class _ComponentPageState extends State<ComponentPage> {
       ),
     );
   }
+}
+
+class _DashedBorderPainter extends CustomPainter {
+  final Color color;
+  final double strokeWidth;
+  final double dashWidth;
+  final double dashSpace;
+  final double borderRadius;
+
+  _DashedBorderPainter({
+    required this.color,
+    this.strokeWidth = 1.0,
+    this.dashWidth = 5.0,
+    this.dashSpace = 3.0,
+    this.borderRadius = 0.0,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    final RRect rrect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Radius.circular(borderRadius),
+    );
+
+    final Path path = Path()..addRRect(rrect);
+    final Path dashedPath = Path();
+
+    for (final PathMetric metric in path.computeMetrics()) {
+      double distance = 0.0;
+      while (distance < metric.length) {
+        dashedPath.addPath(
+          metric.extractPath(distance, distance + dashWidth),
+          Offset.zero,
+        );
+        distance += dashWidth + dashSpace;
+      }
+    }
+
+    canvas.drawPath(dashedPath, paint);
+  }
+
+  @override
+  bool shouldRepaint(_DashedBorderPainter oldDelegate) =>
+      oldDelegate.color != color ||
+      oldDelegate.strokeWidth != strokeWidth ||
+      oldDelegate.dashWidth != dashWidth ||
+      oldDelegate.dashSpace != dashSpace ||
+      oldDelegate.borderRadius != borderRadius;
 }

@@ -13,9 +13,9 @@
 
 Stop guessing your settings. Start tracking.
 
-Do you keep your suspension clicks, tire pressures, and geometry settings scattered across a messy notes app? Do you struggle to remember exactly what setup felt perfect on that rainy day in the bike park last season?
+Do you keep your suspension clicks, tire pressures, and geometry settings scattered across a messy notes app? Do you struggle to remember exactly which setup felt perfect on that rainy day in the bike park last season?
 
-Bike Setup Tracker is the ultimate digital logbook for cyclists, mechanics, and racers who want to get the most out of their equipment. Whether you are a Downhill racer, an Enduro enthusiast, or a Road cyclist, this app brings structure to your bike adjustments.
+Bike Setup Tracker is the ultimate digital logbook for cyclists, mechanics, and racers who want to get the most out of their equipment. Whether you are a Downhill racer, an Enduro enthusiast, or a Road cyclist, this app brings professional structure to your bike adjustments.
 
 - [Roadmap](#roadmap)
 - [Key Features](#key-features)
@@ -33,7 +33,7 @@ Here are the current development goals and their status:
 - [ ] **Add rider profile** (track body weight, ...) ➡️ **In testing phase**
 - [ ] **Add a rating procedure** to systematically distinguish good from bad setups ➡️ **In testing phase**
 - [ ] **Strava integration** to use activity data as context ➡️ **In Development**
-- [ ] **Publish for iOS** ➡️ **Planned** (Will commence development once the Android app is stable.)
+- [ ] **Publish for iOS** ➡️ **In Development**
 
 I am open for feedback, suggestions, and bug reports—please feel free to open a new issue for any of these.
 
@@ -56,10 +56,14 @@ I am open for feedback, suggestions, and bug reports—please feel free to open 
 
 📝 **Setup History & Evolution:** Never lose a good setup again. Browse your detailed history to see exactly what you changed and when. Compare your current setup to previous sessions (e.g., "Finale Ligure Trip" vs. "Local Trails").
 
+🔒 **Your Data, Your Ownership**: Your settings are stored locally or in your private cloud. We have zero access to your data.
+- Free Forever: The core app will remain free, so you’ll always have access to your setup history.
+- Total Portability: Export your data at any time — you are never locked in.
+
 ### Who is this for?
-- **Mountain Bikers (MTB):** Perfect for finding the sweet spot on complex suspension systems.
+- **Mountain Bikers (MTB):** Find the sweet spot on complex suspension systems.
 - **Road & Gravel Cyclists:** Precise tracking for tire pressures and fit adjustments.
-- **Racers:** Keep a log of your race-day tunes.
+- **Racers:** Maintain a professional-grade log of race-day tunes and baseline settings.
 
 Ditch the notebook. Download Bike Setup Tracker and tune your ride with precision.
 

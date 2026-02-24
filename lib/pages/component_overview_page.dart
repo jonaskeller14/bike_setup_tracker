@@ -46,9 +46,9 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
       "Soil Moisture": false,
       "Condition": false,
     },
-    "Person": {},
-    "Adjustments": {},
-    "Ratings": {},
+    "Person Attributes": {},
+    "Component Adjustments": {},
+    "Rating Metrics": {},
   };
 
   @override
@@ -65,7 +65,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
     ).toList().reversed);
     
     for (final adjustment in widget.component.adjustments) {
-      _showColumns["Adjustments"]?[adjustment.id] = true;
+      _showColumns["Component Adjustments"]?[adjustment.id] = true;
     }
 
     if (!appSettings.enableSetupTags) {
@@ -75,26 +75,26 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
     if (appSettings.enablePerson) {
       final person = persons[bikes[widget.component.bike]?.person];
       if (person == null) {
-        _showColumns.remove("Person");  
+        _showColumns.remove("Person Attributes");  
       } else {
-        _showColumns["Person"]?.addEntries(person.adjustments.map((adjustment) => MapEntry(adjustment.id, false)));
+        _showColumns["Person Attributes"]?.addEntries(person.adjustments.map((adjustment) => MapEntry(adjustment.id, false)));
       }
     } else {
-      _showColumns.remove("Person");
+      _showColumns.remove("Person Attributes");
     }
 
     if (appSettings.enableRating) {
       for (final rating in ratings.values) {
         switch (rating.filterType) {
-          case FilterType.global: _showColumns["Ratings"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false});
-          case FilterType.componentType: if (widget.component.componentType.toString() == rating.filter) _showColumns["Ratings"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false});
-          case FilterType.component: if (widget.component.id == rating.filter) _showColumns["Ratings"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false });
-          case FilterType.bike: if (widget.component.bike == rating.filter) _showColumns["Ratings"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false });
-          case FilterType.person: if (bikes[widget.component.bike]?.person == rating.filter) _showColumns["Ratings"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false});
+          case FilterType.global: _showColumns["Rating Metrics"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false});
+          case FilterType.componentType: if (widget.component.componentType.toString() == rating.filter) _showColumns["Rating Metrics"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false});
+          case FilterType.component: if (widget.component.id == rating.filter) _showColumns["Rating Metrics"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false });
+          case FilterType.bike: if (widget.component.bike == rating.filter) _showColumns["Rating Metrics"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false });
+          case FilterType.person: if (bikes[widget.component.bike]?.person == rating.filter) _showColumns["Rating Metrics"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false});
         }
       }
     } else {
-      _showColumns.remove("Ratings");
+      _showColumns.remove("Rating Metrics");
     }
   }
 
@@ -160,9 +160,9 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
       });
       default: 
         final column2value = switch (section) {
-          "Adjustments" => (Setup s) => s.bikeAdjustmentValues[column],
-          "Person" => (Setup s) => s.personAdjustmentValues[column],
-          "Ratings" => (Setup s) => s.ratingAdjustmentValues[column],
+          "Component Adjustments" => (Setup s) => s.bikeAdjustmentValues[column],
+          "Person Attributes" => (Setup s) => s.personAdjustmentValues[column],
+          "Rating Metrics" => (Setup s) => s.ratingAdjustmentValues[column],
           _ => null, 
         };
         if (column2value == null) return;
@@ -264,11 +264,11 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                   dataRowMaxHeight: double.infinity,
                   columns: _showColumns.entries.expand((sectionShowColumnsEntry) {
                     return sectionShowColumnsEntry.value.entries.where((showColumnEntry) => showColumnEntry.value).map((showColumnEntry) {
-                      if ({"Adjustments", "Ratings", "Person"}.contains(sectionShowColumnsEntry.key)) {
+                      if ({"Component Adjustments", "Rating Metrics", "Person Attributes"}.contains(sectionShowColumnsEntry.key)) {
                         final Adjustment? adjustment = switch (sectionShowColumnsEntry.key) {
-                          "Adjustments" => widget.component.adjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key),
-                          "Ratings" => ratingAdjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key),
-                          "Person" => personAdjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key),
+                          "Component Adjustments" => widget.component.adjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key),
+                          "Rating Metrics" => ratingAdjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key),
+                          "Person Attributes" => personAdjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key),
                           _ => null,
                         };
                         return DataColumn(
@@ -302,17 +302,17 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                     return DataRow(
                       cells: _showColumns.entries.expand((sectionShowColumnsEntry) {
                         return sectionShowColumnsEntry.value.entries.where((showColumnEntry) => showColumnEntry.value).map((showColumnEntry) {
-                          if ({"Adjustments", "Ratings", "Person"}.contains(sectionShowColumnsEntry.key)) {
+                          if ({"Component Adjustments", "Rating Metrics", "Person Attributes"}.contains(sectionShowColumnsEntry.key)) {
                             final value = switch (sectionShowColumnsEntry.key) {
-                              "Adjustments" => setup.bikeAdjustmentValues[showColumnEntry.key],
-                              "Ratings" => setup.ratingAdjustmentValues[showColumnEntry.key],
-                              "Person" => setup.personAdjustmentValues[showColumnEntry.key],
+                              "Component Adjustments" => setup.bikeAdjustmentValues[showColumnEntry.key],
+                              "Rating Metrics" => setup.ratingAdjustmentValues[showColumnEntry.key],
+                              "Person Attributes" => setup.personAdjustmentValues[showColumnEntry.key],
                               _ => null,
                             };
                             final initialValue = switch (sectionShowColumnsEntry.key) {
-                              "Adjustments" => setup.previousBikeSetup?.bikeAdjustmentValues[showColumnEntry.key],
-                              "Ratings" => null,
-                              "Person" => setup.previousPersonSetup?.personAdjustmentValues[showColumnEntry.key],
+                              "Component Adjustments" => setup.previousBikeSetup?.bikeAdjustmentValues[showColumnEntry.key],
+                              "Rating Metrics" => null,
+                              "Person Attributes" => setup.previousPersonSetup?.personAdjustmentValues[showColumnEntry.key],
                               _ => null,
                             };
      

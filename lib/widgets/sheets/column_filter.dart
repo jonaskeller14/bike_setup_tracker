@@ -66,9 +66,9 @@ Future<Map<String, Map<String, bool>>?> showColumnFilterSheet({
                                     return FilterChip(
                                       label: Text(
                                         switch (sectionShowColumnsEntry.key) {
-                                          "Adjustments" => adjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key)?.name ?? "-",
-                                          "Ratings" => ratingAdjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key)?.name ?? "-",
-                                          "Person" => personAdjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key)?.name ?? "-",
+                                          "Component Adjustments" => adjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key)?.name ?? "-",
+                                          "Rating Metrics" => ratingAdjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key)?.name ?? "-",
+                                          "Person Attributes" => personAdjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key)?.name ?? "-",
                                           _ => showColumnEntry.key,
                                         },
                                         overflow: TextOverflow.ellipsis

@@ -5,9 +5,10 @@ import 'package:file_save_directory/file_save_directory.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:provider/provider.dart';
 import '../models/app_data.dart';
+import '../models/app_settings.dart';
 import 'to_spreadsheet.dart';
-
 
 class FileExport {
   static const Duration _backupStoreDuration = Duration(days: 30);
@@ -219,9 +220,10 @@ class FileExport {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
     final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
+    final settings = context.read<AppSettings>();
 
     try {
-      final bytes = SpreadsheetExport.toExcel(data);
+      final bytes = SpreadsheetExport.toExcel(data, settings);
       if (bytes == null) throw Exception("Failed to encode Excel file");
 
       final Directory tempDir = await getTemporaryDirectory();
@@ -259,9 +261,10 @@ class FileExport {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
     final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
+    final settings = context.read<AppSettings>();
 
     try {
-      final csvString = SpreadsheetExport.toCsv(data);
+      final csvString = SpreadsheetExport.toCsv(data, settings);
 
       final Directory tempDir = await getTemporaryDirectory();
       final String filePath = '${tempDir.path}/bike_setup_export.csv';

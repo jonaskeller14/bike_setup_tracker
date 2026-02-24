@@ -184,7 +184,7 @@ class _AdjustmentTableRow extends StatelessWidget {
                             value: items[i].value,
                             previousValue: previousAdjustmentValues[items[i].key],
                             highlightInitialValues: highlightInitialValues,
-                            maxWidth: (items.length > 1 && i < items.length - 1)
+                            maxWidth: items.length > 1
                                 ? ((constraints.maxWidth - 2) / 2) 
                                 : double.infinity,
                           ),

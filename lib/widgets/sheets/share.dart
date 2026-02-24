@@ -4,7 +4,7 @@ import '../../models/app_data.dart';
 import '../../utils/file_export.dart';
 import '../../utils/to_text.dart';
 import 'data_select.dart';
-import 'share_json_text.dart';
+import 'share_format.dart';
 
 
 Future<void> shareData(BuildContext context) async {
@@ -39,6 +39,14 @@ Future<void> shareData(BuildContext context) async {
         context: context,
         content: content,
       );
+    case ShareFormats.csv: FileExport.shareCsv(
+      context: context,
+      data: shareResult.appData,
+    );
+    case ShareFormats.xlsx: FileExport.shareXlsx(
+      context: context,
+      data: shareResult.appData,
+    );
   }
 }
 
@@ -51,6 +59,8 @@ class ShareResult {
 enum ShareFormats {
   json,
   text,
+  csv,
+  xlsx,
 }
 
 enum ShareSheetFlowSteps {
@@ -98,6 +108,14 @@ class _ShareSheetFlowState extends State<ShareSheetFlow> {
             },
             onText: () {
               _shareFormat = ShareFormats.text;
+              setState(() => _step = ShareSheetFlowSteps.step2SelectDataMehod);
+            },
+            onCsv: () {
+              _shareFormat = ShareFormats.csv;
+              setState(() => _step = ShareSheetFlowSteps.step2SelectDataMehod);
+            },
+            onXlsx: () {
+              _shareFormat = ShareFormats.xlsx;
               setState(() => _step = ShareSheetFlowSteps.step2SelectDataMehod);
             },
           ),

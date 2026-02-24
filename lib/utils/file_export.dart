@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../models/app_data.dart';
+import 'to_spreadsheet.dart';
 
 
 class FileExport {
@@ -210,6 +211,85 @@ class FileExport {
     }
   }
 
+  static Future<void> shareXlsx({
+    required BuildContext context,
+    required AppData data,
+  }) async {
+    final box = context.findRenderObject() as RenderBox?;
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
+    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
+
+    try {
+      final bytes = SpreadsheetExport.toExcel(data);
+      if (bytes == null) throw Exception("Failed to encode Excel file");
+
+      final Directory tempDir = await getTemporaryDirectory();
+      final String filePath = '${tempDir.path}/bike_setup_export.xlsx';
+      final File file = File(filePath);
+      await file.writeAsBytes(bytes);
+
+      await SharePlus.instance.share(
+        ShareParams(
+          subject: 'Bike Setup Export',
+          text: 'Here is my bike setup data in Excel format!',
+          files: [XFile(filePath)],
+          sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+          downloadFallbackEnabled: true,
+        ),
+      );
+    } catch (e) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          closeIconColor: onErrorContainerColor,
+          content: Text('Error sharing Excel file: $e'),
+          backgroundColor: errorContainerColor,
+        ),
+      );
+    }
+  }
+
+  static Future<void> shareCsv({
+    required BuildContext context,
+    required AppData data,
+  }) async {
+    final box = context.findRenderObject() as RenderBox?;
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
+    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
+
+    try {
+      final csvString = SpreadsheetExport.toCsv(data);
+
+      final Directory tempDir = await getTemporaryDirectory();
+      final String filePath = '${tempDir.path}/bike_setup_export.csv';
+      final File file = File(filePath);
+      await file.writeAsString(csvString);
+
+      await SharePlus.instance.share(
+        ShareParams(
+          subject: 'Bike Setup Export',
+          text: 'Here is my bike setup data in CSV format!',
+          files: [XFile(filePath)],
+          sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+          downloadFallbackEnabled: true,
+        ),
+      );
+    } catch (e) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          closeIconColor: onErrorContainerColor,
+          content: Text('Error sharing CSV file: $e'),
+          backgroundColor: errorContainerColor,
+        ),
+      );
+    }
+  }
+
   static Future<void> shareText({required BuildContext context, required String content}) async {
     final box = context.findRenderObject() as RenderBox?;
     final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -219,7 +299,7 @@ class FileExport {
     try {
       await SharePlus.instance.share(
         ShareParams(
-          subject: 'Bike Setup Backup',
+          subject: 'Bike Setup Export',
           text: content,
           sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
           downloadFallbackEnabled: true,
@@ -231,7 +311,7 @@ class FileExport {
           persist: false,
           showCloseIcon: true,
           closeIconColor: onErrorContainerColor,
-          content: Text('Error sharing file: $e'),
+          content: Text('Error sharing text: $e'),
           backgroundColor: errorContainerColor,
         ),
       );

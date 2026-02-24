@@ -64,11 +64,11 @@ class FAQPage extends StatelessWidget {
     final appSettings = context.read<AppSettings>();
 
     final faqSections = Map.fromEntries(_faqSections.entries.where((entry) {
-        switch (entry.key) {
+      switch (entry.key) {
         case "Person": return appSettings.enablePerson;
         case "Rating": return appSettings.enableRating;
         default: return true;
-        }
+      }
     }));
 
     return Scaffold(

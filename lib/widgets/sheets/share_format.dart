@@ -4,12 +4,16 @@ import 'sheet.dart';
 class SelectShareFormatSheetContent extends StatelessWidget {
   final VoidCallback onJson;
   final VoidCallback onText;
+  final VoidCallback onCsv;
+  final VoidCallback onXlsx;
   final VoidCallback? onBack;
 
   const SelectShareFormatSheetContent({
     super.key, 
     required this.onJson, 
     required this.onText, 
+    required this.onCsv,
+    required this.onXlsx,
     this.onBack,
   });
 
@@ -46,9 +50,23 @@ class SelectShareFormatSheetContent extends StatelessWidget {
                     onTap: onJson,
                   ),
                   ListTile(
+                    leading: Icon(Icons.table_view, color: Theme.of(context).colorScheme.primary),
+                    title: const Text("Excel Spreadsheet"),
+                    subtitle: const Text("Best for analysis in Excel or Google Sheets (XLSX)."),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                    onTap: onXlsx,
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.grid_on, color: Theme.of(context).colorScheme.primary),
+                    title: const Text("CSV File"),
+                    subtitle: const Text("Simple tabular format (Comma Separated Values)."),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                    onTap: onCsv,
+                  ),
+                  ListTile(
                     leading: Icon(Icons.text_snippet, color: Theme.of(context).colorScheme.primary),
                     title: const Text("Plain Text"),
-                    subtitle: const Text("Best for sharing setup details in chats or notes. Cannot be re-imported."),
+                    subtitle: const Text("Best for sharing setup details in chats or notes."),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: onText,
                   ),

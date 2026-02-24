@@ -79,4 +79,28 @@ class Bike {
       stravaGear,
     );
   }
+
+  Bike copyWith({
+    Object? id = const _Sentinel(),
+    Object? isDeleted = const _Sentinel(),
+    Object? lastModified = const _Sentinel(),
+    Object? name = const _Sentinel(),
+    Object? notes = const _Sentinel(),
+    Object? person = const _Sentinel(),
+    Object? stravaGear = const _Sentinel(),
+  }) {
+    return Bike(
+      id: id is _Sentinel ? this.id : (id as String),
+      isDeleted: isDeleted is _Sentinel ? this.isDeleted : (isDeleted as bool),
+      lastModified: lastModified is _Sentinel ? this.lastModified : (lastModified as DateTime),
+      name: name is _Sentinel ? this.name : (name as String),
+      notes: notes is _Sentinel ? this.notes : (notes as String?),
+      person: person is _Sentinel ? this.person : (person as String?),
+      stravaGear: stravaGear is _Sentinel ? this.stravaGear : (stravaGear as String?),
+    );
+  }
+}
+
+class _Sentinel {
+  const _Sentinel();
 }

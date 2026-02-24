@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import '../../models/app_settings.dart';
+import '../../models/bike.dart';
+import '../../models/app_data.dart';
 import '../../models/filtered_data.dart';
 import '../../services/strava_service.dart';
 import 'sheet.dart';
@@ -137,19 +139,42 @@ class StravaSheet extends StatelessWidget {
                         runSpacing: 4,
                         children: gears.map((g) {
                           final linkedBike = filteredData.bikes.values.firstWhereOrNull((b) => b.stravaGear == g.id);
+                          final unlinkedBikes = filteredData.bikes.values.where((b) => b.stravaGear == null).toList();
+
+                          final Widget chip = Chip(
+                            avatar: linkedBike == null
+                                ? Icon(Icons.link_off, color: Theme.of(context).colorScheme.error)
+                                : const Icon(Icons.link),
+                            label: Text(g.name),
+                          );
+
+                          if (linkedBike == null && unlinkedBikes.isNotEmpty) {
+                            return PopupMenuButton<Bike>(
+                              tooltip: "Link to Bike",
+                              onSelected: (Bike bike) {
+                                final updatedBike = bike.copyWith(stravaGear: g.id);
+                                context.read<AppData>().editBike(updatedBike);
+                              },
+                              itemBuilder: (BuildContext context) {
+                                return unlinkedBikes.map((Bike bike) {
+                                  return PopupMenuItem<Bike>(
+                                    value: bike,
+                                    child: Text("Link to '${bike.name}'"),
+                                  );
+                                }).toList();
+                              },
+                              child: chip,
+                            );
+                          }
+
                           return Tooltip(
                             triggerMode: TooltipTriggerMode.tap,
                             preferBelow: false,
                             showDuration: const Duration(seconds: 5),
                             message: linkedBike == null
-                                ? "Strava Gear is not linked yet. For linking, edit the Bike you want to link in the Bike tab."
-                                : "Strava Gear is linked to the Bike '${linkedBike.name}'",
-                            child: Chip(
-                              avatar: linkedBike == null
-                                  ? Icon(Icons.link_off, color: Theme.of(context).colorScheme.error)
-                                  : Icon(Icons.link),
-                              label: Text(g.name),
-                            ),
+                                ? "Strava Gear '${g.name}' is not linked yet. For linking, edit the Bike you want to link in the Bike tab."
+                                : "Strava Gear '${g.name}' is linked to the Bike '${linkedBike.name}'",
+                            child: chip,
                           );
                         }).toList(),
                       ),

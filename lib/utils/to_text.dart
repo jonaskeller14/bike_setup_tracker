@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/adjustment/adjustment.dart';
+import '../models/filtered_data.dart';
 import '../models/app_data.dart';
 import '../models/app_settings.dart';
+import '../models/setup.dart';
 
 
 String toText({
@@ -78,5 +80,45 @@ String toText({
     sections.add(sectionItems.join("\n"));
   }
 
+  return sections.join("\n-----------\n\n");
+}
+
+String setupToText({
+  required BuildContext context,
+  required Setup setup,
+}) {
+  //TODO: Location, Address, Weather context, person values, rating values
+  final appSettings = context.read<AppSettings>();
+  final filteredData = context.read<FilteredData>();
+
+  final List<String> sections = [];
+
+  final List<String> sectionItems = [];
+  final dateString = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
+  final timeString = DateFormat(appSettings.timeFormat).format(setup.datetimeLocal);
+
+  if (appSettings.enablePerson) {
+    sectionItems.add("🎛️ $dateString $timeString - ${setup.name} (${filteredData.bikes[setup.bike]?.name ?? '-'} | ${filteredData.persons[setup.person]?.name ?? '-'})${setup.isDeleted ? ' [DELETED]' : ''}");
+  } else {
+    sectionItems.add("🎛️ $dateString $timeString - ${setup.name} (${filteredData.bikes[setup.bike]?.name ?? '-'})${setup.isDeleted ? ' [DELETED]' : ''}");
+  }
+
+  if (setup.notes != null) sectionItems.add(setup.notes!);
+
+  final components = filteredData.components.values;
+  for (final component in components) {
+    if (!component.adjustments.any((adj) => setup.bikeAdjustmentValues.containsKey(adj.id))) continue;
+
+    sectionItems.add("- ${component.name}");
+    for (final adjustment in component.adjustments) {
+      sectionItems.add("\t- ${adjustment.name}: ${Adjustment.formatValue(setup.bikeAdjustmentValues[adjustment.id])}${adjustment.unitSuffix()}");
+    }
+    //FIXME: Dangling adjustmentvalues
+    //FIXME: Person adjustmentValues
+    //FIXME: Rating adjustmentValues
+  }
+
+  sectionItems.add("\n");
+  sections.add(sectionItems.join("\n"));
   return sections.join("\n-----------\n\n");
 }

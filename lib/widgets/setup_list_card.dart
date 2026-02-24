@@ -7,6 +7,8 @@ import '../models/bike.dart';
 import '../models/weather.dart';
 import '../models/app_settings.dart';
 import 'adjustment_compact_display_list.dart';
+import '../utils/file_export.dart';
+import '../utils/to_text.dart';
 
 class SetupListCard extends StatelessWidget {
   final String setupId;
@@ -54,6 +56,18 @@ class SetupListCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  void _shareSetup(BuildContext context, {required Setup setup}) async {
+    final String content = setupToText(
+      context: context,
+      setup: setup,
+    );
+    
+    await FileExport.shareText(
+      context: context, 
+      content: content
     );
   }
 
@@ -230,19 +244,18 @@ class SetupListCard extends StatelessWidget {
             ),
         ],
       ),
-      trailing: PopupMenuButton<String>(
-        onSelected: (value) {
-          if (value == 'edit') {
-            editSetup(setup);
-          } else if (value == 'restore') {
-            restoreSetup(setup);
-          } else if (value == 'remove') {
-            removeSetup(setup);
+      trailing: PopupMenuButton<_SetupListCardPopupMenuButtonOptions>(
+        onSelected: (_SetupListCardPopupMenuButtonOptions value) {
+          switch (value) {
+            case _SetupListCardPopupMenuButtonOptions.edit: editSetup(setup);
+            case _SetupListCardPopupMenuButtonOptions.share: _shareSetup(context, setup: setup);
+            case _SetupListCardPopupMenuButtonOptions.restore: restoreSetup(setup);
+            case _SetupListCardPopupMenuButtonOptions.remove: removeSetup(setup);
           }
         },
-        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-          const PopupMenuItem<String>(
-            value: 'edit',
+        itemBuilder: (BuildContext context) => <PopupMenuEntry<_SetupListCardPopupMenuButtonOptions>>[
+          const PopupMenuItem<_SetupListCardPopupMenuButtonOptions>(
+            value: _SetupListCardPopupMenuButtonOptions.edit,
             child: Row(
               children: [
                 Icon(Icons.edit, size: 20),
@@ -251,8 +264,18 @@ class SetupListCard extends StatelessWidget {
               ],
             ),
           ),
-          const PopupMenuItem<String>(
-            value: 'restore',
+          const PopupMenuItem<_SetupListCardPopupMenuButtonOptions>(
+            value: _SetupListCardPopupMenuButtonOptions.share,
+            child: Row(
+              children: [
+                Icon(Icons.share, size: 20),
+                SizedBox(width: 10),
+                Text('Share'),
+              ],
+            ),
+          ),
+          const PopupMenuItem<_SetupListCardPopupMenuButtonOptions>(
+            value: _SetupListCardPopupMenuButtonOptions.restore,
             child: Row(
               children: [
                 Icon(Icons.restore, size: 20),
@@ -261,8 +284,8 @@ class SetupListCard extends StatelessWidget {
               ],
             ),
           ),
-          const PopupMenuItem<String>(
-            value: 'remove',
+          const PopupMenuItem<_SetupListCardPopupMenuButtonOptions>(
+            value: _SetupListCardPopupMenuButtonOptions.remove,
             child: Row(
               children: [
                 Icon(Icons.delete, size: 20),
@@ -328,4 +351,11 @@ class SetupListCard extends StatelessWidget {
       ),
     );
   }
+}
+
+enum _SetupListCardPopupMenuButtonOptions {
+  edit,
+  share,
+  restore,
+  remove,
 }

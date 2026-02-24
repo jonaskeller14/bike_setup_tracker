@@ -35,7 +35,7 @@ Future<void> shareData(BuildContext context) async {
         selectedComponents: shareResult.appData.components.keys.toList(), 
         selectedSetups: shareResult.appData.setups.keys.toList(),
       );
-      FileExport.shareText(
+      await FileExport.shareText(
         context: context,
         content: content,
       );

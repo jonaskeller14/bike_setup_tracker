@@ -95,12 +95,16 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
       indent: 0,
       endIndent: 0,
     );
-    columnChildren = columnChildren.expand((item) sync* { yield item; if (item != columnChildren.last) yield horizontalDivider; }).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start, 
       mainAxisSize: MainAxisSize.min, 
-      children: columnChildren
+      children: [
+        for (var i = 0; i < columnChildren.length; i++) ...[
+          columnChildren[i],
+          if (i < columnChildren.length - 1) horizontalDivider,
+        ],
+      ],
     );
   }
 }
@@ -126,6 +130,7 @@ class _AdjustmentTableRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final filteredData = context.read<FilteredData>();
     final components = filteredData.components;
+    final dividerColor = Theme.of(context).colorScheme.outline.withValues(alpha: 0.5);
     
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,34 +167,32 @@ class _AdjustmentTableRow extends StatelessWidget {
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final items = adjustmentValues;
-
-              items.removeWhere((adjustment, value) {
-                final previousValue = previousAdjustmentValues[adjustment];
-                return (displayOnlyChanges && previousValue != null && value == previousValue);
-              });
-
-              List<Widget> children = items.entries.map((entry) {
-                final adjustment = entry.key;
-                final value = entry.value;
-                final previousValue = previousAdjustmentValues[adjustment];
-
-                return _AdjustmentTableCell(
-                  adjustment: adjustment,
-                  value: value,
-                  previousValue: previousValue,
-                  highlightInitialValues: highlightInitialValues,
-                  maxWidth: items.length > 1 ? ((constraints.maxWidth - 2*1) / 2) : double.infinity,  // Vertical divider width = 1, two dividers
-                );
+              final items = adjustmentValues.entries.where((entry) {
+                if (!displayOnlyChanges) return true;
+                final previousValue = previousAdjustmentValues[entry.key];
+                return previousValue == null || entry.value != previousValue;
               }).toList();
-
-              final verticalDivider = _VerticalDivider(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5));
-              children = children.expand((item) sync* { yield item; if (item != children.last) yield verticalDivider; }).toList();
-
-              return Wrap(
-                alignment: WrapAlignment.start,
-                children: children,
-              );
+              
+              return items.isEmpty
+                  ? const SizedBox.shrink()
+                  : Wrap(
+                      alignment: WrapAlignment.start,
+                      children: [
+                        for (var i = 0; i < items.length; i++) ...[
+                          _AdjustmentTableCell(
+                            adjustment: items[i].key,
+                            value: items[i].value,
+                            previousValue: previousAdjustmentValues[items[i].key],
+                            highlightInitialValues: highlightInitialValues,
+                            maxWidth: (items.length > 1 && i < items.length - 1)
+                                ? ((constraints.maxWidth - 2) / 2) 
+                                : double.infinity,
+                          ),
+                          if (i < items.length - 1)
+                            _VerticalDivider(color: dividerColor),
+                        ],
+                      ],
+                    );
             },
           ),
         )
@@ -298,8 +301,15 @@ class _AdjustmentTableCell extends StatelessWidget {
         case NumericalAdjustment():
         case DurationAdjustment():
         case StepAdjustment():
-          dynamic changeValue = value - previousValue;
-          changeText = changeValue > 0 ? "+${Adjustment.formatValue(changeValue)}" : Adjustment.formatValue(changeValue);
+          if ((value is num && previousValue is num) || (value is Duration && previousValue is Duration)) {
+            final dynamic changeValue = value - previousValue;
+            changeText = (changeValue is num ? changeValue > 0 : !changeValue.isNegative) 
+                ? "+${Adjustment.formatValue(changeValue)}" 
+                : Adjustment.formatValue(changeValue);
+          } else {
+            changeDecoration = TextDecoration.lineThrough;
+            changeText = Adjustment.formatValue(previousValue);
+          }
       }
     }
 

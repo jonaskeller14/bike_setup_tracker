@@ -6,7 +6,7 @@ import '../models/filtered_data.dart';
 import '../models/app_data.dart';
 import '../models/app_settings.dart';
 import '../models/setup.dart';
-
+import '../models/weather.dart';
 
 String toText({
   required BuildContext context,
@@ -16,109 +16,194 @@ String toText({
   required List<String> selectedComponents,
   required List<String> selectedSetups,
 }) {
-  //TODO: Location, Address, Weather context, person values, rating values
-  //Add components section or list them below bike (with Component.notes)
   final appSettings = context.read<AppSettings>();
+  final buffer = StringBuffer();
 
-  final List<String> sections = [];
-  
   final persons = appData.persons.values.where((p) => selectedPersons.contains(p.id));
   if (appSettings.enablePerson && persons.isNotEmpty) {
-    final List<String> sectionItems = ["PROFILES:"];
-    sectionItems.addAll(persons.map((p) => "👤 ${p.name}${p.isDeleted ? ' [DELETED]' : ''}"));
-
-    sections.add(sectionItems.join("\n"));
+    buffer.writeln("PROFILES:");
+    for (final p in persons) {
+      buffer.writeln("👤 ${p.name}${p.isDeleted ? ' [DELETED]' : ''}");
+    }
+    buffer.writeln("\n-----------\n");
   }
 
   final bikes = appData.bikes.values.where((b) => selectedBikes.contains(b.id));
   if (bikes.isNotEmpty) {
-    final List<String> sectionItems = ["BIKES:"];
+    buffer.writeln("BIKES:");
     for (final b in bikes) {
       if (appSettings.enablePerson) {
-        sectionItems.add("🚲 ${b.name} (${appData.persons[b.person]?.name ?? '-'})${b.isDeleted ? ' [DELETED]' : ''}");
-
+        buffer.writeln("🚲 ${b.name} (${appData.persons[b.person]?.name ?? '-'})${b.isDeleted ? ' [DELETED]' : ''}");
       } else {
-        sectionItems.add("🚲 ${b.name}${b.isDeleted ? ' [DELETED]' : ''}");
+        buffer.writeln("🚲 ${b.name}${b.isDeleted ? ' [DELETED]' : ''}");
       }
-      if (b.notes != null) sectionItems.add(b.notes!);
+      if (b.notes != null && b.notes!.isNotEmpty) buffer.writeln(b.notes!);
     }
-
-    sections.add(sectionItems.join("\n"));
+    buffer.writeln("\n-----------\n");
   }
 
-  final setups = appData.setups.values.where((s) => selectedSetups.contains(s.id));
+  final setups = appData.setups.values.where((s) => selectedSetups.contains(s.id)).toList();
+  setups.sort((a, b) => b.datetime.compareTo(a.datetime)); // Sort newest first
+
   if (setups.isNotEmpty) {
-    final List<String> sectionItems = ["SETUPS:"];
-    for (final setup in setups) {
-      final dateString = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
-      final timeString = DateFormat(appSettings.timeFormat).format(setup.datetimeLocal);
-
-      if (appSettings.enablePerson) {
-        sectionItems.add("🎛️ $dateString $timeString - ${setup.name} (${appData.bikes[setup.bike]?.name ?? '-'} | ${appData.persons[setup.person]?.name ?? '-'})${setup.isDeleted ? ' [DELETED]' : ''}");
-      } else {
-        sectionItems.add("🎛️ $dateString $timeString - ${setup.name} (${appData.bikes[setup.bike]?.name ?? '-'})${setup.isDeleted ? ' [DELETED]' : ''}");
+    buffer.writeln("SETUPS:");
+    for (int i = 0; i < setups.length; i++) {
+      final setup = setups[i];
+      _appendSetupText(buffer, setup, appData.bikes, appData.persons, appData.components, appData.ratings, appSettings);
+      if (i < setups.length - 1) {
+        buffer.writeln("\n-----------\n");
       }
-
-      if (setup.notes != null) sectionItems.add(setup.notes!);
-
-      final components = appData.components.values.where((c) => selectedComponents.contains(c.id));
-      for (final component in components) {
-        if (!component.adjustments.any((adj) => setup.bikeAdjustmentValues.containsKey(adj.id))) continue;
-
-        sectionItems.add("- ${component.name}");
-        for (final adjustment in component.adjustments) {
-          sectionItems.add("\t- ${adjustment.name}: ${Adjustment.formatValue(setup.bikeAdjustmentValues[adjustment.id])}${adjustment.unitSuffix()}");
-        }
-        //FIXME: Dangling adjustmentvalues
-        //FIXME: Person adjustmentValues
-        //FIXME: Rating adjustmentValues
-      }
-
-      sectionItems.add("\n");
-      
     }
-    sections.add(sectionItems.join("\n"));
   }
 
-  return sections.join("\n-----------\n\n");
+  return buffer.toString();
 }
 
 String setupToText({
   required BuildContext context,
   required Setup setup,
 }) {
-  //TODO: Location, Address, Weather context, person values, rating values
   final appSettings = context.read<AppSettings>();
   final filteredData = context.read<FilteredData>();
+  final buffer = StringBuffer();
 
-  final List<String> sections = [];
+  _appendSetupText(
+    buffer, 
+    setup, 
+    filteredData.bikes, 
+    filteredData.persons, 
+    filteredData.components, 
+    filteredData.ratings, 
+    appSettings
+  );
 
-  final List<String> sectionItems = [];
-  final dateString = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
-  final timeString = DateFormat(appSettings.timeFormat).format(setup.datetimeLocal);
+  return buffer.toString();
+}
 
-  if (appSettings.enablePerson) {
-    sectionItems.add("🎛️ $dateString $timeString - ${setup.name} (${filteredData.bikes[setup.bike]?.name ?? '-'} | ${filteredData.persons[setup.person]?.name ?? '-'})${setup.isDeleted ? ' [DELETED]' : ''}");
+void _appendSetupText(
+  StringBuffer buffer, 
+  Setup setup, 
+  Map<String, dynamic> bikes, 
+  Map<String, dynamic> persons, 
+  Map<String, dynamic> components, 
+  Map<String, dynamic> ratings,
+  AppSettings settings
+) {
+  final dateString = DateFormat(settings.dateFormat).format(setup.datetimeLocal);
+  final timeString = DateFormat(settings.timeFormat).format(setup.datetimeLocal);
+
+  final bikeName = bikes[setup.bike]?.name ?? '-';
+  final personName = persons[setup.person]?.name ?? '-';
+
+  if (settings.enablePerson) {
+    buffer.writeln("🎛️ $dateString $timeString - ${setup.name} ($bikeName | $personName)${setup.isDeleted ? ' [DELETED]' : ''}");
   } else {
-    sectionItems.add("🎛️ $dateString $timeString - ${setup.name} (${filteredData.bikes[setup.bike]?.name ?? '-'})${setup.isDeleted ? ' [DELETED]' : ''}");
+    buffer.writeln("🎛️ $dateString $timeString - ${setup.name} ($bikeName)${setup.isDeleted ? ' [DELETED]' : ''}");
   }
 
-  if (setup.notes != null) sectionItems.add(setup.notes!);
+  // Location & Weather Context compact oneliner
+  final contextLine = _generateContextLine(setup, settings);
+  if (contextLine.isNotEmpty) {
+    buffer.writeln(contextLine);
+  }
 
-  final components = filteredData.components.values;
-  for (final component in components) {
+  if (setup.notes != null && setup.notes!.isNotEmpty) {
+    buffer.writeln(setup.notes!);
+  }
+
+  if (setup.tags.isNotEmpty) {
+    buffer.writeln("🏷️ ${setup.tags.join(', ')}");
+  }
+
+  // Person Attributes
+  if (settings.enablePerson && setup.personAdjustmentValues.isNotEmpty) {
+    final person = persons[setup.person];
+    if (person != null) {
+      buffer.writeln("\n👤 ${person.name} Attributes:");
+      for (final adj in person.adjustments) {
+        if (setup.personAdjustmentValues.containsKey(adj.id)) {
+          buffer.writeln("- ${adj.name}: ${Adjustment.formatValue(setup.personAdjustmentValues[adj.id])}${adj.unitSuffix()}");
+        }
+      }
+    }
+  }
+
+  // Component Adjustments
+  for (final component in components.values) {
     if (!component.adjustments.any((adj) => setup.bikeAdjustmentValues.containsKey(adj.id))) continue;
 
-    sectionItems.add("- ${component.name}");
+    buffer.writeln("\n- ${component.name}");
     for (final adjustment in component.adjustments) {
-      sectionItems.add("\t- ${adjustment.name}: ${Adjustment.formatValue(setup.bikeAdjustmentValues[adjustment.id])}${adjustment.unitSuffix()}");
+      if (setup.bikeAdjustmentValues.containsKey(adjustment.id)) {
+        buffer.writeln("\t- ${adjustment.name}: ${Adjustment.formatValue(setup.bikeAdjustmentValues[adjustment.id])}${adjustment.unitSuffix()}");
+      }
     }
-    //FIXME: Dangling adjustmentvalues
-    //FIXME: Person adjustmentValues
-    //FIXME: Rating adjustmentValues
   }
 
-  sectionItems.add("\n");
-  sections.add(sectionItems.join("\n"));
-  return sections.join("\n-----------\n\n");
+  // Rating Metrics
+  if (settings.enableRating && setup.ratingAdjustmentValues.isNotEmpty) {
+    buffer.writeln("\n📊 Ratings:");
+    for (final rating in ratings.values) {
+      for (final adj in rating.adjustments) {
+        if (setup.ratingAdjustmentValues.containsKey(adj.id)) {
+          buffer.writeln("- ${adj.name}: ${Adjustment.formatValue(setup.ratingAdjustmentValues[adj.id])}${adj.unitSuffix()}");
+        }
+      }
+    }
+  }
+}
+
+String _generateContextLine(Setup setup, AppSettings settings) {
+  final parts = <String>[];
+
+  // Location
+  final city = setup.place?.locality ?? '';
+  final country = setup.place?.isoCountryCode ?? '';
+  final altitude = setup.position?.altitude;
+  
+  String locationStr = '';
+  if (city.isNotEmpty || country.isNotEmpty) {
+    locationStr = city.isNotEmpty && country.isNotEmpty ? '$city, $country' : city;
+  }
+  
+  if (altitude != null) {
+    final altVal = Setup.convertAltitudeFromMeters(altitude, settings.altitudeUnit)?.round() ?? altitude.round();
+    locationStr += locationStr.isNotEmpty ? ' ($altVal ${settings.altitudeUnit})' : '$altVal ${settings.altitudeUnit}';
+  }
+
+  if (locationStr.isNotEmpty) {
+    parts.add("📍 $locationStr");
+  }
+
+  // Weather
+  final w = setup.weather;
+  if (w != null) {
+    final weatherParts = <String>[];
+    final label = w.getWeatherCodeLabel();
+    if (label != null) weatherParts.add(label);
+    
+    if (w.currentTemperature != null) {
+      final temp = Weather.convertTemperatureFromCelsius(w.currentTemperature, settings.temperatureUnit)?.round() ?? w.currentTemperature!.round();
+      weatherParts.add('$temp ${settings.temperatureUnit}');
+    }
+
+    if (w.currentHumidity != null) {
+      weatherParts.add('${w.currentHumidity!.round()} % Humidity');
+    }
+
+    if (w.currentWindSpeed != null) {
+      final speed = Weather.convertWindSpeedFromKmh(w.currentWindSpeed, settings.windSpeedUnit)?.round() ?? w.currentWindSpeed!.round();
+      weatherParts.add('$speed ${settings.windSpeedUnit} Wind');
+    }
+
+    if (w.condition != null) {
+      weatherParts.add(w.condition!.value);
+    }
+
+    if (weatherParts.isNotEmpty) {
+      parts.add("☁️ ${weatherParts.join(', ')}");
+    }
+  }
+
+  return parts.join(" | ");
 }

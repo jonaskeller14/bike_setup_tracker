@@ -41,7 +41,7 @@ void showRatingAddAdjustmentBottomSheet({
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: sheetTitle(context, "Add Attribute"),
+              child: sheetTitle(context, "Add Metric"),
             ),
             const SizedBox(height: 16),
             Flexible(
@@ -79,7 +79,7 @@ void showRatingAddAdjustmentBottomSheet({
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                         child: Text(
-                          "Custom Attribute",
+                          "Custom Metrics",
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
@@ -91,7 +91,7 @@ void showRatingAddAdjustmentBottomSheet({
                     ],
                     ListTile(
                       leading: Icon(NumericalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: Text("Numerical Attribute"),
+                      title: Text("Numerical Metric"),
                       subtitle: Text("Body Weight, Height, Age", style: const TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () {
@@ -101,7 +101,7 @@ void showRatingAddAdjustmentBottomSheet({
                     ),
                     ListTile(
                       leading: Icon(StepAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: Text("Step Attribute"),
+                      title: Text("Step Metric"),
                       subtitle: Text("Increments", style: const TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () {
@@ -111,7 +111,7 @@ void showRatingAddAdjustmentBottomSheet({
                     ),
                     ListTile(
                       leading: Icon(CategoricalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: Text("Categorical Attribute"),
+                      title: Text("Categorical Metric"),
                       subtitle: Text("Training status, Riding Gear, Riding style", style: const TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () {
@@ -121,7 +121,7 @@ void showRatingAddAdjustmentBottomSheet({
                     ),
                     ListTile(
                       leading: Icon(BooleanAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: Text("On/Off Attribute"),
+                      title: Text("On/Off Metric"),
                       subtitle: Text("Wearing a backpack?", style: const TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () {
@@ -132,8 +132,8 @@ void showRatingAddAdjustmentBottomSheet({
                     if (context.read<AppSettings>().enableTextAdjustment)
                       ListTile(
                         leading: Icon(TextAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                        title: Text("Text Attribute"),
-                        subtitle: Text("Flexible field for any other attribute", style: const TextStyle(fontSize: 12)),
+                        title: Text("Text Metric"),
+                        subtitle: Text("Flexible field for any other metric", style: const TextStyle(fontSize: 12)),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                         onTap: () {
                           Navigator.pop(context); // Close sheet first
@@ -142,7 +142,7 @@ void showRatingAddAdjustmentBottomSheet({
                       ),
                     ListTile(
                       leading: Icon(DurationAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: Text("Duration Attribute"),
+                      title: Text("Duration Metric"),
                       subtitle: Text("Perfect for recording laptimes", style: const TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () {

@@ -189,18 +189,15 @@ class _ComponentPageState extends State<ComponentPage> {
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
     _formHasChanges = false;
-    if (!mounted) return;
-    Navigator.pop(
-      context,
-      Component(
-        id: widget.mode == ComponentPageMode.edit ? widget.component?.id : null, 
-        name: name,
-        componentType: _componentType!,
-        bike: _bike,
-        notes: notes.isEmpty ? null : notes,
-        adjustments: _adjustments,
-      ),
-    );
+    
+    Navigator.pop(context, Component(
+      id: widget.mode == ComponentPageMode.edit ? widget.component?.id : null, 
+      name: name,
+      componentType: _componentType!,
+      bike: _bike,
+      notes: notes.isEmpty ? null : notes,
+      adjustments: _adjustments,
+    ));
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {
@@ -266,7 +263,7 @@ class _ComponentPageState extends State<ComponentPage> {
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
           child: CustomPaint(
-            painter: _DashedBorderPainter(
+            painter: DashedBorderPainter(
               color: errorText != null 
                   ? Theme.of(context).colorScheme.error 
                   : Theme.of(context).colorScheme.outlineVariant,
@@ -545,7 +542,9 @@ class _ComponentPageState extends State<ComponentPage> {
                         _adjustments.isNotEmpty
                             ? AdjustmentEditList(
                                 adjustments: _adjustments,
-                                initialAdjustments: widget.mode == ComponentPageMode.edit ? Map.fromEntries(widget.component!.adjustments.map((a) => MapEntry(a.id, a))) : null,
+                                initialAdjustments: widget.mode == ComponentPageMode.edit 
+                                    ? Map.fromEntries(widget.component!.adjustments.map((a) => MapEntry(a.id, a))) 
+                                    : null,
                                 editAdjustment: (a) => _editAdjustment(a, onChanged: notify),
                                 duplicateAdjustment: (a) => _duplicateAdjustment(a, onChanged: notify),
                                 removeAdjustment: (a) => removeAdjustment(a, onChanged: notify),
@@ -588,14 +587,14 @@ class _ComponentPageState extends State<ComponentPage> {
   }
 }
 
-class _DashedBorderPainter extends CustomPainter {
+class DashedBorderPainter extends CustomPainter {
   final Color color;
   final double strokeWidth;
   final double dashWidth;
   final double dashSpace;
   final double borderRadius;
 
-  _DashedBorderPainter({
+  DashedBorderPainter({
     required this.color,
     this.strokeWidth = 1.0,
     this.dashWidth = 5.0,
@@ -633,7 +632,7 @@ class _DashedBorderPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_DashedBorderPainter oldDelegate) =>
+  bool shouldRepaint(DashedBorderPainter oldDelegate) =>
       oldDelegate.color != color ||
       oldDelegate.strokeWidth != strokeWidth ||
       oldDelegate.dashWidth != dashWidth ||

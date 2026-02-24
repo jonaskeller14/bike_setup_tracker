@@ -7,6 +7,7 @@ import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/app_data.dart';
 import '../../models/filtered_data.dart';
+import '../../models/strava/strava_athlete.dart';
 import '../../services/strava_service.dart';
 import 'sheet.dart';
 import '../strava_list_tile.dart';
@@ -80,53 +81,14 @@ class StravaSheet extends StatelessWidget {
                         contentPadding: EdgeInsets.zero,
                       ),
                     const SizedBox(height: 8),
+                    
                     if (athletes.isEmpty)
-                      ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-                          child: Icon(Icons.person_off, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        ),
-                        title: Text("Not connected", style: const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: const Text("Connect to sync your rides"),
-                        trailing: ConstrainedBox(
-                          constraints: const BoxConstraints(
-                            maxHeight: 48,
-                            maxWidth: 80,
-                          ),
-                          child: Image.asset(
-                            'assets/strava/1.2-Strava-API-Logos/1.2-Strava-API-Logos/Powered by Strava/pwrdBy_strava_orange/api_logo_pwrdBy_strava_stack_orange.png',
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                        contentPadding: EdgeInsets.zero,
-                      )
-                    else
-                      ...athletes.map((athlete) => ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.transparent, 
-                          foregroundImage: athlete.profile == null 
-                              ? null 
-                              : NetworkImage(athlete.profile!), 
-                          onForegroundImageError: (exception, stackTrace) {},
-                          child: Icon(Icons.person, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        ),
-                        title: Text("${athlete.firstname} ${athlete.lastname}", style: const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text("Athlete ID: ${athlete.id}"),
-                        trailing: ConstrainedBox(
-                          constraints: const BoxConstraints(
-                            maxHeight: 48,
-                            maxWidth: 80,
-                          ),
-                          child: Image.asset(
-                            'assets/strava/1.2-Strava-API-Logos/1.2-Strava-API-Logos/Powered by Strava/pwrdBy_strava_orange/api_logo_pwrdBy_strava_stack_orange.png',
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                        contentPadding: EdgeInsets.zero,
-                      )),
-                    if (stravaService.isConnected) ...[
+                      _emptyAthletePlaceholder(context),
+                    ...athletes.map((a) => _athleteListTile(context, stravaAthletes: a)),
+
+                    if (stravaService.isConnected)
                       _buildSyncInfoSection(context, stravaService),
-                    ],
+                    
                     if (gears.isNotEmpty) ...[
                       const Divider(),
                       const Padding(
@@ -179,6 +141,7 @@ class StravaSheet extends StatelessWidget {
                         }).toList(),
                       ),
                     ],
+                    
                     if (latestActivities.isNotEmpty) ...[
                       const Divider(),
                       const Padding(
@@ -304,57 +267,122 @@ class StravaSheet extends StatelessWidget {
     );
   }
 
+  Widget _emptyAthletePlaceholder(BuildContext context) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+        child: Icon(Icons.person_off, color: Theme.of(context).colorScheme.onSurfaceVariant),
+      ),
+      title: Text("Not connected", style: const TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: const Text("Connect to sync your rides"),
+      trailing: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxHeight: 48,
+          maxWidth: 80,
+        ),
+        child: Image.asset(
+          'assets/strava/1.2-Strava-API-Logos/1.2-Strava-API-Logos/Powered by Strava/pwrdBy_strava_orange/api_logo_pwrdBy_strava_stack_orange.png',
+          fit: BoxFit.contain,
+        ),
+      ),
+      contentPadding: EdgeInsets.zero,
+    );
+  }
+
+  Widget _athleteListTile(BuildContext context, {required StravaAthlete stravaAthletes}) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: Colors.transparent, 
+        foregroundImage: stravaAthletes.profile == null 
+            ? null 
+            : NetworkImage(stravaAthletes.profile!), 
+        child: Icon(Icons.person, color: Theme.of(context).colorScheme.onSurfaceVariant),
+      ),
+      title: Text(
+        "${stravaAthletes.firstname} ${stravaAthletes.lastname}", 
+        style: const TextStyle(fontWeight: FontWeight.bold),
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: Text("Athlete ID: ${stravaAthletes.id}", overflow: TextOverflow.ellipsis),
+      trailing: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxHeight: 48,
+          maxWidth: 80,
+        ),
+        child: Image.asset(
+          'assets/strava/1.2-Strava-API-Logos/1.2-Strava-API-Logos/Powered by Strava/pwrdBy_strava_orange/api_logo_pwrdBy_strava_stack_orange.png',
+          fit: BoxFit.contain,
+        ),
+      ),
+      contentPadding: EdgeInsets.zero,
+    );
+  }
+
   Widget _buildSyncInfoSection(BuildContext context, StravaService stravaService) {
     final appSettings = context.watch<AppSettings>();
     final lastFull = stravaService.lastFullSync;
     final nextFull = stravaService.nextFullSync;
     final manualAvailableAt = stravaService.manualSyncAvailableAt;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ListTile(
-          leading: const Icon(Icons.sync_alt),
-          title: const Text("Auto-sync is active"),
-          subtitle: Column(
+    return ListTile(
+      leading: const Icon(Icons.sync_alt),
+      title: const Text("Auto-sync is active"),
+      subtitle: const Text("Activities import automatically after your ride."),
+      dense: true,
+      contentPadding: EdgeInsets.zero,
+      trailing: Tooltip(
+        triggerMode: TooltipTriggerMode.tap,
+        preferBelow: false,
+        showDuration: const Duration(seconds: 10),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.onSecondaryContainer,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [BoxShadow(color: Theme.of(context).colorScheme.shadow, blurRadius: 4, offset: const Offset(0, 2))],
+        ),
+        richMessage: WidgetSpan(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 4,
             children: [
+              Text("Bike Setup Tracker automatically imports new, updated, or deleted Strava activities in real-time. "
+                  "While most updates are instant, a full background sync also runs weekly to catch any missed changes. "
+                  "You can also trigger a manual sync once a week.", 
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSecondary,
+                  )),
+              const SizedBox(height: 6),
               Text(
                 lastFull != null
                     ? "Last full sync: ${DateFormat(appSettings.dateFormat).format(lastFull)} ${DateFormat(appSettings.timeFormat).format(lastFull)}"
                     : "No full sync yet",
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSecondary,
+                ),
               ),
               if (nextFull != null)
                 Text(
                   "Next scheduled sync: ${DateFormat(appSettings.dateFormat).format(nextFull)} ${DateFormat(appSettings.timeFormat).format(nextFull)}",
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: Theme.of(context).colorScheme.onSecondary,
                   ),
                 ),
               if (manualAvailableAt != null)
                 Text(
-                  "Manual sync available: ${DateFormat(appSettings.dateFormat).format(manualAvailableAt)} ${DateFormat(appSettings.timeFormat).format(manualAvailableAt)}",
+                  "Next Manual sync available: ${DateFormat(appSettings.dateFormat).format(manualAvailableAt)} ${DateFormat(appSettings.timeFormat).format(manualAvailableAt)}",
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: Theme.of(context).colorScheme.onSecondary,
                   ),
                 ),
             ],
           ),
-          dense: true,
-          contentPadding: EdgeInsets.zero,
-          trailing: Tooltip(
-            triggerMode: TooltipTriggerMode.tap,
-            preferBelow: false,
-            showDuration: const Duration(seconds: 5),
-            message: "Bike Setup Tracker automatically imports new, updated, or deleted Strava activities in real-time. While most updates are instant, a full background sync also runs weekly to catch any missed changes. You can also trigger a manual sync once a week.",
-            child: Icon(
-              Icons.info_outline,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              size: Theme.of(context).textTheme.bodyLarge?.fontSize,
-            ),
-          ),
         ),
-      ],
+        child: Icon(
+          Icons.info_outline,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          size: Theme.of(context).textTheme.bodyLarge?.fontSize,
+        ),
+      ),
     );
   }
 }

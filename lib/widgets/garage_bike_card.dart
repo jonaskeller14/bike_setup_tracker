@@ -10,6 +10,7 @@ import '../models/person.dart';
 import '../models/bike.dart';
 import '../models/rating.dart';
 import '../pages/bike_page.dart';
+import 'dashed_border_painter.dart';
 import 'component_list_card.dart';
 import 'garage_component_icon_card.dart';
 
@@ -83,6 +84,44 @@ class GarageBikeCard extends StatelessWidget{
         },
       ),
     ));
+  }
+
+  Widget _releaseToBikeWidget(BuildContext context) {
+    return CustomPaint(
+      painter: DashedBorderPainter(
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+        strokeWidth: 2,
+        dashWidth: 6,
+        dashSpace: 4,
+        borderRadius: 12,
+      ),
+      child: Container(
+        height: 60,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add_circle_outline,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              "Release to install to ${bike.name}",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -242,17 +281,7 @@ class GarageBikeCard extends StatelessWidget{
                 if (candidateData.isNotEmpty && candidateData.every((c) => c == null || c.bike != bike.id))
                   Padding(
                     padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                    child: Container(
-                      height: 40,
-                      padding: EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        border: Border.all(), 
-                        borderRadius: BorderRadius.all(Radius.circular(6)),
-                      ),
-                      child: const Center(
-                        child: Text("Release to install component to bike"),
-                      )
-                    ),
+                    child: _releaseToBikeWidget(context),
                   )
                 else
                   Padding(
@@ -283,11 +312,11 @@ class GarageBikeCard extends StatelessWidget{
                         ),
                         footer: IconButton.outlined(
                           onPressed: () => addComponent(), //FIXME: preselect bike
-                          padding: const EdgeInsets.all(6),
+                          padding: const EdgeInsets.all(8),
                           style: IconButton.styleFrom(
-                            side: BorderSide(color: Theme.of(context).colorScheme.outline),
+                            side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                           ),
                           icon: Icon(

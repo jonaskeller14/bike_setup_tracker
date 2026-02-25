@@ -44,6 +44,8 @@ void main() {
     await tester.tap(bikesDestination);
     await tester.pumpAndSettle();
 
+    appBar = tester.widget(find.byType(AppBar).last);
+    titleText = appBar.title as Text;
     expect(titleText.data, contains('Bikes'));
 
     final componentsDestination = find.descendant(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/component.dart';
 import '../models/filtered_data.dart';
+import 'dashed_border_painter.dart';
 import 'component_list_card.dart';
 import 'garage_component_icon_card.dart';
 
@@ -11,6 +12,67 @@ class GarageUninstalledCard extends StatelessWidget{
   final void Function(Component) onPressedComponent;
 
   const GarageUninstalledCard({super.key, required this.componentToShowDetails, required this.onPressedComponent});
+
+  Widget _releaseToDeinstallWidget(BuildContext context) {
+    return CustomPaint(
+      painter: DashedBorderPainter(
+        color: Theme.of(context).colorScheme.error.withValues(alpha: 0.5),
+        strokeWidth: 2,
+        dashWidth: 6,
+        dashSpace: 4,
+        borderRadius: 12,
+      ),
+      child: Container(
+        height: 60,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.archive_outlined,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              "Release to deinstall component",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+                fontWeight: FontWeight.bold,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _dragHereToDeinstall(BuildContext context) {
+    return CustomPaint(
+      painter: DashedBorderPainter(
+        color: Theme.of(context).colorScheme.outlineVariant,
+        strokeWidth: 1.5,
+        dashWidth: 6,
+        dashSpace: 4,
+        borderRadius: 12,
+      ),
+      child: Container(
+        height: 60,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Center(
+          child: Text("Drag components here to deinstall from bike"),
+        )
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,26 +102,14 @@ class GarageUninstalledCard extends StatelessWidget{
                 if (deinstalledComponents.isEmpty)
                   Padding(
                     padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(minHeight: 40),
-                      child: Container(
-                        padding: EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          border: Border.all(), 
-                          borderRadius: BorderRadius.all(Radius.circular(6)),
-                        ),
-                        child: const Center(
-                          child: Text("Drag components here to deinstall from bike"),
-                        )
-                      ),
-                    ),
+                    child: _dragHereToDeinstall(context),
                   )
                 else
                   Padding(
                     padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
                     child: Wrap( //TODO: make it draggable?!
-                      spacing: 6,
-                      runSpacing: 6,
+                      spacing: 0,  // GarageComponentIconCard --> margin = 8
+                      runSpacing: 8,
                       children: deinstalledComponents.values.map((component) => GestureDetector(
                         onTap: () => onPressedComponent(component),
                         child: GarageComponentIconCard(
@@ -72,19 +122,7 @@ class GarageUninstalledCard extends StatelessWidget{
               else
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: 40),
-                    child: Container(
-                      padding: EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        border: Border.all(), 
-                        borderRadius: BorderRadius.all(Radius.circular(6)),
-                      ),
-                      child: const Center(
-                        child: Text("Release to remove component from bike"),
-                      )
-                    ),
-                  ),
+                  child: _releaseToDeinstallWidget(context),
                 ),
               if (componentToShowDetails != null && deinstalledComponents.keys.contains(componentToShowDetails))
                 Padding(

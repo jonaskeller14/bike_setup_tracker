@@ -14,7 +14,7 @@ import 'adjustment/duration_adjustment_page.dart';
 import '../widgets/adjustment_edit_list.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/sheets/person_add_adjustment.dart';
-import 'component_page.dart';
+import '../widgets/dashed_border_painter.dart';
 
 enum PersonPageMode {
   add,

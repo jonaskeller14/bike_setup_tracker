@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'component_page.dart';
+import '../widgets/dashed_border_painter.dart';
 import '../models/app_settings.dart';
 import '../models/filtered_data.dart';
 import '../models/rating.dart';

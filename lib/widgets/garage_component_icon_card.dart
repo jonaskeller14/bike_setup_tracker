@@ -9,18 +9,39 @@ class GarageComponentIconCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isSelected = componentToShowDetails == component.id;
+    
     return Container(
-      key: ValueKey(component),
-      margin: const EdgeInsets.only(right: 6),
-      padding: const EdgeInsets.all(6),
+      key: ValueKey(component.id),
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        border: Border.all(color: Theme.of(context).colorScheme.outline), 
-        borderRadius: BorderRadius.all(Radius.circular(6)),
-        color: componentToShowDetails == component.id 
-            ? Theme.of(context).colorScheme.tertiaryContainer 
-            : Theme.of(context).colorScheme.surface,
+        color: isSelected 
+            ? colorScheme.tertiaryContainer 
+            : colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isSelected 
+              ? colorScheme.tertiary 
+              : colorScheme.outlineVariant,
+          width: isSelected ? 1.5 : 1.0,
+        ),
+        boxShadow: isSelected 
+            ? [BoxShadow(
+                color: colorScheme.tertiary.withValues(alpha: 0.2),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              )]
+            : null,
       ),
-      child: Icon(component.componentType.getIconData()),
+      child: Icon(
+        component.componentType.getIconData(),
+        size: 20,
+        color: isSelected 
+            ? colorScheme.onTertiaryContainer 
+            : colorScheme.onSurface,
+      ),
     );
   } 
 }

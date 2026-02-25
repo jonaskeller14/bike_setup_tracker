@@ -3,22 +3,34 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'sheet.dart';
 
-Future<Set<String>?> showSetTagsSheet({required BuildContext context, required Set<String> tags}) {
+Future<void> showSetTagsSheet({
+  required BuildContext context, 
+  required Set<String> tags,
+  required ValueChanged<Set<String>> onChanged,
+}) {
   return showModalBottomSheet(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
     context: context, 
     builder: (context) {
-      return SetTagsSheetContent(setupTags: tags.toSet());
+      return SetTagsSheetContent(
+        setupTags: tags.toSet(),
+        onChanged: onChanged,
+      );
     },
   );
 }
 
 class SetTagsSheetContent extends StatefulWidget {
   final Set<String> setupTags;
+  final ValueChanged<Set<String>> onChanged;
 
-  const SetTagsSheetContent({super.key, required this.setupTags});
+  const SetTagsSheetContent({
+    super.key, 
+    required this.setupTags,
+    required this.onChanged,
+  });
 
   @override
   State<StatefulWidget> createState() => _SetTagsSheetContentState();
@@ -59,6 +71,7 @@ class _SetTagsSheetContentState extends State<SetTagsSheetContent> {
       _formKey.currentState!.reset();
       _controller.text = "";
     });
+    widget.onChanged(_selectedTags);
   }
 
   @override
@@ -135,15 +148,19 @@ class _SetTagsSheetContentState extends State<SetTagsSheetContent> {
                               label: Text(tag),
                               selected: _selectedTags.contains(tag),
                               showCheckmark: false,
-                              onSelected: (bool newValue) {
-                                switch (newValue) {
-                                  case true: setState(() => _selectedTags.add(tag));
-                                  case false: setState(() => _selectedTags.remove(tag));
-                                }
-                              },
-                              onDeleted: _selectedTags.contains(tag)
-                                  ? () => setState(() => _selectedTags.remove(tag))
-                                  : null,
+                                onSelected: (bool newValue) {
+                                  switch (newValue) {
+                                    case true: setState(() => _selectedTags.add(tag));
+                                    case false: setState(() => _selectedTags.remove(tag));
+                                  }
+                                  widget.onChanged(_selectedTags);
+                                },
+                                onDeleted: _selectedTags.contains(tag)
+                                    ? () {
+                                        setState(() => _selectedTags.remove(tag));
+                                        widget.onChanged(_selectedTags);
+                                      }
+                                    : null,
                             );
                           }).toList(),
                         ),
@@ -152,14 +169,6 @@ class _SetTagsSheetContentState extends State<SetTagsSheetContent> {
             ),
           ),
           const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: () => Navigator.pop(context, _selectedTags),
-              child: const Text("Confirm Selection"),
-            ),
-          ),
           SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
         ],
       ),

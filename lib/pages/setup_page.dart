@@ -855,10 +855,12 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               ActionChip(
                 avatar: const Icon(Icons.add),
                 label: const Text("Tags"),
-                onPressed: () async {
-                  final newTags = await showSetTagsSheet(context: context, tags: _tags);
-                  if (newTags == null) return;
-                  setState(() => _tags = newTags);
+                onPressed: () {
+                  showSetTagsSheet(
+                    context: context, 
+                    tags: _tags,
+                    onChanged: (Set<String> newTags) => setState(() => _tags = newTags),
+                  );
                 },
               ),
             ],

@@ -9,6 +9,7 @@ import '../models/app_settings.dart';
 import '../models/app_data.dart';
 import '../models/filtered_data.dart';
 import '../widgets/chips/bike_and_tags_filter.dart';
+import '../widgets/garage_list.dart';
 import '../widgets/sheets/setup_list_values_filter.dart';
 import '../widgets/strava_sync_button.dart';
 import 'bike_page.dart';
@@ -82,46 +83,6 @@ class _HomePageState extends State<HomePage> {
 
   int currentPageIndex = 0;
 
-  Future<void> _removeBike(Bike bike) async {
-    final data = context.read<AppData>();
-    final filteredData = context.read<FilteredData>();
-
-    final obsoleteComponents = filteredData.components.values.where((c) => c.bike == bike.id).toList();
-    final obsoleteSetups = filteredData.setups.values.where((s) => s.bike == bike.id).toList();
-    final obsoleteRatings = filteredData.ratings.values.where((r) => r.filterType == FilterType.bike && r.filter == bike.id);
-
-    data.removeBike(bike);
-    data.removeComponents(obsoleteComponents);
-    data.removeSetups(obsoleteSetups);
-    data.removeRatings(obsoleteRatings);
-
-    String message = "Bike '${bike.name}' moved to trash.";
-    if (context.read<AppSettings>().enableRating) {
-      if (obsoleteComponents.isNotEmpty || obsoleteSetups.isNotEmpty || obsoleteRatings.isNotEmpty) {
-        message += "\n${obsoleteComponents.length} Components, ${obsoleteSetups.length} Setups and ${obsoleteRatings.length} Ratings which belong to this Bike are deleted as well.";
-      }
-    } else {
-      if (obsoleteComponents.isNotEmpty || obsoleteSetups.isNotEmpty) {
-        message += "\n${obsoleteComponents.length} Components, ${obsoleteSetups.length} Setups which belong to this Bike are deleted as well.";
-      }
-    }
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-      duration: const Duration(seconds: 10),
-      persist: false,
-      showCloseIcon: true,
-      action: SnackBarAction(
-        label: 'UNDO',
-        onPressed: () {
-          data.restoreBike(bike);
-          data.restoreComponents(obsoleteComponents);
-          data.restoreSetups(obsoleteSetups);
-          data.restoreRatings(obsoleteRatings);
-        },
-      ),
-    ));
-  }
-
   Future<void> _removePerson(Person person) async {
     final data = context.read<AppData>();
     final filteredData = context.read<FilteredData>();
@@ -177,22 +138,6 @@ class _HomePageState extends State<HomePage> {
       action: SnackBarAction(
         label: 'UNDO',
         onPressed: () => data.restoreSetups([setup]),
-      ),
-    ));
-  }
-
-  Future<void> _removeComponent(Component component) async {
-    final data = context.read<AppData>();
-    data.removeComponents([component]);
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text("Component '${component.name}' moved to trash."),
-      duration: const Duration(seconds: 5),
-      persist: false,
-      showCloseIcon: true,
-      action: SnackBarAction(
-        label: 'UNDO',
-        onPressed: () => data.restoreComponents([component]),
       ),
     ));
   }
@@ -257,20 +202,6 @@ class _HomePageState extends State<HomePage> {
     data.addComponent(component);
   }
 
-  Future<void> _editBike(Bike bike) async {
-    final data = context.read<AppData>();
-
-    final editedBike = await Navigator.push<Bike>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => BikePage.edit(bike: bike),
-      ),
-    );
-    if (editedBike == null) return;
-
-    data.editBike(editedBike);
-  }
-
   Future<void> _editPerson(Person person) async {
     final data = context.read<AppData>();
 
@@ -299,33 +230,7 @@ class _HomePageState extends State<HomePage> {
     data.editRating(editedRating);
   }
 
-  Future<void> _editComponent(Component component) async {
-    final data = context.read<AppData>();
 
-    final editedComponent = await Navigator.push<Component>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ComponentPage.edit(component: component),
-      ),
-    );
-    if (editedComponent == null) return;
-
-    data.editComponent(editedComponent);
-  }
-
-  Future<void> _duplicateComponent(Component component) async {
-    final data = context.read<AppData>();
-
-    final newComponent = await Navigator.push<Component>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ComponentPage.duplicate(component: component.deepCopy()),
-      ),
-    );
-    if (newComponent == null) return;
-
-    data.addComponent(newComponent);
-  }
 
   Future<void> _duplicatePerson(Person person) async {
     final data = context.read<AppData>();
@@ -584,6 +489,8 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         title: <Text>[
+          if (appSettings.enableGarage)
+            const Text("Garage"),
           const Text("Bikes"),
           const Text("Components"),
           const Text("Setup History"),
@@ -678,11 +585,11 @@ class _HomePageState extends State<HomePage> {
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         selectedIndex: currentPageIndex,
         onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
+          setState(() => currentPageIndex = index);
         },
         destinations: <Widget>[
+          if (appSettings.enableGarage)
+            const NavigationDestination(icon: Icon(Bike.iconData), label: "Garage"),
           NavigationDestination(icon: Badge(isLabelVisible: filteredData.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: const Icon(Bike.iconData)), label: 'Bikes'),
           const NavigationDestination(icon: Icon(Component.iconData), label: 'Components'),
           const NavigationDestination(icon: Icon(Setup.iconData), label: 'Setups'),
@@ -693,17 +600,17 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: <Widget>[
+        if (appSettings.enableGarage)
+          GarageList(
+            addComponent: _addComponent,
+            onReorderBikes: _onReorderBikes,
+          ),
         BikeList(
           bikes: filteredData.bikes,  //include bikes which are not filtered for
-          editBike: _editBike,
-          removeBike: _removeBike,
           onReorderBikes: _onReorderBikes,
         ),
         ComponentList(
           components: filteredData.filteredComponents,
-          editComponent: _editComponent,
-          duplicateComponent: _duplicateComponent,
-          removeComponent: _removeComponent,
           onReorderComponent: _onReorderComponents,
         ),
         SetupList(
@@ -717,7 +624,7 @@ class _HomePageState extends State<HomePage> {
           filterWidget: _setupListFilterWidget(),
           accending: _setupListSortAccending,
         ),
-        if (context.read<AppSettings>().enablePerson)
+        if (appSettings.enablePerson)
           PersonList(
             persons: filteredData.filteredPersons,
             editPerson: _editPerson,
@@ -725,7 +632,7 @@ class _HomePageState extends State<HomePage> {
             removePerson: _removePerson,
             onReorderPerson: _onReorderPerson,
           ),
-        if (context.read<AppSettings>().enableRating)
+        if (appSettings.enableRating)
           RatingList(
             ratings: filteredData.filteredRatings,
             editRating: _editRating,
@@ -735,6 +642,12 @@ class _HomePageState extends State<HomePage> {
           ),
       ][currentPageIndex],
       floatingActionButton: <Widget>[
+        FloatingActionButton(
+          heroTag: "addBike",
+          onPressed: _addBike,
+          tooltip: 'Add Bike',
+          child: const Icon(Icons.add),
+        ),
         FloatingActionButton(
           heroTag: "addBike",
           onPressed: _addBike,

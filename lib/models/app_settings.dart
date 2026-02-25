@@ -18,6 +18,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableSetupTags = false;
   bool _enableStrava = false;
   static const bool _enableMap = true;
+  static const bool _enableGarage = false;
 
   bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;
@@ -34,6 +35,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableSetupTags => _enableSetupTags;
   bool get enableStrava => _enableStrava;
   bool get enableMap => _enableMap;
+  bool get enableGarage => _enableGarage;
 
   set showOnboarding(bool newShowOnboarding) {
     if (_showOnboarding == newShowOnboarding) return;

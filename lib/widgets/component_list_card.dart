@@ -1,29 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
+import '../models/app_data.dart';
 import '../models/component.dart';
 import '../models/filtered_data.dart';
 import '../models/bike.dart';
+import '../pages/component_page.dart';
 import 'adjustment_compact_display_list.dart';
 import '../pages/component_overview_page.dart';
 
 class ComponentListCard extends StatelessWidget{
   final Component component;
-  final int index;
+  final int? index;
   final double? elevation;
-  final Future<void> Function(Component component) editComponent;
-  final Future<void> Function(Component component) duplicateComponent;
-  final Future<void> Function(Component component) removeComponent;
+  final Color? color;
 
   const ComponentListCard({
     super.key,
     required this.component,
-    required this.index,
+    this.index,
     this.elevation,
-    required this.editComponent,
-    required this.duplicateComponent,
-    required this.removeComponent,
+    this.color,
   });
+
+  Future<void> _editComponent(BuildContext context, {required Component component}) async {
+    final data = context.read<AppData>();
+
+    final editedComponent = await Navigator.push<Component>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ComponentPage.edit(component: component),
+      ),
+    );
+    if (editedComponent == null) return;
+
+    data.editComponent(editedComponent);
+  }
+
+  Future<void> _duplicateComponent(BuildContext context, {required Component component}) async {
+    final data = context.read<AppData>();
+
+    final newComponent = await Navigator.push<Component>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ComponentPage.duplicate(component: component.deepCopy()),
+      ),
+    );
+    if (newComponent == null) return;
+
+    data.addComponent(newComponent);
+  }
+
+  Future<void> _removeComponent(BuildContext context, {required Component component}) async {
+    final data = context.read<AppData>();
+    data.removeComponents([component]);
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text("Component '${component.name}' moved to trash."),
+      duration: const Duration(seconds: 5),
+      persist: false,
+      showCloseIcon: true,
+      action: SnackBarAction(
+        label: 'UNDO',
+        onPressed: () => data.restoreComponents([component]),
+      ),
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +78,7 @@ class ComponentListCard extends StatelessWidget{
       elevation: elevation,
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       clipBehavior: Clip.antiAlias, // Borderradius for InkWell
+      color: color,
       child: InkWell(
         onTap: enabled
             ? () async {
@@ -130,16 +173,17 @@ class ComponentListCard extends StatelessWidget{
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ReorderableDragStartListener(
-                    index: index,
-                    child: const Icon(Icons.drag_handle),
-                  ),
+                  if (index != null)
+                    ReorderableDragStartListener(
+                      index: index!,
+                      child: const Icon(Icons.drag_handle),
+                    ),
                   PopupMenuButton<String>(
                     onSelected: (value) {
                       switch (value) {
-                        case 'edit': editComponent(component);
-                        case 'duplicate': duplicateComponent(component);
-                        case 'remove': removeComponent(component);
+                        case 'edit': _editComponent(context, component: component);
+                        case 'duplicate': _duplicateComponent(context, component: component);
+                        case 'remove': _removeComponent(context, component: component);
                       }
                     },
                     itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[

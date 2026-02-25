@@ -68,6 +68,44 @@ class Component {
     );
   }
 
+  Component copyWith({
+    Object? id = const _Sentinel(),
+    Object? isDeleted= const _Sentinel(),
+    Object? lastModified = const _Sentinel(),
+    Object? name = const _Sentinel(),
+    Object? notes = const _Sentinel(),
+    Object? componentType = const _Sentinel(),
+    Object? adjustments = const _Sentinel(),
+    Object? bike = const _Sentinel(),
+  }) {
+    return Component(
+      id: id is _Sentinel
+          ? this.id
+          : (id as String),
+      isDeleted: isDeleted is _Sentinel
+          ? this.isDeleted
+          : (isDeleted as bool),
+      lastModified: lastModified is _Sentinel
+          ? this.lastModified
+          : (lastModified as DateTime),
+      name: name is _Sentinel
+          ? this.name
+          : (notes as String), 
+      notes: name is _Sentinel
+          ? this.name
+          : (notes as String?),
+      componentType: componentType is _Sentinel
+          ? this.componentType
+          : (componentType as ComponentType),
+      adjustments: adjustments is _Sentinel
+          ? this.adjustments
+          : (adjustments as List<Adjustment>),
+      bike: bike is _Sentinel
+          ? this.bike
+          : (bike as String?),  
+    );
+  }
+
   Map<String, dynamic> toJson() => {
     'version': 1,
     'id': id,
@@ -132,4 +170,8 @@ class Component {
       Object.hashAll(adjustments),
     );
   }
+}
+
+class _Sentinel {
+  const _Sentinel();
 }

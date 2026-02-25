@@ -6,17 +6,11 @@ import 'chips/component_list_filter_widget.dart';
 
 class ComponentList extends StatelessWidget {
   final Map<String, Component> components;
-  final Future<void> Function(Component component) editComponent;
-  final Future<void> Function(Component component) duplicateComponent;
-  final Future<void> Function(Component component) removeComponent;
   final Future<void> Function(int oldIndex, int newIndex) onReorderComponent;
 
   const ComponentList({
     super.key,
     required this.components,
-    required this.editComponent,
-    required this.duplicateComponent,
-    required this.removeComponent,
     required this.onReorderComponent,
   });
 
@@ -57,9 +51,6 @@ class ComponentList extends StatelessWidget {
               component: componentsList[index],
               index: index,
               elevation: elevation,
-              editComponent: editComponent,
-              duplicateComponent: duplicateComponent,
-              removeComponent: removeComponent,
             ),
           );
         },
@@ -81,9 +72,6 @@ class ComponentList extends StatelessWidget {
                 key: ValueKey(component.id),
                 component: component,
                 index: index,
-                editComponent: editComponent,
-                duplicateComponent: duplicateComponent,
-                removeComponent: removeComponent
               );
             },
           );

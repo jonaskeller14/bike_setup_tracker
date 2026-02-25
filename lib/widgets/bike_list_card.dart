@@ -1,26 +1,79 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
+import '../models/app_data.dart';
 import '../models/app_settings.dart';
 import '../models/filtered_data.dart';
 import '../models/person.dart';
 import '../models/bike.dart';
+import '../models/rating.dart';
+import '../pages/bike_page.dart';
 
 class BikeListCard extends StatelessWidget{
   final Bike bike;
   final int index;
   final double? elevation;
-  final Future<void> Function(Bike bike) editBike;
-  final Future<void> Function(Bike bike) removeBike;
 
   const BikeListCard({
     super.key, 
     required this.bike, 
     required this.index,
     this.elevation,
-    required this.editBike,
-    required this.removeBike,
   });
+
+  Future<void> _editBike(BuildContext context, {required Bike bike}) async {
+    final data = context.read<AppData>();
+
+    final editedBike = await Navigator.push<Bike>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BikePage.edit(bike: bike),
+      ),
+    );
+    if (editedBike == null) return;
+
+    data.editBike(editedBike);
+  }
+
+  Future<void> _removeBike(BuildContext context, {required Bike bike}) async {
+    final data = context.read<AppData>();
+    final filteredData = context.read<FilteredData>();
+
+    final obsoleteComponents = filteredData.components.values.where((c) => c.bike == bike.id).toList();
+    final obsoleteSetups = filteredData.setups.values.where((s) => s.bike == bike.id).toList();
+    final obsoleteRatings = filteredData.ratings.values.where((r) => r.filterType == FilterType.bike && r.filter == bike.id);
+
+    data.removeBike(bike);
+    data.removeComponents(obsoleteComponents);
+    data.removeSetups(obsoleteSetups);
+    data.removeRatings(obsoleteRatings);
+
+    String message = "Bike '${bike.name}' moved to trash.";
+    if (context.read<AppSettings>().enableRating) {
+      if (obsoleteComponents.isNotEmpty || obsoleteSetups.isNotEmpty || obsoleteRatings.isNotEmpty) {
+        message += "\n${obsoleteComponents.length} Components, ${obsoleteSetups.length} Setups and ${obsoleteRatings.length} Ratings which belong to this Bike are deleted as well.";
+      }
+    } else {
+      if (obsoleteComponents.isNotEmpty || obsoleteSetups.isNotEmpty) {
+        message += "\n${obsoleteComponents.length} Components, ${obsoleteSetups.length} Setups which belong to this Bike are deleted as well.";
+      }
+    }
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+      duration: const Duration(seconds: 10),
+      persist: false,
+      showCloseIcon: true,
+      action: SnackBarAction(
+        label: 'UNDO',
+        onPressed: () {
+          data.restoreBike(bike);
+          data.restoreComponents(obsoleteComponents);
+          data.restoreSetups(obsoleteSetups);
+          data.restoreRatings(obsoleteRatings);
+        },
+      ),
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,8 +192,8 @@ class BikeListCard extends StatelessWidget{
                 PopupMenuButton<String>(
                   onSelected: (value) {
                     switch (value) {
-                      case 'edit': editBike(bike);
-                      case 'remove': removeBike(bike);
+                      case 'edit': _editBike(context, bike: bike);
+                      case 'remove': _removeBike(context, bike: bike);
                     }
                   },
                   itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[

@@ -602,7 +602,6 @@ class _HomePageState extends State<HomePage> {
       body: <Widget>[
         if (appSettings.enableGarage)
           GarageList(
-            addComponent: _addComponent,
             onReorderBikes: _onReorderBikes,
           ),
         BikeList(

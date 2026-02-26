@@ -9,12 +9,10 @@ import 'chips/bike_list_filter_widget.dart';
 
 class GarageList extends StatefulWidget {
   final Future<void> Function(int oldIndex, int newIndex) onReorderBikes;
-  final Future<void> Function() addComponent;
 
   const GarageList({
     super.key,
     required this.onReorderBikes,
-    required this.addComponent,
   });
 
   @override
@@ -70,7 +68,6 @@ class _GarageListState extends State<GarageList> {
               bike: bikesList[index],
               index: index,
               elevation: elevation,
-              addComponent: widget.addComponent,
               componentToShowDetails: _componentToShowDetails,
               onPressedComponent: _onPressedComponent,
             ),
@@ -104,7 +101,6 @@ class _GarageListState extends State<GarageList> {
                 key: ValueKey(bike.id),
                 bike: bike,
                 index: index,
-                addComponent: widget.addComponent,
                 componentToShowDetails: _componentToShowDetails,
                 onPressedComponent: _onPressedComponent,
               );

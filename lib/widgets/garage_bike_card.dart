@@ -10,6 +10,7 @@ import '../models/person.dart';
 import '../models/bike.dart';
 import '../models/rating.dart';
 import '../pages/bike_page.dart';
+import '../pages/component_page.dart';
 import 'dashed_border_painter.dart';
 import 'component_list_card.dart';
 import 'garage_component_icon_card.dart';
@@ -19,7 +20,6 @@ class GarageBikeCard extends StatelessWidget{
   final int index;
   final double? elevation;
   final String? componentToShowDetails;
-  final Future<void> Function() addComponent;
   final void Function(Component) onPressedComponent;
 
   const GarageBikeCard({
@@ -28,7 +28,6 @@ class GarageBikeCard extends StatelessWidget{
     required this.index,
     this.elevation,
     required this.componentToShowDetails,
-    required this.addComponent,
     required this.onPressedComponent,
   });
 
@@ -84,6 +83,18 @@ class GarageBikeCard extends StatelessWidget{
         },
       ),
     ));
+  }
+
+  Future<void> _addComponent(BuildContext context, {required String initialBike}) async {
+    final data = context.read<AppData>();
+    
+    final component = await Navigator.push<Component>(
+      context,
+      MaterialPageRoute(builder: (context) => ComponentPage.add(initialBike: initialBike)),
+    );
+    if (component == null) return;
+
+    data.addComponent(component);
   }
 
   Widget _releaseToBikeWidget(BuildContext context) {
@@ -317,7 +328,7 @@ class GarageBikeCard extends StatelessWidget{
                           ),
                         ),
                         child: InkWell(
-                          onTap: () => addComponent(),
+                          onTap: () => _addComponent(context, initialBike: bike.id),
                           borderRadius: BorderRadius.circular(12),
                           child: Padding(
                             padding: const EdgeInsets.all(10),

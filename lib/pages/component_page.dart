@@ -26,11 +26,12 @@ enum ComponentPageMode {
 class ComponentPage extends StatefulWidget {
   final Component? component;
   final ComponentPageMode mode;
+  final String? initialBike;
 
-  const ComponentPage._({super.key, this.component, required this.mode});
+  const ComponentPage._({super.key, this.component, required this.mode, this.initialBike});
 
-  factory ComponentPage.add({Key? key}) => 
-    ComponentPage._(key: key, mode: ComponentPageMode.add);
+  factory ComponentPage.add({Key? key, String? initialBike}) => 
+    ComponentPage._(key: key, mode: ComponentPageMode.add, initialBike: initialBike);
 
   factory ComponentPage.edit({Key? key, required Component component}) => 
     ComponentPage._(key: key, component: component, mode: ComponentPageMode.edit);
@@ -66,7 +67,9 @@ class _ComponentPageState extends State<ComponentPage> {
     _initialAdjustments = List.from(_adjustments);
     
     final filteredData = context.read<FilteredData>();
-    _initialBike = widget.component != null ? widget.component!.bike : filteredData.filteredBikes.keys.firstOrNull;
+    _initialBike = widget.component != null 
+        ? widget.component!.bike 
+        : widget.initialBike ?? filteredData.filteredBikes.keys.firstOrNull;
     _bike = _initialBike;
 
     _componentType = widget.component?.componentType;

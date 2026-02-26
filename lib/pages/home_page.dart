@@ -589,7 +589,7 @@ class _HomePageState extends State<HomePage> {
         },
         destinations: <Widget>[
           if (appSettings.enableGarage)
-            const NavigationDestination(icon: Icon(Bike.iconData), label: "Garage"),
+            NavigationDestination(icon: Badge(isLabelVisible: filteredData.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: const Icon(Bike.iconData)), label: 'Garage'),
           NavigationDestination(icon: Badge(isLabelVisible: filteredData.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: const Icon(Bike.iconData)), label: 'Bikes'),
           const NavigationDestination(icon: Icon(Component.iconData), label: 'Components'),
           const NavigationDestination(icon: Icon(Setup.iconData), label: 'Setups'),

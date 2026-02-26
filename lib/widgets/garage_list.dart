@@ -55,7 +55,7 @@ class _GarageListState extends State<GarageList> {
   @override
   Widget build(BuildContext context) {
     final filteredData = context.watch<FilteredData>();
-    final bikesList = filteredData.bikes.values.toList();
+    final bikesList = filteredData.filteredBikes.values.toList();
 
     Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
       return AnimatedBuilder(

@@ -15,7 +15,7 @@ class GarageComponentIconCard extends StatelessWidget {
     return Container(
       key: ValueKey(component.id),
       margin: const EdgeInsets.only(right: 8),
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: isSelected 
             ? colorScheme.tertiaryContainer 
@@ -37,7 +37,7 @@ class GarageComponentIconCard extends StatelessWidget {
       ),
       child: Icon(
         component.componentType.getIconData(),
-        size: 20,
+        size: 24,
         color: isSelected 
             ? colorScheme.onTertiaryContainer 
             : colorScheme.onSurface,

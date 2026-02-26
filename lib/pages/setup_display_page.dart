@@ -262,6 +262,7 @@ class SetupDisplayPageContent extends StatelessWidget {
                             options: MapOptions(
                               initialCenter: LatLng(setup.position!.latitude!, setup.position!.longitude!),
                               initialZoom: 13,
+                              minZoom: 3,
                               onTap: (_, _) => launchUrlString('geo:${setup.position!.latitude},${setup.position!.longitude}?q=${setup.position!.latitude},${setup.position!.longitude}(${Uri.encodeComponent(setup.name)})'),
                               interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
                             ),
@@ -269,8 +270,9 @@ class SetupDisplayPageContent extends StatelessWidget {
                               TileLayer(
                                 urlTemplate: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
                                 subdomains: const ['a', 'b', 'c'], // Cyclosm uses subdomains for faster loading
+                                minZoom: 3,
                                 userAgentPackageName: 'com.jonaskeller.bike_setup_tracker',
-                                tileDisplay: TileDisplay.fadeIn(),
+                                tileDisplay: const TileDisplay.fadeIn(),
                                 tileBuilder: (context, tileWidget, tile) {
                                   return ColorFiltered(
                                     colorFilter: const ColorFilter.matrix(<double>[

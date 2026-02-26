@@ -91,6 +91,7 @@ class _MapPageState extends State<MapPage> {
             options: MapOptions(
               initialCenter: initialCenter,
               initialZoom: initialZoom,
+              minZoom: 3,
               initialCameraFit: markers.isNotEmpty 
                 ? CameraFit.bounds(
                     bounds: LatLngBounds.fromPoints(markers.map((m) => m.point).toList()), 
@@ -102,6 +103,7 @@ class _MapPageState extends State<MapPage> {
               TileLayer(
                 urlTemplate: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
                 subdomains: const ['a', 'b', 'c'],
+                minZoom: 3,
                 userAgentPackageName: 'com.jonaskeller.bike_setup_tracker',
                 tileDisplay: const TileDisplay.fadeIn(),
                 tileBuilder: (context, tileWidget, tile) {

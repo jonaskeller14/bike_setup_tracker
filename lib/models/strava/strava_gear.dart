@@ -30,7 +30,7 @@ class StravaGear {
     }
   }
 
-  factory StravaGear.fromFireStore(Map<String, dynamic> json) {
+  factory StravaGear.fromFirestore(Map<String, dynamic> json) {
     final int? version = json["version"];
     switch (version) {
       case null:

@@ -282,9 +282,9 @@ class Setup {
           : (lastModified as DateTime),
       name: name is _Sentinel
           ? this.name
-          : (notes as String), 
-      notes: name is _Sentinel
-          ? this.name
+          : (name as String), 
+      notes: notes is _Sentinel
+          ? this.notes
           : (notes as String?),
       datetime: datetime is _Sentinel
           ? this.datetime

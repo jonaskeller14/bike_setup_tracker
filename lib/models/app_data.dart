@@ -372,8 +372,8 @@ class AppData extends ChangeNotifier {
     int adjustedNewIndex = newIndex;
     if (oldIndex < newIndex && adjustNewIndex) adjustedNewIndex -= 1;
 
-    final person = componentsList.removeAt(oldIndex);
-    componentsList.insert(adjustedNewIndex, person);
+    final component = componentsList.removeAt(oldIndex);
+    componentsList.insert(adjustedNewIndex, component);
 
     _components.clear();
     _components.addAll({for (var element in componentsList) element.id : element});

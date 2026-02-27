@@ -90,9 +90,9 @@ class Component {
           : (lastModified as DateTime),
       name: name is _Sentinel
           ? this.name
-          : (notes as String), 
-      notes: name is _Sentinel
-          ? this.name
+          : (name as String), 
+      notes: notes is _Sentinel
+          ? this.notes
           : (notes as String?),
       componentType: componentType is _Sentinel
           ? this.componentType

@@ -43,7 +43,7 @@ class StravaAthlete {
     }
   }
 
-  factory StravaAthlete.fromFireStore(Map<String, dynamic> json) {
+  factory StravaAthlete.fromFirestore(Map<String, dynamic> json) {
     final int? version = json["version"];
     switch (version) {
       case null:

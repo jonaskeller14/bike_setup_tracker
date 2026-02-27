@@ -186,7 +186,7 @@ class GarageUninstalledCard extends StatelessWidget{
                     data: deinstalledComponents[componentToShowDetails]!,
                     onDragStarted: () => draggedComponentNotifier.value = deinstalledComponents[componentToShowDetails],
                     onDragEnd: (_) => draggedComponentNotifier.value = null,
-                    onDraggableCanceled: (_, __) => draggedComponentNotifier.value = null,
+                    onDraggableCanceled: (_, _) => draggedComponentNotifier.value = null,
                     dragAnchorStrategy: pointerDragAnchorStrategy,
                     feedback: GarageComponentIconCard(
                       component: deinstalledComponents[componentToShowDetails]!, 

@@ -90,6 +90,67 @@ void main() {
       expect(filteredData.components.containsValue(component1), true);
       expect(filteredData.filteredComponents.containsValue(component1), true);
     });
+
+    test("AppData/reorderComponent", () {
+      final comp2 = Component(name: "Component #2", bike: bike1.id, componentType: ComponentType.other, adjustments: []);
+      final comp3 = Component(name: "Component #3", bike: bike1.id, componentType: ComponentType.other, adjustments: []);
+      data.addComponent(comp2);
+      data.addComponent(comp3);
+      filteredData.update(data);
+      
+      final list = data.components.values.toList();
+      expect(list.length, 3);
+      expect(list[0].id, component1.id);
+      expect(list[1].id, comp2.id);
+      expect(list[2].id, comp3.id);
+
+      // Reorder from index 0 to index 2
+      data.reorderComponent(
+        oldIndex: 0, 
+        newIndex: 2, 
+        filteredComponentsList: list,
+      );
+      filteredData.update(data);
+
+      final reordered = data.components.values.toList();
+      expect(reordered[0].id, comp2.id);
+      expect(reordered[1].id, component1.id);
+      expect(reordered[2].id, comp3.id);
+      
+      // Reorder without adjustNewIndex flag
+      data.reorderComponent(
+        oldIndex: 0, 
+        newIndex: 2, 
+        filteredComponentsList: reordered,
+        adjustNewIndex: false,
+      );
+      filteredData.update(data);
+      
+      final reordered2 = data.components.values.toList();
+      expect(reordered2[0].id, component1.id);
+      expect(reordered2[1].id, comp3.id);
+      expect(reordered2[2].id, comp2.id);
+    });
+
+    test("AppData/editComponent (drag and drop)", () {
+      // Test moving between bikes/uninstalled
+      final bike2 = Bike(name: "Bike #2", person: null);
+      data.addBike(bike2);
+      
+      // Move component1 from bike1 to uninstalled (null bike)
+      data.editComponent(component1.copyWith(bike: null));
+      filteredData.update(data);
+      
+      final updatedComp1 = data.components[component1.id]!;
+      expect(updatedComp1.bike, null);
+      
+      // Move component1 from uninstalled to bike2
+      data.editComponent(updatedComp1.copyWith(bike: bike2.id));
+      filteredData.update(data);
+      
+      final updatedComp2 = data.components[component1.id]!;
+      expect(updatedComp2.bike, bike2.id);
+    });
   });
   group("Setups", () {
     final data = AppData();

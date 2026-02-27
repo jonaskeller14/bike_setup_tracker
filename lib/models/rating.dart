@@ -111,4 +111,46 @@ class Rating {
       Object.hashAll(adjustments),
     );
   }
+
+  Rating copyWith({
+    Object? id = const _Sentinel(),
+    Object? isDeleted = const _Sentinel(),
+    Object? lastModified = const _Sentinel(),
+    Object? name = const _Sentinel(),
+    Object? notes = const _Sentinel(),
+    Object? filter = const _Sentinel(),
+    Object? filterType = const _Sentinel(),
+    Object? adjustments = const _Sentinel(),
+  }) {
+    return Rating(
+      id: id is _Sentinel 
+          ? this.id 
+          : (id as String),
+      isDeleted: isDeleted is _Sentinel 
+          ? this.isDeleted 
+          : (isDeleted as bool),
+      lastModified: lastModified is _Sentinel 
+          ? this.lastModified 
+          : (lastModified as DateTime),
+      name: name is _Sentinel 
+          ? this.name 
+          : (name as String),
+      notes: notes is _Sentinel 
+          ? this.notes 
+          : (notes as String?),
+      filter: filter is _Sentinel 
+          ? this.filter 
+          : (filter as String?),
+      filterType: filterType is _Sentinel 
+          ? this.filterType 
+          : (filterType as FilterType),
+      adjustments: adjustments is _Sentinel 
+          ? this.adjustments 
+          : (adjustments as List<Adjustment>),
+    );
+  }
+}
+
+class _Sentinel {
+  const _Sentinel();
 }

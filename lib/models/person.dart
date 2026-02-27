@@ -91,4 +91,42 @@ class Person {
       Object.hashAll(adjustments),
     );
   }
+
+  Person copyWith({
+    Object? id = const _Sentinel(),
+    Object? isDeleted = const _Sentinel(),
+    Object? lastModified = const _Sentinel(),
+    Object? name = const _Sentinel(),
+    Object? notes = const _Sentinel(),
+    Object? stravaAthlete = const _Sentinel(),
+    Object? adjustments = const _Sentinel(),
+  }) {
+    return Person(
+      id: id is _Sentinel 
+          ? this.id 
+          : (id as String),
+      isDeleted: isDeleted is _Sentinel 
+          ? this.isDeleted 
+          : (isDeleted as bool),
+      lastModified: lastModified is _Sentinel 
+          ? this.lastModified 
+          : (lastModified as DateTime),
+      name: name is _Sentinel 
+          ? this.name 
+          : (name as String),
+      notes: notes is _Sentinel 
+          ? this.notes 
+          : (notes as String?),
+      stravaAthlete: stravaAthlete is _Sentinel 
+          ? this.stravaAthlete 
+          : (stravaAthlete as int?),
+      adjustments: adjustments is _Sentinel 
+          ? this.adjustments 
+          : (adjustments as List<Adjustment>),
+    );
+  }
+}
+
+class _Sentinel {
+  const _Sentinel();
 }

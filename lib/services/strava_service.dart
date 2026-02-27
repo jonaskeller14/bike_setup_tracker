@@ -187,7 +187,7 @@ class StravaService extends ChangeNotifier {
         .snapshots()
         .listen((snapshot) {
       if (snapshot.exists && snapshot.data() != null) {
-        final athlete = StravaAthlete.fromFireStore(snapshot.data()!);
+        final athlete = StravaAthlete.fromFirestore(snapshot.data()!);
         _appData.setStravaAthletes([athlete]);
         debugPrint("Strava athlete synced: ${athlete.firstname} ${athlete.lastname}");
       } else {
@@ -208,7 +208,7 @@ class StravaService extends ChangeNotifier {
         .collection('gears')
         .snapshots()
         .listen((snapshot) {
-      final gears = snapshot.docs.map((doc) => StravaGear.fromFireStore(doc.data())).toList();
+      final gears = snapshot.docs.map((doc) => StravaGear.fromFirestore(doc.data())).toList();
       _appData.setStravaGears(gears);
       if (gears.isNotEmpty) {
         debugPrint("Strava gear synced: ${gears.length} items");

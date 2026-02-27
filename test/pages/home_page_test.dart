@@ -99,7 +99,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Components')), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.add));
+    await tester.tap(find.widgetWithIcon(FloatingActionButton, Icons.add));
     await tester.pump();
     await tester.pumpAndSettle();
     expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Component')), findsNothing);
@@ -107,7 +107,7 @@ void main() {
     appData.addBike(Bike(name: "TestBike #1", person: null, isDeleted: true));
     await tester.pump();
 
-    await tester.tap(find.byIcon(Icons.add));
+    await tester.tap(find.widgetWithIcon(FloatingActionButton, Icons.add));
     await tester.pump();
     await tester.pumpAndSettle();
     expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Component')), findsNothing);
@@ -115,7 +115,7 @@ void main() {
     appData.addBike(Bike(name: "TestBike #2", person: null));
     await tester.pump();
 
-    await tester.tap(find.byIcon(Icons.add));
+    await tester.tap(find.widgetWithIcon(FloatingActionButton, Icons.add));
     await tester.pump();
     await tester.pumpAndSettle();
     expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Component')), findsOneWidget);

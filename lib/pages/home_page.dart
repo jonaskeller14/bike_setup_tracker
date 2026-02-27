@@ -641,12 +641,13 @@ class _HomePageState extends State<HomePage> {
           ),
       ][currentPageIndex],
       floatingActionButton: <Widget>[
-        FloatingActionButton(
-          heroTag: "addBike",
-          onPressed: _addBike,
-          tooltip: 'Add Bike',
-          child: const Icon(Icons.add),
-        ),
+        if (appSettings.enableGarage)
+          FloatingActionButton(
+            heroTag: "addBike",
+            onPressed: _addBike,
+            tooltip: 'Add Bike',
+            child: const Icon(Icons.add),
+          ),
         FloatingActionButton(
           heroTag: "addBike",
           onPressed: _addBike,

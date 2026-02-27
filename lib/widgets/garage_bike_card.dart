@@ -1,7 +1,7 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
+import 'package:reorderables/reorderables.dart';
 import '../models/app_data.dart';
 import '../models/app_settings.dart';
 import '../models/component.dart';
@@ -21,6 +21,9 @@ class GarageBikeCard extends StatelessWidget{
   final double? elevation;
   final String? componentToShowDetails;
   final void Function(Component) onPressedComponent;
+  final void Function({required String? newBike}) onAcceptWithDetails;
+  final ValueChanged<Component?> setDraggedComponent;
+  final ValueNotifier<Component?> draggedComponentNotifier;
 
   const GarageBikeCard({
     super.key, 
@@ -29,6 +32,9 @@ class GarageBikeCard extends StatelessWidget{
     this.elevation,
     required this.componentToShowDetails,
     required this.onPressedComponent,
+    required this.onAcceptWithDetails,
+    required this.setDraggedComponent,
+    required this.draggedComponentNotifier,
   });
 
   Future<void> _editBike(BuildContext context, {required Bike bike}) async {
@@ -115,19 +121,21 @@ class GarageBikeCard extends StatelessWidget{
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 8,
           children: [
             Icon(
               Icons.add_circle_outline,
               color: Theme.of(context).colorScheme.primary,
             ),
-            const SizedBox(width: 8),
-            Text(
-              "Release to install to ${bike.name}",
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.bold,
+            Flexible(
+              child: Text(
+                "Release to install to ${bike.name}",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -141,7 +149,7 @@ class GarageBikeCard extends StatelessWidget{
     final persons = filteredData.persons;
     final bikeComponents = Map.fromEntries(filteredData.components.entries.where((ce) => ce.value.bike == bike.id));
     
-    return DragTarget<Component>(
+    return DragTarget<Object>(
       key: ValueKey(bike.id),
       builder: (context, candidateData, rejectedData) => Card(
         key: ValueKey(bike.id),
@@ -286,78 +294,66 @@ class GarageBikeCard extends StatelessWidget{
                   ],
                 )
               ),
-              if (candidateData.isNotEmpty && candidateData.every((c) => c == null || c.bike != bike.id))
-                Padding(
+              ValueListenableBuilder<Component?>(
+                valueListenable: draggedComponentNotifier,
+                builder: (context, draggedComp, child) {
+                  if (candidateData.isNotEmpty && candidateData.every((c) => c == null || (draggedComp != null && draggedComp.bike != bike.id))) {
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                      child: _releaseToBikeWidget(context),
+                    );
+                  }
+                  return ReorderableWrap(
                   padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                  child: _releaseToBikeWidget(context),
-                )
-              else
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                  child: SizedBox(
-                    height: 48,
-                    child: ReorderableListView(
-                      onReorder: (int oldIndex, int newIndex) => context.read<AppData>().reorderComponent(
-                        oldIndex: oldIndex, 
-                        newIndex: newIndex, 
-                        filteredComponentsList: bikeComponents.values.toList(),
+                  onReorder: (int oldIndex, int newIndex) => context.read<AppData>().reorderComponent(
+                    oldIndex: oldIndex, 
+                    newIndex: newIndex, 
+                    filteredComponentsList: bikeComponents.values.toList(),
+                    adjustNewIndex: false,
+                  ),
+                  onReorderStarted: (index) => setDraggedComponent(bikeComponents.values.toList()[index]),
+                  onNoReorder: (index) => setDraggedComponent(null),
+                  runSpacing: 8,
+                  spacing: 8,
+                  footer: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                        width: 1.0,
                       ),
-                      scrollDirection: Axis.horizontal,
-                      proxyDecorator: (Widget child, int index, Animation<double> animation) => AnimatedBuilder(
-                        animation: animation, 
-                        builder: (BuildContext context, Widget? child) {
-                          final double animValue = Curves.easeInOut.transform(animation.value);
-                          final double scale = lerpDouble(1, 1.03, animValue)!;
-                          final Component component = bikeComponents.values.toList()[index];
-                          return Transform.scale(
-                            scale: scale,
-                            child: GarageComponentIconCard(
-                              component: component,
-                              componentToShowDetails: componentToShowDetails,
-                            ),
-                          );
-                        }
-                      ),
-                      footer: Container(
-                        margin: const EdgeInsets.only(right: 8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.outlineVariant,
-                            width: 1.0,
-                          ),
-                        ),
-                        child: InkWell(
-                          onTap: () => _addComponent(context, initialBike: bike.id),
-                          borderRadius: BorderRadius.circular(12),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Center(
-                              child: Icon(
-                                Icons.add,
-                                size: 24,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ),
+                    ),
+                    child: InkWell(
+                      onTap: () => _addComponent(context, initialBike: bike.id),
+                      borderRadius: BorderRadius.circular(12),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Icon(
+                          Icons.add,
+                          size: 24,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
-                      children: bikeComponents.values.map((component) => GestureDetector(
-                        key: ValueKey(component),
-                        onTap: () => onPressedComponent(component),
-                        child: GarageComponentIconCard(
-                          component: component, 
-                          componentToShowDetails: componentToShowDetails
-                        ),
-                      )).toList(),
                     ),
                   ),
-                ),
+                  children: bikeComponents.values.map((component) => GestureDetector(
+                    key: ValueKey(component),
+                    onTap: () => onPressedComponent(component),
+                    child: GarageComponentIconCard(
+                      component: component, 
+                      componentToShowDetails: componentToShowDetails
+                    ),
+                  )).toList(),
+                );
+              }),
               if (componentToShowDetails != null && bikeComponents.keys.contains(componentToShowDetails))
                 Padding(
                 padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                child: LongPressDraggable<Component>(
-                  data: bikeComponents[componentToShowDetails]!,
+                child: LongPressDraggable<int>(
+                  data: bikeComponents.keys.toList().indexOf(componentToShowDetails!),
+                  onDragStarted: () => draggedComponentNotifier.value = bikeComponents[componentToShowDetails],
+                  onDragEnd: (_) => draggedComponentNotifier.value = null,
+                  onDraggableCanceled: (_, _) => draggedComponentNotifier.value = null,
                   dragAnchorStrategy: pointerDragAnchorStrategy,
                   feedback: GarageComponentIconCard(
                     component: bikeComponents[componentToShowDetails]!, 
@@ -375,8 +371,8 @@ class GarageBikeCard extends StatelessWidget{
         ),
       ),
       onAcceptWithDetails: (details) {
-        final Component component = details.data;
-        context.read<AppData>().editComponent(component.copyWith(bike: bike.id));
+        onAcceptWithDetails(newBike: bike.id);
+        setDraggedComponent(null);
       },
     );
   }

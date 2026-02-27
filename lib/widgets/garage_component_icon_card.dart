@@ -14,7 +14,6 @@ class GarageComponentIconCard extends StatelessWidget {
     
     return Container(
       key: ValueKey(component.id),
-      margin: const EdgeInsets.only(right: 8),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: isSelected 

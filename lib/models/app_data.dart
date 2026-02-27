@@ -357,7 +357,7 @@ class AppData extends ChangeNotifier {
     notifyListeners();
   }
 
-  void reorderComponent({required int oldIndex, required int newIndex, required List<Component> filteredComponentsList}) {
+  void reorderComponent({required int oldIndex, required int newIndex, required List<Component> filteredComponentsList, bool adjustNewIndex = true}) {
     final componentsList = components.values.toList();
 
     final componentToMove = filteredComponentsList[oldIndex];
@@ -370,7 +370,7 @@ class AppData extends ChangeNotifier {
         : componentsList.indexOf(targetComponent);
 
     int adjustedNewIndex = newIndex;
-    if (oldIndex < newIndex) adjustedNewIndex -= 1;
+    if (oldIndex < newIndex && adjustNewIndex) adjustedNewIndex -= 1;
 
     final person = componentsList.removeAt(oldIndex);
     componentsList.insert(adjustedNewIndex, person);

@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/app_data.dart';
 import '../models/component.dart';
 import '../models/filtered_data.dart';
 import 'garage_bike_card.dart';
@@ -21,6 +22,18 @@ class GarageList extends StatefulWidget {
 
 class _GarageListState extends State<GarageList> {
   String? _componentToShowDetails;
+  final ValueNotifier<Component?> _draggedComponentNotifier = ValueNotifier<Component?>(null);
+
+  void _onAcceptWithDetails({String? newBike}) {
+    if (_draggedComponentNotifier.value == null) return;
+    final Component component =  _draggedComponentNotifier.value!;
+    final appData = context.read<AppData>();
+    
+    Future.microtask(() {
+      appData.editComponent(component.copyWith(bike: newBike));
+      _draggedComponentNotifier.value = null;
+    });
+  }
 
   Widget _emptyPlaceholder(BuildContext context) {
     return Padding(
@@ -70,6 +83,9 @@ class _GarageListState extends State<GarageList> {
               elevation: elevation,
               componentToShowDetails: _componentToShowDetails,
               onPressedComponent: _onPressedComponent,
+              onAcceptWithDetails: _onAcceptWithDetails,
+              setDraggedComponent: (Component? c) => _draggedComponentNotifier.value = c,
+              draggedComponentNotifier: _draggedComponentNotifier,
             ),
           );
         },
@@ -89,7 +105,10 @@ class _GarageListState extends State<GarageList> {
                 Divider(height: 50),
                 GarageUninstalledCard(
                   componentToShowDetails: _componentToShowDetails, 
-                  onPressedComponent: _onPressedComponent
+                  onPressedComponent: _onPressedComponent,
+                  onAcceptWithDetails: _onAcceptWithDetails,
+                  setDraggedComponent: (Component? c) => _draggedComponentNotifier.value = c,
+                  draggedComponentNotifier: _draggedComponentNotifier,
                 ),
               ],
             ),
@@ -103,6 +122,9 @@ class _GarageListState extends State<GarageList> {
                 index: index,
                 componentToShowDetails: _componentToShowDetails,
                 onPressedComponent: _onPressedComponent,
+                onAcceptWithDetails: _onAcceptWithDetails,
+                setDraggedComponent: (Component? c) => _draggedComponentNotifier.value = c,
+                draggedComponentNotifier: _draggedComponentNotifier,
               );
             },
           );

@@ -85,7 +85,7 @@ class ComponentListCard extends StatelessWidget{
                 await Navigator.push<Component>(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ComponentOverviewPage(component: component),
+                    builder: (context) => ComponentOverviewPage(componentId: component.id, editComponent: _editComponent),
                   ),
                 );
               }

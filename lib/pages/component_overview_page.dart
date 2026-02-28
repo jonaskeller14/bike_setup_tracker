@@ -9,214 +9,279 @@ import '../models/setup.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/weather.dart';
 import '../models/app_settings.dart';
+import '../widgets/chips/bike_and_tags_filter.dart';
 import '../widgets/sheets/column_filter.dart';
 import '../widgets/initial_changed_value_legend.dart';
+import '../utils/table_column.dart';
 
 class ComponentOverviewPage extends StatefulWidget{
-  final Component component;
+  final String componentId;
+  final Future<void> Function(BuildContext context, {required Component component}) editComponent;
 
-  const ComponentOverviewPage({super.key, required this.component});
+  const ComponentOverviewPage({super.key, required this.componentId, required this.editComponent});
 
   @override
   State<ComponentOverviewPage> createState() => _ComponentOverviewPageState();
 }
 
 class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
-  late List<Setup> _setups;
   bool _sortAscending = true;
-  int? _sortColumnIndex;
+  TableColumn? _sortColumn;
+
   static const bool _highlighting = true;
 
-  final Map<String, Map<String, bool>> _showColumns = {
-    "General Context": {
-      "Name": true,
-      "Notes": false,
-      "Tags": false,
-      "Date": true,
-      "Time": false,
-      "Place": false,
-      "Altitude": false,
-    },
-    "Weather Context": {
-      "Weather Code": false,
-      "Temperature": false,
-      "Precipitation": false,
-      "Humidity": false,
-      "Windspeed": false,
-      "Soil Moisture": false,
-      "Condition": false,
-    },
-    "Person Attributes": {},
-    "Component Adjustments": {},
-    "Rating Metrics": {},
+  final Set<TableColumn> _columns = {
+    TableColumn(section: TableColumnSection.generalContext, label: "Name", active: true),
+    TableColumn(section: TableColumnSection.generalContext, label: "Notes", active: false),
+    TableColumn(section: TableColumnSection.generalContext, label: "Tags", active: false),
+    TableColumn(section: TableColumnSection.generalContext, label: "Date", active: true),
+    TableColumn(section: TableColumnSection.generalContext, label: "Time", active: false),
+    TableColumn(section: TableColumnSection.generalContext, label: "Place", active: false),
+    TableColumn(section: TableColumnSection.generalContext, label: "Altitude", active: false),
+
+    TableColumn(section: TableColumnSection.weatherContext, label: "Weather Code", active: false),
+    TableColumn(section: TableColumnSection.weatherContext, label: "Temperature", active: false),
+    TableColumn(section: TableColumnSection.weatherContext, label: "Precipitation", active: false),
+    TableColumn(section: TableColumnSection.weatherContext, label: "Humidity", active: false),
+    TableColumn(section: TableColumnSection.weatherContext, label: "Windspeed", active: false),
+    TableColumn(section: TableColumnSection.weatherContext, label: "Soil Moisture", active: false),
+    TableColumn(section: TableColumnSection.weatherContext, label: "Condition", active: false),
   };
 
-  @override
-  void initState() {
-    super.initState();
-    final appSettings = context.read<AppSettings>();
-    final filteredData = context.read<FilteredData>();
-    final ratings = filteredData.ratings;
-    final bikes = filteredData.bikes;
-    final persons = filteredData.persons;
+  List<Setup> sortSetupsByColumn({
+    required List<Setup> setups,
+    required Iterable<Adjustment> componentAdjustments,
+    required Iterable<Adjustment> personAdjustments,
+    required Iterable<Adjustment> ratingAdjustments,
+  }) {
+    if (_sortColumn == null) return setups;
 
-    _setups = List.from(filteredData.setups.values.where(
-        (s) => widget.component.adjustments.any((adj) => s.bikeAdjustmentValues.containsKey(adj.id))
-    ).toList().reversed);
-    
-    for (final adjustment in widget.component.adjustments) {
-      _showColumns["Component Adjustments"]?[adjustment.id] = true;
-    }
-
-    if (!appSettings.enableSetupTags) {
-      _showColumns["General Context"]?.remove("Tags");
-    }
-
-    if (appSettings.enablePerson) {
-      final person = persons[bikes[widget.component.bike]?.person];
-      if (person == null) {
-        _showColumns.remove("Person Attributes");  
-      } else {
-        _showColumns["Person Attributes"]?.addEntries(person.adjustments.map((adjustment) => MapEntry(adjustment.id, false)));
-      }
-    } else {
-      _showColumns.remove("Person Attributes");
-    }
-
-    if (appSettings.enableRating) {
-      for (final rating in ratings.values) {
-        switch (rating.filterType) {
-          case FilterType.global: _showColumns["Rating Metrics"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false});
-          case FilterType.componentType: if (widget.component.componentType.toString() == rating.filter) _showColumns["Rating Metrics"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false});
-          case FilterType.component: if (widget.component.id == rating.filter) _showColumns["Rating Metrics"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false });
-          case FilterType.bike: if (widget.component.bike == rating.filter) _showColumns["Rating Metrics"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false });
-          case FilterType.person: if (bikes[widget.component.bike]?.person == rating.filter) _showColumns["Rating Metrics"]?.addAll({for (final adjustment in rating.adjustments) adjustment.id: false});
+    switch (_sortColumn!.section) {
+      case TableColumnSection.generalContext || TableColumnSection.weatherContext:
+        switch (_sortColumn!.label) {
+          case "Name": _sortAscending 
+            ? setups.sort((a, b) => a.name.compareTo(b.name)) 
+            : setups.sort((a, b) => b.name.compareTo(a.name));
+          case "Notes": _sortAscending 
+              ? setups.sort((a, b) => (a.notes ?? '').compareTo(b.notes ?? '')) 
+              : setups.sort((a, b) => (b.notes ?? '').compareTo(a.notes ?? ''));
+          case "Tags": _sortAscending 
+              ? setups.sort((a, b) => (a.tags.join('; ')).compareTo(b.tags.join('; '))) 
+              : setups.sort((a, b) => (b.tags.join('; ')).compareTo(a.tags.join('; ')));
+          case "Date": _sortAscending 
+              ? setups.sort((a, b) => a.datetime.compareTo(b.datetime)) 
+              : setups.sort((a, b) => b.datetime.compareTo(a.datetime));
+          case "Time": _sortAscending 
+              ? setups.sort((a, b) => a.datetime.copyWith(year: 0, month: 0, day: 0).compareTo(b.datetime.copyWith(year: 0, month: 0, day: 0))) 
+              : setups.sort((a, b) => b.datetime.copyWith(year: 0, month: 0, day: 0).compareTo(a.datetime.copyWith(year: 0, month: 0, day: 0)));
+          case "Place": _sortAscending 
+              ? setups.sort((a, b) => (a.place?.locality ?? '').compareTo(b.place?.locality ?? '')) 
+              : setups.sort((a, b) => (b.place?.locality ?? '').compareTo(a.place?.locality ?? ''));
+          case "Altitude": _sortAscending 
+              ? setups.sort((a, b) => (a.position?.altitude ?? double.negativeInfinity).compareTo(b.position?.altitude ?? double.negativeInfinity)) 
+              : setups.sort((a, b) => (b.position?.altitude ?? double.negativeInfinity).compareTo(a.position?.altitude ?? double.negativeInfinity));
+          case "Weather Code": _sortAscending 
+              ? setups.sort((a, b) => (a.weather?.getWeatherCodeLabel() ?? '').compareTo(b.weather?.getWeatherCodeLabel() ?? '')) 
+              : setups.sort((a, b) => (b.weather?.getWeatherCodeLabel() ?? '').compareTo(a.weather?.getWeatherCodeLabel() ?? ''));
+          case "Temperature": _sortAscending 
+              ? setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) 
+              : setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));
+          case "Precipitation": _sortAscending 
+              ? setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) 
+              : setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));
+          case "Humidity": _sortAscending 
+              ? setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) 
+              : setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));
+          case "Windspeed": _sortAscending 
+              ? setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) 
+              : setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));
+          case "Soil Moisture": _sortAscending 
+              ? setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) 
+              : setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));
+          case "Condition": _sortAscending 
+              ? setups.sort((a, b) => (a.weather?.condition?.value ?? '').compareTo(b.weather?.condition?.value ?? '')) 
+              : setups.sort((a, b) => (b.weather?.condition?.value ?? '').compareTo(a.weather?.condition?.value ?? ''));
         }
-      }
-    } else {
-      _showColumns.remove("Rating Metrics");
-    }
-  }
-
-  void onSortColum({required String section, required Adjustment? adjustment, required String column, required int columnIndex, required bool ascending}) {
-    _sortAscending = ascending;
-    _sortColumnIndex = columnIndex;
-    switch (column) {
-      case "Name": setState(() {ascending 
-          ? _setups.sort((a, b) => a.name.compareTo(b.name)) 
-          : _setups.sort((a, b) => b.name.compareTo(a.name));
-      });
-      case "Notes": setState(() {ascending 
-          ? _setups.sort((a, b) => (a.notes ?? '').compareTo(b.notes ?? '')) 
-          : _setups.sort((a, b) => (b.notes ?? '').compareTo(a.notes ?? ''));
-      });
-      case "Tags": setState(() {ascending 
-          ? _setups.sort((a, b) => (a.tags.join('; ')).compareTo(b.tags.join('; '))) 
-          : _setups.sort((a, b) => (b.tags.join('; ')).compareTo(a.tags.join('; ')));
-      });
-      case "Date": setState(() {ascending 
-          ? _setups.sort((a, b) => a.datetime.compareTo(b.datetime)) 
-          : _setups.sort((a, b) => b.datetime.compareTo(a.datetime));
-      });
-      case "Time": setState(() {ascending 
-          ? _setups.sort((a, b) => a.datetime.copyWith(year: 0, month: 0, day: 0).compareTo(b.datetime.copyWith(year: 0, month: 0, day: 0))) 
-          : _setups.sort((a, b) => b.datetime.copyWith(year: 0, month: 0, day: 0).compareTo(a.datetime.copyWith(year: 0, month: 0, day: 0)));
-      });
-      case "Place": setState(() {ascending 
-          ? _setups.sort((a, b) => (a.place?.locality ?? '').compareTo(b.place?.locality ?? '')) 
-          : _setups.sort((a, b) => (b.place?.locality ?? '').compareTo(a.place?.locality ?? ''));
-      });
-      case "Altitude": setState(() {ascending 
-          ? _setups.sort((a, b) => (a.position?.altitude ?? double.negativeInfinity).compareTo(b.position?.altitude ?? double.negativeInfinity)) 
-          : _setups.sort((a, b) => (b.position?.altitude ?? double.negativeInfinity).compareTo(a.position?.altitude ?? double.negativeInfinity));
-      });
-      case "Weather Code": setState(() {ascending 
-          ? _setups.sort((a, b) => (a.weather?.getWeatherCodeLabel() ?? '').compareTo(b.weather?.getWeatherCodeLabel() ?? '')) 
-          : _setups.sort((a, b) => (b.weather?.getWeatherCodeLabel() ?? '').compareTo(a.weather?.getWeatherCodeLabel() ?? ''));
-      });
-      case "Temperature": setState(() {ascending 
-          ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) 
-          : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));
-      });
-      case "Precipitation": setState(() {ascending 
-          ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) 
-          : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));
-      });
-      case "Humidity": setState(() {ascending 
-          ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) 
-          : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));
-      });
-      case "Windspeed": setState(() {ascending 
-          ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) 
-          : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));
-      });
-      case "Soil Moisture": setState(() {ascending 
-          ? _setups.sort((a, b) => (a.weather?.currentTemperature ?? double.negativeInfinity).compareTo(b.weather?.currentTemperature ?? double.negativeInfinity)) 
-          : _setups.sort((a, b) => (b.weather?.currentTemperature ?? double.negativeInfinity).compareTo(a.weather?.currentTemperature ?? double.negativeInfinity));
-      });
-      case "Condition": setState(() {ascending 
-          ? _setups.sort((a, b) => (a.weather?.condition?.value ?? '').compareTo(b.weather?.condition?.value ?? '')) 
-          : _setups.sort((a, b) => (b.weather?.condition?.value ?? '').compareTo(a.weather?.condition?.value ?? ''));
-      });
-      default: 
-        final column2value = switch (section) {
-          "Component Adjustments" => (Setup s) => s.bikeAdjustmentValues[column],
-          "Person Attributes" => (Setup s) => s.personAdjustmentValues[column],
-          "Rating Metrics" => (Setup s) => s.ratingAdjustmentValues[column],
+      case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes || TableColumnSection.ratingMetrics:
+        final column2value = switch (_sortColumn!.section) {
+          TableColumnSection.componentAdjustments => (Setup s) => s.bikeAdjustmentValues[_sortColumn!.label],
+          TableColumnSection.personAttributes => (Setup s) => s.personAdjustmentValues[_sortColumn!.label],
+          TableColumnSection.ratingMetrics => (Setup s) => s.ratingAdjustmentValues[_sortColumn!.label],
           _ => null, 
         };
-        if (column2value == null) return;
+        if (column2value == null) return setups;
+
+        final Adjustment? adjustment = switch (_sortColumn!.section) {
+          TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == _sortColumn!.label),
+          TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == _sortColumn!.label),
+          TableColumnSection.ratingMetrics => ratingAdjustments.firstWhereOrNull((a) => a.id == _sortColumn!.label),
+          _ => null,
+        };
+        if (adjustment == null) return setups;
+
         switch (adjustment) {
-          case null: return;
-          case BooleanAdjustment(): setState(() {ascending 
-              ? _setups.sort((a, b) => ((column2value(a) ?? false) ? 1 : 0).compareTo((column2value(b) ?? false) ? 1 : 0)) 
-              : _setups.sort((a, b) => ((column2value(b) ?? false) ? 1 : 0).compareTo((column2value(a) ?? false) ? 1 : 0));
-          });
-          case StepAdjustment(): setState(() {ascending 
-              ? _setups.sort((a, b) => ((column2value(a) ?? 0) as int).compareTo((column2value(b) ?? 0) as int)) 
-              : _setups.sort((a, b) => ((column2value(b) ?? 0) as int).compareTo((column2value(a) ?? 0) as int));
-          });
-          case NumericalAdjustment(): setState(() {ascending 
-              ? _setups.sort((a, b) => ((column2value(a) ?? double.negativeInfinity) as double).compareTo((column2value(b) ?? double.negativeInfinity) as double)) 
-              : _setups.sort((a, b) => ((column2value(b) ?? double.negativeInfinity) as double).compareTo((column2value(a) ?? double.negativeInfinity) as double));
-          });
-          case CategoricalAdjustment(): setState(() {ascending 
-              ? _setups.sort((a, b) => ((column2value(a) ?? '') as String).compareTo((column2value(b) ?? '') as String)) 
-              : _setups.sort((a, b) => ((column2value(b) ?? '') as String).compareTo((column2value(a) ?? '') as String));
-          });
-          case TextAdjustment(): setState(() {ascending 
-              ? _setups.sort((a, b) => ((column2value(a) ?? '') as String).compareTo((column2value(b) ?? '') as String)) 
-              : _setups.sort((a, b) => ((column2value(b) ?? '') as String).compareTo((column2value(a) ?? '') as String));
-          });
-          case DurationAdjustment(): setState(() {ascending 
-              ? _setups.sort((a, b) => ((column2value(a) ?? Duration.zero) as Duration).compareTo((column2value(b) ?? Duration.zero) as Duration)) 
-              : _setups.sort((a, b) => ((column2value(b) ?? Duration.zero) as Duration).compareTo((column2value(a) ?? Duration.zero) as Duration));
-          });
+          case BooleanAdjustment(): _sortAscending 
+              ? setups.sort((a, b) => ((column2value(a) ?? false) ? 1 : 0).compareTo((column2value(b) ?? false) ? 1 : 0)) 
+              : setups.sort((a, b) => ((column2value(b) ?? false) ? 1 : 0).compareTo((column2value(a) ?? false) ? 1 : 0));
+          case StepAdjustment(): _sortAscending 
+              ? setups.sort((a, b) => ((column2value(a) ?? 0) as int).compareTo((column2value(b) ?? 0) as int)) 
+              : setups.sort((a, b) => ((column2value(b) ?? 0) as int).compareTo((column2value(a) ?? 0) as int));
+          case NumericalAdjustment(): _sortAscending 
+              ? setups.sort((a, b) => ((column2value(a) ?? double.negativeInfinity) as double).compareTo((column2value(b) ?? double.negativeInfinity) as double)) 
+              : setups.sort((a, b) => ((column2value(b) ?? double.negativeInfinity) as double).compareTo((column2value(a) ?? double.negativeInfinity) as double));
+          case CategoricalAdjustment(): _sortAscending 
+              ? setups.sort((a, b) => ((column2value(a) ?? '') as String).compareTo((column2value(b) ?? '') as String)) 
+              : setups.sort((a, b) => ((column2value(b) ?? '') as String).compareTo((column2value(a) ?? '') as String));
+          case TextAdjustment(): _sortAscending 
+              ? setups.sort((a, b) => ((column2value(a) ?? '') as String).compareTo((column2value(b) ?? '') as String)) 
+              : setups.sort((a, b) => ((column2value(b) ?? '') as String).compareTo((column2value(a) ?? '') as String));
+          case DurationAdjustment(): _sortAscending 
+              ? setups.sort((a, b) => ((column2value(a) ?? Duration.zero) as Duration).compareTo((column2value(b) ?? Duration.zero) as Duration)) 
+              : setups.sort((a, b) => ((column2value(b) ?? Duration.zero) as Duration).compareTo((column2value(a) ?? Duration.zero) as Duration));
         }
     }
+    return setups;
   }
 
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final filteredData = context.watch<FilteredData>();
+
+    final component = filteredData.components[widget.componentId];
+    if (component == null) return const SizedBox.shrink();
+    final componentAdjustments = component.adjustments;
+
     final ratings = filteredData.ratings;
     final ratingAdjustments = ratings.values.expand((rating) => rating.adjustments);
+    
     final bikes = filteredData.bikes;
+    final bike = bikes[component.bike];
+    
     final persons = filteredData.persons;
-    final personAdjustments = persons[bikes[widget.component.bike]?.person]?.adjustments ?? [];
+    final person = persons[bike?.person];
+    final personAdjustments = person?.adjustments ?? [];
+    
+    // Remove only invalid columns (to keep prior modifications to 'active')
+    for (final column in _columns.toSet()) {
+      switch (column.section) {
+        case TableColumnSection.generalContext:
+          if (column.label == "Tags" && !appSettings.enableSetupTags) _columns.remove(column);
+        case TableColumnSection.componentAdjustments:
+          if (!componentAdjustments.any((a) => a.id == column.label)) _columns.remove(column);
+        case TableColumnSection.personAttributes:
+          if (!appSettings.enablePerson || person == null) {
+            _columns.remove(column);
+            continue;
+          } else if (!personAdjustments.any((pa) => pa.id == column.label)) {
+            _columns.remove(column);
+            continue;
+          }          
+        case TableColumnSection.ratingMetrics:
+          if (!appSettings.enableRating) {
+            _columns.remove(column);
+            continue;
+          }
+          final Rating? rating = ratings[column.label];
+          if (rating == null) {
+            _columns.remove(column);
+            continue;
+          }
+          switch (rating.filterType) {
+            case FilterType.global: continue;
+            case FilterType.componentType: 
+              if (component.componentType.toString() != rating.filter) {
+                _columns.remove(column);
+                continue;
+              }
+            case FilterType.component:
+              if (component.id != rating.filter) {
+                _columns.remove(column);
+                continue;
+              }
+            case FilterType.bike:
+              if (component.bike == rating.filter) {
+                _columns.remove(column);
+                continue;
+              }
+            case FilterType.person: 
+              if (bike?.person == rating.filter) {
+                _columns.remove(column);
+                continue;
+              }
+          }
+        case TableColumnSection.weatherContext: continue; 
+      }
+    }
+
+    // Add missing columns
+    if (appSettings.enableSetupTags) {
+      _columns.add(TableColumn(section: TableColumnSection.generalContext, label: "Tags", active: false));
+    }
+
+    for (final adjustment in component.adjustments) {
+      _columns.add(TableColumn(section: TableColumnSection.componentAdjustments, label: adjustment.id, active: true));
+    }
+    if (appSettings.enablePerson) {
+      _columns.addAll(personAdjustments.map((a) => TableColumn(section: TableColumnSection.personAttributes, label: a.id, active: false)));
+    }
+    if (appSettings.enableRating) {
+      for (final rating in ratings.values) {
+        switch (rating.filterType) {
+          case FilterType.global: 
+            _columns.addAll(rating.adjustments.map((a) => TableColumn(section: TableColumnSection.ratingMetrics, label: a.id, active: false)));
+          case FilterType.componentType: 
+            if (component.componentType.toString() == rating.filter) {
+              _columns.addAll(rating.adjustments.map((a) => TableColumn(section: TableColumnSection.ratingMetrics, label: a.id, active: false)));
+            }
+          case FilterType.component: 
+            if (component.id == rating.filter) {
+              _columns.addAll(rating.adjustments.map((a) => TableColumn(section: TableColumnSection.ratingMetrics, label: a.id, active: false)));
+            }
+          case FilterType.bike: 
+            if (component.bike == rating.filter) {
+              _columns.addAll(rating.adjustments.map((a) => TableColumn(section: TableColumnSection.ratingMetrics, label: a.id, active: false)));
+            }
+          case FilterType.person: 
+            if (bike?.person == rating.filter) {
+              _columns.addAll(rating.adjustments.map((a) => TableColumn(section: TableColumnSection.ratingMetrics, label: a.id, active: false)));
+            }
+        }
+      }
+    }
+
+    final sortedColumns = _columns.sorted((a, b) => a.section.index.compareTo(b.section.index));  // sort by enum index
+    final activeColumns = sortedColumns.where((c) => c.active).toList();
+    if (!activeColumns.contains(_sortColumn)) _sortColumn = null;
+
+    final setupsUnsorted = filteredData.filteredSetups.values.where(
+        (s) => component.adjustments.any((adj) => s.bikeAdjustmentValues.containsKey(adj.id))
+    ).toList().reversed.toList();
+
+    final setups = sortSetupsByColumn(
+      setups: setupsUnsorted,
+      componentAdjustments: componentAdjustments,
+      personAdjustments: personAdjustments,
+      ratingAdjustments: ratingAdjustments,
+    );
 
     return Scaffold(
       appBar: AppBar(
         title: Row(
           children: [
-            Icon(widget.component.componentType.getIconData()),
+            Icon(component.componentType.getIconData()),
             const SizedBox(width: 8),
             Expanded(
-              child: Text(widget.component.name, overflow: TextOverflow.ellipsis),
+              child: Text(component.name, overflow: TextOverflow.ellipsis),
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            onPressed: () => widget.editComponent(context, component: component),
+            icon: const Icon(Icons.edit),
+          )
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsetsGeometry.all(16),
@@ -233,86 +298,104 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                     avatar: const Icon(Icons.view_column_outlined),
                     showCheckmark: false,
                     label: const Text("Columns"),
-                    selected: _showColumns.values.any((v) => v.values.any((v) => v  == true)),
+                    selected: _columns.any((c) => c.active),
                     onSelected: (bool newValue) async {
-                      final Map<String, Map<String, bool>>? showColumnsCopy = await showColumnFilterSheet(
+                      await showColumnFilterSheet(
                         context: context, 
-                        showColumns: _showColumns, 
-                        adjustments: widget.component.adjustments,
+                        sortedColumns: sortedColumns, 
+                        componentAdjustments: componentAdjustments,
                         ratingAdjustments: ratingAdjustments,
                         personAdjustments: personAdjustments,
+                        onColumnStatusChanged: () => setState(() {}), // TableColumn.active is changed
                       );
-                      if (showColumnsCopy == null) return;
-                      setState(() {
-                        _showColumns.clear();
-                        _showColumns.addEntries(showColumnsCopy.entries);
-                      });
                     },
                   ),
-                  //TODO: Use the same filter widgets as in componentList and update all filters simutanously
+                  BikeAndTagsFilterChip(enableSetupTagFilter: appSettings.enableSetupTags),
                 ],
               ),
             ),
-            if (_showColumns.values.any((v) => v.values.any((v) => v  == true)))
+
+            if (activeColumns.isNotEmpty)
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
                   sortAscending: _sortAscending,
-                  sortColumnIndex: _sortColumnIndex,
+                  sortColumnIndex: activeColumns.contains(_sortColumn) 
+                      ? activeColumns.indexOf(_sortColumn!)
+                      : null,
                   columnSpacing: 20,
                   headingTextStyle: TextStyle(fontWeight: FontWeight.bold),
                   dataRowMaxHeight: double.infinity,
-                  columns: _showColumns.entries.expand((sectionShowColumnsEntry) {
-                    return sectionShowColumnsEntry.value.entries.where((showColumnEntry) => showColumnEntry.value).map((showColumnEntry) {
-                      if ({"Component Adjustments", "Rating Metrics", "Person Attributes"}.contains(sectionShowColumnsEntry.key)) {
-                        final Adjustment? adjustment = switch (sectionShowColumnsEntry.key) {
-                          "Component Adjustments" => widget.component.adjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key),
-                          "Rating Metrics" => ratingAdjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key),
-                          "Person Attributes" => personAdjustments.firstWhereOrNull((a) => a.id == showColumnEntry.key),
+                  columns: activeColumns.map((column) {
+                    switch (column.section) {
+                      case TableColumnSection.generalContext || TableColumnSection.weatherContext:
+                        return DataColumn(
+                          label: Text(column.label, overflow: TextOverflow.ellipsis),
+                          onSort: (int _, bool ascending) {
+                            setState(() {
+                              _sortAscending = ascending;
+                              _sortColumn = column;
+                            });
+                          },
+                        );
+                      case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes || TableColumnSection.ratingMetrics:
+                        final Adjustment? adjustment = switch (column.section) {
+                          TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label),
+                          TableColumnSection.ratingMetrics => ratingAdjustments.firstWhereOrNull((a) => a.id == column.label),
+                          TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == column.label),
                           _ => null,
                         };
                         return DataColumn(
                           label: Text(
                             (adjustment?.name ?? "-") + (adjustment?.unit != null ? " [${adjustment!.unit}]" : ""),
-                            overflow: TextOverflow.ellipsis
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          onSort: (columnIndex, ascending) => onSortColum(
-                            section: sectionShowColumnsEntry.key, 
-                            adjustment: adjustment, 
-                            column: showColumnEntry.key, 
-                            columnIndex: columnIndex, 
-                            ascending: ascending
-                          ),
+                          onSort: (int _, bool ascending) {
+                            setState(() {
+                              _sortAscending = ascending;
+                              _sortColumn = column;
+                            });
+                          },
                         );
-                      } else {
-                        return DataColumn(
-                          label: Text(showColumnEntry.key, overflow: TextOverflow.ellipsis),
-                          onSort: (columnIndex, ascending) => onSortColum(
-                            section: sectionShowColumnsEntry.key, 
-                            adjustment: null, 
-                            column: showColumnEntry.key, 
-                            columnIndex: columnIndex, 
-                            ascending: ascending
-                          ),
-                        );
-                      }               
-                    }).toList();
+                    }
                   }).toList(),
-                  rows: _setups.map((setup) {
+                  rows: setups.map((setup) {
                     return DataRow(
-                      cells: _showColumns.entries.expand((sectionShowColumnsEntry) {
-                        return sectionShowColumnsEntry.value.entries.where((showColumnEntry) => showColumnEntry.value).map((showColumnEntry) {
-                          if ({"Component Adjustments", "Rating Metrics", "Person Attributes"}.contains(sectionShowColumnsEntry.key)) {
-                            final value = switch (sectionShowColumnsEntry.key) {
-                              "Component Adjustments" => setup.bikeAdjustmentValues[showColumnEntry.key],
-                              "Rating Metrics" => setup.ratingAdjustmentValues[showColumnEntry.key],
-                              "Person Attributes" => setup.personAdjustmentValues[showColumnEntry.key],
+                      cells: activeColumns.map((column) {
+                        switch (column.section) {
+                          case TableColumnSection.generalContext:
+                            return switch (column.label) {
+                              "Name" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.name, overflow: TextOverflow.ellipsis)))),
+                              "Notes" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.notes ?? '-', overflow: TextOverflow.ellipsis)))),
+                              "Tags" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.tags.join('; '), overflow: TextOverflow.ellipsis)))),
+                              "Date" => DataCell(Text(DateFormat(appSettings.dateFormat).format(setup.datetimeLocal))),
+                              "Time" => DataCell(Text(DateFormat(appSettings.timeFormat).format(setup.datetimeLocal))),
+                              "Place" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.place?.locality ?? '-', overflow: TextOverflow.ellipsis)))),
+                              "Altitude" => DataCell(Center(child: Text(setup.position?.altitude == null ? '-' : "${setup.position!.altitude!.round()} ${appSettings.altitudeUnit}"))),
+                              _ => const DataCell(Text("ERROR")),
+                            };
+                          case TableColumnSection.weatherContext:
+                            return switch (column.label) {
+                              "Weather Code" => DataCell(Center(child: Text(setup.weather?.getWeatherCodeLabel() ?? "-"))),
+                              "Temperature" => DataCell(Center(child: Text(setup.weather?.currentTemperature == null ? '-' : "${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}"))),
+                              "Precipitation" => DataCell(Center(child: Text(setup.weather?.dayAccumulatedPrecipitation == null ? '-' : "${Weather.convertPrecipitationFromMm(setup.weather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit)?.round()} ${appSettings.precipitationUnit}"))),
+                              "Humidity" => DataCell(Center(child: Text(setup.weather?.currentHumidity == null ? '-' : "${setup.weather!.currentHumidity!.round()} %"))),
+                              "Windspeed" => DataCell(Center(child: Text(setup.weather?.currentWindSpeed == null ? '-' : "${Weather.convertWindSpeedFromKmh(setup.weather!.currentWindSpeed!, appSettings.windSpeedUnit)?.round()} ${appSettings.windSpeedUnit}"))),
+                              "Soil Moisture" => DataCell(Center(child: Text(setup.weather?.currentSoilMoisture0to7cm == null ? '-' : setup.weather!.currentSoilMoisture0to7cm!.toStringAsFixed(2)))),
+                              "Condition" => DataCell(Center(child: Text(setup.weather?.condition == null ? '-' : setup.weather!.condition!.value))),
+                              _ => const DataCell(Text("ERROR")),
+                            };
+                          case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes || TableColumnSection.ratingMetrics:
+                            final value = switch (column.section) {
+                              TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[column.label],
+                              TableColumnSection.ratingMetrics => setup.ratingAdjustmentValues[column.label],
+                              TableColumnSection.personAttributes => setup.personAdjustmentValues[column.label],
                               _ => null,
                             };
-                            final initialValue = switch (sectionShowColumnsEntry.key) {
-                              "Component Adjustments" => setup.previousBikeSetup?.bikeAdjustmentValues[showColumnEntry.key],
-                              "Rating Metrics" => null,
-                              "Person Attributes" => setup.previousPersonSetup?.personAdjustmentValues[showColumnEntry.key],
+                            final initialValue = switch (column.section) {
+                              TableColumnSection.componentAdjustments => setup.previousBikeSetup?.bikeAdjustmentValues[column.label],
+                              TableColumnSection.ratingMetrics => null,
+                              TableColumnSection.personAttributes => setup.previousPersonSetup?.personAdjustmentValues[column.label],
                               _ => null,
                             };
      
@@ -332,26 +415,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                                 ),
                               ),
                             );
-                          } else {
-                            return switch(showColumnEntry.key) {
-                              "Name" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.name, overflow: TextOverflow.ellipsis)))),
-                              "Notes" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.notes ?? '-', overflow: TextOverflow.ellipsis)))),
-                              "Tags" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.tags.join('; '), overflow: TextOverflow.ellipsis)))),
-                              "Date" => DataCell(Text(DateFormat(appSettings.dateFormat).format(setup.datetimeLocal))),
-                              "Time" => DataCell(Text(DateFormat(appSettings.timeFormat).format(setup.datetimeLocal))),
-                              "Place" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.place?.locality ?? '-', overflow: TextOverflow.ellipsis)))),
-                              "Altitude" => DataCell(Center(child: Text(setup.position?.altitude == null ? '-' : "${setup.position!.altitude!.round()} ${appSettings.altitudeUnit}"))),
-                              "Weather Code" => DataCell(Center(child: Text(setup.weather?.getWeatherCodeLabel() ?? "-"))),
-                              "Temperature" => DataCell(Center(child: Text(setup.weather?.currentTemperature == null ? '-' : "${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}"))),
-                              "Precipitation" => DataCell(Center(child: Text(setup.weather?.dayAccumulatedPrecipitation == null ? '-' : "${Weather.convertPrecipitationFromMm(setup.weather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit)?.round()} ${appSettings.precipitationUnit}"))),
-                              "Humidity" => DataCell(Center(child: Text(setup.weather?.currentHumidity == null ? '-' : "${setup.weather!.currentHumidity!.round()} %"))),
-                              "Windspeed" => DataCell(Center(child: Text(setup.weather?.currentWindSpeed == null ? '-' : "${Weather.convertWindSpeedFromKmh(setup.weather!.currentWindSpeed!, appSettings.windSpeedUnit)?.round()} ${appSettings.windSpeedUnit}"))),
-                              "Soil Moisture" => DataCell(Center(child: Text(setup.weather?.currentSoilMoisture0to7cm == null ? '-' : setup.weather!.currentSoilMoisture0to7cm!.toStringAsFixed(2)))),
-                              "Condition" => DataCell(Center(child: Text(setup.weather?.condition == null ? '-' : setup.weather!.condition!.value))),
-                              _ => const DataCell(Text("ERROR")),
-                            };
-                          }
-                        }).toList();
+                        }
                       }).toList(),
                     );
                   }).toList(),
@@ -368,7 +432,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                   ),
                 ),
               ),
-            if (_setups.isEmpty)
+            if (setups.isEmpty)
               SizedBox(
                 height: 100,
                 child: Center(

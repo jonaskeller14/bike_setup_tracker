@@ -72,7 +72,6 @@ class ComponentListCard extends StatelessWidget{
     final filteredData = context.watch<FilteredData>();
     final bikes = filteredData.bikes;
     final setups = filteredData.setups;
-    final enabled = setups.values.lastWhereOrNull((s) => s.bike == component.bike) != null;
     return Card(
       key: ValueKey(component.id),
       elevation: elevation,
@@ -80,16 +79,14 @@ class ComponentListCard extends StatelessWidget{
       clipBehavior: Clip.antiAlias, // Borderradius for InkWell
       color: color,
       child: InkWell(
-        onTap: enabled
-            ? () async {
-                await Navigator.push<Component>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ComponentOverviewPage(componentId: component.id, editComponent: _editComponent),
-                  ),
-                );
-              }
-            : null,
+        onTap: () async {
+          await Navigator.push<Component>(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ComponentOverviewPage(componentId: component.id, editComponent: _editComponent),
+            ),
+          );
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -104,7 +101,6 @@ class ComponentListCard extends StatelessWidget{
                 component.name,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              enabled: enabled,
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 2,

@@ -316,6 +316,7 @@ class GarageBikeCard extends StatelessWidget{
                   runSpacing: 8,
                   spacing: 8,
                   footer: Container(
+                    width: bikeComponents.isEmpty ? double.infinity : null, 
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
@@ -328,10 +329,25 @@ class GarageBikeCard extends StatelessWidget{
                       borderRadius: BorderRadius.circular(12),
                       child: Padding(
                         padding: const EdgeInsets.all(10),
-                        child: Icon(
-                          Icons.add,
-                          size: 24,
-                          color: Theme.of(context).colorScheme.primary,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: 8,
+                          children: [
+                            Icon(
+                              Icons.add,
+                              size: 24,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            if (bikeComponents.isEmpty)
+                              Text(
+                                "Add component",
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                     ),

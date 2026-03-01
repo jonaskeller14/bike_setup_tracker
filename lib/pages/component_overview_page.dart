@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/filtered_data.dart';
 import '../models/rating.dart';
@@ -38,6 +39,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
     TableColumn(section: TableColumnSection.generalContext, label: "Time", active: false),
     TableColumn(section: TableColumnSection.generalContext, label: "Place", active: false),
     TableColumn(section: TableColumnSection.generalContext, label: "Altitude", active: false),
+    TableColumn(section: TableColumnSection.generalContext, label: "Bike", active: false),
 
     TableColumn(section: TableColumnSection.weatherContext, label: "Weather Code", active: false),
     TableColumn(section: TableColumnSection.weatherContext, label: "Temperature", active: false),
@@ -53,6 +55,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
     required Iterable<Adjustment> componentAdjustments,
     required Iterable<Adjustment> personAdjustments,
     required Iterable<Adjustment> ratingAdjustments,
+    required Map<String, Bike> bikes,
   }) {
     if (_sortColumn == null) return setups;
 
@@ -80,6 +83,9 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
           case "Altitude": _sortAscending 
               ? setups.sort((a, b) => (a.position?.altitude ?? double.negativeInfinity).compareTo(b.position?.altitude ?? double.negativeInfinity)) 
               : setups.sort((a, b) => (b.position?.altitude ?? double.negativeInfinity).compareTo(a.position?.altitude ?? double.negativeInfinity));
+          case "Bike": _sortAscending 
+            ? setups.sort((a, b) => (bikes[a.bike]?.name ?? '').compareTo(bikes[b.bike]?.name ?? '')) 
+            : setups.sort((a, b) => (bikes[b.bike]?.name ?? '').compareTo(bikes[a.bike]?.name ?? ''));
           case "Weather Code": _sortAscending 
               ? setups.sort((a, b) => (a.weather?.getWeatherCodeLabel() ?? '').compareTo(b.weather?.getWeatherCodeLabel() ?? '')) 
               : setups.sort((a, b) => (b.weather?.getWeatherCodeLabel() ?? '').compareTo(a.weather?.getWeatherCodeLabel() ?? ''));
@@ -141,6 +147,32 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
         }
     }
     return setups;
+  }
+
+  Widget _noColumnsPlaceholder() {
+    return SizedBox(
+      height: 100,
+      child: Center(
+        child: Text(
+          'Select a column to display the table',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+        ),
+      ),
+    );
+  }
+
+  Widget _noSetupsPlaceholder() {
+    return SizedBox(
+      height: 100,
+      child: Center(
+        child: Text(
+          'No setups yet',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+        ),
+      ),
+    );
   }
 
   @override
@@ -263,6 +295,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
       componentAdjustments: componentAdjustments,
       personAdjustments: personAdjustments,
       ratingAdjustments: ratingAdjustments,
+      bikes: bikes,
     );
 
     return Scaffold(
@@ -372,6 +405,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                               "Time" => DataCell(Text(DateFormat(appSettings.timeFormat).format(setup.datetimeLocal))),
                               "Place" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.place?.locality ?? '-', overflow: TextOverflow.ellipsis)))),
                               "Altitude" => DataCell(Center(child: Text(setup.position?.altitude == null ? '-' : "${setup.position!.altitude!.round()} ${appSettings.altitudeUnit}"))),
+                              "Bike" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(bikes[setup.bike]?.name ?? '-', overflow: TextOverflow.ellipsis)))),
                               _ => const DataCell(Text("ERROR")),
                             };
                           case TableColumnSection.weatherContext:
@@ -422,27 +456,9 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                 ),
               )
             else
-              SizedBox(
-                height: 100,
-                child: Center(
-                  child: Text(
-                    'Select a column to display the table',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                  ),
-                ),
-              ),
+              _noColumnsPlaceholder(),
             if (setups.isEmpty)
-              SizedBox(
-                height: 100,
-                child: Center(
-                  child: Text(
-                    'No setups yet',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                  ),
-                ),
-              ),
+              _noSetupsPlaceholder(),
             const InitialChangedValueLegend(),
           ],
         ),

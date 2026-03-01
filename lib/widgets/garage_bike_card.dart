@@ -341,7 +341,7 @@ class GarageBikeCard extends StatelessWidget{
                             ),
                             if (bikeComponents.isEmpty)
                               Text(
-                                "Add component",
+                                "Add Component",
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.primary,
                                   fontWeight: FontWeight.w600,

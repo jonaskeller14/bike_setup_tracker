@@ -400,7 +400,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                             return switch (column.label) {
                               "Name" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.name, overflow: TextOverflow.ellipsis)))),
                               "Notes" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.notes ?? '-', overflow: TextOverflow.ellipsis)))),
-                              "Tags" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.tags.join('; '), overflow: TextOverflow.ellipsis)))),
+                              "Tags" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.tags.isEmpty ? '-' : setup.tags.join('; '), overflow: TextOverflow.ellipsis)))),
                               "Date" => DataCell(Text(DateFormat(appSettings.dateFormat).format(setup.datetimeLocal))),
                               "Time" => DataCell(Text(DateFormat(appSettings.timeFormat).format(setup.datetimeLocal))),
                               "Place" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.place?.locality ?? '-', overflow: TextOverflow.ellipsis)))),

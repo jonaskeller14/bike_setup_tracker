@@ -490,7 +490,7 @@ class _HomePageState extends State<HomePage> {
         ),
         title: <Text>[
           if (appSettings.enableGarage)
-            const Text("Garage"),
+            const Text("Bikes"),
           const Text("Bikes"),
           const Text("Components"),
           const Text("Setup History"),
@@ -589,7 +589,7 @@ class _HomePageState extends State<HomePage> {
         },
         destinations: <Widget>[
           if (appSettings.enableGarage)
-            NavigationDestination(icon: Badge(isLabelVisible: filteredData.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: const Icon(Bike.iconData)), label: 'Garage'),
+            NavigationDestination(icon: Badge(isLabelVisible: filteredData.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: const Icon(Bike.iconData)), label: 'Bikes'),
           NavigationDestination(icon: Badge(isLabelVisible: filteredData.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: const Icon(Bike.iconData)), label: 'Bikes'),
           const NavigationDestination(icon: Icon(Component.iconData), label: 'Components'),
           const NavigationDestination(icon: Icon(Setup.iconData), label: 'Setups'),

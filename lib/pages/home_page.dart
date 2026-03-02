@@ -8,14 +8,10 @@ import '../models/component.dart';
 import '../models/app_settings.dart';
 import '../models/app_data.dart';
 import '../models/filtered_data.dart';
-import '../widgets/chips/bike_and_tags_filter.dart';
 import '../widgets/garage_list.dart';
-import '../widgets/sheets/setup_list_values_filter.dart';
 import '../widgets/strava_sync_button.dart';
 import 'bike_page.dart';
 import 'component_page.dart';
-import 'map_page.dart';
-import 'setup_display_page.dart';
 import 'setup_page.dart';
 import 'person_page.dart';
 import 'rating_page.dart';
@@ -27,7 +23,6 @@ import '../widgets/rating_list.dart';
 import '../widgets/bike_list.dart';
 import '../widgets/component_list.dart';
 import '../widgets/setup_list.dart';
-import '../widgets/setup_list_card.dart';
 import '../widgets/sheets/import.dart';
 import '../widgets/sheets/export.dart';
 import '../widgets/sheets/share.dart';
@@ -75,13 +70,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool _setupListOnlyChanges = false;
-  bool _setupListBikeAdjustmentValues = true;
-  bool _setupListPersonAdjustmentValues = true;
-  bool _setupListRatingAdjustmentValues = true;
-  bool _setupListSortAccending = false;
-
-  int currentPageIndex = 0;
+  int _currentPageIndex = 0;
 
   Future<void> _removePerson(Person person) async {
     final data = context.read<AppData>();
@@ -330,145 +319,6 @@ class _HomePageState extends State<HomePage> {
     data.addSetup(newSetup);
   }
 
-  FilterChip _setupListSortWidget() {
-    return FilterChip(
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, // Removes the 48px constraint
-      labelPadding: EdgeInsets.symmetric(vertical: 2),
-      avatar: _setupListSortAccending ? const Icon(Icons.arrow_upward) : const Icon(Icons.arrow_downward),
-      label: const SizedBox.shrink(), 
-      onSelected: (bool value) => setState(() => _setupListSortAccending = value),
-      selected: _setupListSortAccending,
-      showCheckmark: false,
-    );
-  }
-
-  FilterChip _setupListValueFilterWidget() {
-    return FilterChip(
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, // Removes the 48px constraint
-      avatar: const Icon(Icons.list_alt),
-      label: const Text("Values"),
-      showCheckmark: false,
-      selected: _setupListOnlyChanges || !_setupListBikeAdjustmentValues || !_setupListPersonAdjustmentValues || !_setupListRatingAdjustmentValues,
-      onSelected: (bool value) async {
-        await showSetupListValuesFilterSheet(
-          context: context,
-          onlyChanges: _setupListOnlyChanges,
-          bikeValues: _setupListBikeAdjustmentValues,
-          personValues: _setupListPersonAdjustmentValues,
-          ratingValues: _setupListRatingAdjustmentValues,
-          onOnlyChangesChanged: (bool val) => setState(() => _setupListOnlyChanges = val),
-          onBikeValuesChanged: (bool val) => setState(() => _setupListBikeAdjustmentValues = val),
-          onPersonValuesChanged: (bool val) => setState(() => _setupListPersonAdjustmentValues = val),
-          onRatingValuesChanged: (bool val) => setState(() => _setupListRatingAdjustmentValues = val),
-        );
-      },
-      onDeleted: _setupListOnlyChanges || !_setupListBikeAdjustmentValues || !_setupListPersonAdjustmentValues || !_setupListRatingAdjustmentValues
-          ? () {
-              setState(() {
-                _setupListOnlyChanges = false;
-                _setupListBikeAdjustmentValues = true;
-                _setupListPersonAdjustmentValues = true;
-                _setupListRatingAdjustmentValues = true;
-              });
-            }
-          : null,
-    );
-  }
-
-  Widget _setupListMapChip() {
-    return FilterChip(
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      label: const SizedBox.shrink(),
-      labelPadding: EdgeInsets.symmetric(vertical: 2),
-      padding: EdgeInsets.zero,
-      avatar: Icon(Icons.map_outlined),
-      showCheckmark: false,
-      selected: false,
-      onSelected: (_) async {
-        await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => MapPage(
-          editSetup: _editSetup,
-        )));
-      },
-    );
-  }
-
-  SearchAnchor _setupListSearchWidget() {
-    return SearchAnchor(
-      builder:(context, controller) {
-        return FilterChip(
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          // label: Text(controller.text),
-          label: const SizedBox.shrink(),
-          labelPadding: EdgeInsets.symmetric(vertical: 2),
-          padding: EdgeInsets.zero,
-          avatar: Icon(Icons.search),
-          showCheckmark: false,
-          // selected: controller.text.isNotEmpty,
-          selected: false,
-          onSelected: (bool newValue) {controller.text = ""; controller.openView();},
-          // onDeleted: controller.text.isEmpty ? null : () => setState(() => controller.text = ""),
-        );
-      },
-      viewBuilder: (Iterable<Widget> suggestions) {
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: suggestions.length,
-          itemBuilder: (context, index) => suggestions.elementAt(index),
-        );
-      },
-      suggestionsBuilder: (context, controller) {
-        final filteredData = context.read<FilteredData>();
-        final controllerText = controller.text.trim().toLowerCase();
-        final Iterable<Setup> setups = _setupListSortAccending
-            ? filteredData.filteredSetups.values
-            : filteredData.filteredSetups.values.toList().reversed;
-        final Iterable<Setup> suggestedSetups = setups.where((s) {
-          return s.name.toLowerCase().contains(controllerText) || 
-              (s.notes ?? "").toLowerCase().contains(controllerText);
-        });
-
-        return suggestedSetups.map((setup) {
-          return SetupListCard(
-            setupId: setup.id, 
-            onTap: () async {
-              await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDisplayPage(
-                setupIds: suggestedSetups.map((s) => s.id).toList(),
-                initialSetup: setup,
-                editSetup: _editSetup,
-              )));
-            },
-            editSetup: _editSetup, 
-            restoreSetup: _duplicateSetup, 
-            removeSetup: _removeSetup, 
-            displayOnlyChanges: _setupListOnlyChanges, 
-            displayBikeAdjustmentValues:_setupListBikeAdjustmentValues, 
-            displayPersonAdjustmentValues: _setupListPersonAdjustmentValues, 
-            displayRatingAdjustmentValues: _setupListRatingAdjustmentValues,
-          );
-        });
-      },
-    );
-  }
-
-  SingleChildScrollView _setupListFilterWidget() {
-    final appSettings = context.watch<AppSettings>();
-    return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 8),
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        spacing: 6,
-        children: [
-          _setupListSortWidget(),
-          _setupListSearchWidget(),
-          if (appSettings.enableMap)
-          _setupListMapChip(),
-          BikeAndTagsFilterChip(enableSetupTagFilter: appSettings.enableSetupTags),
-          _setupListValueFilterWidget(),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
@@ -498,7 +348,7 @@ class _HomePageState extends State<HomePage> {
             const Text("Profile"),
           if (appSettings.enableRating)
             const Text("Ratings"),
-        ][currentPageIndex],
+        ][_currentPageIndex],
         actions: [
           if (appSettings.enableStrava)
             const StravaSyncButton(),
@@ -583,9 +433,9 @@ class _HomePageState extends State<HomePage> {
       ),
       bottomNavigationBar: NavigationBar(
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        selectedIndex: currentPageIndex,
+        selectedIndex: _currentPageIndex,
         onDestinationSelected: (int index) {
-          setState(() => currentPageIndex = index);
+          setState(() => _currentPageIndex = index);
         },
         destinations: <Widget>[
           if (appSettings.enableGarage)
@@ -616,12 +466,6 @@ class _HomePageState extends State<HomePage> {
           editSetup: _editSetup,
           restoreSetup: _duplicateSetup,
           removeSetup: _removeSetup,
-          displayOnlyChanges: _setupListOnlyChanges,
-          displayBikeAdjustmentValues: _setupListBikeAdjustmentValues,
-          displayPersonAdjustmentValues: _setupListPersonAdjustmentValues,
-          displayRatingAdjustmentValues: _setupListRatingAdjustmentValues,
-          filterWidget: _setupListFilterWidget(),
-          accending: _setupListSortAccending,
         ),
         if (appSettings.enablePerson)
           PersonList(
@@ -639,7 +483,7 @@ class _HomePageState extends State<HomePage> {
             removeRating: _removeRating,
             onReorderRating: _onReorderRating,
           ),
-      ][currentPageIndex],
+      ][_currentPageIndex],
       floatingActionButton: <Widget>[
         if (appSettings.enableGarage)
           FloatingActionButton(
@@ -680,7 +524,7 @@ class _HomePageState extends State<HomePage> {
             tooltip: 'Add Rating',
             child: const Icon(Icons.add),
           ),
-      ][currentPageIndex],
+      ][_currentPageIndex],
     );
   }
 }

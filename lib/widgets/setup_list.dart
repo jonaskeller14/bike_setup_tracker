@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/app_settings.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/filtered_data.dart';
 import '../pages/setup_display_page.dart';
+import 'chips/setup_list_filter_widget.dart';
 import 'setup_list_card.dart';
 import 'strava_list_tile.dart';
 
@@ -11,24 +13,12 @@ class SetupList extends StatelessWidget {
   final Future<void> Function(Setup setup) editSetup;
   final Future<void> Function(Setup setup) restoreSetup;
   final Future<void> Function(Setup setup) removeSetup;
-  final bool displayOnlyChanges;
-  final Widget filterWidget;
-  final bool displayBikeAdjustmentValues;
-  final bool displayPersonAdjustmentValues;
-  final bool displayRatingAdjustmentValues;
-  final bool accending;
 
   const SetupList({
     super.key,
     required this.editSetup,
     required this.restoreSetup,
     required this.removeSetup,
-    required this.displayOnlyChanges,
-    required this.filterWidget,
-    required this.displayBikeAdjustmentValues,
-    required this.displayPersonAdjustmentValues,
-    required this.displayRatingAdjustmentValues,
-    required this.accending,
   });
 
   Widget _emptyPlaceholder(BuildContext context) {
@@ -37,7 +27,11 @@ class SetupList extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          filterWidget,
+          SetupListFilterWidget(
+            editSetup: editSetup, 
+            restoreSetup: restoreSetup, 
+            removeSetup: removeSetup
+          ),
           Expanded(
             child: Center(
               child: Text(
@@ -52,13 +46,16 @@ class SetupList extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {    
+  Widget build(BuildContext context) {
+    final appSettings = context.watch<AppSettings>();
     final filteredData = context.watch<FilteredData>();
     final setupsList = filteredData.filteredSetups.values;
     final stravaActivities = filteredData.filteredStravaActivities.values;
 
     final List<TimelineEntry> entries =  [...setupsList.map((s) => SetupEntry(s)), ...stravaActivities.map((a) => StravaEntry(a))];
-    entries.sort((a, b) => accending ? a.date.compareTo(b.date) : b.date.compareTo(a.date));
+    entries.sort((a, b) => appSettings.setupListSortAscending 
+        ? a.date.compareTo(b.date) 
+        : b.date.compareTo(a.date));
 
     return setupsList.isEmpty
         ? _emptyPlaceholder(context)
@@ -66,7 +63,13 @@ class SetupList extends StatelessWidget {
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
             itemCount: entries.length + 1, // 1 header
             itemBuilder: (context, index) {
-              if (index == 0) return filterWidget;
+              if (index == 0) {
+                return SetupListFilterWidget(
+                  editSetup: editSetup, 
+                  restoreSetup: restoreSetup, 
+                  removeSetup: removeSetup
+                );
+              }
               
               final entry = entries[index - 1];
               switch (entry) {
@@ -86,10 +89,10 @@ class SetupList extends StatelessWidget {
                     editSetup: editSetup,
                     restoreSetup: restoreSetup,
                     removeSetup: removeSetup,
-                    displayOnlyChanges: displayOnlyChanges,
-                    displayBikeAdjustmentValues: displayBikeAdjustmentValues,
-                    displayPersonAdjustmentValues: displayPersonAdjustmentValues,
-                    displayRatingAdjustmentValues: displayRatingAdjustmentValues,
+                    displayOnlyChanges: appSettings.setupListOnlyChanges,
+                    displayBikeAdjustmentValues: appSettings.setupListBikeAdjustmentValues,
+                    displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues,
+                    displayRatingAdjustmentValues: appSettings.setupListRatingAdjustmentValues,
                   ); 
               }
             },

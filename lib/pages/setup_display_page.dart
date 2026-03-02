@@ -205,7 +205,7 @@ class SetupDisplayPageContent extends StatelessWidget {
   }
 
   SliverToBoxAdapter _contextSection(BuildContext context, {required Setup setup, required Bike? bike, required Person? person}) {
-    final appSettings = context.read<AppSettings>();
+    final appSettings = context.watch<AppSettings>();
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
@@ -253,7 +253,7 @@ class SetupDisplayPageContent extends StatelessWidget {
                       dense: true,
                       enabled: setup.place != null,
                     ),
-                    if (setup.position?.latitude != null && setup.position?.longitude != null)
+                    if (setup.position?.latitude != null && setup.position?.longitude != null && appSettings.enableMap)
                       SizedBox(
                         height: 200,
                         child: ClipRRect(

@@ -18,7 +18,14 @@ class AppSettings extends ChangeNotifier {
   bool _enableSetupTags = false;
   bool _enableStrava = false;
   static const bool _enableMap = true;
-  static const bool _enableGarage = false;
+  static const bool _enableGarage = true;
+
+  // Temporary Settings
+  bool _setupListOnlyChanges = false;
+  bool _setupListBikeAdjustmentValues = true;
+  bool _setupListPersonAdjustmentValues = true;
+  bool _setupListRatingAdjustmentValues = true;
+  bool _setupListSortAscending = false;
 
   bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;
@@ -36,6 +43,13 @@ class AppSettings extends ChangeNotifier {
   bool get enableStrava => _enableStrava;
   bool get enableMap => _enableMap;
   bool get enableGarage => _enableGarage;
+
+  // Temporary Settings
+  bool get setupListOnlyChanges => _setupListOnlyChanges;
+  bool get setupListBikeAdjustmentValues => _setupListBikeAdjustmentValues;
+  bool get setupListPersonAdjustmentValues => _setupListPersonAdjustmentValues;
+  bool get setupListRatingAdjustmentValues => _setupListRatingAdjustmentValues;
+  bool get setupListSortAscending => _setupListSortAscending;
 
   set showOnboarding(bool newShowOnboarding) {
     if (_showOnboarding == newShowOnboarding) return;
@@ -133,6 +147,36 @@ class AppSettings extends ChangeNotifier {
     _enableStrava = newValue;
     notifyListeners();
     saveAppSettings();
+  }
+
+  set setupListOnlyChanges(bool newValue) {
+    if (newValue == setupListOnlyChanges) return;
+    _setupListOnlyChanges = newValue;
+    notifyListeners();
+  }
+
+  set setupListBikeAdjustmentValues(bool newValue) {
+    if (newValue == _setupListBikeAdjustmentValues) return;
+    _setupListBikeAdjustmentValues = newValue;
+    notifyListeners();
+  }
+
+  set setupListPersonAdjustmentValues(bool newValue) {
+    if (newValue == _setupListPersonAdjustmentValues) return;
+    _setupListPersonAdjustmentValues = newValue;
+    notifyListeners();
+  }
+
+  set setupListRatingAdjustmentValues(bool newValue) {
+    if (newValue == _setupListRatingAdjustmentValues) return;
+    _setupListRatingAdjustmentValues = newValue;
+    notifyListeners();
+  }
+
+  set setupListSortAscending(bool newValue) {
+    if (newValue == _setupListSortAscending) return;
+    _setupListSortAscending = newValue;
+    notifyListeners();
   }
 
   Future<void> loadAppSettings() async {

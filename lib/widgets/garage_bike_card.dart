@@ -145,6 +145,7 @@ class GarageBikeCard extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+    final appSettings = context.watch<AppSettings>();
     final filteredData = context.watch<FilteredData>();
     final persons = filteredData.persons;
     final bikeComponents = Map.fromEntries(filteredData.components.entries.where((ce) => ce.value.bike == bike.id));
@@ -164,7 +165,7 @@ class GarageBikeCard extends StatelessWidget{
             children: [
               ListTile(
                 dense: true,
-                leading: context.watch<AppSettings>().enableStrava 
+                leading: appSettings.enableStrava 
                     ? Badge(
                         label: bike.stravaGear == null
                             ? Icon(
@@ -187,12 +188,12 @@ class GarageBikeCard extends StatelessWidget{
                   bike.name,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                subtitle: context.read<AppSettings>().enablePerson || (bike.notes != null && bike.notes!.isNotEmpty) 
+                subtitle: appSettings.enablePerson || (bike.notes != null && bike.notes!.isNotEmpty) 
                     ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (context.read<AppSettings>().enablePerson)
+                          if (appSettings.enablePerson)
                             Wrap(
                               spacing: 4,
                               crossAxisAlignment: WrapCrossAlignment.center,

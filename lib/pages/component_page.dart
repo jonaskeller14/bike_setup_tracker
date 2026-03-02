@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
+import '../models/installation.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/filtered_data.dart';
 import 'adjustment/boolean_adjustment_page.dart';
@@ -51,6 +52,7 @@ class _ComponentPageState extends State<ComponentPage> {
   late TextEditingController _notesController;
   late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
+  late List<Installation> _installations;
   late String? _bike;
   late String? _initialBike;
   late ComponentType? _componentType;
@@ -66,6 +68,8 @@ class _ComponentPageState extends State<ComponentPage> {
         : List.from(widget.component!.adjustments);
     _initialAdjustments = List.from(_adjustments);
     
+    _installations = widget.component?.installations ?? [];
+
     final filteredData = context.read<FilteredData>();
     _initialBike = widget.component != null 
         ? widget.component!.bike 
@@ -195,14 +199,16 @@ class _ComponentPageState extends State<ComponentPage> {
     final notes = _notesController.text.trim();
     _formHasChanges = false;
     
-    Navigator.pop(context, Component(
+    final updatedComponent = Component(
       id: widget.mode == ComponentPageMode.edit ? widget.component?.id : null, 
       name: name,
       componentType: _componentType!,
-      bike: _bike,
+      installations: _installations,
       notes: notes.isEmpty ? null : notes,
       adjustments: _adjustments,
-    ));
+    ).copyWithNewInstallation(_bike);
+
+    Navigator.pop(context, updatedComponent);
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {

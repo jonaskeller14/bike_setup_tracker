@@ -30,7 +30,7 @@ class _GarageListState extends State<GarageList> {
     final appData = context.read<AppData>();
     
     Future.microtask(() {
-      appData.editComponent(component.copyWith(bike: newBike));
+      appData.editComponent(component.copyWithNewInstallation(newBike));
       _draggedComponentNotifier.value = null;
     });
   }

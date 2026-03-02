@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_data.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/rating.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
@@ -19,7 +20,7 @@ void main() async {
   for (final idx in List.generate(100, (idx) => idx)) {
     data.addComponent(Component(
       name: "Component #$idx: $loremIpsum", 
-      bike: data.bikes.values.first.id, 
+      installations: [Installation.sinceBeginning(parent: data.bikes.values.first.id)], 
       componentType: ComponentType.frame, 
       adjustments: [
         BooleanAdjustment(

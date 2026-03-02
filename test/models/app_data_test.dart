@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bike_setup_tracker/models/app_data.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
+import 'package:bike_setup_tracker/models/installation.dart';
 
 void main() {
   group("Bikes", () {
@@ -60,7 +61,7 @@ void main() {
     final data = AppData();
     final filteredData = FilteredData(data);
     final bike1 = Bike(name: "Bike #1", person: null);
-    final component1 = Component(name: "Component #1", bike: bike1.id, componentType: ComponentType.fork, adjustments: []);
+    final component1 = Component(name: "Component #1", installations: [Installation.sinceBeginning(parent: bike1.id)], componentType: ComponentType.fork, adjustments: []);
 
     test("AppData/addComponent", () {
       data.addBike(bike1);
@@ -92,8 +93,8 @@ void main() {
     });
 
     test("AppData/reorderComponent", () {
-      final comp2 = Component(name: "Component #2", bike: bike1.id, componentType: ComponentType.other, adjustments: []);
-      final comp3 = Component(name: "Component #3", bike: bike1.id, componentType: ComponentType.other, adjustments: []);
+      final comp2 = Component(name: "Component #2", installations: [Installation.sinceBeginning(parent: bike1.id)], componentType: ComponentType.other, adjustments: []);
+      final comp3 = Component(name: "Component #3", installations: [Installation.sinceBeginning(parent: bike1.id)], componentType: ComponentType.other, adjustments: []);
       data.addComponent(comp2);
       data.addComponent(comp3);
       filteredData.update(data);
@@ -138,14 +139,14 @@ void main() {
       data.addBike(bike2);
       
       // Move component1 from bike1 to uninstalled (null bike)
-      data.editComponent(component1.copyWith(bike: null));
+      data.editComponent(component1.copyWith(installations: [Installation.sinceBeginning(parent: null)]));
       filteredData.update(data);
       
       final updatedComp1 = data.components[component1.id]!;
       expect(updatedComp1.bike, null);
       
       // Move component1 from uninstalled to bike2
-      data.editComponent(updatedComp1.copyWith(bike: bike2.id));
+      data.editComponent(updatedComp1.copyWith(installations: [Installation.sinceBeginning(parent: bike2.id)]));
       filteredData.update(data);
       
       final updatedComp2 = data.components[component1.id]!;
@@ -156,7 +157,7 @@ void main() {
     final data = AppData();
     final filteredData = FilteredData(data);
     final bike1 = Bike(name: "Bike #1", person: null);
-    final component1 = Component(name: "Component #1", bike: bike1.id, componentType: ComponentType.fork, adjustments: []);
+    final component1 = Component(name: "Component #1", installations: [Installation.sinceBeginning(parent: bike1.id)], componentType: ComponentType.fork, adjustments: []);
     final setup1 = Setup(
       name: "Setup #1", 
       tags: {},

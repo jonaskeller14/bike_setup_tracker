@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'adjustment/adjustment.dart';
 import '../icons/bike_icons.dart';
+import 'installation.dart';
 
 enum ComponentType {
   frame('Frame'),
@@ -39,8 +40,10 @@ class Component {
   final String name;
   final ComponentType componentType; 
   final List<Adjustment> adjustments;
-  final String? bike;
+  final List<Installation> installations;
   final String? notes;
+
+  String? get bike => installations.lastOrNull?.parent;
 
   static const IconData iconData = Icons.grid_view_sharp;
 
@@ -49,7 +52,7 @@ class Component {
     bool? isDeleted,
     DateTime? lastModified,
     required this.name,
-    required this.bike,
+    required this.installations,
     required this.componentType,
     this.notes,
     List<Adjustment>? adjustments,
@@ -61,10 +64,18 @@ class Component {
   Component deepCopy() {
     return Component(
       name: name,
-      bike: bike,
+      installations: installations.map((i) => i.copyWith()).toList(),
       componentType: componentType,
       notes: notes,
       adjustments: adjustments.map((a) => a.deepCopy()).toList(),
+    );
+  }
+
+  Component copyWithNewInstallation(String? newBike) {
+    return copyWith(
+      installations: [
+        Installation.sinceBeginning(parent: newBike)
+      ],
     );
   }
 
@@ -76,7 +87,7 @@ class Component {
     Object? notes = const _Sentinel(),
     Object? componentType = const _Sentinel(),
     Object? adjustments = const _Sentinel(),
-    Object? bike = const _Sentinel(),
+    Object? installations = const _Sentinel(),
   }) {
     return Component(
       id: id is _Sentinel
@@ -100,20 +111,20 @@ class Component {
       adjustments: adjustments is _Sentinel
           ? this.adjustments
           : (adjustments as List<Adjustment>),
-      bike: bike is _Sentinel
-          ? this.bike
-          : (bike as String?),  
+      installations: installations is _Sentinel
+          ? this.installations
+          : (installations as List<Installation>),  
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'version': 1,
+    'version': 2,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
     'name': name,
     'componentType': componentType.toString(),
-    'bike': bike,
+    'installations': installations.map((i) => i.toJson()).toList(),
     'notes': notes,
     'adjustments': adjustments.map((a) => a.toJson()).toList(),
   };
@@ -122,6 +133,7 @@ class Component {
     final int? version = json["version"];
     switch (version) {
       case null || 1:
+        final bike = json["bike"] as String?;
         return Component(
           id: json["id"] as String,
           isDeleted: json["isDeleted"] as bool,
@@ -131,7 +143,28 @@ class Component {
             (e) => e.toString() == json['componentType'],
             orElse: () => ComponentType.other,
           ),
-          bike: json["bike"] as String?,
+          installations: [
+            Installation.sinceBeginning(parent: bike)
+          ],
+          notes: json["notes"] as String?,
+          adjustments: (json["adjustments"] as List<dynamic>?)
+            ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson, defaultCategory: AdjustmentCategory.component))
+            .toList()
+            ?? <Adjustment>[],
+        );
+      case 2:
+        return Component(
+          id: json["id"] as String,
+          isDeleted: json["isDeleted"] as bool,
+          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
+          name: json['name'] as String,
+          componentType: ComponentType.values.firstWhere(
+            (e) => e.toString() == json['componentType'],
+            orElse: () => ComponentType.other,
+          ),
+          installations: (json["installations"] as List<dynamic>?)
+            ?.map((i) => Installation.fromJson(i))
+            .toList() ?? [],
           notes: json["notes"] as String?,
           adjustments: (json["adjustments"] as List<dynamic>?)
             ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson, defaultCategory: AdjustmentCategory.component))
@@ -152,7 +185,7 @@ class Component {
         lastModified == other.lastModified &&
         name == other.name &&
         componentType == other.componentType &&
-        bike == other.bike &&
+        listEquals(installations, other.installations) &&
         notes == other.notes &&
         listEquals(adjustments, other.adjustments);
   }
@@ -165,7 +198,7 @@ class Component {
       lastModified,
       name,
       componentType,
-      bike,
+      Object.hashAll(installations),
       notes,
       Object.hashAll(adjustments),
     );

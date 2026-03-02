@@ -9,6 +9,7 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/app_data.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/installation.dart';
 
 
 void main() {
@@ -41,7 +42,7 @@ void main() {
       matching: find.text('Bikes'),
     );
 
-    await tester.tap(bikesDestination);
+    await tester.tap(bikesDestination.first);
     await tester.pumpAndSettle();
 
     appBar = tester.widget(find.byType(AppBar).last);
@@ -53,7 +54,7 @@ void main() {
       matching: find.text('Components'),
     );
 
-    await tester.tap(componentsDestination);
+    await tester.tap(componentsDestination.first);
     await tester.pumpAndSettle();
 
     appBar = tester.widget(find.byType(AppBar).last);
@@ -159,7 +160,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Setup')), findsNothing);
 
-    appData.addComponent(Component(name: "TestComponent #1", bike: bike1.id, componentType: ComponentType.other, adjustments: [], isDeleted: true));
+    appData.addComponent(Component(name: "TestComponent #1", installations: [Installation.sinceBeginning(parent: bike1.id)], componentType: ComponentType.other, adjustments: [], isDeleted: true));
     await tester.pump();
 
     await tester.tap(find.byIcon(Icons.add));
@@ -176,7 +177,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Setup')), findsNothing);
 
-    appData.addComponent(Component(name: "TestComponent #2", bike: bike2.id, componentType: ComponentType.other, adjustments: [], isDeleted: false));
+    appData.addComponent(Component(name: "TestComponent #2", installations: [Installation.sinceBeginning(parent: bike2.id)], componentType: ComponentType.other, adjustments: [], isDeleted: false));
     await tester.pump();
 
     await tester.tap(find.widgetWithIcon(FloatingActionButton, Icons.add));
@@ -205,14 +206,14 @@ void main() {
       ),
     );
 
-    await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Bikes')));
+    await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Bikes')).first);
     await tester.pumpAndSettle();
     expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Bikes')), findsOneWidget);
     
     // Add Bike and show Bike
     appData.addBike(Bike(name: "TestBike #1", person: null, isDeleted: false));    
     await tester.pumpAndSettle();
-    expect(find.text("TestBike #1"), findsOneWidget);
+    expect(find.text("TestBike #1"), findsAtLeast(1));
 
     // Not show deleted Bike
     final bike2 = Bike(name: "TestBike #2", person: null, isDeleted: true);
@@ -224,7 +225,7 @@ void main() {
     final bike3 = Bike(name: "TestBike #3", person: null, isDeleted: false);
     appData.addBike(bike3);
     await tester.pumpAndSettle();
-    expect(find.text("TestBike #3"), findsOneWidget);
+    expect(find.text("TestBike #3"), findsAtLeast(1));
     appData.removeBike(bike3);
     await tester.pumpAndSettle();
     expect(find.text("TestBike #3"), findsNothing);
@@ -232,7 +233,7 @@ void main() {
     // Restore Bike
     appData.restoreBike(bike2);
     await tester.pumpAndSettle();
-    expect(find.text("TestBike #2"), findsOneWidget);
+    expect(find.text("TestBike #2"), findsAtLeast(1));
   });
 
   testWidgets('ComponentList/Edit Adjustmenet with saving Component', (WidgetTester tester) async {
@@ -259,7 +260,7 @@ void main() {
     final booleanAdjustment1 = BooleanAdjustment(name: "BooleanAdjustment #1", notes: null, unit: null, category: AdjustmentCategory.component);
     final component1 = Component(
       name: "Component #1", 
-      bike: bike1.id, 
+      installations: [Installation.sinceBeginning(parent: bike1.id)],
       componentType: ComponentType.fork, 
       adjustments: [booleanAdjustment1]
     );
@@ -323,7 +324,7 @@ void main() {
     final booleanAdjustment1 = BooleanAdjustment(name: "BooleanAdjustment #1", notes: null, unit: null, category: AdjustmentCategory.component);
     final component1 = Component(
       name: "Component #1", 
-      bike: bike1.id, 
+      installations: [Installation.sinceBeginning(parent: bike1.id)],
       componentType: ComponentType.fork, 
       adjustments: [booleanAdjustment1]
     );

@@ -18,7 +18,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableSetupTags = false;
   bool _enableStrava = false;
   static const bool _enableMap = true;
-  static const bool _enableGarage = true;
+  static const bool _enableGarage = false;
 
   // Temporary Settings
   bool _setupListOnlyChanges = false;

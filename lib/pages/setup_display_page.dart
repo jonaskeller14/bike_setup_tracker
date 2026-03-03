@@ -263,7 +263,10 @@ class SetupDisplayPageContent extends StatelessWidget {
                               initialCenter: LatLng(setup.position!.latitude!, setup.position!.longitude!),
                               initialZoom: 13,
                               minZoom: 3,
-                              onTap: (_, _) => launchUrlString('geo:${setup.position!.latitude},${setup.position!.longitude}?q=${setup.position!.latitude},${setup.position!.longitude}(${Uri.encodeComponent(setup.name)})'),
+                              onTap: (_, _) {
+                                final String scheme = Theme.of(context).platform == TargetPlatform.iOS ? 'maps' : 'geo';
+                                launchUrlString('$scheme:${setup.position!.latitude},${setup.position!.longitude}?q=${setup.position!.latitude},${setup.position!.longitude}(${Uri.encodeComponent(setup.name)})');
+                              },
                               interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
                             ),
                             children: [

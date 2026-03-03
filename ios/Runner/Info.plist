@@ -58,6 +58,8 @@
 		<string>mailto</string>
 		<string>tel</string>
 		<string>strava</string>
+		<string>maps</string>
+		<string>geo</string>
 	</array>
 	<key>UIFileSharingEnabled</key>
 	<true/>

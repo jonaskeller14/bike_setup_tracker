@@ -8,9 +8,9 @@ class AppSettings extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
   String _dateFormat = 'yyyy-MM-dd';
   String _timeFormat = 'HH:mm';
-  String _temperatureUnit = '°C'; 
-  String _windSpeedUnit = 'km/h'; 
-  String _altitudeUnit = 'm'; 
+  String _temperatureUnit = '°C';
+  String _windSpeedUnit = 'km/h';
+  String _altitudeUnit = 'm';
   String _precipitationUnit = 'mm';
   bool _enableGoogleDrive = Platform.isAndroid;
   bool _enableTextAdjustment = false;
@@ -19,7 +19,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableSetupTags = false;
   bool _enableStrava = false;
   static const bool _enableMap = true;
-  static const bool _enableGarage = false;
+  bool _enableGarage = true;
 
   // Temporary Settings
   bool _setupListOnlyChanges = false;
@@ -60,7 +60,7 @@ class AppSettings extends ChangeNotifier {
   }
 
   set themeMode(ThemeMode newThemeMode) {
-    if (_themeMode == newThemeMode) return; 
+    if (_themeMode == newThemeMode) return;
     _themeMode = newThemeMode;
     notifyListeners();
     saveAppSettings();
@@ -79,7 +79,7 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
     saveAppSettings();
   }
-  
+
   set temperatureUnit(String newUnit) {
     if (newUnit == _temperatureUnit) return;
     _temperatureUnit = newUnit;
@@ -150,6 +150,13 @@ class AppSettings extends ChangeNotifier {
     saveAppSettings();
   }
 
+  set enableGarage(bool newValue) {
+    if (newValue == _enableGarage) return;
+    _enableGarage = newValue;
+    notifyListeners();
+    saveAppSettings();
+  }
+
   set setupListOnlyChanges(bool newValue) {
     if (newValue == setupListOnlyChanges) return;
     _setupListOnlyChanges = newValue;
@@ -186,7 +193,6 @@ class AppSettings extends ChangeNotifier {
       final jsonString = prefs.getString("app_settings") ?? "{}";
       final json = jsonDecode(jsonString) as Map<String, dynamic>;
       _showOnboarding = json['showOnboarding'] ?? _showOnboarding;
-      
       _themeMode = ThemeMode.values.firstWhere(
         (e) => e.toString() == json['themeMode'],
         orElse: () => _themeMode,
@@ -203,7 +209,7 @@ class AppSettings extends ChangeNotifier {
       _enableRating = json['enableRating'] ?? _enableRating;
       _enableSetupTags = json['enableSetupTags'] ?? _enableSetupTags;
       _enableStrava = json['enableStrava'] ?? _enableStrava;
-      
+      _enableGarage = json['enableGarage'] ?? _enableGarage;
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
     }
@@ -227,6 +233,7 @@ class AppSettings extends ChangeNotifier {
       'enableRating': _enableRating,
       'enableSetupTags': _enableSetupTags,
       'enableStrava': _enableStrava,
+      'enableGarage': _enableGarage,
     });
     await prefs.setString('app_settings', jsonData);
   }

@@ -7,15 +7,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:bike_setup_tracker/main.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/app_data.dart';
+import 'package:bike_setup_tracker/widgets/garage_list.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
-
 
 void main() {
   testWidgets('Home Page BottomNavigationBar', (WidgetTester tester) async {
     final appSettings = AppSettings();
     appSettings.showOnboarding = false;
+    appSettings.enableGarage = false;
 
     final appData = AppData();
 
@@ -76,9 +77,10 @@ void main() {
     expect(titleText.data, contains('Setup History'));
   });
 
-   testWidgets('Add Component without Bike', (WidgetTester tester) async {
+  testWidgets('Add Component without Bike', (WidgetTester tester) async {
     final appSettings = AppSettings();
     appSettings.showOnboarding = false;
+    appSettings.enableGarage = false;
 
     final appData = AppData();
 
@@ -122,9 +124,12 @@ void main() {
     expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Component')), findsOneWidget);
   });
 
-  testWidgets('Add Setup without Bike and Components', (WidgetTester tester) async {
+  testWidgets('Add Setup without Bike and Components', (
+    WidgetTester tester,
+  ) async {
     final appSettings = AppSettings();
     appSettings.showOnboarding = false;
+    appSettings.enableGarage = false;
 
     final appData = AppData();
 
@@ -135,21 +140,39 @@ void main() {
           ChangeNotifierProvider.value(value: appData),
           ChangeNotifierProxyProvider<AppData, FilteredData>(
             create: (context) => FilteredData(appData),
-            update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
+            update: (context, newAppData, filteredData) =>
+                filteredData!..update(newAppData),
           ),
         ],
         child: const BikeSetupTrackerApp(),
       ),
     );
 
-    await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Setups')));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text('Setups'),
+      ),
+    );
     await tester.pumpAndSettle();
-    expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Setup History')), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(AppBar).last,
+        matching: find.text('Setup History'),
+      ),
+      findsOneWidget,
+    );
 
     await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
     await tester.pumpAndSettle();
-    expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Setup')), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byType(AppBar).last,
+        matching: find.text('Add Setup'),
+      ),
+      findsNothing,
+    );
 
     final bike1 = Bike(name: "TestBike #1", person: null, isDeleted: true);
     appData.addBike(bike1);
@@ -158,15 +181,35 @@ void main() {
     await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
     await tester.pumpAndSettle();
-    expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Setup')), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byType(AppBar).last,
+        matching: find.text('Add Setup'),
+      ),
+      findsNothing,
+    );
 
-    appData.addComponent(Component(name: "TestComponent #1", installations: [Installation.sinceBeginning(parent: bike1.id)], componentType: ComponentType.other, adjustments: [], isDeleted: true));
+    appData.addComponent(
+      Component(
+        name: "TestComponent #1",
+        installations: [Installation.sinceBeginning(parent: bike1.id)],
+        componentType: ComponentType.other,
+        adjustments: [],
+        isDeleted: true,
+      ),
+    );
     await tester.pump();
 
     await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
     await tester.pumpAndSettle();
-    expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Setup')), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byType(AppBar).last,
+        matching: find.text('Add Setup'),
+      ),
+      findsNothing,
+    );
 
     final bike2 = Bike(name: "TestBike #2", person: null, isDeleted: false);
     appData.addBike(bike2);
@@ -175,20 +218,43 @@ void main() {
     await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
     await tester.pumpAndSettle();
-    expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Setup')), findsNothing);
+    expect(
+      find.descendant(
+        of: find.byType(AppBar).last,
+        matching: find.text('Add Setup'),
+      ),
+      findsNothing,
+    );
 
-    appData.addComponent(Component(name: "TestComponent #2", installations: [Installation.sinceBeginning(parent: bike2.id)], componentType: ComponentType.other, adjustments: [], isDeleted: false));
+    appData.addComponent(
+      Component(
+        name: "TestComponent #2",
+        installations: [Installation.sinceBeginning(parent: bike2.id)],
+        componentType: ComponentType.other,
+        adjustments: [],
+        isDeleted: false,
+      ),
+    );
     await tester.pump();
 
     await tester.tap(find.widgetWithIcon(FloatingActionButton, Icons.add));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
-    expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Setup')), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(AppBar).last,
+        matching: find.text('Add Setup'),
+      ),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('BikeList: Add/Remove/Restore Bike and not show deleted', (WidgetTester tester) async {
+  testWidgets('BikeList: Add/Remove/Restore Bike and not show deleted', (
+    WidgetTester tester,
+  ) async {
     final appSettings = AppSettings();
     appSettings.showOnboarding = false;
+    appSettings.enableGarage = false;
 
     final appData = AppData();
 
@@ -199,19 +265,33 @@ void main() {
           ChangeNotifierProvider.value(value: appData),
           ChangeNotifierProxyProvider<AppData, FilteredData>(
             create: (context) => FilteredData(appData),
-            update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
+            update: (context, newAppData, filteredData) =>
+                filteredData!..update(newAppData),
           ),
         ],
         child: const BikeSetupTrackerApp(),
       ),
     );
 
-    await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Bikes')).first);
+    await tester.tap(
+      find
+          .descendant(
+            of: find.byType(NavigationBar),
+            matching: find.text('Bikes'),
+          )
+          .first,
+    );
     await tester.pumpAndSettle();
-    expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Bikes')), findsOneWidget);
-    
+    expect(
+      find.descendant(
+        of: find.byType(AppBar).last,
+        matching: find.text('Bikes'),
+      ),
+      findsOneWidget,
+    );
+
     // Add Bike and show Bike
-    appData.addBike(Bike(name: "TestBike #1", person: null, isDeleted: false));    
+    appData.addBike(Bike(name: "TestBike #1", person: null, isDeleted: false));
     await tester.pumpAndSettle();
     expect(find.text("TestBike #1"), findsAtLeast(1));
 
@@ -236,9 +316,12 @@ void main() {
     expect(find.text("TestBike #2"), findsAtLeast(1));
   });
 
-  testWidgets('ComponentList/Edit Adjustmenet with saving Component', (WidgetTester tester) async {
+  testWidgets('ComponentList/Edit Adjustmenet with saving Component', (
+    WidgetTester tester,
+  ) async {
     final appSettings = AppSettings();
     appSettings.showOnboarding = false;
+    appSettings.enableGarage = false;
 
     final appData = AppData();
 
@@ -249,7 +332,8 @@ void main() {
           ChangeNotifierProvider.value(value: appData),
           ChangeNotifierProxyProvider<AppData, FilteredData>(
             create: (context) => FilteredData(appData),
-            update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
+            update: (context, newAppData, filteredData) =>
+                filteredData!..update(newAppData),
           ),
         ],
         child: const BikeSetupTrackerApp(),
@@ -257,34 +341,66 @@ void main() {
     );
 
     final bike1 = Bike(name: "Bike #1", person: null);
-    final booleanAdjustment1 = BooleanAdjustment(name: "BooleanAdjustment #1", notes: null, unit: null, category: AdjustmentCategory.component);
+    final booleanAdjustment1 = BooleanAdjustment(
+      name: "BooleanAdjustment #1",
+      notes: null,
+      unit: null,
+      category: AdjustmentCategory.component,
+    );
     final component1 = Component(
-      name: "Component #1", 
+      name: "Component #1",
       installations: [Installation.sinceBeginning(parent: bike1.id)],
-      componentType: ComponentType.fork, 
-      adjustments: [booleanAdjustment1]
+      componentType: ComponentType.fork,
+      adjustments: [booleanAdjustment1],
     );
 
     appData.addBike(bike1);
     appData.addComponent(component1);
-    await  tester.pump();
+    await tester.pump();
 
-    await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Components')));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text('Components'),
+      ),
+    );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.descendant(of: find.byType(Card), matching: find.byType(PopupMenuButton<String>)));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(Card),
+        matching: find.byType(PopupMenuButton<String>),
+      ),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text("Edit"));
     await tester.pumpAndSettle();
 
-    expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Edit Component')), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(AppBar).last,
+        matching: find.text('Edit Component'),
+      ),
+      findsOneWidget,
+    );
 
-    await tester.tap(find.descendant(of: find.byType(Card), matching: find.byType(PopupMenuButton<String>)));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(Card),
+        matching: find.byType(PopupMenuButton<String>),
+      ),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text("Edit"));
     await tester.pumpAndSettle();
 
-    expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Edit On/Off Adjustment')), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(AppBar).last,
+        matching: find.text('Edit On/Off Adjustment'),
+      ),
+      findsOneWidget,
+    );
     Finder nameField = find.byType(TextFormField).first;
     expect(nameField, findsOneWidget);
     await tester.enterText(nameField, 'BooleanAdjustment #1 edit #1');
@@ -295,14 +411,23 @@ void main() {
     await tester.tap(find.byIcon(Icons.check));
     await tester.pumpAndSettle();
 
-    expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Components')), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(AppBar).last,
+        matching: find.text('Components'),
+      ),
+      findsOneWidget,
+    );
     expect(find.text('BooleanAdjustment #1'), findsNothing);
     expect(find.text('BooleanAdjustment #1 edit #1'), findsOneWidget);
   });
 
-  testWidgets('ComponentList/Edit Adjustmenet without saving Component', (WidgetTester tester) async {
+  testWidgets('ComponentList/Edit Adjustmenet without saving Component', (
+    WidgetTester tester,
+  ) async {
     final appSettings = AppSettings();
     appSettings.showOnboarding = false;
+    appSettings.enableGarage = false;
 
     final appData = AppData();
 
@@ -313,7 +438,8 @@ void main() {
           ChangeNotifierProvider.value(value: appData),
           ChangeNotifierProxyProvider<AppData, FilteredData>(
             create: (context) => FilteredData(appData),
-            update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
+            update: (context, newAppData, filteredData) =>
+                filteredData!..update(newAppData),
           ),
         ],
         child: const BikeSetupTrackerApp(),
@@ -321,34 +447,66 @@ void main() {
     );
 
     final bike1 = Bike(name: "Bike #1", person: null);
-    final booleanAdjustment1 = BooleanAdjustment(name: "BooleanAdjustment #1", notes: null, unit: null, category: AdjustmentCategory.component);
+    final booleanAdjustment1 = BooleanAdjustment(
+      name: "BooleanAdjustment #1",
+      notes: null,
+      unit: null,
+      category: AdjustmentCategory.component,
+    );
     final component1 = Component(
-      name: "Component #1", 
+      name: "Component #1",
       installations: [Installation.sinceBeginning(parent: bike1.id)],
-      componentType: ComponentType.fork, 
-      adjustments: [booleanAdjustment1]
+      componentType: ComponentType.fork,
+      adjustments: [booleanAdjustment1],
     );
 
     appData.addBike(bike1);
     appData.addComponent(component1);
-    await  tester.pump();
+    await tester.pump();
 
-    await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Components')));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text('Components'),
+      ),
+    );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.descendant(of: find.byType(Card), matching: find.byType(PopupMenuButton<String>)));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(Card),
+        matching: find.byType(PopupMenuButton<String>),
+      ),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text("Edit"));
     await tester.pumpAndSettle();
 
-    expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Edit Component')), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(AppBar).last,
+        matching: find.text('Edit Component'),
+      ),
+      findsOneWidget,
+    );
 
-    await tester.tap(find.descendant(of: find.byType(Card), matching: find.byType(PopupMenuButton<String>)));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(Card),
+        matching: find.byType(PopupMenuButton<String>),
+      ),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text("Edit"));
     await tester.pumpAndSettle();
 
-    expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Edit On/Off Adjustment')), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(AppBar).last,
+        matching: find.text('Edit On/Off Adjustment'),
+      ),
+      findsOneWidget,
+    );
     Finder nameField = find.byType(TextFormField).first;
     expect(nameField, findsOneWidget);
     await tester.enterText(nameField, 'BooleanAdjustment #1 edit #1');
@@ -358,13 +516,78 @@ void main() {
 
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
-    
-    await tester.tap(find.descendant(of: find.byType(ElevatedButton), matching: find.text("Discard Changes")));
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(ElevatedButton),
+        matching: find.text("Discard Changes"),
+      ),
+    );
     await tester.pumpAndSettle();
 
-    expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Components')), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(AppBar).last,
+        matching: find.text('Components'),
+      ),
+      findsOneWidget,
+    );
     expect(find.text('BooleanAdjustment #1'), findsOneWidget);
     expect(find.text('BooleanAdjustment #1 edit #1'), findsNothing);
+  });
+
+  testWidgets('Home Page with enableGarage=True', (WidgetTester tester) async {
+    final appSettings = AppSettings();
+    appSettings.showOnboarding = false;
+    appSettings.enableGarage = true;
+
+    final appData = AppData();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: appSettings),
+          ChangeNotifierProvider.value(value: appData),
+          ChangeNotifierProxyProvider<AppData, FilteredData>(
+            create: (context) => FilteredData(appData),
+            update: (context, newAppData, filteredData) =>
+                filteredData!..update(newAppData),
+          ),
+        ],
+        child: const BikeSetupTrackerApp(),
+      ),
+    );
+
+    // Verify Title is "Bikes"
+    AppBar appBar = tester.widget(find.byType(AppBar).last);
+    Text titleText = appBar.title as Text;
+    expect(titleText.data, contains('Bikes'));
+
+    // Verify NavigationBar has "Bikes" and "Setups" but NOT "Components"
+    expect(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text('Bikes'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text('Setups'),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text('Components'),
+      ),
+      findsNothing,
+    );
+
+    // Verify GarageList is shown (body of the first page)
+    expect(find.byType(GarageList), findsOneWidget);
   });
 }
 

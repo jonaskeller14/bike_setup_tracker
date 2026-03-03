@@ -21,6 +21,24 @@ class FAQPage extends StatelessWidget {
       'Can I sync data between devices?':
           'Yes. Turn on "Google Drive Sync" in App Settings → Experimental Features. A cloud icon will appear on the home screen — tap it to sign in and authorize. Once enabled, changes sync automatically and daily backups are saved to your Google Drive so you can access them from any device.',
     },
+    'Bikes': {
+      'How do I add a new bike?':
+          'Tap the "+" button in the "Bikes" tab to create a new bike.',
+      'Where are my components?':
+          'Components are listed directly under the bike they are installed on. Tap a component to see its details and make adjustments.',
+      'How do I edit or delete a component?':
+          'Tap on a component to open its detailed view, then tap the three-dot menu in the top-right corner to edit, duplicate, or delete it.',
+      'How do I move a component to a different bike?':
+          'Long-press a component and drag it onto the card of the bike you want to move it to.',
+      'How do I reorder my components?':
+          'Long-press and drag a component icon to change its position within a bike or list.',
+      'What is the "Uninstalled" section?':
+          'This section at the bottom of the "Bikes" tab lists components that are currently not assigned to any bike. You can drag them from here onto a bike to install them.',
+      'What is an "Adjustment"?':
+          'An Adjustment defines a specific part of a component that can be modified (e.g., tire pressure or suspension rebound). It sets the rules, such as units and limits, while the actual values are recorded within a "Setup."',
+      'How do I reorder my bikes?':
+          'Long-press and drag a bike card to move it up or down in the list.',
+    },
     'Bike': {
       'How do I add a new bike?':
           'Navigate to the "Bikes" tab and tap the "+" button to create a new bike.',
@@ -65,6 +83,9 @@ class FAQPage extends StatelessWidget {
 
     final faqSections = Map.fromEntries(_faqSections.entries.where((entry) {
       switch (entry.key) {
+        case "Bikes": return appSettings.enableGarage;
+        case "Bike": return !appSettings.enableGarage;
+        case "Components": return !appSettings.enableGarage;
         case "Person": return appSettings.enablePerson;
         case "Rating": return appSettings.enableRating;
         default: return true;

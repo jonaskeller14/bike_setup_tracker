@@ -29,38 +29,42 @@ class FileExport {
     final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
 
     _downloadJson(data: data).then((result) {
-        if (result == null || result.path == null) {
-          scaffoldMessenger.showSnackBar(
-            SnackBar(
-              persist: false,
-              showCloseIcon: true,
-              closeIconColor: onErrorContainerColor,
-              content: Text("Export failed", style: TextStyle(color: onErrorContainerColor)), 
-              backgroundColor: errorContainerColor,
-            ),
-          );
-        } else {
-          scaffoldMessenger.showSnackBar(
-            SnackBar(
-              persist: false,
-              showCloseIcon: true,
-              content: Text("Saved to: ${result.path}")
-            ),
-          );
-        }
-      }).catchError((e, st) {
-        debugPrint('Export failed: $e\n$st');
+      // On iOS, result might not contain a path even if successful
+      final isSuccess =
+          result != null && (Platform.isIOS || result.path != null);
+
+      if (!isSuccess) {
         scaffoldMessenger.showSnackBar(
           SnackBar(
             persist: false,
             showCloseIcon: true,
             closeIconColor: onErrorContainerColor,
-            content: Text('Export failed: $e', style: TextStyle(color: onErrorContainerColor)), 
+          content: Text("Export failed", style: TextStyle(color: onErrorContainerColor)), 
             backgroundColor: errorContainerColor,
           ),
         );
-      });
-    }
+      } else {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            persist: false,
+            showCloseIcon: true,
+          content: Text("Saved to: ${result.path ?? 'Unknown location'}")
+          ),
+        );
+      }
+    }).catchError((e, st) {
+      debugPrint('Export failed: $e\n$st');
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          closeIconColor: onErrorContainerColor,
+        content: Text('Export failed: $e', style: TextStyle(color: onErrorContainerColor)), 
+          backgroundColor: errorContainerColor,
+        ),
+      );
+    });
+  }
 
   static Future<FileSaveResult?> _downloadJson({required AppData data}) async {
     try {
@@ -122,7 +126,7 @@ class FileExport {
           SnackBar(
             persist: false,
             showCloseIcon: true,
-            content: Text('Saved backup at ${file.path}')
+            content: Text('Saved backup at ${file.path}'),
           ),
         );
       }
@@ -306,7 +310,7 @@ class FileExport {
           text: content,
           sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
           downloadFallbackEnabled: true,
-        )
+        ),
       );
     } catch (e) {
       scaffoldMessenger.showSnackBar(

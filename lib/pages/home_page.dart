@@ -340,9 +340,11 @@ class _HomePageState extends State<HomePage> {
         ),
         title: <Text>[
           if (appSettings.enableGarage)
+            const Text("Bikes")
+          else ...[
             const Text("Bikes"),
-          const Text("Bikes"),
-          const Text("Components"),
+            const Text("Components"),
+          ],
           const Text("Setup History"),
           if (appSettings.enablePerson)
             const Text("Profile"),
@@ -439,9 +441,11 @@ class _HomePageState extends State<HomePage> {
         },
         destinations: <Widget>[
           if (appSettings.enableGarage)
+            NavigationDestination(icon: Badge(isLabelVisible: filteredData.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: const Icon(Bike.iconData)), label: 'Bikes')
+          else ...[
             NavigationDestination(icon: Badge(isLabelVisible: filteredData.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: const Icon(Bike.iconData)), label: 'Bikes'),
-          NavigationDestination(icon: Badge(isLabelVisible: filteredData.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: const Icon(Bike.iconData)), label: 'Bikes'),
-          const NavigationDestination(icon: Icon(Component.iconData), label: 'Components'),
+            const NavigationDestination(icon: Icon(Component.iconData), label: 'Components'),
+          ],
           const NavigationDestination(icon: Icon(Setup.iconData), label: 'Setups'),
           if (appSettings.enablePerson)
             const NavigationDestination(icon: Icon(Person.iconData), label: "Profile"),
@@ -453,15 +457,17 @@ class _HomePageState extends State<HomePage> {
         if (appSettings.enableGarage)
           GarageList(
             onReorderBikes: _onReorderBikes,
+          )
+        else ...[
+          BikeList(
+            bikes: filteredData.bikes,  //include bikes which are not filtered for
+            onReorderBikes: _onReorderBikes,
           ),
-        BikeList(
-          bikes: filteredData.bikes,  //include bikes which are not filtered for
-          onReorderBikes: _onReorderBikes,
-        ),
-        ComponentList(
-          components: filteredData.filteredComponents,
-          onReorderComponent: _onReorderComponents,
-        ),
+          ComponentList(
+            components: filteredData.filteredComponents,
+            onReorderComponent: _onReorderComponents,
+          ),
+        ],
         SetupList(
           editSetup: _editSetup,
           restoreSetup: _duplicateSetup,
@@ -491,19 +497,21 @@ class _HomePageState extends State<HomePage> {
             onPressed: _addBike,
             tooltip: 'Add Bike',
             child: const Icon(Icons.add),
+          )
+        else ... [
+          FloatingActionButton(
+            heroTag: "addBike",
+            onPressed: _addBike,
+            tooltip: 'Add Bike',
+            child: const Icon(Icons.add),
           ),
-        FloatingActionButton(
-          heroTag: "addBike",
-          onPressed: _addBike,
-          tooltip: 'Add Bike',
-          child: const Icon(Icons.add),
-        ),
-        FloatingActionButton(
-          heroTag: "addComponent",
-          onPressed: _addComponent,
-          tooltip: 'Add Component',
-          child: const Icon(Icons.add),
-        ),
+          FloatingActionButton(
+            heroTag: "addComponent",
+            onPressed: _addComponent,
+            tooltip: 'Add Component',
+            child: const Icon(Icons.add),
+          ),
+        ],
         FloatingActionButton(
           heroTag: "addSetup",
           onPressed: _addSetup,

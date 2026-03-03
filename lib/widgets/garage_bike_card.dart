@@ -26,8 +26,8 @@ class GarageBikeCard extends StatelessWidget{
   final ValueNotifier<Component?> draggedComponentNotifier;
 
   const GarageBikeCard({
-    super.key, 
-    required this.bike, 
+    super.key,
+    required this.bike,
     required this.index,
     this.elevation,
     required this.componentToShowDetails,
@@ -75,25 +75,26 @@ class GarageBikeCard extends StatelessWidget{
       }
     }
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-      duration: const Duration(seconds: 10),
-      persist: false,
-      showCloseIcon: true,
-      action: SnackBarAction(
-        label: 'UNDO',
-        onPressed: () {
-          data.restoreBike(bike);
-          data.restoreComponents(obsoleteComponents);
-          data.restoreSetups(obsoleteSetups);
-          data.restoreRatings(obsoleteRatings);
-        },
+        content: Text(message),
+        duration: const Duration(seconds: 10),
+        persist: false,
+        showCloseIcon: true,
+        action: SnackBarAction(
+          label: 'UNDO',
+          onPressed: () {
+            data.restoreBike(bike);
+            data.restoreComponents(obsoleteComponents);
+            data.restoreSetups(obsoleteSetups);
+            data.restoreRatings(obsoleteRatings);
+          },
+        ),
       ),
-    ));
+    );
   }
 
   Future<void> _addComponent(BuildContext context, {required String initialBike}) async {
     final data = context.read<AppData>();
-    
+
     final component = await Navigator.push<Component>(
       context,
       MaterialPageRoute(builder: (context) => ComponentPage.add(initialBike: initialBike)),
@@ -113,7 +114,10 @@ class GarageBikeCard extends StatelessWidget{
         borderRadius: 12,
       ),
       child: Container(
-        height: 60,
+        constraints: const BoxConstraints(
+          minHeight: 60,
+          minWidth: double.infinity,
+        ),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
@@ -149,7 +153,7 @@ class GarageBikeCard extends StatelessWidget{
     final filteredData = context.watch<FilteredData>();
     final persons = filteredData.persons;
     final bikeComponents = Map.fromEntries(filteredData.components.entries.where((ce) => ce.value.bike == bike.id));
-    
+
     return DragTarget<Object>(
       key: ValueKey(bike.id),
       builder: (context, candidateData, rejectedData) => Card(
@@ -161,16 +165,16 @@ class GarageBikeCard extends StatelessWidget{
           onDoubleTap: () => filteredData.onBikeTap(bike.id),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ListTile(
                 dense: true,
-                leading: appSettings.enableStrava 
+                leading: appSettings.enableStrava
                     ? Badge(
                         label: bike.stravaGear == null
                             ? Icon(
-                                Icons.link_off, 
-                                size: 11, 
+                                Icons.link_off,
+                                size: 11,
                                 color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                               )
                             : !filteredData.stravaGears.containsKey(bike.stravaGear)
@@ -203,9 +207,9 @@ class GarageBikeCard extends StatelessWidget{
                                   spacing: 2,
                                   children: [
                                     Icon(bike.person != null
-                                        ? Person.iconData 
-                                        : Icons.person_off, 
-                                      size: 13, 
+                                          ? Person.iconData
+                                          : Icons.person_off,
+                                      size: 13,
                                       color: bike.person == null || persons.containsKey(bike.person) 
                                           ? Theme.of(context).colorScheme.onSurfaceVariant 
                                           : Theme.of(context).colorScheme.error,
@@ -270,119 +274,136 @@ class GarageBikeCard extends StatelessWidget{
                         }
                       },
                       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                        const PopupMenuItem<String>(
-                          value: 'edit',
-                          child: Row(
-                            children: [
-                              Icon(Icons.edit, size: 20),
-                              SizedBox(width: 10),
-                              Text('Edit'),
-                            ],
-                          ),
-                        ),
-                        const PopupMenuItem<String>(
-                          value: 'remove',
-                          child: Row(
-                            children: [
-                              Icon(Icons.delete, size: 20),
-                              SizedBox(width: 10),
-                              Text('Remove'),
-                            ],
-                          ),
-                        ),
-                      ],
+                            const PopupMenuItem<String>(
+                              value: 'edit',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.edit, size: 20),
+                                  SizedBox(width: 10),
+                                  Text('Edit'),
+                                ],
+                              ),
+                            ),
+                            const PopupMenuItem<String>(
+                              value: 'remove',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.delete, size: 20),
+                                  SizedBox(width: 10),
+                                  Text('Remove'),
+                                ],
+                              ),
+                            ),
+                          ],
                     ),
                   ],
-                )
+                ),
               ),
               ValueListenableBuilder<Component?>(
                 valueListenable: draggedComponentNotifier,
                 builder: (context, draggedComp, child) {
-                  if (candidateData.isNotEmpty && candidateData.every((c) => c == null || (draggedComp != null && draggedComp.bike != bike.id))) {
-                    return Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                      child: _releaseToBikeWidget(context),
-                    );
-                  }
-                  return ReorderableWrap(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                  onReorder: (int oldIndex, int newIndex) => context.read<AppData>().reorderComponent(
-                    oldIndex: oldIndex, 
-                    newIndex: newIndex, 
-                    filteredComponentsList: bikeComponents.values.toList(),
-                    adjustNewIndex: false,
-                  ),
-                  onReorderStarted: (index) => setDraggedComponent(bikeComponents.values.toList()[index]),
-                  onNoReorder: (index) => setDraggedComponent(null),
-                  runSpacing: 8,
-                  spacing: 8,
-                  footer: Container(
-                    width: bikeComponents.isEmpty ? double.infinity : null, 
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outlineVariant,
-                        width: 1.0,
-                      ),
-                    ),
-                    child: InkWell(
-                      onTap: () => _addComponent(context, initialBike: bike.id),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          spacing: 8,
-                          children: [
-                            Icon(
-                              Icons.add,
-                              size: 24,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            if (bikeComponents.isEmpty)
-                              Text(
-                                "Add Component",
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.w600,
+                  final bool showDropZone =
+                      candidateData.isNotEmpty &&
+                      candidateData.every(
+                        (c) =>
+                            c == null ||
+                            (draggedComp != null &&
+                                draggedComp.bike != bike.id),
+                      );
+
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                    child: Stack(
+                      children: [
+                        Opacity(
+                          opacity: showDropZone ? 0.0 : 1.0,
+                          child: IgnorePointer(
+                            ignoring: showDropZone,
+                            child: ReorderableWrap(
+                              onReorder: (int oldIndex, int newIndex) => context.read<AppData>().reorderComponent(
+                                oldIndex: oldIndex,
+                                newIndex: newIndex,
+                                filteredComponentsList: bikeComponents.values.toList(),
+                                adjustNewIndex: false,
+                              ),
+                              onReorderStarted: (index) => setDraggedComponent(bikeComponents.values.toList()[index]),
+                              onNoReorder: (index) => setDraggedComponent(null),
+                              runSpacing: 8,
+                              spacing: 8,
+                              footer: Container(
+                                width: bikeComponents.isEmpty
+                                    ? double.infinity
+                                    : null,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Theme.of(context).colorScheme.outlineVariant,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                child: InkWell(
+                                  onTap: () => _addComponent(context, initialBike: bike.id),
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      spacing: 8,
+                                      children: [
+                                        Icon(Icons.add, size: 24, color: Theme.of(context).colorScheme.primary),
+                                        if (bikeComponents.isEmpty)
+                                          Text(
+                                            "Add Component",
+                                            style: TextStyle(
+                                              color: Theme.of(context).colorScheme.primary,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ),
-                          ],
+                              children: bikeComponents.values.map((component) => GestureDetector(
+                                key: ValueKey(component),
+                                onTap: () => onPressedComponent(component),
+                                child: GarageComponentIconCard(
+                                  component: component,
+                                  componentToShowDetails: componentToShowDetails
+                                ),
+                              )).toList(),
+                            ),
+                          ),
                         ),
-                      ),
+                        if (showDropZone)
+                          Positioned.fill(child: _releaseToBikeWidget(context)),
+                      ],
                     ),
-                  ),
-                  children: bikeComponents.values.map((component) => GestureDetector(
-                    key: ValueKey(component),
-                    onTap: () => onPressedComponent(component),
-                    child: GarageComponentIconCard(
-                      component: component, 
-                      componentToShowDetails: componentToShowDetails
-                    ),
-                  )).toList(),
-                );
-              }),
-              if (componentToShowDetails != null && bikeComponents.keys.contains(componentToShowDetails))
+                  );
+                },
+              ),
+              if (componentToShowDetails != null &&
+                  bikeComponents.keys.contains(componentToShowDetails))
                 Padding(
-                padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                child: LongPressDraggable<int>(
-                  data: bikeComponents.keys.toList().indexOf(componentToShowDetails!),
-                  onDragStarted: () => draggedComponentNotifier.value = bikeComponents[componentToShowDetails],
-                  onDragEnd: (_) => draggedComponentNotifier.value = null,
-                  onDraggableCanceled: (_, _) => draggedComponentNotifier.value = null,
-                  dragAnchorStrategy: pointerDragAnchorStrategy,
-                  feedback: GarageComponentIconCard(
-                    component: bikeComponents[componentToShowDetails]!, 
-                    componentToShowDetails: componentToShowDetails
-                  ),
-                  child: ComponentListCard(
-                    component: bikeComponents[componentToShowDetails]!,
-                    index: null,
-                    color: Theme.of(context).colorScheme.tertiaryContainer,
+                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                  child: LongPressDraggable<int>(
+                    data: bikeComponents.keys.toList().indexOf(componentToShowDetails!),
+                    onDragStarted: () => draggedComponentNotifier.value = bikeComponents[componentToShowDetails],
+                    onDragEnd: (_) => draggedComponentNotifier.value = null,
+                    onDraggableCanceled: (_, _) => draggedComponentNotifier.value = null,
+                    dragAnchorStrategy: pointerDragAnchorStrategy,
+                    feedback: GarageComponentIconCard(
+                      component: bikeComponents[componentToShowDetails]!,
+                      componentToShowDetails: componentToShowDetails,
+                    ),
+                    child: ComponentListCard(
+                      component: bikeComponents[componentToShowDetails]!,
+                      index: null,
+                      color: Theme.of(context).colorScheme.tertiaryContainer,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),

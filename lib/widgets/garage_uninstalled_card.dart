@@ -47,7 +47,10 @@ class GarageUninstalledCard extends StatelessWidget{
         borderRadius: 12,
       ),
       child: Container(
-        height: 60,
+        constraints: const BoxConstraints(
+          minHeight: 60,
+          minWidth: double.infinity,
+        ),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.3),
@@ -87,14 +90,18 @@ class GarageUninstalledCard extends StatelessWidget{
         borderRadius: 12,
       ),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+        constraints: const BoxConstraints(
+          minHeight: 60,
+          minWidth: double.infinity,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(12),
         ),
         child: const Center(
           child: Text("Drag components here to deinstall from bike"),
-        )
+        ),
       ),
     );
   }
@@ -109,7 +116,7 @@ class GarageUninstalledCard extends StatelessWidget{
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 4.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ListTile(
                 dense: true,
@@ -125,61 +132,89 @@ class GarageUninstalledCard extends StatelessWidget{
               ValueListenableBuilder<Component?>(
                 valueListenable: draggedComponentNotifier,
                 builder: (context, draggedComp, child) {
-                  if (candidateItems.isNotEmpty && (draggedComp != null && draggedComp.bike != null)) {
-                    return Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                      child: _releaseToDeinstallWidget(context),
-                    );
-                  } else if (deinstalledComponents.isEmpty) {
-                    return Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                      child: _dragHereToDeinstall(context),
-                    );
-                  }
-                  return ReorderableWrap(
-                  key: ValueKey(deinstalledComponents),
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                  onReorder: (int oldIndex, int newIndex) => context.read<AppData>().reorderComponent(
-                    oldIndex: oldIndex, 
-                    newIndex: newIndex, 
-                    filteredComponentsList: deinstalledComponents.values.toList(),
-                    adjustNewIndex: false,
-                  ),
-                  onReorderStarted: (index) => setDraggedComponent(deinstalledComponents.values.toList()[index]),
-                  onNoReorder: (index) => setDraggedComponent(null),
-                  footer: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outlineVariant,
-                        width: 1.0,
-                      ),
-                    ),
-                    child: InkWell(
-                      onTap: () => _addComponent(context, initialBike: null),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Icon(
-                          Icons.add,
-                          size: 24,
-                          color: Theme.of(context).colorScheme.primary,
+                  final bool showDropZone =
+                      candidateItems.isNotEmpty &&
+                      (draggedComp != null && draggedComp.bike != null);
+
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                    child: Stack(
+                      children: [
+                        Opacity(
+                          opacity: showDropZone ? 0.0 : 1.0,
+                          child: IgnorePointer(
+                            ignoring: showDropZone,
+                            child: deinstalledComponents.isEmpty
+                                ? _dragHereToDeinstall(context)
+                                : ReorderableWrap(
+                                    key: ValueKey(deinstalledComponents),
+                                    onReorder: (int oldIndex, int newIndex) =>
+                                        context
+                                            .read<AppData>()
+                                            .reorderComponent(
+                                              oldIndex: oldIndex,
+                                              newIndex: newIndex,
+                                              filteredComponentsList:
+                                                  deinstalledComponents.values
+                                                      .toList(),
+                                              adjustNewIndex: false,
+                                            ),
+                                    onReorderStarted: (index) =>
+                                        setDraggedComponent(
+                                          deinstalledComponents.values
+                                              .toList()[index],
+                                        ),
+                                    onNoReorder: (index) => setDraggedComponent(null),
+                                    footer: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: Theme.of(context).colorScheme.outlineVariant,
+                                          width: 1.0,
+                                        ),
+                                      ),
+                                      child: InkWell(
+                                        onTap: () => _addComponent(context, initialBike: null),
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(10),
+                                          child: Icon(
+                                            Icons.add,
+                                            size: 24,
+                                            color: Theme.of(context).colorScheme.primary,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: deinstalledComponents.values
+                                        .map(
+                                          (component) => GestureDetector(
+                                            onTap: () =>
+                                                onPressedComponent(component),
+                                            child: GarageComponentIconCard(
+                                              component: component,
+                                              componentToShowDetails:
+                                                  componentToShowDetails,
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                                  ),
+                          ),
                         ),
-                      ),
+                        if (showDropZone)
+                          Positioned.fill(
+                            child: _releaseToDeinstallWidget(context),
+                          ),
+                      ],
                     ),
-                  ),
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: deinstalledComponents.values.map((component) => GestureDetector(
-                    onTap: () => onPressedComponent(component),
-                    child: GarageComponentIconCard(
-                      component: component, 
-                      componentToShowDetails: componentToShowDetails
-                    ),
-                  )).toList(),
-                );
-              }),
-              if (componentToShowDetails != null && deinstalledComponents.keys.contains(componentToShowDetails))
+                  );
+                },
+              ),
+              if (componentToShowDetails != null &&
+                  deinstalledComponents.keys.contains(componentToShowDetails))
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
                   child: LongPressDraggable<Component>(
@@ -190,7 +225,7 @@ class GarageUninstalledCard extends StatelessWidget{
                     dragAnchorStrategy: pointerDragAnchorStrategy,
                     feedback: GarageComponentIconCard(
                       component: deinstalledComponents[componentToShowDetails]!, 
-                      componentToShowDetails: componentToShowDetails
+                      componentToShowDetails: componentToShowDetails,
                     ),
                     child: ComponentListCard(
                       component: deinstalledComponents[componentToShowDetails]!,

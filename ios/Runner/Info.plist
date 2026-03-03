@@ -59,6 +59,8 @@
 		<string>tel</string>
 		<string>strava</string>
 	</array>
+	<key>UIFileSharingEnabled</key>
+	<true/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>

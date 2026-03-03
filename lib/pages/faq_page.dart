@@ -10,8 +10,8 @@ class FAQPage extends StatelessWidget {
           'This app helps you track, manage, and optimize your bike setup adjustments for better performance.',
       // 'What makes a good bike setup?':
       //     'A "good" bike setup is a balance between the laws of physics and the rider’s personal feel. It should provide maximum traction and stability while minimizing rider fatigue. To evaluate a setup, you need to look at Objective Data (e.g. laptimes) and Subjective Feedback (what the rider is feeling).',
-      'Can I export my data?':
-          'Yes. You can export your bike setup as a JSON file by selecting "Export" from the top-right menu. The default save location is your Downloads folder.',
+      'Can I export or share my data?':
+          'Yes. Use "Export" to save your entire database as a JSON file to your device’s Downloads folder. This file is intended for backups and can be reimported later. \n\nUse "Share" to send a snapshot of your data directly to another app (like Mail, Cloud, or Messenger). You can choose between multiple formats: JSON (reimportable), Excel, CSV, or plain text.',
       'Is my data stored locally?':
           'Yes, all your data is stored locally on your device. We do not collect or store any of your personal information.',
       'I accidentally deleted something. Can I recover it?':
@@ -60,6 +60,12 @@ class FAQPage extends StatelessWidget {
           'A Setup is a snapshot of your entire bike configuration. It captures the specific values of all your adjustments alongside context like location, weather, and trail conditions.',
       'How do I record a new setup?':
           'Go to the "Setups" tab and tap the "+" button to record a new setup for your bike.',
+      'I recorded a setup without GPS. Can I add the location later?':
+          'Yes. Edit the setup, tap the location chip (showing a pin or "Location Context"), and use the search bar in the sheet to find the address. Alternatively, you can manually enter the Latitude and Longitude.',
+      'I recorded a setup without Internet. How do I update address and weather?':
+          'Edit the setup and open the location sheet (tap the location chip) to manually fetch the address from Latitude and Longitude. Then, open the weather sheet (tap the weather chip) and tap "Update Weather by Location".',
+      'Can I see a raw data overview of all my setups?':
+          'Yes. Open the detailed view of a component (by tapping its icon in "Bikes" tab) and then tap on the large card representing the component. This opens a table view where you can compare setups, select which columns to show, and sort the data for deeper analysis.',
     },
     "Person": {
       'Why?':

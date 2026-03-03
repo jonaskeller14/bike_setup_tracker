@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
@@ -230,24 +231,25 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               title: const Text('Enable these to add specific functionality to your workflow. Keep them disabled to maintain a simpler interface.'),
               dense: true,
             ),
-            ListTile(
-              leading: Icon(SimpleIcons.googledrive, color: Theme.of(context).colorScheme.primary),
-              title: const Text("Google Drive Sync"),
-              subtitle: _offOnOptionWidgets[appSettingsReader.enableGoogleDrive] ?? const Text("-"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-              onTap: () => appSettingsRadioGroupSheet<bool>(
-                context: context,
-                title: "Google Drive Sync", 
-                value: appSettingsReader.enableGoogleDrive,
-                optionWidgets: _offOnOptionWidgets, 
-                onChanged: (bool? newValue) {
-                  if (newValue == null) return;
-                  appSettingsWriter.enableGoogleDrive = newValue;
-                  Navigator.pop(context);
-                },
-                infoText: 'Sync your data across devices and keep secure backups in your Google Drive. Your data is stored privately in your own account; we never have access to it.',
+            if (Platform.isAndroid) 
+              ListTile(
+                leading: Icon(SimpleIcons.googledrive, color: Theme.of(context).colorScheme.primary),
+                title: const Text("Google Drive Sync"),
+                subtitle: _offOnOptionWidgets[appSettingsReader.enableGoogleDrive] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<bool>(
+                  context: context,
+                  title: "Google Drive Sync", 
+                  value: appSettingsReader.enableGoogleDrive,
+                  optionWidgets: _offOnOptionWidgets, 
+                  onChanged: (bool? newValue) {
+                    if (newValue == null) return;
+                    appSettingsWriter.enableGoogleDrive = newValue;
+                    Navigator.pop(context);
+                  },
+                  infoText: 'Sync your data across devices and keep secure backups in your Google Drive. Your data is stored privately in your own account; we never have access to it.',
+                ),
               ),
-            ),
             ListTile(
               leading: Icon(TextAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
               title: const Text("Text Adjustment"),

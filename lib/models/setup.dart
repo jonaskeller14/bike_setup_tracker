@@ -249,6 +249,29 @@ class Setup {
     }
   }
 
+  Setup deepCopy() {
+    final now = DateTime.now();
+
+    return Setup(
+      name: name,
+      notes: notes,
+      datetime: now.toUtc(),
+      datetimeLocal: now,
+      isCurrent: true,
+      position: null,
+      place: null,
+      weather: null,
+      tags: tags.toSet(),
+      bike: bike,
+      person: person,
+      bikeAdjustmentValues: Map.from(bikeAdjustmentValues),
+      personAdjustmentValues: Map.from(personAdjustmentValues),
+      ratingAdjustmentValues: {},
+      previousBikeSetup: null,
+      previousPersonSetup: null,      
+    );
+  }
+
   Setup copyWith({
     Object? id = const _Sentinel(),
     Object? isDeleted= const _Sentinel(),
@@ -273,13 +296,13 @@ class Setup {
     return Setup(
       id: id is _Sentinel
           ? this.id
-          : (id as String),
+          : (id as String?),
       isDeleted: isDeleted is _Sentinel
           ? this.isDeleted
-          : (isDeleted as bool),
+          : (isDeleted as bool?),
       lastModified: lastModified is _Sentinel
           ? this.lastModified
-          : (lastModified as DateTime),
+          : (lastModified as DateTime?),
       name: name is _Sentinel
           ? this.name
           : (name as String), 

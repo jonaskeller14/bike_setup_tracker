@@ -291,28 +291,10 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _duplicateSetup(Setup setup) async {
     final data = context.read<AppData>();
-
-    final now = DateTime.now();
-
-    final setupCopy = setup.copyWith(
-      id: null,
-      lastModified: null,
-      datetime: now.toUtc(),
-      datetimeLocal: now,
-      isCurrent: true,
-      position: null,
-      place: null,
-      weather: null,
-      ratingAdjustmentValues: {},
-      previousBikeSetup: null,
-      previousPersonSetup: null,
-    );
-    //TODO: Not copy personAdjustmentValues: Nutritition and Equipment
-    //TOOD: trigger new fetch of position, place, weather
     
     final newSetup = await Navigator.push<Setup>(
       context,
-      MaterialPageRoute(builder: (context) => SetupPage.duplicate(setup: setupCopy)),
+      MaterialPageRoute(builder: (context) => SetupPage.duplicate(setup: setup.deepCopy())),
     );
     if (newSetup == null) return;
 

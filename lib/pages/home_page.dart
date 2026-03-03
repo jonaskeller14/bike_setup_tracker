@@ -305,6 +305,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final filteredData = context.watch<FilteredData>();
+    
+    _currentPageIndex = _currentPageIndex.clamp(0, (-1)+ (appSettings.enableGarage ? 1 : 2) + 1 + (appSettings.enablePerson ? 1 : 0) + (appSettings.enableRating ? 1: 0));
     return Scaffold(
       appBar: AppBar(
         leading: Padding(

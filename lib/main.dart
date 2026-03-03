@@ -11,6 +11,7 @@ import 'services/storage_service.dart';
 import 'services/strava_service.dart';
 import 'services/navigation_service.dart';
 import 'services/deep_link_service.dart';
+import 'services/quick_actions_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -40,28 +41,31 @@ final materialAppDarkTheme = ThemeData(
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  
+
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    systemNavigationBarColor: Colors.transparent,
-    statusBarColor: Colors.transparent,
-    systemNavigationBarContrastEnforced: false,
-    systemStatusBarContrastEnforced: false,
-  ));
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.transparent,
+      statusBarColor: Colors.transparent,
+      systemNavigationBarContrastEnforced: false,
+      systemStatusBarContrastEnforced: false,
+    ),
+  );
 
-  runApp(LoadingGate(
-    appSettings: AppSettings(), 
-    appData: AppData(),
-  ));
+  runApp(LoadingGate(appSettings: AppSettings(), appData: AppData()));
 }
 
 class LoadingGate extends StatelessWidget {
   final AppSettings appSettings;
   final AppData appData;
 
-  const LoadingGate({super.key, required this.appSettings, required this.appData});
+  const LoadingGate({
+    super.key,
+    required this.appSettings,
+    required this.appData,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -80,9 +84,13 @@ class LoadingGate extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   spacing: 12,
                   children: [
-                    const Icon(Icons.error_outline, color: Colors.red, size: 60),
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 60,
+                    ),
                     Text(
-                      "Failed to load data. \nClose and restart the app.", 
+                      "Failed to load data. \nClose and restart the app.",
                       style: Theme.of(context).textTheme.headlineSmall,
                       textAlign: TextAlign.center,
                     ),
@@ -128,8 +136,9 @@ class LoadingGate extends StatelessWidget {
             ],
             child: Builder(
               builder: (context) {
-                // Initialize DeepLinkService after Snapshots are done and context is available
+                // Initialize Services after Snapshots are done and context is available
                 DeepLinkService().init();
+                QuickActionsService().init();
                 return const BikeSetupTrackerApp();
               },
             ),
@@ -137,13 +146,9 @@ class LoadingGate extends StatelessWidget {
         } else {
           return MaterialApp(
             theme: materialAppTheme,
-            
+
             themeMode: ThemeMode.system,
-            home: Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
+            home: Scaffold(body: Center(child: CircularProgressIndicator())),
             debugShowCheckedModeBanner: false,
           );
         }
@@ -165,7 +170,9 @@ class BikeSetupTrackerApp extends StatelessWidget {
       darkTheme: materialAppDarkTheme,
       themeMode: appSettings.themeMode,
       navigatorKey: NavigationService.navigatorKey,
-      home: appSettings.showOnboarding ? const OnboardingPage() : const HomePage(),
+      home: appSettings.showOnboarding
+          ? const OnboardingPage()
+          : const HomePage(),
       debugShowCheckedModeBanner: false,
     );
   }

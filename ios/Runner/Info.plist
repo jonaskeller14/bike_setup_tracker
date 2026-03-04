@@ -64,6 +64,8 @@
 		<true/>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>This app requires access to the photo library to allow for file importing and exporting features.</string>
 		<key>NSLocationWhenInUseUsageDescription</key>
 		<string>This app uses your location to automatically add location data to your bike setups.</string>
 		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>

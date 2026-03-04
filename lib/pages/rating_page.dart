@@ -517,20 +517,19 @@ class _RatingPageState extends State<RatingPage> {
                       _changeListener();
                     },
                   ),
-                if (!_expanded)
-                  Center(
-                    child: TextButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          if (!_expanded) _expanded = !_expanded;
-                        });
-                      },
-                      icon: Icon(
-                        _expanded ? Icons.expand_less : Icons.expand_more,
-                      ),
-                      label: Text(_expanded ? "Hide Additional Fields" : "Show Additional Fields"),
+                Center(
+                  child: TextButton.icon(
+                    onPressed: () => setState(() => _expanded = !_expanded),
+                    icon: Icon(_expanded 
+                        ? Icons.expand_less 
+                        : Icons.expand_more,
+                    ),
+                    label: Text(_expanded 
+                        ? "Hide Additional Fields" 
+                        : "Show Additional Fields"
                     ),
                   ),
+                ),
                 if (_expanded) ...[
                   const SizedBox(height: 12),
                   TextFormField(

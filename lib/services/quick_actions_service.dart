@@ -20,13 +20,15 @@ class QuickActionsService {
       _handleShortcut(shortcutType);
     });
 
-    _quickActions.setShortcutItems(<ShortcutItem>[
-      const ShortcutItem(
+    _quickActions.setShortcutItems(const <ShortcutItem>[
+      ShortcutItem(
         type: 'add_setup',
         localizedTitle: 'Add New Setup',
-        icon: 'i_add', // Not used for now, using default or generic
+        // icon: 'i_add', // Not used for now, using default or generic
       ),
-    ]);
+    ]).catchError((e) {
+      debugPrint('Failed to set shortcut items: $e');
+    });
   }
 
   void _handleShortcut(String shortcutType) async {

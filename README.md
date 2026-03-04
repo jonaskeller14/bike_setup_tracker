@@ -72,20 +72,42 @@ Ditch the notebook. Download Bike Setup Tracker and tune your ride with precisio
 
 ### Phone
 
-01 | 02 | 03
-:-:|:--:|:--:
-![](assets/store/play-store/phone/01_Add-Bikes.png) | ![](assets/store/play-store/phone/02_Add-Components.png) | ![](assets/store/play-store/phone/03_Add-Setups.png)
+#### Android (Play Store)
+<p align="center">
+  <img src="assets/store/play-store/phone/01_Add-Bikes.png" width="18%">
+  <img src="assets/store/play-store/phone/02_Add-Components.png" width="18%">
+  <img src="assets/store/play-store/phone/03_Add-Setups.png" width="18%">
+  <img src="assets/store/play-store/phone/04_Setup-History.png" width="18%">
+  <img src="assets/store/play-store/phone/05_Putting-Adjustments-in-Context.png" width="18%">
+</p>
 
-04 | 05
-:-:|:--:
-![](assets/store/play-store/phone/04_Setup-History.png) | ![](assets/store/play-store/phone/05_Putting-Adjustments-in-Context.png)
+#### iOS (App Store - iPhone 17 Pro Max)
+<p align="center">
+  <img src="assets/store/app-store/iPhone-17-Pro-Max/01_Add-Bikes.png" width="18%">
+  <img src="assets/store/app-store/iPhone-17-Pro-Max/02_Add-Components.png" width="18%">
+  <img src="assets/store/app-store/iPhone-17-Pro-Max/03_Add-Setups.png" width="18%">
+  <img src="assets/store/app-store/iPhone-17-Pro-Max/04_Setup-History.png" width="18%">
+  <img src="assets/store/app-store/iPhone-17-Pro-Max/05_Putting-Adjustments-in-Context.png" width="18%">
+</p>
 
 ### Tablet
 
-01 | 02 | 03
-:-:|:--:|:--:
-![](assets/store/play-store/tablet_10-inch/01_Add-Bikes.png) | ![](assets/store/play-store/tablet_10-inch/02_Add-Components.png) | ![](assets/store/play-store/tablet_10-inch/03_Add-Setups.png)
+#### Android (Play Store - 10")
+<p align="center">
+  <img src="assets/store/play-store/tablet_10-inch/01_Add-Bikes.png" width="31%">
+  <img src="assets/store/play-store/tablet_10-inch/02_Add-Components.png" width="31%">
+  <img src="assets/store/play-store/tablet_10-inch/03_Add-Setups.png" width="31%">
+  <br>
+  <img src="assets/store/play-store/tablet_10-inch/04_Setup-History.png" width="31%">
+  <img src="assets/store/play-store/tablet_10-inch/05_Putting-Adjustments-in-Context.png" width="31%">
+</p>
 
-04 | 05
-:-:|:--:
-![](assets/store/play-store/tablet_10-inch/04_Setup-History.png) | ![](assets/store/play-store/tablet_10-inch/05_Putting-Adjustments-in-Context.png)
+#### iOS (App Store - iPad Pro 13")
+<p align="center">
+  <img src="assets/store/app-store/iPad-Pro-13-inch_M5/01_Add-Bikes.png" width="31%">
+  <img src="assets/store/app-store/iPad-Pro-13-inch_M5/02_Add-Components.png" width="31%">
+  <img src="assets/store/app-store/iPad-Pro-13-inch_M5/03_Add-Setups.png" width="31%">
+  <br>
+  <img src="assets/store/app-store/iPad-Pro-13-inch_M5/04_Setup-History.png" width="31%">
+  <img src="assets/store/app-store/iPad-Pro-13-inch_M5/05_Putting-Adjustments-in-Context.png" width="31%">
+</p>

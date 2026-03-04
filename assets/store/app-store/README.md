@@ -5,6 +5,11 @@
 Bike Setup Tracker
 ```
 
+## Subtitle
+```
+Setup tracker for cyclists
+```
+
 ## Promotional Text
 ```
 Stop guessing your settings! Track suspension clicks, tire pressures, and geometry in one place. Perfect your ride and save your sweet spot forever.

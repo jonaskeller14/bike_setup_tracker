@@ -22,24 +22,38 @@
             "flutterMode": "release"
         },
         {
-            "name": "iPhone 17",
+            "name": "iPhone 17 Pro Max",
             "request": "launch",
             "type": "dart",
-            "deviceId": "C08725E6-5BD6-443C-9B85-11C3A713A7A0"
+            "deviceId": "AB5E9576-19F1-4881-885C-4FCE1B2CBC6A"
         },
         {
-            "name": "iPad Pro",
+            "name": "iPad Pro 13-inch",
             "request": "launch",
             "type": "dart",
-            "deviceId": "C2B32962-B03A-4D69-B1BE-ED5B6CC7DBCA"
+            "deviceId": "D2F6409F-6083-4CA3-A1FA-097FBD2B14DE"
+        },
+        {
+            "name": "Android Emulator",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "emulator-5554"
         }
     ],
     "compounds": [
         {
-            "name": "iPhone + iPad Pro",
+            "name": "iPhone 17 Pro Max + iPad Pro 13-inch",
             "configurations": [
-                "iPhone 17",
-                "iPad Pro"
+                "iPhone 17 Pro Max",
+                "iPad Pro 13-inch"
+            ]
+        },
+        {
+            "name": "Triple Parallel (iPhone + iPad + Android)",
+            "configurations": [
+                "iPhone 17 Pro Max",
+                "iPad Pro 13-inch",
+                "Android Emulator"
             ]
         }
     ]

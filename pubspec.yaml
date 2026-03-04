@@ -135,6 +135,7 @@ flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/icons/logo_1024_white.png" # Replace with the actual path to your icon
+  remove_alpha_ios: true
   # Optional: For Android Adaptive Icons (Android 8.0+), uncomment and customize:
   adaptive_icon_background: "#ffffff" # Or an image path like "assets/background.png"
   adaptive_icon_foreground: "assets/icons/logo_1024.png"

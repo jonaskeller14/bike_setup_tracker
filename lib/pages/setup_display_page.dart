@@ -157,6 +157,7 @@ class SetupDisplayPageContent extends StatelessWidget {
       automaticallyImplyLeading: false,
       backgroundColor: Theme.of(context).colorScheme.surface,
       surfaceTintColor: Theme.of(context).colorScheme.surface,
+      centerTitle: false,
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

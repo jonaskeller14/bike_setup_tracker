@@ -467,13 +467,15 @@
     {
       "version": 4,
       "id": "e25cfe3f-2753-46d3-9594-11a421241840",
-      "isDeleted": false,
-      "lastModified": "2026-03-04T07:19:20.457652Z",
+      "isDeleted": true,
+      "lastModified": "2026-03-04T08:07:47.338897Z",
       "name": "Trails of Freiburg",
       "datetime": "2025-12-10T07:17:01.173832Z",
       "datetimeLocal": "2025-12-10T08:17:01.173832",
       "notes": "Removed a volume spacer and increased compression in the fork",
-      "tags": [],
+      "tags": [
+        "Freiburg"
+      ],
       "bike": "6b55cf93-4f42-4449-ba2e-88ce763bbe83",
       "person": null,
       "bikeAdjustmentValues": {
@@ -526,6 +528,75 @@
         "currentSoilMoisture0to7cm": 0.2750000059604645,
         "dayAccumulatedPrecipitation": 0.5000000074505806,
         "condition": "Condition.wet"
+      },
+      "previousBikeSetup": "b50f92b7-0e10-4ada-b2db-49e7cbcb7b9f",
+      "previousPersonSetup": null,
+      "isCurrent": false
+    },
+    {
+      "version": 4,
+      "id": "a0e73c26-bfb8-460a-b37a-65878ad9c56d",
+      "isDeleted": false,
+      "lastModified": "2026-03-04T08:21:16.598043Z",
+      "name": "Trails of Freiburg",
+      "datetime": "2025-12-10T08:07:48.730972Z",
+      "datetimeLocal": "2025-12-10T09:07:48.730972",
+      "notes": "Removed a volume spacer and increased compression in the fork",
+      "tags": [
+        "Freiburg"
+      ],
+      "bike": "6b55cf93-4f42-4449-ba2e-88ce763bbe83",
+      "person": null,
+      "bikeAdjustmentValues": {
+        "9e744c6e-27da-48ba-85d1-9a6b622e7219": 2,
+        "f3e4a0c7-db3b-4dad-b53c-ffdc246314d7": -4,
+        "b68c3197-5c76-4f7c-b7cd-b1d3059628a9": -10,
+        "55aadd3e-a4c6-4994-af37-f9188a426a66": -9,
+        "0830e57e-78fb-4e27-8755-e9eed3fbcbbe": false,
+        "0f8f8878-2338-430d-aaa0-638bc95b1ea4": -4,
+        "19113cb1-2a70-4706-9d72-734d25202e71": 550.0,
+        "30aea209-3300-4bc6-8ee4-246689c64839": -11,
+        "b279750c-3fc2-4523-a3ea-e59f3d9c2925": -12,
+        "673c7ebd-8e12-412b-96e2-d194c58b9297": -10,
+        "3a92d28c-62c4-4d0e-b250-9f97ca85b861": 89.0,
+        "c9d11b74-fc02-458d-b657-d796f0c0fcd1": true,
+        "2ef44ab6-f16b-49e1-a792-9f341788b32a": 1.8,
+        "ed56af22-c49c-4fe6-99e6-5eb3f32b0012": 1.7
+      },
+      "personAdjustmentValues": {},
+      "ratingAdjustmentValues": {},
+      "position": {
+        "latitude": 47.9990077,
+        "longitude": 7.842104299999999,
+        "altitude": 272.0,
+        "accuracy": null,
+        "heading": null,
+        "speed": null,
+        "speedAccuracy": null,
+        "time": null
+      },
+      "place": {
+        "name": "3",
+        "thoroughfare": "Wentzingerstraße",
+        "subThoroughfare": "3",
+        "locality": "Freiburg im Breisgau",
+        "subLocality": "West",
+        "administrativeArea": "Baden-Württemberg",
+        "subAdministrativeArea": "Freiburg",
+        "postalCode": "79106",
+        "country": "Germany",
+        "isoCountryCode": "DE"
+      },
+      "weather": {
+        "currentDateTime": "2025-12-10T09:00:00.000",
+        "currentTemperature": 11.300000190734863,
+        "currentWeatherCode": 3,
+        "currentHumidity": 65.65140533447266,
+        "currentWindSpeed": 14.861721992492676,
+        "currentPrecipitation": 0.0,
+        "currentSoilMoisture0to7cm": 0.3840000033378601,
+        "dayAccumulatedPrecipitation": 0.6000000238418579,
+        "condition": "Condition.muddy"
       },
       "previousBikeSetup": "b50f92b7-0e10-4ada-b2db-49e7cbcb7b9f",
       "previousPersonSetup": null,
@@ -594,7 +665,7 @@
         "dayAccumulatedPrecipitation": 0.0,
         "condition": "Condition.muddy"
       },
-      "previousBikeSetup": "e25cfe3f-2753-46d3-9594-11a421241840",
+      "previousBikeSetup": "a0e73c26-bfb8-460a-b37a-65878ad9c56d",
       "previousPersonSetup": null,
       "isCurrent": false
     },

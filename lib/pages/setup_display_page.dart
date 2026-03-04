@@ -275,7 +275,7 @@ class SetupDisplayPageContent extends StatelessWidget {
                                 urlTemplate: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
                                 subdomains: const ['a', 'b', 'c'], // Cyclosm uses subdomains for faster loading
                                 minZoom: 3,
-                                userAgentPackageName: 'com.jonaskeller.bike_setup_tracker',
+                                userAgentPackageName: 'com.jonaskeller14.bike_setup_tracker',
                                 tileDisplay: const TileDisplay.fadeIn(),
                                 tileBuilder: (context, tileWidget, tile) {
                                   return ColorFiltered(

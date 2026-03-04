@@ -29,11 +29,11 @@ Bike Setup Tracker is the ultimate digital logbook for cyclists, mechanics, and 
 Here are the current development goals and their status:
 
 - [x] **Publish for Android** ➡️ **Live on Play Store**
-- [x] **Cloud sync (Google Drive)** ➡️ **Available as an experimental feature since v1.0.6.**
+- [x] **Cloud sync (Google Drive) (Android only)** ➡️ **Available as an experimental feature since v1.0.6.**
 - [ ] **Add rider profile** (track body weight, ...) ➡️ **In testing phase**
 - [ ] **Add a rating procedure** to systematically distinguish good from bad setups ➡️ **In testing phase**
 - [ ] **Strava integration** to use activity data as context ➡️ **In Development**
-- [ ] **Publish for iOS** ➡️ **In Development**
+- [ ] **Publish for iOS** ➡️ **In testing phase**
 
 I am open for feedback, suggestions, and bug reports—please feel free to open a new issue for any of these.
 

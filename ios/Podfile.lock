@@ -1330,6 +1330,8 @@ PODS:
     - nanopb (~> 3.30910.0)
   - FirebaseSharedSwift (12.9.0)
   - Flutter (1.0.0)
+  - flutter_native_splash (2.4.3):
+    - Flutter
   - geocoding_ios (1.0.5):
     - Flutter
   - google_sign_in_ios (0.0.1):
@@ -1536,6 +1538,7 @@ DEPENDENCIES:
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
+  - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - geocoding_ios (from `.symlinks/plugins/geocoding_ios/ios`)
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
   - location (from `.symlinks/plugins/location/ios`)
@@ -1599,6 +1602,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_messaging/ios"
   Flutter:
     :path: Flutter
+  flutter_native_splash:
+    :path: ".symlinks/plugins/flutter_native_splash/ios"
   geocoding_ios:
     :path: ".symlinks/plugins/geocoding_ios/ios"
   google_sign_in_ios:
@@ -1645,6 +1650,7 @@ SPEC CHECKSUMS:
   FirebaseMessaging: 7d6cdbff969127c4151c824fe432f0e301210f15
   FirebaseSharedSwift: 9d2fa84a46676302b89dbd5e6e62bce2fe376909
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_native_splash: 6cad9122ea0fad137d23137dd14b937f3e90b145
   geocoding_ios: 33776c9ebb98d037b5e025bb0e7537f6dd19646e
   google_sign_in_ios: 000870aa06da9b28d1d0bf7ef70ff0213059dd28
   GoogleAdsOnDeviceConversion: d68c69dd9581a0f5da02617b6f377e5be483970f

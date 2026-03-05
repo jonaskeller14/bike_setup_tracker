@@ -81,26 +81,39 @@ class GarageUninstalledCard extends StatelessWidget{
   }
 
   Widget _dragHereToDeinstall(BuildContext context) {
-    return CustomPaint(
-      painter: DashedBorderPainter(
-        color: Theme.of(context).colorScheme.outlineVariant,
-        strokeWidth: 1.5,
-        dashWidth: 6,
-        dashSpace: 4,
-        borderRadius: 12,
-      ),
-      child: Container(
-        constraints: const BoxConstraints(
-          minHeight: 60,
-          minWidth: double.infinity,
+    return InkWell(
+      onTap: () => _addComponent(context, initialBike: null),
+      borderRadius: BorderRadius.circular(12),
+      child: CustomPaint(
+        painter: DashedBorderPainter(
+          color: Theme.of(context).colorScheme.outlineVariant,
+          strokeWidth: 1.5,
+          dashWidth: 6,
+          dashSpace: 4,
+          borderRadius: 12,
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: const Center(
-          child: Text("Drag components here to deinstall from bike"),
+        child: Container(
+          constraints: const BoxConstraints(
+            minHeight: 60,
+            minWidth: double.infinity,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text("Drag components here to deinstall from bike"),
+              Text(
+                "or tap to add new",
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

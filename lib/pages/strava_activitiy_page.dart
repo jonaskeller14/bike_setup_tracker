@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import '../models/app_settings.dart';
 import '../models/filtered_data.dart';
 import '../models/strava/strava_activity.dart';
+import '../models/setup.dart';
 import '../services/strava_service.dart';
+import '../widgets/setup_list_card.dart';
 
 class StravaActivityPage extends StatelessWidget {
   final StravaActivity stravaActivity;
@@ -209,6 +211,65 @@ class StravaActivitiyPageContent extends StatelessWidget {
               dense: true,
             ),
             const SizedBox(height: 2),
+            Divider(height: 1, thickness: 0.5, color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
+            
+            // Add Setups related to this activity
+            Builder(
+              builder: (context) {
+                final allSetupsForGear = filteredData.filteredSetups.values
+                    .where((s) => filteredData.bikes[s.bike]?.stravaGear == stravaGear.id)
+                    .toList();
+                
+                // Setups added after activity started, but before it ended
+                final activityEnd = stravaActivity.startDateLocal.add(stravaActivity.elapsedTime);
+                final setupsDuringActivity = allSetupsForGear.where((s) => 
+                  s.datetimeLocal.isAfter(stravaActivity.startDateLocal) &&
+                  s.datetimeLocal.isBefore(activityEnd)
+                ).toList();
+
+                // Setup active at the start of the activity (latest one before/on start)
+                final setupsBeforeOrOnStart = allSetupsForGear.where((s) => 
+                  s.datetimeLocal.isBefore(stravaActivity.startDateLocal) || 
+                  s.datetimeLocal.isAtSameMomentAs(stravaActivity.startDateLocal)
+                ).toList();
+                setupsBeforeOrOnStart.sort((a, b) => b.datetimeLocal.compareTo(a.datetimeLocal));
+                
+                final List<Setup> relevantSetups = [];
+                if (setupsBeforeOrOnStart.isNotEmpty) {
+                  relevantSetups.add(setupsBeforeOrOnStart.first); // active setup
+                }
+                relevantSetups.addAll(setupsDuringActivity);
+
+                // Filter out duplicates (just in case) and sort chronologically
+                final uniqueSetups = relevantSetups.toSet().toList();
+                uniqueSetups.sort((a, b) => b.datetimeLocal.compareTo(a.datetimeLocal));
+
+                if (uniqueSetups.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+
+                return ExpansionTile(
+                  shape: const Border(),
+                  collapsedShape: const Border(),
+                  initiallyExpanded: false,
+                  title: Text(
+                    "Setups (${uniqueSetups.length})",
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  childrenPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  children: uniqueSetups.map((setup) {
+                    return SetupListCard(
+                      setupId: setup.id,
+                      displayOnlyChanges: false,
+                      displayBikeAdjustmentValues: true,
+                      displayPersonAdjustmentValues: true,
+                      displayRatingAdjustmentValues: true,
+                      onTap: null,
+                    );
+                  }).toList(),
+                );
+              }
+            ),
             Divider(height: 1, thickness: 0.5, color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
           ],
           

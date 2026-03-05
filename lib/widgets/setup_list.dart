@@ -10,15 +10,8 @@ import 'setup_list_card.dart';
 import 'strava_list_tile.dart';
 
 class SetupList extends StatelessWidget {
-  final Future<void> Function(Setup setup) editSetup;
-  final Future<void> Function(Setup setup) restoreSetup;
-  final Future<void> Function(Setup setup) removeSetup;
-
   const SetupList({
     super.key,
-    required this.editSetup,
-    required this.restoreSetup,
-    required this.removeSetup,
   });
 
   Widget _emptyPlaceholder(BuildContext context) {
@@ -27,11 +20,7 @@ class SetupList extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SetupListFilterWidget(
-            editSetup: editSetup, 
-            restoreSetup: restoreSetup, 
-            removeSetup: removeSetup
-          ),
+          SetupListFilterWidget(),
           Expanded(
             child: Center(
               child: Text(
@@ -64,11 +53,7 @@ class SetupList extends StatelessWidget {
             itemCount: entries.length + 1, // 1 header
             itemBuilder: (context, index) {
               if (index == 0) {
-                return SetupListFilterWidget(
-                  editSetup: editSetup, 
-                  restoreSetup: restoreSetup, 
-                  removeSetup: removeSetup
-                );
+                return SetupListFilterWidget();
               }
               
               final entry = entries[index - 1];
@@ -83,12 +68,8 @@ class SetupList extends StatelessWidget {
                       Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDisplayPage(
                         setupIds: setupsList.map((s) => s.id).toList(),
                         initialSetup: setup,
-                        editSetup: editSetup,
                       )));
                     },
-                    editSetup: editSetup,
-                    restoreSetup: restoreSetup,
-                    removeSetup: removeSetup,
                     displayOnlyChanges: appSettings.setupListOnlyChanges,
                     displayBikeAdjustmentValues: appSettings.setupListBikeAdjustmentValues,
                     displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues,

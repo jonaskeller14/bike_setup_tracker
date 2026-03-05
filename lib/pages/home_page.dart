@@ -115,22 +115,6 @@ class _HomePageState extends State<HomePage> {
     ));
   }
 
-  Future<void> _removeSetup(Setup setup) async {
-    final data = context.read<AppData>();
-    data.removeSetups([setup]);
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text("Setup '${setup.name}' moved to trash."),
-      duration: const Duration(seconds: 5),
-      persist: false,
-      showCloseIcon: true,
-      action: SnackBarAction(
-        label: 'UNDO',
-        onPressed: () => data.restoreSetups([setup]),
-      ),
-    ));
-  }
-  
   Future<void> _addBike() async {
     final data = context.read<AppData>();
 
@@ -275,30 +259,6 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _addSetup() async {
     await HomePage.addSetup(context);
-  }
-
-  Future<void> _editSetup(Setup setup) async {
-    final data = context.read<AppData>();
-
-    final editedSetup = await Navigator.push<Setup>(
-      context,
-      MaterialPageRoute(builder: (context) => SetupPage.edit(setup: setup)),
-    );
-    if (editedSetup == null) return;
-
-    data.editSetup(editedSetup);
-  }
-
-  Future<void> _duplicateSetup(Setup setup) async {
-    final data = context.read<AppData>();
-    
-    final newSetup = await Navigator.push<Setup>(
-      context,
-      MaterialPageRoute(builder: (context) => SetupPage.duplicate(setup: setup.deepCopy())),
-    );
-    if (newSetup == null) return;
-
-    data.addSetup(newSetup);
   }
 
   @override
@@ -453,11 +413,7 @@ class _HomePageState extends State<HomePage> {
               onReorderComponent: _onReorderComponents,
             ),
           ],
-          SetupList(
-            editSetup: _editSetup,
-            restoreSetup: _duplicateSetup,
-            removeSetup: _removeSetup,
-          ),
+          const SetupList(),
           if (appSettings.enablePerson)
             PersonList(
               persons: filteredData.filteredPersons,

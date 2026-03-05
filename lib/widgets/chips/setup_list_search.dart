@@ -7,15 +7,8 @@ import '../../pages/setup_display_page.dart';
 import '../setup_list_card.dart';
 
 class SetupListSearch extends StatelessWidget {
-  final Future<void> Function(Setup setup) editSetup;
-  final Future<void> Function(Setup setup) restoreSetup;
-  final Future<void> Function(Setup setup) removeSetup;
-
   const SetupListSearch({
     super.key, 
-    required this.editSetup,
-    required this.restoreSetup,
-    required this.removeSetup,
   });
 
   @override
@@ -63,12 +56,8 @@ class SetupListSearch extends StatelessWidget {
               await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDisplayPage(
                 setupIds: suggestedSetups.map((s) => s.id).toList(),
                 initialSetup: setup,
-                editSetup: editSetup,
               )));
             },
-            editSetup: editSetup, 
-            restoreSetup: restoreSetup, 
-            removeSetup: removeSetup, 
             displayOnlyChanges: appSettings.setupListOnlyChanges, 
             displayBikeAdjustmentValues:appSettings.setupListBikeAdjustmentValues, 
             displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues, 

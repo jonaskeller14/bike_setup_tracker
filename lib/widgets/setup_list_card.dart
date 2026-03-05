@@ -7,15 +7,11 @@ import '../models/bike.dart';
 import '../models/weather.dart';
 import '../models/app_settings.dart';
 import 'adjustment_compact_display_list.dart';
-import '../utils/file_export.dart';
-import '../utils/to_text.dart';
+import '../utils/setup_actions.dart';
 
 class SetupListCard extends StatelessWidget {
   final String setupId;
   final void Function()? onTap;
-  final void Function(Setup setup) editSetup;
-  final void Function(Setup setup) restoreSetup;
-  final void Function(Setup setup) removeSetup;
   final bool displayOnlyChanges;
   final bool displayBikeAdjustmentValues;
   final bool displayPersonAdjustmentValues;
@@ -25,9 +21,6 @@ class SetupListCard extends StatelessWidget {
     super.key,
     required this.setupId,
     required this.onTap,
-    required this.editSetup,
-    required this.restoreSetup,
-    required this.removeSetup,
     required this.displayOnlyChanges,
     required this.displayBikeAdjustmentValues,
     required this.displayPersonAdjustmentValues,
@@ -56,18 +49,6 @@ class SetupListCard extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  void _shareSetup(BuildContext context, {required Setup setup}) async {
-    final String content = setupToText(
-      context: context,
-      setup: setup,
-    );
-    
-    await FileExport.shareText(
-      context: context, 
-      content: content
     );
   }
 
@@ -247,10 +228,10 @@ class SetupListCard extends StatelessWidget {
       trailing: PopupMenuButton<_SetupListCardPopupMenuButtonOptions>(
         onSelected: (_SetupListCardPopupMenuButtonOptions value) {
           switch (value) {
-            case _SetupListCardPopupMenuButtonOptions.edit: editSetup(setup);
-            case _SetupListCardPopupMenuButtonOptions.share: _shareSetup(context, setup: setup);
-            case _SetupListCardPopupMenuButtonOptions.restore: restoreSetup(setup);
-            case _SetupListCardPopupMenuButtonOptions.remove: removeSetup(setup);
+            case _SetupListCardPopupMenuButtonOptions.edit: SetupActions.editSetup(context, setup);
+            case _SetupListCardPopupMenuButtonOptions.share: SetupActions.shareSetup(context, setup: setup);
+            case _SetupListCardPopupMenuButtonOptions.restore: SetupActions.duplicateSetup(context, setup);
+            case _SetupListCardPopupMenuButtonOptions.remove: SetupActions.removeSetup(context, setup);
           }
         },
         itemBuilder: (BuildContext context) => <PopupMenuEntry<_SetupListCardPopupMenuButtonOptions>>[

@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../models/setup.dart';
 import '../../pages/map_page.dart';
 
 class SetupListMap extends StatelessWidget {
-  final Future<void> Function(Setup) editSetup;
-
-  const SetupListMap({super.key, required this.editSetup});
+  const SetupListMap({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +15,7 @@ class SetupListMap extends StatelessWidget {
       showCheckmark: false,
       selected: false,
       onSelected: (_) async {
-        await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => MapPage(
-          editSetup: editSetup,
-        )));
+        await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => MapPage()));
       },
     );
   }

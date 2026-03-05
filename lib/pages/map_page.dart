@@ -4,15 +4,12 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../models/filtered_data.dart';
-import '../models/setup.dart';
 import '../widgets/chips/map_filter_widget.dart';
 import '../widgets/sheets/strava_activity.dart';
 import '../widgets/sheets/setup_display.dart';
 
 class MapPage extends StatefulWidget {
-  final Future<void> Function(Setup setup) editSetup;
-
-  const MapPage({super.key, required this.editSetup});
+  const MapPage({super.key});
 
   @override
   State<MapPage> createState() => _MapPageState();

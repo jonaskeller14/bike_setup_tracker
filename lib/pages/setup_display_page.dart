@@ -17,17 +17,16 @@ import '../models/weather.dart';
 import '../widgets/display_adjustment/display_adjustment_list.dart';
 import '../widgets/display_adjustment/display_dangling_adjustment.dart';
 import '../widgets/initial_changed_value_legend.dart';
+import '../utils/setup_actions.dart';
 
 class SetupDisplayPage extends StatefulWidget {
   final List<String> setupIds;
   final Setup? initialSetup;
-  final Future<void> Function(Setup) editSetup;
 
   const SetupDisplayPage({
     super.key, 
     required this.setupIds,
     this.initialSetup,
-    required this.editSetup,
   });
 
   @override
@@ -122,7 +121,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
         title: _navigationRow(_currentPageIndex),
         actions: [
           IconButton(
-            onPressed: () => widget.editSetup(setups[_currentPageIndex]!), 
+            onPressed: () => SetupActions.editSetup(context, setups[_currentPageIndex]!), 
             icon: const Icon(Icons.edit),
           )
         ],

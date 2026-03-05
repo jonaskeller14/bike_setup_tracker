@@ -5,6 +5,8 @@ import 'component.dart';
 import 'person.dart';
 import 'setup.dart';
 import 'rating.dart';
+import 'todo_rule.dart';
+import 'todo_entry.dart';
 import 'strava/strava_activity.dart';
 import 'strava/strava_athlete.dart';
 import 'strava/strava_gear.dart';
@@ -18,12 +20,16 @@ class FilteredData extends ChangeNotifier {
   Map<String, Setup> _setups = {};
   Map<String, Component> _components = {};
   Map<String, Rating> _ratings = {};
+  Map<String, TodoRule> _todoRules = {};
+  Map<String, TodoEntry> _todoEntries = {};
 
   Map<String, Person> get persons => _persons;
   Map<String, Bike> get bikes => _bikes;
   Map<String, Setup> get setups => _setups;
   Map<String, Component> get components => _components;
   Map<String, Rating> get ratings => _ratings;
+  Map<String, TodoRule> get todoRules => _todoRules;
+  Map<String, TodoEntry> get todoEntries => _todoEntries;
   Map<int, StravaAthlete> get stravaAthletes => _appData.stravaAthletes;
   Map<int, StravaActivity> get stravaActivities => _appData.stravaActivities;
   Map<String, StravaGear> get stravaGears => _appData.stravaGears;
@@ -40,6 +46,8 @@ class FilteredData extends ChangeNotifier {
   Map<String, Rating> _filteredRatings = {};
   Map<String, Component> _filteredComponents = {};
   Map<String, Setup> _filteredSetups = {};
+  Map<String, TodoRule> _filteredTodoRules = {};
+  Map<String, TodoEntry> _filteredTodoEntries = {};
   Map<int, StravaActivity> _filteredStravaActivities = {};
 
   String? get selectedBike => _selectedBike;
@@ -50,6 +58,8 @@ class FilteredData extends ChangeNotifier {
   Map<String, Rating> get filteredRatings => _filteredRatings;
   Map<String, Component> get filteredComponents => _filteredComponents;
   Map<String, Setup> get filteredSetups => _filteredSetups;
+  Map<String, TodoRule> get filteredTodoRules => _filteredTodoRules;
+  Map<String, TodoEntry> get filteredTodoEntries => _filteredTodoEntries;
   Map<int, StravaActivity> get filteredStravaActivities => _filteredStravaActivities;
 
   FilteredData(this._appData);
@@ -67,6 +77,8 @@ class FilteredData extends ChangeNotifier {
     _setups = Map.fromEntries(_appData.setups.entries.where((entry) => !entry.value.isDeleted));
     _persons = Map.fromEntries(_appData.persons.entries.where((entry) => !entry.value.isDeleted));
     _ratings = Map.fromEntries(_appData.ratings.entries.where((entry) => !entry.value.isDeleted));
+    _todoRules = Map.fromEntries(_appData.todoRules.entries.where((entry) => !entry.value.isDeleted));
+    _todoEntries = Map.fromEntries(_appData.todoEntries.entries.where((entry) => !entry.value.isDeleted));
 
     _setupTags = _setups.values.map((s) => s.tags).expand((tags) => tags).toSet();
   }
@@ -87,6 +99,8 @@ class FilteredData extends ChangeNotifier {
     _filterSetups();
     _filterPersons();
     _filterRatings();
+    _filterTodoRules();
+    _filterTodoEntries();
     _filterStravaActivities();
   }
 
@@ -125,6 +139,14 @@ class FilteredData extends ChangeNotifier {
         case FilterType.componentType: return _selectedBike == null ? true : filteredComponents.values.any((c) => c.componentType.toString() == rating.filter);
       }
     }));
+  }
+
+  void _filterTodoRules() {
+    _filteredTodoRules = todoRules;
+  }
+
+  void _filterTodoEntries() {
+    _filteredTodoEntries = todoEntries;
   }
 
   void _filterStravaActivities() {

@@ -9,6 +9,8 @@ import 'bike.dart';
 import 'setup.dart';
 import 'component.dart';
 import 'rating.dart';
+import 'todo_rule.dart';
+import 'todo_entry.dart';
 import 'strava/strava_activity.dart';
 import '../utils/file_import.dart';
 import 'strava/strava_gear.dart';
@@ -21,6 +23,8 @@ class AppData extends ChangeNotifier {
   final Map<String, Setup> _setups = {};
   final Map<String, Component> _components = {};
   final Map<String, Rating> _ratings = {};
+  final Map<String, TodoRule> _todoRules = {};
+  final Map<String, TodoEntry> _todoEntries = {};
   final Map<int, StravaAthlete> _stravaAthletes = {};
   final Map<int, StravaActivity> _stravaActivities = {};
   final Map<String, StravaGear> _stravaGears = {};
@@ -31,6 +35,8 @@ class AppData extends ChangeNotifier {
   Map<String, Setup> get setups => _setups;
   Map<String, Component> get components => _components;
   Map<String, Rating> get ratings => _ratings;
+  Map<String, TodoRule> get todoRules => _todoRules;
+  Map<String, TodoEntry> get todoEntries => _todoEntries;
   Map<int, StravaAthlete> get stravaAthletes => _stravaAthletes;
   Map<int, StravaActivity> get stravaActivities => _stravaActivities;
   Map<String, StravaGear> get stravaGears => _stravaGears;
@@ -71,6 +77,8 @@ class AppData extends ChangeNotifier {
     _persons.clear();
     _components.clear();
     _ratings.clear();
+    _todoRules.clear();
+    _todoEntries.clear();
     _setups.clear();
     _stravaActivities.clear();
   }
@@ -81,6 +89,8 @@ class AppData extends ChangeNotifier {
     'setups': setups.values.map((s) => s.toJson()).toList(),
     'components': components.values.map((c) => c.toJson()).toList(),
     'ratings': ratings.values.map((r) => r.toJson()).toList(),
+    'todoRules': todoRules.values.map((tr) => tr.toJson()).toList(),
+    'todoEntries': todoEntries.values.map((te) => te.toJson()).toList(),
     'stravaAthletes': _stravaAthletes.values.map((a) => a.toJson()).toList(),
     'stravaGears': _stravaGears.values.map((g) => g.toJson()).toList(),
     'stravaActivities': stravaActivities.values.map((a) => a.toJson()).toList(),
@@ -102,6 +112,12 @@ class AppData extends ChangeNotifier {
     final loadedRatings = (json['ratings'] as List<dynamic>? ?? [])
         .map((a) => Rating.fromJson(json: a));
         
+    final loadedTodoRules = (json['todoRules'] as List<dynamic>? ?? [])
+        .map((a) => TodoRule.fromJson(a as Map<String, dynamic>));
+
+    final loadedTodoEntries = (json['todoEntries'] as List<dynamic>? ?? [])
+        .map((a) => TodoEntry.fromJson(a as Map<String, dynamic>));
+
     final loadedStravaAthletes = (json['stravaAthletes'] as List<dynamic>? ?? [])
         .map((a) => StravaAthlete.fromJson(a));
 
@@ -116,6 +132,8 @@ class AppData extends ChangeNotifier {
     data.components.addAll(<String, Component>{for (var item in loadedComponents) item.id: item});
     data.setups.addAll(<String, Setup>{for (var item in loadedSetups) item.id: item});
     data.ratings.addAll(<String, Rating>{for (var item in loadedRatings) item.id: item});
+    data.todoRules.addAll(<String, TodoRule>{for (var item in loadedTodoRules) item.id: item});
+    data.todoEntries.addAll(<String, TodoEntry>{for (var item in loadedTodoEntries) item.id: item});
     data._stravaAthletes.addAll(<int, StravaAthlete>{for (var item in loadedStravaAthletes) item.id: item});
     data._stravaGears.addAll(<String, StravaGear>{for (var item in loadedStravaGears) item.id: item});
     data.stravaActivities.addAll(<int, StravaActivity>{for (var item in loadedStravaActivities) item.id: item});
@@ -223,6 +241,42 @@ class AppData extends ChangeNotifier {
     notifyListeners();
   }
 
+  void removeTodoRules(Iterable<TodoRule> rules) {
+    for (var rule in rules) {
+      rule.isDeleted = true;
+      rule.lastModified = DateTime.now().toUtc();
+    }
+    _lastModified = DateTime.now().toUtc();
+    notifyListeners();
+  }
+
+  void restoreTodoRules(Iterable<TodoRule> rules) {
+    for (var rule in rules) {
+      rule.isDeleted = false;
+      rule.lastModified = DateTime.now().toUtc();
+    }
+    _lastModified = DateTime.now().toUtc();
+    notifyListeners();
+  }
+
+  void removeTodoEntries(Iterable<TodoEntry> entries) {
+    for (var entry in entries) {
+      entry.isDeleted = true;
+      entry.lastModified = DateTime.now().toUtc();
+    }
+    _lastModified = DateTime.now().toUtc();
+    notifyListeners();
+  }
+
+  void restoreTodoEntries(Iterable<TodoEntry> entries) {
+    for (var entry in entries) {
+      entry.isDeleted = false;
+      entry.lastModified = DateTime.now().toUtc();
+    }
+    _lastModified = DateTime.now().toUtc();
+    notifyListeners();
+  }
+
   void addBike(Bike bike) {
     _bikes[bike.id] = bike;
 
@@ -240,6 +294,30 @@ class AppData extends ChangeNotifier {
   void addRating(Rating rating) {
     _ratings[rating.id] = rating;
     
+    _lastModified = DateTime.now().toUtc();
+    notifyListeners();
+  }
+
+  void addTodoRule(TodoRule rule) {
+    _todoRules[rule.id] = rule;
+    _lastModified = DateTime.now().toUtc();
+    notifyListeners();
+  }
+
+  void editTodoRule(TodoRule rule) {
+    _todoRules[rule.id] = rule;
+    _lastModified = DateTime.now().toUtc();
+    notifyListeners();
+  }
+
+  void addTodoEntry(TodoEntry entry) {
+    _todoEntries[entry.id] = entry;
+    _lastModified = DateTime.now().toUtc();
+    notifyListeners();
+  }
+
+  void editTodoEntry(TodoEntry entry) {
+    _todoEntries[entry.id] = entry;
     _lastModified = DateTime.now().toUtc();
     notifyListeners();
   }

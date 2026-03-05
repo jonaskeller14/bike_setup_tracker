@@ -18,6 +18,7 @@ import 'rating_page.dart';
 import 'trash_page.dart';
 import 'app_settings_page.dart';
 import 'about_page.dart';
+import 'todo_list.dart';
 import '../widgets/person_list.dart';
 import '../widgets/rating_list.dart';
 import '../widgets/bike_list.dart';
@@ -296,6 +297,14 @@ class _HomePageState extends State<HomePage> {
             const Text("Ratings"),
         ][_currentPageIndex],
         actions: [
+          if (appSettings.enableTodo)
+            IconButton(
+              icon: const Icon(Icons.checklist),
+              tooltip: 'Todos',
+              onPressed: () {
+                Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const TodoList()));
+              },
+            ),
           if (appSettings.enableStrava)
             const StravaSyncButton(),
           if (appSettings.enableGoogleDrive)

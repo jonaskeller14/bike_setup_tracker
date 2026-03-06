@@ -4,12 +4,17 @@
 
 [![Flutter Test Check](https://github.com/jonaskeller14/bike_setup_tracker/actions/workflows/flutter_test.yml/badge.svg)](https://github.com/jonaskeller14/bike_setup_tracker/actions)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Downloads](https://playbadges.pavi2410.com/badge/downloads?id=com.jonaskeller14.bike_setup_tracker&pretty)](https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker)
-[![Ratings](https://playbadges.pavi2410.com/badge/ratings?id=com.jonaskeller14.bike_setup_tracker&pretty)](https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker)
+[![Play Store Downloads](https://playbadges.pavi2410.com/badge/downloads?id=com.jonaskeller14.bike_setup_tracker&pretty)](https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker)
+[![Play Store Ratings](https://playbadges.pavi2410.com/badge/ratings?id=com.jonaskeller14.bike_setup_tracker&pretty)](https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker)
 
-<a href='https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker'>
-  <img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width="120"/>
-</a>
+<p align="left">
+  <a href='https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker'>
+    <img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' style="width: 155px; vertical-align: middle;"/>
+  </a>
+  <a href="https://apps.apple.com/us/app/bike-setup-tracker/id6759974325?itscg=30200&itsct=apps_box_badge&mttnsubad=6759974325">
+    <img src="https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us?releaseDate=1772755200" alt="Download on the App Store" style="width: 120px; vertical-align: middle;"/>
+  </a>
+</p>
 
 Stop guessing your settings. Start tracking.
 
@@ -33,7 +38,7 @@ Here are the current development goals and their status:
 - [ ] **Add rider profile** (track body weight, ...) ➡️ **In testing phase**
 - [ ] **Add a rating procedure** to systematically distinguish good from bad setups ➡️ **In testing phase**
 - [ ] **Strava integration** to use activity data as context ➡️ **In Development**
-- [ ] **Publish for iOS** ➡️ **In testing phase**
+- [x] **Publish for iOS** ➡️ **Live on App Store**
 
 I am open for feedback, suggestions, and bug reports—please feel free to open a new issue for any of these.
 

@@ -18,4 +18,5 @@ exports.stravaWebhook = webhook.stravaWebhook;
 // Sync
 exports.syncActivities = sync.syncActivities;
 exports.syncFullHistory = sync.syncFullHistoryCloud;
-exports.scheduledWeeklySync = scheduledSync.scheduledWeeklySync;
+exports.enqueueWeeklySyncs = scheduledSync.enqueueWeeklySyncs;
+exports.syncWorker = scheduledSync.syncWorker;

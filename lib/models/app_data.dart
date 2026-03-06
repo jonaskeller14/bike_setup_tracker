@@ -113,10 +113,10 @@ class AppData extends ChangeNotifier {
         .map((a) => Rating.fromJson(json: a));
         
     final loadedTodoRules = (json['todoRules'] as List<dynamic>? ?? [])
-        .map((a) => todoRuleFromJson(a as Map<String, dynamic>));
+        .map((a) => TodoRule.fromJson(a as Map<String, dynamic>));
 
     final loadedTodoEntries = (json['todoEntries'] as List<dynamic>? ?? [])
-        .map((a) => todoEntryFromJson(a as Map<String, dynamic>));
+        .map((a) => TodoEntry.fromJson(a as Map<String, dynamic>));
 
     final loadedStravaAthletes = (json['stravaAthletes'] as List<dynamic>? ?? [])
         .map((a) => StravaAthlete.fromJson(a));

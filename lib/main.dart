@@ -13,9 +13,15 @@ import 'services/strava_service.dart';
 import 'services/navigation_service.dart';
 import 'services/deep_link_service.dart';
 import 'services/quick_actions_service.dart';
+import 'utils/file_export.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
+import 'database/app_database.dart';
+import 'services/database_migration_service.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -68,25 +74,57 @@ void main() async {
     ),
   );
 
-  runApp(LoadingGate(appSettings: AppSettings(), appData: AppData()));
+  final appDatabase = AppDatabase();
+
+  runApp(
+    LoadingGate(
+      appSettings: AppSettings(),
+      appData: AppData(),
+      appDatabase: appDatabase,
+    ),
+  );
 }
 
 class LoadingGate extends StatelessWidget {
   final AppSettings appSettings;
   final AppData appData;
+  final AppDatabase appDatabase;
 
   const LoadingGate({
     super.key,
     required this.appSettings,
     required this.appData,
+    required this.appDatabase,
   });
+
+  Future<void> _loadAndMigrate(BuildContext context) async {
+    // We must load AppData as usual since the rest of the app
+    // is dependent on it until Phase 3 refactoring is complete.
+    await appData.load(context);
+
+    final dbFolder = await getApplicationDocumentsDirectory();
+    final dbFile = File(p.join(dbFolder.path, 'bike_setup_tracker.sqlite'));
+    final dbExists = await dbFile.exists();
+
+    if (!dbExists) {
+      debugPrint("Starting database migration to Drift...");
+      final migrationService = DatabaseMigrationService(appDatabase);
+      await migrationService.migrateFromAppData(appData);
+      debugPrint("Migration inserted data successfully.");
+      
+      // Save a backup of the final JSON state just in case.
+      final result = await FileExport.saveBackup(context: null, data: appData);
+      
+      debugPrint("Database migration completed.");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: Future.wait([
         appSettings.loadAppSettings(),
-        appData.load(context),
+        _loadAndMigrate(context),
       ]),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -119,6 +157,7 @@ class LoadingGate extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.done) {
           return MultiProvider(
             providers: [
+              Provider<AppDatabase>.value(value: appDatabase),
               ChangeNotifierProvider.value(value: appSettings),
               ChangeNotifierProvider.value(value: appData),
 

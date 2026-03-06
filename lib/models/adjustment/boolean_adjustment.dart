@@ -32,7 +32,7 @@ class BooleanAdjustment extends Adjustment {
     'id': id,
     'name': name,
     'notes': notes,
-    'type': 'boolean',
+    'type': AdjustmentType.boolean.name,
     'unit': unit,
     'category': category.toString(),
   };

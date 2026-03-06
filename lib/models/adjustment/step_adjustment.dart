@@ -57,12 +57,12 @@ class StepAdjustment extends Adjustment {
     'id': id,
     'name': name,
     'notes': notes,
-    'type': 'step',
+    'type': AdjustmentType.step.name,
     'unit': unit,
     'category': category.toString(),
-    'step': step,
     'min': min,
     'max': max,
+    'step': step,
     'visualization': visualization.toString(),
   };
 

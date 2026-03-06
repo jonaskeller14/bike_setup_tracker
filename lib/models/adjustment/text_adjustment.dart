@@ -32,7 +32,7 @@ class TextAdjustment extends Adjustment {
     'id': id,
     'name': name,
     'notes': notes,
-    'type': 'text',
+    'type': AdjustmentType.text.name,
     'unit': unit,
     'category': category.toString(),
   };

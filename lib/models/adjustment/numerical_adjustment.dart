@@ -40,7 +40,7 @@ class NumericalAdjustment extends Adjustment {
     'id': id,
     'name': name,
     'notes': notes,
-    'type': 'numerical',
+    'type': AdjustmentType.numerical.name,
     'unit': unit,
     'category': category.toString(),
     'min': min.isFinite ? min : null,

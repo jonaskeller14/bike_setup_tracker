@@ -39,7 +39,7 @@ class DurationAdjustment extends Adjustment {
     'id': id,
     'name': name,
     'notes': notes,
-    'type': 'duration',
+    'type': AdjustmentType.duration.name,
     'unit': unit,
     'category': category.toString(),
     'min': min?.toString(),

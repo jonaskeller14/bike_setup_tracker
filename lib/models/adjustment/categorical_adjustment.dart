@@ -36,7 +36,7 @@ class CategoricalAdjustment extends Adjustment {
     'id': id,
     'name': name,
     'notes': notes,
-    'type': 'categorical',
+    'type': AdjustmentType.categorical.name,
     'unit': unit,
     'category': category.toString(),
     'options': options.toList(),

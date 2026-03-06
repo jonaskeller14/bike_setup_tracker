@@ -30,6 +30,15 @@ enum AdjustmentCategory {
   }
 }
 
+enum AdjustmentType {
+  boolean,
+  categorical,
+  step,
+  numerical,
+  text,
+  duration;
+}
+
 sealed class Adjustment {
   final String id;
   final String name;
@@ -81,17 +90,19 @@ sealed class Adjustment {
     final int? version = json["version"];
     switch (version) {
       case null || 1:
-        final type = json['type'];
+        final typeString = json['type'];
+        final type = AdjustmentType.values.firstWhere(
+          (e) => e.name == typeString,
+          orElse: () => throw Exception('Unknown adjustment type: $typeString'),
+        );
         json['category'] = json['category'] ?? defaultCategory.toString();
         switch (type) {
-          case 'boolean': return BooleanAdjustment.fromJson(json);
-          case 'categorical': return CategoricalAdjustment.fromJson(json);
-          case 'step': return StepAdjustment.fromJson(json);
-          case 'numerical': return NumericalAdjustment.fromJson(json);
-          case 'text': return TextAdjustment.fromJson(json);
-          case 'duration': return DurationAdjustment.fromJson(json);
-          default:
-            throw Exception('Unknown adjustment type: $type');
+          case AdjustmentType.boolean: return BooleanAdjustment.fromJson(json);
+          case AdjustmentType.categorical: return CategoricalAdjustment.fromJson(json);
+          case AdjustmentType.step: return StepAdjustment.fromJson(json);
+          case AdjustmentType.numerical: return NumericalAdjustment.fromJson(json);
+          case AdjustmentType.text: return TextAdjustment.fromJson(json);
+          case AdjustmentType.duration: return DurationAdjustment.fromJson(json);
         }
       default: throw Exception("Json Version $version of Adjustment incompatible."); 
     }

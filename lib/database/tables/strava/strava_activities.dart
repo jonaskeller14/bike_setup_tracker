@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import '../../models/strava/strava_activity.dart'; 
+import '../../../models/strava/strava_activity.dart'; 
 
 @DataClassName('StravaActivityDb')
 class StravaActivities extends Table {

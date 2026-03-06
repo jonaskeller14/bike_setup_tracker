@@ -15,9 +15,9 @@ import 'tables/setup_adjustment_values.dart';
 
 import 'tables/persons.dart';
 import 'tables/ratings.dart';
-import 'tables/strava_activities.dart';
-import 'tables/strava_athletes.dart';
-import 'tables/strava_gears.dart';
+import 'tables/strava/strava_activities.dart';
+import 'tables/strava/strava_athletes.dart';
+import 'tables/strava/strava_gears.dart';
 
 // Import the App Models so that Drift generator can find the Enums
 import '../models/todo_rule.dart';

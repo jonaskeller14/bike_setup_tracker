@@ -8,6 +8,7 @@ import '../models/component.dart';
 import '../models/installation.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/filtered_data.dart';
+import '../widgets/set_installation_timeline.dart';
 import 'adjustment/boolean_adjustment_page.dart';
 import 'adjustment/numerical_adjustment_page.dart';
 import 'adjustment/step_adjustment_page.dart';
@@ -348,6 +349,7 @@ class _ComponentPageState extends State<ComponentPage> {
 
   @override
   Widget build(BuildContext context) {
+    final appSettings = context.watch<AppSettings>();
     final filteredData = context.watch<FilteredData>();
     final bikes = filteredData.bikes;
     final existingComponentsCount = filteredData.components.values.where((c) => c.bike == _bike && c.componentType == _componentType && widget.component?.id != c.id).length;
@@ -390,61 +392,64 @@ class _ComponentPageState extends State<ComponentPage> {
                     validator: _validateName,
                   ),
                   const SizedBox(height: 12),
-                  DropdownButtonFormField<String?>(
-                    initialValue: _bike,
-                    isExpanded: true,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: 'Bike',
-                      border: OutlineInputBorder(),
-                      hintText: "Choose a bike for this component",
-                      helperText: _bike == null ? "WARNING: Select Bike to install Component." : null,
-                      fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.mode == ComponentPageMode.edit && _bike != _initialBike,
-                    ),
-                    validator: (String? newBike) {
-                      if (newBike is String && !bikes.containsKey(newBike)) return "Please select valid bike";
-                      return null;
-                    },
-                    items: bikes.values.map((b) {
-                      return DropdownMenuItem<String?>(
-                        value: b.id,
-                        child: Row(
-                          spacing: 8,
-                          children: [
-                            const Icon(Bike.iconData),
-                            Expanded(child: Text(b.name, overflow: TextOverflow.ellipsis))
-                          ],
-                        ),
-                      );
-                    }).toList() + [
-                      DropdownMenuItem<String?>(
-                        value: null,
-                        child: Row(
-                          spacing: 8,
-                          children: [
-                            const Icon(Icons.shelves),
-                            Expanded(child: Text("NOT INSTALLED", overflow: TextOverflow.ellipsis))
-                          ],
-                        ),
+                  if (appSettings.enableInstallationTimeline)
+                    SetInstallationTimeline()
+                  else
+                    DropdownButtonFormField<String?>(
+                      initialValue: _bike,
+                      isExpanded: true,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'Bike',
+                        border: OutlineInputBorder(),
+                        hintText: "Choose a bike for this component",
+                        helperText: _bike == null ? "WARNING: Select Bike to install Component." : null,
+                        fillColor: Colors.orange.withValues(alpha: 0.08),
+                        filled: widget.mode == ComponentPageMode.edit && _bike != _initialBike,
                       ),
-                      if (_bike != null && !bikes.containsKey(_bike))
-                        DropdownMenuItem<String?>(
-                          value: _bike,
+                      validator: (String? newBike) {
+                        if (newBike is String && !bikes.containsKey(newBike)) return "Please select valid bike";
+                        return null;
+                      },
+                      items: bikes.values.map((b) {
+                        return DropdownMenuItem<String?>(
+                          value: b.id,
                           child: Row(
                             spacing: 8,
                             children: [
-                              Icon(Bike.iconData, color: Theme.of(context).colorScheme.error),
-                              Expanded(child: Text("BIKE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+                              const Icon(Bike.iconData),
+                              Expanded(child: Text(b.name, overflow: TextOverflow.ellipsis))
+                            ],
+                          ),
+                        );
+                      }).toList() + [
+                        DropdownMenuItem<String?>(
+                          value: null,
+                          child: Row(
+                            spacing: 8,
+                            children: [
+                              const Icon(Icons.shelves),
+                              Expanded(child: Text("NOT INSTALLED", overflow: TextOverflow.ellipsis))
                             ],
                           ),
                         ),
-                    ],
-                    onChanged: (String? newBike) {
-                      setState(() => _bike = newBike);
-                      _changeListener();
-                    },
-                  ),
+                        if (_bike != null && !bikes.containsKey(_bike))
+                          DropdownMenuItem<String?>(
+                            value: _bike,
+                            child: Row(
+                              spacing: 8,
+                              children: [
+                                Icon(Bike.iconData, color: Theme.of(context).colorScheme.error),
+                                Expanded(child: Text("BIKE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+                              ],
+                            ),
+                          ),
+                      ],
+                      onChanged: (String? newBike) {
+                        setState(() => _bike = newBike);
+                        _changeListener();
+                      },
+                    ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<ComponentType>(
                     initialValue: _componentType,
@@ -538,7 +543,7 @@ class _ComponentPageState extends State<ComponentPage> {
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     builder: (FormFieldState<List<Adjustment>> field) {
                       void notify() => field.didChange(List.from(_adjustments));
-           
+  
                       void showAddBottomSheet() => showComponentAddAdjustmentBottomSheet(
                         context: context,
                         componentType: _componentType,
@@ -546,7 +551,7 @@ class _ComponentPageState extends State<ComponentPage> {
                         addAdjustmentFromPreset: (a) => _addAdjustmentFromPreset(a, onChanged: notify),
                         addAdjustment: <T extends Adjustment>() => _addAdjustment<T>(onChanged: notify),
                       );
-           
+  
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

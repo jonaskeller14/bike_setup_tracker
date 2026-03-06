@@ -19,6 +19,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableStrava = false;
   bool _enableGarage = true;
   static const bool _enableTodo = false;
+  static const bool _enableInstallationTimeline = false;
 
   // Temporary Settings
   bool _setupListOnlyChanges = false;
@@ -43,6 +44,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableStrava => _enableStrava;
   bool get enableGarage => _enableGarage;
   bool get enableTodo => _enableTodo;
+  bool get enableInstallationTimeline => _enableInstallationTimeline;
 
   // Temporary Settings
   bool get setupListOnlyChanges => _setupListOnlyChanges;

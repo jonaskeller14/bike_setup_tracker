@@ -11,6 +11,7 @@ import '../models/adjustment/adjustment.dart';
 import '../models/weather.dart';
 import '../models/app_settings.dart';
 import '../widgets/chips/bike_and_tags_filter.dart';
+import '../widgets/display_installation_timeline.dart';
 import '../widgets/sheets/column_filter.dart';
 import '../widgets/initial_changed_value_legend.dart';
 import '../utils/table_column.dart';
@@ -323,6 +324,8 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (appSettings.enableInstallationTimeline)
+                DisplayInstallationTimeline(component: component),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
@@ -348,6 +351,33 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                   ],
                 ),
               ),
+
+              if (activeColumns.isNotEmpty)
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    spacing: 6,
+                    children: [
+                      FilterChip(
+                        avatar: const Icon(Icons.view_column_outlined),
+                        showCheckmark: false,
+                        label: const Text("Columns"),
+                        selected: _columns.any((c) => c.active),
+                        onSelected: (bool newValue) async {
+                          await showColumnFilterSheet(
+                            context: context, 
+                            sortedColumns: sortedColumns, 
+                            componentAdjustments: componentAdjustments,
+                            ratingAdjustments: ratingAdjustments,
+                            personAdjustments: personAdjustments,
+                            onColumnStatusChanged: () => setState(() {}), // TableColumn.active is changed
+                          );
+                        },
+                      ),
+                      BikeAndTagsFilterChip(enableSetupTagFilter: appSettings.enableSetupTags),
+                    ],
+                  ),
+                ),
         
               if (activeColumns.isNotEmpty)
                 SingleChildScrollView(

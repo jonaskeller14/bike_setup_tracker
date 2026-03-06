@@ -113,10 +113,10 @@ class AppData extends ChangeNotifier {
         .map((a) => Rating.fromJson(json: a));
         
     final loadedTodoRules = (json['todoRules'] as List<dynamic>? ?? [])
-        .map((a) => TodoRule.fromJson(a as Map<String, dynamic>));
+        .map((a) => todoRuleFromJson(a as Map<String, dynamic>));
 
     final loadedTodoEntries = (json['todoEntries'] as List<dynamic>? ?? [])
-        .map((a) => TodoEntry.fromJson(a as Map<String, dynamic>));
+        .map((a) => todoEntryFromJson(a as Map<String, dynamic>));
 
     final loadedStravaAthletes = (json['stravaAthletes'] as List<dynamic>? ?? [])
         .map((a) => StravaAthlete.fromJson(a));
@@ -243,8 +243,8 @@ class AppData extends ChangeNotifier {
 
   void removeTodoRules(Iterable<TodoRule> rules) {
     for (var rule in rules) {
-      rule.isDeleted = true;
-      rule.lastModified = DateTime.now().toUtc();
+      final updated = rule.copyWith(isDeleted: true, lastModified: DateTime.now().toUtc());
+      _todoRules[rule.id] = updated;
     }
     _lastModified = DateTime.now().toUtc();
     notifyListeners();
@@ -252,8 +252,8 @@ class AppData extends ChangeNotifier {
 
   void restoreTodoRules(Iterable<TodoRule> rules) {
     for (var rule in rules) {
-      rule.isDeleted = false;
-      rule.lastModified = DateTime.now().toUtc();
+      final updated = rule.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
+      _todoRules[rule.id] = updated;
     }
     _lastModified = DateTime.now().toUtc();
     notifyListeners();
@@ -261,8 +261,8 @@ class AppData extends ChangeNotifier {
 
   void removeTodoEntries(Iterable<TodoEntry> entries) {
     for (var entry in entries) {
-      entry.isDeleted = true;
-      entry.lastModified = DateTime.now().toUtc();
+      final updated = entry.copyWith(isDeleted: true, lastModified: DateTime.now().toUtc());
+      _todoEntries[entry.id] = updated;
     }
     _lastModified = DateTime.now().toUtc();
     notifyListeners();
@@ -270,8 +270,8 @@ class AppData extends ChangeNotifier {
 
   void restoreTodoEntries(Iterable<TodoEntry> entries) {
     for (var entry in entries) {
-      entry.isDeleted = false;
-      entry.lastModified = DateTime.now().toUtc();
+      final updated = entry.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
+      _todoEntries[entry.id] = updated;
     }
     _lastModified = DateTime.now().toUtc();
     notifyListeners();

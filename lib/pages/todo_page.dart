@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/todo_rule.dart';
 import '../widgets/dialogs/discard_changes.dart';
+import 'package:uuid/uuid.dart';
 
 enum TodoPageMode { add, edit, duplicate }
 
@@ -73,10 +74,12 @@ class _TodoPageState extends State<TodoPage> {
     _formHasChanges = false;
     
     Navigator.pop(context, TodoRule(
-      id: widget.mode == TodoPageMode.edit ? widget.todoRule?.id : null, 
+      id: widget.mode == TodoPageMode.edit ? widget.todoRule!.id : const Uuid().v4(), 
       name: name,
       notes: notes.isEmpty ? null : notes,
       priority: _priority,
+      isDeleted: false,
+      lastModified: DateTime.now().toUtc(),
     ));
   }
 

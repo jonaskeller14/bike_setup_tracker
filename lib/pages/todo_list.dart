@@ -5,6 +5,7 @@ import '../models/filtered_data.dart';
 import '../models/todo_rule.dart';
 import '../models/todo_entry.dart';
 import 'todo_page.dart';
+import 'package:uuid/uuid.dart';
 
 class TodoList extends StatelessWidget {
   const TodoList({super.key});
@@ -49,6 +50,9 @@ class TodoList extends StatelessWidget {
                                 onPressed: () {
                                   // Add an entry for this rule
                                   appData.addTodoEntry(TodoEntry(
+                                    id: const Uuid().v4(),
+                                    isDeleted: false,
+                                    lastModified: DateTime.now().toUtc(),
                                     name: rule.name,
                                     notes: rule.notes,
                                     dateTimeUTC: DateTime.now().toUtc(),

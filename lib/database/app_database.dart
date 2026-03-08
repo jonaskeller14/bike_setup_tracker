@@ -19,6 +19,14 @@ import 'tables/strava/strava_activities.dart';
 import 'tables/strava/strava_athletes.dart';
 import 'tables/strava/strava_gears.dart';
 
+import 'daos/bikes_dao.dart';
+import 'daos/components_dao.dart';
+import 'daos/setups_dao.dart';
+import 'daos/persons_dao.dart';
+import 'daos/ratings_dao.dart';
+import 'daos/todo_dao.dart';
+import 'daos/strava_dao.dart';
+
 // Import the App Models so that Drift generator can find the Enums
 import '../models/todo_rule.dart';
 import '../models/component.dart';
@@ -49,12 +57,29 @@ part 'app_database.g.dart';
   StravaActivities,
   StravaAthletes,
   StravaGears,
+], daos: [
+  BikesDao,
+  ComponentsDao,
+  SetupsDao,
+  PersonsDao,
+  RatingsDao,
+  TodoDao,
+  StravaDao,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
   int get schemaVersion => 1;
+
+  // DAOs
+  late final BikesDao bikesDao = BikesDao(this);
+  late final ComponentsDao componentsDao = ComponentsDao(this);
+  late final SetupsDao setupsDao = SetupsDao(this);
+  late final PersonsDao personsDao = PersonsDao(this);
+  late final RatingsDao ratingsDao = RatingsDao(this);
+  late final TodoDao todoDao = TodoDao(this);
+  late final StravaDao stravaDao = StravaDao(this);
 }
 
 LazyDatabase _openConnection() {

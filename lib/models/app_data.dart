@@ -15,19 +15,93 @@ import 'strava/strava_activity.dart';
 import '../utils/file_import.dart';
 import 'strava/strava_gear.dart';
 import 'strava/strava_athlete.dart';
+import '../database/app_database.dart';
+import '../database/mappers.dart';
+import 'dart:async';
 
 class AppData extends ChangeNotifier {
+  final AppDatabase database;
+  
   DateTime _lastModified = DateTime.now().toUtc();
-  final Map<String, Person> _persons = {};
-  final Map<String, Bike> _bikes = {};
-  final Map<String, Setup> _setups = {};
-  final Map<String, Component> _components = {};
-  final Map<String, Rating> _ratings = {};
-  final Map<String, TodoRule> _todoRules = {};
-  final Map<String, TodoEntry> _todoEntries = {};
-  final Map<int, StravaAthlete> _stravaAthletes = {};
-  final Map<int, StravaActivity> _stravaActivities = {};
-  final Map<String, StravaGear> _stravaGears = {};
+  Map<String, Person> _persons = {};
+  Map<String, Bike> _bikes = {};
+  Map<String, Setup> _setups = {};
+  Map<String, Component> _components = {};
+  Map<String, Rating> _ratings = {};
+  Map<String, TodoRule> _todoRules = {};
+  Map<String, TodoEntry> _todoEntries = {};
+  Map<int, StravaAthlete> _stravaAthletes = {};
+  Map<int, StravaActivity> _stravaActivities = {};
+  Map<String, StravaGear> _stravaGears = {};
+
+  final List<StreamSubscription> _subscriptions = [];
+
+  AppData(this.database) {
+    _initStreams();
+  }
+
+  void _initStreams() {
+    _subscriptions.add(database.bikesDao.watchAllBikes().listen((list) {
+      _bikes = {for (var b in list) b.id: b.toModel()};
+      notifyListeners();
+    }));
+
+    _subscriptions.add(database.componentsDao.watchAllComponents().listen((list) {
+      // Components need more handling for adjustments/installations if they should be joined here.
+      // But for basic list views, this is enough.
+      _components = {for (var c in list) c.id: c.toModel()};
+      notifyListeners();
+    }));
+
+    _subscriptions.add(database.personsDao.watchAllPersons().listen((list) {
+      _persons = {for (var p in list) p.id: p.toModel()};
+      notifyListeners();
+    }));
+
+    _subscriptions.add(database.ratingsDao.watchAllRatings().listen((list) {
+      _ratings = {for (var r in list) r.id: r.toModel()};
+      notifyListeners();
+    }));
+
+    _subscriptions.add(database.todoDao.watchAllRules().listen((list) {
+      _todoRules = {for (var r in list) r.id: r.toModel()};
+      notifyListeners();
+    }));
+
+    _subscriptions.add(database.todoDao.watchAllEntries().listen((list) {
+      _todoEntries = {for (var e in list) e.id: e.toModel()};
+      notifyListeners();
+    }));
+
+    _subscriptions.add(database.stravaDao.watchAllAthletes().listen((list) {
+      _stravaAthletes = {for (var a in list) a.id: a.toModel()};
+      notifyListeners();
+    }));
+
+    _subscriptions.add(database.stravaDao.watchAllActivities().listen((list) {
+      _stravaActivities = {for (var a in list) a.id: a.toModel()};
+      notifyListeners();
+    }));
+
+    _subscriptions.add(database.stravaDao.watchAllGears().listen((list) {
+      _stravaGears = {for (var g in list) g.id: g.toModel()};
+      notifyListeners();
+    }));
+    
+    // Setups are complex because of joins.
+    _subscriptions.add(database.setupsDao.watchAllSetupsWithValues().listen((list) {
+      _setups = {for (var s in list) s.setup.id: s.setup.toModel(values: s.values)};
+      notifyListeners();
+    }));
+  }
+
+  @override
+  void dispose() {
+    for (var s in _subscriptions) {
+      s.cancel();
+    }
+    super.dispose();
+  }
 
   DateTime get lastModified => _lastModified;
   Map<String, Person> get persons => _persons;

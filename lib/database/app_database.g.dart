@@ -6345,6 +6345,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $StravaAthletesTable stravaAthletes = $StravaAthletesTable(this);
   late final $StravaGearsTable stravaGears = $StravaGearsTable(this);
+  late final BikesDao bikesDao = BikesDao(this as AppDatabase);
+  late final ComponentsDao componentsDao = ComponentsDao(this as AppDatabase);
+  late final SetupsDao setupsDao = SetupsDao(this as AppDatabase);
+  late final PersonsDao personsDao = PersonsDao(this as AppDatabase);
+  late final RatingsDao ratingsDao = RatingsDao(this as AppDatabase);
+  late final TodoDao todoDao = TodoDao(this as AppDatabase);
+  late final StravaDao stravaDao = StravaDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();

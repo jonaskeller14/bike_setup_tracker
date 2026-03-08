@@ -79,7 +79,7 @@ void main() async {
   runApp(
     LoadingGate(
       appSettings: AppSettings(),
-      appData: AppData(),
+      appData: AppData(appDatabase),
       appDatabase: appDatabase,
     ),
   );

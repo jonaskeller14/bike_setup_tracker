@@ -8,7 +8,7 @@ const { getValidAccessToken, saveAthleteAndGear, saveActivityToBatch, checkStrav
  * Useful if webhooks fail or user wants an immediate refresh.
  */
 exports.syncActivities = onCall(
-  { secrets: ["STRAVA_CLIENT_ID", "STRAVA_CLIENT_SECRET"] },
+  { secrets: ["STRAVA_CLIENT_ID", "STRAVA_CLIENT_SECRET"], enforceAppCheck: true },
   async (request) => {
     const userId = request.auth ? request.auth.uid : null;
 
@@ -229,7 +229,8 @@ exports.syncFullHistoryCloud = onCall(
   { 
     secrets: ["STRAVA_CLIENT_ID", "STRAVA_CLIENT_SECRET"],
     timeoutSeconds: 540, 
-    memory: "512MiB" 
+    memory: "512MiB",
+    enforceAppCheck: true 
   },
   async (request) => {
     const userId = request.auth ? request.auth.uid : null;

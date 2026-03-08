@@ -70,6 +70,7 @@ dependencies:
   quick_actions: ^1.1.0
   cloud_functions: ^6.0.7
   firebase_auth: ^6.2.0
+  firebase_app_check: ^0.4.1+5
 dev_dependencies:
   flutter_test:
     sdk: flutter

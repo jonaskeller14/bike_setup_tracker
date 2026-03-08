@@ -71,8 +71,7 @@ exports.exchangeToken = onRequest(
  * STRATEGY: Deauthorization
  * Wipes user's Strava data from Firestore and tells Strava to revoke access.
  */
-exports.deauthorizeUser = onCall(
-  async (request) => {
+exports.deauthorizeUser = onCall({ enforceAppCheck: true }, async (request) => {
     const userId = request.auth ? request.auth.uid : null;
     if (!userId) {
       throw new HttpsError("unauthenticated", "User must be logged in.");

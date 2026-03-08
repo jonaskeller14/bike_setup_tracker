@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'models/app_settings.dart';
@@ -14,6 +15,7 @@ import 'services/deep_link_service.dart';
 import 'services/quick_actions_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -41,6 +43,16 @@ final materialAppDarkTheme = ThemeData(
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidProvider.playIntegrity,
+    appleProvider: AppleProvider.appAttestWithDeviceCheckFallback,
+    providerAndroid: kDebugMode 
+        ? const AndroidDebugProvider() 
+        : const AndroidPlayIntegrityProvider(),
+    providerApple: kDebugMode 
+        ? const AppleDebugProvider() 
+        : const AppleAppAttestWithDeviceCheckFallbackProvider(),
+  );
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 

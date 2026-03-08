@@ -83,7 +83,7 @@ class _StravaSheetState extends State<StravaSheet> {
                     else if (stravaService.errorMessage.isNotEmpty)
                       ListTile(
                         leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                        title: Text(stravaService.errorMessage, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                        title: SelectableText(stravaService.errorMessage, style: TextStyle(color: Theme.of(context).colorScheme.error)),
                         dense: true,
                         contentPadding: EdgeInsets.zero,
                       ),

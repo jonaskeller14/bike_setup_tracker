@@ -232,7 +232,7 @@ class _SelectImportSourceSheetContentState extends State<SelectImportSourceSheet
                   if (_filePickingError != null)
                     ListTile(
                       leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                      title: Text(_filePickingError!),
+                      title: SelectableText(_filePickingError!),
                       dense: true,
                     ),
                   ListTile(

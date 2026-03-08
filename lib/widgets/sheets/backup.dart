@@ -148,19 +148,19 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
                   if (_localBackupError != null)
                     ListTile(
                       leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                      title: Text(_localBackupError!),
+                      title: SelectableText(_localBackupError!),
                       dense: true,
                     ),
                   if (_googleDriveBackupError != null)
                     ListTile(
                       leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                      title: Text(_googleDriveBackupError!),
+                      title: SelectableText(_googleDriveBackupError!),
                       dense: true,
                     ),
                   if (_readBackupError != null)
                     ListTile(
                       leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                      title: Text(_readBackupError!),
+                      title: SelectableText(_readBackupError!),
                       dense: true,
                     ),
                   const Divider(),

@@ -60,7 +60,7 @@ class GoogleDriveSheet extends StatelessWidget {
                     if (googleDriveService.errorMessage.isNotEmpty)
                       ListTile(
                         leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                        title: Text(googleDriveService.errorMessage, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                        title: SelectableText(googleDriveService.errorMessage, style: TextStyle(color: Theme.of(context).colorScheme.error)),
                         dense: true,
                         contentPadding: EdgeInsets.zero,
                       ),

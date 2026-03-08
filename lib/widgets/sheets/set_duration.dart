@@ -61,7 +61,7 @@ void showSetDurationSheet({
                 child: (isBelowMin || isAboveMax) 
                     ? ListTile(
                         leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                        title: Text(
+                        title: SelectableText(
                           isBelowMin ? "Selected duration is below the minimum" : "Selected duration exceeds the maximum",
                           style: TextStyle(color: Theme.of(context).colorScheme.error),
                         ),

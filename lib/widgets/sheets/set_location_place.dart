@@ -249,16 +249,16 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                             if (_elevationService.status == ElevationStatus.error)
                               ListTile(
                                 leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                                title: const Text("Fetching Elevation failed"),
-                                subtitle: const Text("Check your internet connection"),
+                                title: const SelectableText("Fetching Elevation failed"),
+                                subtitle: const SelectableText("Check your internet connection"),
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),
                             if (widget.addressService.status == AddressStatus.error)
                               ListTile(
                                 leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                                title: const Text("Fetching Address failed"),
-                                subtitle: const Text("Check your internet connection and spelling"),
+                                title: const SelectableText("Fetching Address failed"),
+                                subtitle: const SelectableText("Check your internet connection and spelling"),
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),

@@ -2,11 +2,10 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:http/http.dart' as http;
+import 'package:cloud_functions/cloud_functions.dart';
 import '../models/app_data.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_athlete.dart';
@@ -20,9 +19,6 @@ enum StravaServiceStatus {
 class StravaService extends ChangeNotifier {
   static const String _stravaClientId = "193047";
   static const String _redirectUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/exchangeToken";
-  static const String _deauthorizeUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/deauthorizeUser";
-  static const String _syncUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/syncActivities";
-  static const String _syncFullHistoryUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/syncFullHistory";
   static const String _scope = "read,profile:read_all,activity:read_all";
 
   StravaServiceStatus _status = StravaServiceStatus.idle;
@@ -240,12 +236,8 @@ class StravaService extends ChangeNotifier {
   }
 
   Future<void> _loadUserId() async {
-    final prefs = await SharedPreferences.getInstance();
-    _userId = prefs.getString('strava_user_id');
-    if (_userId == null || _userId!.isEmpty) {
-      _userId = const Uuid().v4();
-      await prefs.setString('strava_user_id', _userId!);
-    }
+    final userCredential = await FirebaseAuth.instance.signInAnonymously();
+    _userId = userCredential.user?.uid;
     notifyListeners();
   }
 
@@ -343,10 +335,8 @@ class StravaService extends ChangeNotifier {
     
     try {
       // 1. Call Backend Cleanup
-      final response = await http.get(Uri.parse("$_deauthorizeUri?state=$_userId"));
-      if (response.statusCode != 200) {
-        throw "Backend cleanup failed: ${response.body}";
-      }
+      final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
+      await functions.httpsCallable('deauthorizeUser').call();
 
       // 2. Clear Local State
       _appData.clearStravaData();
@@ -371,13 +361,10 @@ class StravaService extends ChangeNotifier {
     errorMessage = ""; // Clear previous errors
     
     try {
-      final response = await http.get(Uri.parse("$_syncUri?state=$_userId"));
+      final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
+      final result = await functions.httpsCallable('syncActivities').call();
       
-      if (response.statusCode != 200) {
-        throw "Sync failed: ${response.body}";
-      }
-      
-      debugPrint("Manual sync successful: ${response.body}");
+      debugPrint("Manual sync successful: ${result.data}");
       status = StravaServiceStatus.idle;
       
     } catch (e) {
@@ -394,13 +381,10 @@ class StravaService extends ChangeNotifier {
     errorMessage = ""; // Clear previous errors
     
     try {
-      final response = await http.get(Uri.parse("$_syncFullHistoryUri?state=$_userId"));
+      final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
+      final result = await functions.httpsCallable('syncFullHistory').call();
       
-      if (response.statusCode != 200) {
-        throw "Full history sync triggered fail: ${response.body}";
-      }
-      
-      debugPrint("Full history sync triggered successfully: ${response.body}");
+      debugPrint("Full history sync triggered successfully: ${result.data}");
       status = StravaServiceStatus.idle;
       
     } catch (e) {

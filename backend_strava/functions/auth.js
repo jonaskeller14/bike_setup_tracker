@@ -1,4 +1,4 @@
-const { onRequest } = require("firebase-functions/v2/https");
+const { onRequest, onCall, HttpsError } = require("firebase-functions/v2/https");
 const { db, logger, admin } = require("./firebase");
 const { syncFullHistory } = require("./sync");
 
@@ -71,17 +71,19 @@ exports.exchangeToken = onRequest(
  * STRATEGY: Deauthorization
  * Wipes user's Strava data from Firestore and tells Strava to revoke access.
  */
-exports.deauthorizeUser = onRequest(
-  async (req, res) => {
-    const userId = req.query.state; // We expect the userId in query params
-    if (!userId) return res.status(400).send("Missing user identification");
+exports.deauthorizeUser = onCall(
+  async (request) => {
+    const userId = request.auth ? request.auth.uid : null;
+    if (!userId) {
+      throw new HttpsError("unauthenticated", "User must be logged in.");
+    }
 
     try {
       const userRef = db.collection("users").doc(userId);
       const doc = await userRef.get();
       
       if (!doc.exists || !doc.data().strava_auth) {
-        return res.status(200).send("Already disconnected");
+        return "Already disconnected";
       }
 
       const accessToken = doc.data().strava_auth.access_token;
@@ -108,11 +110,11 @@ exports.deauthorizeUser = onRequest(
       });
 
       logger.info("USER_DEAUTHORIZED", { userId });
-      return res.status(200).send("DEAUTHORIZED_SUCCESSFUL");
+      return "DEAUTHORIZED_SUCCESSFUL";
 
     } catch (error) {
       logger.error("DEAUTHORIZE_ERROR", error);
-      return res.status(500).send("Deauthorization failed");
+      throw new HttpsError("internal", "Deauthorization failed");
     }
   }
 );

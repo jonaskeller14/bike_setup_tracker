@@ -1,4 +1,4 @@
-const { onRequest } = require("firebase-functions/v2/https");
+const { onRequest, onCall, HttpsError } = require("firebase-functions/v2/https");
 const { db, logger, admin } = require("./firebase");
 const { getValidAccessToken, saveAthleteAndGear, saveActivityToBatch, checkStravaResponse, isBikeActivity } = require("./common");
 
@@ -7,13 +7,13 @@ const { getValidAccessToken, saveAthleteAndGear, saveActivityToBatch, checkStrav
  * Allows the app to request a manual fetch of the last 50 activities.
  * Useful if webhooks fail or user wants an immediate refresh.
  */
-exports.syncActivities = onRequest(
+exports.syncActivities = onCall(
   { secrets: ["STRAVA_CLIENT_ID", "STRAVA_CLIENT_SECRET"] },
-  async (req, res) => {
-    const userId = req.query.state; // We expect the userId in query params
+  async (request) => {
+    const userId = request.auth ? request.auth.uid : null;
 
     if (!userId) {
-      return res.status(400).send("Missing user identification");
+      throw new HttpsError("unauthenticated", "User must be logged in.");
     }
 
     try {
@@ -55,11 +55,11 @@ exports.syncActivities = onRequest(
       });
 
       logger.info("MANUAL_SYNC_SUCCESSFUL", { userId, count: activities.length, gearCount });
-      return res.status(200).send(`SYNC_SUCCESSFUL: ${activities.length} activities, ${gearCount} gear items processed.`);
+      return `SYNC_SUCCESSFUL: ${activities.length} activities, ${gearCount} gear items processed.`;
 
     } catch (error) {
       logger.error("MANUAL_SYNC_FAILED", error);
-      return res.status(500).send(`Sync failed: ${error.message}`);
+      throw new HttpsError("internal", `Sync failed: ${error.message}`);
     }
   }
 );
@@ -225,30 +225,30 @@ async function writeBatchDoc(userId, activitiesRaw, totalCountSoFar) {
  * Uses pagination to retrieve everything.
  * WARNING: heavy operation. 
  */
-const syncFullHistoryCloud = onRequest(
+exports.syncFullHistoryCloud = onCall(
   { 
     secrets: ["STRAVA_CLIENT_ID", "STRAVA_CLIENT_SECRET"],
     timeoutSeconds: 540, 
     memory: "512MiB" 
   },
-  async (req, res) => {
-    const userId = req.query.state;
+  async (request) => {
+    const userId = request.auth ? request.auth.uid : null;
 
     if (!userId) {
-      return res.status(400).send("Missing user identification");
+      throw new HttpsError("unauthenticated", "User must be logged in.");
     }
 
     try {
       const count = await syncFullHistory(userId);
-      return res.status(200).send(`FULL_SYNC_SUCCESSFUL: ${count} activities processed.`);
+      return `FULL_SYNC_SUCCESSFUL: ${count} activities processed.`;
     } catch (error) {
-      return res.status(500).send(`Full Sync failed: ${error.message}`);
+      throw new HttpsError("internal", `Full Sync failed: ${error.message}`);
     }
   }
 );
 
 module.exports = {
-  syncActivities: exports.syncActivities, // Preserve existing export
+  syncActivities: exports.syncActivities,
   syncFullHistory,
-  syncFullHistoryCloud,
+  syncFullHistoryCloud: exports.syncFullHistoryCloud,
 };

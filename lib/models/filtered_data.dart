@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'app_data.dart';
+import '../database/app_database.dart';
+import '../database/mappers.dart';
 import 'bike.dart';
 import 'component.dart';
 import 'person.dart';
@@ -10,11 +12,15 @@ import 'todo_entry.dart';
 import 'strava/strava_activity.dart';
 import 'strava/strava_athlete.dart';
 import 'strava/strava_gear.dart';
+import '../utils/file_import.dart';
+import 'adjustment/adjustment.dart';
+import 'package:collection/collection.dart';
 
 class FilteredData extends ChangeNotifier {
-  AppData _appData;
+  final AppDatabase database;
+  final List<StreamSubscription> _subscriptions = [];
 
-  // Undeleted Items
+  // Raw Items from DB
   Map<String, Person> _persons = {};
   Map<String, Bike> _bikes = {};
   Map<String, Setup> _setups = {};
@@ -22,6 +28,9 @@ class FilteredData extends ChangeNotifier {
   Map<String, Rating> _ratings = {};
   Map<String, TodoRule> _todoRules = {};
   Map<String, TodoEntry> _todoEntries = {};
+  Map<int, StravaAthlete> _stravaAthletes = {};
+  Map<int, StravaActivity> _stravaActivities = {};
+  Map<String, StravaGear> _stravaGears = {};
 
   Map<String, Person> get persons => _persons;
   Map<String, Bike> get bikes => _bikes;
@@ -30,9 +39,9 @@ class FilteredData extends ChangeNotifier {
   Map<String, Rating> get ratings => _ratings;
   Map<String, TodoRule> get todoRules => _todoRules;
   Map<String, TodoEntry> get todoEntries => _todoEntries;
-  Map<int, StravaAthlete> get stravaAthletes => _appData.stravaAthletes;
-  Map<int, StravaActivity> get stravaActivities => _appData.stravaActivities;
-  Map<String, StravaGear> get stravaGears => _appData.stravaGears;
+  Map<int, StravaAthlete> get stravaAthletes => _stravaAthletes;
+  Map<int, StravaActivity> get stravaActivities => _stravaActivities;
+  Map<String, StravaGear> get stravaGears => _stravaGears;
 
   Set<String> _setupTags = {};
   Set<String> get setupTags => _setupTags;
@@ -62,25 +71,136 @@ class FilteredData extends ChangeNotifier {
   Map<String, TodoEntry> get filteredTodoEntries => _filteredTodoEntries;
   Map<int, StravaActivity> get filteredStravaActivities => _filteredStravaActivities;
 
-  FilteredData(this._appData);
+  FilteredData(this.database) {
+    _initStreams();
+  }
 
-  void update(AppData newAppData) {
-    _appData = newAppData;
-    _updateData();
+  @override
+  void dispose() {
+    for (final s in _subscriptions) {
+      s.cancel();
+    }
+    super.dispose();
+  }
+
+  void _initStreams() {
+    _subscriptions.add(database.bikesDao.watchAllBikes().listen((list) {
+      _bikes = {for (var b in list) b.id: b.toModel()};
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.componentsDao.watchAllComponentsWithData().listen((list) {
+      _components = {for (var c in list) c.component.id: c.component.toModel(
+        adjustments: c.adjustments.map((a) => a.toModel()).toList(),
+        installations: c.installations.map((i) => i.toModel()).toList(),
+      )};
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.personsDao.watchAllPersonsWithData().listen((list) {
+      _persons = {for (var p in list) p.person.id: p.person.toModel(
+        adjustments: p.adjustments.map((a) => a.toModel()).toList(),
+      )};
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.ratingsDao.watchAllRatingsWithData().listen((list) {
+      _ratings = {for (var r in list) r.rating.id: r.rating.toModel(
+        adjustments: r.adjustments.map((a) => a.toModel()).toList(),
+      )};
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.todoDao.watchAllRules().listen((list) {
+      _todoRules = {for (var r in list) r.id: r.toModel()};
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.todoDao.watchAllEntries().listen((list) {
+      _todoEntries = {for (var e in list) e.id: e.toModel()};
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.stravaDao.watchAllAthletes().listen((list) {
+      _stravaAthletes = {for (var a in list) a.id: a.toModel()};
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.stravaDao.watchAllActivities().listen((list) {
+      _stravaActivities = {for (var a in list) a.id: a.toModel()};
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.stravaDao.watchAllGears().listen((list) {
+      _stravaGears = {for (var g in list) g.id: g.toModel()};
+      _dataChanged();
+    }));
+    
+    _subscriptions.add(database.setupsDao.watchAllSetupsWithValues().listen((list) {
+      _setups = {for (var s in list) s.setup.id: s.setup.toModel(values: s.values)};
+      _dataChanged();
+    }));
+  }
+
+  void _dataChanged() {
+    _resolveData();
     _filter();
     notifyListeners();
   }
 
-  void _updateData() {
-    _bikes = Map.fromEntries(_appData.bikes.entries.where((entry) => !entry.value.isDeleted));
-    _components = Map.fromEntries(_appData.components.entries.where((entry) => !entry.value.isDeleted));
-    _setups = Map.fromEntries(_appData.setups.entries.where((entry) => !entry.value.isDeleted));
-    _persons = Map.fromEntries(_appData.persons.entries.where((entry) => !entry.value.isDeleted));
-    _ratings = Map.fromEntries(_appData.ratings.entries.where((entry) => !entry.value.isDeleted));
-    _todoRules = Map.fromEntries(_appData.todoRules.entries.where((entry) => !entry.value.isDeleted));
-    _todoEntries = Map.fromEntries(_appData.todoEntries.entries.where((entry) => !entry.value.isDeleted));
+  void _resolveData() {
+    // Ported from AppData.resolveData()
+    final sortedSetupEntries = _setups.entries.toList();
+    sortedSetupEntries.sort((a, b) => a.value.datetime.compareTo(b.value.datetime));
+    _setups = Map.fromEntries(sortedSetupEntries);
+    
+    FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
+    FileImport.determinePreviousSetups(setups: _setups.values);
+    
+    for (final setup in _setups.values) {
+      _updateSetupsAfter(setup: setup);
+    }
 
     _setupTags = _setups.values.map((s) => s.tags).expand((tags) => tags).toSet();
+  }
+
+  void _updateSetupsAfter({required Setup setup}) {
+    // Ported from AppData._updateSetupsAfter()
+    final setupsList = _setups.values.toList();
+    final index = setupsList.indexOf(setup);
+    if (index == -1 || index == setupsList.length - 1) return;
+    
+    final afterSetups = setupsList.sublist(index + 1);
+    final afterBikeSetups = afterSetups.where((s) => s.bike == setup.bike);
+    
+    for (final adjustmentValue in setup.bikeAdjustmentValues.entries) {
+      final adjustment = adjustmentValue.key;
+      final value = adjustmentValue.value;
+      for (final afterBikeSetup in afterBikeSetups) {
+        if (afterBikeSetup.bikeAdjustmentValues.containsKey(adjustment)) continue;
+        afterBikeSetup.bikeAdjustmentValues[adjustment] = value;
+      }
+    }
+
+    final person = _persons[setup.person];
+    if (person != null) {
+      final afterPersonSetups = afterSetups.where((s) => s.person != null && s.person == setup.person);
+      for (final adjustmentValue in setup.personAdjustmentValues.entries) {
+        final adjustmentId = adjustmentValue.key;
+        final Adjustment? adjustment = person.adjustments.firstWhereOrNull((a) => a.id == adjustmentId);
+        
+        if (adjustment?.category == AdjustmentCategory.nutrition || 
+            adjustment?.category == AdjustmentCategory.equipment) {
+          continue;
+        }
+            
+        final value = adjustmentValue.value;
+        for (final afterPersonSetup in afterPersonSetups) {
+          if (afterPersonSetup.personAdjustmentValues.containsKey(adjustmentId)) continue;
+          afterPersonSetup.personAdjustmentValues[adjustmentId] = value;
+        }
+      }
+    }
   }
 
   void filter() {
@@ -117,7 +237,10 @@ class FilteredData extends ChangeNotifier {
   }
 
   void _filterSetups() {
-    _filteredSetups = Map.fromEntries(setups.entries.where((entry) => (selectedBike == null ? true : entry.value.bike == selectedBike) && (selectedSetupTags.isEmpty ? true : entry.value.tags.containsAll(selectedSetupTags))));
+    _filteredSetups = Map.fromEntries(setups.entries.where((entry) => 
+      (selectedBike == null ? true : entry.value.bike == selectedBike) && 
+      (selectedSetupTags.isEmpty ? true : entry.value.tags.containsAll(selectedSetupTags))
+    ));
   }
 
   void _filterPersons() {
@@ -129,8 +252,6 @@ class FilteredData extends ChangeNotifier {
   void _filterRatings() {
     _filteredRatings = Map.fromEntries(ratings.entries.where((entry) {
       final rating = entry.value;
-      if (rating.isDeleted) return false;
-
       switch (rating.filterType) {
         case FilterType.global: return true;
         case FilterType.person: return true;
@@ -178,21 +299,18 @@ class FilteredData extends ChangeNotifier {
   void selectSetupTag(String newTag) {
     if (!setupTags.contains(newTag)) return;
     _selectedSetupTags.add(newTag);
-
     _filterSetups();
     notifyListeners();
   }
 
   void deselectSetupTag(String tag) {
     _selectedSetupTags.remove(tag);
-
     _filterSetups();
     notifyListeners();
   }
 
   void deselectAllSetupTags() {
     _selectedSetupTags.clear();
-
     _filterSetups();
     notifyListeners();
   }

@@ -161,9 +161,8 @@ class LoadingGate extends StatelessWidget {
               ChangeNotifierProvider.value(value: appSettings),
               ChangeNotifierProvider.value(value: appData),
 
-              ChangeNotifierProxyProvider<AppData, FilteredData>(
-                create: (context) => FilteredData(appData),
-                update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
+              ChangeNotifierProvider(
+                create: (context) => FilteredData(appDatabase),
               ),
               ProxyProvider<AppData, StorageService>(
                 lazy: false,
@@ -172,7 +171,7 @@ class LoadingGate extends StatelessWidget {
               ),
               ChangeNotifierProxyProvider2<AppData, AppSettings, GoogleDriveService>(
                 lazy: false,
-                create: (context) => GoogleDriveService(appData),
+                create: (context) => GoogleDriveService(appData, appDatabase),
                 update: (context, newAppData, newAppSettings, googleDriveService) {
                   if (newAppSettings.enableGoogleDrive) googleDriveService!.update(newAppData: newAppData);
                   return googleDriveService!;

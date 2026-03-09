@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/file_export.dart';
-import 'adjustment/adjustment.dart';
 import 'person.dart';
 import 'bike.dart';
 import 'setup.dart';
@@ -17,91 +15,25 @@ import 'strava/strava_gear.dart';
 import 'strava/strava_athlete.dart';
 import '../database/app_database.dart';
 import '../database/mappers.dart';
+import 'package:uuid/uuid.dart';
 import 'dart:async';
 
 class AppData extends ChangeNotifier {
   final AppDatabase database;
   
+  AppData(this.database);
+
   DateTime _lastModified = DateTime.now().toUtc();
-  Map<String, Person> _persons = {};
-  Map<String, Bike> _bikes = {};
-  Map<String, Setup> _setups = {};
-  Map<String, Component> _components = {};
-  Map<String, Rating> _ratings = {};
-  Map<String, TodoRule> _todoRules = {};
-  Map<String, TodoEntry> _todoEntries = {};
-  Map<int, StravaAthlete> _stravaAthletes = {};
-  Map<int, StravaActivity> _stravaActivities = {};
-  Map<String, StravaGear> _stravaGears = {};
-
-  final List<StreamSubscription> _subscriptions = [];
-
-  AppData(this.database) {
-    _initStreams();
-  }
-
-  void _initStreams() {
-    _subscriptions.add(database.bikesDao.watchAllBikes().listen((list) {
-      _bikes = {for (var b in list) b.id: b.toModel()};
-      notifyListeners();
-    }));
-
-    _subscriptions.add(database.componentsDao.watchAllComponents().listen((list) {
-      // Components need more handling for adjustments/installations if they should be joined here.
-      // But for basic list views, this is enough.
-      _components = {for (var c in list) c.id: c.toModel()};
-      notifyListeners();
-    }));
-
-    _subscriptions.add(database.personsDao.watchAllPersons().listen((list) {
-      _persons = {for (var p in list) p.id: p.toModel()};
-      notifyListeners();
-    }));
-
-    _subscriptions.add(database.ratingsDao.watchAllRatings().listen((list) {
-      _ratings = {for (var r in list) r.id: r.toModel()};
-      notifyListeners();
-    }));
-
-    _subscriptions.add(database.todoDao.watchAllRules().listen((list) {
-      _todoRules = {for (var r in list) r.id: r.toModel()};
-      notifyListeners();
-    }));
-
-    _subscriptions.add(database.todoDao.watchAllEntries().listen((list) {
-      _todoEntries = {for (var e in list) e.id: e.toModel()};
-      notifyListeners();
-    }));
-
-    _subscriptions.add(database.stravaDao.watchAllAthletes().listen((list) {
-      _stravaAthletes = {for (var a in list) a.id: a.toModel()};
-      notifyListeners();
-    }));
-
-    _subscriptions.add(database.stravaDao.watchAllActivities().listen((list) {
-      _stravaActivities = {for (var a in list) a.id: a.toModel()};
-      notifyListeners();
-    }));
-
-    _subscriptions.add(database.stravaDao.watchAllGears().listen((list) {
-      _stravaGears = {for (var g in list) g.id: g.toModel()};
-      notifyListeners();
-    }));
-    
-    // Setups are complex because of joins.
-    _subscriptions.add(database.setupsDao.watchAllSetupsWithValues().listen((list) {
-      _setups = {for (var s in list) s.setup.id: s.setup.toModel(values: s.values)};
-      notifyListeners();
-    }));
-  }
-
-  @override
-  void dispose() {
-    for (var s in _subscriptions) {
-      s.cancel();
-    }
-    super.dispose();
-  }
+  final Map<String, Person> _persons = {};
+  final Map<String, Bike> _bikes = {};
+  final Map<String, Setup> _setups = {};
+  final Map<String, Component> _components = {};
+  final Map<String, Rating> _ratings = {};
+  final Map<String, TodoRule> _todoRules = {};
+  final Map<String, TodoEntry> _todoEntries = {};
+  final Map<int, StravaAthlete> _stravaAthletes = {};
+  final Map<int, StravaActivity> _stravaActivities = {};
+  final Map<String, StravaGear> _stravaGears = {};
 
   DateTime get lastModified => _lastModified;
   Map<String, Person> get persons => _persons;
@@ -215,407 +147,224 @@ class AppData extends ChangeNotifier {
     return data;
   }
 
-  void removeBike(Bike bike) {
-    bike.isDeleted = true;
-    bike.lastModified = DateTime.now().toUtc();
-    
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
+  Future<void> removeBike(Bike bike) async {
+    await database.bikesDao.deleteBike(bike.id);
   }
 
-  void restoreBike(Bike bike) {
+  Future<void> restoreBike(Bike bike) async {
     bike.isDeleted = false;
     bike.lastModified = DateTime.now().toUtc();
-
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
+    await database.bikesDao.updateBike(bike.toCompanion());
   }
 
-  void removeComponents(Iterable<Component> components) {
+  Future<void> removeComponents(Iterable<Component> components) async {
     for (var component in components) {
-      component.isDeleted = true;
-      component.lastModified = DateTime.now().toUtc();
+      await database.componentsDao.deleteComponent(component.id);
     }
-
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
   }
 
-  void restoreComponents(Iterable<Component> components) {
+  Future<void> restoreComponents(Iterable<Component> components) async {
     for (var component in components) {
       component.isDeleted = false;
       component.lastModified = DateTime.now().toUtc();
+      await database.componentsDao.updateComponent(component.toCompanion());
     }
-
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
   }
 
-  void removeSetups(Iterable<Setup> setups) {
+  Future<void> removeSetups(Iterable<Setup> setups) async {
     for (var setup in setups) {
-      setup.isDeleted = true;
-      setup.lastModified = DateTime.now().toUtc();
+      await database.setupsDao.deleteSetup(setup.id);
     }
-    FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
-    FileImport.determinePreviousSetups(setups: _setups.values);
-
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
   }
 
-  void restoreSetups(Iterable<Setup> setups) {
+  Future<void> restoreSetups(Iterable<Setup> setups) async {
     for (var setup in setups) {
       setup.isDeleted = false;
       setup.lastModified = DateTime.now().toUtc();
+      await database.setupsDao.updateSetupWithValues(
+        setup: setup.toCompanion(),
+        bikeValues: setup.bikeAdjustmentValues, 
+        personValues: setup.personAdjustmentValues, 
+        ratingValues: setup.ratingAdjustmentValues
+      );
     }
-    final sortedSetupEntries = _setups.entries.toList();
-    sortedSetupEntries.sort((a, b) => a.value.datetime.compareTo(b.value.datetime));
-    _setups.clear();
-    _setups.addEntries(sortedSetupEntries); // not really necessary
-    FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
-    FileImport.determinePreviousSetups(setups: _setups.values);
-    
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
   }
 
-  void removePerson(Person person) {
-    person.isDeleted = true;
-    person.lastModified = DateTime.now().toUtc();
-
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
+  Future<void> removePerson(Person person) async {
+    await database.personsDao.deletePerson(person.id);
   }
 
-  void restorePerson(Person person) {
+  Future<void> restorePerson(Person person) async {
     person.isDeleted = false;
     person.lastModified = DateTime.now().toUtc();
-    
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
+    await database.personsDao.updatePerson(person.toCompanion());
   }
 
-  void removeRatings(Iterable<Rating> ratings) {
+  Future<void> removeRatings(Iterable<Rating> ratings) async {
     for (var rating in ratings) {
-      rating.isDeleted = true;
-      rating.lastModified = DateTime.now().toUtc();
+      await database.ratingsDao.deleteRating(rating.id);
     }
-
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
   }
 
-  void restoreRatings(Iterable<Rating> ratings) {
+  Future<void> restoreRatings(Iterable<Rating> ratings) async {
     for (var rating in ratings) {
       rating.isDeleted = false;
       rating.lastModified = DateTime.now().toUtc();
+      await database.ratingsDao.updateRating(rating.toCompanion());
     }
-
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
   }
 
-  void removeTodoRules(Iterable<TodoRule> rules) {
+  Future<void> removeTodoRules(Iterable<TodoRule> rules) async {
     for (var rule in rules) {
-      final updated = rule.copyWith(isDeleted: true, lastModified: DateTime.now().toUtc());
-      _todoRules[rule.id] = updated;
+      await database.todoDao.deleteRule(rule.id);
     }
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
   }
 
-  void restoreTodoRules(Iterable<TodoRule> rules) {
+  Future<void> restoreTodoRules(Iterable<TodoRule> rules) async {
     for (var rule in rules) {
       final updated = rule.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-      _todoRules[rule.id] = updated;
+      await database.todoDao.updateRule(updated.toCompanion());
     }
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
   }
 
-  void removeTodoEntries(Iterable<TodoEntry> entries) {
+  Future<void> removeTodoEntries(Iterable<TodoEntry> entries) async {
     for (var entry in entries) {
-      final updated = entry.copyWith(isDeleted: true, lastModified: DateTime.now().toUtc());
-      _todoEntries[entry.id] = updated;
+      await database.todoDao.deleteEntry(entry.id);
     }
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
   }
 
-  void restoreTodoEntries(Iterable<TodoEntry> entries) {
+  Future<void> restoreTodoEntries(Iterable<TodoEntry> entries) async {
     for (var entry in entries) {
       final updated = entry.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-      _todoEntries[entry.id] = updated;
-    }
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
-  }
-
-  void addBike(Bike bike) {
-    _bikes[bike.id] = bike;
-
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
-  }
-
-  void addPerson(Person person) {
-    _persons[person.id] = person;
-
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
-  }
-
-  void addRating(Rating rating) {
-    _ratings[rating.id] = rating;
-    
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
-  }
-
-  void addTodoRule(TodoRule rule) {
-    _todoRules[rule.id] = rule;
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
-  }
-
-  void editTodoRule(TodoRule rule) {
-    _todoRules[rule.id] = rule;
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
-  }
-
-  void addTodoEntry(TodoEntry entry) {
-    _todoEntries[entry.id] = entry;
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
-  }
-
-  void editTodoEntry(TodoEntry entry) {
-    _todoEntries[entry.id] = entry;
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
-  }
-
-  void addComponent(Component component) {
-    _components[component.id] = component;
-    
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
-  }
-
-  void editPerson(Person person) {
-    _persons[person.id] = person;
-
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
-  }
-
-  void editBike(Bike bike) {
-    _bikes[bike.id] = bike;
-
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
-  }
-
-  void editComponent(Component component) {
-    _components[component.id] = component;
-
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
-  }
-
-  void editRating(Rating rating) {
-    _ratings[rating.id] = rating;
-    
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
-  }
-
-  void addSetup(Setup setup) {
-    _setups[setup.id] = setup;
-    final sortedSetupEntries = _setups.entries.toList();
-    sortedSetupEntries.sort((a, b) => a.value.datetime.compareTo(b.value.datetime));
-    _setups.clear();
-    _setups.addEntries(sortedSetupEntries);
-    FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
-    FileImport.determinePreviousSetups(setups: _setups.values);
-    _updateSetupsAfter(setup: setup);
-
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
-  }
-
-  void editSetup(Setup setup) {
-    _setups[setup.id] = setup;
-    final sortedSetupEntries = _setups.entries.toList();
-    sortedSetupEntries.sort((a, b) => a.value.datetime.compareTo(b.value.datetime));
-    _setups.clear();
-    _setups.addEntries(sortedSetupEntries);
-    FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
-    FileImport.determinePreviousSetups(setups: _setups.values);
-    _updateSetupsAfter(setup: setup);
-
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
-  }
-
-  void reorderRating({required int oldIndex, required int newIndex, required List<Rating> filteredRatingsList}) {
-    final ratingsList = ratings.values.toList();
-
-    final ratingToMove = filteredRatingsList[oldIndex];
-    oldIndex = ratingsList.indexOf(ratingToMove);
-    final targetRating = newIndex < filteredRatingsList.length
-        ? filteredRatingsList[newIndex]
-        : null;
-    newIndex = targetRating == null
-        ? ratingsList.length 
-        : ratingsList.indexOf(targetRating);
-
-    int adjustedNewIndex = newIndex;
-    if (oldIndex < newIndex) adjustedNewIndex -= 1;
-
-    final rating = ratingsList.removeAt(oldIndex);
-    ratingsList.insert(adjustedNewIndex, rating);
-
-    _ratings.clear();
-    _ratings.addAll({for (var element in ratingsList) element.id : element});
-    
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
-  }
-
-  void reorderPerson({required int oldIndex, required int newIndex, required List<Person> filteredPersonsList}) {
-    final personsList = persons.values.toList();
-
-    final personToMove = filteredPersonsList[oldIndex];
-    oldIndex = personsList.indexOf(personToMove);
-    final targetPerson = newIndex < filteredPersonsList.length
-        ? filteredPersonsList[newIndex]
-        : null;
-    newIndex = targetPerson == null
-        ? personsList.length 
-        : personsList.indexOf(targetPerson);
-
-    int adjustedNewIndex = newIndex;
-    if (oldIndex < newIndex) adjustedNewIndex -= 1;
-
-    final person = personsList.removeAt(oldIndex);
-    personsList.insert(adjustedNewIndex, person);
-
-    _persons.clear();
-    _persons.addAll({for (var element in personsList) element.id : element});
-
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
-  }
-
-  void reorderComponent({required int oldIndex, required int newIndex, required List<Component> filteredComponentsList, bool adjustNewIndex = true}) {
-    final componentsList = components.values.toList();
-
-    final componentToMove = filteredComponentsList[oldIndex];
-    oldIndex = componentsList.indexOf(componentToMove);
-    final targetComponent = newIndex < filteredComponentsList.length
-        ? filteredComponentsList[newIndex]
-        : null;
-    newIndex = targetComponent == null
-        ? componentsList.length 
-        : componentsList.indexOf(targetComponent);
-
-    int adjustedNewIndex = newIndex;
-    if (oldIndex < newIndex && adjustNewIndex) adjustedNewIndex -= 1;
-
-    final component = componentsList.removeAt(oldIndex);
-    componentsList.insert(adjustedNewIndex, component);
-
-    _components.clear();
-    _components.addAll({for (var element in componentsList) element.id : element});
-
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
-  }
-
-  void reorderBike({required int oldIndex, required int newIndex, required List<Bike> filteredBikesList}) {
-    final bikesList = bikes.values.toList();
-
-    final bikeToMove = filteredBikesList[oldIndex];
-    oldIndex = bikesList.indexOf(bikeToMove);
-    final targetBike = newIndex < filteredBikesList.length
-        ? filteredBikesList[newIndex]
-        : null;
-    newIndex = targetBike == null
-        ? bikes.length
-        : bikesList.indexOf(targetBike);
-
-    int adjustedNewIndex = newIndex;
-    if (oldIndex < newIndex) adjustedNewIndex -= 1;
-
-    final bike = bikesList.removeAt(oldIndex);
-    bikesList.insert(adjustedNewIndex, bike);
-
-    _bikes.clear();
-    _bikes.addAll({for (var element in bikesList) element.id : element});
-
-    _lastModified = DateTime.now().toUtc();
-    notifyListeners();
-  }
-
-  void _updateSetupsAfter({required Setup setup}) {
-    // Call after sorting setups!
-    // Handles case: New Component, New Setup with new component with date in the past
-    // --> Solves Bug: component references current setup with missing values for new component
-    final setupsList = _setups.values.toList();
-
-
-    if (setup.isCurrent) return;
-    final index = setupsList.indexOf(setup);
-    if (index == -1) return;
-    if (index == setupsList.length -1) return; // ==isCurrent
-    final afterSetups = setupsList.sublist(index + 1);
-
-    final afterBikeSetups = afterSetups.where((s) => s.bike == setup.bike);
-    for (final adjustmentValue in setup.bikeAdjustmentValues.entries) {
-      final adjustment = adjustmentValue.key;
-      final value = adjustmentValue.value;
-      for (final afterBikeSetup in afterBikeSetups) {
-        if (afterBikeSetup.bikeAdjustmentValues.containsKey(adjustment)) continue;
-        afterBikeSetup.bikeAdjustmentValues[adjustment] = value;
-      }
-    }
-
-    final person = _persons[setup.person];
-    if (person != null) {
-      final afterPersonSetups = afterSetups.where((s) => s.person != null && s.person == setup.person);
-      for (final adjustmentValue in setup.personAdjustmentValues.entries) {
-        final adjustmentId = adjustmentValue.key;
-        final Adjustment? adjustment = person.adjustments.firstWhereOrNull((a) => a.id == adjustmentId);
-        switch (adjustment?.category) {
-          case AdjustmentCategory.nutrition: continue;  // Not propagate
-          case AdjustmentCategory.equipment: continue;  // Not propagate
-          default: break;
-        }
-        final value = adjustmentValue.value;
-        for (final afterPersonSetup in afterPersonSetups) {
-          if (afterPersonSetup.personAdjustmentValues.containsKey(adjustmentId)) continue;
-          afterPersonSetup.personAdjustmentValues[adjustmentId] = value;
-        }
-      }
+      await database.todoDao.updateEntry(updated.toCompanion());
     }
   }
 
-  void resolveData() {
-    final sortedSetupEntries = _setups.entries.toList();
-    sortedSetupEntries.sort((a, b) => a.value.datetime.compareTo(b.value.datetime));
-    _setups.clear();
-    _setups.addEntries(sortedSetupEntries);
-    FileImport.determineCurrentSetups(setups: _setups.values.toList(), bikes: _bikes);
-    FileImport.determinePreviousSetups(setups: _setups.values);
-    for (final setup in _setups.values) {
-      _updateSetupsAfter(setup: setup);
-    }
-
-
-    notifyListeners();
+  Future<void> addBike(Bike bike) async {
+    bike.lastModified = DateTime.now().toUtc();
+    await database.bikesDao.insertBike(bike.toCompanion());
   }
+
+  Future<void> addPerson(Person person) async {
+    person.lastModified = DateTime.now().toUtc();
+    await database.personsDao.insertPersonWithData(
+      person: person.toCompanion(),
+      adjustmentsList: person.adjustments.asMap().entries.map((entry) => 
+        entry.value.toCompanion(personId: person.id, orderIndex: entry.key)
+      ).toList(),
+    );
+  }
+
+  Future<void> addRating(Rating rating) async {
+    rating.lastModified = DateTime.now().toUtc();
+    await database.ratingsDao.insertRatingWithData(
+      rating: rating.toCompanion(),
+      adjustmentsList: rating.adjustments.asMap().entries.map((entry) => 
+        entry.value.toCompanion(ratingId: rating.id, orderIndex: entry.key)
+      ).toList(),
+    );
+  }
+
+  Future<void> addTodoRule(TodoRule rule) async {
+    final updated = rule.copyWith(lastModified: DateTime.now().toUtc());
+    await database.todoDao.insertRule(updated.toCompanion());
+  }
+
+  Future<void> editTodoRule(TodoRule rule) async {
+    final updated = rule.copyWith(lastModified: DateTime.now().toUtc());
+    await database.todoDao.updateRule(updated.toCompanion());
+  }
+
+  Future<void> addTodoEntry(TodoEntry entry) async {
+    final updated = entry.copyWith(lastModified: DateTime.now().toUtc());
+    await database.todoDao.insertEntry(updated.toCompanion());
+  }
+
+  Future<void> editTodoEntry(TodoEntry entry) async {
+    final updated = entry.copyWith(lastModified: DateTime.now().toUtc());
+    await database.todoDao.updateEntry(updated.toCompanion());
+  }
+
+  Future<void> addComponent(Component component) async {
+    component.lastModified = DateTime.now().toUtc();
+    await database.componentsDao.insertComponentWithData(
+      component: component.toCompanion(),
+      adjustmentsList: component.adjustments.asMap().entries.map((entry) => 
+        entry.value.toCompanion(componentId: component.id, orderIndex: entry.key)
+      ).toList(),
+      installationsList: component.installations.map((inst) => 
+        inst.toCompanion(id: const Uuid().v4(), componentId: component.id)
+      ).toList(),
+    );
+  }
+
+  Future<void> editPerson(Person person) async {
+    person.lastModified = DateTime.now().toUtc();
+    await database.personsDao.updatePersonWithData(
+      person: person.toCompanion(),
+      adjustmentsList: person.adjustments.asMap().entries.map((entry) => 
+        entry.value.toCompanion(personId: person.id, orderIndex: entry.key)
+      ).toList(),
+    );
+  }
+
+  Future<void> editBike(Bike bike) async {
+    bike.lastModified = DateTime.now().toUtc();
+    await database.bikesDao.updateBike(bike.toCompanion());
+  }
+
+  Future<void> editComponent(Component component) async {
+    component.lastModified = DateTime.now().toUtc();
+    await database.componentsDao.updateComponentWithData(
+      component: component.toCompanion(),
+      adjustmentsList: component.adjustments.asMap().entries.map((entry) => 
+        entry.value.toCompanion(componentId: component.id, orderIndex: entry.key)
+      ).toList(),
+      installationsList: component.installations.map((inst) => 
+        inst.toCompanion(id: const Uuid().v4(), componentId: component.id)
+      ).toList(),
+    );
+  }
+
+  Future<void> editRating(Rating rating) async {
+    rating.lastModified = DateTime.now().toUtc();
+    await database.ratingsDao.updateRatingWithData(
+      rating: rating.toCompanion(),
+      adjustmentsList: rating.adjustments.asMap().entries.map((entry) => 
+        entry.value.toCompanion(ratingId: rating.id, orderIndex: entry.key)
+      ).toList(),
+    );
+  }
+
+  Future<void> addSetup(Setup setup) async {
+    setup.lastModified = DateTime.now().toUtc();
+    await database.setupsDao.insertSetupWithValues(
+      setup: setup.toCompanion(), 
+      bikeValues: setup.bikeAdjustmentValues, 
+      personValues: setup.personAdjustmentValues, 
+      ratingValues: setup.ratingAdjustmentValues
+    );
+  }
+
+  Future<void> editSetup(Setup setup) async {
+    final updated = setup.copyWith(lastModified: DateTime.now().toUtc());
+    await database.setupsDao.updateSetupWithValues(
+      setup: updated.toCompanion(),
+      bikeValues: setup.bikeAdjustmentValues, 
+      personValues: setup.personAdjustmentValues, 
+      ratingValues: setup.ratingAdjustmentValues
+    );
+  }
+
+  Future<void> reorderRating({required int oldIndex, required int newIndex, required List<Rating> filteredRatingsList}) async {}
+
+  Future<void> reorderPerson({required int oldIndex, required int newIndex, required List<Person> filteredPersonsList}) async {}
+
+  Future<void> reorderComponent({required int oldIndex, required int newIndex, required List<Component> filteredComponentsList, bool adjustNewIndex = true}) async {}
+
+  Future<void> reorderBike({required int oldIndex, required int newIndex, required List<Bike> filteredBikesList}) async {}
+
+
 
   void setStravaActivities(Iterable<StravaActivity> activities) {
     _stravaActivities.clear();

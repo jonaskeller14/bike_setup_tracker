@@ -6,21 +6,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:bike_setup_tracker/main.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/app_data.dart';
+import 'package:bike_setup_tracker/database/app_database.dart';
 
 
 void main() {
   testWidgets('OnBoarding Test', (WidgetTester tester) async {
     final appSettings = AppSettings();
-    final appData = AppData();
+    final appData = AppData(AppDatabase.memory());
     
     await tester.pumpWidget(
       MultiProvider(
         providers: [
           ChangeNotifierProvider.value(value: appSettings),
           ChangeNotifierProvider.value(value: appData),
-          ChangeNotifierProxyProvider<AppData, FilteredData>(
-            create: (context) => FilteredData(appData),
-            update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
+          ChangeNotifierProvider<FilteredData>(
+            create: (context) => FilteredData(appData.database),
           ),
         ],
         child: const BikeSetupTrackerApp(),
@@ -57,16 +57,15 @@ void main() {
     final appSettings = AppSettings();
     appSettings.showOnboarding = false;
 
-    final appData = AppData();
+    final appData = AppData(AppDatabase.memory());
 
     await tester.pumpWidget(
       MultiProvider(
         providers: [
           ChangeNotifierProvider.value(value: appSettings),
           ChangeNotifierProvider.value(value: appData),
-          ChangeNotifierProxyProvider<AppData, FilteredData>(
-            create: (context) => FilteredData(appData),
-            update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
+          ChangeNotifierProvider<FilteredData>(
+            create: (context) => FilteredData(appData.database),
           ),
         ],
         child: const BikeSetupTrackerApp(),

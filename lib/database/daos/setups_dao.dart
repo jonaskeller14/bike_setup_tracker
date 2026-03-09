@@ -12,20 +12,18 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin {
 
   Stream<List<SetupDb>> watchAllSetupsForBike(String bikeId) {
     return (select(setups)
-          ..where((t) => t.bikeId.equals(bikeId) & t.isDeleted.equals(false))
+          ..where((t) => t.bikeId.equals(bikeId))
           ..orderBy([(t) => OrderingTerm(expression: t.datetime, mode: OrderingMode.desc)]))
         .watch();
   }
 
-  Stream<List<SetupDb>> watchAllSetups() {
-    return (select(setups)..where((t) => t.isDeleted.equals(false))).watch();
-  }
+  Stream<List<SetupDb>> watchAllSetups() => (select(setups)..where((t) => t.isDeleted.equals(false))).watch();
 
   Stream<List<SetupWithValues>> watchAllSetupsWithValues() {
-    final query = select(setups).join([
+    final query = (select(setups)..where((t) => t.isDeleted.equals(false))).join([
       leftOuterJoin(setupAdjustmentValues, setupAdjustmentValues.setupId.equalsExp(setups.id)),
       leftOuterJoin(adjustments, adjustments.id.equalsExp(setupAdjustmentValues.adjustmentId)),
-    ])..where(setups.isDeleted.equals(false));
+    ]);
 
     return query.watch().map((rows) {
       final Map<String, SetupWithValues> grouped = {};
@@ -70,12 +68,53 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin {
 
   Future<int> insertSetup(SetupsCompanion entry) => into(setups).insert(entry);
   Future updateSetup(SetupsCompanion entry) => update(setups).replace(entry);
-  Future deleteSetup(String id) => (update(setups)..where((t) => t.id.equals(id))).write(const SetupsCompanion(isDeleted: Value(true)));
+  Future deleteSetup(String id) => (update(setups)..where((t) => t.id.equals(id))).write(SetupsCompanion(isDeleted: const Value(true), lastModified: Value(DateTime.now().toUtc())));
 
   // Value operations
-  Future upsertSetupValue(SetupAdjustmentValuesCompanion entry) => into(setupAdjustmentValues).insertOnConflictUpdate(entry);
-  Future deleteSetupValue(String setupId, String adjustmentId) => 
+  Future<void> upsertSetupValue(SetupAdjustmentValuesCompanion entry) => into(setupAdjustmentValues).insertOnConflictUpdate(entry);
+  
+  Future<void> deleteSetupValue(String setupId, String adjustmentId) => 
     (delete(setupAdjustmentValues)..where((t) => t.setupId.equals(setupId) & t.adjustmentId.equals(adjustmentId))).go();
+
+  Future<void> insertSetupWithValues({
+    required SetupsCompanion setup,
+    required Map<String, dynamic> bikeValues,
+    required Map<String, dynamic> personValues,
+    required Map<String, dynamic> ratingValues,
+  }) async {
+    await transaction(() async {
+      await insertSetup(setup);
+      await _upsertValuesMap(setup.id.value, bikeValues);
+      await _upsertValuesMap(setup.id.value, personValues);
+      await _upsertValuesMap(setup.id.value, ratingValues);
+    });
+  }
+
+  Future<void> updateSetupWithValues({
+    required SetupsCompanion setup,
+    required Map<String, dynamic> bikeValues,
+    required Map<String, dynamic> personValues,
+    required Map<String, dynamic> ratingValues,
+  }) async {
+    await transaction(() async {
+      await updateSetup(setup);
+      // Clear old values for this setup to ensure map deletions are reflected
+      await (delete(setupAdjustmentValues)..where((t) => t.setupId.equals(setup.id.value))).go();
+      await _upsertValuesMap(setup.id.value, bikeValues);
+      await _upsertValuesMap(setup.id.value, personValues);
+      await _upsertValuesMap(setup.id.value, ratingValues);
+    });
+  }
+
+  Future<void> _upsertValuesMap(String setupId, Map<String, dynamic> valuesMap) async {
+    for (var entry in valuesMap.entries) {
+      await upsertSetupValue(SetupAdjustmentValuesCompanion(
+        setupId: Value(setupId),
+        adjustmentId: Value(entry.key),
+        value: Value(entry.value.toString()),
+      ));
+    }
+  }
 }
 
 class SetupWithValues {

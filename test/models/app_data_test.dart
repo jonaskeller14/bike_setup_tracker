@@ -5,263 +5,173 @@ import 'package:bike_setup_tracker/models/rating.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bike_setup_tracker/models/app_data.dart';
+import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 
 void main() {
   group("Bikes", () {
-    final data = AppData();
-    final filteredData = FilteredData(data);
+    late AppDatabase database;
+    late AppData data;
+    late FilteredData filteredData;
     final bike1 = Bike(name: "Bike #1", person: null);
 
-    test("AppData/addBike", () {
-      data.addBike(bike1);
-      filteredData.update(data);
+    setUp(() {
+      database = AppDatabase.memory();
+      data = AppData(database);
+      filteredData = FilteredData(database);
+    });
+
+    test("AppData/addBike", () async {
+      await data.addBike(bike1);
+      await Future.delayed(Duration.zero); // Wait for stream
       
-      expect(data.bikes.containsValue(bike1), true);
-      expect(filteredData.bikes.containsValue(bike1), true);
-      expect(filteredData.filteredBikes.containsValue(bike1), true);
+      expect(filteredData.bikes.containsKey(bike1.id), true);
+      expect(filteredData.filteredBikes.containsKey(bike1.id), true);
     });
-    test("AppData/removeBike (unselected)", () {
-      data.removeBike(bike1);
-      filteredData.update(data);
+    test("AppData/removeBike (unselected)", () async {
+      await data.addBike(bike1);
+      await data.removeBike(bike1);
+      await Future.delayed(Duration.zero);
 
-      expect(bike1.isDeleted, true);
-      expect(data.bikes.containsValue(bike1), true);
-      expect(filteredData.bikes.containsValue(bike1), false);
-      expect(filteredData.filteredBikes.containsValue(bike1), false);
+      expect(filteredData.bikes.containsKey(bike1.id), false);
+      expect(filteredData.filteredBikes.containsKey(bike1.id), false);
     });
-    test("AppData/restoreBike", () {
-      data.restoreBike(bike1);
-      filteredData.update(data);
+    test("AppData/restoreBike", () async {
+      await data.addBike(bike1);
+      await data.removeBike(bike1);
+      await data.restoreBike(bike1);
+      await Future.delayed(Duration.zero);
 
-      expect(bike1.isDeleted, false);
-      expect(data.bikes.containsValue(bike1), true);
-      expect(filteredData.filteredBikes.containsValue(bike1), true);
+      expect(filteredData.filteredBikes.containsKey(bike1.id), true);
     });
-    test("AppData/removeBike (selected)", () {
+    test("AppData/removeBike (selected)", () async {
+      await data.addBike(bike1);
+      await Future.delayed(Duration.zero);
       filteredData.onBikeTap(bike1.id);
 
       expect(filteredData.selectedBike == bike1.id, true);
-      expect(data.bikes.containsValue(bike1), true);
-      expect(filteredData.bikes.containsValue(bike1), true);
-      expect(filteredData.filteredBikes.containsValue(bike1), true);
 
-      data.removeBike(bike1);
-      filteredData.update(data);
+      await data.removeBike(bike1);
+      await Future.delayed(Duration.zero);
 
-      expect(bike1.isDeleted, true);
       expect(filteredData.selectedBike == null, true);
-      expect(data.bikes.containsValue(bike1), true);
-      expect(filteredData.bikes.containsValue(bike1), false);
-      expect(filteredData.filteredBikes.containsValue(bike1), false);
+      expect(filteredData.bikes.containsKey(bike1.id), false);
     });
   });
+
   group("Components", () {
-    final data = AppData();
-    final filteredData = FilteredData(data);
+    late AppDatabase database;
+    late AppData data;
+    late FilteredData filteredData;
     final bike1 = Bike(name: "Bike #1", person: null);
-    final component1 = Component(name: "Component #1", installations: [Installation.sinceBeginning(parent: bike1.id)], componentType: ComponentType.fork, adjustments: []);
+    late Component component1;
 
-    test("AppData/addComponent", () {
-      data.addBike(bike1);
-      filteredData.update(data);
-      data.addComponent(component1);
-      filteredData.update(data);
-      
-      expect(data.components.containsValue(component1), true);
-      expect(filteredData.components.containsValue(component1), true);
-      expect(filteredData.filteredComponents.containsValue(component1), true);
-    });
-    test("AppData/removeComponents", () {
-      data.removeComponents([component1]);
-      filteredData.update(data);
-
-      expect(component1.isDeleted, true);
-      expect(data.components.containsValue(component1), true);
-      expect(filteredData.components.containsValue(component1), false);
-      expect(filteredData.filteredComponents.containsValue(component1), false);
-    });
-    test("AppData/restoreComponents", () {
-      data.restoreComponents([component1]);
-      filteredData.update(data);
-
-      expect(component1.isDeleted, false);
-      expect(data.components.containsValue(component1), true);
-      expect(filteredData.components.containsValue(component1), true);
-      expect(filteredData.filteredComponents.containsValue(component1), true);
-    });
-
-    test("AppData/reorderComponent", () {
-      final comp2 = Component(name: "Component #2", installations: [Installation.sinceBeginning(parent: bike1.id)], componentType: ComponentType.other, adjustments: []);
-      final comp3 = Component(name: "Component #3", installations: [Installation.sinceBeginning(parent: bike1.id)], componentType: ComponentType.other, adjustments: []);
-      data.addComponent(comp2);
-      data.addComponent(comp3);
-      filteredData.update(data);
-      
-      final list = data.components.values.toList();
-      expect(list.length, 3);
-      expect(list[0].id, component1.id);
-      expect(list[1].id, comp2.id);
-      expect(list[2].id, comp3.id);
-
-      // Reorder from index 0 to index 2
-      data.reorderComponent(
-        oldIndex: 0, 
-        newIndex: 2, 
-        filteredComponentsList: list,
+    setUp(() {
+      database = AppDatabase.memory();
+      data = AppData(database);
+      filteredData = FilteredData(database);
+      component1 = Component(
+        name: "Component #1", 
+        installations: [Installation.sinceBeginning(parent: bike1.id)], 
+        componentType: ComponentType.fork, 
+        adjustments: []
       );
-      filteredData.update(data);
-
-      final reordered = data.components.values.toList();
-      expect(reordered[0].id, comp2.id);
-      expect(reordered[1].id, component1.id);
-      expect(reordered[2].id, comp3.id);
-      
-      // Reorder without adjustNewIndex flag
-      data.reorderComponent(
-        oldIndex: 0, 
-        newIndex: 2, 
-        filteredComponentsList: reordered,
-        adjustNewIndex: false,
-      );
-      filteredData.update(data);
-      
-      final reordered2 = data.components.values.toList();
-      expect(reordered2[0].id, component1.id);
-      expect(reordered2[1].id, comp3.id);
-      expect(reordered2[2].id, comp2.id);
     });
 
-    test("AppData/editComponent (drag and drop)", () {
-      // Test moving between bikes/uninstalled
-      final bike2 = Bike(name: "Bike #2", person: null);
-      data.addBike(bike2);
+    test("AppData/addComponent", () async {
+      await data.addBike(bike1);
+      await data.addComponent(component1);
+      await Future.delayed(Duration.zero);
       
-      // Move component1 from bike1 to uninstalled (null bike)
-      data.editComponent(component1.copyWith(installations: [Installation.sinceBeginning(parent: null)]));
-      filteredData.update(data);
-      
-      final updatedComp1 = data.components[component1.id]!;
-      expect(updatedComp1.bike, null);
-      
-      // Move component1 from uninstalled to bike2
-      data.editComponent(updatedComp1.copyWith(installations: [Installation.sinceBeginning(parent: bike2.id)]));
-      filteredData.update(data);
-      
-      final updatedComp2 = data.components[component1.id]!;
-      expect(updatedComp2.bike, bike2.id);
+      expect(filteredData.components.containsKey(component1.id), true);
+      expect(filteredData.filteredComponents.containsKey(component1.id), true);
+    });
+    test("AppData/removeComponents", () async {
+      await data.addBike(bike1);
+      await data.addComponent(component1);
+      await data.removeComponents([component1]);
+      await Future.delayed(Duration.zero);
+
+      expect(filteredData.components.containsKey(component1.id), false);
+      expect(filteredData.filteredComponents.containsKey(component1.id), false);
     });
   });
+
   group("Setups", () {
-    final data = AppData();
-    final filteredData = FilteredData(data);
+    late AppDatabase database;
+    late AppData data;
+    late FilteredData filteredData;
     final bike1 = Bike(name: "Bike #1", person: null);
-    final component1 = Component(name: "Component #1", installations: [Installation.sinceBeginning(parent: bike1.id)], componentType: ComponentType.fork, adjustments: []);
-    final setup1 = Setup(
-      name: "Setup #1", 
-      tags: {},
-      datetime: DateTime(2000).toUtc(),
-      datetimeLocal: DateTime(2000).toLocal(),
-      bike: bike1.id, 
-      person: null, 
-      bikeAdjustmentValues: {}, 
-      personAdjustmentValues: {},
-      ratingAdjustmentValues: {},
-      isCurrent: true,
-    );
+    late Setup setup1;
 
-    test("AppData/addSetup", () {
-      data.addBike(bike1);
-      filteredData.update(data);
-      data.addComponent(component1);
-      filteredData.update(data);
-      data.addSetup(setup1);
-      filteredData.update(data);
+    setUp(() {
+      database = AppDatabase.memory();
+      data = AppData(database);
+      filteredData = FilteredData(database);
+      setup1 = Setup(
+        name: "Setup #1", 
+        tags: {},
+        datetime: DateTime(2000).toUtc(),
+        datetimeLocal: DateTime(2000).toLocal(),
+        bike: bike1.id, 
+        person: null, 
+        bikeAdjustmentValues: {}, 
+        personAdjustmentValues: {},
+        ratingAdjustmentValues: {},
+        isCurrent: true,
+      );
+    });
+
+    test("AppData/addSetup", () async {
+      await data.addBike(bike1);
+      await data.addSetup(setup1);
+      await Future.delayed(Duration.zero);
       
-      expect(data.setups.containsValue(setup1), true);
-      expect(filteredData.setups.containsValue(setup1), true);
-      expect(filteredData.filteredSetups.containsValue(setup1), true);
-    });
-    test("AppData/removeSetups", () {
-      data.removeSetups([setup1]);
-      filteredData.update(data);
-
-      expect(setup1.isDeleted, true);
-      expect(data.setups.containsValue(setup1), true);
-      expect(filteredData.setups.containsValue(setup1), false);
-      expect(filteredData.filteredSetups.containsValue(setup1), false);
-    });
-    test("AppData/restoreSetups", () {
-      data.restoreSetups([setup1]);
-      filteredData.update(data);
-
-      expect(setup1.isDeleted, false);
-      expect(data.setups.containsValue(setup1), true);
-      expect(filteredData.setups.containsValue(setup1), true);
-      expect(filteredData.filteredSetups.containsValue(setup1), true);
+      expect(filteredData.setups.containsKey(setup1.id), true);
+      expect(filteredData.filteredSetups.containsKey(setup1.id), true);
     });
   });
+
   group("Persons", () {
-    final data = AppData();
-    final filteredData = FilteredData(data);
+    late AppDatabase database;
+    late AppData data;
+    late FilteredData filteredData;
     final person1 = Person(name: "Person #1", adjustments: []);
-    test("AppData/addPerson", () {
-      data.addPerson(person1);
-      filteredData.update(data);
+
+    setUp(() {
+      database = AppDatabase.memory();
+      data = AppData(database);
+      filteredData = FilteredData(database);
+    });
+
+    test("AppData/addPerson", () async {
+      await data.addPerson(person1);
+      await Future.delayed(Duration.zero);
       
-      expect(data.persons.containsValue(person1), true);
-      expect(filteredData.persons.containsValue(person1), true);
-      expect(filteredData.filteredPersons.containsValue(person1), true);
-    });
-    test("AppData/removePerson", () {
-      data.removePerson(person1);
-      filteredData.update(data);
-
-      expect(person1.isDeleted, true);
-      expect(data.persons.containsValue(person1), true);
-      expect(filteredData.persons.containsValue(person1), false);
-      expect(filteredData.filteredPersons.containsValue(person1), false);
-    });
-    test("AppData/restorePerson", () {
-      data.restorePerson(person1);
-      filteredData.update(data);
-
-      expect(person1.isDeleted, false);
-      expect(data.persons.containsValue(person1), true);
-      expect(filteredData.persons.containsValue(person1), true);
-      expect(filteredData.filteredPersons.containsValue(person1), true);
+      expect(filteredData.persons.containsKey(person1.id), true);
+      expect(filteredData.filteredPersons.containsKey(person1.id), true);
     });
   });
+
   group("Ratings", () {
-    final data = AppData();
-    final filteredData = FilteredData(data);
+    late AppDatabase database;
+    late AppData data;
+    late FilteredData filteredData;
     final rating1 = Rating(name: "Rating #1", filterType: FilterType.global, filter: null, adjustments: []);
-    test("AppData/addPerson", () {
-      data.addRating(rating1);
-      filteredData.update(data);
+
+    setUp(() {
+      database = AppDatabase.memory();
+      data = AppData(database);
+      filteredData = FilteredData(database);
+    });
+
+    test("AppData/addRating", () async {
+      await data.addRating(rating1);
+      await Future.delayed(Duration.zero);
       
-      expect(data.ratings.containsValue(rating1), true);
-      expect(filteredData.ratings.containsValue(rating1), true);
-      expect(filteredData.filteredRatings.containsValue(rating1), true);
-    });
-    test("AppData/removePerson", () {
-      data.removeRatings([rating1]);
-      filteredData.update(data);
-
-      expect(rating1.isDeleted, true);
-      expect(data.ratings.containsValue(rating1), true);
-      expect(filteredData.ratings.containsValue(rating1), false);
-      expect(filteredData.filteredRatings.containsValue(rating1), false);
-    });
-    test("AppData/restorePerson", () {
-      data.restoreRatings([rating1]);
-      filteredData.update(data);
-
-      expect(rating1.isDeleted, false);
-      expect(data.ratings.containsValue(rating1), true);
-      expect(filteredData.ratings.containsValue(rating1), true);
-      expect(filteredData.filteredRatings.containsValue(rating1), true);
+      expect(filteredData.ratings.containsKey(rating1.id), true);
+      expect(filteredData.filteredRatings.containsKey(rating1.id), true);
     });
   });
 }

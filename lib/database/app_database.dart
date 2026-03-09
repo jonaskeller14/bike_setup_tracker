@@ -68,18 +68,10 @@ part 'app_database.g.dart';
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
+  AppDatabase.memory() : super(NativeDatabase.memory());
 
   @override
   int get schemaVersion => 1;
-
-  // DAOs
-  late final BikesDao bikesDao = BikesDao(this);
-  late final ComponentsDao componentsDao = ComponentsDao(this);
-  late final SetupsDao setupsDao = SetupsDao(this);
-  late final PersonsDao personsDao = PersonsDao(this);
-  late final RatingsDao ratingsDao = RatingsDao(this);
-  late final TodoDao todoDao = TodoDao(this);
-  late final StravaDao stravaDao = StravaDao(this);
 }
 
 LazyDatabase _openConnection() {

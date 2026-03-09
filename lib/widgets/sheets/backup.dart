@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import '../../models/app_data.dart';
 import '../../models/app_settings.dart';
+import '../../database/app_database.dart';
 import '../../services/google_drive_service.dart';
 import '../../utils/file_import.dart';
 import '../../utils/backup.dart';
@@ -47,15 +48,17 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
       trailing: IconButton(
         onPressed: () async {
           switch (backup) {
-            case LocalBackup(): 
-              final result = await FileImport.readBackup(path: backup.filepath);
+            case LocalBackup():
+              final appDatabase = context.read<AppDatabase>();
+              final result = await FileImport.readBackup(path: backup.filepath, appDatabase: appDatabase);
               if (result.isError) {
                 setState(() => _readBackupError = result.errorMessage);
               } else {
                 widget.onRestore(result.appData!);
               }
             case GoogleDriveBackup(): 
-              final result = await context.read<GoogleDriveService>().readBackup(fileId: backup.fileId);
+              final appDatabase = context.read<AppDatabase>();
+              final result = await context.read<GoogleDriveService>().readBackup(fileId: backup.fileId, appDatabase: appDatabase);
               if (result.isError) {
                 setState(() => _readBackupError = result.errorMessage);
               } else {

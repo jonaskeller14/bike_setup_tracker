@@ -48,6 +48,16 @@ extension ComponentDbMapper on ComponentDb {
   }
 }
 
+extension InstallationDbMapper on InstallationDb {
+  Installation toModel() {
+    return Installation(
+      parent: parent,
+      dateTimeUTC: dateTimeUTC,
+      dateTimeLocal: dateTimeLocal,
+    );
+  }
+}
+
 extension AdjustmentDbMapper on AdjustmentDb {
   Adjustment toModel() {
     final Map<String, dynamic> payload = jsonDecode(jsonPayload ?? '{}');
@@ -56,7 +66,7 @@ extension AdjustmentDbMapper on AdjustmentDb {
     payload['name'] = name;
     payload['notes'] = notes;
     payload['unit'] = unit;
-    payload['category'] = category.name;
+    payload['category'] = category.toString();
     payload['type'] = type.name;
     payload['version'] = payload['version'] ?? 1;
 

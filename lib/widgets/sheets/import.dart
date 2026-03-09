@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_data.dart';
 import '../../utils/file_import.dart';
+import '../../database/app_database.dart';
 import 'data_select.dart';
 import 'import_merge_overwrite.dart';
 import 'sheet.dart';
@@ -241,7 +242,8 @@ class _SelectImportSourceSheetContentState extends State<SelectImportSourceSheet
                     subtitle: const Text("Select json file which contains data to import"),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: () async {
-                      final result = await FileImport.pickAndReadJsonFile();
+                      final appDatabase = context.read<AppDatabase>();
+                      final result = await FileImport.pickAndReadJsonFile(appDatabase: appDatabase);
                       if (result.isError) {
                         setState(() => _filePickingError = result.errorMessage);
                       } else {

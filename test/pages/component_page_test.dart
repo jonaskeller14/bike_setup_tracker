@@ -1,5 +1,6 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_data.dart';
+import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
@@ -21,9 +22,8 @@ void main() {
       providers: [
         ChangeNotifierProvider.value(value: appSettings),
         ChangeNotifierProvider.value(value: appData),
-        ChangeNotifierProxyProvider<AppData, FilteredData>(
-          create: (context) => FilteredData(appData),
-          update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
+        ChangeNotifierProvider<FilteredData>(
+          create: (context) => FilteredData(appData.database),
         ),
       ],
       child: MaterialApp(
@@ -45,7 +45,7 @@ void main() {
 
   group('ComponentPage Initialization', () {
     testWidgets('renders in Add mode with default values', (WidgetTester tester) async {
-      final appData = AppData();
+      final appData = AppData(AppDatabase.memory());
       final appSettings = AppSettings();
       
       await tester.pumpWidget(createWidgetUnderTest(
@@ -63,7 +63,7 @@ void main() {
     });
 
     testWidgets('renders in Edit mode with component data', (WidgetTester tester) async {
-      final appData = AppData();
+      final appData = AppData(AppDatabase.memory());
       final appSettings = AppSettings();
       final bike = Bike(name: 'My Bike', person: 'Me');
       appData.addBike(bike);
@@ -94,7 +94,7 @@ void main() {
     });
 
     testWidgets('renders in Duplicate mode with component data and "Add" title', (WidgetTester tester) async {
-      final appData = AppData();
+      final appData = AppData(AppDatabase.memory());
       final appSettings = AppSettings();
       final component = Component(
         id: 'c1',
@@ -119,7 +119,7 @@ void main() {
 
   group('ComponentPage Validation', () {
     testWidgets('shows error when name is empty', (WidgetTester tester) async {
-      final appData = AppData();
+      final appData = AppData(AppDatabase.memory());
       final appSettings = AppSettings();
       
       await tester.pumpWidget(createWidgetUnderTest(
@@ -137,7 +137,7 @@ void main() {
     });
 
     testWidgets('shows error when type is not selected', (WidgetTester tester) async {
-      final appData = AppData();
+      final appData = AppData(AppDatabase.memory());
       final appSettings = AppSettings();
       
       await tester.pumpWidget(createWidgetUnderTest(
@@ -155,7 +155,7 @@ void main() {
     });
 
     testWidgets('shows error when no adjustments are added', (WidgetTester tester) async {
-      final appData = AppData();
+      final appData = AppData(AppDatabase.memory());
       final appSettings = AppSettings();
       
       await tester.pumpWidget(createWidgetUnderTest(
@@ -184,7 +184,7 @@ void main() {
 
   group('ComponentPage Dropdown Scenarios', () {
     testWidgets('displays "BIKE NOT FOUND" when initial bike is missing', (WidgetTester tester) async {
-      final appData = AppData();
+      final appData = AppData(AppDatabase.memory());
       final appSettings = AppSettings();
       
       // Page requested with an ID that doesn't exist in appData

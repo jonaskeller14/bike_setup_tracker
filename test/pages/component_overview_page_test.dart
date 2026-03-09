@@ -1,9 +1,11 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_data.dart';
+import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/filtered_data.dart';
+import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/pages/component_overview_page.dart';
 import 'package:flutter/material.dart';
@@ -21,9 +23,8 @@ void main() {
       providers: [
         ChangeNotifierProvider.value(value: appSettings),
         ChangeNotifierProvider.value(value: appData),
-        ChangeNotifierProxyProvider<AppData, FilteredData>(
-          create: (context) => FilteredData(appData),
-          update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
+        ChangeNotifierProvider<FilteredData>(
+          create: (context) => FilteredData(appData.database),
         ),
       ],
       child: MaterialApp(
@@ -38,7 +39,7 @@ void main() {
   }
 
   testWidgets('show placeholder when setups are empty', (WidgetTester tester) async {
-    final appData = AppData();
+    final appData = AppData(AppDatabase.memory());
     final appSettings = AppSettings();
     final component = Component(
       id: 'comp1',
@@ -47,7 +48,9 @@ void main() {
       componentType: ComponentType.fork,
       adjustments: [],
     );
-    appData.components['comp1'] = component;
+    await appData.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+    await appData.addComponent(component);
+    await Future.delayed(Duration.zero);
 
     await tester.pumpWidget(createWidgetUnderTest(appData, appSettings, 'comp1', (c, {required component}) async {}));
     await tester.pumpAndSettle();
@@ -56,7 +59,7 @@ void main() {
   });
 
   testWidgets('show placeholder when no columns are selected', (WidgetTester tester) async {
-    final appData = AppData();
+    final appData = AppData(AppDatabase.memory());
     final appSettings = AppSettings();
     final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: 'clicks', category: AdjustmentCategory.component, min: 0, max: 10, step: 1, visualization: StepAdjustmentVisualization.slider);
     final component = Component(
@@ -66,7 +69,8 @@ void main() {
       componentType: ComponentType.fork,
       adjustments: [adjustment],
     );
-    appData.components['comp1'] = component;
+    await appData.addComponent(component);
+    await Future.delayed(Duration.zero);
 
     final setup = Setup(
       name: 'Setup 1',
@@ -80,7 +84,10 @@ void main() {
       ratingAdjustmentValues: {},
       isCurrent: false,
     );
-    appData.setups[setup.id] = setup;
+    await appData.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+    await appData.addComponent(component);
+    await appData.addSetup(setup);
+    await Future.delayed(Duration.zero);
 
     await tester.pumpWidget(createWidgetUnderTest(appData, appSettings, 'comp1', (c, {required component}) async {}));
     await tester.pumpAndSettle();
@@ -108,7 +115,7 @@ void main() {
   });
 
   testWidgets('sorting setups by name', (WidgetTester tester) async {
-    final appData = AppData();
+    final appData = AppData(AppDatabase.memory());
     final appSettings = AppSettings();
     // Component needs an adjustment for setups with that adjustment to be shown
     final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: 'clicks', category: AdjustmentCategory.component, min: 0, max: 10, step: 1, visualization: StepAdjustmentVisualization.slider);
@@ -119,11 +126,11 @@ void main() {
       componentType: ComponentType.fork,
       adjustments: [adjustment],
     );
-    appData.components['comp1'] = component;
-
-    // Setups need the same bike and the adjustment values
-    appData.setups['s1'] = Setup(id: 's1', name: 'A Setup', datetime: DateTime(2023).toUtc(), datetimeLocal: DateTime(2023), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false);
-    appData.setups['s2'] = Setup(id: 's2', name: 'B Setup', datetime: DateTime(2024).toUtc(), datetimeLocal: DateTime(2024), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false);
+    await appData.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+    await appData.addComponent(component);
+    await appData.addSetup(Setup(id: 's1', name: 'A Setup', datetime: DateTime(2023).toUtc(), datetimeLocal: DateTime(2023), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false));
+    await appData.addSetup(Setup(id: 's2', name: 'B Setup', datetime: DateTime(2024).toUtc(), datetimeLocal: DateTime(2024), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false));
+    await Future.delayed(Duration.zero);
 
     await tester.pumpWidget(createWidgetUnderTest(appData, appSettings, 'comp1', (c, {required component}) async {}));
     await tester.pumpAndSettle();
@@ -160,7 +167,7 @@ void main() {
   });
 
   testWidgets('sortColumn and remove columns so that index >= length', (WidgetTester tester) async {
-    final appData = AppData();
+    final appData = AppData(AppDatabase.memory());
     final appSettings = AppSettings();
     final adjustment1 = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
     final adjustment2 = StepAdjustment(id: 'adj2', name: 'Compression', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
@@ -172,9 +179,10 @@ void main() {
       componentType: ComponentType.fork,
       adjustments: [adjustment1, adjustment2],
     );
-    appData.components['comp1'] = component;
-
-    appData.setups['s1'] = Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5, 'adj2': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false);
+    await appData.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+    await appData.addComponent(component);
+    await appData.addSetup(Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5, 'adj2': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false));
+    await Future.delayed(Duration.zero);
 
     await tester.pumpWidget(createWidgetUnderTest(appData, appSettings, 'comp1', (c, {required component}) async {}));
     await tester.pumpAndSettle();
@@ -202,7 +210,7 @@ void main() {
   });
 
   testWidgets('edit Component updates ComponentOverviewPage (remove column, add possible columns, update appbar name)', (WidgetTester tester) async {
-    final appData = AppData();
+    final appData = AppData(AppDatabase.memory());
     final appSettings = AppSettings();
     final adjustmentOld = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
     
@@ -213,9 +221,10 @@ void main() {
       componentType: ComponentType.fork,
       adjustments: [adjustmentOld],
     );
-    appData.components['comp1'] = component;
-
-    appData.setups['s1'] = Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false);
+    await appData.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+    await appData.addComponent(component);
+    await appData.addSetup(Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false));
+    await Future.delayed(Duration.zero);
 
     Future<void> mockEditComponent(BuildContext context, {required Component component}) async {
       // Simulate editing the component
@@ -229,8 +238,9 @@ void main() {
         adjustments: [newAdjustment], // Removed Old, Added New
       );
       
-      appData.components['comp1'] = updatedComponent;
-      appData.notifyListeners();
+      await appData.addComponent(updatedComponent);
+      await Future.delayed(Duration.zero);
+      // appData.notifyListeners(); // Not needed if streams work, but harmless if it triggers rebuild
     }
 
     await tester.pumpWidget(createWidgetUnderTest(appData, appSettings, 'comp1', mockEditComponent));

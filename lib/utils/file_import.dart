@@ -9,6 +9,7 @@ import '../models/bike.dart';
 import '../models/setup.dart';
 import '../utils/backup.dart';
 import '../models/app_data.dart';
+import '../database/app_database.dart';
 
 class FileImport {
   static Future<GetLocalBackupsResult> getBackups() async {
@@ -30,7 +31,7 @@ class FileImport {
     }
   }
 
-  static Future<ReadLocalBackupResult> readBackup({required String path}) async {
+  static Future<ReadLocalBackupResult> readBackup({required String path, required AppDatabase appDatabase}) async {
     try {
       final file = File(path);
       if (!await file.exists()) throw Exception("File does not exist");
@@ -38,14 +39,14 @@ class FileImport {
       final jsonString = await file.readAsString();
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      return ReadLocalBackupResult.success(AppData.addJson(data: AppData(), json: jsonData));
+      return ReadLocalBackupResult.success(AppData.addJson(data: AppData(appDatabase), json: jsonData));
     } catch (e, st) {
       debugPrint("Reading backup failed: $e\n$st");
       return ReadLocalBackupResult.failure("Reading backup failed: $e");
     }
   }
 
-  static Future<ReadJsonFileResult> pickAndReadJsonFile() async {
+  static Future<ReadJsonFileResult> pickAndReadJsonFile({required AppDatabase appDatabase}) async {
     try {
       // Step 1 — pick a file
       final picked = await FilePicker.platform.pickFiles(
@@ -69,7 +70,7 @@ class FileImport {
       final jsonString = utf8.decode(fileBytes);
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      return ReadJsonFileResult.success(AppData.addJson(data: AppData(), json: jsonData));
+      return ReadJsonFileResult.success(AppData.addJson(data: AppData(appDatabase), json: jsonData));
     } catch (e) {
       debugPrint("Import failed: $e");
       return ReadJsonFileResult.failure("Import failed: $e");
@@ -121,7 +122,7 @@ class FileImport {
       ..addAll(remoteData.components);
     
     cleanupIsDeleted(data: localData);
-    localData.resolveData();
+    // localData.resolveData();
   }
 
   static void merge({
@@ -241,7 +242,7 @@ class FileImport {
       // continue;
     }
     cleanupIsDeleted(data: localData);
-    localData.resolveData();
+    // localData.resolveData();
   }
 
   static void determineCurrentSetups({required List<Setup> setups, required Map<String, Bike> bikes}) {

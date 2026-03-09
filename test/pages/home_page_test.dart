@@ -7,32 +7,61 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:bike_setup_tracker/main.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/app_data.dart';
+import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/widgets/garage_list.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/services/strava_service.dart';
+import 'package:bike_setup_tracker/services/storage_service.dart';
+import 'package:bike_setup_tracker/services/google_drive_service.dart';
+
+/// Helper to build the standard test widget with all required providers.
+Widget buildTestApp({
+  required AppSettings appSettings,
+  required AppData appData,
+  required AppDatabase appDatabase,
+}) {
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<AppSettings>.value(value: appSettings),
+      ChangeNotifierProvider<AppData>.value(value: appData),
+      ChangeNotifierProvider<FilteredData>(
+        create: (context) => FilteredData(appDatabase),
+      ),
+      Provider<AppDatabase>.value(value: appDatabase),
+      Provider<StorageService>(create: (_) => StorageService()),
+      ChangeNotifierProvider<StravaService>(
+          create: (_) => StravaService(appData)),
+      ChangeNotifierProvider<GoogleDriveService>(
+          create: (_) => GoogleDriveService(appData, appDatabase)),
+    ],
+    child: const BikeSetupTrackerApp(),
+  );
+}
 
 void main() {
   testWidgets('Home Page BottomNavigationBar', (WidgetTester tester) async {
     final appSettings = AppSettings();
     appSettings.showOnboarding = false;
     appSettings.enableGarage = false;
+    appSettings.enableStrava = false;
 
-    final appData = AppData();
+    final appDatabase = AppDatabase.memory();
+    final appData = AppData(appDatabase);
+    addTearDown(() async {
+      appData.dispose();
+      appSettings.dispose();
+      await appDatabase.close();
+    });
 
     await tester.pumpWidget(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: appSettings),
-          ChangeNotifierProvider.value(value: appData),
-          ChangeNotifierProxyProvider<AppData, FilteredData>(
-            create: (context) => FilteredData(appData),
-            update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
-          ),
-        ],
-        child: const BikeSetupTrackerApp(),
-      ),
+      buildTestApp(
+          appSettings: appSettings,
+          appData: appData,
+          appDatabase: appDatabase),
     );
+    await tester.pump(const Duration(milliseconds: 200));
 
     AppBar appBar = tester.widget(find.byType(AppBar).last);
     Text titleText = appBar.title as Text;
@@ -81,47 +110,67 @@ void main() {
     final appSettings = AppSettings();
     appSettings.showOnboarding = false;
     appSettings.enableGarage = false;
+    appSettings.enableStrava = false;
 
-    final appData = AppData();
+    final appDatabase = AppDatabase.memory();
+    final appData = AppData(appDatabase);
+    addTearDown(() async {
+      appData.dispose();
+      appSettings.dispose();
+      await appDatabase.close();
+    });
 
     await tester.pumpWidget(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: appSettings),
-          ChangeNotifierProvider.value(value: appData),
-          ChangeNotifierProxyProvider<AppData, FilteredData>(
-            create: (context) => FilteredData(appData),
-            update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
-          ),
-        ],
-        child: const BikeSetupTrackerApp(),
-      ),
+      buildTestApp(
+          appSettings: appSettings,
+          appData: appData,
+          appDatabase: appDatabase),
     );
+    await tester.pump(const Duration(milliseconds: 200));
 
-    await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Components')));
+    await tester.tap(find.descendant(
+        of: find.byType(NavigationBar), matching: find.text('Components')));
     await tester.pumpAndSettle();
-    expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Components')), findsOneWidget);
+    expect(
+        find.descendant(
+            of: find.byType(AppBar).last, matching: find.text('Components')),
+        findsOneWidget);
 
     await tester.tap(find.widgetWithIcon(FloatingActionButton, Icons.add));
     await tester.pump();
     await tester.pumpAndSettle();
-    expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Component')), findsNothing);
+    expect(
+        find.descendant(
+            of: find.byType(AppBar).last,
+            matching: find.text('Add Component')),
+        findsNothing);
 
-    appData.addBike(Bike(name: "TestBike #1", person: null, isDeleted: true));
-    await tester.pump();
+    await appData
+        .addBike(Bike(name: "TestBike #1", person: null, isDeleted: true));
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.widgetWithIcon(FloatingActionButton, Icons.add));
     await tester.pump();
     await tester.pumpAndSettle();
-    expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Component')), findsNothing);
+    expect(
+        find.descendant(
+            of: find.byType(AppBar).last,
+            matching: find.text('Add Component')),
+        findsNothing);
 
-    appData.addBike(Bike(name: "TestBike #2", person: null));
-    await tester.pump();
+    await appData.addBike(Bike(name: "TestBike #2", person: null));
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.widgetWithIcon(FloatingActionButton, Icons.add));
     await tester.pump();
     await tester.pumpAndSettle();
-    expect(find.descendant(of: find.byType(AppBar).last, matching: find.text('Add Component')), findsOneWidget);
+    expect(
+        find.descendant(
+            of: find.byType(AppBar).last,
+            matching: find.text('Add Component')),
+        findsOneWidget);
   });
 
   testWidgets('Add Setup without Bike and Components', (
@@ -130,23 +179,23 @@ void main() {
     final appSettings = AppSettings();
     appSettings.showOnboarding = false;
     appSettings.enableGarage = false;
+    appSettings.enableStrava = false;
 
-    final appData = AppData();
+    final appDatabase = AppDatabase.memory();
+    final appData = AppData(appDatabase);
+    addTearDown(() async {
+      appData.dispose();
+      appSettings.dispose();
+      await appDatabase.close();
+    });
 
     await tester.pumpWidget(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: appSettings),
-          ChangeNotifierProvider.value(value: appData),
-          ChangeNotifierProxyProvider<AppData, FilteredData>(
-            create: (context) => FilteredData(appData),
-            update: (context, newAppData, filteredData) =>
-                filteredData!..update(newAppData),
-          ),
-        ],
-        child: const BikeSetupTrackerApp(),
-      ),
+      buildTestApp(
+          appSettings: appSettings,
+          appData: appData,
+          appDatabase: appDatabase),
     );
+    await tester.pump(const Duration(milliseconds: 200));
 
     await tester.tap(
       find.descendant(
@@ -175,8 +224,9 @@ void main() {
     );
 
     final bike1 = Bike(name: "TestBike #1", person: null, isDeleted: true);
-    appData.addBike(bike1);
-    await tester.pump();
+    await appData.addBike(bike1);
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
@@ -189,7 +239,7 @@ void main() {
       findsNothing,
     );
 
-    appData.addComponent(
+    await appData.addComponent(
       Component(
         name: "TestComponent #1",
         installations: [Installation.sinceBeginning(parent: bike1.id)],
@@ -198,7 +248,8 @@ void main() {
         isDeleted: true,
       ),
     );
-    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
@@ -212,8 +263,9 @@ void main() {
     );
 
     final bike2 = Bike(name: "TestBike #2", person: null, isDeleted: false);
-    appData.addBike(bike2);
-    await tester.pump();
+    await appData.addBike(bike2);
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
@@ -226,7 +278,7 @@ void main() {
       findsNothing,
     );
 
-    appData.addComponent(
+    await appData.addComponent(
       Component(
         name: "TestComponent #2",
         installations: [Installation.sinceBeginning(parent: bike2.id)],
@@ -235,7 +287,8 @@ void main() {
         isDeleted: false,
       ),
     );
-    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.widgetWithIcon(FloatingActionButton, Icons.add));
     await tester.pump();
@@ -255,23 +308,23 @@ void main() {
     final appSettings = AppSettings();
     appSettings.showOnboarding = false;
     appSettings.enableGarage = false;
+    appSettings.enableStrava = false;
 
-    final appData = AppData();
+    final appDatabase = AppDatabase.memory();
+    final appData = AppData(appDatabase);
+    addTearDown(() async {
+      appData.dispose();
+      appSettings.dispose();
+      await appDatabase.close();
+    });
 
     await tester.pumpWidget(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: appSettings),
-          ChangeNotifierProvider.value(value: appData),
-          ChangeNotifierProxyProvider<AppData, FilteredData>(
-            create: (context) => FilteredData(appData),
-            update: (context, newAppData, filteredData) =>
-                filteredData!..update(newAppData),
-          ),
-        ],
-        child: const BikeSetupTrackerApp(),
-      ),
+      buildTestApp(
+          appSettings: appSettings,
+          appData: appData,
+          appDatabase: appDatabase),
     );
+    await tester.pump(const Duration(milliseconds: 200));
 
     await tester.tap(
       find
@@ -291,54 +344,60 @@ void main() {
     );
 
     // Add Bike and show Bike
-    appData.addBike(Bike(name: "TestBike #1", person: null, isDeleted: false));
+    await appData
+        .addBike(Bike(name: "TestBike #1", person: null, isDeleted: false));
+    await tester.pump(const Duration(milliseconds: 200));
     await tester.pumpAndSettle();
     expect(find.text("TestBike #1"), findsAtLeast(1));
 
     // Not show deleted Bike
     final bike2 = Bike(name: "TestBike #2", person: null, isDeleted: true);
-    appData.addBike(bike2);
+    await appData.addBike(bike2);
+    await tester.pump(const Duration(milliseconds: 200));
     await tester.pumpAndSettle();
     expect(find.text("TestBike #2"), findsNothing);
 
     // Remove Bike
     final bike3 = Bike(name: "TestBike #3", person: null, isDeleted: false);
-    appData.addBike(bike3);
+    await appData.addBike(bike3);
+    await tester.pump(const Duration(milliseconds: 200));
     await tester.pumpAndSettle();
     expect(find.text("TestBike #3"), findsAtLeast(1));
-    appData.removeBike(bike3);
+    await appData.removeBike(bike3);
+    await tester.pump(const Duration(milliseconds: 200));
     await tester.pumpAndSettle();
     expect(find.text("TestBike #3"), findsNothing);
 
     // Restore Bike
-    appData.restoreBike(bike2);
+    await appData.restoreBike(bike2);
+    await tester.pump(const Duration(milliseconds: 200));
     await tester.pumpAndSettle();
     expect(find.text("TestBike #2"), findsAtLeast(1));
   });
 
-  testWidgets('ComponentList/Edit Adjustmenet with saving Component', (
+  testWidgets('ComponentList/Edit Adjustment with saving Component', (
     WidgetTester tester,
   ) async {
     final appSettings = AppSettings();
     appSettings.showOnboarding = false;
     appSettings.enableGarage = false;
+    appSettings.enableStrava = false;
 
-    final appData = AppData();
+    final appDatabase = AppDatabase.memory();
+    final appData = AppData(appDatabase);
+    addTearDown(() async {
+      appData.dispose();
+      appSettings.dispose();
+      await appDatabase.close();
+    });
 
     await tester.pumpWidget(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: appSettings),
-          ChangeNotifierProvider.value(value: appData),
-          ChangeNotifierProxyProvider<AppData, FilteredData>(
-            create: (context) => FilteredData(appData),
-            update: (context, newAppData, filteredData) =>
-                filteredData!..update(newAppData),
-          ),
-        ],
-        child: const BikeSetupTrackerApp(),
-      ),
+      buildTestApp(
+          appSettings: appSettings,
+          appData: appData,
+          appDatabase: appDatabase),
     );
+    await tester.pump(const Duration(milliseconds: 200));
 
     final bike1 = Bike(name: "Bike #1", person: null);
     final booleanAdjustment1 = BooleanAdjustment(
@@ -354,9 +413,10 @@ void main() {
       adjustments: [booleanAdjustment1],
     );
 
-    appData.addBike(bike1);
-    appData.addComponent(component1);
-    await tester.pump();
+    await appData.addBike(bike1);
+    await appData.addComponent(component1);
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pumpAndSettle();
 
     await tester.tap(
       find.descendant(
@@ -422,29 +482,29 @@ void main() {
     expect(find.text('BooleanAdjustment #1 edit #1'), findsOneWidget);
   });
 
-  testWidgets('ComponentList/Edit Adjustmenet without saving Component', (
+  testWidgets('ComponentList/Edit Adjustment without saving Component', (
     WidgetTester tester,
   ) async {
     final appSettings = AppSettings();
     appSettings.showOnboarding = false;
     appSettings.enableGarage = false;
+    appSettings.enableStrava = false;
 
-    final appData = AppData();
+    final appDatabase = AppDatabase.memory();
+    final appData = AppData(appDatabase);
+    addTearDown(() async {
+      appData.dispose();
+      appSettings.dispose();
+      await appDatabase.close();
+    });
 
     await tester.pumpWidget(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: appSettings),
-          ChangeNotifierProvider.value(value: appData),
-          ChangeNotifierProxyProvider<AppData, FilteredData>(
-            create: (context) => FilteredData(appData),
-            update: (context, newAppData, filteredData) =>
-                filteredData!..update(newAppData),
-          ),
-        ],
-        child: const BikeSetupTrackerApp(),
-      ),
+      buildTestApp(
+          appSettings: appSettings,
+          appData: appData,
+          appDatabase: appDatabase),
     );
+    await tester.pump(const Duration(milliseconds: 200));
 
     final bike1 = Bike(name: "Bike #1", person: null);
     final booleanAdjustment1 = BooleanAdjustment(
@@ -460,9 +520,10 @@ void main() {
       adjustments: [booleanAdjustment1],
     );
 
-    appData.addBike(bike1);
-    appData.addComponent(component1);
-    await tester.pump();
+    await appData.addBike(bike1);
+    await appData.addComponent(component1);
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pumpAndSettle();
 
     await tester.tap(
       find.descendant(
@@ -540,23 +601,23 @@ void main() {
     final appSettings = AppSettings();
     appSettings.showOnboarding = false;
     appSettings.enableGarage = true;
+    appSettings.enableStrava = false;
 
-    final appData = AppData();
+    final appDatabase = AppDatabase.memory();
+    final appData = AppData(appDatabase);
+    addTearDown(() async {
+      appData.dispose();
+      appSettings.dispose();
+      await appDatabase.close();
+    });
 
     await tester.pumpWidget(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: appSettings),
-          ChangeNotifierProvider.value(value: appData),
-          ChangeNotifierProxyProvider<AppData, FilteredData>(
-            create: (context) => FilteredData(appData),
-            update: (context, newAppData, filteredData) =>
-                filteredData!..update(newAppData),
-          ),
-        ],
-        child: const BikeSetupTrackerApp(),
-      ),
+      buildTestApp(
+          appSettings: appSettings,
+          appData: appData,
+          appDatabase: appDatabase),
     );
+    await tester.pump(const Duration(milliseconds: 200));
 
     // Verify Title is "Bikes"
     AppBar appBar = tester.widget(find.byType(AppBar).last);
@@ -590,37 +651,3 @@ void main() {
     expect(find.byType(GarageList), findsOneWidget);
   });
 }
-
-// testWidgets('Reorderable list test', (WidgetTester tester) async {
-//   // 1. Build your app/widget
-//   await tester.pumpWidget(MyReorderableApp());
-
-//   // 2. Find the item you want to drag (e.g., the first item)
-//   final firstItemFinder = find.text('Item 0');
-//   final Offset firstItemLocation = tester.getCenter(firstItemFinder);
-
-//   // 3. Find where you want to drop it (e.g., over the third item)
-//   final thirdItemFinder = find.text('Item 2');
-//   final Offset thirdItemLocation = tester.getCenter(thirdItemFinder);
-
-//   // 4. Start the long press gesture
-//   final TestGesture gesture = await tester.startGesture(firstItemLocation);
-  
-//   // Important: ReorderableListView requires a long press delay
-//   // (The default is usually kLongPressTimeout, approx 500ms)
-//   await tester.pump(kLongPressTimeout);
-
-//   // 5. Drag to the target location
-//   // We move it slightly past the center to ensure the reorder triggers
-//   await gesture.moveTo(thirdItemLocation);
-//   await tester.pump();
-
-//   // 6. Release the pointer
-//   await gesture.up();
-  
-//   // 7. Settle the animation
-//   await tester.pumpAndSettle();
-
-//   // 8. Verify the result
-//   // (Check if your data model updated or if the UI reflected the change)
-// });

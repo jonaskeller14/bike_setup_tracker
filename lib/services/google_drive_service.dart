@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../utils/backup.dart';
 import '../models/app_data.dart';
+import '../database/app_database.dart';
 import '../utils/file_import.dart';
 
 enum GoogleDriveServiceStatus {
@@ -34,6 +35,7 @@ class GoogleDriveService extends ChangeNotifier {
 
   AppData _appData;
   DateTime? _appDataLastModified;
+  final AppDatabase appDatabase;
 
   DateTime? lastSync;
   Timer? _syncTimer;
@@ -47,7 +49,7 @@ class GoogleDriveService extends ChangeNotifier {
   String get errorMessage => _errorMessage;
   GoogleDriveServiceStatus get status => _status;
 
-  GoogleDriveService(this._appData);
+  GoogleDriveService(this._appData, this.appDatabase);
 
   void update({required AppData newAppData}) async {
     if (_appDataLastModified != null && !newAppData.lastModified.isAfter(_appDataLastModified!)) {
@@ -357,7 +359,7 @@ class GoogleDriveService extends ChangeNotifier {
 
     final jsonString = utf8.decode(dataStore);
     final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
-    final AppData remoteData = AppData.addJson(data: AppData(), json: jsonData);
+    final AppData remoteData = AppData.addJson(data: AppData(appDatabase), json: jsonData);
     FileImport.merge(remoteData: remoteData, localData: _appData);
   }
 
@@ -525,7 +527,7 @@ class GoogleDriveService extends ChangeNotifier {
     }
   }
 
-  Future<ReadGoogleDriveBackupResult> readBackup({required String fileId}) async {
+  Future<ReadGoogleDriveBackupResult> readBackup({required String fileId, required AppDatabase appDatabase}) async {
     try {
       if (_driveApi == null) await _initializeDriveApi();
       if (_driveApi == null) throw Exception("Drive API not initialized");
@@ -542,7 +544,7 @@ class GoogleDriveService extends ChangeNotifier {
 
       final jsonString = utf8.decode(dataStore);
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
-      return ReadGoogleDriveBackupResult.success(AppData.addJson(data: AppData(), json: jsonData));
+      return ReadGoogleDriveBackupResult.success(AppData.addJson(data: AppData(appDatabase), json: jsonData));
     } catch (e) {
       debugPrint('Reading Google Drive backup failed: $fileId: $e');
       return ReadGoogleDriveBackupResult.failure("Reading Google Drive backup failed: $e");

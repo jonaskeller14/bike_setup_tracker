@@ -7,6 +7,7 @@ import "../../models/component.dart";
 import "../../models/setup.dart";
 import "../../models/rating.dart";
 import "../../models/app_data.dart";
+import "../../database/app_database.dart";
 import 'sheet.dart';
 
 Future<AppData?> showDataSelectSheet({required BuildContext context, required AppData data}) async {
@@ -476,13 +477,14 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
-                final selectedData = AppData();
+                final appDatabase = context.read<AppDatabase>();
+                final selectedData = AppData(appDatabase);
                 selectedData.persons.addAll(<String, Person>{for (var item in selectedPersons) item.id: item});
                 selectedData.bikes.addAll(<String, Bike>{for (var item in selectedBikes) item.id: item});
                 selectedData.components.addAll(<String, Component>{for (var item in selectedComponents) item.id: item});
                 selectedData.setups.addAll(<String, Setup>{for (var item in selectedSetups) item.id: item});
                 selectedData.ratings.addAll(<String, Rating>{for (var item in selectedRatings) item.id: item});
-                selectedData.resolveData();
+                // selectedData.resolveData();
                 widget.onConfirm(selectedData);
               },
               child: const Text("Confirm Selection"),

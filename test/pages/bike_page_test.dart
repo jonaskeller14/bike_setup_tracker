@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/app_data.dart';
+import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/pages/bike_page.dart';
 
@@ -12,16 +13,15 @@ void main() {
     final appSettings = AppSettings();
     appSettings.showOnboarding = false;
 
-    final appData = AppData();
+    final appData = AppData(AppDatabase.memory());
 
     await tester.pumpWidget(
       MultiProvider(
         providers: [
           ChangeNotifierProvider.value(value: appSettings),
           ChangeNotifierProvider.value(value: appData),
-          ChangeNotifierProxyProvider<AppData, FilteredData>(
-            create: (context) => FilteredData(appData),
-            update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
+          ChangeNotifierProvider<FilteredData>(
+            create: (context) => FilteredData(appData.database),
           ),
         ],
         child: MaterialApp(home: BikePage.add()),
@@ -57,16 +57,15 @@ void main() {
     final appSettings = AppSettings();
     appSettings.showOnboarding = false;
 
-    final appData = AppData();
+    final appData = AppData(AppDatabase.memory());
 
     await tester.pumpWidget(
       MultiProvider(
         providers: [
           ChangeNotifierProvider.value(value: appSettings),
           ChangeNotifierProvider.value(value: appData),
-          ChangeNotifierProxyProvider<AppData, FilteredData>(
-            create: (context) => FilteredData(appData),
-            update: (context, newAppData, filteredData) => filteredData!..update(newAppData),
+          ChangeNotifierProvider<FilteredData>(
+            create: (context) => FilteredData(appData.database),
           ),
         ],
         child: MaterialApp(home: BikePage.edit(bike: Bike(name: "TestBike #1", person: null))),

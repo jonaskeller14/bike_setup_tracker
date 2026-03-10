@@ -209,7 +209,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
           canPop: false,
           onPopInvokedWithResult: _handlePopInvoked,
           child: Padding(
-            padding: EdgeInsets.only(left: 16, right: 16, bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(left: 16, right: 16, bottom: 16 + MediaQuery.of(context).viewInsets.bottom),
             child: SafeArea(
               child: Form(
                 key: _formKey,

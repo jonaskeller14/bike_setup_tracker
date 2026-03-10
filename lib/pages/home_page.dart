@@ -437,43 +437,45 @@ class _HomePageState extends State<HomePage> {
             const NavigationDestination(icon: Icon(Rating.iconData), label: "Ratings"),
         ],
       ),
-      body: <Widget>[
-        if (appSettings.enableGarage)
-          GarageList(
-            onReorderBikes: _onReorderBikes,
-          )
-        else ...[
-          BikeList(
-            bikes: filteredData.bikes,  //include bikes which are not filtered for
-            onReorderBikes: _onReorderBikes,
+      body: SafeArea(
+        child: <Widget>[
+          if (appSettings.enableGarage)
+            GarageList(
+              onReorderBikes: _onReorderBikes,
+            )
+          else ...[
+            BikeList(
+              bikes: filteredData.bikes,  //include bikes which are not filtered for
+              onReorderBikes: _onReorderBikes,
+            ),
+            ComponentList(
+              components: filteredData.filteredComponents,
+              onReorderComponent: _onReorderComponents,
+            ),
+          ],
+          SetupList(
+            editSetup: _editSetup,
+            restoreSetup: _duplicateSetup,
+            removeSetup: _removeSetup,
           ),
-          ComponentList(
-            components: filteredData.filteredComponents,
-            onReorderComponent: _onReorderComponents,
-          ),
-        ],
-        SetupList(
-          editSetup: _editSetup,
-          restoreSetup: _duplicateSetup,
-          removeSetup: _removeSetup,
-        ),
-        if (appSettings.enablePerson)
-          PersonList(
-            persons: filteredData.filteredPersons,
-            editPerson: _editPerson,
-            duplicatePerson: _duplicatePerson,
-            removePerson: _removePerson,
-            onReorderPerson: _onReorderPerson,
-          ),
-        if (appSettings.enableRating)
-          RatingList(
-            ratings: filteredData.filteredRatings,
-            editRating: _editRating,
-            duplicateRating: _duplicateRating,
-            removeRating: _removeRating,
-            onReorderRating: _onReorderRating,
-          ),
-      ][_currentPageIndex],
+          if (appSettings.enablePerson)
+            PersonList(
+              persons: filteredData.filteredPersons,
+              editPerson: _editPerson,
+              duplicatePerson: _duplicatePerson,
+              removePerson: _removePerson,
+              onReorderPerson: _onReorderPerson,
+            ),
+          if (appSettings.enableRating)
+            RatingList(
+              ratings: filteredData.filteredRatings,
+              editRating: _editRating,
+              duplicateRating: _duplicateRating,
+              removeRating: _removeRating,
+              onReorderRating: _onReorderRating,
+            ),
+        ][_currentPageIndex],
+      ),
       floatingActionButton: <Widget>[
         if (appSettings.enableGarage)
           FloatingActionButton(

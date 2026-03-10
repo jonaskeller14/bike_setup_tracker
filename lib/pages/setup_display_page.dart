@@ -421,11 +421,11 @@ class SetupDisplayPageContent extends StatelessWidget {
     );
   }
 
-  SliverToBoxAdapter _legend() {
-    return const SliverToBoxAdapter(
+  SliverToBoxAdapter _legend(BuildContext context) {
+    return SliverToBoxAdapter(
       child: Padding(
-        padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
-        child: InitialChangedValueLegend(),
+        padding: EdgeInsets.only(left: 16, right: 16, bottom: 16 + MediaQuery.of(context).padding.bottom),
+        child: const InitialChangedValueLegend(),
       ),
     );
   }
@@ -762,7 +762,7 @@ class SetupDisplayPageContent extends StatelessWidget {
             ]
           ),
         ],
-        _legend(),
+        _legend(context),
       ],
     );
   }

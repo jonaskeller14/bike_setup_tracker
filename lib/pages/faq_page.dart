@@ -101,27 +101,31 @@ class FAQPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Frequently asked Questions')),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: faqSections.entries.map((faqSection) => Column(
+      body: SafeArea(
+        bottom: false,
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
-                child: Text(
-                  faqSection.key,
-                  style: Theme.of(context).textTheme.titleLarge,
+            children: faqSections.entries.map((faqSection) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
+                  child: Text(
+                    faqSection.key,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                 ),
-              ),
-              ...faqSection.value.entries.map((faq) => ListTile(
-                title: Text(faq.key, style: const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: Text(faq.value),
-                dense: true,
-              )),
-              const Divider(height: 32.0),
-            ],
-          )).toList(),
+                ...faqSection.value.entries.map((faq) => ListTile(
+                  title: Text(faq.key, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text(faq.value),
+                  dense: true,
+                )),
+                const Divider(height: 32.0),
+              ],
+            )).toList(),
+          ),
         ),
       ),
     );

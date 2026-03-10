@@ -316,151 +316,153 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
           )
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsetsGeometry.all(16),
-        scrollDirection: Axis.vertical,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                spacing: 6,
-                children: [
-                  FilterChip(
-                    avatar: const Icon(Icons.view_column_outlined),
-                    showCheckmark: false,
-                    label: const Text("Columns"),
-                    selected: _columns.any((c) => c.active),
-                    onSelected: (bool newValue) async {
-                      await showColumnFilterSheet(
-                        context: context, 
-                        sortedColumns: sortedColumns, 
-                        componentAdjustments: componentAdjustments,
-                        ratingAdjustments: ratingAdjustments,
-                        personAdjustments: personAdjustments,
-                        onColumnStatusChanged: () => setState(() {}), // TableColumn.active is changed
-                      );
-                    },
-                  ),
-                  BikeAndTagsFilterChip(enableSetupTagFilter: appSettings.enableSetupTags),
-                ],
-              ),
-            ),
-
-            if (activeColumns.isNotEmpty)
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsetsGeometry.all(16),
+          scrollDirection: Axis.vertical,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  sortAscending: _sortAscending,
-                  sortColumnIndex: activeColumns.contains(_sortColumn) 
-                      ? activeColumns.indexOf(_sortColumn!)
-                      : null,
-                  columnSpacing: 20,
-                  headingTextStyle: TextStyle(fontWeight: FontWeight.bold),
-                  dataRowMaxHeight: double.infinity,
-                  columns: activeColumns.map((column) {
-                    switch (column.section) {
-                      case TableColumnSection.generalContext || TableColumnSection.weatherContext:
-                        return DataColumn(
-                          label: Text(column.label, overflow: TextOverflow.ellipsis),
-                          onSort: (int _, bool ascending) {
-                            setState(() {
-                              _sortAscending = ascending;
-                              _sortColumn = column;
-                            });
-                          },
+                child: Row(
+                  spacing: 6,
+                  children: [
+                    FilterChip(
+                      avatar: const Icon(Icons.view_column_outlined),
+                      showCheckmark: false,
+                      label: const Text("Columns"),
+                      selected: _columns.any((c) => c.active),
+                      onSelected: (bool newValue) async {
+                        await showColumnFilterSheet(
+                          context: context, 
+                          sortedColumns: sortedColumns, 
+                          componentAdjustments: componentAdjustments,
+                          ratingAdjustments: ratingAdjustments,
+                          personAdjustments: personAdjustments,
+                          onColumnStatusChanged: () => setState(() {}), // TableColumn.active is changed
                         );
-                      case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes || TableColumnSection.ratingMetrics:
-                        final Adjustment? adjustment = switch (column.section) {
-                          TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label),
-                          TableColumnSection.ratingMetrics => ratingAdjustments.firstWhereOrNull((a) => a.id == column.label),
-                          TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == column.label),
-                          _ => null,
-                        };
-                        return DataColumn(
-                          label: Text(
-                            (adjustment?.name ?? "-") + (adjustment?.unit != null ? " [${adjustment!.unit}]" : ""),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          onSort: (int _, bool ascending) {
-                            setState(() {
-                              _sortAscending = ascending;
-                              _sortColumn = column;
-                            });
-                          },
-                        );
-                    }
-                  }).toList(),
-                  rows: setups.map((setup) {
-                    return DataRow(
-                      cells: activeColumns.map((column) {
-                        switch (column.section) {
-                          case TableColumnSection.generalContext:
-                            return switch (column.label) {
-                              "Name" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.name, overflow: TextOverflow.ellipsis)))),
-                              "Notes" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.notes ?? '-', overflow: TextOverflow.ellipsis)))),
-                              "Tags" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.tags.isEmpty ? '-' : setup.tags.join('; '), overflow: TextOverflow.ellipsis)))),
-                              "Date" => DataCell(Text(DateFormat(appSettings.dateFormat).format(setup.datetimeLocal))),
-                              "Time" => DataCell(Text(DateFormat(appSettings.timeFormat).format(setup.datetimeLocal))),
-                              "Place" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.place?.locality ?? '-', overflow: TextOverflow.ellipsis)))),
-                              "Altitude" => DataCell(Center(child: Text(setup.position?.altitude == null ? '-' : "${setup.position!.altitude!.round()} ${appSettings.altitudeUnit}"))),
-                              "Bike" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(bikes[setup.bike]?.name ?? '-', overflow: TextOverflow.ellipsis)))),
-                              _ => const DataCell(Text("ERROR")),
-                            };
-                          case TableColumnSection.weatherContext:
-                            return switch (column.label) {
-                              "Weather Code" => DataCell(Center(child: Text(setup.weather?.getWeatherCodeLabel() ?? "-"))),
-                              "Temperature" => DataCell(Center(child: Text(setup.weather?.currentTemperature == null ? '-' : "${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}"))),
-                              "Precipitation" => DataCell(Center(child: Text(setup.weather?.dayAccumulatedPrecipitation == null ? '-' : "${Weather.convertPrecipitationFromMm(setup.weather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit)?.round()} ${appSettings.precipitationUnit}"))),
-                              "Humidity" => DataCell(Center(child: Text(setup.weather?.currentHumidity == null ? '-' : "${setup.weather!.currentHumidity!.round()} %"))),
-                              "Windspeed" => DataCell(Center(child: Text(setup.weather?.currentWindSpeed == null ? '-' : "${Weather.convertWindSpeedFromKmh(setup.weather!.currentWindSpeed!, appSettings.windSpeedUnit)?.round()} ${appSettings.windSpeedUnit}"))),
-                              "Soil Moisture" => DataCell(Center(child: Text(setup.weather?.currentSoilMoisture0to7cm == null ? '-' : setup.weather!.currentSoilMoisture0to7cm!.toStringAsFixed(2)))),
-                              "Condition" => DataCell(Center(child: Text(setup.weather?.condition == null ? '-' : setup.weather!.condition!.value))),
-                              _ => const DataCell(Text("ERROR")),
-                            };
-                          case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes || TableColumnSection.ratingMetrics:
-                            final value = switch (column.section) {
-                              TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[column.label],
-                              TableColumnSection.ratingMetrics => setup.ratingAdjustmentValues[column.label],
-                              TableColumnSection.personAttributes => setup.personAdjustmentValues[column.label],
-                              _ => null,
-                            };
-                            final initialValue = switch (column.section) {
-                              TableColumnSection.componentAdjustments => setup.previousBikeSetup?.bikeAdjustmentValues[column.label],
-                              TableColumnSection.ratingMetrics => null,
-                              TableColumnSection.personAttributes => setup.previousPersonSetup?.personAdjustmentValues[column.label],
-                              _ => null,
-                            };
-     
-                            Color? highlightColor;
-                            if (_highlighting) {
-                              final bool isChanged = value != null && initialValue != value;
-                              final bool isInitial = initialValue == null;
-                              highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
-                            }
-
-                            return DataCell(
-                              Center(
-                                child: Text(
-                                  Adjustment.formatValue(value), 
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(color: highlightColor, fontWeight: highlightColor != null ? FontWeight.bold : null),
-                                ),
-                              ),
-                            );
-                        }
-                      }).toList(),
-                    );
-                  }).toList(),
+                      },
+                    ),
+                    BikeAndTagsFilterChip(enableSetupTagFilter: appSettings.enableSetupTags),
+                  ],
                 ),
-              )
-            else
-              _noColumnsPlaceholder(),
-            if (setups.isEmpty)
-              _noSetupsPlaceholder(),
-            const InitialChangedValueLegend(),
-          ],
+              ),
+        
+              if (activeColumns.isNotEmpty)
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    sortAscending: _sortAscending,
+                    sortColumnIndex: activeColumns.contains(_sortColumn) 
+                        ? activeColumns.indexOf(_sortColumn!)
+                        : null,
+                    columnSpacing: 20,
+                    headingTextStyle: TextStyle(fontWeight: FontWeight.bold),
+                    dataRowMaxHeight: double.infinity,
+                    columns: activeColumns.map((column) {
+                      switch (column.section) {
+                        case TableColumnSection.generalContext || TableColumnSection.weatherContext:
+                          return DataColumn(
+                            label: Text(column.label, overflow: TextOverflow.ellipsis),
+                            onSort: (int _, bool ascending) {
+                              setState(() {
+                                _sortAscending = ascending;
+                                _sortColumn = column;
+                              });
+                            },
+                          );
+                        case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes || TableColumnSection.ratingMetrics:
+                          final Adjustment? adjustment = switch (column.section) {
+                            TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label),
+                            TableColumnSection.ratingMetrics => ratingAdjustments.firstWhereOrNull((a) => a.id == column.label),
+                            TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == column.label),
+                            _ => null,
+                          };
+                          return DataColumn(
+                            label: Text(
+                              (adjustment?.name ?? "-") + (adjustment?.unit != null ? " [${adjustment!.unit}]" : ""),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            onSort: (int _, bool ascending) {
+                              setState(() {
+                                _sortAscending = ascending;
+                                _sortColumn = column;
+                              });
+                            },
+                          );
+                      }
+                    }).toList(),
+                    rows: setups.map((setup) {
+                      return DataRow(
+                        cells: activeColumns.map((column) {
+                          switch (column.section) {
+                            case TableColumnSection.generalContext:
+                              return switch (column.label) {
+                                "Name" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.name, overflow: TextOverflow.ellipsis)))),
+                                "Notes" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.notes ?? '-', overflow: TextOverflow.ellipsis)))),
+                                "Tags" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.tags.isEmpty ? '-' : setup.tags.join('; '), overflow: TextOverflow.ellipsis)))),
+                                "Date" => DataCell(Text(DateFormat(appSettings.dateFormat).format(setup.datetimeLocal))),
+                                "Time" => DataCell(Text(DateFormat(appSettings.timeFormat).format(setup.datetimeLocal))),
+                                "Place" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.place?.locality ?? '-', overflow: TextOverflow.ellipsis)))),
+                                "Altitude" => DataCell(Center(child: Text(setup.position?.altitude == null ? '-' : "${setup.position!.altitude!.round()} ${appSettings.altitudeUnit}"))),
+                                "Bike" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(bikes[setup.bike]?.name ?? '-', overflow: TextOverflow.ellipsis)))),
+                                _ => const DataCell(Text("ERROR")),
+                              };
+                            case TableColumnSection.weatherContext:
+                              return switch (column.label) {
+                                "Weather Code" => DataCell(Center(child: Text(setup.weather?.getWeatherCodeLabel() ?? "-"))),
+                                "Temperature" => DataCell(Center(child: Text(setup.weather?.currentTemperature == null ? '-' : "${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}"))),
+                                "Precipitation" => DataCell(Center(child: Text(setup.weather?.dayAccumulatedPrecipitation == null ? '-' : "${Weather.convertPrecipitationFromMm(setup.weather!.dayAccumulatedPrecipitation!, appSettings.precipitationUnit)?.round()} ${appSettings.precipitationUnit}"))),
+                                "Humidity" => DataCell(Center(child: Text(setup.weather?.currentHumidity == null ? '-' : "${setup.weather!.currentHumidity!.round()} %"))),
+                                "Windspeed" => DataCell(Center(child: Text(setup.weather?.currentWindSpeed == null ? '-' : "${Weather.convertWindSpeedFromKmh(setup.weather!.currentWindSpeed!, appSettings.windSpeedUnit)?.round()} ${appSettings.windSpeedUnit}"))),
+                                "Soil Moisture" => DataCell(Center(child: Text(setup.weather?.currentSoilMoisture0to7cm == null ? '-' : setup.weather!.currentSoilMoisture0to7cm!.toStringAsFixed(2)))),
+                                "Condition" => DataCell(Center(child: Text(setup.weather?.condition == null ? '-' : setup.weather!.condition!.value))),
+                                _ => const DataCell(Text("ERROR")),
+                              };
+                            case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes || TableColumnSection.ratingMetrics:
+                              final value = switch (column.section) {
+                                TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[column.label],
+                                TableColumnSection.ratingMetrics => setup.ratingAdjustmentValues[column.label],
+                                TableColumnSection.personAttributes => setup.personAdjustmentValues[column.label],
+                                _ => null,
+                              };
+                              final initialValue = switch (column.section) {
+                                TableColumnSection.componentAdjustments => setup.previousBikeSetup?.bikeAdjustmentValues[column.label],
+                                TableColumnSection.ratingMetrics => null,
+                                TableColumnSection.personAttributes => setup.previousPersonSetup?.personAdjustmentValues[column.label],
+                                _ => null,
+                              };
+             
+                              Color? highlightColor;
+                              if (_highlighting) {
+                                final bool isChanged = value != null && initialValue != value;
+                                final bool isInitial = initialValue == null;
+                                highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
+                              }
+        
+                              return DataCell(
+                                Center(
+                                  child: Text(
+                                    Adjustment.formatValue(value), 
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(color: highlightColor, fontWeight: highlightColor != null ? FontWeight.bold : null),
+                                  ),
+                                ),
+                              );
+                          }
+                        }).toList(),
+                      );
+                    }).toList(),
+                  ),
+                )
+              else
+                _noColumnsPlaceholder(),
+              if (setups.isEmpty)
+                _noSetupsPlaceholder(),
+              const InitialChangedValueLegend(),
+            ],
+          ),
         ),
       ),
     );

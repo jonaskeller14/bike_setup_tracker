@@ -365,230 +365,232 @@ class _ComponentPageState extends State<ComponentPage> {
             IconButton(icon: const Icon(Icons.check), onPressed: _saveComponent),
           ],
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  textInputAction: TextInputAction.next,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  autofocus: widget.mode == ComponentPageMode.add,
-                  onChanged: (value) => setState(() {}), // see filled/fillColor
-                  decoration: InputDecoration(
-                    labelText: 'Component Name',
-                    border: OutlineInputBorder(),
-                    hintText: 'Enter component name',
-                    fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.mode == ComponentPageMode.edit && _nameController.text.trim() != widget.component?.name,
-                  ),
-                  validator: _validateName,
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String?>(
-                  initialValue: _bike,
-                  isExpanded: true,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(
-                    labelText: 'Bike',
-                    border: OutlineInputBorder(),
-                    hintText: "Choose a bike for this component",
-                    helperText: _bike == null ? "WARNING: Select Bike to install Component." : null,
-                    fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.mode == ComponentPageMode.edit && _bike != _initialBike,
-                  ),
-                  validator: (String? newBike) {
-                    if (newBike is String && !bikes.containsKey(newBike)) return "Please select valid bike";
-                    return null;
-                  },
-                  items: bikes.values.map((b) {
-                    return DropdownMenuItem<String?>(
-                      value: b.id,
-                      child: Row(
-                        spacing: 8,
-                        children: [
-                          const Icon(Bike.iconData),
-                          Expanded(child: Text(b.name, overflow: TextOverflow.ellipsis))
-                        ],
-                      ),
-                    );
-                  }).toList() + [
-                    DropdownMenuItem<String?>(
-                      value: null,
-                      child: Row(
-                        spacing: 8,
-                        children: [
-                          const Icon(Icons.shelves),
-                          Expanded(child: Text("NOT INSTALLED", overflow: TextOverflow.ellipsis))
-                        ],
-                      ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: _nameController,
+                    textInputAction: TextInputAction.next,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    autofocus: widget.mode == ComponentPageMode.add,
+                    onChanged: (value) => setState(() {}), // see filled/fillColor
+                    decoration: InputDecoration(
+                      labelText: 'Component Name',
+                      border: OutlineInputBorder(),
+                      hintText: 'Enter component name',
+                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      filled: widget.mode == ComponentPageMode.edit && _nameController.text.trim() != widget.component?.name,
                     ),
-                    if (_bike != null && !bikes.containsKey(_bike))
-                      DropdownMenuItem<String?>(
-                        value: _bike,
+                    validator: _validateName,
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String?>(
+                    initialValue: _bike,
+                    isExpanded: true,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(
+                      labelText: 'Bike',
+                      border: OutlineInputBorder(),
+                      hintText: "Choose a bike for this component",
+                      helperText: _bike == null ? "WARNING: Select Bike to install Component." : null,
+                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      filled: widget.mode == ComponentPageMode.edit && _bike != _initialBike,
+                    ),
+                    validator: (String? newBike) {
+                      if (newBike is String && !bikes.containsKey(newBike)) return "Please select valid bike";
+                      return null;
+                    },
+                    items: bikes.values.map((b) {
+                      return DropdownMenuItem<String?>(
+                        value: b.id,
                         child: Row(
                           spacing: 8,
                           children: [
-                            Icon(Bike.iconData, color: Theme.of(context).colorScheme.error),
-                            Expanded(child: Text("BIKE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+                            const Icon(Bike.iconData),
+                            Expanded(child: Text(b.name, overflow: TextOverflow.ellipsis))
+                          ],
+                        ),
+                      );
+                    }).toList() + [
+                      DropdownMenuItem<String?>(
+                        value: null,
+                        child: Row(
+                          spacing: 8,
+                          children: [
+                            const Icon(Icons.shelves),
+                            Expanded(child: Text("NOT INSTALLED", overflow: TextOverflow.ellipsis))
                           ],
                         ),
                       ),
-                  ],
-                  onChanged: (String? newBike) {
-                    setState(() => _bike = newBike);
-                    _changeListener();
-                  },
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<ComponentType>(
-                  initialValue: _componentType,
-                  isExpanded: true,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  hint: const Text("Please select type"),
-                  decoration: InputDecoration(
-                    labelText: 'Type',
-                    border: OutlineInputBorder(),
-                    hintText: "Choose a type for this component",
-                    helperText: existingComponentsCount > 0
-                        ? Intl.plural(
-                            existingComponentsCount,
-                            one: "WARNING: There is one ${_componentType?.value}-Component already installed on this bike.",
-                            other: "WARNING: There are $existingComponentsCount ${_componentType?.value}-Components already installed on this bike.",
-                          )
-                        : null,
-                    fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.mode == ComponentPageMode.edit && _componentType != widget.component?.componentType,
-                  ),
-                  items: ComponentType.values.map((componentType) {
-                    return DropdownMenuItem<ComponentType>(
-                      value: componentType,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        spacing: 8,
-                        children: [
-                          Icon(componentType.getIconData()),
-                          Expanded(child: Text(componentType.value, overflow: TextOverflow.ellipsis)),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (ComponentType? newComponentType) {
-                    if (newComponentType == null) return;
-                    setState(() {
-                      _componentType = newComponentType;
-                    });
-                    _changeListener();
-                  },
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Component type cannot be empty. You can edit it later.';
-                    }
-                    return null;
-                  },
-                ),
-                Center(
-                  child: TextButton.icon(
-                    onPressed: () => setState(() => _expanded = !_expanded),
-                    icon: Icon(_expanded 
-                        ? Icons.expand_less 
-                        : Icons.expand_more,
-                    ),
-                    label: Text(_expanded 
-                        ? "Hide Additional Fields" 
-                        : "Show Additional Fields"
-                    ),
-                  ),
-                ),
-                if (_expanded) ...[
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _notesController,
-                    minLines: 2,
-                    maxLines: null,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: 'Notes (optional)',
-                      hintText: 'Enter brand, model, serial number, costs, ...',
-                      border: OutlineInputBorder(),
-                      fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.mode == ComponentPageMode.edit && _notesController.text.trim() != (widget.component?.notes ?? ""),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 16),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
-                  child: Text("Adjustments", style: Theme.of(context).textTheme.titleMedium),
-                ),
-                FormField<List<Adjustment>>(
-                  initialValue: _adjustments,
-                  validator: (_) { // Evaluate _adjustments for robustness
-                    if (_adjustments.isEmpty) {
-                      return 'You need to add at least one adjustment';
-                    }
-                    return null;
-                  },
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  builder: (FormFieldState<List<Adjustment>> field) {
-                    void notify() => field.didChange(List.from(_adjustments));
- 
-                    void showAddBottomSheet() => showComponentAddAdjustmentBottomSheet(
-                      context: context,
-                      componentType: _componentType,
-                      enableDurationAdjustment: _enableDurationAdjustment,
-                      addAdjustmentFromPreset: (a) => _addAdjustmentFromPreset(a, onChanged: notify),
-                      addAdjustment: <T extends Adjustment>() => _addAdjustment<T>(onChanged: notify),
-                    );
- 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _adjustments.isNotEmpty
-                            ? AdjustmentEditList(
-                                adjustments: _adjustments,
-                                initialAdjustments: widget.mode == ComponentPageMode.edit 
-                                    ? Map.fromEntries(widget.component!.adjustments.map((a) => MapEntry(a.id, a))) 
-                                    : null,
-                                editAdjustment: (a) => _editAdjustment(a, onChanged: notify),
-                                duplicateAdjustment: (a) => _duplicateAdjustment(a, onChanged: notify),
-                                removeAdjustment: (a) => removeAdjustment(a, onChanged: notify),
-                                onReorderAdjustments: (oldIndex, newIndex) => _onReorderAdjustments(oldIndex, newIndex, onChanged: notify),
-                              ) 
-                            : _emptyAdjustmentsInfo(
-                                errorText: field.errorText,
-                                onTap: showAddBottomSheet,
-                              ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            onPressed: showAddBottomSheet,
-                            icon: const Icon(Icons.add),
-                            label: const Text("Add Adjustment"),
+                      if (_bike != null && !bikes.containsKey(_bike))
+                        DropdownMenuItem<String?>(
+                          value: _bike,
+                          child: Row(
+                            spacing: 8,
+                            children: [
+                              Icon(Bike.iconData, color: Theme.of(context).colorScheme.error),
+                              Expanded(child: Text("BIKE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+                            ],
                           ),
                         ),
-                        if (field.hasError && _adjustments.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0, left: 12.0),
-                            child: Text(
-                              field.errorText!,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.error,
-                                fontSize: 12,
-                              ),
+                    ],
+                    onChanged: (String? newBike) {
+                      setState(() => _bike = newBike);
+                      _changeListener();
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<ComponentType>(
+                    initialValue: _componentType,
+                    isExpanded: true,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    hint: const Text("Please select type"),
+                    decoration: InputDecoration(
+                      labelText: 'Type',
+                      border: OutlineInputBorder(),
+                      hintText: "Choose a type for this component",
+                      helperText: existingComponentsCount > 0
+                          ? Intl.plural(
+                              existingComponentsCount,
+                              one: "WARNING: There is one ${_componentType?.value}-Component already installed on this bike.",
+                              other: "WARNING: There are $existingComponentsCount ${_componentType?.value}-Components already installed on this bike.",
+                            )
+                          : null,
+                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      filled: widget.mode == ComponentPageMode.edit && _componentType != widget.component?.componentType,
+                    ),
+                    items: ComponentType.values.map((componentType) {
+                      return DropdownMenuItem<ComponentType>(
+                        value: componentType,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          spacing: 8,
+                          children: [
+                            Icon(componentType.getIconData()),
+                            Expanded(child: Text(componentType.value, overflow: TextOverflow.ellipsis)),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (ComponentType? newComponentType) {
+                      if (newComponentType == null) return;
+                      setState(() {
+                        _componentType = newComponentType;
+                      });
+                      _changeListener();
+                    },
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Component type cannot be empty. You can edit it later.';
+                      }
+                      return null;
+                    },
+                  ),
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: () => setState(() => _expanded = !_expanded),
+                      icon: Icon(_expanded 
+                          ? Icons.expand_less 
+                          : Icons.expand_more,
+                      ),
+                      label: Text(_expanded 
+                          ? "Hide Additional Fields" 
+                          : "Show Additional Fields"
+                      ),
+                    ),
+                  ),
+                  if (_expanded) ...[
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _notesController,
+                      minLines: 2,
+                      maxLines: null,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'Notes (optional)',
+                        hintText: 'Enter brand, model, serial number, costs, ...',
+                        border: OutlineInputBorder(),
+                        fillColor: Colors.orange.withValues(alpha: 0.08),
+                        filled: widget.mode == ComponentPageMode.edit && _notesController.text.trim() != (widget.component?.notes ?? ""),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
+                    child: Text("Adjustments", style: Theme.of(context).textTheme.titleMedium),
+                  ),
+                  FormField<List<Adjustment>>(
+                    initialValue: _adjustments,
+                    validator: (_) { // Evaluate _adjustments for robustness
+                      if (_adjustments.isEmpty) {
+                        return 'You need to add at least one adjustment';
+                      }
+                      return null;
+                    },
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    builder: (FormFieldState<List<Adjustment>> field) {
+                      void notify() => field.didChange(List.from(_adjustments));
+           
+                      void showAddBottomSheet() => showComponentAddAdjustmentBottomSheet(
+                        context: context,
+                        componentType: _componentType,
+                        enableDurationAdjustment: _enableDurationAdjustment,
+                        addAdjustmentFromPreset: (a) => _addAdjustmentFromPreset(a, onChanged: notify),
+                        addAdjustment: <T extends Adjustment>() => _addAdjustment<T>(onChanged: notify),
+                      );
+           
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _adjustments.isNotEmpty
+                              ? AdjustmentEditList(
+                                  adjustments: _adjustments,
+                                  initialAdjustments: widget.mode == ComponentPageMode.edit 
+                                      ? Map.fromEntries(widget.component!.adjustments.map((a) => MapEntry(a.id, a))) 
+                                      : null,
+                                  editAdjustment: (a) => _editAdjustment(a, onChanged: notify),
+                                  duplicateAdjustment: (a) => _duplicateAdjustment(a, onChanged: notify),
+                                  removeAdjustment: (a) => removeAdjustment(a, onChanged: notify),
+                                  onReorderAdjustments: (oldIndex, newIndex) => _onReorderAdjustments(oldIndex, newIndex, onChanged: notify),
+                                ) 
+                              : _emptyAdjustmentsInfo(
+                                  errorText: field.errorText,
+                                  onTap: showAddBottomSheet,
+                                ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              onPressed: showAddBottomSheet,
+                              icon: const Icon(Icons.add),
+                              label: const Text("Add Adjustment"),
                             ),
                           ),
-                      ],
-                    );
-                  },
-                ),
-              ],
+                          if (field.hasError && _adjustments.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+                              child: Text(
+                                field.errorText!,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),

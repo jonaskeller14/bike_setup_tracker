@@ -130,172 +130,174 @@ class _BikePageState extends State<BikePage> {
             ),
           ],
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  onFieldSubmitted: (_) => _saveBike(),
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  autofocus: widget.mode == BikePageMode.add,
-                  decoration: InputDecoration(
-                    labelText: 'Bike Name',
-                    border: OutlineInputBorder(),
-                    hintText: 'Enter bike name',
-                    fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.mode == BikePageMode.edit && _nameController.text.trim() != widget.bike?.name,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter a bike name';
-                    }
-                    return null;
-                  },
-                ),
-                if (appSettings.enablePerson) ...[
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<String?>(
-                    initialValue: _person,
-                    isExpanded: true,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextFormField(
+                    controller: _nameController,
+                    onFieldSubmitted: (_) => _saveBike(),
                     autovalidateMode: AutovalidateMode.onUserInteraction,
+                    autofocus: widget.mode == BikePageMode.add,
                     decoration: InputDecoration(
-                      labelText: 'Bike Owner',
+                      labelText: 'Bike Name',
                       border: OutlineInputBorder(),
-                      hintText: "Choose an owner for this bike",
+                      hintText: 'Enter bike name',
                       fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.mode == BikePageMode.edit && _person != _initialPerson,
+                      filled: widget.mode == BikePageMode.edit && _nameController.text.trim() != widget.bike?.name,
                     ),
-                    validator: (String? newPerson) {
-                      if (newPerson == null) return null;
-                      if (!persons.containsKey(newPerson)) return "Please select valid person";
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Please enter a bike name';
+                      }
                       return null;
                     },
-                    items: persons.values.map((p) {
-                      return DropdownMenuItem<String>(
-                        value: p.id,
-                        child: Row(
-                          spacing: 8,
-                          children: [
-                            const Icon(Icons.person),
-                            Expanded(child: Text(p.name, overflow: TextOverflow.ellipsis))
-                          ],
-                        ),
-                      );
-                    }).toList() + [
-                      if (_person != null && !persons.containsKey(_person))
-                       DropdownMenuItem<String>(
-                        value: _person,
-                        child: Row(
-                          spacing: 8,
-                          children: [
-                            Icon(Icons.person, color: Theme.of(context).colorScheme.error),
-                            Expanded(child: Text("PERSON NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
-                          ],
-                        ),
-                      ), 
-                    ],
-                    onChanged: (String? newPerson) {
-                      setState(() => _person = newPerson);
-                      _changeListener();
-                    },
                   ),
-                ],
-                Center(
-                  child: TextButton.icon(
-                    onPressed: () => setState(() => _expanded = !_expanded),
-                    icon: Icon(_expanded 
-                        ? Icons.expand_less 
-                        : Icons.expand_more,
-                    ),
-                    label: Text(_expanded 
-                        ? "Hide Additional Fields" 
-                        : "Show Additional Fields"
-                    ),
-                  ),
-                ),
-                if (_expanded) ...[
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _notesController,
-                    minLines: 2,
-                    maxLines: null,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: 'Notes (optional)',
-                      hintText: 'Enter Bike brand, model, size, year, costs, ...',
-                      border: OutlineInputBorder(),
-                      fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.mode == BikePageMode.edit && _notesController.text.trim() != (widget.bike?.notes ?? ""),
-                    ),
-                  ),
-                  if (appSettings.enableStrava) ...[
+                  if (appSettings.enablePerson) ...[
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String?>(
-                    initialValue: _stravaGear,
-                    isExpanded: true,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: 'Strava Gear',
-                      border: OutlineInputBorder(),
-                      hintText: "Link Strava Gear",
-                      helperText: existingBikes.values.any((b) => b.id != widget.bike?.id && b.stravaGear != null && b.stravaGear == _stravaGear)
-                          ? "WARNING: Strava Gear already assigned to another Bike"
-                          : null,
-                      fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.mode == BikePageMode.edit && _stravaGear != _initialStravaGear,
-                    ),
-                    validator: (String? newStravaGear) {
-                      if (newStravaGear == null) return null;
-                      if (!stravaGears.containsKey(newStravaGear)) return "Please select valid Gear";
-                      return null;
-                    },
-                    items: [
-                      DropdownMenuItem<String?>(
-                        value: null,
-                        child: Row(
-                          spacing: 8,
-                          children: [
-                            const Icon(Icons.link_off),
-                            const Expanded(child: Text("NOT LINKED", overflow: TextOverflow.ellipsis))
-                          ],
-                        ),
+                      initialValue: _person,
+                      isExpanded: true,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'Bike Owner',
+                        border: OutlineInputBorder(),
+                        hintText: "Choose an owner for this bike",
+                        fillColor: Colors.orange.withValues(alpha: 0.08),
+                        filled: widget.mode == BikePageMode.edit && _person != _initialPerson,
                       ),
-                      ...stravaGears.values.map((g) {
+                      validator: (String? newPerson) {
+                        if (newPerson == null) return null;
+                        if (!persons.containsKey(newPerson)) return "Please select valid person";
+                        return null;
+                      },
+                      items: persons.values.map((p) {
                         return DropdownMenuItem<String>(
-                          value: g.id,
+                          value: p.id,
                           child: Row(
                             spacing: 8,
                             children: [
-                              const Icon(SimpleIcons.strava),
-                              Expanded(child: Text(g.name, overflow: TextOverflow.ellipsis))
+                              const Icon(Icons.person),
+                              Expanded(child: Text(p.name, overflow: TextOverflow.ellipsis))
                             ],
                           ),
                         );
-                      }),
-                      if (_stravaGear != null && !stravaGears.containsKey(_stravaGear))
-                       DropdownMenuItem<String>(
-                        value: _stravaGear,
-                        child: Row(
-                          spacing: 8,
-                          children: [
-                            Icon(SimpleIcons.strava, color: Theme.of(context).colorScheme.error),
-                            Expanded(child: Text("GEAR NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
-                          ],
-                        ),
-                      ), 
-                    ],
-                    onChanged: (String? newStravaGear) {
-                      setState(() => _stravaGear = newStravaGear);
-                      _changeListener();
-                    },
+                      }).toList() + [
+                        if (_person != null && !persons.containsKey(_person))
+                         DropdownMenuItem<String>(
+                          value: _person,
+                          child: Row(
+                            spacing: 8,
+                            children: [
+                              Icon(Icons.person, color: Theme.of(context).colorScheme.error),
+                              Expanded(child: Text("PERSON NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+                            ],
+                          ),
+                        ), 
+                      ],
+                      onChanged: (String? newPerson) {
+                        setState(() => _person = newPerson);
+                        _changeListener();
+                      },
+                    ),
+                  ],
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: () => setState(() => _expanded = !_expanded),
+                      icon: Icon(_expanded 
+                          ? Icons.expand_less 
+                          : Icons.expand_more,
+                      ),
+                      label: Text(_expanded 
+                          ? "Hide Additional Fields" 
+                          : "Show Additional Fields"
+                      ),
+                    ),
                   ),
-                  ]
+                  if (_expanded) ...[
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _notesController,
+                      minLines: 2,
+                      maxLines: null,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'Notes (optional)',
+                        hintText: 'Enter Bike brand, model, size, year, costs, ...',
+                        border: OutlineInputBorder(),
+                        fillColor: Colors.orange.withValues(alpha: 0.08),
+                        filled: widget.mode == BikePageMode.edit && _notesController.text.trim() != (widget.bike?.notes ?? ""),
+                      ),
+                    ),
+                    if (appSettings.enableStrava) ...[
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<String?>(
+                      initialValue: _stravaGear,
+                      isExpanded: true,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'Strava Gear',
+                        border: OutlineInputBorder(),
+                        hintText: "Link Strava Gear",
+                        helperText: existingBikes.values.any((b) => b.id != widget.bike?.id && b.stravaGear != null && b.stravaGear == _stravaGear)
+                            ? "WARNING: Strava Gear already assigned to another Bike"
+                            : null,
+                        fillColor: Colors.orange.withValues(alpha: 0.08),
+                        filled: widget.mode == BikePageMode.edit && _stravaGear != _initialStravaGear,
+                      ),
+                      validator: (String? newStravaGear) {
+                        if (newStravaGear == null) return null;
+                        if (!stravaGears.containsKey(newStravaGear)) return "Please select valid Gear";
+                        return null;
+                      },
+                      items: [
+                        DropdownMenuItem<String?>(
+                          value: null,
+                          child: Row(
+                            spacing: 8,
+                            children: [
+                              const Icon(Icons.link_off),
+                              const Expanded(child: Text("NOT LINKED", overflow: TextOverflow.ellipsis))
+                            ],
+                          ),
+                        ),
+                        ...stravaGears.values.map((g) {
+                          return DropdownMenuItem<String>(
+                            value: g.id,
+                            child: Row(
+                              spacing: 8,
+                              children: [
+                                const Icon(SimpleIcons.strava),
+                                Expanded(child: Text(g.name, overflow: TextOverflow.ellipsis))
+                              ],
+                            ),
+                          );
+                        }),
+                        if (_stravaGear != null && !stravaGears.containsKey(_stravaGear))
+                         DropdownMenuItem<String>(
+                          value: _stravaGear,
+                          child: Row(
+                            spacing: 8,
+                            children: [
+                              Icon(SimpleIcons.strava, color: Theme.of(context).colorScheme.error),
+                              Expanded(child: Text("GEAR NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+                            ],
+                          ),
+                        ), 
+                      ],
+                      onChanged: (String? newStravaGear) {
+                        setState(() => _stravaGear = newStravaGear);
+                        _changeListener();
+                      },
+                    ),
+                    ]
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),

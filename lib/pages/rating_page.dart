@@ -379,239 +379,241 @@ class _RatingPageState extends State<RatingPage> {
             IconButton(icon: const Icon(Icons.check), onPressed: _saveRating),
           ],
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  onFieldSubmitted: (_) => _saveRating(),
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  autofocus: widget.mode == RatingPageMode.add,
-                  onChanged: (value) => setState(() {}), // see filled/fillColor
-                  decoration: InputDecoration(
-                    labelText: 'Rating Name',
-                    border: OutlineInputBorder(),
-                    hintText: 'Enter rating name',
-                    fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.mode == RatingPageMode.edit && _nameController.text.trim() != widget.rating?.name,
-                  ),
-                  validator: _validateName,
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<FilterFilterType?>(
-                  initialValue: _filterFilterType,
-                  isExpanded: true,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(
-                    labelText: 'Filter',
-                    border: OutlineInputBorder(),
-                    hintText: "Choose an object which the filter should be applied for",
-                    fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.mode == RatingPageMode.edit && _filterFilterType.filter != widget.rating?.filter,
-                  ),
-                  validator: (FilterFilterType? newValue) {
-                    if (!filterOptions.containsKey(newValue)) return "Invalid Filter.";
-                    return null;
-                  },
-                  items: filterOptions.entries.map((filterEntry) {
-                    final fft = filterEntry.key;
-                    final object = filterEntry.value;
-                    return DropdownMenuItem<FilterFilterType>(
-                      value: fft,
-                      child: Row(
-                        spacing: 8,
-                        children: switch(fft.filterType) {
-                          FilterType.global => [
-                            const Icon(Icons.circle_outlined),
-                            Expanded(child: Text("Apply everywhere", overflow: TextOverflow.ellipsis))
-                          ],
-                          FilterType.bike => [
-                            const Icon(Bike.iconData),
-                            Expanded(child: Text(object?.name, overflow: TextOverflow.ellipsis)),
-                          ],
-                          FilterType.component => [
-                            Flexible(
-                              fit: FlexFit.tight, 
-                              child: Row(
-                                spacing: 8,
-                                children: [
-                                  Icon(object.componentType.getIconData()),
-                                  Expanded(child: Text(object.name, overflow: TextOverflow.ellipsis)),
-                                ],
-                              ),
-                            ),
-                            Flexible(
-                              fit: FlexFit.tight,
-                              child: Row(
-                                spacing: 8,
-                                children: [
-                                  Icon(
-                                    object.bike != null ? Bike.iconData : Icons.shelves,
-                                    color: object.bike == null || bikes.containsKey(object.bike) 
-                                        ? null
-                                        : Theme.of(context).colorScheme.error,
-                                  ), 
-                                  Expanded(child: Text(
-                                    object.bike == null
-                                        ? "Not installed"
-                                        : bikes[object.bike]?.name ?? "BIKE NOT FOUND",
-                                    style: object.bike == null || bikes.containsKey(object.bike) 
-                                        ? null 
-                                        : TextStyle(color: Theme.of(context).colorScheme.error), 
-                                    overflow: TextOverflow.ellipsis
-                                  )),
-                                ],
-                              ),
-                            ),
-                          ],
-                          FilterType.componentType => [
-                            Icon(object.getIconData()),
-                            Expanded(child: Text(object.value, overflow: TextOverflow.ellipsis))
-                          ],
-                          FilterType.person => [
-                            const Icon(Person.iconData),
-                            Expanded(child: Text(object.name, overflow: TextOverflow.ellipsis))
-                          ],
-                        },
-                      ),
-                    );
-                  }).toList() + [
-                    if (!filterOptions.containsKey(_filterFilterType))
-                      DropdownMenuItem<FilterFilterType>(
-                        value: _filterFilterType,
-                        child: Row(
-                          spacing: 8,
-                          children: [
-                            Icon(
-                              switch (_filterFilterType.filterType) {
-                                FilterType.bike => Bike.iconData,
-                                FilterType.component => ComponentType.other.getIconData(),
-                                FilterType.componentType => ComponentType.other.getIconData(),
-                                FilterType.person => Person.iconData,
-                                FilterType.global => Icons.error,
-                              }, 
-                              color: Theme.of(context).colorScheme.error
-                            ),
-                            Expanded(child: Text(
-                              switch (_filterFilterType.filterType) {
-                                FilterType.bike => "BIKE NOT FOUND",
-                                FilterType.component => "COMPONENT NOT FOUND",
-                                FilterType.componentType => "COMPONENTTYPE NOT FOUND",
-                                FilterType.person => "PERSON NOT FOUND",
-                                FilterType.global => "OBJECT NOT FOUND",
-                              },
-                              overflow: TextOverflow.ellipsis, 
-                              style: TextStyle(color: Theme.of(context).colorScheme.error),
-                            ))
-                          ],
-                        ),
-                      ),
-                  ],
-                    onChanged: (FilterFilterType? newValue) {
-                      setState(() => _filterFilterType = newValue ?? FilterFilterType(null, FilterType.global));
-                      _changeListener();
-                    },
-                  ),
-                Center(
-                  child: TextButton.icon(
-                    onPressed: () => setState(() => _expanded = !_expanded),
-                    icon: Icon(_expanded 
-                        ? Icons.expand_less 
-                        : Icons.expand_more,
-                    ),
-                    label: Text(_expanded 
-                        ? "Hide Additional Fields" 
-                        : "Show Additional Fields"
-                    ),
-                  ),
-                ),
-                if (_expanded) ...[
-                  const SizedBox(height: 12),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   TextFormField(
-                    controller: _notesController,
-                    minLines: 2,
-                    maxLines: null,
+                    controller: _nameController,
+                    onFieldSubmitted: (_) => _saveRating(),
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    autofocus: widget.mode == RatingPageMode.add,
+                    onChanged: (value) => setState(() {}), // see filled/fillColor
+                    decoration: InputDecoration(
+                      labelText: 'Rating Name',
+                      border: OutlineInputBorder(),
+                      hintText: 'Enter rating name',
+                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      filled: widget.mode == RatingPageMode.edit && _nameController.text.trim() != widget.rating?.name,
+                    ),
+                    validator: _validateName,
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<FilterFilterType?>(
+                    initialValue: _filterFilterType,
+                    isExpanded: true,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     decoration: InputDecoration(
-                      labelText: 'Notes (optional)',
-                      hintText: 'Describe the rating procedure, guidelines, instructions, ...',
+                      labelText: 'Filter',
                       border: OutlineInputBorder(),
+                      hintText: "Choose an object which the filter should be applied for",
                       fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.mode == RatingPageMode.edit && _notesController.text.trim() != (widget.rating?.notes ?? ""),
+                      filled: widget.mode == RatingPageMode.edit && _filterFilterType.filter != widget.rating?.filter,
                     ),
-                  ),
-                ],
-                const SizedBox(height: 16),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
-                  child: Text("Metrics", style: Theme.of(context).textTheme.titleMedium),
-                ),
-                FormField<List<Adjustment>>(
-                  initialValue: _adjustments,
-                  validator: (_) { // Evaluate _adjustments for robustness
-                    if (_adjustments.isEmpty) {
-                      return 'You need to add at least one metric';
-                    }
-                    return null;
-                  },
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  builder: (FormFieldState<List<Adjustment>> field) {
-                    void notify() => field.didChange(List.from(_adjustments));
- 
-                    void showAddBottomSheet() => showRatingAddAdjustmentBottomSheet(
-                      context: context,
-                      addAdjustmentFromPreset: (a) => _addAdjustmentFromPreset(a, onChanged: notify),
-                      addAdjustment: <T extends Adjustment>() => _addAdjustment<T>(onChanged: notify),
-                    );
- 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _adjustments.isNotEmpty
-                            ? AdjustmentEditList(
-                                adjustments: _adjustments,
-                                initialAdjustments: widget.mode == RatingPageMode.edit 
-                                    ? Map.fromEntries(widget.rating!.adjustments.map((a) => MapEntry(a.id, a))) 
-                                    : null,
-                                editAdjustment: (a) => _editAdjustment(a, onChanged: notify),
-                                duplicateAdjustment: (a) => _duplicateAdjustment(a, onChanged: notify),
-                                removeAdjustment: (a) => removeAdjustment(a, onChanged: notify),
-                                onReorderAdjustments: (oldIndex, newIndex) => _onReorderAdjustments(oldIndex, newIndex, onChanged: notify),
-                              ) 
-                            : _emptyAdjustmentsInfo(
-                                errorText: field.errorText,
-                                onTap: showAddBottomSheet,
+                    validator: (FilterFilterType? newValue) {
+                      if (!filterOptions.containsKey(newValue)) return "Invalid Filter.";
+                      return null;
+                    },
+                    items: filterOptions.entries.map((filterEntry) {
+                      final fft = filterEntry.key;
+                      final object = filterEntry.value;
+                      return DropdownMenuItem<FilterFilterType>(
+                        value: fft,
+                        child: Row(
+                          spacing: 8,
+                          children: switch(fft.filterType) {
+                            FilterType.global => [
+                              const Icon(Icons.circle_outlined),
+                              Expanded(child: Text("Apply everywhere", overflow: TextOverflow.ellipsis))
+                            ],
+                            FilterType.bike => [
+                              const Icon(Bike.iconData),
+                              Expanded(child: Text(object?.name, overflow: TextOverflow.ellipsis)),
+                            ],
+                            FilterType.component => [
+                              Flexible(
+                                fit: FlexFit.tight, 
+                                child: Row(
+                                  spacing: 8,
+                                  children: [
+                                    Icon(object.componentType.getIconData()),
+                                    Expanded(child: Text(object.name, overflow: TextOverflow.ellipsis)),
+                                  ],
+                                ),
                               ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            onPressed: showAddBottomSheet,
-                            icon: const Icon(Icons.add),
-                            label: const Text("Add Metric"),
+                              Flexible(
+                                fit: FlexFit.tight,
+                                child: Row(
+                                  spacing: 8,
+                                  children: [
+                                    Icon(
+                                      object.bike != null ? Bike.iconData : Icons.shelves,
+                                      color: object.bike == null || bikes.containsKey(object.bike) 
+                                          ? null
+                                          : Theme.of(context).colorScheme.error,
+                                    ), 
+                                    Expanded(child: Text(
+                                      object.bike == null
+                                          ? "Not installed"
+                                          : bikes[object.bike]?.name ?? "BIKE NOT FOUND",
+                                      style: object.bike == null || bikes.containsKey(object.bike) 
+                                          ? null 
+                                          : TextStyle(color: Theme.of(context).colorScheme.error), 
+                                      overflow: TextOverflow.ellipsis
+                                    )),
+                                  ],
+                                ),
+                              ),
+                            ],
+                            FilterType.componentType => [
+                              Icon(object.getIconData()),
+                              Expanded(child: Text(object.value, overflow: TextOverflow.ellipsis))
+                            ],
+                            FilterType.person => [
+                              const Icon(Person.iconData),
+                              Expanded(child: Text(object.name, overflow: TextOverflow.ellipsis))
+                            ],
+                          },
+                        ),
+                      );
+                    }).toList() + [
+                      if (!filterOptions.containsKey(_filterFilterType))
+                        DropdownMenuItem<FilterFilterType>(
+                          value: _filterFilterType,
+                          child: Row(
+                            spacing: 8,
+                            children: [
+                              Icon(
+                                switch (_filterFilterType.filterType) {
+                                  FilterType.bike => Bike.iconData,
+                                  FilterType.component => ComponentType.other.getIconData(),
+                                  FilterType.componentType => ComponentType.other.getIconData(),
+                                  FilterType.person => Person.iconData,
+                                  FilterType.global => Icons.error,
+                                }, 
+                                color: Theme.of(context).colorScheme.error
+                              ),
+                              Expanded(child: Text(
+                                switch (_filterFilterType.filterType) {
+                                  FilterType.bike => "BIKE NOT FOUND",
+                                  FilterType.component => "COMPONENT NOT FOUND",
+                                  FilterType.componentType => "COMPONENTTYPE NOT FOUND",
+                                  FilterType.person => "PERSON NOT FOUND",
+                                  FilterType.global => "OBJECT NOT FOUND",
+                                },
+                                overflow: TextOverflow.ellipsis, 
+                                style: TextStyle(color: Theme.of(context).colorScheme.error),
+                              ))
+                            ],
                           ),
                         ),
-                        if (field.hasError && _adjustments.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0, left: 12.0),
-                            child: Text(
-                              field.errorText!,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.error,
-                                fontSize: 12,
-                              ),
+                    ],
+                      onChanged: (FilterFilterType? newValue) {
+                        setState(() => _filterFilterType = newValue ?? FilterFilterType(null, FilterType.global));
+                        _changeListener();
+                      },
+                    ),
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: () => setState(() => _expanded = !_expanded),
+                      icon: Icon(_expanded 
+                          ? Icons.expand_less 
+                          : Icons.expand_more,
+                      ),
+                      label: Text(_expanded 
+                          ? "Hide Additional Fields" 
+                          : "Show Additional Fields"
+                      ),
+                    ),
+                  ),
+                  if (_expanded) ...[
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _notesController,
+                      minLines: 2,
+                      maxLines: null,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'Notes (optional)',
+                        hintText: 'Describe the rating procedure, guidelines, instructions, ...',
+                        border: OutlineInputBorder(),
+                        fillColor: Colors.orange.withValues(alpha: 0.08),
+                        filled: widget.mode == RatingPageMode.edit && _notesController.text.trim() != (widget.rating?.notes ?? ""),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
+                    child: Text("Metrics", style: Theme.of(context).textTheme.titleMedium),
+                  ),
+                  FormField<List<Adjustment>>(
+                    initialValue: _adjustments,
+                    validator: (_) { // Evaluate _adjustments for robustness
+                      if (_adjustments.isEmpty) {
+                        return 'You need to add at least one metric';
+                      }
+                      return null;
+                    },
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    builder: (FormFieldState<List<Adjustment>> field) {
+                      void notify() => field.didChange(List.from(_adjustments));
+           
+                      void showAddBottomSheet() => showRatingAddAdjustmentBottomSheet(
+                        context: context,
+                        addAdjustmentFromPreset: (a) => _addAdjustmentFromPreset(a, onChanged: notify),
+                        addAdjustment: <T extends Adjustment>() => _addAdjustment<T>(onChanged: notify),
+                      );
+           
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _adjustments.isNotEmpty
+                              ? AdjustmentEditList(
+                                  adjustments: _adjustments,
+                                  initialAdjustments: widget.mode == RatingPageMode.edit 
+                                      ? Map.fromEntries(widget.rating!.adjustments.map((a) => MapEntry(a.id, a))) 
+                                      : null,
+                                  editAdjustment: (a) => _editAdjustment(a, onChanged: notify),
+                                  duplicateAdjustment: (a) => _duplicateAdjustment(a, onChanged: notify),
+                                  removeAdjustment: (a) => removeAdjustment(a, onChanged: notify),
+                                  onReorderAdjustments: (oldIndex, newIndex) => _onReorderAdjustments(oldIndex, newIndex, onChanged: notify),
+                                ) 
+                              : _emptyAdjustmentsInfo(
+                                  errorText: field.errorText,
+                                  onTap: showAddBottomSheet,
+                                ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              onPressed: showAddBottomSheet,
+                              icon: const Icon(Icons.add),
+                              label: const Text("Add Metric"),
                             ),
                           ),
-                      ],
-                    );
-                  },
-                ),
-              ],
+                          if (field.hasError && _adjustments.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+                              child: Text(
+                                field.errorText!,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),

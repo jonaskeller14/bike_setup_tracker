@@ -69,39 +69,43 @@ class TrashPage extends StatelessWidget{
           ],
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: const Text('Items in the Trash are permanently deleted after 30 days. The Trash is emptied automatically.'),
-            dense: true,
-          ),
-          Expanded(
-            child: deletedCombined.isEmpty
-                ? Center(
-                    child: Text(
-                      "Empty Trash",
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: const Text('Items in the Trash are permanently deleted after 30 days. The Trash is emptied automatically.'),
+              dense: true,
+            ),
+            Expanded(
+              child: deletedCombined.isEmpty
+                  ? Center(
+                      child: Text(
+                        "Empty Trash",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                        ),
                       ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16.0),
+                      itemCount: deletedCombined.length,
+                      itemBuilder: (context, index) {
+                        final deletedItem = deletedCombined[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 4.0),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          child: _trashItem(context: context, deletedItem: deletedItem),
+                        );
+                      },
                     ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16.0),
-                    itemCount: deletedCombined.length,
-                    itemBuilder: (context, index) {
-                      final deletedItem = deletedCombined[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 4.0),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        child: _trashItem(context: context, deletedItem: deletedItem),
-                      );
-                    },
-                  ),
-          ),
-        ],
+            ),
+            SizedBox(height: MediaQuery.of(context).padding.bottom)
+          ],
+        ),
       ),
     );
   }

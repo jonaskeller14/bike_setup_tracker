@@ -211,236 +211,239 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
             IconButton(icon: const Icon(Icons.check), onPressed: _saveCategoricalAdjustment),
           ],
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextFormField(
-                          controller: _nameController,
-                          onChanged: (String newValue) {
-                            setState(() {
-                              _previewAdjustment = CategoricalAdjustment(
-                                name: newValue,
-                                notes: _previewAdjustment.notes,
-                                unit: null,
-                                options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
-                                category: _category,
-                              );
-                            });
-                          },
-                          textInputAction: TextInputAction.next,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          autofocus: widget.mode == AdjustmentPageMode.add,
-                          decoration: InputDecoration(
-                            labelText: 'Adjustment Name',
-                            hintText: 'Enter Adjustment Name',
-                            border: OutlineInputBorder(),
-                            fillColor: Colors.orange.withValues(alpha: 0.08),
-                            filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
-                          ),
-                          validator: validateAdjustmentName,
-                        ),
-                        if (widget.showCategorySelection && widget.categories.isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          DropdownButtonFormField<AdjustmentCategory>(
-                            initialValue: _category,
-                            isExpanded: true,
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
-                            decoration: InputDecoration(
-                              labelText: 'Category',
-                              border: OutlineInputBorder(),
-                              hintText: "Choose a category for this adjustment",
-                              fillColor: Colors.orange.withValues(alpha: 0.08),
-                              filled: widget.mode == AdjustmentPageMode.edit && _category != widget.adjustment!.category
-                            ),
-                            validator: (AdjustmentCategory? newValue) {
-                              if (newValue == null) return "Please select a category";
-                              return null;
-                            },
-                            items: widget.categories.map((category) {
-                              return DropdownMenuItem<AdjustmentCategory>(
-                                value: category,
-                                child: Row(
-                                  spacing: 8,
-                                  children: [
-                                    Icon(category.getIconData()),
-                                    Expanded(child: Text(category.value, overflow: TextOverflow.ellipsis))
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (AdjustmentCategory? newValue) {
-                              if (newValue != null) {
-                                setState(() {
-                                  _category = newValue;
-                                  _previewAdjustment = CategoricalAdjustment(
-                                    name: _nameController.text.trim(),
-                                    notes: _previewAdjustment.notes,
-                                    unit: null,
-                                    options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
-                                    category: newValue,
-                                  );
-                                });
-                                _changeListener();
-                              }
-                            },
-                          ),
-                        ],
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('Options',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            TextButton.icon(
-                              onPressed: _addOptionField,
-                              icon: const Icon(Icons.add),
-                              label: const Text('Add'),
-                            ),
-                          ],
-                        ),
-                        if (widget.mode == AdjustmentPageMode.edit) ...[
-                          ListTile(
-                            leading: const Icon(Icons.warning),
-                            title: const Text('WARNING: Renaming an option will not update existing setup values!'),
-                            dense: true,
-                            contentPadding: const EdgeInsets.all(0),
-                          ),
-                          const SizedBox(height: 8),
-                        ],
-                        const SizedBox(height: 8),
-                        Column(
-                          children: List.generate(_optionControllers.length, (index) {
-                            final controller = _optionControllers[index];
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: TextFormField(
-                                      controller: controller,
-                                      onFieldSubmitted: (_) => _saveCategoricalAdjustment(),
-                                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                                      decoration: InputDecoration(
-                                        labelText: 'Option ${index + 1}',
-                                        hintText: 'Enter option value',
-                                        border: const OutlineInputBorder(),
-                                        errorText: _validateOptions(),
-                                        fillColor: Colors.orange.withValues(alpha: 0.08),
-                                        filled: widget.mode == AdjustmentPageMode.edit && !widget.adjustment!.options.contains(controller.text.trim()),
-                                      ),
-                                      validator: _validateOption,
-                                      onChanged: (String value) {
-                                        setState(() {
-                                          _previewValue = null;
-                                          _previewAdjustment = CategoricalAdjustment(
-                                            name: _nameController.text.trim(),
-                                            notes: _previewAdjustment.notes,
-                                            unit: null, 
-                                            options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
-                                            category: _category,
-                                          );
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  if (_optionControllers.length > 1)
-                                    IconButton(
-                                      icon: Icon(Icons.remove_circle, color: Theme.of(context).colorScheme.error),
-                                      tooltip: 'Remove option',
-                                      onPressed: () => _removeOptionField(index),
-                                    ),
-                                ],
-                              ),
-                            );
-                          }),
-                        ),
-                        Center(
-                          child: TextButton.icon(
-                            onPressed: () => setState(() => _expanded = !_expanded),
-                            icon: Icon(_expanded 
-                                ? Icons.expand_less 
-                                : Icons.expand_more,
-                            ),
-                            label: Text(_expanded 
-                                ? "Hide Additional Fields" 
-                                : "Show Additional Fields"
-                            ),
-                          ),
-                        ),
-                        if (_expanded) ...[
-                          const SizedBox(height: 12),
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           TextFormField(
-                            controller: _notesController,
-                            minLines: 2,
-                            maxLines: null,
-                            onChanged: (String? value) {
+                            controller: _nameController,
+                            onChanged: (String newValue) {
                               setState(() {
                                 _previewAdjustment = CategoricalAdjustment(
-                                  name: _previewAdjustment.name, 
-                                  notes: (value == null || value.isEmpty) ? null : value,
-                                  options: _previewAdjustment.options,
+                                  name: newValue,
+                                  notes: _previewAdjustment.notes,
                                   unit: null,
+                                  options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
                                   category: _category,
                                 );
                               });
                             },
+                            textInputAction: TextInputAction.next,
                             autovalidateMode: AutovalidateMode.onUserInteraction,
+                            autofocus: widget.mode == AdjustmentPageMode.add,
                             decoration: InputDecoration(
-                              labelText: 'Notes (optional)',
-                              hintText: 'Enter measuring procedure/instrument/...',
-                              helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
+                              labelText: 'Adjustment Name',
+                              hintText: 'Enter Adjustment Name',
                               border: OutlineInputBorder(),
                               fillColor: Colors.orange.withValues(alpha: 0.08),
-                              filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
+                              filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
+                            ),
+                            validator: validateAdjustmentName,
+                          ),
+                          if (widget.showCategorySelection && widget.categories.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            DropdownButtonFormField<AdjustmentCategory>(
+                              initialValue: _category,
+                              isExpanded: true,
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                              decoration: InputDecoration(
+                                labelText: 'Category',
+                                border: OutlineInputBorder(),
+                                hintText: "Choose a category for this adjustment",
+                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                filled: widget.mode == AdjustmentPageMode.edit && _category != widget.adjustment!.category
+                              ),
+                              validator: (AdjustmentCategory? newValue) {
+                                if (newValue == null) return "Please select a category";
+                                return null;
+                              },
+                              items: widget.categories.map((category) {
+                                return DropdownMenuItem<AdjustmentCategory>(
+                                  value: category,
+                                  child: Row(
+                                    spacing: 8,
+                                    children: [
+                                      Icon(category.getIconData()),
+                                      Expanded(child: Text(category.value, overflow: TextOverflow.ellipsis))
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (AdjustmentCategory? newValue) {
+                                if (newValue != null) {
+                                  setState(() {
+                                    _category = newValue;
+                                    _previewAdjustment = CategoricalAdjustment(
+                                      name: _nameController.text.trim(),
+                                      notes: _previewAdjustment.notes,
+                                      unit: null,
+                                      options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
+                                      category: newValue,
+                                    );
+                                  });
+                                  _changeListener();
+                                }
+                              },
+                            ),
+                          ],
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Options',
+                                  style: TextStyle(fontWeight: FontWeight.bold)),
+                              TextButton.icon(
+                                onPressed: _addOptionField,
+                                icon: const Icon(Icons.add),
+                                label: const Text('Add'),
+                              ),
+                            ],
+                          ),
+                          if (widget.mode == AdjustmentPageMode.edit) ...[
+                            ListTile(
+                              leading: const Icon(Icons.warning),
+                              title: const Text('WARNING: Renaming an option will not update existing setup values!'),
+                              dense: true,
+                              contentPadding: const EdgeInsets.all(0),
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                          const SizedBox(height: 8),
+                          Column(
+                            children: List.generate(_optionControllers.length, (index) {
+                              final controller = _optionControllers[index];
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextFormField(
+                                        controller: controller,
+                                        onFieldSubmitted: (_) => _saveCategoricalAdjustment(),
+                                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                                        decoration: InputDecoration(
+                                          labelText: 'Option ${index + 1}',
+                                          hintText: 'Enter option value',
+                                          border: const OutlineInputBorder(),
+                                          errorText: _validateOptions(),
+                                          fillColor: Colors.orange.withValues(alpha: 0.08),
+                                          filled: widget.mode == AdjustmentPageMode.edit && !widget.adjustment!.options.contains(controller.text.trim()),
+                                        ),
+                                        validator: _validateOption,
+                                        onChanged: (String value) {
+                                          setState(() {
+                                            _previewValue = null;
+                                            _previewAdjustment = CategoricalAdjustment(
+                                              name: _nameController.text.trim(),
+                                              notes: _previewAdjustment.notes,
+                                              unit: null, 
+                                              options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
+                                              category: _category,
+                                            );
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    if (_optionControllers.length > 1)
+                                      IconButton(
+                                        icon: Icon(Icons.remove_circle, color: Theme.of(context).colorScheme.error),
+                                        tooltip: 'Remove option',
+                                        onPressed: () => _removeOptionField(index),
+                                      ),
+                                  ],
+                                ),
+                              );
+                            }),
+                          ),
+                          Center(
+                            child: TextButton.icon(
+                              onPressed: () => setState(() => _expanded = !_expanded),
+                              icon: Icon(_expanded 
+                                  ? Icons.expand_less 
+                                  : Icons.expand_more,
+                              ),
+                              label: Text(_expanded 
+                                  ? "Hide Additional Fields" 
+                                  : "Show Additional Fields"
+                              ),
                             ),
                           ),
+                          if (_expanded) ...[
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              controller: _notesController,
+                              minLines: 2,
+                              maxLines: null,
+                              onChanged: (String? value) {
+                                setState(() {
+                                  _previewAdjustment = CategoricalAdjustment(
+                                    name: _previewAdjustment.name, 
+                                    notes: (value == null || value.isEmpty) ? null : value,
+                                    options: _previewAdjustment.options,
+                                    unit: null,
+                                    category: _category,
+                                  );
+                                });
+                              },
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                              decoration: InputDecoration(
+                                labelText: 'Notes (optional)',
+                                hintText: 'Enter measuring procedure/instrument/...',
+                                helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
+                                border: OutlineInputBorder(),
+                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
+                              ),
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.sizeOf(context).height * 0.5,
-              ),
-              child: Stack(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
-                      child: Card(
-                        child: SetCategoricalAdjustmentWidget(
-                          key: ValueKey(_previewAdjustment),
-                          adjustment: _previewAdjustment,
-                          initialValue: null,
-                          value: _previewValue,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _previewValue = newValue;
-                            });
-                          },
-                          highlighting: false,
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.sizeOf(context).height * 0.5,
+                ),
+                child: Stack(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
+                      child: SingleChildScrollView(
+                        padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16 + MediaQuery.of(context).padding.bottom),
+                        child: Card(
+                          child: SetCategoricalAdjustmentWidget(
+                            key: ValueKey(_previewAdjustment),
+                            adjustment: _previewAdjustment,
+                            initialValue: null,
+                            value: _previewValue,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _previewValue = newValue;
+                              });
+                            },
+                            highlighting: false,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  previewLabel(context),
-                ],
+                    previewLabel(context),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

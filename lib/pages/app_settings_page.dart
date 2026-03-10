@@ -79,322 +79,324 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('App Settings')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
-              child: Text(
-                'Appearance',
-                style: Theme.of(context).textTheme.titleLarge,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+                child: Text(
+                  'Appearance',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
               ),
-            ),
-            ListTile(
-              leading: Icon(Icons.color_lens, color: Theme.of(context).colorScheme.primary),
-              title: const Text("App Theme Mode"),
-              subtitle: _themeModeOptionWidgets[appSettingsReader.themeMode]?.children[1] ?? const Text("-"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-              onTap: () => appSettingsRadioGroupSheet<ThemeMode>(
-                context: context,
-                title: "App Theme Mode",
-                value: appSettingsReader.themeMode,
-                optionWidgets: _themeModeOptionWidgets,
-                onChanged: (ThemeMode? newValue) {
-                  if (newValue == null) return;
-                  appSettingsWriter.themeMode = newValue;
-                  Navigator.pop(context);
-                },
+              ListTile(
+                leading: Icon(Icons.color_lens, color: Theme.of(context).colorScheme.primary),
+                title: const Text("App Theme Mode"),
+                subtitle: _themeModeOptionWidgets[appSettingsReader.themeMode]?.children[1] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<ThemeMode>(
+                  context: context,
+                  title: "App Theme Mode",
+                  value: appSettingsReader.themeMode,
+                  optionWidgets: _themeModeOptionWidgets,
+                  onChanged: (ThemeMode? newValue) {
+                    if (newValue == null) return;
+                    appSettingsWriter.themeMode = newValue;
+                    Navigator.pop(context);
+                  },
+                ),
               ),
-            ),
-            const Divider(),
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
-              child: Text(
-                'Default Formats',
-                style: Theme.of(context).textTheme.titleLarge,
+              const Divider(),
+              Padding(
+                padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
+                child: Text(
+                  'Default Formats',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
               ),
-            ),
-            ListTile(
-              leading: Icon(Icons.calendar_month, color: Theme.of(context).colorScheme.primary),
-              title: const Text("Date Format"),
-              subtitle: _dateFormatOptionWidgets[appSettingsReader.dateFormat] ?? const Text("-"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-              onTap: () => appSettingsRadioGroupSheet<String>(
-                context: context,
-                title: "Date Format",
-                value: appSettingsReader.dateFormat,
-                optionWidgets: _dateFormatOptionWidgets,
-                onChanged: (String? newValue) {
-                  if (newValue == null) return;
-                  appSettingsWriter.dateFormat = newValue;
-                  Navigator.pop(context);
-                },
+              ListTile(
+                leading: Icon(Icons.calendar_month, color: Theme.of(context).colorScheme.primary),
+                title: const Text("Date Format"),
+                subtitle: _dateFormatOptionWidgets[appSettingsReader.dateFormat] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<String>(
+                  context: context,
+                  title: "Date Format",
+                  value: appSettingsReader.dateFormat,
+                  optionWidgets: _dateFormatOptionWidgets,
+                  onChanged: (String? newValue) {
+                    if (newValue == null) return;
+                    appSettingsWriter.dateFormat = newValue;
+                    Navigator.pop(context);
+                  },
+                ),
               ),
-            ),
-            ListTile(
-              leading: Icon(Icons.access_time, color: Theme.of(context).colorScheme.primary),
-              title: const Text("Time Format"),
-              subtitle: _timeFormatOptionWidgets[appSettingsReader.timeFormat] ?? const Text("-"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-              onTap: () => appSettingsRadioGroupSheet<String>(
-                context: context,
-                title: "Time Format",
-                value: appSettingsReader.timeFormat,
-                optionWidgets: _timeFormatOptionWidgets,
-                onChanged: (String? newValue) {
-                  if (newValue == null) return;
-                  appSettingsWriter.timeFormat = newValue;
-                  Navigator.pop(context);
-                },
+              ListTile(
+                leading: Icon(Icons.access_time, color: Theme.of(context).colorScheme.primary),
+                title: const Text("Time Format"),
+                subtitle: _timeFormatOptionWidgets[appSettingsReader.timeFormat] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<String>(
+                  context: context,
+                  title: "Time Format",
+                  value: appSettingsReader.timeFormat,
+                  optionWidgets: _timeFormatOptionWidgets,
+                  onChanged: (String? newValue) {
+                    if (newValue == null) return;
+                    appSettingsWriter.timeFormat = newValue;
+                    Navigator.pop(context);
+                  },
+                ),
               ),
-            ),
-            const Divider(),
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
-              child: Text(
-                'Default Units',
-                style: Theme.of(context).textTheme.titleLarge,
+              const Divider(),
+              Padding(
+                padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
+                child: Text(
+                  'Default Units',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
               ),
-            ),
-            ListTile(
-              leading: Icon(Icons.arrow_upward, color: Theme.of(context).colorScheme.primary),
-              title: const Text("Altitude Unit"),
-              subtitle: _altitudeUnitOptionWidgets[appSettingsReader.altitudeUnit] ?? const Text("-"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-              onTap: () => appSettingsRadioGroupSheet<String>(
-                context: context,
-                title: "Altitude Unit",
-                value: appSettingsReader.altitudeUnit,
-                optionWidgets: _altitudeUnitOptionWidgets,
-                onChanged: (String? newValue) {
-                  if (newValue == null) return;
-                  appSettingsWriter.altitudeUnit = newValue;
-                  Navigator.pop(context);
-                },
+              ListTile(
+                leading: Icon(Icons.arrow_upward, color: Theme.of(context).colorScheme.primary),
+                title: const Text("Altitude Unit"),
+                subtitle: _altitudeUnitOptionWidgets[appSettingsReader.altitudeUnit] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<String>(
+                  context: context,
+                  title: "Altitude Unit",
+                  value: appSettingsReader.altitudeUnit,
+                  optionWidgets: _altitudeUnitOptionWidgets,
+                  onChanged: (String? newValue) {
+                    if (newValue == null) return;
+                    appSettingsWriter.altitudeUnit = newValue;
+                    Navigator.pop(context);
+                  },
+                ),
               ),
-            ),
-            ListTile(
-              leading: Icon(Weather.currentTemperatureIconData, color: Theme.of(context).colorScheme.primary),
-              title: const Text("Temperature Unit"),
-              subtitle: _tempUnitOptionWidgets[appSettingsReader.temperatureUnit] ?? const Text("-"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-              onTap: () => appSettingsRadioGroupSheet<String>(
-                context: context,
-                title: "Temperature Unit",
-                value: appSettingsReader.temperatureUnit,
-                optionWidgets: _tempUnitOptionWidgets,
-                onChanged: (String? newValue) {
-                  if (newValue == null) return;
-                  appSettingsWriter.temperatureUnit = newValue;
-                  Navigator.pop(context);
-                },
+              ListTile(
+                leading: Icon(Weather.currentTemperatureIconData, color: Theme.of(context).colorScheme.primary),
+                title: const Text("Temperature Unit"),
+                subtitle: _tempUnitOptionWidgets[appSettingsReader.temperatureUnit] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<String>(
+                  context: context,
+                  title: "Temperature Unit",
+                  value: appSettingsReader.temperatureUnit,
+                  optionWidgets: _tempUnitOptionWidgets,
+                  onChanged: (String? newValue) {
+                    if (newValue == null) return;
+                    appSettingsWriter.temperatureUnit = newValue;
+                    Navigator.pop(context);
+                  },
+                ),
               ),
-            ),
-            ListTile(
-              leading: Icon(
-                Weather.currentWindSpeedIconData,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              title: const Text("Wind Speed Unit"),
-              subtitle: _windSpeedUnitOptionWidgets[appSettingsReader.windSpeedUnit] ?? const Text("-"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-              onTap: () => appSettingsRadioGroupSheet<String>(
-                context: context,
-                title: "Wind Speed Unit",
-                value: appSettingsReader.windSpeedUnit,
-                optionWidgets: _windSpeedUnitOptionWidgets,
-                onChanged: (String? newValue) {
-                  if (newValue == null) return;
-                  appSettingsWriter.windSpeedUnit = newValue;
-                  Navigator.pop(context);
-                },
-              ),
-            ),
-            ListTile(
-              leading: Icon(
-                Weather.dayAccumulatedPrecipitationIconData,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              title: const Text("Precipitation Unit"),
-              subtitle: _precipitationUnitOptionWidgets[appSettingsReader.precipitationUnit] ?? const Text("-"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-              onTap: () => appSettingsRadioGroupSheet<String>(
-                context: context,
-                title: "Precipitation Unit",
-                value: appSettingsReader.precipitationUnit,
-                optionWidgets: _precipitationUnitOptionWidgets,
-                onChanged: (String? newValue) {
-                  if (newValue == null) return;
-                  appSettingsWriter.precipitationUnit = newValue;
-                  Navigator.pop(context);
-                },
-              ),
-            ),
-            const Divider(),
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
-              child: Text(
-                'Advanced Features',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.info_outline),
-              title: const Text('Enable these to add specific functionality to your workflow. Keep them disabled to maintain a simpler interface.'),
-              dense: true,
-            ),
-            if (Platform.isAndroid)
               ListTile(
                 leading: Icon(
-                  SimpleIcons.googledrive,
+                  Weather.currentWindSpeedIconData,
                   color: Theme.of(context).colorScheme.primary,
                 ),
-                title: const Text("Google Drive Sync"),
-                subtitle: _offOnOptionWidgets[appSettingsReader.enableGoogleDrive] ?? const Text("-"),
+                title: const Text("Wind Speed Unit"),
+                subtitle: _windSpeedUnitOptionWidgets[appSettingsReader.windSpeedUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<bool>(
+                onTap: () => appSettingsRadioGroupSheet<String>(
                   context: context,
-                  title: "Google Drive Sync",
-                  value: appSettingsReader.enableGoogleDrive,
-                  optionWidgets: _offOnOptionWidgets,
-                  onChanged: (bool? newValue) {
+                  title: "Wind Speed Unit",
+                  value: appSettingsReader.windSpeedUnit,
+                  optionWidgets: _windSpeedUnitOptionWidgets,
+                  onChanged: (String? newValue) {
                     if (newValue == null) return;
-                    appSettingsWriter.enableGoogleDrive = newValue;
+                    appSettingsWriter.windSpeedUnit = newValue;
                     Navigator.pop(context);
                   },
-                  infoText: 'Sync your data across devices and keep secure backups in your Google Drive. Your data is stored privately in your own account; we never have access to it.',
                 ),
               ),
-            ListTile(
-              leading: Icon(
-                Bike.iconData,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              title: const Text("Garage"),
-              subtitle: _offOnOptionWidgets[appSettingsReader.enableGarage] ?? const Text("-"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-              onTap: () => appSettingsRadioGroupSheet<bool>(
-                context: context,
-                title: "Garage",
-                value: appSettingsReader.enableGarage,
-                optionWidgets: _offOnOptionWidgets,
-                onChanged: (bool? newValue) {
-                  if (newValue == null) return;
-                  appSettingsWriter.enableGarage = newValue;
-                  Navigator.pop(context);
-                },
-                infoText: 'Enables the Garage layout which focuses on Bikes and their installed Components. If disabled, the app uses a more traditional list-based interface.',
-              ),
-            ),
-            ListTile(
-              leading: Icon(
-                TextAdjustment.iconData,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              title: const Text("Text Adjustment"),
-              subtitle: _offOnOptionWidgets[appSettingsReader.enableTextAdjustment] ?? const Text("-"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-              onTap: () => appSettingsRadioGroupSheet<bool>(
-                context: context,
-                title: "Text Adjustment",
-                value: appSettingsReader.enableTextAdjustment,
-                optionWidgets: _offOnOptionWidgets,
-                onChanged: (bool? newValue) {
-                  if (newValue == null) return;
-                  appSettingsWriter.enableTextAdjustment = newValue;
-                  Navigator.pop(context);
-                },
-                infoText: 'Adds a Text Adjustment type that provides a free-form text field.',
-              ),
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.tag,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              title: const Text("Setup Tags"),
-              subtitle: _offOnOptionWidgets[appSettingsReader.enableSetupTags] ?? const Text("-"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-              onTap: () => appSettingsRadioGroupSheet<bool>(
-                context: context,
-                title: "Setup Tags",
-                value: appSettingsReader.enableSetupTags,
-                optionWidgets: _offOnOptionWidgets,
-                onChanged: (bool? newValue) {
-                  if (newValue == null) return;
-                  appSettingsWriter.enableSetupTags = newValue;
-                  Navigator.pop(context);
-                },
-                infoText: 'Adds the option to add tags to Setups',
-              ),
-            ),
-            if (appSettingsReader.enablePerson)
               ListTile(
                 leading: Icon(
-                  Icons.person,
+                  Weather.dayAccumulatedPrecipitationIconData,
                   color: Theme.of(context).colorScheme.primary,
                 ),
-                title: const Text("Profile"),
-                subtitle: _offOnOptionWidgets[appSettingsReader.enablePerson] ?? const Text("-"),
+                title: const Text("Precipitation Unit"),
+                subtitle: _precipitationUnitOptionWidgets[appSettingsReader.precipitationUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<bool>(
+                onTap: () => appSettingsRadioGroupSheet<String>(
                   context: context,
-                  title: "Profile",
-                  value: appSettingsReader.enablePerson,
-                  optionWidgets: _offOnOptionWidgets,
-                  onChanged: (bool? newValue) {
+                  title: "Precipitation Unit",
+                  value: appSettingsReader.precipitationUnit,
+                  optionWidgets: _precipitationUnitOptionWidgets,
+                  onChanged: (String? newValue) {
                     if (newValue == null) return;
-                    appSettingsWriter.enablePerson = newValue;
+                    appSettingsWriter.precipitationUnit = newValue;
                     Navigator.pop(context);
                   },
                 ),
               ),
-            if (appSettingsReader.enableRating)
+              const Divider(),
+              Padding(
+                padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
+                child: Text(
+                  'Advanced Features',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: const Text('Enable these to add specific functionality to your workflow. Keep them disabled to maintain a simpler interface.'),
+                dense: true,
+              ),
+              if (Platform.isAndroid)
+                ListTile(
+                  leading: Icon(
+                    SimpleIcons.googledrive,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  title: const Text("Google Drive Sync"),
+                  subtitle: _offOnOptionWidgets[appSettingsReader.enableGoogleDrive] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Google Drive Sync",
+                    value: appSettingsReader.enableGoogleDrive,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettingsWriter.enableGoogleDrive = newValue;
+                      Navigator.pop(context);
+                    },
+                    infoText: 'Sync your data across devices and keep secure backups in your Google Drive. Your data is stored privately in your own account; we never have access to it.',
+                  ),
+                ),
               ListTile(
                 leading: Icon(
-                  Icons.star,
+                  Bike.iconData,
                   color: Theme.of(context).colorScheme.primary,
                 ),
-                title: const Text("Rating"),
-                subtitle: _offOnOptionWidgets[appSettingsReader.enableRating] ?? const Text("-"),
+                title: const Text("Garage"),
+                subtitle: _offOnOptionWidgets[appSettingsReader.enableGarage] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => appSettingsRadioGroupSheet<bool>(
                   context: context,
-                  title: "Rating",
-                  value: appSettingsReader.enableRating,
+                  title: "Garage",
+                  value: appSettingsReader.enableGarage,
                   optionWidgets: _offOnOptionWidgets,
                   onChanged: (bool? newValue) {
                     if (newValue == null) return;
-                    appSettingsWriter.enableRating = newValue;
+                    appSettingsWriter.enableGarage = newValue;
                     Navigator.pop(context);
                   },
+                  infoText: 'Enables the Garage layout which focuses on Bikes and their installed Components. If disabled, the app uses a more traditional list-based interface.',
                 ),
               ),
-            if (appSettingsReader.enableStrava)
               ListTile(
-                leading: const Icon(
-                  SimpleIcons.strava,
-                  color: Color(0xFFFC4C02),
-                ), // Strava Brand Orange
-                title: const Text("Strava Sync"),
-                subtitle: _offOnOptionWidgets[appSettingsReader.enableStrava] ?? const Text("-"),
+                leading: Icon(
+                  TextAdjustment.iconData,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: const Text("Text Adjustment"),
+                subtitle: _offOnOptionWidgets[appSettingsReader.enableTextAdjustment] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => appSettingsRadioGroupSheet<bool>(
                   context: context,
-                  title: "Strava Sync",
-                  value: appSettingsReader.enableStrava,
+                  title: "Text Adjustment",
+                  value: appSettingsReader.enableTextAdjustment,
                   optionWidgets: _offOnOptionWidgets,
                   onChanged: (bool? newValue) {
                     if (newValue == null) return;
-                    appSettingsWriter.enableStrava = newValue;
+                    appSettingsWriter.enableTextAdjustment = newValue;
                     Navigator.pop(context);
                   },
-                  infoText: 'Enable Strava Sync to import Strava Activities',
+                  infoText: 'Adds a Text Adjustment type that provides a free-form text field.',
                 ),
               ),
-          ],
+              ListTile(
+                leading: Icon(
+                  Icons.tag,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: const Text("Setup Tags"),
+                subtitle: _offOnOptionWidgets[appSettingsReader.enableSetupTags] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<bool>(
+                  context: context,
+                  title: "Setup Tags",
+                  value: appSettingsReader.enableSetupTags,
+                  optionWidgets: _offOnOptionWidgets,
+                  onChanged: (bool? newValue) {
+                    if (newValue == null) return;
+                    appSettingsWriter.enableSetupTags = newValue;
+                    Navigator.pop(context);
+                  },
+                  infoText: 'Adds the option to add tags to Setups',
+                ),
+              ),
+              if (appSettingsReader.enablePerson)
+                ListTile(
+                  leading: Icon(
+                    Icons.person,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  title: const Text("Profile"),
+                  subtitle: _offOnOptionWidgets[appSettingsReader.enablePerson] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Profile",
+                    value: appSettingsReader.enablePerson,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettingsWriter.enablePerson = newValue;
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              if (appSettingsReader.enableRating)
+                ListTile(
+                  leading: Icon(
+                    Icons.star,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  title: const Text("Rating"),
+                  subtitle: _offOnOptionWidgets[appSettingsReader.enableRating] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Rating",
+                    value: appSettingsReader.enableRating,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettingsWriter.enableRating = newValue;
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              if (appSettingsReader.enableStrava)
+                ListTile(
+                  leading: const Icon(
+                    SimpleIcons.strava,
+                    color: Color(0xFFFC4C02),
+                  ), // Strava Brand Orange
+                  title: const Text("Strava Sync"),
+                  subtitle: _offOnOptionWidgets[appSettingsReader.enableStrava] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Strava Sync",
+                    value: appSettingsReader.enableStrava,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettingsWriter.enableStrava = newValue;
+                      Navigator.pop(context);
+                    },
+                    infoText: 'Enable Strava Sync to import Strava Activities',
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

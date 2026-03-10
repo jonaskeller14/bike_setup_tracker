@@ -358,247 +358,249 @@ class _PersonPageState extends State<PersonPage> {
             IconButton(icon: const Icon(Icons.check), onPressed: _savePerson),
           ],
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  onFieldSubmitted: (_) => _savePerson(),
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  autofocus: widget.mode == PersonPageMode.add,
-                  onChanged: (value) => setState(() {}), // see filled/fillColor
-                  decoration: InputDecoration(
-                    labelText: 'Person Name',
-                    border: OutlineInputBorder(),
-                    hintText: 'Enter Person name',
-                    fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.mode == PersonPageMode.edit && _nameController.text.trim() != widget.person?.name,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter a name';
-                    }
-                    return null;
-                  },
-                ),
-                Center(
-                  child: TextButton.icon(
-                    onPressed: () => setState(() => _expanded = !_expanded),
-                    icon: Icon(_expanded 
-                        ? Icons.expand_less 
-                        : Icons.expand_more,
-                    ),
-                    label: Text(_expanded 
-                        ? "Hide Additional Fields" 
-                        : "Show Additional Fields"
-                    ),
-                  ),
-                ),
-                if (_expanded) ...[
-                  const SizedBox(height: 12),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   TextFormField(
-                    controller: _notesController,
-                    minLines: 2,
-                    maxLines: null,
+                    controller: _nameController,
+                    onFieldSubmitted: (_) => _savePerson(),
                     autovalidateMode: AutovalidateMode.onUserInteraction,
+                    autofocus: widget.mode == PersonPageMode.add,
+                    onChanged: (value) => setState(() {}), // see filled/fillColor
                     decoration: InputDecoration(
-                      labelText: 'Notes (optional)',
-                      hintText: 'Enter notes about the person...',
+                      labelText: 'Person Name',
                       border: OutlineInputBorder(),
+                      hintText: 'Enter Person name',
                       fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.mode == PersonPageMode.edit && _notesController.text.trim() != (widget.person?.notes ?? ""),
+                      filled: widget.mode == PersonPageMode.edit && _nameController.text.trim() != widget.person?.name,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Please enter a name';
+                      }
+                      return null;
+                    },
+                  ),
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: () => setState(() => _expanded = !_expanded),
+                      icon: Icon(_expanded 
+                          ? Icons.expand_less 
+                          : Icons.expand_more,
+                      ),
+                      label: Text(_expanded 
+                          ? "Hide Additional Fields" 
+                          : "Show Additional Fields"
+                      ),
                     ),
                   ),
-                  if (context.read<AppSettings>().enableStrava) ...[
+                  if (_expanded) ...[
                     const SizedBox(height: 12),
-                    DropdownButtonFormField<int?>(
-                      initialValue: _stravaAthlete,
-                      isExpanded: true,
+                    TextFormField(
+                      controller: _notesController,
+                      minLines: 2,
+                      maxLines: null,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       decoration: InputDecoration(
-                        labelText: 'Strava Athlete',
+                        labelText: 'Notes (optional)',
+                        hintText: 'Enter notes about the person...',
                         border: OutlineInputBorder(),
-                        hintText: "Link Strava Athlete",
-                        helperText: existingPersons.values.any((p) => p.id != widget.person?.id && p.stravaAthlete != null && p.stravaAthlete == _stravaAthlete)
-                          ? "WARNING: Strava Athlete already assigned to another Person"
-                          : null,
                         fillColor: Colors.orange.withValues(alpha: 0.08),
-                        filled: widget.mode == PersonPageMode.edit && _stravaAthlete != _initialStravaAthlete,
+                        filled: widget.mode == PersonPageMode.edit && _notesController.text.trim() != (widget.person?.notes ?? ""),
                       ),
-                      validator: (int? newStravaAthlete) {
-                        if (newStravaAthlete == null) return null;
-                        if (!stravaAthletes.containsKey(newStravaAthlete)) return "Please select valid Athlete";
-                        return null;
-                      },
-                      items: [
-                        DropdownMenuItem<int?>(
-                          value: null,
-                          child: Row(
-                            spacing: 8,
-                            children: [
-                              const Icon(Icons.link_off),
-                              const Expanded(child: Text("NOT LINKED", overflow: TextOverflow.ellipsis))
-                            ],
-                          ),
+                    ),
+                    if (context.read<AppSettings>().enableStrava) ...[
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<int?>(
+                        initialValue: _stravaAthlete,
+                        isExpanded: true,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        decoration: InputDecoration(
+                          labelText: 'Strava Athlete',
+                          border: OutlineInputBorder(),
+                          hintText: "Link Strava Athlete",
+                          helperText: existingPersons.values.any((p) => p.id != widget.person?.id && p.stravaAthlete != null && p.stravaAthlete == _stravaAthlete)
+                            ? "WARNING: Strava Athlete already assigned to another Person"
+                            : null,
+                          fillColor: Colors.orange.withValues(alpha: 0.08),
+                          filled: widget.mode == PersonPageMode.edit && _stravaAthlete != _initialStravaAthlete,
                         ),
-                        ...stravaAthletes.values.map((a) {
-                          return DropdownMenuItem<int>(
-                            value: a.id,
+                        validator: (int? newStravaAthlete) {
+                          if (newStravaAthlete == null) return null;
+                          if (!stravaAthletes.containsKey(newStravaAthlete)) return "Please select valid Athlete";
+                          return null;
+                        },
+                        items: [
+                          DropdownMenuItem<int?>(
+                            value: null,
                             child: Row(
                               spacing: 8,
                               children: [
-                                const Icon(SimpleIcons.strava),
-                                Expanded(child: Text("${a.firstname} ${a.lastname}", overflow: TextOverflow.ellipsis))
+                                const Icon(Icons.link_off),
+                                const Expanded(child: Text("NOT LINKED", overflow: TextOverflow.ellipsis))
                               ],
                             ),
-                          );
-                        }),
-                        if (_stravaAthlete != null && !stravaAthletes.containsKey(_stravaAthlete))
-                          DropdownMenuItem<int>(
-                          value: _stravaAthlete,
-                          child: Row(
-                            spacing: 8,
-                            children: [
-                              Icon(SimpleIcons.strava, color: Theme.of(context).colorScheme.error),
-                              Expanded(child: Text("ATHLETE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
-                            ],
                           ),
-                        ), 
-                      ],
-                      onChanged: (int? newStravaAthlete) {
-                        setState(() => _stravaAthlete = newStravaAthlete);
-                        _changeListener();
-                      },
-                    ),
-                  ]
-                ],
-                const SizedBox(height: 16),
-                FormField<List<Adjustment>>(
-                  initialValue: _adjustments,
-                  validator: (_) { // Evaluate _adjustments for robustness
-                    if (_adjustments.isEmpty) {
-                      return 'You need to add at least one adjustment';
-                    }
-                    return null;
-                  },
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  builder: (FormFieldState<List<Adjustment>> field) {
-                    void notify() => field.didChange(List.from(_adjustments));
- 
-                    void showAddBottomSheet() => showPersonAddAdjustmentBottomSheet(
-                      context: context,
-                      addAdjustmentFromPreset: (a) => _addAdjustmentFromPreset(a, onChanged: notify),
-                      addAdjustment: <T extends Adjustment>() => _addAdjustment<T>(onChanged: notify),
-                    );
- 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (_adjustments.isNotEmpty) ...[
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0, left: 4.0, top: 8.0),
-                            child: Text(AdjustmentCategory.body.value, style: Theme.of(context).textTheme.titleMedium),
-                          ),
-                          _adjustments.any((a) => a.category == AdjustmentCategory.body)
-                              ? AdjustmentEditList(
-                                  adjustments: _adjustments.where((a) => a.category == AdjustmentCategory.body).toList(),
-                                  initialAdjustments: widget.mode == PersonPageMode.edit ? Map.fromEntries(widget.person!.adjustments.map((a) => MapEntry(a.id, a))) : null,
-                                  editAdjustment: _editAdjustment,
-                                  duplicateAdjustment: _duplicateAdjustment,
-                                  removeAdjustment: removeAdjustment,
-                                  onReorderAdjustments: (int oldIndex, int newIndex) => _onReorderAdjustments(oldIndex, newIndex, adjustmentCategory: AdjustmentCategory.body),
-                                )
-                              : SizedBox(
-                                  height: 100,
-                                  child: Center(
-                                    child: Text(
-                                      'No Body Attributes yet.',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                                    ),
-                                  ),
-                                ),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0, left: 4.0, top: 8.0),
-                            child: Text(AdjustmentCategory.nutrition.value, style: Theme.of(context).textTheme.titleMedium),
-                          ),
-                          _adjustments.any((a) => a.category == AdjustmentCategory.nutrition)
-                              ? AdjustmentEditList(
-                                  adjustments: _adjustments.where((a) => a.category == AdjustmentCategory.nutrition).toList(),
-                                  initialAdjustments: widget.mode == PersonPageMode.edit ? Map.fromEntries(widget.person!.adjustments.map((a) => MapEntry(a.id, a))) : null,
-                                  editAdjustment: _editAdjustment,
-                                  duplicateAdjustment: _duplicateAdjustment,
-                                  removeAdjustment: removeAdjustment,
-                                  onReorderAdjustments: (int oldIndex, int newIndex) => _onReorderAdjustments(oldIndex, newIndex, adjustmentCategory: AdjustmentCategory.nutrition),
-                                )
-                              : SizedBox(
-                                  height: 100,
-                                  child: Center(
-                                    child: Text(
-                                      'No Nutrition Attributes yet.',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                                    ),
-                                  ),
-                                ),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0, left: 4.0, top: 8.0),
-                            child: Text(AdjustmentCategory.equipment.value, style: Theme.of(context).textTheme.titleMedium),
-                          ),
-                          _adjustments.any((a) => a.category == AdjustmentCategory.equipment)
-                              ? AdjustmentEditList(
-                                  adjustments: _adjustments.where((a) => a.category == AdjustmentCategory.equipment).toList(),
-                                  initialAdjustments: widget.mode == PersonPageMode.edit ? Map.fromEntries(widget.person!.adjustments.map((a) => MapEntry(a.id, a))) : null,
-                                  editAdjustment: _editAdjustment,
-                                  duplicateAdjustment: _duplicateAdjustment,
-                                  removeAdjustment: removeAdjustment,
-                                  onReorderAdjustments: (int oldIndex, int newIndex) => _onReorderAdjustments(oldIndex, newIndex, adjustmentCategory: AdjustmentCategory.equipment),
-                                )
-                              : SizedBox(
-                                  height: 100,
-                                  child: Center(
-                                    child: Text(
-                                      'No Equipment Attributes yet.',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                                    ),
-                                  ),
-                                )
-                        ] else 
-                          _emptyAdjustmentsInfo(
-                            errorText: field.errorText,
-                            onTap: showAddBottomSheet,
-                          ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            onPressed: showAddBottomSheet,
-                            icon: const Icon(Icons.add),
-                            label: const Text("Add Attribute"),
-                          ),
-                        ),
-                        if (field.hasError && _adjustments.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8.0, left: 12.0),
-                            child: Text(
-                              field.errorText!,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.error,
-                                fontSize: 12,
+                          ...stravaAthletes.values.map((a) {
+                            return DropdownMenuItem<int>(
+                              value: a.id,
+                              child: Row(
+                                spacing: 8,
+                                children: [
+                                  const Icon(SimpleIcons.strava),
+                                  Expanded(child: Text("${a.firstname} ${a.lastname}", overflow: TextOverflow.ellipsis))
+                                ],
                               ),
+                            );
+                          }),
+                          if (_stravaAthlete != null && !stravaAthletes.containsKey(_stravaAthlete))
+                            DropdownMenuItem<int>(
+                            value: _stravaAthlete,
+                            child: Row(
+                              spacing: 8,
+                              children: [
+                                Icon(SimpleIcons.strava, color: Theme.of(context).colorScheme.error),
+                                Expanded(child: Text("ATHLETE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+                              ],
+                            ),
+                          ), 
+                        ],
+                        onChanged: (int? newStravaAthlete) {
+                          setState(() => _stravaAthlete = newStravaAthlete);
+                          _changeListener();
+                        },
+                      ),
+                    ]
+                  ],
+                  const SizedBox(height: 16),
+                  FormField<List<Adjustment>>(
+                    initialValue: _adjustments,
+                    validator: (_) { // Evaluate _adjustments for robustness
+                      if (_adjustments.isEmpty) {
+                        return 'You need to add at least one adjustment';
+                      }
+                      return null;
+                    },
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    builder: (FormFieldState<List<Adjustment>> field) {
+                      void notify() => field.didChange(List.from(_adjustments));
+           
+                      void showAddBottomSheet() => showPersonAddAdjustmentBottomSheet(
+                        context: context,
+                        addAdjustmentFromPreset: (a) => _addAdjustmentFromPreset(a, onChanged: notify),
+                        addAdjustment: <T extends Adjustment>() => _addAdjustment<T>(onChanged: notify),
+                      );
+           
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (_adjustments.isNotEmpty) ...[
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0, left: 4.0, top: 8.0),
+                              child: Text(AdjustmentCategory.body.value, style: Theme.of(context).textTheme.titleMedium),
+                            ),
+                            _adjustments.any((a) => a.category == AdjustmentCategory.body)
+                                ? AdjustmentEditList(
+                                    adjustments: _adjustments.where((a) => a.category == AdjustmentCategory.body).toList(),
+                                    initialAdjustments: widget.mode == PersonPageMode.edit ? Map.fromEntries(widget.person!.adjustments.map((a) => MapEntry(a.id, a))) : null,
+                                    editAdjustment: _editAdjustment,
+                                    duplicateAdjustment: _duplicateAdjustment,
+                                    removeAdjustment: removeAdjustment,
+                                    onReorderAdjustments: (int oldIndex, int newIndex) => _onReorderAdjustments(oldIndex, newIndex, adjustmentCategory: AdjustmentCategory.body),
+                                  )
+                                : SizedBox(
+                                    height: 100,
+                                    child: Center(
+                                      child: Text(
+                                        'No Body Attributes yet.',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                                      ),
+                                    ),
+                                  ),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0, left: 4.0, top: 8.0),
+                              child: Text(AdjustmentCategory.nutrition.value, style: Theme.of(context).textTheme.titleMedium),
+                            ),
+                            _adjustments.any((a) => a.category == AdjustmentCategory.nutrition)
+                                ? AdjustmentEditList(
+                                    adjustments: _adjustments.where((a) => a.category == AdjustmentCategory.nutrition).toList(),
+                                    initialAdjustments: widget.mode == PersonPageMode.edit ? Map.fromEntries(widget.person!.adjustments.map((a) => MapEntry(a.id, a))) : null,
+                                    editAdjustment: _editAdjustment,
+                                    duplicateAdjustment: _duplicateAdjustment,
+                                    removeAdjustment: removeAdjustment,
+                                    onReorderAdjustments: (int oldIndex, int newIndex) => _onReorderAdjustments(oldIndex, newIndex, adjustmentCategory: AdjustmentCategory.nutrition),
+                                  )
+                                : SizedBox(
+                                    height: 100,
+                                    child: Center(
+                                      child: Text(
+                                        'No Nutrition Attributes yet.',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                                      ),
+                                    ),
+                                  ),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0, left: 4.0, top: 8.0),
+                              child: Text(AdjustmentCategory.equipment.value, style: Theme.of(context).textTheme.titleMedium),
+                            ),
+                            _adjustments.any((a) => a.category == AdjustmentCategory.equipment)
+                                ? AdjustmentEditList(
+                                    adjustments: _adjustments.where((a) => a.category == AdjustmentCategory.equipment).toList(),
+                                    initialAdjustments: widget.mode == PersonPageMode.edit ? Map.fromEntries(widget.person!.adjustments.map((a) => MapEntry(a.id, a))) : null,
+                                    editAdjustment: _editAdjustment,
+                                    duplicateAdjustment: _duplicateAdjustment,
+                                    removeAdjustment: removeAdjustment,
+                                    onReorderAdjustments: (int oldIndex, int newIndex) => _onReorderAdjustments(oldIndex, newIndex, adjustmentCategory: AdjustmentCategory.equipment),
+                                  )
+                                : SizedBox(
+                                    height: 100,
+                                    child: Center(
+                                      child: Text(
+                                        'No Equipment Attributes yet.',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                                      ),
+                                    ),
+                                  )
+                          ] else 
+                            _emptyAdjustmentsInfo(
+                              errorText: field.errorText,
+                              onTap: showAddBottomSheet,
+                            ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton.icon(
+                              onPressed: showAddBottomSheet,
+                              icon: const Icon(Icons.add),
+                              label: const Text("Add Attribute"),
                             ),
                           ),
-                      ],
-                    );
-                  },
-                ),
-              ],
+                          if (field.hasError && _adjustments.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+                              child: Text(
+                                field.errorText!,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),

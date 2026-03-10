@@ -127,163 +127,166 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
             IconButton(icon: const Icon(Icons.check), onPressed: _saveTextAdjustment),
           ],
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextFormField(
-                          controller: _nameController,
-                          onChanged: (String? value) {
-                            setState(() {
-                              _previewAdjustment = TextAdjustment(
-                                name: value ?? '',
-                                notes: _previewAdjustment.notes,
-                                unit: _previewAdjustment.unit,
-                                category: _category,
-                              );
-                            });
-                          },
-                          onFieldSubmitted: (_) => _saveTextAdjustment(),
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          autofocus: widget.mode == AdjustmentPageMode.add,
-                          decoration: InputDecoration(
-                            labelText: 'Adjustment Name',
-                            hintText: 'Enter Adjustment Name',
-                            border: OutlineInputBorder(),
-                            fillColor: Colors.orange.withValues(alpha: 0.08),
-                            filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
-                          ),
-                          validator: validateAdjustmentName,
-                        ),
-                        if (widget.showCategorySelection && widget.categories.isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          DropdownButtonFormField<AdjustmentCategory>(
-                            initialValue: _category,
-                            isExpanded: true,
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
-                            decoration: InputDecoration(
-                              labelText: 'Category',
-                              border: OutlineInputBorder(),
-                              hintText: "Choose a category for this adjustment",
-                              fillColor: Colors.orange.withValues(alpha: 0.08),
-                              filled: widget.mode == AdjustmentPageMode.edit && _category != widget.adjustment!.category
-                            ),
-                            validator: (AdjustmentCategory? newValue) {
-                              if (newValue == null) return "Please select a category";
-                              return null;
-                            },
-                            items: widget.categories.map((category) {
-                              return DropdownMenuItem<AdjustmentCategory>(
-                                value: category,
-                                child: Row(
-                                  spacing: 8,
-                                  children: [
-                                    Icon(category.getIconData()),
-                                    Expanded(child: Text(category.value, overflow: TextOverflow.ellipsis))
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (AdjustmentCategory? newValue) {
-                              if (newValue != null) {
-                                setState(() {
-                                  _category = newValue;
-                                  _previewAdjustment = TextAdjustment(
-                                    name: _nameController.text.trim(),
-                                    notes: _previewAdjustment.notes,
-                                    unit: _previewAdjustment.unit,
-                                    category: newValue,
-                                  );
-                                });
-                                _changeListener();
-                              }
-                            },
-                          ),
-                        ],
-                        Center(
-                          child: TextButton.icon(
-                            onPressed: () => setState(() => _expanded = !_expanded),
-                            icon: Icon(_expanded 
-                                ? Icons.expand_less 
-                                : Icons.expand_more,
-                            ),
-                            label: Text(_expanded 
-                                ? "Hide Additional Fields" 
-                                : "Show Additional Fields"
-                            ),
-                          ),
-                        ),
-                        if (_expanded) ...[
-                          const SizedBox(height: 12),
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           TextFormField(
-                            controller: _notesController,
-                            minLines: 2,
-                            maxLines: null,
+                            controller: _nameController,
                             onChanged: (String? value) {
                               setState(() {
                                 _previewAdjustment = TextAdjustment(
-                                  name: _previewAdjustment.name, 
-                                  notes: (value == null || value.isEmpty) ? null : value,
+                                  name: value ?? '',
+                                  notes: _previewAdjustment.notes,
                                   unit: _previewAdjustment.unit,
                                   category: _category,
                                 );
                               });
                             },
+                            onFieldSubmitted: (_) => _saveTextAdjustment(),
                             autovalidateMode: AutovalidateMode.onUserInteraction,
+                            autofocus: widget.mode == AdjustmentPageMode.add,
                             decoration: InputDecoration(
-                              labelText: 'Notes (optional)',
-                              hintText: 'Enter measuring procedure/instrument/...',
-                              helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
+                              labelText: 'Adjustment Name',
+                              hintText: 'Enter Adjustment Name',
                               border: OutlineInputBorder(),
                               fillColor: Colors.orange.withValues(alpha: 0.08),
-                              filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
+                              filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
+                            ),
+                            validator: validateAdjustmentName,
+                          ),
+                          if (widget.showCategorySelection && widget.categories.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            DropdownButtonFormField<AdjustmentCategory>(
+                              initialValue: _category,
+                              isExpanded: true,
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                              decoration: InputDecoration(
+                                labelText: 'Category',
+                                border: OutlineInputBorder(),
+                                hintText: "Choose a category for this adjustment",
+                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                filled: widget.mode == AdjustmentPageMode.edit && _category != widget.adjustment!.category
+                              ),
+                              validator: (AdjustmentCategory? newValue) {
+                                if (newValue == null) return "Please select a category";
+                                return null;
+                              },
+                              items: widget.categories.map((category) {
+                                return DropdownMenuItem<AdjustmentCategory>(
+                                  value: category,
+                                  child: Row(
+                                    spacing: 8,
+                                    children: [
+                                      Icon(category.getIconData()),
+                                      Expanded(child: Text(category.value, overflow: TextOverflow.ellipsis))
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (AdjustmentCategory? newValue) {
+                                if (newValue != null) {
+                                  setState(() {
+                                    _category = newValue;
+                                    _previewAdjustment = TextAdjustment(
+                                      name: _nameController.text.trim(),
+                                      notes: _previewAdjustment.notes,
+                                      unit: _previewAdjustment.unit,
+                                      category: newValue,
+                                    );
+                                  });
+                                  _changeListener();
+                                }
+                              },
+                            ),
+                          ],
+                          Center(
+                            child: TextButton.icon(
+                              onPressed: () => setState(() => _expanded = !_expanded),
+                              icon: Icon(_expanded 
+                                  ? Icons.expand_less 
+                                  : Icons.expand_more,
+                              ),
+                              label: Text(_expanded 
+                                  ? "Hide Additional Fields" 
+                                  : "Show Additional Fields"
+                              ),
                             ),
                           ),
+                          if (_expanded) ...[
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              controller: _notesController,
+                              minLines: 2,
+                              maxLines: null,
+                              onChanged: (String? value) {
+                                setState(() {
+                                  _previewAdjustment = TextAdjustment(
+                                    name: _previewAdjustment.name, 
+                                    notes: (value == null || value.isEmpty) ? null : value,
+                                    unit: _previewAdjustment.unit,
+                                    category: _category,
+                                  );
+                                });
+                              },
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                              decoration: InputDecoration(
+                                labelText: 'Notes (optional)',
+                                hintText: 'Enter measuring procedure/instrument/...',
+                                helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
+                                border: OutlineInputBorder(),
+                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
+                              ),
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.sizeOf(context).height * 0.5,
-              ),
-              child: Stack(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16),
-                      child: Card(
-                        child: SetTextAdjustmentWidget(
-                          key: ValueKey(_previewAdjustment),
-                          adjustment: _previewAdjustment,
-                          initialValue: null,
-                          value: _previewValue, 
-                          onChanged: (String newValue) {
-                            setState(() {
-                              _previewValue = newValue;
-                            });
-                          },
-                          highlighting: false,
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.sizeOf(context).height * 0.5,
+                ),
+                child: Stack(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
+                      child: SingleChildScrollView(
+                        padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16 + MediaQuery.of(context).padding.bottom),
+                        child: Card(
+                          child: SetTextAdjustmentWidget(
+                            key: ValueKey(_previewAdjustment),
+                            adjustment: _previewAdjustment,
+                            initialValue: null,
+                            value: _previewValue, 
+                            onChanged: (String newValue) {
+                              setState(() {
+                                _previewValue = newValue;
+                              });
+                            },
+                            highlighting: false,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  previewLabel(context),
-                ],
+                    previewLabel(context),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

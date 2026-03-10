@@ -237,7 +237,7 @@ class StravaActivitiyPageContent extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24 + MediaQuery.of(context).viewInsets.bottom),
         ],
       ),
     );

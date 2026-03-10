@@ -7,26 +7,45 @@ import 'package:bike_setup_tracker/models/app_data.dart';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/pages/bike_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  testWidgets('BikePage/Add input validation', (WidgetTester tester) async {
-    final appSettings = AppSettings();
+  late AppDatabase database;
+  late AppData appData;
+  late AppSettings appSettings;
+  late FilteredData filteredData;
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    database = AppDatabase.memory();
+    appData = AppData(database);
+    appSettings = AppSettings();
     appSettings.showOnboarding = false;
+  });
 
-    final appData = AppData(AppDatabase.memory());
+  tearDown(() async {
+    appData.dispose();
+    appSettings.dispose();
+    filteredData.dispose();
+    await database.close();
+  });
 
-    await tester.pumpWidget(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: appSettings),
-          ChangeNotifierProvider.value(value: appData),
-          ChangeNotifierProvider<FilteredData>(
-            create: (context) => FilteredData(appData.database),
-          ),
-        ],
-        child: MaterialApp(home: BikePage.add()),
-      ),
+  Widget createWidgetUnderTest(Widget home) {
+    filteredData = FilteredData(appData.database);
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: appSettings),
+        ChangeNotifierProvider.value(value: appData),
+        ChangeNotifierProvider<FilteredData>.value(
+          value: filteredData,
+        ),
+      ],
+      child: MaterialApp(home: home),
     );
+  }
+
+  testWidgets('BikePage/Add input validation', (WidgetTester tester) async {
+    await tester.pumpWidget(createWidgetUnderTest(BikePage.add()));
 
     Finder bikeNameField = find.byType(TextFormField).first;
     expect(bikeNameField, findsOneWidget);
@@ -53,24 +72,8 @@ void main() {
     expect(find.byType(BikePage), findsNothing);
   });
 
-    testWidgets('BikePage/Edit input validation', (WidgetTester tester) async {
-    final appSettings = AppSettings();
-    appSettings.showOnboarding = false;
-
-    final appData = AppData(AppDatabase.memory());
-
-    await tester.pumpWidget(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: appSettings),
-          ChangeNotifierProvider.value(value: appData),
-          ChangeNotifierProvider<FilteredData>(
-            create: (context) => FilteredData(appData.database),
-          ),
-        ],
-        child: MaterialApp(home: BikePage.edit(bike: Bike(name: "TestBike #1", person: null))),
-      ),
-    );
+  testWidgets('BikePage/Edit input validation', (WidgetTester tester) async {
+    await tester.pumpWidget(createWidgetUnderTest(BikePage.edit(bike: Bike(name: "TestBike #1", person: null))));
 
     Finder bikeNameField = find.byType(TextFormField).first;
     expect(bikeNameField, findsOneWidget);

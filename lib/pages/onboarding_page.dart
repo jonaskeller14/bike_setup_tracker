@@ -16,7 +16,7 @@ class OnboardingPage extends StatefulWidget {
 class _OnboardingPageState extends State<OnboardingPage> {
   final PageController _controller = PageController();
   int _currentPage = 0;
-  late List<Function> _pages;
+  late List<Widget Function()> _pages;
 
   @override
   void initState() {
@@ -85,6 +85,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   Widget _builProgressIndicatorDot(int index) {
     return AnimatedContainer(
+      key: ValueKey("onboarding_dot_$index"),
       duration: const Duration(milliseconds: 200),
       margin: const EdgeInsets.only(right: 8),
       height: 10,
@@ -94,6 +95,51 @@ class _OnboardingPageState extends State<OnboardingPage> {
             ? Theme.of(context).colorScheme.primary 
             : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(5),
+      ),
+    );
+  }
+}
+
+class _DelayedFade extends StatefulWidget {
+  final int delay;
+  final String keyId;
+  final Widget child;
+
+  const _DelayedFade({required this.delay, required this.keyId, required this.child});
+
+  @override
+  State<_DelayedFade> createState() => _DelayedFadeState();
+}
+
+class _DelayedFadeState extends State<_DelayedFade> {
+  late final Future<void> _delayFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _delayFuture = Future.delayed(Duration(milliseconds: widget.delay));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      key: ValueKey(widget.keyId),
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeOutBack,
+      builder: (context, size, child) {
+        return Transform.scale(
+          scale: size,
+          child: child,
+        );
+      },
+      child: FutureBuilder(
+        future: _delayFuture,
+        builder: (context, snapshot) {
+          return snapshot.connectionState == ConnectionState.done 
+              ? widget.child 
+              : const Opacity(opacity: 0);
+        },
       ),
     );
   }

@@ -2,7 +2,6 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/database/mappers.dart';
-import 'package:drift/drift.dart' hide Component, isNull, isNotNull;
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -58,8 +57,12 @@ void main() {
 
       await database.componentsDao.deleteComponent('comp1');
 
-      final updatedComponents = await database.componentsDao.watchAllComponents().first;
-      expect(updatedComponents.first.isDeleted, true);
+      final activeComponents = await database.componentsDao.watchAllComponents().first;
+      expect(activeComponents, isEmpty);
+
+      final deletedComponents = await database.componentsDao.watchDeletedComponents().first;
+      expect(deletedComponents, hasLength(1));
+      expect(deletedComponents.first.isDeleted, true);
     });
 
     test('BikesDao - Get bike by ID', () async {

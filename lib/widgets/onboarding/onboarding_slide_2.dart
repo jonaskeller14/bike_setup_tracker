@@ -27,8 +27,9 @@ class OnboardingSlide2 extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                delayedFade(
+                DelayedFade(
                   delay: 0,
+                  keyId: "onboarding_icon_bike_main",
                   child: const Icon(Bike.iconData, size: 120),
                 ),
                 const SizedBox(height: 24),
@@ -36,10 +37,10 @@ class OnboardingSlide2 extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   spacing: 12,
                   children: [
-                    delayedFade(delay: 400, child: _smallComponentIconCard(BikeIcons.fork)),
-                    delayedFade(delay: 700, child: _smallComponentIconCard(BikeIcons.shock)),
-                    delayedFade(delay: 1000, child: _smallComponentIconCard(BikeIcons.wheelFront)), 
-                    delayedFade(delay: 1300, child: _smallComponentIconCard(BikeIcons.wheelRear)),
+                    DelayedFade(delay: 400, keyId: "onboarding_icon_fork", child: _smallComponentIconCard(BikeIcons.fork)),
+                    DelayedFade(delay: 700, keyId: "onboarding_icon_shock", child: _smallComponentIconCard(BikeIcons.shock)),
+                    DelayedFade(delay: 1000, keyId: "onboarding_icon_wheelFront", child: _smallComponentIconCard(BikeIcons.wheelFront)), 
+                    DelayedFade(delay: 1300, keyId: "onboarding_icon_wheelRear", child: _smallComponentIconCard(BikeIcons.wheelRear)),
                   ],
                 ),
                 const SizedBox(height: 60),

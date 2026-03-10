@@ -10,6 +10,7 @@ class PersonsDao extends DatabaseAccessor<AppDatabase> with _$PersonsDaoMixin {
   PersonsDao(super.db);
 
   Stream<List<PersonDb>> watchAllPersons() => (select(persons)..where((t) => t.isDeleted.equals(false))).watch();
+  Stream<List<PersonDb>> watchDeletedPersons() => (select(persons)..where((t) => t.isDeleted.equals(true))).watch();
 
   Stream<List<PersonWithData>> watchAllPersonsWithData() {
     final query = (select(persons)..where((t) => t.isDeleted.equals(false))).join([

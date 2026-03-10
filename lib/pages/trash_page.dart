@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/app_data.dart';
+import '../models/filtered_data.dart';
 import '../models/person.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
@@ -49,14 +50,14 @@ class TrashPage extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    final data = context.watch<AppData>();
+    final filteredData = context.watch<FilteredData>();
 
     final deletedCombined = <dynamic>[];
-    deletedCombined.addAll(data.persons.values.where((p) => p.isDeleted).toList());
-    deletedCombined.addAll(data.bikes.values.where((b) => b.isDeleted).toList());
-    deletedCombined.addAll(data.components.values.where((c) => c.isDeleted));
-    deletedCombined.addAll(data.setups.values.where((s) => s.isDeleted));
-    deletedCombined.addAll(data.ratings.values.where((r) => r.isDeleted).toList());
+    deletedCombined.addAll(filteredData.deletedPersons);
+    deletedCombined.addAll(filteredData.deletedBikes);
+    deletedCombined.addAll(filteredData.deletedComponents);
+    deletedCombined.addAll(filteredData.deletedSetups);
+    deletedCombined.addAll(filteredData.deletedRatings);
     deletedCombined.sort((a, b) => b.lastModified.compareTo(a.lastModified));
 
     return Scaffold(

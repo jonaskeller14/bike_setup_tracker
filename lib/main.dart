@@ -50,8 +50,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await FirebaseAppCheck.instance.activate(
-    androidProvider: AndroidProvider.playIntegrity,
-    appleProvider: AppleProvider.appAttestWithDeviceCheckFallback,
     providerAndroid: kDebugMode 
         ? const AndroidDebugProvider() 
         : const AndroidPlayIntegrityProvider(),

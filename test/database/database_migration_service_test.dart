@@ -1,17 +1,34 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_data.dart';
 import 'package:bike_setup_tracker/services/database_migration_service.dart';
+import 'package:drift/drift.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  late AppDatabase db;
+  late AppDatabase sourceDb;
+
+  // This test intentionally creates two separate databases (target + source).
+  setUpAll(() => driftRuntimeOptions.dontWarnAboutMultipleDatabases = true);
+  tearDownAll(() => driftRuntimeOptions.dontWarnAboutMultipleDatabases = false);
+
+  setUp(() {
+    db = AppDatabase.memory();
+    sourceDb = AppDatabase.memory();
+  });
+
+  tearDown(() async {
+    await db.close();
+    await sourceDb.close();
+  });
+
   group('DatabaseMigrationService Test', () {
     test('Full Migration from JSON-like AppData', () async {
-      final db = AppDatabase.memory();
       final migrationService = DatabaseMigrationService(db);
       
       // We use a separate in-memory DB for AppData if needed, 
       // but AppData.addJson just populates the maps which are then read by migration.
-      final sourceAppData = AppData(AppDatabase.memory());
+      final sourceAppData = AppData(sourceDb);
       
       final legacyJson = {
         'persons': [
@@ -86,6 +103,8 @@ void main() {
       expect(values.first.setupId, 's1');
       expect(values.first.adjustmentId, 'adj1');
       expect(values.first.value, '5.0');
+
+      sourceAppData.dispose();
     });
   });
 }

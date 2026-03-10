@@ -15,6 +15,7 @@ class OnboardingSlide1 extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TweenAnimationBuilder<double>(
+                  key: const ValueKey("onboarding_logo_anim"),
                   tween: Tween(begin: 0, end: 10),
                   duration: const Duration(seconds: 2),
                   curve: Curves.easeInOut,

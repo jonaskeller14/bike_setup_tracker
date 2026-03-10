@@ -16,51 +16,53 @@ import 'package:bike_setup_tracker/services/strava_service.dart';
 import 'package:bike_setup_tracker/services/storage_service.dart';
 import 'package:bike_setup_tracker/services/google_drive_service.dart';
 
-/// Helper to build the standard test widget with all required providers.
-Widget buildTestApp({
-  required AppSettings appSettings,
-  required AppData appData,
-  required AppDatabase appDatabase,
-}) {
-  return MultiProvider(
-    providers: [
-      ChangeNotifierProvider<AppSettings>.value(value: appSettings),
-      ChangeNotifierProvider<AppData>.value(value: appData),
-      ChangeNotifierProvider<FilteredData>(
-        create: (context) => FilteredData(appDatabase),
-      ),
-      Provider<AppDatabase>.value(value: appDatabase),
-      Provider<StorageService>(create: (_) => StorageService()),
-      ChangeNotifierProvider<StravaService>(
-          create: (_) => StravaService(appData)),
-      ChangeNotifierProvider<GoogleDriveService>(
-          create: (_) => GoogleDriveService(appData, appDatabase)),
-    ],
-    child: const BikeSetupTrackerApp(),
-  );
-}
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  testWidgets('Home Page BottomNavigationBar', (WidgetTester tester) async {
-    final appSettings = AppSettings();
+  late AppDatabase database;
+  late AppData appData;
+  late AppSettings appSettings;
+  late FilteredData filteredData;
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    database = AppDatabase.memory();
+    appData = AppData(database);
+    appSettings = AppSettings();
     appSettings.showOnboarding = false;
     appSettings.enableGarage = false;
     appSettings.enableStrava = false;
+  });
 
-    final appDatabase = AppDatabase.memory();
-    final appData = AppData(appDatabase);
-    addTearDown(() async {
-      appData.dispose();
-      appSettings.dispose();
-      await appDatabase.close();
-    });
+  tearDown(() async {
+    appData.dispose();
+    appSettings.dispose();
+    filteredData.dispose();
+    await database.close();
+  });
 
-    await tester.pumpWidget(
-      buildTestApp(
-          appSettings: appSettings,
-          appData: appData,
-          appDatabase: appDatabase),
+  Widget createWidgetUnderTest() {
+    filteredData = FilteredData(database);
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AppSettings>.value(value: appSettings),
+        ChangeNotifierProvider<AppData>.value(value: appData),
+        ChangeNotifierProvider<FilteredData>.value(
+          value: filteredData,
+        ),
+        Provider<AppDatabase>.value(value: database),
+        Provider<StorageService>(create: (_) => StorageService()),
+        ChangeNotifierProvider<StravaService>(
+            create: (_) => StravaService(appData)),
+        ChangeNotifierProvider<GoogleDriveService>(
+            create: (_) => GoogleDriveService(appData, database)),
+      ],
+      child: const BikeSetupTrackerApp(),
     );
+  }
+
+  testWidgets('Home Page BottomNavigationBar', (WidgetTester tester) async {
+    await tester.pumpWidget(createWidgetUnderTest());
     await tester.pump(const Duration(milliseconds: 200));
 
     AppBar appBar = tester.widget(find.byType(AppBar).last);
@@ -107,25 +109,7 @@ void main() {
   });
 
   testWidgets('Add Component without Bike', (WidgetTester tester) async {
-    final appSettings = AppSettings();
-    appSettings.showOnboarding = false;
-    appSettings.enableGarage = false;
-    appSettings.enableStrava = false;
-
-    final appDatabase = AppDatabase.memory();
-    final appData = AppData(appDatabase);
-    addTearDown(() async {
-      appData.dispose();
-      appSettings.dispose();
-      await appDatabase.close();
-    });
-
-    await tester.pumpWidget(
-      buildTestApp(
-          appSettings: appSettings,
-          appData: appData,
-          appDatabase: appDatabase),
-    );
+    await tester.pumpWidget(createWidgetUnderTest());
     await tester.pump(const Duration(milliseconds: 200));
 
     await tester.tap(find.descendant(
@@ -176,25 +160,7 @@ void main() {
   testWidgets('Add Setup without Bike and Components', (
     WidgetTester tester,
   ) async {
-    final appSettings = AppSettings();
-    appSettings.showOnboarding = false;
-    appSettings.enableGarage = false;
-    appSettings.enableStrava = false;
-
-    final appDatabase = AppDatabase.memory();
-    final appData = AppData(appDatabase);
-    addTearDown(() async {
-      appData.dispose();
-      appSettings.dispose();
-      await appDatabase.close();
-    });
-
-    await tester.pumpWidget(
-      buildTestApp(
-          appSettings: appSettings,
-          appData: appData,
-          appDatabase: appDatabase),
-    );
+    await tester.pumpWidget(createWidgetUnderTest());
     await tester.pump(const Duration(milliseconds: 200));
 
     await tester.tap(
@@ -305,25 +271,7 @@ void main() {
   testWidgets('BikeList: Add/Remove/Restore Bike and not show deleted', (
     WidgetTester tester,
   ) async {
-    final appSettings = AppSettings();
-    appSettings.showOnboarding = false;
-    appSettings.enableGarage = false;
-    appSettings.enableStrava = false;
-
-    final appDatabase = AppDatabase.memory();
-    final appData = AppData(appDatabase);
-    addTearDown(() async {
-      appData.dispose();
-      appSettings.dispose();
-      await appDatabase.close();
-    });
-
-    await tester.pumpWidget(
-      buildTestApp(
-          appSettings: appSettings,
-          appData: appData,
-          appDatabase: appDatabase),
-    );
+    await tester.pumpWidget(createWidgetUnderTest());
     await tester.pump(const Duration(milliseconds: 200));
 
     await tester.tap(
@@ -378,25 +326,7 @@ void main() {
   testWidgets('ComponentList/Edit Adjustment with saving Component', (
     WidgetTester tester,
   ) async {
-    final appSettings = AppSettings();
-    appSettings.showOnboarding = false;
-    appSettings.enableGarage = false;
-    appSettings.enableStrava = false;
-
-    final appDatabase = AppDatabase.memory();
-    final appData = AppData(appDatabase);
-    addTearDown(() async {
-      appData.dispose();
-      appSettings.dispose();
-      await appDatabase.close();
-    });
-
-    await tester.pumpWidget(
-      buildTestApp(
-          appSettings: appSettings,
-          appData: appData,
-          appDatabase: appDatabase),
-    );
+    await tester.pumpWidget(createWidgetUnderTest());
     await tester.pump(const Duration(milliseconds: 200));
 
     final bike1 = Bike(name: "Bike #1", person: null);
@@ -485,25 +415,7 @@ void main() {
   testWidgets('ComponentList/Edit Adjustment without saving Component', (
     WidgetTester tester,
   ) async {
-    final appSettings = AppSettings();
-    appSettings.showOnboarding = false;
-    appSettings.enableGarage = false;
-    appSettings.enableStrava = false;
-
-    final appDatabase = AppDatabase.memory();
-    final appData = AppData(appDatabase);
-    addTearDown(() async {
-      appData.dispose();
-      appSettings.dispose();
-      await appDatabase.close();
-    });
-
-    await tester.pumpWidget(
-      buildTestApp(
-          appSettings: appSettings,
-          appData: appData,
-          appDatabase: appDatabase),
-    );
+    await tester.pumpWidget(createWidgetUnderTest());
     await tester.pump(const Duration(milliseconds: 200));
 
     final bike1 = Bike(name: "Bike #1", person: null);
@@ -598,25 +510,9 @@ void main() {
   });
 
   testWidgets('Home Page with enableGarage=True', (WidgetTester tester) async {
-    final appSettings = AppSettings();
-    appSettings.showOnboarding = false;
     appSettings.enableGarage = true;
-    appSettings.enableStrava = false;
 
-    final appDatabase = AppDatabase.memory();
-    final appData = AppData(appDatabase);
-    addTearDown(() async {
-      appData.dispose();
-      appSettings.dispose();
-      await appDatabase.close();
-    });
-
-    await tester.pumpWidget(
-      buildTestApp(
-          appSettings: appSettings,
-          appData: appData,
-          appDatabase: appDatabase),
-    );
+    await tester.pumpWidget(createWidgetUnderTest());
     await tester.pump(const Duration(milliseconds: 200));
 
     // Verify Title is "Bikes"

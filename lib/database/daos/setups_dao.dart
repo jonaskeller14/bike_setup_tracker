@@ -18,6 +18,7 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin {
   }
 
   Stream<List<SetupDb>> watchAllSetups() => (select(setups)..where((t) => t.isDeleted.equals(false))).watch();
+  Stream<List<SetupDb>> watchDeletedSetups() => (select(setups)..where((t) => t.isDeleted.equals(true))).watch();
 
   Stream<List<SetupWithValues>> watchAllSetupsWithValues() {
     final query = (select(setups)..where((t) => t.isDeleted.equals(false))).join([

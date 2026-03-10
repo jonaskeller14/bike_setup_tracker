@@ -10,6 +10,7 @@ class RatingsDao extends DatabaseAccessor<AppDatabase> with _$RatingsDaoMixin {
   RatingsDao(super.db);
 
   Stream<List<RatingDb>> watchAllRatings() => (select(ratings)..where((t) => t.isDeleted.equals(false))).watch();
+  Stream<List<RatingDb>> watchDeletedRatings() => (select(ratings)..where((t) => t.isDeleted.equals(true))).watch();
 
   Future<RatingDb?> getRating(String id) {
     return (select(ratings)..where((t) => t.id.equals(id))).getSingleOrNull();

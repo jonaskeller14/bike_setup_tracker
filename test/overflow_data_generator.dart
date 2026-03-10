@@ -109,4 +109,7 @@ void main() async {
   
   await file.create(recursive: true);
   await file.writeAsString(jsonString);
+
+  data.dispose();
+  await data.database.close();
 }

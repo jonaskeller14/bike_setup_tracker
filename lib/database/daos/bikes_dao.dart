@@ -11,6 +11,7 @@ class BikesDao extends DatabaseAccessor<AppDatabase> with _$BikesDaoMixin {
   BikesDao(super.db);
 
   Stream<List<BikeDb>> watchAllBikes() => (select(bikes)..where((t) => t.isDeleted.equals(false))).watch();
+  Stream<List<BikeDb>> watchDeletedBikes() => (select(bikes)..where((t) => t.isDeleted.equals(true))).watch();
 
   Future<BikeDb?> getBike(String id) {
     return (select(bikes)..where((t) => t.id.equals(id))).getSingleOrNull();

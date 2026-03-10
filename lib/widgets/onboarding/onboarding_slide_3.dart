@@ -65,8 +65,9 @@ class OnboardingSlide3 extends StatelessWidget {
                         ),
                         const Divider(height: 24),
                         
-                        delayedFade(
+                        DelayedFade(
                           delay: 400, 
+                          keyId: "onboarding_adj_pressure",
                           child:  _adjustmentPreview(
                             context: context,
                             icon: NumericalAdjustment.iconData, 
@@ -78,8 +79,9 @@ class OnboardingSlide3 extends StatelessWidget {
                       
                         const SizedBox(height: 8),
           
-                        delayedFade(
+                        DelayedFade(
                           delay: 700, 
+                          keyId: "onboarding_adj_rebound",
                           child: _adjustmentPreview(
                             context: context,
                             icon: StepAdjustment.iconData, 
@@ -91,8 +93,9 @@ class OnboardingSlide3 extends StatelessWidget {
                         
                         const SizedBox(height: 8),
           
-                        delayedFade(
+                        DelayedFade(
                           delay: 1000, 
+                          keyId: "onboarding_adj_lockout",
                           child: _adjustmentPreview(
                             context: context,
                             icon: BooleanAdjustment.iconData, 

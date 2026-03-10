@@ -39,6 +39,7 @@ class _OnboardingSlide4State extends State<OnboardingSlide4> {
     ]);
 
     return TweenAnimationBuilder<double>(
+      key: const ValueKey("onboarding_rebound_anim"),
       tween: Tween<double>(begin: 0, end: 1),
       duration: const Duration(milliseconds: 5000),
       builder: (context, value, child) {
@@ -72,8 +73,6 @@ class _OnboardingSlide4State extends State<OnboardingSlide4> {
       },
     );
   }
-
-  
 
   @override
   Widget build(BuildContext context) {

@@ -59,6 +59,13 @@ class FilteredData extends ChangeNotifier {
   Map<String, TodoEntry> _filteredTodoEntries = {};
   Map<int, StravaActivity> _filteredStravaActivities = {};
 
+  // Deleted Items (for TrashPage)
+  List<Person> _deletedPersons = [];
+  List<Bike> _deletedBikes = [];
+  List<Component> _deletedComponents = [];
+  List<Setup> _deletedSetups = [];
+  List<Rating> _deletedRatings = [];
+
   String? get selectedBike => _selectedBike;
   Set<String> get selectedSetupTags => _selectedSetupTags;
 
@@ -70,6 +77,12 @@ class FilteredData extends ChangeNotifier {
   Map<String, TodoRule> get filteredTodoRules => _filteredTodoRules;
   Map<String, TodoEntry> get filteredTodoEntries => _filteredTodoEntries;
   Map<int, StravaActivity> get filteredStravaActivities => _filteredStravaActivities;
+
+  List<Person> get deletedPersons => _deletedPersons;
+  List<Bike> get deletedBikes => _deletedBikes;
+  List<Component> get deletedComponents => _deletedComponents;
+  List<Setup> get deletedSetups => _deletedSetups;
+  List<Rating> get deletedRatings => _deletedRatings;
 
   FilteredData(this.database) {
     _initStreams();
@@ -140,6 +153,34 @@ class FilteredData extends ChangeNotifier {
       _setups = {for (var s in list) s.setup.id: s.setup.toModel(values: s.values)};
       _dataChanged();
     }));
+
+    // Deleted item streams (for TrashPage)
+    _subscriptions.add(database.bikesDao.watchDeletedBikes().listen((list) {
+      _deletedBikes = list.map((b) => b.toModel()).toList();
+      _notifyIfActive();
+    }));
+    _subscriptions.add(database.componentsDao.watchDeletedComponents().listen((list) {
+      _deletedComponents = list.map((c) => c.toModel(adjustments: [], installations: [])).toList();
+      _notifyIfActive();
+    }));
+    _subscriptions.add(database.setupsDao.watchDeletedSetups().listen((list) {
+      _deletedSetups = list.map((s) => s.toModel(values: [])).toList();
+      _notifyIfActive();
+    }));
+    _subscriptions.add(database.personsDao.watchDeletedPersons().listen((list) {
+      _deletedPersons = list.map((p) => p.toModel(adjustments: [])).toList();
+      _notifyIfActive();
+    }));
+    _subscriptions.add(database.ratingsDao.watchDeletedRatings().listen((list) {
+      _deletedRatings = list.map((r) => r.toModel(adjustments: [])).toList();
+      _notifyIfActive();
+    }));
+  }
+
+  void _notifyIfActive() {
+    if (hasListeners) {
+      notifyListeners();
+    }
   }
 
   void _dataChanged() {

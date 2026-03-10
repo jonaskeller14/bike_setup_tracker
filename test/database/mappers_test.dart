@@ -6,7 +6,6 @@ import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
-import 'package:drift/drift.dart' hide Component;
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

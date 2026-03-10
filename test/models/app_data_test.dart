@@ -9,6 +9,9 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 
+/// Allow Drift streams to propagate through subscriptions.
+Future<void> pumpEventQueue() => Future.delayed(const Duration(milliseconds: 100));
+
 void main() {
   group("Bikes", () {
     late AppDatabase database;
@@ -22,9 +25,15 @@ void main() {
       filteredData = FilteredData(database);
     });
 
+    tearDown(() async {
+      data.dispose();
+      filteredData.dispose();
+      await database.close();
+    });
+
     test("AppData/addBike", () async {
       await data.addBike(bike1);
-      await Future.delayed(Duration.zero); // Wait for stream
+      await pumpEventQueue();
       
       expect(filteredData.bikes.containsKey(bike1.id), true);
       expect(filteredData.filteredBikes.containsKey(bike1.id), true);
@@ -32,7 +41,7 @@ void main() {
     test("AppData/removeBike (unselected)", () async {
       await data.addBike(bike1);
       await data.removeBike(bike1);
-      await Future.delayed(Duration.zero);
+      await pumpEventQueue();
 
       expect(filteredData.bikes.containsKey(bike1.id), false);
       expect(filteredData.filteredBikes.containsKey(bike1.id), false);
@@ -41,19 +50,19 @@ void main() {
       await data.addBike(bike1);
       await data.removeBike(bike1);
       await data.restoreBike(bike1);
-      await Future.delayed(Duration.zero);
+      await pumpEventQueue();
 
       expect(filteredData.filteredBikes.containsKey(bike1.id), true);
     });
     test("AppData/removeBike (selected)", () async {
       await data.addBike(bike1);
-      await Future.delayed(Duration.zero);
+      await pumpEventQueue();
       filteredData.onBikeTap(bike1.id);
 
       expect(filteredData.selectedBike == bike1.id, true);
 
       await data.removeBike(bike1);
-      await Future.delayed(Duration.zero);
+      await pumpEventQueue();
 
       expect(filteredData.selectedBike == null, true);
       expect(filteredData.bikes.containsKey(bike1.id), false);
@@ -79,10 +88,16 @@ void main() {
       );
     });
 
+    tearDown(() async {
+      data.dispose();
+      filteredData.dispose();
+      await database.close();
+    });
+
     test("AppData/addComponent", () async {
       await data.addBike(bike1);
       await data.addComponent(component1);
-      await Future.delayed(Duration.zero);
+      await Future.delayed(Duration(seconds: 1));
       
       expect(filteredData.components.containsKey(component1.id), true);
       expect(filteredData.filteredComponents.containsKey(component1.id), true);
@@ -91,7 +106,7 @@ void main() {
       await data.addBike(bike1);
       await data.addComponent(component1);
       await data.removeComponents([component1]);
-      await Future.delayed(Duration.zero);
+      await pumpEventQueue();
 
       expect(filteredData.components.containsKey(component1.id), false);
       expect(filteredData.filteredComponents.containsKey(component1.id), false);
@@ -123,10 +138,16 @@ void main() {
       );
     });
 
+    tearDown(() async {
+      data.dispose();
+      filteredData.dispose();
+      await database.close();
+    });
+
     test("AppData/addSetup", () async {
       await data.addBike(bike1);
       await data.addSetup(setup1);
-      await Future.delayed(Duration.zero);
+      await pumpEventQueue();
       
       expect(filteredData.setups.containsKey(setup1.id), true);
       expect(filteredData.filteredSetups.containsKey(setup1.id), true);
@@ -145,9 +166,15 @@ void main() {
       filteredData = FilteredData(database);
     });
 
+    tearDown(() async {
+      data.dispose();
+      filteredData.dispose();
+      await database.close();
+    });
+
     test("AppData/addPerson", () async {
       await data.addPerson(person1);
-      await Future.delayed(Duration.zero);
+      await pumpEventQueue();
       
       expect(filteredData.persons.containsKey(person1.id), true);
       expect(filteredData.filteredPersons.containsKey(person1.id), true);
@@ -166,9 +193,15 @@ void main() {
       filteredData = FilteredData(database);
     });
 
+    tearDown(() async {
+      data.dispose();
+      filteredData.dispose();
+      await database.close();
+    });
+
     test("AppData/addRating", () async {
       await data.addRating(rating1);
-      await Future.delayed(Duration.zero);
+      await pumpEventQueue();
       
       expect(filteredData.ratings.containsKey(rating1.id), true);
       expect(filteredData.filteredRatings.containsKey(rating1.id), true);

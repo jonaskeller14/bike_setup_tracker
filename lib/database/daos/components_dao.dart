@@ -11,6 +11,7 @@ class ComponentsDao extends DatabaseAccessor<AppDatabase> with _$ComponentsDaoMi
   ComponentsDao(super.db);
 
   Stream<List<ComponentDb>> watchAllComponents() => (select(components)..where((t) => t.isDeleted.equals(false))).watch();
+  Stream<List<ComponentDb>> watchDeletedComponents() => (select(components)..where((t) => t.isDeleted.equals(true))).watch();
 
   Stream<List<ComponentWithData>> watchAllComponentsWithData() {
     final query = (select(components)..where((t) => t.isDeleted.equals(false))).join([

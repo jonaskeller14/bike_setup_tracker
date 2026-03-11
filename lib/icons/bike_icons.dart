@@ -5,6 +5,9 @@ class BikeIcons {
 
   static const String _fontFamily = 'BikeIcons';
 
+  static const IconData brakeDisc = IconData(0xe90c, fontFamily: _fontFamily);
+  static const IconData seatpost = IconData(0xe90d, fontFamily: _fontFamily);
+  static const IconData tire = IconData(0xe90e, fontFamily: _fontFamily);
   static const IconData chain = IconData(0xe909, fontFamily: _fontFamily);
   static const IconData pedal = IconData(0xe90a, fontFamily: _fontFamily);
   static const IconData saddle = IconData(0xe90b, fontFamily: _fontFamily);

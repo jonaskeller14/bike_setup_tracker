@@ -355,33 +355,6 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
               if (activeColumns.isNotEmpty)
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: Row(
-                    spacing: 6,
-                    children: [
-                      FilterChip(
-                        avatar: const Icon(Icons.view_column_outlined),
-                        showCheckmark: false,
-                        label: const Text("Columns"),
-                        selected: _columns.any((c) => c.active),
-                        onSelected: (bool newValue) async {
-                          await showColumnFilterSheet(
-                            context: context, 
-                            sortedColumns: sortedColumns, 
-                            componentAdjustments: componentAdjustments,
-                            ratingAdjustments: ratingAdjustments,
-                            personAdjustments: personAdjustments,
-                            onColumnStatusChanged: () => setState(() {}), // TableColumn.active is changed
-                          );
-                        },
-                      ),
-                      BikeAndTagsFilterChip(enableSetupTagFilter: appSettings.enableSetupTags),
-                    ],
-                  ),
-                ),
-        
-              if (activeColumns.isNotEmpty)
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
                   child: DataTable(
                     sortAscending: _sortAscending,
                     sortColumnIndex: activeColumns.contains(_sortColumn) 

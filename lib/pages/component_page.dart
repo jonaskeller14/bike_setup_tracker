@@ -1,4 +1,4 @@
-import '../widgets/dashed_border_painter.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -18,6 +18,7 @@ import 'adjustment/duration_adjustment_page.dart';
 import '../widgets/adjustment_edit_list.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/sheets/component_add_adjustment.dart';
+import '../widgets/dashed_border_painter.dart';
 
 enum ComponentPageMode {
   add,
@@ -69,8 +70,6 @@ class _ComponentPageState extends State<ComponentPage> {
         : List.from(widget.component!.adjustments);
     _initialAdjustments = List.from(_adjustments);
     
-    _installations = widget.component?.installations ?? [];
-
     final appRepository = context.read<AppRepository>();
     _initialBike = widget.component != null 
         ? widget.component!.bike 
@@ -78,6 +77,8 @@ class _ComponentPageState extends State<ComponentPage> {
             ? appRepository.filteredBikes.keys.firstOrNull
             : widget.initialBike as String?;    
     _bike = _initialBike;
+
+    _installations = widget.component?.installations ?? (context.read<AppSettings>().enableInstallationTimeline ? [Installation.sinceBeginning(parent: _initialBike)] : []);
 
     _componentType = widget.component?.componentType;
     _notesController = TextEditingController(text: widget.component?.notes);
@@ -90,6 +91,7 @@ class _ComponentPageState extends State<ComponentPage> {
         _notesController.text.trim() != (widget.component?.notes ?? '') ||
         _bike != _initialBike || 
         _componentType != widget.component?.componentType ||
+        !listEquals(_installations, widget.component?.installations ?? []) || //FIXME
         _initialAdjustments.length != _adjustments.length || 
         _adjustments.asMap().entries.any((entry) => entry.value != _initialAdjustments[entry.key]);
 
@@ -194,6 +196,7 @@ class _ComponentPageState extends State<ComponentPage> {
   }
 
   void _saveComponent() {
+    final appSettings = context.read<AppSettings>();
     if (!_formKey.currentState!.validate()) return;
     
     final name = _nameController.text.trim();
@@ -204,10 +207,10 @@ class _ComponentPageState extends State<ComponentPage> {
       id: widget.mode == ComponentPageMode.edit ? widget.component?.id : null, 
       name: name,
       componentType: _componentType!,
-      installations: _installations,
+      installations: appSettings.enableInstallationTimeline ? _installations : [Installation.sinceBeginning(parent: _bike)],
       notes: notes.isEmpty ? null : notes,
       adjustments: _adjustments,
-    ).copyWithNewInstallation(_bike);
+    );
 
     Navigator.pop(context, updatedComponent);
   }
@@ -393,7 +396,14 @@ class _ComponentPageState extends State<ComponentPage> {
                   ),
                   const SizedBox(height: 12),
                   if (appSettings.enableInstallationTimeline)
-                    SetInstallationTimeline()
+                    SetInstallationTimeline(
+                      initialInstallations: _installations,
+                      originalInstallations: widget.mode == ComponentPageMode.edit ? widget.component?.installations : null,
+                      onChanged: (newInstallations) {
+                        setState(() => _installations = List.from(newInstallations));
+                        _changeListener();
+                      },
+                    )
                   else
                     DropdownButtonFormField<String?>(
                       initialValue: _bike,

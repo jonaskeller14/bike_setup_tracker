@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timelines_plus/timelines_plus.dart';
+import 'package:intl/intl.dart';
 import '../models/component.dart';
+import '../models/installation.dart';
 import '../repositories/app_repository.dart';
 import '../models/app_settings.dart';
-import 'package:intl/intl.dart';
 
 class DisplayInstallationTimeline extends StatelessWidget {
   final Component component;
@@ -20,8 +21,9 @@ class DisplayInstallationTimeline extends StatelessWidget {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
-
-    final installations = component.installations;
+    
+    final installations = List<Installation>.from(component.installations)
+      ..sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -45,8 +47,9 @@ class DisplayInstallationTimeline extends StatelessWidget {
             final bikeName = assignment.parent != null
                 ? bikes[assignment.parent]?.name ?? 'Unknown Bike'
                 : 'Deinstalled';
-            final dateStr =
-                "${DateFormat(appSettings.dateFormat).format(assignment.dateTimeLocal)} ${DateFormat(appSettings.timeFormat).format(assignment.dateTimeLocal)}";
+            final dateStr = assignment.dateTimeUTC.millisecondsSinceEpoch == 0
+                ? 'From beginning'
+                : "${DateFormat(appSettings.dateFormat).format(assignment.dateTimeLocal)} ${DateFormat(appSettings.timeFormat).format(assignment.dateTimeLocal)}";
 
             return Container(
               padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),

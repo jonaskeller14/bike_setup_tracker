@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,7 +11,7 @@ class AppSettings extends ChangeNotifier {
   String _windSpeedUnit = 'km/h';
   String _altitudeUnit = 'm';
   String _precipitationUnit = 'mm';
-  bool _enableGoogleDrive = Platform.isAndroid;
+  bool _enableGoogleDrive = false;  // False is default, can only be activated on Android (see AppSettingsPage)
   bool _enableTextAdjustment = false;
   bool _enablePerson = false;
   bool _enableRating = false;

@@ -452,8 +452,8 @@ class _RatingPageState extends State<RatingPage> {
   }
 
   DropdownMenuItem<_FilterFilterType> _dropdownMenuItemComponent(_FilterFilterTypeComponent fftc) {
-    final filteredData = context.watch<FilteredData>();
-    final bikes = filteredData.bikes;
+    final appRepository = context.watch<AppRepository>();
+    final bikes = appRepository.bikes;
 
     return DropdownMenuItem<_FilterFilterType>(
       value: fftc,

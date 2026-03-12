@@ -163,7 +163,7 @@ class LoadingGate extends StatelessWidget {
                 lazy: false,
                 create: (context) => GoogleDriveService(appRepository, appRepository.database),
                 update: (context, appRepo, settings, googleDriveService) {
-                  if (settings.enableGoogleDrive) googleDriveService!.update(newAppData: appRepo);
+                  if (settings.enableGoogleDrive) googleDriveService!.update(appRepository: appRepo);
                   return googleDriveService!;
                 },
               ),
@@ -171,7 +171,7 @@ class LoadingGate extends StatelessWidget {
                 lazy: false,
                 create: (context) => StravaService(appRepository),
                 update: (context, settings, appRepo, stravaService) {
-                  if (settings.enableStrava) stravaService!.update(newAppData: appRepo);
+                  if (settings.enableStrava) stravaService!.update(appRepository: appRepo);
                   return stravaService!;
                 },
               ),

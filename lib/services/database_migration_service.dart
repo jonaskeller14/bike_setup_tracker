@@ -9,14 +9,14 @@ class DatabaseMigrationService {
   final AppDatabase db;
   DatabaseMigrationService(this.db);
 
-  Future<void> migrateFromSelectedData(SelectedData appRepository) async {
+  Future<void> migrateFromSelectedData(SelectedData data) async {
     await db.batch((batch) {
       // -----------------------------------------------------------------------
       // Level 0: Independent entities
       // -----------------------------------------------------------------------
       
       // Persons
-      batch.insertAllOnConflictUpdate(db.persons, appRepository.persons.values.map((p) => PersonsCompanion.insert(
+      batch.insertAllOnConflictUpdate(db.persons, data.persons.values.map((p) => PersonsCompanion.insert(
         id: p.id,
         isDeleted: Value(p.isDeleted),
         lastModified: p.lastModified,
@@ -26,7 +26,7 @@ class DatabaseMigrationService {
       )));
 
       // Bikes
-      batch.insertAllOnConflictUpdate(db.bikes, appRepository.bikes.values.map((b) => BikesCompanion.insert(
+      batch.insertAllOnConflictUpdate(db.bikes, data.bikes.values.map((b) => BikesCompanion.insert(
         id: b.id,
         isDeleted: Value(b.isDeleted),
         lastModified: b.lastModified,
@@ -37,7 +37,7 @@ class DatabaseMigrationService {
       )));
 
       // Ratings
-      batch.insertAllOnConflictUpdate(db.ratings, appRepository.ratings.values.map((r) => RatingsCompanion.insert(
+      batch.insertAllOnConflictUpdate(db.ratings, data.ratings.values.map((r) => RatingsCompanion.insert(
         id: r.id,
         isDeleted: Value(r.isDeleted),
         lastModified: r.lastModified,
@@ -48,7 +48,7 @@ class DatabaseMigrationService {
       )));
 
       // Todo Rules
-      batch.insertAllOnConflictUpdate(db.todoRules, appRepository.todoRules.values.map((tr) => TodoRulesCompanion.insert(
+      batch.insertAllOnConflictUpdate(db.todoRules, data.todoRules.values.map((tr) => TodoRulesCompanion.insert(
         id: tr.id,
         isDeleted: Value(tr.isDeleted),
         lastModified: tr.lastModified,
@@ -58,7 +58,7 @@ class DatabaseMigrationService {
       )));
 
       // Strava Athletes
-      batch.insertAllOnConflictUpdate(db.stravaAthletes, appRepository.stravaAthletes.values.map((sa) => StravaAthletesCompanion.insert(
+      batch.insertAllOnConflictUpdate(db.stravaAthletes, data.stravaAthletes.values.map((sa) => StravaAthletesCompanion.insert(
         id: Value(sa.id),
         lastModified: sa.lastModified,
         firstname: Value(sa.firstname),
@@ -68,7 +68,7 @@ class DatabaseMigrationService {
       )));
 
       // Strava Gears
-      batch.insertAllOnConflictUpdate(db.stravaGears, appRepository.stravaGears.values.map((sg) => StravaGearsCompanion.insert(
+      batch.insertAllOnConflictUpdate(db.stravaGears, data.stravaGears.values.map((sg) => StravaGearsCompanion.insert(
         id: sg.id,
         lastModified: sg.lastModified,
         name: sg.name,
@@ -79,7 +79,7 @@ class DatabaseMigrationService {
       // -----------------------------------------------------------------------
       
       // Components
-      batch.insertAllOnConflictUpdate(db.components, appRepository.components.values.map((c) => ComponentsCompanion.insert(
+      batch.insertAllOnConflictUpdate(db.components, data.components.values.map((c) => ComponentsCompanion.insert(
         id: c.id,
         isDeleted: Value(c.isDeleted),
         lastModified: c.lastModified,
@@ -93,7 +93,7 @@ class DatabaseMigrationService {
       // -----------------------------------------------------------------------
       
       // Todo Entries
-      batch.insertAllOnConflictUpdate(db.todoEntries, appRepository.todoEntries.values.map((te) => TodoEntriesCompanion.insert(
+      batch.insertAllOnConflictUpdate(db.todoEntries, data.todoEntries.values.map((te) => TodoEntriesCompanion.insert(
         id: te.id,
         isDeleted: Value(te.isDeleted),
         lastModified: te.lastModified,
@@ -106,7 +106,7 @@ class DatabaseMigrationService {
 
       // Installations (nested in components)
       final List<InstallationsCompanion> installationsToInsert = [];
-      for (final component in appRepository.components.values) {
+      for (final component in data.components.values) {
         for (final installation in component.installations) {
           installationsToInsert.add(InstallationsCompanion.insert(
             id: const Uuid().v4(), // generate an ID as legacy didn't have one
@@ -150,13 +150,13 @@ class DatabaseMigrationService {
         }
       }
 
-      for (final c in appRepository.components.values) {
+      for (final c in data.components.values) {
         addAdjustments(c.adjustments, componentId: c.id);
       }
-      for (final p in appRepository.persons.values) {
+      for (final p in data.persons.values) {
         addAdjustments(p.adjustments, personId: p.id);
       }
-      for (final r in appRepository.ratings.values) {
+      for (final r in data.ratings.values) {
         addAdjustments(r.adjustments, ratingId: r.id);
       }
       
@@ -167,7 +167,7 @@ class DatabaseMigrationService {
       // -----------------------------------------------------------------------
 
       // Strava Activities
-      batch.insertAllOnConflictUpdate(db.stravaActivities, appRepository.stravaActivities.values.map((sa) => StravaActivitiesCompanion.insert(
+      batch.insertAllOnConflictUpdate(db.stravaActivities, data.stravaActivities.values.map((sa) => StravaActivitiesCompanion.insert(
         id: Value(sa.id),
         lastModified: sa.lastModified,
         name: sa.name,
@@ -185,7 +185,7 @@ class DatabaseMigrationService {
       )));
 
       // Setups
-      batch.insertAllOnConflictUpdate(db.setups, appRepository.setups.values.map((s) => SetupsCompanion.insert(
+      batch.insertAllOnConflictUpdate(db.setups, data.setups.values.map((s) => SetupsCompanion.insert(
         id: s.id,
         bikeId: s.bike,
         personId: Value(s.person),
@@ -207,7 +207,7 @@ class DatabaseMigrationService {
 
       // Setup Adjustment Values
       final List<SetupAdjustmentValuesCompanion> valuesToInsert = [];
-      for (final setup in appRepository.setups.values) {
+      for (final setup in data.setups.values) {
         // Bike adjustments
         for (final entry in setup.bikeAdjustmentValues.entries) {
           valuesToInsert.add(SetupAdjustmentValuesCompanion.insert(

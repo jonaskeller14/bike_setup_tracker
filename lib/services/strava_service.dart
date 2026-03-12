@@ -63,8 +63,8 @@ class StravaService extends ChangeNotifier {
     }
   }
 
-  Future<void> update({required AppRepository newAppData}) async {
-    _appRepository = newAppData;
+  Future<void> update({required AppRepository appRepository}) async {
+    _appRepository = appRepository;
 
     if (_isInitialized) return;
     _isInitialized = true;

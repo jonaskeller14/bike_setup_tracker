@@ -52,8 +52,8 @@ class GoogleDriveService extends ChangeNotifier {
 
   GoogleDriveService(AppRepository _, this.appDatabase);
 
-  void update({required AppRepository newAppData}) async {
-    if (_appDataLastModified != null && !newAppData.lastModified.isAfter(_appDataLastModified!)) {
+  void update({required AppRepository appRepository}) async {
+    if (_appDataLastModified != null && !appRepository.lastModified.isAfter(_appDataLastModified!)) {
       debugPrint("GoogleDriveService.update aborted because AppRepository.lastModified");
       return;
     }
@@ -62,7 +62,7 @@ class GoogleDriveService extends ChangeNotifier {
       return;
     }
 
-    _appDataLastModified = newAppData.lastModified;
+    _appDataLastModified = appRepository.lastModified;
 
     if (!_isInitialized) {
       await _silentSetup();  // scheduleSilentSync() and saveBackup() included here

@@ -347,7 +347,7 @@ class AppRepository extends ChangeNotifier {
   }
 
   // ---------------------------------------------------------------------------
-  // WRITE OPERATIONS (from AppData)
+  // WRITE OPERATIONS
   // ---------------------------------------------------------------------------
 
   Future<SelectedData?> loadLegacyData() async {

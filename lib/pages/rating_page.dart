@@ -43,22 +43,41 @@ class RatingPage extends StatefulWidget {
   State<RatingPage> createState() => _RatingPageState();
 }
 
-class FilterFilterType {
+class _FilterFilterType {
   final String? filter;
   final FilterType filterType;
 
-  const FilterFilterType(this.filter, this.filterType);
+  const _FilterFilterType(this.filter, this.filterType);
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is FilterFilterType &&
-          runtimeType == other.runtimeType &&
+      other is _FilterFilterType &&
           filter == other.filter &&
           filterType == other.filterType;
 
   @override
   int get hashCode => filter.hashCode ^ filterType.hashCode;
+}
+
+class _FilterFilterTypeBike extends _FilterFilterType {
+  final Bike bike;
+  const _FilterFilterTypeBike(super.filter, super.filterType, this.bike);
+}
+
+class _FilterFilterTypeComponent extends _FilterFilterType {
+  final Component component;
+  const _FilterFilterTypeComponent(super.filter, super.filterType, this.component);
+}
+
+class _FilterFilterTypeComponentType extends _FilterFilterType {
+  final ComponentType componentType;
+  const _FilterFilterTypeComponentType(super.filter, super.filterType, this.componentType);
+}
+
+class _FilterFilterTypePerson extends _FilterFilterType {
+  final Person person;
+  const _FilterFilterTypePerson(super.filter, super.filterType, this.person);
 }
 
 class _RatingPageState extends State<RatingPage> {
@@ -70,8 +89,8 @@ class _RatingPageState extends State<RatingPage> {
 
   late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
-  late FilterFilterType _filterFilterType;
-  late FilterFilterType _initialFilterFilterType;
+  late _FilterFilterType _filterFilterType;
+  late _FilterFilterType _initialFilterFilterType;
 
   @override
   void initState() {
@@ -84,7 +103,7 @@ class _RatingPageState extends State<RatingPage> {
     _initialAdjustments = List.from(_adjustments);
     
 
-    _initialFilterFilterType = FilterFilterType(
+    _initialFilterFilterType = _FilterFilterType(
       widget.rating?.filter,
       widget.rating?.filterType ?? FilterType.global,
     );
@@ -351,6 +370,147 @@ class _RatingPageState extends State<RatingPage> {
     );
   }
 
+  DropdownMenuItem<_FilterFilterType> _invalidFilterDropdownMenuItem(_FilterFilterType fft) {
+    return DropdownMenuItem<_FilterFilterType>(
+      value: fft,
+      child: Row(
+        spacing: 8,
+        children: [
+          Icon(
+            switch (fft.filterType) {
+              FilterType.bike => Bike.iconData,
+              FilterType.component => ComponentType.other.getIconData(),
+              FilterType.componentType => ComponentType.other.getIconData(),
+              FilterType.person => Person.iconData,
+              FilterType.global => Icons.error,
+            }, 
+            color: Theme.of(context).colorScheme.error
+          ),
+          Expanded(child: Text(
+            switch (fft.filterType) {
+              FilterType.bike => "BIKE NOT FOUND",
+              FilterType.component => "COMPONENT NOT FOUND",
+              FilterType.componentType => "COMPONENTTYPE NOT FOUND",
+              FilterType.person => "PERSON NOT FOUND",
+              FilterType.global => "OBJECT NOT FOUND",
+            },
+            overflow: TextOverflow.ellipsis, 
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          ))
+        ],
+      ),
+    );
+  }
+
+  DropdownMenuItem<_FilterFilterType?> _dropdownMenuSection(String label) {
+    return DropdownMenuItem<_FilterFilterType?>(
+      enabled: false,
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2),
+      ),
+    );
+  }
+
+  DropdownMenuItem<_FilterFilterType> _dropdownMenuItemGlobal(_FilterFilterType fft) {
+    return DropdownMenuItem<_FilterFilterType>(
+      value: fft,
+      child: Row(
+        spacing: 8,
+        children: [
+          const Icon(Icons.circle_outlined),
+          Expanded(child: Text("Apply everywhere", overflow: TextOverflow.ellipsis))
+        ],
+      ),
+    );
+  }
+
+  DropdownMenuItem<_FilterFilterType> _dropdownMenuItemBike(_FilterFilterTypeBike fftb) {
+    return DropdownMenuItem<_FilterFilterType>(
+      value: fftb,
+      child: Row(
+        spacing: 8,
+        children: [
+          const Icon(Bike.iconData),
+          Expanded(child: Text(fftb.bike.name, overflow: TextOverflow.ellipsis)),
+        ],
+      ),
+    );
+  }
+
+  DropdownMenuItem<_FilterFilterType> _dropdownMenuItemComponentType(_FilterFilterTypeComponentType fftct) {
+    return DropdownMenuItem<_FilterFilterType>(
+      value: fftct,
+      child: Row(
+        spacing: 8,
+        children: [
+          Icon(fftct.componentType.getIconData()),
+          Expanded(child: Text(fftct.componentType.value, overflow: TextOverflow.ellipsis))
+        ],
+      ),
+    );
+  }
+
+  DropdownMenuItem<_FilterFilterType> _dropdownMenuItemComponent(_FilterFilterTypeComponent fftc) {
+    final filteredData = context.watch<FilteredData>();
+    final bikes = filteredData.bikes;
+
+    return DropdownMenuItem<_FilterFilterType>(
+      value: fftc,
+      child: Row(
+        spacing: 8,
+        children: [
+          Flexible(
+            fit: FlexFit.tight, 
+            child: Row(
+              spacing: 8,
+              children: [
+                Icon(fftc.component.componentType.getIconData()),
+                Expanded(child: Text(fftc.component.name, overflow: TextOverflow.ellipsis)),
+              ],
+            ),
+          ),
+          Flexible(
+            fit: FlexFit.tight,
+            child: Row(
+              spacing: 8,
+              children: [
+                Icon(
+                  fftc.component.bike != null ? Bike.iconData : Icons.shelves,
+                  color: fftc.component.bike == null || bikes.containsKey(fftc.component.bike) 
+                      ? null
+                      : Theme.of(context).colorScheme.error,
+                ), 
+                Expanded(child: Text(
+                  fftc.component.bike == null
+                      ? "Not installed"
+                      : bikes[fftc.component.bike]?.name ?? "BIKE NOT FOUND",
+                  style: fftc.component.bike == null || bikes.containsKey(fftc.component.bike) 
+                      ? null 
+                      : TextStyle(color: Theme.of(context).colorScheme.error), 
+                  overflow: TextOverflow.ellipsis
+                )),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  DropdownMenuItem<_FilterFilterType> _dropdownMenuItemPerson(_FilterFilterTypePerson fftp) {
+    return DropdownMenuItem<_FilterFilterType>(
+      value: fftp,
+      child: Row(
+        spacing: 8,
+        children: [
+          const Icon(Person.iconData),
+          Expanded(child: Text(fftp.person.name, overflow: TextOverflow.ellipsis))
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filteredData = context.watch<FilteredData>();
@@ -358,13 +518,13 @@ class _RatingPageState extends State<RatingPage> {
     final persons = filteredData.persons;
     final components = filteredData.components;
 
-    final Map<FilterFilterType, dynamic> filterOptions = Map.fromEntries([
-      MapEntry(FilterFilterType(null, FilterType.global), null),
-      ...bikes.values.map((b) => MapEntry(FilterFilterType(b.id, FilterType.bike), b)),
-      ...ComponentType.values.map((ct) => MapEntry(FilterFilterType(ct.toString(), FilterType.componentType), ct)),
-      ...components.values.map((c) => MapEntry(FilterFilterType(c.id, FilterType.component), c)),
-      ...persons.values.map((p) => MapEntry(FilterFilterType(p.id, FilterType.person), p)),
-    ]);
+    final List<_FilterFilterType> filterOptions = [
+      _FilterFilterType(null, FilterType.global),
+      ...bikes.values.map((b) => _FilterFilterTypeBike(b.id, FilterType.bike, b)),
+      ...ComponentType.values.map((ct) => _FilterFilterTypeComponentType(ct.toString(), FilterType.componentType, ct)),
+      ...components.values.map((c) => _FilterFilterTypeComponent(c.id, FilterType.component, c)),
+      ...persons.values.map((p) => _FilterFilterTypePerson(p.id, FilterType.person, p)),
+    ];
 
     return PopScope( 
       canPop: !_formHasChanges,
@@ -404,7 +564,7 @@ class _RatingPageState extends State<RatingPage> {
                     validator: _validateName,
                   ),
                   const SizedBox(height: 12),
-                  DropdownButtonFormField<FilterFilterType?>(
+                  DropdownButtonFormField<_FilterFilterType?>(
                     initialValue: _filterFilterType,
                     isExpanded: true,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -415,109 +575,40 @@ class _RatingPageState extends State<RatingPage> {
                       fillColor: Colors.orange.withValues(alpha: 0.08),
                       filled: widget.mode == RatingPageMode.edit && _filterFilterType.filter != widget.rating?.filter,
                     ),
-                    validator: (FilterFilterType? newValue) {
-                      if (!filterOptions.containsKey(newValue)) return "Invalid Filter.";
+                    validator: (_FilterFilterType? newValue) {
+                      if (!filterOptions.contains(newValue)) return "Invalid Filter.";
                       return null;
                     },
-                    items: filterOptions.entries.map((filterEntry) {
-                      final fft = filterEntry.key;
-                      final object = filterEntry.value;
-                      return DropdownMenuItem<FilterFilterType>(
-                        value: fft,
-                        child: Row(
-                          spacing: 8,
-                          children: switch(fft.filterType) {
-                            FilterType.global => [
-                              const Icon(Icons.circle_outlined),
-                              Expanded(child: Text("Apply everywhere", overflow: TextOverflow.ellipsis))
-                            ],
-                            FilterType.bike => [
-                              const Icon(Bike.iconData),
-                              Expanded(child: Text(object?.name, overflow: TextOverflow.ellipsis)),
-                            ],
-                            FilterType.component => [
-                              Flexible(
-                                fit: FlexFit.tight, 
-                                child: Row(
-                                  spacing: 8,
-                                  children: [
-                                    Icon(object.componentType.getIconData()),
-                                    Expanded(child: Text(object.name, overflow: TextOverflow.ellipsis)),
-                                  ],
-                                ),
-                              ),
-                              Flexible(
-                                fit: FlexFit.tight,
-                                child: Row(
-                                  spacing: 8,
-                                  children: [
-                                    Icon(
-                                      object.bike != null ? Bike.iconData : Icons.shelves,
-                                      color: object.bike == null || bikes.containsKey(object.bike) 
-                                          ? null
-                                          : Theme.of(context).colorScheme.error,
-                                    ), 
-                                    Expanded(child: Text(
-                                      object.bike == null
-                                          ? "Not installed"
-                                          : bikes[object.bike]?.name ?? "BIKE NOT FOUND",
-                                      style: object.bike == null || bikes.containsKey(object.bike) 
-                                          ? null 
-                                          : TextStyle(color: Theme.of(context).colorScheme.error), 
-                                      overflow: TextOverflow.ellipsis
-                                    )),
-                                  ],
-                                ),
-                              ),
-                            ],
-                            FilterType.componentType => [
-                              Icon(object.getIconData()),
-                              Expanded(child: Text(object.value, overflow: TextOverflow.ellipsis))
-                            ],
-                            FilterType.person => [
-                              const Icon(Person.iconData),
-                              Expanded(child: Text(object.name, overflow: TextOverflow.ellipsis))
-                            ],
-                          },
-                        ),
-                      );
-                    }).toList() + [
-                      if (!filterOptions.containsKey(_filterFilterType))
-                        DropdownMenuItem<FilterFilterType>(
-                          value: _filterFilterType,
-                          child: Row(
-                            spacing: 8,
-                            children: [
-                              Icon(
-                                switch (_filterFilterType.filterType) {
-                                  FilterType.bike => Bike.iconData,
-                                  FilterType.component => ComponentType.other.getIconData(),
-                                  FilterType.componentType => ComponentType.other.getIconData(),
-                                  FilterType.person => Person.iconData,
-                                  FilterType.global => Icons.error,
-                                }, 
-                                color: Theme.of(context).colorScheme.error
-                              ),
-                              Expanded(child: Text(
-                                switch (_filterFilterType.filterType) {
-                                  FilterType.bike => "BIKE NOT FOUND",
-                                  FilterType.component => "COMPONENT NOT FOUND",
-                                  FilterType.componentType => "COMPONENTTYPE NOT FOUND",
-                                  FilterType.person => "PERSON NOT FOUND",
-                                  FilterType.global => "OBJECT NOT FOUND",
-                                },
-                                overflow: TextOverflow.ellipsis, 
-                                style: TextStyle(color: Theme.of(context).colorScheme.error),
-                              ))
-                            ],
-                          ),
-                        ),
+                    items: [
+                      if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.global)
+                        _invalidFilterDropdownMenuItem(_filterFilterType),
+                      ...filterOptions.where((fo) => fo.filterType == FilterType.global).map((fft) => _dropdownMenuItemGlobal(fft)),
+
+                      _dropdownMenuSection("Bikes"),
+                      if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.bike)
+                        _invalidFilterDropdownMenuItem(_filterFilterType),
+                      ...filterOptions.whereType<_FilterFilterTypeBike>().map((fftb) => _dropdownMenuItemBike(fftb)),
+
+                      _dropdownMenuSection("Component Types"),
+                      if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.componentType)
+                        _invalidFilterDropdownMenuItem(_filterFilterType),
+                      ...filterOptions.whereType<_FilterFilterTypeComponentType>().map((fftct) => _dropdownMenuItemComponentType(fftct)),
+
+                      _dropdownMenuSection("Components"),
+                      if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.component)
+                        _invalidFilterDropdownMenuItem(_filterFilterType),
+                      ...filterOptions.whereType<_FilterFilterTypeComponent>().map((fftc) => _dropdownMenuItemComponent(fftc)),
+
+                      _dropdownMenuSection("Persons"),
+                      if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.person)
+                        _invalidFilterDropdownMenuItem(_filterFilterType),
+                      ...filterOptions.whereType<_FilterFilterTypePerson>().map((fftp) => _dropdownMenuItemPerson(fftp)),
                     ],
-                      onChanged: (FilterFilterType? newValue) {
-                        setState(() => _filterFilterType = newValue ?? FilterFilterType(null, FilterType.global));
-                        _changeListener();
-                      },
-                    ),
+                    onChanged: (_FilterFilterType? newValue) {
+                      setState(() => _filterFilterType = newValue ?? _FilterFilterType(null, FilterType.global));
+                      _changeListener();
+                    },
+                  ),
                   Center(
                     child: TextButton.icon(
                       onPressed: () => setState(() => _expanded = !_expanded),

@@ -44,6 +44,8 @@ class BikeActions {
     await appRepository.removeComponents(obsoleteComponents);
     await appRepository.removeSetups(obsoleteSetups);
     await appRepository.removeRatings(obsoleteRatings);
+    
+    if (!context.mounted) return;
 
     String message = "Bike '${bike.name}' moved to trash.";
     if (context.read<AppSettings>().enableRating) {

@@ -66,6 +66,8 @@ class ComponentActions {
     final appRepository = context.read<AppRepository>();
     await appRepository.removeComponents([component]);
 
+    if (!context.mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text("Component '${component.name}' moved to trash."),
       duration: const Duration(seconds: 5),

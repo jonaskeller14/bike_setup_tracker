@@ -55,6 +55,8 @@ class PersonActions {
     await appRepository.removePerson(person);
     await appRepository.removeRatings(obsoleteRatings);
 
+    if (!context.mounted) return;
+
     String message = "Person '${person.name}' moved to trash.";
     if (obsoleteRatings.isNotEmpty && context.read<AppSettings>().enableRating) {
       message += "\n${obsoleteRatings.length} Ratings which belong to this person are deleted as well.";

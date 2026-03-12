@@ -51,6 +51,8 @@ class RatingActions {
     final appRepository = context.read<AppRepository>();
     await appRepository.removeRatings([rating]);
 
+    if (!context.mounted) return;
+
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text("Rating '${rating.name}' moved to trash."),
       duration: const Duration(seconds: 5),

@@ -185,15 +185,26 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
     final componentAdjustments = component.adjustments;
 
     final ratings = appRepository.ratings;
-    final ratingAdjustments = ratings.values.expand((rating) => rating.adjustments);
-    
     final bikes = appRepository.bikes;
     final bike = bikes[component.bike];
     
     final persons = appRepository.persons;
     final person = persons[bike?.person];
     final personAdjustments = person?.adjustments ?? [];
-    
+
+    final ratingAdjustments = ratings.values.expand((rating) => rating.adjustments);
+
+    final List<Rating> validRatings = ratings.values.where((rating) {
+      if (!appSettings.enableRating) return false;
+      return switch (rating.filterType) {
+        FilterType.global => true,
+        FilterType.componentType => component.componentType.toString() == rating.filter,
+        FilterType.component => component.id == rating.filter,
+        FilterType.bike => component.bike == rating.filter,
+        FilterType.person => bike?.person == rating.filter,
+      };
+    }).toList();
+
     // Remove only invalid columns (to keep prior modifications to 'active')
     for (final column in _columns.toSet()) {
       switch (column.section) {
@@ -210,37 +221,8 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
             continue;
           }          
         case TableColumnSection.ratingMetrics:
-          if (!appSettings.enableRating) {
+          if (!validRatings.any((r) => r.adjustments.any((a) => a.id == column.label))) {
             _columns.remove(column);
-            continue;
-          }
-          final Rating? rating = ratings[column.label];
-          if (rating == null) {
-            _columns.remove(column);
-            continue;
-          }
-          switch (rating.filterType) {
-            case FilterType.global: continue;
-            case FilterType.componentType: 
-              if (component.componentType.toString() != rating.filter) {
-                _columns.remove(column);
-                continue;
-              }
-            case FilterType.component:
-              if (component.id != rating.filter) {
-                _columns.remove(column);
-                continue;
-              }
-            case FilterType.bike:
-              if (component.bike == rating.filter) {
-                _columns.remove(column);
-                continue;
-              }
-            case FilterType.person: 
-              if (bike?.person == rating.filter) {
-                _columns.remove(column);
-                continue;
-              }
           }
         case TableColumnSection.weatherContext: continue; 
       }
@@ -257,29 +239,8 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
     if (appSettings.enablePerson) {
       _columns.addAll(personAdjustments.map((a) => TableColumn(section: TableColumnSection.personAttributes, label: a.id, active: false)));
     }
-    if (appSettings.enableRating) {
-      for (final rating in ratings.values) {
-        switch (rating.filterType) {
-          case FilterType.global: 
-            _columns.addAll(rating.adjustments.map((a) => TableColumn(section: TableColumnSection.ratingMetrics, label: a.id, active: false)));
-          case FilterType.componentType: 
-            if (component.componentType.toString() == rating.filter) {
-              _columns.addAll(rating.adjustments.map((a) => TableColumn(section: TableColumnSection.ratingMetrics, label: a.id, active: false)));
-            }
-          case FilterType.component: 
-            if (component.id == rating.filter) {
-              _columns.addAll(rating.adjustments.map((a) => TableColumn(section: TableColumnSection.ratingMetrics, label: a.id, active: false)));
-            }
-          case FilterType.bike: 
-            if (component.bike == rating.filter) {
-              _columns.addAll(rating.adjustments.map((a) => TableColumn(section: TableColumnSection.ratingMetrics, label: a.id, active: false)));
-            }
-          case FilterType.person: 
-            if (bike?.person == rating.filter) {
-              _columns.addAll(rating.adjustments.map((a) => TableColumn(section: TableColumnSection.ratingMetrics, label: a.id, active: false)));
-            }
-        }
-      }
+    for (final rating in validRatings) {
+      _columns.addAll(rating.adjustments.map((a) => TableColumn(section: TableColumnSection.ratingMetrics, label: a.id, active: false)));
     }
 
     final sortedColumns = _columns.sorted((a, b) => a.section.index.compareTo(b.section.index));  // sort by enum index

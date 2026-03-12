@@ -42,6 +42,17 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
     NumericalAdjustment(name: "Lever Angle",  unit: "°",  category: AdjustmentCategory.component, notes: "Angle of brake levers relative to horizontal."),
     NumericalAdjustment(name: "Stem Length", unit: "mm", min: 0, category: AdjustmentCategory.component, notes: "Measured center-to-center from the fork steerer tube to the handlebar clamp."),
   ],
+  ComponentType.saddle: [
+    NumericalAdjustment(name: "Saddle Tilt", unit: "°", category: AdjustmentCategory.component, notes: "Angle of the saddle relative to horizontal"),
+    NumericalAdjustment(name: "Saddle Fore/Aft", unit: "mm", category: AdjustmentCategory.component, notes: "Position of the saddle on the rails"),
+  ],
+  ComponentType.seatpost: [
+    NumericalAdjustment(name: "Saddle Height", unit: "mm", min: 0, category: AdjustmentCategory.component, notes: "Distance from Bottom Bracket to top of saddle"),
+    NumericalAdjustment(name: "Dropper Pressure", unit: "psi", min: 0, category: AdjustmentCategory.component, notes: "Air pressure for the dropper post return"),
+  ],
+  ComponentType.pedal: [
+    StepAdjustment(name: "Clipless Spring Tension", unit: null, step: 1, min: 0, max: 20, category: AdjustmentCategory.component, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Release tension setting for clipless pedals"),
+  ],
   ComponentType.motor: [
     NumericalAdjustment(name: "Max Power", unit: "W", min: 0, category: AdjustmentCategory.component, notes: "Maximum motor power output"),
     NumericalAdjustment(name: "Max Torque", unit: "Nm", min: 0, category: AdjustmentCategory.component, notes: "Maximum motor torque"),
@@ -54,7 +65,6 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
     CategoricalAdjustment(name: "Cleat Position", notes: "Shoe cleat fore/aft or lateral position", unit: null, category: AdjustmentCategory.equipment, options: {"Forward", "Neutral", "Rearward"}),
   ],
   ComponentType.other: [
-    NumericalAdjustment(name: "Saddle Height", unit: "mm", min: 0, category: AdjustmentCategory.component, notes: "Distance from Bottom Bracket to top of saddle"),
     NumericalAdjustment(name: "Stack Height", unit: "mm", min: 0, category: AdjustmentCategory.component, notes: "Height of spacers under the stem"),
   ],
 };

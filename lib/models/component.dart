@@ -5,33 +5,7 @@ import 'adjustment/adjustment.dart';
 import '../icons/bike_icons.dart';
 import 'installation.dart';
 
-enum ComponentType {
-  frame('Frame'),
-  fork('Fork'),
-  shock('Shock'),
-  wheelFront('Front Wheel'),
-  wheelRear('Rear Wheel'),
-  cockpit('Cockpit'),
-  motor('Motor'),
-  equipment('Equipment'),
-  other('Other');
-
-  final String value;
-  const ComponentType(this.value);
-  IconData getIconData() {
-    switch (this) {
-      case frame: return BikeIcons.frame;
-      case fork: return BikeIcons.fork;
-      case shock: return BikeIcons.shock;
-      case wheelFront: return BikeIcons.wheelFront;
-      case wheelRear: return BikeIcons.wheelRear;
-      case cockpit: return BikeIcons.cockpit;
-      case motor: return BikeIcons.motor;
-      case equipment: return BikeIcons.equipment;
-      case other: return BikeIcons.other;
-    }
-  }
-}
+part 'component_type.dart';
 
 class Component {
   final String id;

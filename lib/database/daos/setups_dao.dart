@@ -3,12 +3,18 @@ import '../app_database.dart';
 import '../tables/setups.dart';
 import '../tables/setup_adjustment_values.dart';
 import '../tables/adjustments.dart';
+import 'soft_delete_dao_mixin.dart';
 
 part 'setups_dao.g.dart';
 
 @DriftAccessor(tables: [Setups, SetupAdjustmentValues, Adjustments])
-class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin {
+class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin, SoftDeletableDaoMixin<Setups, SetupDb, SetupsCompanion> {
   SetupsDao(super.db);
+
+  @override TableInfo<Setups, SetupDb> get softDeletableTable => setups;
+  @override Expression<bool> get isDeletedColumn => setups.isDeleted;
+  @override Expression<String> get idColumn => setups.id;
+  @override SetupsCompanion createSoftDeleteCompanion() => SetupsCompanion(isDeleted: const Value(true), lastModified: Value(DateTime.now().toUtc()));
 
   Stream<List<SetupDb>> watchAllSetupsForBike(String bikeId) {
     return (select(setups)
@@ -17,11 +23,11 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin {
         .watch();
   }
 
-  Stream<List<SetupDb>> watchAllSetups() => (select(setups)..where((t) => t.isDeleted.equals(false))).watch();
-  Stream<List<SetupDb>> watchDeletedSetups() => (select(setups)..where((t) => t.isDeleted.equals(true))).watch();
+  Stream<List<SetupDb>> watchAllSetups() => watchAllActive();
+  Stream<List<SetupDb>> watchDeletedSetups() => watchAllDeleted();
 
   Stream<List<SetupWithValues>> watchAllSetupsWithValues() {
-    final query = (select(setups)..where((t) => t.isDeleted.equals(false))).join([
+    final query = (select(setups)..where((t) => isDeletedColumn.equals(false))).join([
       leftOuterJoin(setupAdjustmentValues, setupAdjustmentValues.setupId.equalsExp(setups.id)),
       leftOuterJoin(adjustments, adjustments.id.equalsExp(setupAdjustmentValues.adjustmentId)),
     ]);
@@ -69,7 +75,7 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin {
 
   Future<int> insertSetup(SetupsCompanion entry) => into(setups).insert(entry);
   Future updateSetup(SetupsCompanion entry) => update(setups).replace(entry);
-  Future deleteSetup(String id) => (update(setups)..where((t) => t.id.equals(id))).write(SetupsCompanion(isDeleted: const Value(true), lastModified: Value(DateTime.now().toUtc())));
+  Future<int> deleteSetup(String id) => softDelete(id);
 
   // Value operations
   Future<void> upsertSetupValue(SetupAdjustmentValuesCompanion entry) => into(setupAdjustmentValues).insertOnConflictUpdate(entry);
@@ -115,6 +121,27 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin {
         value: Value(entry.value.toString()),
       ));
     }
+  }
+
+  Future<List<SetupWithValues>> getAllSetupsWithValuesBypass() async {
+    final query = select(setups).join([
+      leftOuterJoin(setupAdjustmentValues, setupAdjustmentValues.setupId.equalsExp(setups.id)),
+      leftOuterJoin(adjustments, adjustments.id.equalsExp(setupAdjustmentValues.adjustmentId)),
+    ]);
+
+    final rows = await query.get();
+    final Map<String, SetupWithValues> grouped = {};
+    for (final row in rows) {
+      final setup = row.readTable(setups);
+      final value = row.readTableOrNull(setupAdjustmentValues);
+      final adjustment = row.readTableOrNull(adjustments);
+      
+      final entry = grouped.putIfAbsent(setup.id, () => SetupWithValues(setup: setup, values: []));
+      if (value != null && adjustment != null) {
+        entry.values.add(TypedSetupValue(value: value, adjustment: adjustment));
+      }
+    }
+    return grouped.values.toList();
   }
 }
 

@@ -2,15 +2,21 @@ import 'package:drift/drift.dart';
 import '../app_database.dart';
 import '../tables/ratings.dart';
 import '../tables/adjustments.dart';
+import 'soft_delete_dao_mixin.dart';
 
 part 'ratings_dao.g.dart';
 
 @DriftAccessor(tables: [Ratings, Adjustments])
-class RatingsDao extends DatabaseAccessor<AppDatabase> with _$RatingsDaoMixin {
+class RatingsDao extends DatabaseAccessor<AppDatabase> with _$RatingsDaoMixin, SoftDeletableDaoMixin<Ratings, RatingDb, RatingsCompanion> {
   RatingsDao(super.db);
 
-  Stream<List<RatingDb>> watchAllRatings() => (select(ratings)..where((t) => t.isDeleted.equals(false))).watch();
-  Stream<List<RatingDb>> watchDeletedRatings() => (select(ratings)..where((t) => t.isDeleted.equals(true))).watch();
+  @override TableInfo<Ratings, RatingDb> get softDeletableTable => ratings;
+  @override Expression<bool> get isDeletedColumn => ratings.isDeleted;
+  @override Expression<String> get idColumn => ratings.id;
+  @override RatingsCompanion createSoftDeleteCompanion() => RatingsCompanion(isDeleted: const Value(true), lastModified: Value(DateTime.now().toUtc()));
+
+  Stream<List<RatingDb>> watchAllRatings() => watchAllActive();
+  Stream<List<RatingDb>> watchDeletedRatings() => watchAllDeleted();
 
   Future<RatingDb?> getRating(String id) {
     return (select(ratings)..where((t) => t.id.equals(id))).getSingleOrNull();
@@ -25,10 +31,10 @@ class RatingsDao extends DatabaseAccessor<AppDatabase> with _$RatingsDaoMixin {
 
   Future<int> insertRating(RatingsCompanion entry) => into(ratings).insert(entry);
   Future updateRating(RatingsCompanion entry) => update(ratings).replace(entry);
-  Future deleteRating(String id) => (update(ratings)..where((t) => t.id.equals(id))).write(RatingsCompanion(isDeleted: const Value(true), lastModified: Value(DateTime.now().toUtc())));
+  Future<int> deleteRating(String id) => softDelete(id);
 
   Stream<List<RatingWithData>> watchAllRatingsWithData() {
-    final query = (select(ratings)..where((t) => t.isDeleted.equals(false))).join([
+    final query = (select(ratings)..where((t) => isDeletedColumn.equals(false))).join([
       leftOuterJoin(adjustments, adjustments.ratingId.equalsExp(ratings.id)),
     ]);
 
@@ -76,6 +82,31 @@ class RatingsDao extends DatabaseAccessor<AppDatabase> with _$RatingsDaoMixin {
         await into(adjustments).insert(adj);
       }
     });
+  }
+
+  Future<List<RatingWithData>> getAllRatingsWithDataBypass() async {
+    final query = select(ratings).join([
+      leftOuterJoin(adjustments, adjustments.ratingId.equalsExp(ratings.id)),
+    ]);
+
+    final rows = await query.get();
+    final Map<String, RatingWithData> grouped = {};
+    for (final row in rows) {
+      final rating = row.readTable(ratings);
+      final adjustment = row.readTableOrNull(adjustments);
+
+      final entry = grouped.putIfAbsent(
+        rating.id,
+        () => RatingWithData(rating: rating, adjustments: []),
+      );
+      if (adjustment != null && !entry.adjustments.any((a) => a.id == adjustment.id)) {
+        entry.adjustments.add(adjustment);
+      }
+    }
+    for (final entry in grouped.values) {
+      entry.adjustments.sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+    }
+    return grouped.values.toList();
   }
 }
 

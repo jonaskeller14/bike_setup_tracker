@@ -5,8 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../models/app_data.dart';
-import '../../models/filtered_data.dart';
+import '../../repositories/app_repository.dart';
 import '../../models/strava/strava_athlete.dart';
 import '../../services/strava_service.dart';
 import 'sheet.dart';
@@ -34,11 +33,11 @@ class _StravaSheetState extends State<StravaSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredData = context.watch<FilteredData>();
+    final appRepository = context.watch<AppRepository>();
     final stravaService = context.watch<StravaService>();
-    final athletes = filteredData.stravaAthletes.values;
-    final gears = filteredData.stravaGears.values;
-    final latestActivities = filteredData.stravaActivities.values.sortedBy((a) => a.startDate).reversed.take(3);
+    final athletes = appRepository.stravaAthletes.values;
+    final gears = appRepository.stravaGears.values;
+    final latestActivities = appRepository.stravaActivities.values.sortedBy((a) => a.startDate).reversed.take(3);
     
     return SafeArea(
       child: Padding(
@@ -107,8 +106,8 @@ class _StravaSheetState extends State<StravaSheet> {
                         spacing: 4,
                         runSpacing: 4,
                         children: gears.map((g) {
-                          final linkedBikes = filteredData.bikes.values.where((b) => b.stravaGear == g.id);
-                          final unlinkedBikes = filteredData.bikes.values.where((b) => b.stravaGear == null).toList();
+                          final linkedBikes = appRepository.bikes.values.where((b) => b.stravaGear == g.id);
+                          final unlinkedBikes = appRepository.bikes.values.where((b) => b.stravaGear == null).toList();
 
                           final Widget chip = Chip(
                             avatar: linkedBikes.isEmpty
@@ -123,17 +122,17 @@ class _StravaSheetState extends State<StravaSheet> {
                               switch (option) {
                                 case _LinkToBike():
                                   final updatedBike = option.bike.copyWith(stravaGear: g.id);
-                                  context.read<AppData>().editBike(updatedBike);
+                                  context.read<AppRepository>().editBike(updatedBike);
                                 case _AddNewBike():
                                   final newBike = Bike(
                                     name: g.name,
                                     person: null,
                                     stravaGear: g.id,
                                   );
-                                  context.read<AppData>().addBike(newBike);
+                                  context.read<AppRepository>().addBike(newBike);
                                 case _UnlinkBike():
                                   final updatedBike = option.bike.copyWith(stravaGear: null);
-                                  context.read<AppData>().editBike(updatedBike);
+                                  context.read<AppRepository>().editBike(updatedBike);
                               }
                             },
                             itemBuilder: (BuildContext context) {

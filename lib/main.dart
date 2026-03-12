@@ -3,8 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'models/app_settings.dart';
-import 'models/app_data.dart';
-import 'models/filtered_data.dart';
+import 'repositories/app_repository.dart';
 import 'pages/onboarding_page.dart';
 import 'pages/home_page.dart';
 import 'services/google_drive_service.dart';
@@ -77,44 +76,41 @@ void main() async {
   runApp(
     LoadingGate(
       appSettings: AppSettings(),
-      appData: AppData(appDatabase),
-      appDatabase: appDatabase,
+      appRepository: AppRepository(appDatabase),
     ),
   );
 }
 
 class LoadingGate extends StatelessWidget {
   final AppSettings appSettings;
-  final AppData appData;
-  final AppDatabase appDatabase;
+  final AppRepository appRepository;
 
   const LoadingGate({
     super.key,
     required this.appSettings,
-    required this.appData,
-    required this.appDatabase,
+    required this.appRepository,
   });
 
   Future<void> _loadAndMigrate(BuildContext context) async {
-    // We must load AppData as usual since the rest of the app
-    // is dependent on it until Phase 3 refactoring is complete.
-    await appData.load(context);
-
     final dbFolder = await getApplicationDocumentsDirectory();
     final dbFile = File(p.join(dbFolder.path, 'bike_setup_tracker.sqlite'));
     final dbExists = await dbFile.exists();
 
     if (!dbExists) {
       debugPrint("Starting database migration to Drift...");
-      final migrationService = DatabaseMigrationService(appDatabase);
-      await migrationService.migrateFromAppData(appData);
-      debugPrint("Migration inserted data successfully.");
-      
-      // Save a backup of the final JSON state just in case.
-      final result = await FileExport.saveBackup(context: null, data: appData);
-      
+      final legacyData = await appRepository.loadLegacyData();
+      if (legacyData != null) {
+        final migrationService = DatabaseMigrationService(appRepository.database);
+        await migrationService.migrateFromSelectedData(legacyData);
+        debugPrint("Migration inserted data successfully.");
+        
+        // Save a backup of the final JSON state just in case.
+        await FileExport.saveBackup(context: null, database: appRepository.database);
+      }
       debugPrint("Database migration completed.");
     }
+    
+    await appRepository.initialize();
   }
 
   @override
@@ -155,31 +151,27 @@ class LoadingGate extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.done) {
           return MultiProvider(
             providers: [
-              Provider<AppDatabase>.value(value: appDatabase),
+              Provider<AppDatabase>.value(value: appRepository.database),
               ChangeNotifierProvider.value(value: appSettings),
-              ChangeNotifierProvider.value(value: appData),
-
-              ChangeNotifierProvider(
-                create: (context) => FilteredData(appDatabase),
-              ),
-              ProxyProvider<AppData, StorageService>(
+              ChangeNotifierProvider.value(value: appRepository),
+              ProxyProvider<AppRepository, StorageService>(
                 lazy: false,
                 create: (context) => StorageService(),
-                update: (context, newAppData, storageService) => storageService!..update(newAppData),
+                update: (context, appRepo, storageService) => storageService!..update(appRepository.database),
               ),
-              ChangeNotifierProxyProvider2<AppData, AppSettings, GoogleDriveService>(
+              ChangeNotifierProxyProvider2<AppRepository, AppSettings, GoogleDriveService>(
                 lazy: false,
-                create: (context) => GoogleDriveService(appData, appDatabase),
-                update: (context, newAppData, newAppSettings, googleDriveService) {
-                  if (newAppSettings.enableGoogleDrive) googleDriveService!.update(newAppData: newAppData);
+                create: (context) => GoogleDriveService(appRepository, appRepository.database),
+                update: (context, appRepo, settings, googleDriveService) {
+                  if (settings.enableGoogleDrive) googleDriveService!.update(newAppData: appRepo);
                   return googleDriveService!;
                 },
               ),
-              ChangeNotifierProxyProvider2<AppSettings, AppData, StravaService>(
+              ChangeNotifierProxyProvider2<AppSettings, AppRepository, StravaService>(
                 lazy: false,
-                create: (context) => StravaService(appData),
-                update: (context, newAppSettings, newAppData, stravaService) {
-                  if (newAppSettings.enableStrava) stravaService!.update(newAppData: newAppData);
+                create: (context) => StravaService(appRepository),
+                update: (context, settings, appRepo, stravaService) {
+                  if (settings.enableStrava) stravaService!.update(newAppData: appRepo);
                   return stravaService!;
                 },
               ),

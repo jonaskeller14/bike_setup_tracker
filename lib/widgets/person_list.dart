@@ -1,24 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../models/person.dart';
-import 'chips/person_list_filter_widget.dart';
+import 'package:provider/provider.dart';
+import '../repositories/app_repository.dart';
+import '../utils/person_actions.dart';
 import 'person_list_card.dart';
+import 'chips/person_list_filter_widget.dart';
 
 class PersonList extends StatelessWidget {
-  final Map<String, Person> persons;
-  final Future<void> Function(Person person) editPerson;
-  final Future<void> Function(Person person) duplicatePerson;
-  final Future<void> Function(Person person) removePerson;
-  final Future<void> Function(int oldIndex, int newIndex) onReorderPerson;
-
-  const PersonList({
-    super.key,
-    required this.persons,
-    required this.editPerson,
-    required this.duplicatePerson,
-    required this.removePerson,
-    required this.onReorderPerson,
-  });
+  const PersonList({super.key});
 
   Widget _emptyPlaceholder(BuildContext context) {
     return Padding(
@@ -42,7 +31,8 @@ class PersonList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final personsList = persons.values.toList();
+    final appRepository = context.watch<AppRepository>();
+    final personsList = appRepository.filteredPersons.values.toList();
 
     Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
       return AnimatedBuilder(
@@ -57,9 +47,6 @@ class PersonList extends StatelessWidget {
               person: personsList[index],
               index: index,
               elevation: elevation,
-              editPerson: editPerson,
-              duplicatePerson: duplicatePerson, 
-              removePerson: removePerson,
             ),
           );
         },
@@ -74,16 +61,13 @@ class PersonList extends StatelessWidget {
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
             header: PersonListFilterWidget(),
             proxyDecorator: proxyDecorator,
-            onReorder: onReorderPerson,
+            onReorder: (int oldIndex, int newIndex) => PersonActions.onReorderPerson(context, oldIndex: oldIndex, newIndex: newIndex),
             itemBuilder: (context, index) {
               final person = personsList[index];
               return PersonListCard(
                 key: ValueKey(person.id),
                 person: person,
                 index: index,
-                editPerson: editPerson,
-                duplicatePerson: duplicatePerson,
-                removePerson: removePerson,
               );
             },
           );

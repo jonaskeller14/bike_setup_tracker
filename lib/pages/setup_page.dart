@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:provider/provider.dart';
-import '../models/filtered_data.dart';
+import '../repositories/app_repository.dart';
 import '../models/weather.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
@@ -114,15 +114,15 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _selectedDateTimeLocal = widget.setup?.datetimeLocal ?? now;
     _initialDateTimeLocal = _selectedDateTimeLocal;
     
-    final filteredData = context.read<FilteredData>();
+    final appRepository = context.read<AppRepository>();
 
     _currentLocation.value = widget.setup?.position;
     _currentPlace.value = widget.setup?.place;
     _currentWeather.value = widget.setup?.weather;
-    _tags.addAll(widget.setup?.tags ?? filteredData.selectedSetupTags);
+    _tags.addAll(widget.setup?.tags ?? appRepository.selectedSetupTags);
 
-    final bikes = filteredData.bikes;
-    _initialBike = widget.setup?.bike ?? filteredData.filteredBikes.keys.first;
+    final bikes = appRepository.bikes;
+    _initialBike = widget.setup?.bike ?? appRepository.filteredBikes.keys.first;
     _initialPerson = (widget.setup?.person ?? bikes[_initialBike]?.person);
 
     _onBikeChange(_initialBike);
@@ -149,8 +149,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       debugPrint("WARNING: getPreviousSetupbyDateTime() called with local DateTime");
       datetime = datetime.toUtc();
     }
-    final filteredData = context.read<FilteredData>();
-    return filteredData.setups.values.lastWhereOrNull((s) => s.datetime.isBefore(datetime) && (bike == null || s.bike == bike) && (person == null || s.person == person));
+    final appRepository = context.read<AppRepository>();
+    return appRepository.setups.values.lastWhereOrNull((s) => s.datetime.isBefore(datetime) && (bike == null || s.bike == bike) && (person == null || s.person == person));
   }
 
   void _setAdjustmentValuesFromPreviousAndInitialAdjustmentValues() {
@@ -216,8 +216,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     }
 
 
-    final filteredData = context.read<FilteredData>();
-    final persons = filteredData.persons;
+    final appRepository = context.read<AppRepository>();
+    final persons = appRepository.persons;
     _danglingPersonAdjustmentValues.clear();
     _danglingPersonAdjustmentValues.addAll(_personAdjustmentValues);
     for (final personAdj in persons[_person]?.adjustments ?? []) {
@@ -230,8 +230,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   void _setFilteredRatings() {
-    final filteredData = context.read<FilteredData>();
-    final ratings = filteredData.ratings;
+    final appRepository = context.read<AppRepository>();
+    final ratings = appRepository.ratings;
 
     _filteredRatings.clear();
     for (final rating in ratings.values) {
@@ -252,9 +252,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   void _onBikeChange (String? newBike) {
     if (newBike == null) return;
-    final filteredData = context.read<FilteredData>();
-    final bikes = filteredData.bikes;
-    final components = filteredData.components;
+    final appRepository = context.read<AppRepository>();
+    final bikes = appRepository.bikes;
+    final components = appRepository.components;
 
     setState(() {
       _bike = newBike;
@@ -872,10 +872,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    final filteredData = context.watch<FilteredData>();
-    final bikes = filteredData.bikes;
-    final persons = filteredData.persons;
-    final components = filteredData.components;
+    final appRepository = context.watch<AppRepository>();
+    final bikes = appRepository.bikes;
+    final persons = appRepository.persons;
+    final components = appRepository.components;
 
     return PopScope(
       canPop: !_formHasChanges,

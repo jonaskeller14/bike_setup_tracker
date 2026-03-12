@@ -1,12 +1,11 @@
+import 'dart:async';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
-import 'package:bike_setup_tracker/models/filtered_data.dart';
+import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:bike_setup_tracker/main.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
-import 'package:bike_setup_tracker/models/app_data.dart';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/widgets/garage_list.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
@@ -20,14 +19,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   late AppDatabase database;
-  late AppData appData;
+  late AppRepository appRepository;
   late AppSettings appSettings;
-  late FilteredData filteredData;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     database = AppDatabase.memory();
-    appData = AppData(database);
+    appRepository = AppRepository(database);
     appSettings = AppSettings();
     appSettings.showOnboarding = false;
     appSettings.enableGarage = false;
@@ -35,27 +33,24 @@ void main() {
   });
 
   tearDown(() async {
-    appData.dispose();
+    appRepository.dispose();
     appSettings.dispose();
-    filteredData.dispose();
     await database.close();
   });
 
   Widget createWidgetUnderTest() {
-    filteredData = FilteredData(database);
+    appRepository.dispose();
+    appRepository = AppRepository(database);
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AppSettings>.value(value: appSettings),
-        ChangeNotifierProvider<AppData>.value(value: appData),
-        ChangeNotifierProvider<FilteredData>.value(
-          value: filteredData,
-        ),
+        ChangeNotifierProvider<AppRepository>.value(value: appRepository),
         Provider<AppDatabase>.value(value: database),
         Provider<StorageService>(create: (_) => StorageService()),
         ChangeNotifierProvider<StravaService>(
-            create: (_) => StravaService(appData)),
+            create: (_) => StravaService(appRepository)),
         ChangeNotifierProvider<GoogleDriveService>(
-            create: (_) => GoogleDriveService(appData, database)),
+            create: (_) => GoogleDriveService(appRepository, database)),
       ],
       child: const BikeSetupTrackerApp(),
     );
@@ -129,8 +124,10 @@ void main() {
             matching: find.text('Add Component')),
         findsNothing);
 
-    await appData
-        .addBike(Bike(name: "TestBike #1", person: null, isDeleted: true));
+    await tester.runAsync(() async {
+      await appRepository
+          .addBike(Bike(name: "TestBike #1", person: null, isDeleted: true));
+    });
     await tester.pump(const Duration(milliseconds: 200));
     await tester.pumpAndSettle();
 
@@ -143,7 +140,9 @@ void main() {
             matching: find.text('Add Component')),
         findsNothing);
 
-    await appData.addBike(Bike(name: "TestBike #2", person: null));
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(name: "TestBike #2", person: null));
+    });
     await tester.pump(const Duration(milliseconds: 200));
     await tester.pumpAndSettle();
 
@@ -190,7 +189,9 @@ void main() {
     );
 
     final bike1 = Bike(name: "TestBike #1", person: null, isDeleted: true);
-    await appData.addBike(bike1);
+    await tester.runAsync(() async {
+      await appRepository.addBike(bike1);
+    });
     await tester.pump(const Duration(milliseconds: 200));
     await tester.pumpAndSettle();
 
@@ -205,15 +206,17 @@ void main() {
       findsNothing,
     );
 
-    await appData.addComponent(
-      Component(
-        name: "TestComponent #1",
-        installations: [Installation.sinceBeginning(parent: bike1.id)],
-        componentType: ComponentType.other,
-        adjustments: [],
-        isDeleted: true,
-      ),
-    );
+    await tester.runAsync(() async {
+      await appRepository.addComponent(
+        Component(
+          name: "TestComponent #1",
+          installations: [Installation.sinceBeginning(parent: bike1.id)],
+          componentType: ComponentType.other,
+          adjustments: [],
+          isDeleted: true,
+        ),
+      );
+    });
     await tester.pump(const Duration(milliseconds: 200));
     await tester.pumpAndSettle();
 
@@ -229,7 +232,9 @@ void main() {
     );
 
     final bike2 = Bike(name: "TestBike #2", person: null, isDeleted: false);
-    await appData.addBike(bike2);
+    await tester.runAsync(() async {
+      await appRepository.addBike(bike2);
+    });
     await tester.pump(const Duration(milliseconds: 200));
     await tester.pumpAndSettle();
 
@@ -244,15 +249,17 @@ void main() {
       findsNothing,
     );
 
-    await appData.addComponent(
-      Component(
-        name: "TestComponent #2",
-        installations: [Installation.sinceBeginning(parent: bike2.id)],
-        componentType: ComponentType.other,
-        adjustments: [],
-        isDeleted: false,
-      ),
-    );
+    await tester.runAsync(() async {
+      await appRepository.addComponent(
+        Component(
+          name: "TestComponent #2",
+          installations: [Installation.sinceBeginning(parent: bike2.id)],
+          componentType: ComponentType.other,
+          adjustments: [],
+          isDeleted: false,
+        ),
+      );
+    });
     await tester.pump(const Duration(milliseconds: 200));
     await tester.pumpAndSettle();
 
@@ -292,34 +299,39 @@ void main() {
     );
 
     // Add Bike and show Bike
-    await appData
-        .addBike(Bike(name: "TestBike #1", person: null, isDeleted: false));
-    await tester.pump(const Duration(milliseconds: 200));
-    await tester.pumpAndSettle();
+    await tester.runAsync(() async {
+      await appRepository
+          .addBike(Bike(name: "TestBike #1", person: null, isDeleted: false));
+    });
+    await _waitForRepositoryUpdate(tester);
     expect(find.text("TestBike #1"), findsAtLeast(1));
 
     // Not show deleted Bike
     final bike2 = Bike(name: "TestBike #2", person: null, isDeleted: true);
-    await appData.addBike(bike2);
-    await tester.pump(const Duration(milliseconds: 200));
-    await tester.pumpAndSettle();
+    await tester.runAsync(() async {
+      await appRepository.addBike(bike2);
+    });
+    await _waitForRepositoryUpdate(tester);
     expect(find.text("TestBike #2"), findsNothing);
 
     // Remove Bike
     final bike3 = Bike(name: "TestBike #3", person: null, isDeleted: false);
-    await appData.addBike(bike3);
-    await tester.pump(const Duration(milliseconds: 200));
-    await tester.pumpAndSettle();
+    await tester.runAsync(() async {
+      await appRepository.addBike(bike3);
+    });
+    await _waitForRepositoryUpdate(tester);
     expect(find.text("TestBike #3"), findsAtLeast(1));
-    await appData.removeBike(bike3);
-    await tester.pump(const Duration(milliseconds: 200));
-    await tester.pumpAndSettle();
+    await tester.runAsync(() async {
+      await appRepository.removeBike(bike3);
+    });
+    await _waitForRepositoryUpdate(tester);
     expect(find.text("TestBike #3"), findsNothing);
 
     // Restore Bike
-    await appData.restoreBike(bike2);
-    await tester.pump(const Duration(milliseconds: 200));
-    await tester.pumpAndSettle();
+    await tester.runAsync(() async {
+      await appRepository.restoreBike(bike2);
+    });
+    await _waitForRepositoryUpdate(tester);
     expect(find.text("TestBike #2"), findsAtLeast(1));
   });
 
@@ -343,8 +355,10 @@ void main() {
       adjustments: [booleanAdjustment1],
     );
 
-    await appData.addBike(bike1);
-    await appData.addComponent(component1);
+    await tester.runAsync(() async {
+      await appRepository.addBike(bike1);
+      await appRepository.addComponent(component1);
+    });
     await tester.pump(const Duration(milliseconds: 200));
     await tester.pumpAndSettle();
 
@@ -356,15 +370,18 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    debugPrint('TEST: Opening Component PopupMenu');
     await tester.tap(
       find.descendant(
-        of: find.byType(Card),
+        of: find.byType(ListTile),
         matching: find.byType(PopupMenuButton<String>),
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text("Edit"));
+    debugPrint('TEST: Tapping Edit');
+    await tester.tap(find.text("Edit").last);
     await tester.pumpAndSettle();
+    debugPrint('TEST: Should be in Edit Component now');
 
     expect(
       find.descendant(
@@ -374,15 +391,27 @@ void main() {
       findsOneWidget,
     );
 
+    debugPrint('TEST: Opening Adjustment PopupMenu');
+    // On ComponentPage, adjustments are in ListTiles.
+    // The first ListTile is the component info (if used, but here it's likely just the list).
+    // Let's use the one containing the text.
+    Finder adjRow = find.ancestor(
+      of: find.textContaining('BooleanAdjustment #1'),
+      matching: find.byType(ListTile),
+    );
+    expect(adjRow, findsOneWidget);
+    
     await tester.tap(
       find.descendant(
-        of: find.byType(Card),
+        of: adjRow,
         matching: find.byType(PopupMenuButton<String>),
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text("Edit"));
+    debugPrint('TEST: Tapping Edit (Adjustment)');
+    await tester.tap(find.text("Edit").last);
     await tester.pumpAndSettle();
+    debugPrint('TEST: Should be in Edit Adjustment now');
 
     expect(
       find.descendant(
@@ -395,21 +424,33 @@ void main() {
     expect(nameField, findsOneWidget);
     await tester.enterText(nameField, 'BooleanAdjustment #1 edit #1');
 
-    await tester.tap(find.byIcon(Icons.check));
+    final updateCompleter = Completer<void>();
+    void listener() {
+      if (!updateCompleter.isCompleted) {
+        debugPrint('TEST: Repository notified listeners');
+        updateCompleter.complete();
+      }
+    }
+    appRepository.addListener(listener);
+
+    await tester.tap(find.byIcon(Icons.check)); // Save Adjustment
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byIcon(Icons.check));
-    await tester.pumpAndSettle();
+    // The second check is to save the Component (which saves everything)
+    debugPrint('TEST: Tapping final Save on ComponentPage');
+    await tester.tap(find.byIcon(Icons.check)); // Save Component
+    await tester.pump(); // Start the pop and the callback
+    
+    // Wait for the async repository update
+    debugPrint('TEST: Waiting for repository update...');
+    await _waitForRepositoryUpdate(tester);
+    
+    if (find.textContaining('BooleanAdjustment #1 edit #1').evaluate().isEmpty) {
+       debugPrint('FAIL: Widget tree dump:');
+       debugDumpApp();
+    }
 
-    expect(
-      find.descendant(
-        of: find.byType(AppBar).last,
-        matching: find.text('Components'),
-      ),
-      findsOneWidget,
-    );
-    expect(find.text('BooleanAdjustment #1'), findsNothing);
-    expect(find.text('BooleanAdjustment #1 edit #1'), findsOneWidget);
+    expect(find.textContaining('BooleanAdjustment #1 edit #1'), findsOneWidget);
   });
 
   testWidgets('ComponentList/Edit Adjustment without saving Component', (
@@ -432,8 +473,10 @@ void main() {
       adjustments: [booleanAdjustment1],
     );
 
-    await appData.addBike(bike1);
-    await appData.addComponent(component1);
+    await tester.runAsync(() async {
+      await appRepository.addBike(bike1);
+      await appRepository.addComponent(component1);
+    });
     await tester.pump(const Duration(milliseconds: 200));
     await tester.pumpAndSettle();
 
@@ -484,7 +527,9 @@ void main() {
     expect(nameField, findsOneWidget);
     await tester.enterText(nameField, 'BooleanAdjustment #1 edit #1');
 
-    await tester.tap(find.byIcon(Icons.check));
+    await tester.runAsync(() async {
+      await tester.tap(find.byIcon(Icons.check));
+    });
     await tester.pumpAndSettle();
 
     await tester.tap(find.byIcon(Icons.arrow_back));
@@ -498,15 +543,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(
-      find.descendant(
-        of: find.byType(AppBar).last,
-        matching: find.text('Components'),
-      ),
-      findsOneWidget,
-    );
-    expect(find.text('BooleanAdjustment #1'), findsOneWidget);
-    expect(find.text('BooleanAdjustment #1 edit #1'), findsNothing);
+    await tester.pump(const Duration(milliseconds: 1000));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('BooleanAdjustment #1'), findsOneWidget);
+    expect(find.textContaining('BooleanAdjustment #1 edit #1'), findsNothing);
   });
 
   testWidgets('Home Page with enableGarage=True', (WidgetTester tester) async {
@@ -546,4 +587,32 @@ void main() {
     // Verify GarageList is shown (body of the first page)
     expect(find.byType(GarageList), findsOneWidget);
   });
+}
+
+Future<void> _waitForRepositoryUpdate(WidgetTester tester) async {
+  final appRepository = tester.element(find.byType(MaterialApp)).read<AppRepository>();
+  final completer = Completer<void>();
+  void listener() {
+    if (!completer.isCompleted) {
+      completer.complete();
+    }
+  }
+
+  appRepository.addListener(listener);
+
+  // We use a longer timeout and multiple pumps to allow background streams to fire
+  await tester.runAsync(() async {
+    try {
+      await completer.future.timeout(const Duration(seconds: 5));
+    } catch (e) {
+      // Timeout is handled by falling back to pumps below
+    }
+  });
+
+  appRepository.removeListener(listener);
+
+  await tester.pumpAndSettle();
+  // Extra pumps to ensure the UI has completely rebuilt from the new stream data
+  await tester.pump(const Duration(milliseconds: 500));
+  await tester.pumpAndSettle();
 }

@@ -1,6 +1,6 @@
 import 'package:quick_actions/quick_actions.dart';
 import 'package:flutter/material.dart';
-import '../pages/home_page.dart';
+import '../utils/setup_actions.dart';
 import 'navigation_service.dart';
 
 class QuickActionsService {
@@ -47,6 +47,6 @@ class QuickActionsService {
       return;
     }
 
-    await HomePage.addSetup(context);
+    await SetupActions.addSetup(context);
   }
 }

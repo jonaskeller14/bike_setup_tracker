@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
-import '../models/app_data.dart';
+import '../repositories/app_repository.dart';
 import '../models/component.dart';
-import '../models/filtered_data.dart';
 import '../models/bike.dart';
-import '../pages/component_page.dart';
+import '../utils/component_actions.dart';
 import 'adjustment_compact_display_list.dart';
 import '../pages/component_overview_page.dart';
 
@@ -25,55 +24,11 @@ class ComponentListCard extends StatelessWidget{
     this.showCurrentAdjustmentValues = true,
   });
 
-  Future<void> _editComponent(BuildContext context, {required Component component}) async {
-    final data = context.read<AppData>();
-
-    final editedComponent = await Navigator.push<Component>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ComponentPage.edit(component: component),
-      ),
-    );
-    if (editedComponent == null) return;
-
-    data.editComponent(editedComponent);
-  }
-
-  Future<void> _duplicateComponent(BuildContext context, {required Component component}) async {
-    final data = context.read<AppData>();
-
-    final newComponent = await Navigator.push<Component>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ComponentPage.duplicate(component: component.deepCopy()),
-      ),
-    );
-    if (newComponent == null) return;
-
-    data.addComponent(newComponent);
-  }
-
-  Future<void> _removeComponent(BuildContext context, {required Component component}) async {
-    final data = context.read<AppData>();
-    data.removeComponents([component]);
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text("Component '${component.name}' moved to trash."),
-      duration: const Duration(seconds: 5),
-      persist: false,
-      showCloseIcon: true,
-      action: SnackBarAction(
-        label: 'UNDO',
-        onPressed: () => data.restoreComponents([component]),
-      ),
-    ));
-  }
-
   @override
   Widget build(BuildContext context) {
-    final filteredData = context.watch<FilteredData>();
-    final bikes = filteredData.bikes;
-    final setups = filteredData.setups;
+    final appRepository = context.watch<AppRepository>();
+    final bikes = appRepository.bikes;
+    final setups = appRepository.setups;
     return Card(
       key: ValueKey(component.id),
       elevation: elevation,
@@ -85,7 +40,7 @@ class ComponentListCard extends StatelessWidget{
           await Navigator.push<Component>(
             context,
             MaterialPageRoute(
-              builder: (context) => ComponentOverviewPage(componentId: component.id, editComponent: _editComponent),
+              builder: (context) => ComponentOverviewPage(componentId: component.id),
             ),
           );
         },
@@ -179,9 +134,9 @@ class ComponentListCard extends StatelessWidget{
                   PopupMenuButton<String>(
                     onSelected: (value) {
                       switch (value) {
-                        case 'edit': _editComponent(context, component: component);
-                        case 'duplicate': _duplicateComponent(context, component: component);
-                        case 'remove': _removeComponent(context, component: component);
+                        case 'edit': ComponentActions.editComponent(context, component: component);
+                        case 'duplicate': ComponentActions.duplicateComponent(context, component: component);
+                        case 'remove': ComponentActions.removeComponent(context, component: component);
                       }
                     },
                     itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[

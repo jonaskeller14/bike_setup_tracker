@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/bike.dart';
-import '../../models/filtered_data.dart';
+import '../../repositories/app_repository.dart';
 import 'sheet.dart';
 
 Future<void> showFilterSheet({required BuildContext context, required bool enableSetupTagFilter}) async {
@@ -11,7 +11,7 @@ Future<void> showFilterSheet({required BuildContext context, required bool enabl
     isScrollControlled: true,
     context: context, 
     builder: (context) {
-      final filteredData = context.watch<FilteredData>();
+      final appRepository = context.watch<AppRepository>();
 
       return SafeArea(
         child: Column(
@@ -38,7 +38,7 @@ Future<void> showFilterSheet({required BuildContext context, required bool enabl
                   children: [
                     Text("Bike", style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 6),
-                    filteredData.bikes.isEmpty 
+                    appRepository.bikes.isEmpty 
                         ? Padding(
                           padding: const EdgeInsets.symmetric(vertical: 32),
                           child: Center(
@@ -47,26 +47,26 @@ Future<void> showFilterSheet({required BuildContext context, required bool enabl
                         )
                         : Wrap(
                             spacing: 6,
-                            children: filteredData.bikes.values.map((bike) => FilterChip(
+                            children: appRepository.bikes.values.map((bike) => FilterChip(
                               avatar: const Icon(Bike.iconData),
                               label: Text(bike.name),
-                              selected: bike.id == filteredData.selectedBike,
+                              selected: bike.id == appRepository.selectedBike,
                               showCheckmark: false,
                               onSelected: (bool newValue) {
                                 switch (newValue) {
-                                  case true: filteredData.onBikeTap(bike.id);
-                                  case false: filteredData.onBikeTap(bike.id);
+                                  case true: appRepository.onBikeTap(bike.id);
+                                  case false: appRepository.onBikeTap(bike.id);
                                 }
                               },
-                              onDeleted: filteredData.selectedBike != null && filteredData.selectedBike == bike.id 
-                                  ? () => filteredData.onBikeTap(bike.id)
+                              onDeleted: appRepository.selectedBike != null && appRepository.selectedBike == bike.id 
+                                  ? () => appRepository.onBikeTap(bike.id)
                                   : null,
                             )).toList(),
                           ),
                     if (enableSetupTagFilter) ...[
                       Text("Setup Tags", style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 6),
-                      filteredData.setupTags.isEmpty
+                      appRepository.setupTags.isEmpty
                           ? Padding(
                               padding: const EdgeInsets.symmetric(vertical: 32),
                               child: Center(
@@ -75,20 +75,20 @@ Future<void> showFilterSheet({required BuildContext context, required bool enabl
                             )
                           : Wrap(
                               spacing: 6,
-                              children: filteredData.setupTags.map((tag) {
+                              children: appRepository.setupTags.map((tag) {
                                 return FilterChip(
                                   avatar: const Icon(Icons.tag),
                                   label: Text(tag),
-                                  selected: filteredData.selectedSetupTags.contains(tag),
+                                  selected: appRepository.selectedSetupTags.contains(tag),
                                   showCheckmark: false,
                                   onSelected: (bool newValue) {
                                     switch (newValue) {
-                                      case true: filteredData.selectSetupTag(tag);
-                                      case false: filteredData.deselectSetupTag(tag);
+                                      case true: appRepository.selectSetupTag(tag);
+                                      case false: appRepository.deselectSetupTag(tag);
                                     }
                                   },
-                                  onDeleted: filteredData.selectedSetupTags.contains(tag)
-                                      ? () => filteredData.deselectSetupTag(tag)
+                                  onDeleted: appRepository.selectedSetupTags.contains(tag)
+                                      ? () => appRepository.deselectSetupTag(tag)
                                       : null,
                                 );
                               }).toList(),

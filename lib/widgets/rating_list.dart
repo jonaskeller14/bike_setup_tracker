@@ -1,24 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../models/rating.dart';
-import 'chips/rating_list_filter_widget.dart';
+import 'package:provider/provider.dart';
+import '../repositories/app_repository.dart';
+import '../utils/rating_actions.dart';
 import 'rating_list_card.dart';
+import 'chips/rating_list_filter_widget.dart';
 
 class RatingList extends StatelessWidget {
-  final Map<String, Rating> ratings;
-  final Future<void> Function(Rating rating) editRating;
-  final Future<void> Function(Rating rating) duplicateRating;
-  final Future<void> Function(Rating rating) removeRating;
-  final Future<void> Function(int oldIndex, int newIndex) onReorderRating;
-
-  const RatingList({
-    super.key,
-    required this.ratings,
-    required this.editRating,
-    required this.duplicateRating,
-    required this.removeRating,
-    required this.onReorderRating,
-  });
+  const RatingList({super.key});
 
   Widget _emptyPlaceholder(BuildContext context) {
     return Padding(
@@ -42,7 +31,8 @@ class RatingList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ratingsList = ratings.values.toList();
+    final appRepository = context.watch<AppRepository>();
+    final ratingsList = appRepository.filteredRatings.values.toList();
 
     Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
       return AnimatedBuilder(
@@ -57,9 +47,6 @@ class RatingList extends StatelessWidget {
               rating: ratingsList[index],
               index: index,
               elevation: elevation,
-              editRating: editRating,
-              duplicateRating: duplicateRating,
-              removeRating: removeRating,
             ),
           );
         },
@@ -74,16 +61,13 @@ class RatingList extends StatelessWidget {
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
             header: RatingListFilterWidget(),
             proxyDecorator: proxyDecorator,
-            onReorder: onReorderRating,
+            onReorder: (int oldIndex, int newIndex) => RatingActions.onReorderRating(context, oldIndex: oldIndex, newIndex: newIndex),
             itemBuilder: (context, index) {
               final rating = ratingsList[index];
               return RatingListCard(
                 key: ValueKey(rating.id),
                 rating: rating,
                 index: index,
-                editRating: editRating,
-                duplicateRating: duplicateRating,
-                removeRating: removeRating
               );
             },
           );

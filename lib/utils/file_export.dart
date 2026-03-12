@@ -4,31 +4,29 @@ import 'package:flutter/material.dart';
 import 'package:file_save_directory/file_save_directory.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart';
-import '../models/app_data.dart';
+import '../models/selected_data.dart';
 import '../models/app_settings.dart';
 import 'to_spreadsheet.dart';
+import '../services/data_export_service.dart';
+import '../services/share_service.dart';
+import '../database/app_database.dart';
 
 class FileExport {
   static const Duration _backupStoreDuration = Duration(days: 30);
   static const Duration _backupFrequency = Duration(days: 1);
   static const String _backupSharedPreferencesInstance = "backup/lastBackup";
   
-  static Future<void> saveData({required AppData data}) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('data', jsonEncode(data.toJson()));
-  }
-
   static Future<void> downloadJson({
     required BuildContext context,
-    required AppData data,
+    required AppDatabase database,
+    SelectedData? selectedData,
   }) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
     final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
 
-    _downloadJson(data: data).then((result) {
+    _downloadJson(database: database, selectedData: selectedData).then((result) {
       // On iOS, result might not contain a path even if successful
       final isSuccess =
           result != null && (Platform.isIOS || result.path != null);
@@ -66,9 +64,10 @@ class FileExport {
     });
   }
 
-  static Future<FileSaveResult?> _downloadJson({required AppData data}) async {
+  static Future<FileSaveResult?> _downloadJson({required AppDatabase database, SelectedData? selectedData}) async {
     try {
-      final jsonString = const JsonEncoder.withIndent('  ').convert(data.toJson());
+      final exportData = await DataExportService.backupDatabaseToJson(database, subset: selectedData);
+      final jsonString = const JsonEncoder.withIndent('  ').convert(exportData);
       final bytes = utf8.encode(jsonString);
 
       final now = DateTime.now();
@@ -91,7 +90,7 @@ class FileExport {
 
   static Future<File?> saveBackup({
     BuildContext? context,
-    required AppData data,
+    required AppDatabase database,
     bool force = false,
   }) async {
     try {
@@ -106,7 +105,8 @@ class FileExport {
         return null;
       }
       
-      final jsonString = const JsonEncoder.withIndent('  ').convert(data.toJson());
+      final exportData = await DataExportService.backupDatabaseToJson(database);
+      final jsonString = const JsonEncoder.withIndent('  ').convert(exportData);
       final dir = await getApplicationDocumentsDirectory();  //catch MissingPlatformDirectoryException
       final backupDir = Directory('${dir.path}/backup');
       if (!await backupDir.exists()) await backupDir.create(recursive: true);
@@ -179,51 +179,38 @@ class FileExport {
 
   static Future<void> shareJson({
     required BuildContext context,
-    required AppData data,
+    required AppDatabase database,
+    SelectedData? selectedData,
   }) async {
-    final box = context.findRenderObject() as RenderBox?;
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
-    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
-
     try {
-      final String jsonString = jsonEncode(data.toJson());
+      final exportData = await DataExportService.backupDatabaseToJson(database, subset: selectedData);
+      final String jsonString = jsonEncode(exportData);
 
       final Directory tempDir = await getTemporaryDirectory();
       final String filePath = '${tempDir.path}/bike_setup_data.json';
       final File file = File(filePath);
       await file.writeAsString(jsonString);
 
-      await SharePlus.instance.share(
-        ShareParams(
-          subject: 'Bike Setup Backup',
-          text: 'Here is my bike setup data!',
-          files: [XFile(filePath)],
-          sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
-          downloadFallbackEnabled: true,
-        ),
+      if (!context.mounted) return;
+      await ShareService.shareFile(
+        context: context,
+        filePath: filePath,
+        subject: 'Bike Setup Backup',
+        text: 'Here is my bike setup data!',
+        errorMessage: 'Error sharing file',
       );
     } catch (e) {
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: onErrorContainerColor,
-          content: Text('Error sharing file: $e'),
-          backgroundColor: errorContainerColor,
-        ),
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error preparing JSON: $e'), backgroundColor: Theme.of(context).colorScheme.errorContainer),
       );
     }
   }
 
   static Future<void> shareXlsx({
     required BuildContext context,
-    required AppData data,
+    required SelectedData data,
   }) async {
-    final box = context.findRenderObject() as RenderBox?;
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
-    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
     final settings = context.read<AppSettings>();
 
     try {
@@ -235,36 +222,26 @@ class FileExport {
       final File file = File(filePath);
       await file.writeAsBytes(bytes);
 
-      await SharePlus.instance.share(
-        ShareParams(
-          subject: 'Bike Setup Export',
-          text: 'Here is my bike setup data in Excel format!',
-          files: [XFile(filePath)],
-          sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
-          downloadFallbackEnabled: true,
-        ),
+      if (!context.mounted) return;
+      await ShareService.shareFile(
+        context: context,
+        filePath: filePath,
+        subject: 'Bike Setup Export',
+        text: 'Here is my bike setup data in Excel format!',
+        errorMessage: 'Error sharing Excel file',
       );
     } catch (e) {
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: onErrorContainerColor,
-          content: Text('Error sharing Excel file: $e'),
-          backgroundColor: errorContainerColor,
-        ),
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error preparing Excel: $e'), backgroundColor: Theme.of(context).colorScheme.errorContainer),
       );
     }
   }
 
   static Future<void> shareCsv({
     required BuildContext context,
-    required AppData data,
+    required SelectedData data,
   }) async {
-    final box = context.findRenderObject() as RenderBox?;
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
-    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
     final settings = context.read<AppSettings>();
 
     try {
@@ -275,53 +252,27 @@ class FileExport {
       final File file = File(filePath);
       await file.writeAsString(csvString);
 
-      await SharePlus.instance.share(
-        ShareParams(
-          subject: 'Bike Setup Export',
-          text: 'Here is my bike setup data in CSV format!',
-          files: [XFile(filePath)],
-          sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
-          downloadFallbackEnabled: true,
-        ),
+      if (!context.mounted) return;
+      await ShareService.shareFile(
+        context: context,
+        filePath: filePath,
+        subject: 'Bike Setup Export',
+        text: 'Here is my bike setup data in CSV format!',
+        errorMessage: 'Error sharing CSV file',
       );
     } catch (e) {
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: onErrorContainerColor,
-          content: Text('Error sharing CSV file: $e'),
-          backgroundColor: errorContainerColor,
-        ),
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error preparing CSV: $e'), backgroundColor: Theme.of(context).colorScheme.errorContainer),
       );
     }
   }
 
   static Future<void> shareText({required BuildContext context, required String content}) async {
-    final box = context.findRenderObject() as RenderBox?;
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
-    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
-
-    try {
-      await SharePlus.instance.share(
-        ShareParams(
-          subject: 'Bike Setup Export',
-          text: content,
-          sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
-          downloadFallbackEnabled: true,
-        ),
-      );
-    } catch (e) {
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: onErrorContainerColor,
-          content: Text('Error sharing text: $e'),
-          backgroundColor: errorContainerColor,
-        ),
-      );
-    }
+    await ShareService.shareText(
+      context: context,
+      text: content,
+      errorMessage: 'Error sharing text',
+    );
   }
 }

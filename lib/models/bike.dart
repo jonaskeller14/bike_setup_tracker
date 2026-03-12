@@ -3,8 +3,8 @@ import 'package:uuid/uuid.dart';
 
 class Bike {
   final String id;
-  bool isDeleted;
-  DateTime lastModified;
+  final bool isDeleted;
+  final DateTime lastModified;
   final String name;
   final String? notes;
   final String? person;

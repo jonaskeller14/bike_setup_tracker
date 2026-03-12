@@ -1,14 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/app_data.dart';
+import '../repositories/app_repository.dart';
 import '../models/setup.dart';
 import '../pages/setup_page.dart';
-import 'file_export.dart';
+import '../services/share_service.dart';
 import 'to_text.dart';
 
 class SetupActions {
-  static Future<void> editSetup(BuildContext context, Setup setup) async {
-    final data = context.read<AppData>();
+  static Future<void> addSetup(BuildContext context) async {
+    final appRepository = context.read<AppRepository>();
+
+    if (appRepository.bikes.values.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        persist: false,
+        showCloseIcon: true, 
+        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        content: Text("Add a bike first", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        backgroundColor: Theme.of(context).colorScheme.errorContainer
+      ));
+      return;
+    }
+    if (appRepository.components.values.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        persist: false,
+        showCloseIcon: true, 
+        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+        content: Text("Add a component first", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        backgroundColor: Theme.of(context).colorScheme.errorContainer
+      ));
+      return;
+    }
+
+    final newSetup = await Navigator.push<Setup>(
+      context,
+      MaterialPageRoute(builder: (context) => SetupPage.add()),
+    );
+    if (newSetup == null) return;
+
+    await appRepository.addSetup(newSetup);
+  }
+
+  static Future<void> editSetup(BuildContext context, {required Setup setup}) async {
+    final appRepository = context.read<AppRepository>();
 
     final editedSetup = await Navigator.push<Setup>(
       context,
@@ -16,11 +49,11 @@ class SetupActions {
     );
     if (editedSetup == null) return;
 
-    data.editSetup(editedSetup);
+    await appRepository.editSetup(editedSetup);
   }
 
-  static Future<void> duplicateSetup(BuildContext context, Setup setup) async {
-    final data = context.read<AppData>();
+  static Future<void> duplicateSetup(BuildContext context, {required Setup setup}) async {
+    final appRepository = context.read<AppRepository>();
     
     final newSetup = await Navigator.push<Setup>(
       context,
@@ -28,12 +61,12 @@ class SetupActions {
     );
     if (newSetup == null) return;
 
-    data.addSetup(newSetup);
+    await appRepository.addSetup(newSetup);
   }
 
-  static Future<void> removeSetup(BuildContext context, Setup setup) async {
-    final data = context.read<AppData>();
-    data.removeSetups([setup]);
+  static Future<void> removeSetup(BuildContext context, {required Setup setup}) async {
+    final appRepository = context.read<AppRepository>();
+    await appRepository.removeSetups([setup]);
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text("Setup '${setup.name}' moved to trash."),
@@ -42,7 +75,7 @@ class SetupActions {
       showCloseIcon: true,
       action: SnackBarAction(
         label: 'UNDO',
-        onPressed: () => data.restoreSetups([setup]),
+        onPressed: () async => await appRepository.restoreSetups([setup]),
       ),
     ));
   }
@@ -53,9 +86,9 @@ class SetupActions {
       setup: setup,
     );
     
-    await FileExport.shareText(
-      context: context, 
-      content: content
+    await ShareService.shareText(
+      context: context,
+      text: content,
     );
   }
 }

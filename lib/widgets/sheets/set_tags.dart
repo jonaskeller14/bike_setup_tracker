@@ -1,4 +1,4 @@
-import 'package:bike_setup_tracker/models/filtered_data.dart';
+import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'sheet.dart';
@@ -47,7 +47,7 @@ class _SetTagsSheetContentState extends State<SetTagsSheetContent> {
   void initState() {
     super.initState();
     _selectedTags = widget.setupTags;
-    _availableTags = {..._selectedTags, ...context.read<FilteredData>().setupTags};
+    _availableTags = {..._selectedTags, ...context.read<AppRepository>().setupTags};
   }
 
   @override

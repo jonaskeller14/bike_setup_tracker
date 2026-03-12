@@ -8,8 +8,10 @@ import 'package:intl/intl.dart';
 import '../models/bike.dart';
 import '../models/setup.dart';
 import '../utils/backup.dart';
-import '../models/app_data.dart';
+import '../models/selected_data.dart';
 import '../database/app_database.dart';
+import '../services/data_export_service.dart';
+import '../services/database_migration_service.dart';
 
 class FileImport {
   static Future<GetLocalBackupsResult> getBackups() async {
@@ -39,7 +41,7 @@ class FileImport {
       final jsonString = await file.readAsString();
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      return ReadLocalBackupResult.success(AppData.addJson(data: AppData(appDatabase), json: jsonData));
+      return ReadLocalBackupResult.success(SelectedData.fromJson(jsonData));
     } catch (e, st) {
       debugPrint("Reading backup failed: $e\n$st");
       return ReadLocalBackupResult.failure("Reading backup failed: $e");
@@ -70,7 +72,7 @@ class FileImport {
       final jsonString = utf8.decode(fileBytes);
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      return ReadJsonFileResult.success(AppData.addJson(data: AppData(appDatabase), json: jsonData));
+      return ReadJsonFileResult.success(SelectedData.fromJson(jsonData));
     } catch (e) {
       debugPrint("Import failed: $e");
       return ReadJsonFileResult.failure("Import failed: $e");
@@ -100,34 +102,51 @@ class FileImport {
     }
   }
 
-  static void overwrite({required AppData remoteData, required AppData localData}) {
-    localData.persons
-      ..clear()
-      ..addAll(remoteData.persons);
-    localData.ratings
-      ..clear()
-      ..addAll(remoteData.ratings);
-    localData.bikes
-      ..clear()
-      ..addAll(remoteData.bikes);
-    localData.setups
-      ..clear()
-      ..addAll(remoteData.setups);
-    final sortedSetupEntries = localData.setups.entries.toList();
-    sortedSetupEntries.sort((a, b) => a.value.datetime.compareTo(b.value.datetime));
-    localData.setups.clear();
-    localData.setups.addEntries(sortedSetupEntries);
-    localData.components
-      ..clear()
-      ..addAll(remoteData.components);
-    
-    cleanupIsDeleted(data: localData);
-    // localData.resolveData();
+  static Future<void> overwrite({required SelectedData remoteData, required AppDatabase database}) async {
+    cleanupIsDeleted(data: remoteData);
+    await _importDataToDb(database, remoteData);
   }
 
-  static void merge({
-    required AppData remoteData,
-    required AppData localData,
+  static Future<void> merge({
+    required SelectedData remoteData,
+    required AppDatabase database,
+  }) async {
+    // 1. Fetch current DB state into memory
+    final localJson = await DataExportService.backupDatabaseToJson(database);
+    final localData = SelectedData.fromJson(localJson);
+
+    // 2. Perform merge in memory
+    _mergeInternal(remoteData: remoteData, localData: localData);
+    cleanupIsDeleted(data: localData);
+
+    // 3. Write merged state back to DB
+    await _importDataToDb(database, localData);
+  }
+
+  static Future<void> _importDataToDb(AppDatabase database, SelectedData dataToImport) async {
+    await database.transaction(() async {
+      await database.delete(database.setupAdjustmentValues).go();
+      await database.delete(database.setups).go();
+      await database.delete(database.stravaActivities).go();
+      await database.delete(database.adjustments).go();
+      await database.delete(database.installations).go();
+      await database.delete(database.todoEntries).go();
+      await database.delete(database.components).go();
+      await database.delete(database.stravaGears).go();
+      await database.delete(database.stravaAthletes).go();
+      await database.delete(database.todoRules).go();
+      await database.delete(database.ratings).go();
+      await database.delete(database.bikes).go();
+      await database.delete(database.persons).go();
+    });
+
+    final migrationService = DatabaseMigrationService(database);
+    await migrationService.migrateFromSelectedData(dataToImport);
+  }
+
+  static void _mergeInternal({
+    required SelectedData remoteData,
+    required SelectedData localData,
   }) {
     //FIXME: Preserve Order (except setups?)
     // Last Write Wins (LWW) strategy
@@ -234,15 +253,43 @@ class FileImport {
         localData.components[remoteComponent.id] = remoteComponent;
         continue;
       }
-
-      // final bool remoteIsOlder = remoteComponent.lastModified.isBefore(localComponent.lastModified);
-      // if (remoteIsOlder) continue;
-
-      // remote = local
-      // continue;
     }
-    cleanupIsDeleted(data: localData);
-    // localData.resolveData();
+
+    for (final remoteTodoRule in remoteData.todoRules.values) {
+      final localTodoRule = localData.todoRules[remoteTodoRule.id];
+      if (localTodoRule == null) {
+        if (!remoteTodoRule.isDeleted) localData.todoRules[remoteTodoRule.id] = remoteTodoRule;
+        continue;
+      }
+      if (remoteTodoRule.lastModified.isAfter(localTodoRule.lastModified)) {
+        localData.todoRules[remoteTodoRule.id] = remoteTodoRule;
+        continue;
+      }
+    }
+
+    for (final remoteTodoEntry in remoteData.todoEntries.values) {
+      final localTodoEntry = localData.todoEntries[remoteTodoEntry.id];
+      if (localTodoEntry == null) {
+        if (!remoteTodoEntry.isDeleted) localData.todoEntries[remoteTodoEntry.id] = remoteTodoEntry;
+        continue;
+      }
+      if (remoteTodoEntry.lastModified.isAfter(localTodoEntry.lastModified)) {
+        localData.todoEntries[remoteTodoEntry.id] = remoteTodoEntry;
+        continue;
+      }
+    }
+
+    for (final remoteStravaActivity in remoteData.stravaActivities.values) {
+      final localStravaActivity = localData.stravaActivities[remoteStravaActivity.id];
+      if (localStravaActivity == null) {
+        localData.stravaActivities[remoteStravaActivity.id] = remoteStravaActivity;
+        continue;
+      }
+      if (remoteStravaActivity.lastModified.isAfter(localStravaActivity.lastModified)) {
+        localData.stravaActivities[remoteStravaActivity.id] = remoteStravaActivity;
+        continue;
+      }
+    }
   }
 
   static void determineCurrentSetups({required List<Setup> setups, required Map<String, Bike> bikes}) {
@@ -283,7 +330,7 @@ class FileImport {
     }
   }
 
-  static void cleanupIsDeleted({required AppData data}) {
+  static void cleanupIsDeleted({required SelectedData data}) {
     final thirtyDays = const Duration(days: 30);
     final deleteDateTime = DateTime.now().toUtc().subtract(thirtyDays);
 
@@ -305,7 +352,7 @@ class GetLocalBackupsResult {
 }
 
 class ReadLocalBackupResult {
-  final AppData? appData;
+  final SelectedData? appData;
   final String? errorMessage;
   final bool isError;
 
@@ -314,7 +361,7 @@ class ReadLocalBackupResult {
 }
 
 class ReadJsonFileResult {
-  final AppData? appData;
+  final SelectedData? appData;
   final String? errorMessage;
   final bool isError;
 

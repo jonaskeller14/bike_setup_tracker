@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/dashed_border_painter.dart';
 import '../models/app_settings.dart';
-import '../models/filtered_data.dart';
+import '../repositories/app_repository.dart';
 import '../models/rating.dart';
 import '../models/component.dart';
 import '../models/bike.dart';
@@ -513,10 +513,10 @@ class _RatingPageState extends State<RatingPage> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredData = context.watch<FilteredData>();
-    final bikes = filteredData.bikes;
-    final persons = filteredData.persons;
-    final components = filteredData.components;
+    final appRepository = context.watch<AppRepository>();
+    final bikes = appRepository.bikes;
+    final persons = appRepository.persons;
+    final components = appRepository.components;
 
     final List<_FilterFilterType> filterOptions = [
       _FilterFilterType(null, FilterType.global),

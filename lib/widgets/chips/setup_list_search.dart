@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
-import '../../models/filtered_data.dart';
+import '../../repositories/app_repository.dart';
 import '../../models/setup.dart';
 import '../../pages/setup_display_page.dart';
 import '../setup_list_card.dart';
@@ -38,12 +38,12 @@ class SetupListSearch extends StatelessWidget {
       },
       suggestionsBuilder: (context, controller) {
         final appSettings = context.read<AppSettings>();
-        final filteredData = context.read<FilteredData>();
+        final appRepository = context.read<AppRepository>();
 
         final controllerText = controller.text.trim().toLowerCase();
         final Iterable<Setup> setups = appSettings.setupListSortAscending
-            ? filteredData.filteredSetups.values
-            : filteredData.filteredSetups.values.toList().reversed;
+            ? appRepository.filteredSetups.values
+            : appRepository.filteredSetups.values.toList().reversed;
         final Iterable<Setup> suggestedSetups = setups.where((s) {
           return s.name.toLowerCase().contains(controllerText) || 
               (s.notes ?? "").toLowerCase().contains(controllerText);

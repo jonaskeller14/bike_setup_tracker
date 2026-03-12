@@ -8,8 +8,8 @@ import 'adjustment/adjustment.dart';
 
 class Setup {
   final String id;
-  bool isDeleted;
-  DateTime lastModified;
+  final bool isDeleted;
+  final DateTime lastModified;
   final String name;
   final DateTime datetime;  // UTC
   final DateTime datetimeLocal;

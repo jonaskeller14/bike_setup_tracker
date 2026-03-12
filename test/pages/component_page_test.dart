@@ -1,10 +1,10 @@
+import 'dart:async';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
-import 'package:bike_setup_tracker/models/app_data.dart';
+import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
-import 'package:bike_setup_tracker/models/filtered_data.dart';
 import 'package:bike_setup_tracker/pages/component_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,21 +13,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   late AppDatabase database;
-  late AppData appData;
+  late AppRepository appRepository;
   late AppSettings appSettings;
-  late FilteredData filteredData;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     database = AppDatabase.memory();
-    appData = AppData(database);
+    appRepository = AppRepository(database);
     appSettings = AppSettings();
   });
 
   tearDown(() async {
-    appData.dispose();
+    appRepository.dispose();
     appSettings.dispose();
-    filteredData.dispose();
     await database.close();
   });
 
@@ -36,14 +34,10 @@ void main() {
     required ComponentPageMode mode,
     Object? initialBike,
   }) {
-    filteredData = FilteredData(appData.database); // Lazy instantiation!
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: appSettings),
-        ChangeNotifierProvider.value(value: appData),
-        ChangeNotifierProvider<FilteredData>.value(
-          value: filteredData,
-        ),
+        ChangeNotifierProvider.value(value: appRepository),
       ],
       child: MaterialApp(
         home: Builder(
@@ -78,7 +72,9 @@ void main() {
 
     testWidgets('renders in Edit mode with component data', (WidgetTester tester) async {
       final bike = Bike(name: 'My Bike', person: 'Me');
-      await appData.addBike(bike);
+      await tester.runAsync(() async {
+        await appRepository.addBike(bike);
+      });
       
       final component = Component(
         id: 'c1',
@@ -89,6 +85,8 @@ void main() {
           BooleanAdjustment(name: 'Lockout', notes: '', unit: '', category: AdjustmentCategory.component),
         ],
       ).copyWithNewInstallation(bike.id);
+
+      await _waitForRepositoryUpdate(tester, appRepository);
 
       await tester.pumpWidget(createWidgetUnderTest(
         component: component,
@@ -159,7 +157,7 @@ void main() {
       await tester.enterText(find.widgetWithText(TextFormField, 'Component Name'), 'New Component');
       
       // Select type
-      final typeDropdown = find.text('Please select type');
+      final typeDropdown = find.byType(DropdownButtonFormField<ComponentType>);
       await tester.ensureVisible(typeDropdown);
       await tester.tap(typeDropdown);
       await tester.pumpAndSettle();
@@ -175,7 +173,7 @@ void main() {
 
   group('ComponentPage Dropdown Scenarios', () {
     testWidgets('displays "BIKE NOT FOUND" when initial bike is missing', (WidgetTester tester) async {
-      // Page requested with an ID that doesn't exist in appData
+      // Page requested with an ID that doesn't exist in appRepository
       await tester.pumpWidget(createWidgetUnderTest(
         mode: ComponentPageMode.add,
         initialBike: 'non-existent-id',
@@ -185,4 +183,27 @@ void main() {
       expect(find.text('BIKE NOT FOUND'), findsOneWidget);
     });
   });
+}
+
+Future<void> _waitForRepositoryUpdate(WidgetTester tester, AppRepository repository) async {
+  final completer = Completer<void>();
+  void listener() {
+    if (!completer.isCompleted) {
+      completer.complete();
+    }
+  }
+
+  repository.addListener(listener);
+
+  await tester.runAsync(() async {
+    try {
+      await completer.future.timeout(const Duration(seconds: 5));
+    } catch (e) {
+      // Timeout is handled by falling back to pumps below
+    }
+  });
+
+  repository.removeListener(listener);
+
+  await tester.pump(); // Just a small pump to trigger rebuilds if needed
 }

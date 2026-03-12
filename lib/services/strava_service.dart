@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import '../models/app_data.dart';
+import '../repositories/app_repository.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
@@ -42,9 +42,9 @@ class StravaService extends ChangeNotifier {
   DateTime? _lastFullSync;
   int? _syncDay;
   
-  AppData _appData;
+  AppRepository _appRepository;
 
-  StravaService(this._appData);
+  StravaService(this._appRepository);
 
   @override
   void dispose() {
@@ -63,8 +63,8 @@ class StravaService extends ChangeNotifier {
     }
   }
 
-  Future<void> update({required AppData newAppData}) async {
-    _appData = newAppData;
+  Future<void> update({required AppRepository newAppData}) async {
+    _appRepository = newAppData;
 
     if (_isInitialized) return;
     _isInitialized = true;
@@ -164,7 +164,7 @@ class StravaService extends ChangeNotifier {
           }
         }
       }
-      _appData.setStravaActivities(allActivities);
+      _appRepository.setStravaActivities(allActivities);
     }, onError: (e) {
       debugPrint("Strava sync stream error: $e");
       errorMessage = "Background sync error (Internet issue?)";
@@ -184,10 +184,10 @@ class StravaService extends ChangeNotifier {
         .listen((snapshot) {
       if (snapshot.exists && snapshot.data() != null) {
         final athlete = StravaAthlete.fromFirestore(snapshot.data()!);
-        _appData.setStravaAthletes([athlete]);
+        _appRepository.setStravaAthletes([athlete]);
         debugPrint("Strava athlete synced: ${athlete.firstname} ${athlete.lastname}");
       } else {
-        _appData.setStravaAthletes([]);
+        _appRepository.setStravaAthletes([]);
       }
     }, onError: (e) {
       debugPrint("Strava athlete sync error: $e");
@@ -205,7 +205,7 @@ class StravaService extends ChangeNotifier {
         .snapshots()
         .listen((snapshot) {
       final gears = snapshot.docs.map((doc) => StravaGear.fromFirestore(doc.data())).toList();
-      _appData.setStravaGears(gears);
+      _appRepository.setStravaGears(gears);
       if (gears.isNotEmpty) {
         debugPrint("Strava gear synced: ${gears.length} items");
       }
@@ -339,7 +339,7 @@ class StravaService extends ChangeNotifier {
       await functions.httpsCallable('deauthorizeUser').call();
 
       // 2. Clear Local State
-      _appData.clearStravaData();
+      _appRepository.clearStravaData();
 
       _isConnected = false;
       errorMessage = "";

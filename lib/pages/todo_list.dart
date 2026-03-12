@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/app_data.dart';
-import '../models/filtered_data.dart';
+import '../repositories/app_repository.dart';
 import '../models/todo_rule.dart';
 import '../models/todo_entry.dart';
 import 'todo_page.dart';
@@ -12,10 +11,10 @@ class TodoList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final filteredData = context.watch<FilteredData>();
-    final todoRules = filteredData.filteredTodoRules.values.toList();
-    final todoEntries = filteredData.filteredTodoEntries.values.toList();
-    final appData = context.read<AppData>();
+    final appRepository = context.watch<AppRepository>();
+    final todoRules = appRepository.filteredTodoRules.values.toList();
+    final todoEntries = appRepository.filteredTodoEntries.values.toList();
+
 
     return Scaffold(
       appBar: AppBar(
@@ -49,7 +48,7 @@ class TodoList extends StatelessWidget {
                                 tooltip: 'Complete Todo',
                                 onPressed: () {
                                   // Add an entry for this rule
-                                  appData.addTodoEntry(TodoEntry(
+                                  appRepository.addTodoEntry(TodoEntry(
                                     id: const Uuid().v4(),
                                     isDeleted: false,
                                     lastModified: DateTime.now().toUtc(),
@@ -69,14 +68,14 @@ class TodoList extends StatelessWidget {
                                     context,
                                     MaterialPageRoute(builder: (context) => TodoPage.edit(todoRule: rule)),
                                   );
-                                  if (edited != null) appData.editTodoRule(edited);
+                                  if (edited != null) appRepository.editTodoRule(edited);
                                 }
                               ),
                               IconButton(
                                 icon: const Icon(Icons.delete),
                                 tooltip: 'Delete Rule',
                                 onPressed: () {
-                                  appData.removeTodoRules([rule]);
+                                  appRepository.removeTodoRules([rule]);
                                 }
                               ),
                             ],
@@ -111,7 +110,7 @@ class TodoList extends StatelessWidget {
                             icon: const Icon(Icons.delete),
                             tooltip: 'Delete Entry',
                             onPressed: () {
-                              appData.removeTodoEntries([entry]);
+                              appRepository.removeTodoEntries([entry]);
                             }
                           )
                         ),
@@ -131,7 +130,7 @@ class TodoList extends StatelessWidget {
             MaterialPageRoute(builder: (context) => TodoPage.add()),
           );
           if (newRule != null) {
-            appData.addTodoRule(newRule);
+            appRepository.addTodoRule(newRule);
           }
         },
         tooltip: 'Add Todo',

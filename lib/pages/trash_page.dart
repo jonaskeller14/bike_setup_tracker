@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../models/app_data.dart';
-import '../models/filtered_data.dart';
+import '../repositories/app_repository.dart';
 import '../models/person.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
@@ -18,7 +17,7 @@ class TrashPage extends StatelessWidget{
     final dateFormat = DateFormat(appSettings.dateFormat);
     final timeFormat = DateFormat(appSettings.timeFormat);
 
-    final data = context.read<AppData>();
+    final data = context.read<AppRepository>();
 
     final lastModified = deletedItem.lastModified as DateTime;
 
@@ -50,14 +49,14 @@ class TrashPage extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    final filteredData = context.watch<FilteredData>();
+    final appRepository = context.watch<AppRepository>();
 
     final deletedCombined = <dynamic>[];
-    deletedCombined.addAll(filteredData.deletedPersons);
-    deletedCombined.addAll(filteredData.deletedBikes);
-    deletedCombined.addAll(filteredData.deletedComponents);
-    deletedCombined.addAll(filteredData.deletedSetups);
-    deletedCombined.addAll(filteredData.deletedRatings);
+    deletedCombined.addAll(appRepository.deletedPersons);
+    deletedCombined.addAll(appRepository.deletedBikes);
+    deletedCombined.addAll(appRepository.deletedComponents);
+    deletedCombined.addAll(appRepository.deletedSetups);
+    deletedCombined.addAll(appRepository.deletedRatings);
     deletedCombined.sort((a, b) => b.lastModified.compareTo(a.lastModified));
 
     return Scaffold(

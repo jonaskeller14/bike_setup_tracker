@@ -7,7 +7,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import '../models/app_settings.dart';
-import '../models/filtered_data.dart';
+import '../repositories/app_repository.dart';
 import '../models/setup.dart';
 import '../models/person.dart';
 import '../models/component.dart';
@@ -111,9 +111,9 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredData = context.watch<FilteredData>();
+    final appRepository = context.watch<AppRepository>();
 
-    final List<Setup?> setups = widget.setupIds.map((setupId) => filteredData.setups[setupId]).toList();
+    final List<Setup?> setups = widget.setupIds.map((setupId) => appRepository.setups[setupId]).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -121,7 +121,7 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
         title: _navigationRow(_currentPageIndex),
         actions: [
           IconButton(
-            onPressed: () => SetupActions.editSetup(context, setups[_currentPageIndex]!), 
+            onPressed: () => SetupActions.editSetup(context, setup: setups[_currentPageIndex]!), 
             icon: const Icon(Icons.edit),
           )
         ],
@@ -434,10 +434,10 @@ class SetupDisplayPageContent extends StatelessWidget {
     required Map<String, Rating> filteredRatings, 
     required Map<String, dynamic> danglingRatingAdjustmentValues
   }) {
-    final filteredData = context.watch<FilteredData>();
-    final bikes = filteredData.bikes;
-    final persons = filteredData.persons;
-    final components = filteredData.components;
+    final appRepository = context.watch<AppRepository>();
+    final bikes = appRepository.bikes;
+    final persons = appRepository.persons;
+    final components = appRepository.components;
     
     return SliverToBoxAdapter(
       child: Padding(
@@ -683,11 +683,11 @@ class SetupDisplayPageContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    final filteredData = context.watch<FilteredData>();
-    final bikes = filteredData.bikes;
-    final persons = filteredData.persons;
-    final ratings = filteredData.ratings;
-    final components = filteredData.components;
+    final appRepository = context.watch<AppRepository>();
+    final bikes = appRepository.bikes;
+    final persons = appRepository.persons;
+    final ratings = appRepository.ratings;
+    final components = appRepository.components;
 
     final Bike? bike = bikes[setup.bike];
     Iterable<Component> bikeComponents = components.values.where((c) => c.bike == setup.bike);

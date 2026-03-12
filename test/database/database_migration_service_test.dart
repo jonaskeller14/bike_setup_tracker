@@ -1,5 +1,6 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
-import 'package:bike_setup_tracker/models/app_data.dart';
+import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/models/selected_data.dart';
 import 'package:bike_setup_tracker/services/database_migration_service.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,12 +24,12 @@ void main() {
   });
 
   group('DatabaseMigrationService Test', () {
-    test('Full Migration from JSON-like AppData', () async {
+    test('Full Migration from JSON-like AppRepository', () async {
       final migrationService = DatabaseMigrationService(db);
       
-      // We use a separate in-memory DB for AppData if needed, 
-      // but AppData.addJson just populates the maps which are then read by migration.
-      final sourceAppData = AppData(sourceDb);
+      // We use a separate in-memory DB for AppRepository if needed, 
+      // but AppRepository.addJson just populates the maps which are then read by migration.
+      final sourceAppData = AppRepository(sourceDb);
       
       final legacyJson = {
         'persons': [
@@ -66,9 +67,9 @@ void main() {
         ]
       };
 
-      AppData.addJson(data: sourceAppData, json: legacyJson);
+      final selectedData = SelectedData.fromJson(legacyJson);
       
-      await migrationService.migrateFromAppData(sourceAppData);
+      await migrationService.migrateFromSelectedData(selectedData);
 
       // Verify Persons
       final persons = await db.personsDao.watchAllPersons().first;

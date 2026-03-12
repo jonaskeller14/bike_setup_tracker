@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
-import '../../models/app_data.dart';
+import '../../models/selected_data.dart';
 import '../../models/app_settings.dart';
 import '../../database/app_database.dart';
 import '../../services/google_drive_service.dart';
@@ -13,7 +13,7 @@ import '../../utils/backup.dart';
 import 'sheet.dart';
 
 class BackupSheetContent extends StatefulWidget {
-  final Function(AppData) onRestore;
+  final Function(SelectedData) onRestore;
   final VoidCallback? onBack;
 
   const BackupSheetContent({super.key, required this.onRestore, this.onBack});

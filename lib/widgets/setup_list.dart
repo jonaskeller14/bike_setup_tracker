@@ -3,16 +3,14 @@ import 'package:provider/provider.dart';
 import '../models/app_settings.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
-import '../models/filtered_data.dart';
+import '../repositories/app_repository.dart';
 import '../pages/setup_display_page.dart';
 import 'chips/setup_list_filter_widget.dart';
 import 'setup_list_card.dart';
 import 'strava_list_tile.dart';
 
 class SetupList extends StatelessWidget {
-  const SetupList({
-    super.key,
-  });
+  const SetupList({super.key});
 
   Widget _emptyPlaceholder(BuildContext context) {
     return Padding(
@@ -37,11 +35,11 @@ class SetupList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    final filteredData = context.watch<FilteredData>();
-    final setupsList = filteredData.filteredSetups.values;
-    final stravaActivities = filteredData.filteredStravaActivities.values;
+    final appRepository = context.watch<AppRepository>();
+    final setupsList = appRepository.filteredSetups.values;
+    final stravaActivities = appRepository.filteredStravaActivities.values;
 
-    final List<TimelineEntry> entries =  [...setupsList.map((s) => SetupEntry(s)), ...stravaActivities.map((a) => StravaEntry(a))];
+    final List<_TimelineEntry> entries =  [...setupsList.map((s) => _SetupEntry(s)), ...stravaActivities.map((a) => _StravaEntry(a))];
     entries.sort((a, b) => appSettings.setupListSortAscending 
         ? a.date.compareTo(b.date) 
         : b.date.compareTo(a.date));
@@ -58,9 +56,9 @@ class SetupList extends StatelessWidget {
               
               final entry = entries[index - 1];
               switch (entry) {
-                case StravaEntry(): 
+                case _StravaEntry(): 
                   return StravaListTile(stravaActivity: entry.activity);
-                case SetupEntry():
+                case _SetupEntry():
                   final setup = entry.setup;
                   return SetupListCard(
                     setupId: setup.id,
@@ -81,18 +79,18 @@ class SetupList extends StatelessWidget {
   }
 }
 
-sealed class TimelineEntry {
+sealed class _TimelineEntry {
   DateTime get date;
 }
 
-class SetupEntry extends TimelineEntry {
+class _SetupEntry extends _TimelineEntry {
   final Setup setup;
-  SetupEntry(this.setup);
+  _SetupEntry(this.setup);
   @override DateTime get date => setup.datetime;
 }
 
-class StravaEntry extends TimelineEntry {
+class _StravaEntry extends _TimelineEntry {
   final StravaActivity activity;
-  StravaEntry(this.activity);
+  _StravaEntry(this.activity);
   @override DateTime get date => activity.startDate;
 }

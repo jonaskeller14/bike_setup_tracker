@@ -6,12 +6,12 @@ import "../../models/bike.dart";
 import "../../models/component.dart";
 import "../../models/setup.dart";
 import "../../models/rating.dart";
-import "../../models/app_data.dart";
-import "../../database/app_database.dart";
+import "../../repositories/app_repository.dart";
+import "../../models/selected_data.dart";
 import 'sheet.dart';
 
-Future<AppData?> showDataSelectSheet({required BuildContext context, required AppData data}) async {
-  return await showModalBottomSheet<AppData?>(
+Future<SelectedData?> showDataSelectSheet({required BuildContext context, required AppRepository data}) async {
+  return await showModalBottomSheet<SelectedData?>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
@@ -23,7 +23,7 @@ Future<AppData?> showDataSelectSheet({required BuildContext context, required Ap
 }
 
 class DataSelectFlow extends StatefulWidget {
-  final AppData allData;
+  final AppRepository allData;
   const DataSelectFlow({super.key, required this.allData});
 
   @override
@@ -47,12 +47,24 @@ class _DataSelectFlowState extends State<DataSelectFlow> {
         duration: const Duration(milliseconds: 300),
         child: isManualSelection
             ? SelectDataItemsSheetContent(
-                allData: widget.allData,
+                allData: SelectedData(
+                  persons: widget.allData.persons,
+                  bikes: widget.allData.bikes,
+                  components: widget.allData.components,
+                  setups: widget.allData.setups,
+                  ratings: widget.allData.ratings,
+                ),
                 onBack: () => setState(() => isManualSelection = false),
                 onConfirm: (data) => Navigator.of(context).pop(data),
               )
             : SelectDataMethodSheetContent(
-                onAllSelected: () => Navigator.of(context).pop(widget.allData),
+                onAllSelected: () => Navigator.of(context).pop(SelectedData(
+                  persons: widget.allData.persons,
+                  bikes: widget.allData.bikes,
+                  components: widget.allData.components,
+                  setups: widget.allData.setups,
+                  ratings: widget.allData.ratings,
+                )),
                 onManualSelected: () => setState(() => isManualSelection = true),
               ),
       ),
@@ -116,8 +128,8 @@ class SelectDataMethodSheetContent extends StatelessWidget {
 }
 
 class SelectDataItemsSheetContent extends StatefulWidget {
-  final AppData allData;
-  final Function(AppData) onConfirm;
+  final SelectedData allData;
+  final Function(SelectedData) onConfirm;
   final VoidCallback onBack;
 
   const SelectDataItemsSheetContent({super.key, required this.allData, required this.onConfirm, required this.onBack});
@@ -477,14 +489,13 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
-                final appDatabase = context.read<AppDatabase>();
-                final selectedData = AppData(appDatabase);
-                selectedData.persons.addAll(<String, Person>{for (var item in selectedPersons) item.id: item});
-                selectedData.bikes.addAll(<String, Bike>{for (var item in selectedBikes) item.id: item});
-                selectedData.components.addAll(<String, Component>{for (var item in selectedComponents) item.id: item});
-                selectedData.setups.addAll(<String, Setup>{for (var item in selectedSetups) item.id: item});
-                selectedData.ratings.addAll(<String, Rating>{for (var item in selectedRatings) item.id: item});
-                // selectedData.resolveData();
+                final selectedData = SelectedData(
+                  persons: <String, Person>{for (var item in selectedPersons) item.id: item},
+                  bikes: <String, Bike>{for (var item in selectedBikes) item.id: item},
+                  components: <String, Component>{for (var item in selectedComponents) item.id: item},
+                  setups: <String, Setup>{for (var item in selectedSetups) item.id: item},
+                  ratings: <String, Rating>{for (var item in selectedRatings) item.id: item},
+                );
                 widget.onConfirm(selectedData);
               },
               child: const Text("Confirm Selection"),

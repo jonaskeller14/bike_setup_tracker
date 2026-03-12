@@ -2,15 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import 'package:reorderables/reorderables.dart';
-import '../models/app_data.dart';
+import '../repositories/app_repository.dart';
 import '../models/app_settings.dart';
 import '../models/component.dart';
-import '../models/filtered_data.dart';
 import '../models/person.dart';
 import '../models/bike.dart';
-import '../models/rating.dart';
-import '../pages/bike_page.dart';
-import '../pages/component_page.dart';
+import '../utils/bike_actions.dart';
+import '../utils/component_actions.dart';
 import 'dashed_border_painter.dart';
 import 'component_list_card.dart';
 import 'garage_component_icon_card.dart';
@@ -36,73 +34,6 @@ class GarageBikeCard extends StatelessWidget{
     required this.setDraggedComponent,
     required this.draggedComponentNotifier,
   });
-
-  Future<void> _editBike(BuildContext context, {required Bike bike}) async {
-    final data = context.read<AppData>();
-
-    final editedBike = await Navigator.push<Bike>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => BikePage.edit(bike: bike),
-      ),
-    );
-    if (editedBike == null) return;
-
-    data.editBike(editedBike);
-  }
-
-  Future<void> _removeBike(BuildContext context, {required Bike bike}) async {
-    final data = context.read<AppData>();
-    final filteredData = context.read<FilteredData>();
-
-    final obsoleteComponents = filteredData.components.values.where((c) => c.bike == bike.id).toList();
-    final obsoleteSetups = filteredData.setups.values.where((s) => s.bike == bike.id).toList();
-    final obsoleteRatings = filteredData.ratings.values.where((r) => r.filterType == FilterType.bike && r.filter == bike.id);
-
-    data.removeBike(bike);
-    data.removeComponents(obsoleteComponents);
-    data.removeSetups(obsoleteSetups);
-    data.removeRatings(obsoleteRatings);
-
-    String message = "Bike '${bike.name}' moved to trash.";
-    if (context.read<AppSettings>().enableRating) {
-      if (obsoleteComponents.isNotEmpty || obsoleteSetups.isNotEmpty || obsoleteRatings.isNotEmpty) {
-        message += "\n${obsoleteComponents.length} Components, ${obsoleteSetups.length} Setups and ${obsoleteRatings.length} Ratings which belong to this Bike are deleted as well.";
-      }
-    } else {
-      if (obsoleteComponents.isNotEmpty || obsoleteSetups.isNotEmpty) {
-        message += "\n${obsoleteComponents.length} Components, ${obsoleteSetups.length} Setups which belong to this Bike are deleted as well.";
-      }
-    }
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 10),
-        persist: false,
-        showCloseIcon: true,
-        action: SnackBarAction(
-          label: 'UNDO',
-          onPressed: () {
-            data.restoreBike(bike);
-            data.restoreComponents(obsoleteComponents);
-            data.restoreSetups(obsoleteSetups);
-            data.restoreRatings(obsoleteRatings);
-          },
-        ),
-      ),
-    );
-  }
-
-  Future<void> _addComponent(BuildContext context, {required String initialBike}) async {
-    final data = context.read<AppData>();
-
-    final component = await Navigator.push<Component>(
-      context,
-      MaterialPageRoute(builder: (context) => ComponentPage.add(initialBike: initialBike)),
-    );
-    if (component == null) return;
-
-    data.addComponent(component);
-  }
 
   Widget _releaseToBikeWidget(BuildContext context) {
     return CustomPaint(
@@ -150,9 +81,9 @@ class GarageBikeCard extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    final filteredData = context.watch<FilteredData>();
-    final persons = filteredData.persons;
-    final bikeComponents = Map.fromEntries(filteredData.components.entries.where((ce) => ce.value.bike == bike.id));
+    final appRepository = context.watch<AppRepository>();
+    final persons = appRepository.persons;
+    final bikeComponents = Map.fromEntries(appRepository.components.entries.where((ce) => ce.value.bike == bike.id));
 
     return DragTarget<Object>(
       key: ValueKey(bike.id),
@@ -162,7 +93,7 @@ class GarageBikeCard extends StatelessWidget{
         margin: const EdgeInsets.symmetric(vertical: 4.0),
         clipBehavior: Clip.antiAlias, // Borderradius for InkWell
         child: InkWell(
-          onDoubleTap: () => filteredData.onBikeTap(bike.id),
+          onDoubleTap: () => appRepository.onBikeTap(bike.id),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -177,7 +108,7 @@ class GarageBikeCard extends StatelessWidget{
                                 size: 11,
                                 color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                               )
-                            : !filteredData.stravaGears.containsKey(bike.stravaGear)
+                            : !appRepository.stravaGears.containsKey(bike.stravaGear)
                                 ? Icon(Icons.error_outline, size: 11, color: Theme.of(context).colorScheme.error)
                                 : const Icon(SimpleIcons.strava, size: 10, color: Color(0xFFFC4C02)),
                         backgroundColor: Colors.transparent,
@@ -269,8 +200,8 @@ class GarageBikeCard extends StatelessWidget{
                     PopupMenuButton<String>(
                       onSelected: (value) {
                         switch (value) {
-                          case 'edit': _editBike(context, bike: bike);
-                          case 'remove': _removeBike(context, bike: bike);
+                          case 'edit': BikeActions.editBike(context, bike: bike);
+                          case 'remove': BikeActions.removeBike(context, bike: bike);
                         }
                       },
                       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -320,7 +251,7 @@ class GarageBikeCard extends StatelessWidget{
                           child: IgnorePointer(
                             ignoring: showDropZone,
                             child: ReorderableWrap(
-                              onReorder: (int oldIndex, int newIndex) => context.read<AppData>().reorderComponent(
+                              onReorder: (int oldIndex, int newIndex) => context.read<AppRepository>().reorderComponent(
                                 oldIndex: oldIndex,
                                 newIndex: newIndex,
                                 filteredComponentsList: bikeComponents.values.toList(),
@@ -342,7 +273,7 @@ class GarageBikeCard extends StatelessWidget{
                                   ),
                                 ),
                                 child: InkWell(
-                                  onTap: () => _addComponent(context, initialBike: bike.id),
+                                  onTap: () => ComponentActions.addComponent(context, initialBike: bike.id),
                                   borderRadius: BorderRadius.circular(12),
                                   child: Padding(
                                     padding: const EdgeInsets.all(10),

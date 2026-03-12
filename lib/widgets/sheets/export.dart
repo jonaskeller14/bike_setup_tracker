@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
-import '../../models/app_data.dart';
+import '../../database/app_database.dart';
 import '../../models/app_settings.dart';
 import '../../services/google_drive_service.dart';
 import '../../utils/file_export.dart';
+import '../../repositories/app_repository.dart';
+import '../../models/selected_data.dart';
 import 'data_select.dart';
 import 'sheet.dart';
 
@@ -15,7 +17,7 @@ Future<void> exportData(BuildContext context) async {
     showDragHandle: true,
     useSafeArea: true,
     builder: (sheetContext) {
-      return ExportSheetFlow(allData: context.read<AppData>());
+      return ExportSheetFlow(allData: context.read<AppRepository>());
     },
   );
 
@@ -25,11 +27,12 @@ Future<void> exportData(BuildContext context) async {
   switch (exportResult.exportDestination) {
     case ExportDestination.file: await FileExport.downloadJson(
       context: context,
-      data: exportResult.appData,
+      database: context.read<AppDatabase>(),
+      selectedData: exportResult.selectedData,
     );
     case ExportDestination.backup: await FileExport.saveBackup(
       context: context, 
-      data: exportResult.appData, 
+      database: context.read<AppDatabase>(), 
       force: true
     );
     case ExportDestination.googleDriveBackup: await context.read<GoogleDriveService>().saveBackup(
@@ -47,8 +50,8 @@ enum ExportDestination {
 
 class ExportResult {
   final ExportDestination exportDestination;
-  final AppData appData;
-  const ExportResult({required this.exportDestination, required this.appData});
+  final SelectedData selectedData;
+  const ExportResult({required this.exportDestination, required this.selectedData});
 }
 
 enum ExportSheetFlowSteps {
@@ -58,7 +61,7 @@ enum ExportSheetFlowSteps {
 }
 
 class ExportSheetFlow extends StatefulWidget {
-  final AppData allData;
+  final AppRepository allData;
   const ExportSheetFlow({super.key, required this.allData});
 
   @override
@@ -87,26 +90,50 @@ class _ExportSheetFlowState extends State<ExportSheetFlow> {
             onFile: () => setState(() => _step = ExportSheetFlowSteps.step2SelectDataMethod),
             onBackup: () => Navigator.of(context).pop(ExportResult(
               exportDestination: ExportDestination.backup, 
-              appData: widget.allData,
+              selectedData: SelectedData(
+                  persons: widget.allData.persons,
+                  bikes: widget.allData.bikes,
+                  components: widget.allData.components,
+                  setups: widget.allData.setups,
+                  ratings: widget.allData.ratings,
+              ),
             )),
             onGoogleDriveBackup: () => Navigator.of(context).pop(ExportResult(
               exportDestination: ExportDestination.googleDriveBackup, 
-              appData: widget.allData,
+              selectedData: SelectedData(
+                  persons: widget.allData.persons,
+                  bikes: widget.allData.bikes,
+                  components: widget.allData.components,
+                  setups: widget.allData.setups,
+                  ratings: widget.allData.ratings,
+              ),
             )),
           ),
           ExportSheetFlowSteps.step2SelectDataMethod => SelectDataMethodSheetContent(
             onAllSelected: () => Navigator.of(context).pop(ExportResult(
               exportDestination: ExportDestination.file, 
-              appData: widget.allData,
+              selectedData: SelectedData(
+                  persons: widget.allData.persons,
+                  bikes: widget.allData.bikes,
+                  components: widget.allData.components,
+                  setups: widget.allData.setups,
+                  ratings: widget.allData.ratings,
+              ),
             )), 
             onManualSelected: () => setState(() => _step = ExportSheetFlowSteps.step3SelectDataItems),
             onBack: () => setState(() => _step = ExportSheetFlowSteps.step1SelectDestination),
           ),
           ExportSheetFlowSteps.step3SelectDataItems => SelectDataItemsSheetContent(
-            allData: widget.allData, 
-            onConfirm: (AppData selectedData) => Navigator.of(context).pop(ExportResult(
+            allData: SelectedData(
+              persons: widget.allData.persons,
+              bikes: widget.allData.bikes,
+              components: widget.allData.components,
+              setups: widget.allData.setups,
+              ratings: widget.allData.ratings,
+            ), 
+            onConfirm: (SelectedData selected) => Navigator.of(context).pop(ExportResult(
               exportDestination: ExportDestination.file, 
-              appData: selectedData,
+              selectedData: selected,
             )),  
             onBack: () => setState(() => _step = ExportSheetFlowSteps.step2SelectDataMethod),
           ),

@@ -1,7 +1,8 @@
+import 'package:bike_setup_tracker/services/data_export_service.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
-import 'package:bike_setup_tracker/models/app_data.dart';
+import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
@@ -13,16 +14,19 @@ import 'package:bike_setup_tracker/models/setup.dart';
 const String loremIpsum = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.";
 
 void main() async {
-  final data = AppData(AppDatabase.memory());
+  final data = AppRepository(AppDatabase.memory());
+  final bikes = <Bike>[];
   for (final idx in List.generate(100, (idx) => idx)) {
-    await data.addBike(Bike(name: "Bike #$idx: $loremIpsum", person: null));
+    final b = Bike(name: "Bike #$idx: $loremIpsum", person: null);
+    await data.addBike(b);
+    bikes.add(b);
   }
   await Future.delayed(Duration.zero);
 
   for (final idx in List.generate(100, (idx) => idx)) {
     await data.addComponent(Component(
       name: "Component #$idx: $loremIpsum", 
-      installations: [Installation.sinceBeginning(parent: data.bikes.values.first.id)], 
+      installations: [Installation.sinceBeginning(parent: bikes.first.id)], 
       componentType: ComponentType.frame, 
       adjustments: [
         BooleanAdjustment(
@@ -75,7 +79,7 @@ void main() async {
       name: "Setup #$idx: $loremIpsum", 
       notes: loremIpsum,
       tags: {},
-      bike: data.bikes.values.first.id, 
+      bike: bikes.first.id, 
       datetime: DateTime(2000).add(Duration(minutes: idx)).toUtc(),
       datetimeLocal: DateTime(2000).add(Duration(minutes: idx)),
       person: null,
@@ -102,8 +106,9 @@ void main() async {
     ));
   }
   
+  final exportData = await DataExportService.backupDatabaseToJson(data.database);
   final encoder = JsonEncoder.withIndent('  ');
-  final jsonString = encoder.convert(data.toJson());
+  final jsonString = encoder.convert(exportData);
 
   final file = File('test/overflow_test.json');
   

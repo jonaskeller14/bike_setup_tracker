@@ -1,10 +1,10 @@
+import 'dart:async';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
-import 'package:bike_setup_tracker/models/app_data.dart';
+import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
-import 'package:bike_setup_tracker/models/filtered_data.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/pages/component_overview_page.dart';
@@ -15,41 +15,32 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   late AppDatabase database;
-  late AppData appData;
+  late AppRepository appRepository;
   late AppSettings appSettings;
-  late FilteredData filteredData;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     database = AppDatabase.memory();
-    appData = AppData(database);
+    appRepository = AppRepository(database);
     appSettings = AppSettings();
   });
 
   tearDown(() async {
-    appData.dispose();
+    appRepository.dispose();
     appSettings.dispose();
-    filteredData.dispose();
     await database.close();
   });
 
-  Widget createWidgetUnderTest(
-    String componentId,
-    Future<void> Function(BuildContext, {required Component component}) editComponent,
-  ) {
+  Widget createWidgetUnderTest(String componentId) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: appSettings),
-        ChangeNotifierProvider.value(value: appData),
-        ChangeNotifierProvider<FilteredData>.value(
-          value: filteredData,
-        ),
+        ChangeNotifierProvider.value(value: appRepository),
       ],
       child: MaterialApp(
         home: Scaffold(
           body: ComponentOverviewPage(
             componentId: componentId,
-            editComponent: editComponent,
           ),
         ),
       ),
@@ -64,11 +55,14 @@ void main() {
       componentType: ComponentType.fork,
       adjustments: [],
     );
-    await appData.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
-    await appData.addComponent(component);
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+      await appRepository.addComponent(component);
+    });
 
-    filteredData = FilteredData(appData.database); // Initialize FilteredData AFTER DB inserts to avoid fake async stream deadlock!
-    await tester.pumpWidget(createWidgetUnderTest('comp1', (c, {required component}) async {}));
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
     await tester.pumpAndSettle();
 
     expect(find.text('No setups yet'), findsOneWidget);
@@ -83,25 +77,28 @@ void main() {
       componentType: ComponentType.fork,
       adjustments: [adjustment],
     );
-    await appData.addComponent(component);
+    await tester.runAsync(() async {
+      await appRepository.addComponent(component);
 
-    final setup = Setup(
-      name: 'Setup 1',
-      datetime: DateTime.now().toUtc(),
-      datetimeLocal: DateTime.now(),
-      tags: {},
-      bike: 'bike1',
-      person: null,
-      bikeAdjustmentValues: {'adj1': 5},
-      personAdjustmentValues: {},
-      ratingAdjustmentValues: {},
-      isCurrent: false,
-    );
-    await appData.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
-    await appData.addSetup(setup);
+      final setup = Setup(
+        name: 'Setup 1',
+        datetime: DateTime.now().toUtc(),
+        datetimeLocal: DateTime.now(),
+        tags: {},
+        bike: 'bike1',
+        person: null,
+        bikeAdjustmentValues: {'adj1': 5},
+        personAdjustmentValues: {},
+        ratingAdjustmentValues: {},
+        isCurrent: false,
+      );
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+      await appRepository.addSetup(setup);
+    });
     
-    filteredData = FilteredData(appData.database);
-    await tester.pumpWidget(createWidgetUnderTest('comp1', (c, {required component}) async {}));
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
     await tester.pumpAndSettle();
 
     // Open columns sheet
@@ -136,13 +133,16 @@ void main() {
       componentType: ComponentType.fork,
       adjustments: [adjustment],
     );
-    await appData.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
-    await appData.addComponent(component);
-    await appData.addSetup(Setup(id: 's1', name: 'A Setup', datetime: DateTime(2023).toUtc(), datetimeLocal: DateTime(2023), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false));
-    await appData.addSetup(Setup(id: 's2', name: 'B Setup', datetime: DateTime(2024).toUtc(), datetimeLocal: DateTime(2024), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false));
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+      await appRepository.addComponent(component);
+      await appRepository.addSetup(Setup(id: 's1', name: 'A Setup', datetime: DateTime(2023).toUtc(), datetimeLocal: DateTime(2023), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false));
+      await appRepository.addSetup(Setup(id: 's2', name: 'B Setup', datetime: DateTime(2024).toUtc(), datetimeLocal: DateTime(2024), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false));
+    });
     
-    filteredData = FilteredData(appData.database);
-    await tester.pumpWidget(createWidgetUnderTest('comp1', (c, {required component}) async {}));
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
     await tester.pumpAndSettle();
 
     // Sort by name
@@ -187,12 +187,15 @@ void main() {
       componentType: ComponentType.fork,
       adjustments: [adjustment1, adjustment2],
     );
-    await appData.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
-    await appData.addComponent(component);
-    await appData.addSetup(Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5, 'adj2': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false));
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+      await appRepository.addComponent(component);
+      await appRepository.addSetup(Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5, 'adj2': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false));
+    });
     
-    filteredData = FilteredData(appData.database);
-    await tester.pumpWidget(createWidgetUnderTest('comp1', (c, {required component}) async {}));
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
     await tester.pumpAndSettle();
 
     // Sort by Compression
@@ -227,28 +230,16 @@ void main() {
       componentType: ComponentType.fork,
       adjustments: [adjustmentOld],
     );
-    await appData.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
-    await appData.addComponent(component);
-    await appData.addSetup(Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false));
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+      await appRepository.addComponent(component);
+      await appRepository.addSetup(Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false));
+    });
     
-    filteredData = FilteredData(appData.database);
+    appRepository.dispose();
+    appRepository = AppRepository(database);
     
-    Future<void> mockEditComponent(BuildContext context, {required Component component}) async {
-      // Simulate editing the component
-      final newAdjustment = StepAdjustment(id: 'adj2', name: 'New Volume Spacers', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
-      // Update the component in AppData
-      final updatedComponent = Component(
-        id: 'comp1',
-        name: 'New Fork Name',
-        installations: [Installation.sinceBeginning(parent: 'bike1')],
-        componentType: ComponentType.fork,
-        adjustments: [newAdjustment], // Removed Old, Added New
-      );
-      
-      await appData.editComponent(updatedComponent); 
-    }
-
-    await tester.pumpWidget(createWidgetUnderTest('comp1', mockEditComponent));
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
     await tester.pumpAndSettle();
 
     // Initial assertions
@@ -260,9 +251,73 @@ void main() {
     await tester.tap(find.byIcon(Icons.edit));
     await tester.pumpAndSettle();
 
+    // Verify we are on ComponentPage (Edit mode)
+    expect(find.text('Edit Component'), findsOneWidget);
+
+    // Update name
+    await tester.enterText(find.widgetWithText(TextFormField, 'Component Name'), 'New Fork Name');
+    await tester.pumpAndSettle();
+
+    // Remove 'Rebound' adjustment
+    await tester.tap(find.byType(PopupMenuButton<String>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Remove'));
+    await tester.pumpAndSettle();
+
+    // Add 'New Volume Spacers' adjustment
+    await tester.ensureVisible(find.text('Add Adjustment'));
+    await tester.tap(find.text('Add Adjustment'));
+    await tester.pumpAndSettle();
+    
+    // Tap Step Adjustment from custom section (not template since it might not be there for fork if not specifically added to presets)
+    // Actually, presets has Rebound and Compression. Let's use custom Step Adjustment.
+    await tester.ensureVisible(find.text('Step Adjustment'));
+    await tester.tap(find.text('Step Adjustment'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.widgetWithText(TextFormField, 'Adjustment Name'), 'New Volume Spacers');
+    await tester.enterText(find.widgetWithText(TextFormField, 'Max Value'), '5');
+    await tester.tap(find.byIcon(Icons.check));
+    await tester.pumpAndSettle();
+
+    // Save component
+    await tester.tap(find.descendant(of: find.byType(AppBar), matching: find.byIcon(Icons.check)));
+    await tester.pump(); // Start the pop and the callback
+    
+    // Wait for the async repository update
+    await _waitForRepositoryUpdate(tester);
+
     // Assertions after edit
     expect(find.text('New Fork Name'), findsOneWidget);
     expect(find.text('Rebound'), findsNothing);
     expect(find.text('New Volume Spacers'), findsOneWidget);
   });
+}
+
+Future<void> _waitForRepositoryUpdate(WidgetTester tester) async {
+  final appRepository = tester.element(find.byType(MaterialApp)).read<AppRepository>();
+  final completer = Completer<void>();
+  void listener() {
+    if (!completer.isCompleted) {
+      completer.complete();
+    }
+  }
+
+  appRepository.addListener(listener);
+
+  // We use a longer timeout and multiple pumps to allow background streams to fire
+  await tester.runAsync(() async {
+    try {
+      await completer.future.timeout(const Duration(seconds: 5));
+    } catch (e) {
+      // Timeout is handled by falling back to pumps below
+    }
+  });
+
+  appRepository.removeListener(listener);
+
+  await tester.pumpAndSettle();
+  // Extra pumps to ensure the UI has completely rebuilt from the new stream data
+  await tester.pump(const Duration(milliseconds: 500));
+  await tester.pumpAndSettle();
 }

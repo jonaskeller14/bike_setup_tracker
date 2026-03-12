@@ -3,27 +3,22 @@ import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import '../models/app_settings.dart';
-import '../models/filtered_data.dart';
+import '../repositories/app_repository.dart';
 import '../models/bike.dart';
 import '../models/person.dart';
+import '../utils/person_actions.dart';
 import 'adjustment_compact_display_list.dart';
 
 class PersonListCard extends StatelessWidget {
   final Person person;
   final int index;
   final double? elevation;
-  final Future<void> Function(Person person) editPerson;
-  final Future<void> Function(Person person) duplicatePerson;
-  final Future<void> Function(Person person) removePerson;
 
   const PersonListCard({
     super.key,
     required this.person,
     required this.index,
     this.elevation,
-    required this.editPerson,
-    required this.duplicatePerson,
-    required this.removePerson,
   });
 
   Column _bikeColumn(BuildContext context, {required Person person, required Map<String, Bike> bikes}) {
@@ -50,9 +45,9 @@ class PersonListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final filteredData = context.watch<FilteredData>();
-    final bikes = filteredData.bikes;
-    final setups = filteredData.setups;
+    final appRepository = context.watch<AppRepository>();
+    final bikes = appRepository.bikes;
+    final setups = appRepository.setups;
     
     return Card(
       key: ValueKey(person.id),
@@ -72,7 +67,7 @@ class PersonListCard extends StatelessWidget {
                               size: 11, 
                               color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
                             )
-                          : !filteredData.stravaAthletes.containsKey(person.stravaAthlete)
+                          : !appRepository.stravaAthletes.containsKey(person.stravaAthlete)
                               ? Icon(Icons.error_outline, size: 11, color: Theme.of(context).colorScheme.error)
                               : const Icon(SimpleIcons.strava, size: 10, color: Color(0xFFFC4C02)),
                       backgroundColor: Colors.transparent,
@@ -100,9 +95,9 @@ class PersonListCard extends StatelessWidget {
                   PopupMenuButton<String>(
                     onSelected: (value) {
                       switch (value) {
-                        case 'edit': editPerson(person);
-                        case 'duplicate': duplicatePerson(person);
-                        case 'remove': removePerson(person);
+                        case 'edit': PersonActions.editPerson(context, person: person);
+                        case 'duplicate': PersonActions.duplicatePerson(context, person: person);
+                        case 'remove': PersonActions.removePerson(context, person: person);
                       }
                     },
                     itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[

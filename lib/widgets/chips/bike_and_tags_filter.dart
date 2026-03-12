@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/bike.dart';
-import '../../models/filtered_data.dart';
+import '../../repositories/app_repository.dart';
 import '../sheets/filter.dart';
-
 
 class BikeAndTagsFilterChip extends StatelessWidget {
   final bool enableSetupTagFilter;
@@ -12,26 +11,26 @@ class BikeAndTagsFilterChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final filteredData = context.watch<FilteredData>();
+    final appRepository = context.watch<AppRepository>();
 
     return FilterChip(
       avatar: enableSetupTagFilter
           ? const Icon(Icons.filter_alt_outlined)
           : const Icon(Bike.iconData),
       label: enableSetupTagFilter
-          ? filteredData.selectedBike != null
-              ? filteredData.selectedSetupTags.isNotEmpty
-                  ? Text("${filteredData.bikes[filteredData.selectedBike]?.name ?? ''} + ${filteredData.selectedSetupTags.length} ${filteredData.selectedSetupTags.length > 1 ? 'Tags' : 'Tag'}")
-                  : Text(filteredData.bikes[filteredData.selectedBike]?.name ?? '')
-              : filteredData.selectedSetupTags.isNotEmpty
-                  ? Text("${filteredData.selectedSetupTags.length} ${filteredData.selectedSetupTags.length > 1 ? 'Tags' : 'Tag'}")
+          ? appRepository.selectedBike != null
+              ? appRepository.selectedSetupTags.isNotEmpty
+                  ? Text("${appRepository.bikes[appRepository.selectedBike]?.name ?? ''} + ${appRepository.selectedSetupTags.length} ${appRepository.selectedSetupTags.length > 1 ? 'Tags' : 'Tag'}")
+                  : Text(appRepository.bikes[appRepository.selectedBike]?.name ?? '')
+              : appRepository.selectedSetupTags.isNotEmpty
+                  ? Text("${appRepository.selectedSetupTags.length} ${appRepository.selectedSetupTags.length > 1 ? 'Tags' : 'Tag'}")
                   : const Text("Filter")
-          : filteredData.selectedBike == null 
+          : appRepository.selectedBike == null 
               ? const Text("All Bikes") 
-              : Text(filteredData.bikes[filteredData.selectedBike]?.name ?? ''),
+              : Text(appRepository.bikes[appRepository.selectedBike]?.name ?? ''),
       selected: enableSetupTagFilter
-          ? filteredData.selectedBike != null || filteredData.selectedSetupTags.isNotEmpty
-          : filteredData.selectedBike != null,
+          ? appRepository.selectedBike != null || appRepository.selectedSetupTags.isNotEmpty
+          : appRepository.selectedBike != null,
       showCheckmark: false,
       onSelected: (bool newValue) async {
         await showFilterSheet(
@@ -40,16 +39,16 @@ class BikeAndTagsFilterChip extends StatelessWidget {
         );
       },
       onDeleted: enableSetupTagFilter
-          ? filteredData.selectedBike == null && filteredData.selectedSetupTags.isEmpty
+          ? appRepository.selectedBike == null && appRepository.selectedSetupTags.isEmpty
               ? null 
               : () {
-                  filteredData.onBikeTap(null);
-                  filteredData.deselectAllSetupTags();
+                  appRepository.onBikeTap(null);
+                  appRepository.deselectAllSetupTags();
                 }
-          : filteredData.selectedBike == null
+          : appRepository.selectedBike == null
               ? null 
               : () {
-                  filteredData.onBikeTap(null);
+                  appRepository.onBikeTap(null);
                 },
     );
   }

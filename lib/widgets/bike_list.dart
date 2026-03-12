@@ -1,18 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../models/bike.dart';
+import 'package:provider/provider.dart';
+import '../repositories/app_repository.dart';
+import '../utils/bike_actions.dart';
 import 'bike_list_card.dart';
 import 'chips/bike_list_filter_widget.dart';
 
 class BikeList extends StatelessWidget {
-  final Map<String, Bike> bikes;
-  final Future<void> Function(int oldIndex, int newIndex) onReorderBikes;
-
-  const BikeList({
-    super.key,
-    required this.bikes,
-    required this.onReorderBikes,
-  });
+  const BikeList({super.key});
 
   Widget _emptyPlaceholder(BuildContext context) {
     return Padding(
@@ -36,7 +31,8 @@ class BikeList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bikesList = bikes.values.toList();
+    final appRepository = context.watch<AppRepository>();
+    final bikesList = appRepository.bikes.values.toList();
 
     Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
       return AnimatedBuilder(
@@ -65,7 +61,7 @@ class BikeList extends StatelessWidget {
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
             header: BikeListFilterWidget(),
             proxyDecorator: proxyDecorator,
-            onReorder: onReorderBikes,
+            onReorder: (int oldIndex, int newIndex) => BikeActions.onReorderBikes(context, oldIndex: oldIndex, newIndex: newIndex),
             itemBuilder: (context, index) {
               final bike = bikesList[index];
               return BikeListCard(

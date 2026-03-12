@@ -6,15 +6,14 @@ import '../models/rating.dart';
 import '../models/setup.dart';
 import '../models/component.dart';
 import '../models/app_settings.dart';
-import '../models/app_data.dart';
-import '../models/filtered_data.dart';
+import '../repositories/app_repository.dart';
+import '../utils/bike_actions.dart';
+import '../utils/component_actions.dart';
+import '../utils/person_actions.dart';
+import '../utils/rating_actions.dart';
+import '../utils/setup_actions.dart';
 import '../widgets/garage_list.dart';
 import '../widgets/strava_sync_button.dart';
-import 'bike_page.dart';
-import 'component_page.dart';
-import 'setup_page.dart';
-import 'person_page.dart';
-import 'rating_page.dart';
 import 'trash_page.dart';
 import 'app_settings_page.dart';
 import 'about_page.dart';
@@ -34,238 +33,15 @@ class HomePage extends StatefulWidget {
 
   @override
   State<HomePage> createState() => _HomePageState();
-
-  static Future<void> addSetup(BuildContext context) async {
-    final data = context.read<AppData>();
-    final filteredData = context.read<FilteredData>();
-
-    if (filteredData.bikes.values.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true, 
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text("Add a bike first", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
-      ));
-      return;
-    }
-    if (filteredData.components.values.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true, 
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text("Add a component first", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
-      ));
-      return;
-    }
-
-    final newSetup = await Navigator.push<Setup>(
-      context,
-      MaterialPageRoute(builder: (context) => SetupPage.add()),
-    );
-    if (newSetup == null) return;
-    
-    data.addSetup(newSetup);
-  }
 }
 
 class _HomePageState extends State<HomePage> {
   int _currentPageIndex = 0;
 
-  Future<void> _removePerson(Person person) async {
-    final data = context.read<AppData>();
-    final filteredData = context.read<FilteredData>();
-
-    final obsoleteRatings = filteredData.ratings.values.where((r) => r.filterType == FilterType.person && r.filter == person.id);
-
-    data.removePerson(person);
-    data.removeRatings(obsoleteRatings);
-
-    String message = "Person '${person.name}' moved to trash.";
-    if (obsoleteRatings.isNotEmpty && context.read<AppSettings>().enableRating) {
-      message += "\n${obsoleteRatings.length} Ratings which belong to this person are deleted as well.";
-    }
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message),
-      duration: const Duration(seconds: 5),
-      persist: false,
-      showCloseIcon: true,
-      action: SnackBarAction(
-        label: 'UNDO',
-        onPressed: () => data.restorePerson(person),
-      ),
-    ));
-  }
-
-  Future<void> _removeRating(Rating rating) async {
-    final data = context.read<AppData>();
-    data.removeRatings([rating]);
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text("Rating '${rating.name}' moved to trash."),
-      duration: const Duration(seconds: 5),
-      persist: false,
-      showCloseIcon: true,
-      action: SnackBarAction(
-        label: 'UNDO',
-        onPressed: () {
-          data.restoreRatings([rating]);
-        },
-      ),
-    ));
-  }
-
-  Future<void> _addBike() async {
-    final data = context.read<AppData>();
-
-    final bike = await Navigator.push<Bike>(
-      context,
-      MaterialPageRoute(builder: (context) => BikePage.add()),
-    );
-    if (bike == null) return;
-
-    data.addBike(bike);
-  }
-
-  Future<void> _addPerson() async {
-    final data = context.read<AppData>();
-
-    final person = await Navigator.push<Person>(
-      context,
-      MaterialPageRoute(builder: (context) => PersonPage.add()),
-    );
-    if (person == null) return;    
-
-    data.addPerson(person);
-  }
-
-  Future<void> _addRating() async {
-    final data = context.read<AppData>();
-
-    final newRating = await Navigator.push<Rating>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => RatingPage.add(),
-      ),
-    );
-    if (newRating == null) return;
-
-    data.addRating(newRating);
-  }
-
-  Future<void> _addComponent() async {
-    final data = context.read<AppData>();
-    final filteredData = context.read<FilteredData>();
-    if (filteredData.filteredBikes.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text("Add a bike first", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
-      ));
-      return;
-    }
-    final component = await Navigator.push<Component>(
-      context,
-      MaterialPageRoute(builder: (context) => ComponentPage.add()),
-    );
-    if (component == null) return;
-
-    data.addComponent(component);
-  }
-
-  Future<void> _editPerson(Person person) async {
-    final data = context.read<AppData>();
-
-    final editedPerson = await Navigator.push<Person>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PersonPage.edit(person: person),
-      ),
-    );
-    if (editedPerson == null) return;
-
-    data.editPerson(editedPerson);
-  }
-
-  Future<void> _editRating(Rating rating) async {
-    final data = context.read<AppData>();
-
-    final editedRating = await Navigator.push<Rating>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => RatingPage.edit(rating: rating),
-      ),
-    );
-    if (editedRating == null) return;
-
-    data.editRating(editedRating);
-  }
-
-
-
-  Future<void> _duplicatePerson(Person person) async {
-    final data = context.read<AppData>();
-
-    final newPerson = await Navigator.push<Person>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PersonPage.duplicate(person: person.deepCopy()),
-      ),
-    );
-    if (newPerson == null) return;
-
-    data.addPerson(newPerson);
-  }
-
-  Future<void> _duplicateRating(Rating rating) async {
-    final data = context.read<AppData>();
-
-    final newRating = await Navigator.push<Rating>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => RatingPage.duplicate(rating: rating.deepCopy()),
-      ),
-    );
-    if (newRating == null) return;
-
-    data.addRating(newRating);
-  }
-
-  Future<void> _onReorderComponents(int oldIndex, int newIndex) async {
-    final data = context.read<AppData>();
-    final filteredData = context.read<FilteredData>();
-    data.reorderComponent(oldIndex: oldIndex, newIndex: newIndex, filteredComponentsList: filteredData.filteredComponents.values.toList());
-  }
-
-  Future<void> _onReorderBikes(int oldIndex, int newIndex) async {
-    final data = context.read<AppData>();
-    final filteredData = context.read<FilteredData>();
-    data.reorderBike(oldIndex: oldIndex, newIndex: newIndex, filteredBikesList: filteredData.bikes.values.toList());
-  }
-
-  Future<void> _onReorderPerson(int oldIndex, int newIndex) async {
-    final data = context.read<AppData>();
-    final filteredData = context.read<FilteredData>();
-    data.reorderPerson(oldIndex: oldIndex, newIndex: newIndex, filteredPersonsList: filteredData.filteredPersons.values.toList());
-  }
-
-  Future<void> _onReorderRating(int oldIndex, int newIndex) async {
-    final data = context.read<AppData>();
-    final filteredData = context.read<FilteredData>();
-    data.reorderRating(oldIndex: oldIndex, newIndex: newIndex, filteredRatingsList: filteredData.filteredRatings.values.toList());
-  }
-
-  Future<void> _addSetup() async {
-    await HomePage.addSetup(context);
-  }
-
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    final filteredData = context.watch<FilteredData>();
+    final appRepository = context.watch<AppRepository>();
     
     _currentPageIndex = _currentPageIndex.clamp(0, (-1)+ (appSettings.enableGarage ? 1 : 2) + 1 + (appSettings.enablePerson ? 1 : 0) + (appSettings.enableRating ? 1: 0));
     return Scaffold(
@@ -394,9 +170,9 @@ class _HomePageState extends State<HomePage> {
         },
         destinations: <Widget>[
           if (appSettings.enableGarage)
-            NavigationDestination(icon: Badge(isLabelVisible: filteredData.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: const Icon(Bike.iconData)), label: 'Bikes')
+            NavigationDestination(icon: Badge(isLabelVisible: appRepository.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: const Icon(Bike.iconData)), label: 'Bikes')
           else ...[
-            NavigationDestination(icon: Badge(isLabelVisible: filteredData.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: const Icon(Bike.iconData)), label: 'Bikes'),
+            NavigationDestination(icon: Badge(isLabelVisible: appRepository.selectedBike != null, backgroundColor: Theme.of(context).primaryColor, child: const Icon(Bike.iconData)), label: 'Bikes'),
             const NavigationDestination(icon: Icon(Component.iconData), label: 'Components'),
           ],
           const NavigationDestination(icon: Icon(Setup.iconData), label: 'Setups'),
@@ -409,77 +185,57 @@ class _HomePageState extends State<HomePage> {
       body: SafeArea(
         child: <Widget>[
           if (appSettings.enableGarage)
-            GarageList(
-              onReorderBikes: _onReorderBikes,
-            )
+            const GarageList()
           else ...[
-            BikeList(
-              bikes: filteredData.bikes,  //include bikes which are not filtered for
-              onReorderBikes: _onReorderBikes,
-            ),
-            ComponentList(
-              components: filteredData.filteredComponents,
-              onReorderComponent: _onReorderComponents,
-            ),
+            const BikeList(),
+            const ComponentList(),
           ],
           const SetupList(),
           if (appSettings.enablePerson)
-            PersonList(
-              persons: filteredData.filteredPersons,
-              editPerson: _editPerson,
-              duplicatePerson: _duplicatePerson,
-              removePerson: _removePerson,
-              onReorderPerson: _onReorderPerson,
-            ),
+            const PersonList(),
           if (appSettings.enableRating)
-            RatingList(
-              ratings: filteredData.filteredRatings,
-              editRating: _editRating,
-              duplicateRating: _duplicateRating,
-              removeRating: _removeRating,
-              onReorderRating: _onReorderRating,
-            ),
+            const RatingList(),
         ][_currentPageIndex],
       ),
       floatingActionButton: <Widget>[
         if (appSettings.enableGarage)
           FloatingActionButton(
             heroTag: "addBike",
-            onPressed: _addBike,
+            onPressed: () async {BikeActions.addBike(context);},
             tooltip: 'Add Bike',
             child: const Icon(Icons.add),
           )
         else ... [
           FloatingActionButton(
             heroTag: "addBike",
-            onPressed: _addBike,
+            onPressed: () async {BikeActions.addBike(context);},
             tooltip: 'Add Bike',
             child: const Icon(Icons.add),
           ),
           FloatingActionButton(
             heroTag: "addComponent",
-            onPressed: _addComponent,
+            onPressed: () async {ComponentActions.addComponent(context);},
             tooltip: 'Add Component',
             child: const Icon(Icons.add),
           ),
         ],
         FloatingActionButton(
           heroTag: "addSetup",
-          onPressed: _addSetup,
+          onPressed: () async {SetupActions.addSetup(context);},
           tooltip: 'Add Setup',
           child: const Icon(Icons.add),
         ),
         if (appSettings.enablePerson)
           FloatingActionButton(
             heroTag: "addPerson",
-            onPressed: _addPerson,
+            onPressed: () async {PersonActions.addPerson(context);},
             tooltip: 'Add Person',
             child: const Icon(Icons.add),
           ),
         if (appSettings.enableRating)
           FloatingActionButton(
             heroTag: "addRating",
-            onPressed: _addRating,
+            onPressed: () async {RatingActions.addRating(context);},
             tooltip: 'Add Rating',
             child: const Icon(Icons.add),
           ),

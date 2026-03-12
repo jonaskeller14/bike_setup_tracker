@@ -5,8 +5,8 @@ import 'adjustment/adjustment.dart';
 
 class Person {
   final String id;
-  bool isDeleted;
-  DateTime lastModified;
+  final bool isDeleted;
+  final DateTime lastModified;
   final String name;
   final String? notes;
   final int? stravaAthlete;

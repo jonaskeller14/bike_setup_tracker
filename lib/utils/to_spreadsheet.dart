@@ -1,24 +1,24 @@
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 import 'package:excel/excel.dart';
-import '../models/app_data.dart';
+import '../models/selected_data.dart';
 import '../models/setup.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/weather.dart';
 
 class SpreadsheetExport {
-  static List<int>? toExcel(AppData appData, AppSettings settings) {
+  static List<int>? toExcel(SelectedData appRepository, AppSettings settings) {
     final excel = Excel.createExcel();
 
-    final bikes = appData.bikes.values.where((b) => !b.isDeleted).toList();
+    final bikes = appRepository.bikes.values.where((b) => !b.isDeleted).toList();
     if (bikes.isEmpty) {
       excel['No Data'].appendRow([TextCellValue('No bikes found or data is empty.')]);
     }
 
     for (final bike in bikes) {
       final sheet = excel[bike.name];
-      final headerData = _generateHeader(appData, settings, bikeId: bike.id);
+      final headerData = _generateHeader(appRepository, settings, bikeId: bike.id);
       
       // Row 1: Merged Group Headers
       sheet.appendRow(headerData.row1.map((e) => TextCellValue(e)).toList());
@@ -34,11 +34,11 @@ class SpreadsheetExport {
         );
       }
 
-      final setups = appData.setups.values.where((s) => s.bike == bike.id && !s.isDeleted).toList();
+      final setups = appRepository.setups.values.where((s) => s.bike == bike.id && !s.isDeleted).toList();
       setups.sort((a, b) => b.datetime.compareTo(a.datetime));
 
       for (final setup in setups) {
-        final row = _generateSetupCellValueRow(setup, headerData.columnMap, appData, settings);
+        final row = _generateSetupCellValueRow(setup, headerData.columnMap, appRepository, settings);
         sheet.appendRow(row);
       }
     }
@@ -50,8 +50,8 @@ class SpreadsheetExport {
     return excel.encode();
   }
 
-  static String toCsv(AppData appData, AppSettings settings) {
-    final headerData = _generateHeader(appData, settings, includeBikeColumn: true);
+  static String toCsv(SelectedData appRepository, AppSettings settings) {
+    final headerData = _generateHeader(appRepository, settings, includeBikeColumn: true);
     final row1 = headerData.row1;
     final row2 = headerData.row2;
     final columnMap = headerData.columnMap;
@@ -60,18 +60,18 @@ class SpreadsheetExport {
     buffer.writeln(row1.map((e) => '"${e.replaceAll('"', '""')}"').join(','));
     buffer.writeln(row2.map((e) => '"${e.replaceAll('"', '""')}"').join(','));
 
-    final setups = appData.setups.values.where((s) => !s.isDeleted).toList();
+    final setups = appRepository.setups.values.where((s) => !s.isDeleted).toList();
     setups.sort((a, b) => b.datetime.compareTo(a.datetime));
 
     for (final setup in setups) {
-      final row = _generateSetupStringRow(setup, columnMap, appData, settings, includeBikeColumn: true);
+      final row = _generateSetupStringRow(setup, columnMap, appRepository, settings, includeBikeColumn: true);
       buffer.writeln(row.map((e) => '"${e.replaceAll('"', '""')}"').join(','));
     }
 
     return buffer.toString();
   }
 
-  static _HeaderData _generateHeader(AppData appData, AppSettings settings, {String? bikeId, bool includeBikeColumn = false}) {
+  static _HeaderData _generateHeader(SelectedData appRepository, AppSettings settings, {String? bikeId, bool includeBikeColumn = false}) {
     final List<String> row1 = ['General', '', '', '', '', ''];
     final List<String> row2 = ['Name', 'DateTime', 'Tags', 'Notes', 'Place', 'Altitude [${settings.altitudeUnit}]'];
     final Map<String, int> columnMap = {
@@ -116,9 +116,9 @@ class SpreadsheetExport {
     merges.add(_MergeInfo(weatherStart, colIndex - 1, 'Weather'));
 
     // Person Section
-    final bike = bikeId != null ? appData.bikes[bikeId] : null;
+    final bike = bikeId != null ? appRepository.bikes[bikeId] : null;
     final personId = bike?.person;
-    final person = personId != null ? appData.persons[personId] : null;
+    final person = personId != null ? appRepository.persons[personId] : null;
     if (person != null) {
       final int personStart = colIndex;
       row1.add('Person: ${person.name}');
@@ -134,7 +134,7 @@ class SpreadsheetExport {
     }
 
     // Component Adjustments
-    final components = appData.components.values
+    final components = appRepository.components.values
         .where((c) => !c.isDeleted && (bikeId == null || c.bike == bikeId))
         .toList();
 
@@ -157,7 +157,7 @@ class SpreadsheetExport {
 
     // Add Ratings
     final Set<String> ratingAdjIds = {};
-    final setups = appData.setups.values.where((s) => !s.isDeleted && (bikeId == null || s.bike == bikeId));
+    final setups = appRepository.setups.values.where((s) => !s.isDeleted && (bikeId == null || s.bike == bikeId));
     for (final setup in setups) {
       ratingAdjIds.addAll(setup.ratingAdjustmentValues.keys);
     }
@@ -170,7 +170,7 @@ class SpreadsheetExport {
       }
       for (final adjId in ratingAdjIds) {
         String name = adjId;
-        for (final rating in appData.ratings.values) {
+        for (final rating in appRepository.ratings.values) {
           final adj = rating.adjustments.firstWhereOrNull((a) => a.id == adjId);
           if (adj != null) {
             name = '${adj.name}${adj.unit != null ? ' [${adj.unit}]' : ''}';
@@ -186,7 +186,7 @@ class SpreadsheetExport {
     return _HeaderData(row1, row2, columnMap, merges);
   }
 
-  static List<CellValue> _generateSetupCellValueRow(Setup setup, Map<String, int> columnMap, AppData appData, AppSettings settings) {
+  static List<CellValue> _generateSetupCellValueRow(Setup setup, Map<String, int> columnMap, SelectedData appRepository, AppSettings settings) {
     final List<CellValue> row = List.filled(columnMap.length, TextCellValue(''));
 
     row[columnMap['name']!] = TextCellValue(setup.name);
@@ -235,8 +235,8 @@ class SpreadsheetExport {
     }
 
     // Person
-    final bike = appData.bikes[setup.bike];
-    final person = bike != null ? appData.persons[bike.person] : null;
+    final bike = appRepository.bikes[setup.bike];
+    final person = bike != null ? appRepository.persons[bike.person] : null;
     if (person != null && columnMap.containsKey('p_name')) {
       row[columnMap['p_name']!] = TextCellValue(person.name);
       for (final entry in setup.personAdjustmentValues.entries) {
@@ -264,7 +264,7 @@ class SpreadsheetExport {
     return row;
   }
 
-  static List<String> _generateSetupStringRow(Setup setup, Map<String, int> columnMap, AppData appData, AppSettings settings, {bool includeBikeColumn = false}) {
+  static List<String> _generateSetupStringRow(Setup setup, Map<String, int> columnMap, SelectedData appRepository, AppSettings settings, {bool includeBikeColumn = false}) {
     final List<String> row = List.filled(columnMap.length, '');
 
     row[columnMap['name']!] = setup.name;
@@ -282,7 +282,7 @@ class SpreadsheetExport {
     }
 
     if (includeBikeColumn) {
-      final bike = appData.bikes[setup.bike];
+      final bike = appRepository.bikes[setup.bike];
       row[columnMap['bike']!] = bike?.name ?? setup.bike;
     }
 
@@ -299,8 +299,8 @@ class SpreadsheetExport {
     }
 
     // Person
-    final bike = appData.bikes[setup.bike];
-    final person = bike != null ? appData.persons[bike.person] : null;
+    final bike = appRepository.bikes[setup.bike];
+    final person = bike != null ? appRepository.persons[bike.person] : null;
     if (person != null && columnMap.containsKey('p_name')) {
       row[columnMap['p_name']!] = person.name;
       for (final entry in setup.personAdjustmentValues.entries) {

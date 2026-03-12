@@ -7,7 +7,7 @@ import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/installation.dart';
 import '../models/adjustment/adjustment.dart';
-import '../models/filtered_data.dart';
+import '../repositories/app_repository.dart';
 import '../widgets/set_installation_timeline.dart';
 import 'adjustment/boolean_adjustment_page.dart';
 import 'adjustment/numerical_adjustment_page.dart';
@@ -71,11 +71,11 @@ class _ComponentPageState extends State<ComponentPage> {
     
     _installations = widget.component?.installations ?? [];
 
-    final filteredData = context.read<FilteredData>();
+    final appRepository = context.read<AppRepository>();
     _initialBike = widget.component != null 
         ? widget.component!.bike 
         : widget.initialBike is _Sentinel
-            ? filteredData.filteredBikes.keys.firstOrNull
+            ? appRepository.filteredBikes.keys.firstOrNull
             : widget.initialBike as String?;    
     _bike = _initialBike;
 
@@ -350,9 +350,9 @@ class _ComponentPageState extends State<ComponentPage> {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    final filteredData = context.watch<FilteredData>();
-    final bikes = filteredData.bikes;
-    final existingComponentsCount = filteredData.components.values.where((c) => c.bike == _bike && c.componentType == _componentType && widget.component?.id != c.id).length;
+    final appRepository = context.watch<AppRepository>();
+    final bikes = appRepository.bikes;
+    final existingComponentsCount = appRepository.components.values.where((c) => c.bike == _bike && c.componentType == _componentType && widget.component?.id != c.id).length;
 
     return PopScope( 
       canPop: !_formHasChanges,

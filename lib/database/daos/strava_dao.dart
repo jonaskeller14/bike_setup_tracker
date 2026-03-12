@@ -24,6 +24,10 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
     return select(stravaActivities).watch();
   }
 
+  Future<List<StravaAthleteDb>> getAllAthletesBypass() => select(stravaAthletes).get();
+  Future<List<StravaGearDb>> getAllGearsBypass() => select(stravaGears).get();
+  Future<List<StravaActivityDb>> getAllActivitiesBypass() => select(stravaActivities).get();
+
   Future upsertAthlete(StravaAthletesCompanion entry) => into(stravaAthletes).insertOnConflictUpdate(entry);
   Future upsertGear(StravaGearsCompanion entry) => into(stravaGears).insertOnConflictUpdate(entry);
   Future upsertActivity(StravaActivitiesCompanion entry) => into(stravaActivities).insertOnConflictUpdate(entry);

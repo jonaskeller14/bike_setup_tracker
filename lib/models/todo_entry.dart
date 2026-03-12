@@ -2,8 +2,8 @@ import 'package:uuid/uuid.dart';
 
 class TodoEntry {
   final String id;
-  bool isDeleted;
-  DateTime lastModified;
+  final bool isDeleted;
+  final DateTime lastModified;
   final String name;
   final String? notes;
   final DateTime dateTimeUTC;

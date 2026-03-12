@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/bike.dart';
-import '../models/component.dart';
-import '../models/filtered_data.dart';
+import '../repositories/app_repository.dart';
 import '../models/rating.dart';
 import '../models/setup.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/weather.dart';
 import '../models/app_settings.dart';
+import '../utils/component_actions.dart';
 import '../widgets/chips/bike_and_tags_filter.dart';
 import '../widgets/display_installation_timeline.dart';
 import '../widgets/sheets/column_filter.dart';
@@ -18,9 +18,8 @@ import '../utils/table_column.dart';
 
 class ComponentOverviewPage extends StatefulWidget{
   final String componentId;
-  final Future<void> Function(BuildContext context, {required Component component}) editComponent;
 
-  const ComponentOverviewPage({super.key, required this.componentId, required this.editComponent});
+  const ComponentOverviewPage({super.key, required this.componentId});
 
   @override
   State<ComponentOverviewPage> createState() => _ComponentOverviewPageState();
@@ -179,19 +178,19 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    final filteredData = context.watch<FilteredData>();
+    final appRepository = context.watch<AppRepository>();
 
-    final component = filteredData.components[widget.componentId];
+    final component = appRepository.components[widget.componentId];
     if (component == null) return const SizedBox.shrink();
     final componentAdjustments = component.adjustments;
 
-    final ratings = filteredData.ratings;
+    final ratings = appRepository.ratings;
     final ratingAdjustments = ratings.values.expand((rating) => rating.adjustments);
     
-    final bikes = filteredData.bikes;
+    final bikes = appRepository.bikes;
     final bike = bikes[component.bike];
     
-    final persons = filteredData.persons;
+    final persons = appRepository.persons;
     final person = persons[bike?.person];
     final personAdjustments = person?.adjustments ?? [];
     
@@ -287,7 +286,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
     final activeColumns = sortedColumns.where((c) => c.active).toList();
     if (!activeColumns.contains(_sortColumn)) _sortColumn = null;
 
-    final setupsUnsorted = filteredData.filteredSetups.values.where(
+    final setupsUnsorted = appRepository.filteredSetups.values.where(
         (s) => component.adjustments.any((adj) => s.bikeAdjustmentValues.containsKey(adj.id))
     ).toList().reversed.toList();
 
@@ -312,7 +311,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
         ),
         actions: [
           IconButton(
-            onPressed: () => widget.editComponent(context, component: component),
+            onPressed: () => ComponentActions.editComponent(context, component: component),
             icon: const Icon(Icons.edit),
           )
         ],

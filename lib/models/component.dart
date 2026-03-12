@@ -9,8 +9,8 @@ part 'component_type.dart';
 
 class Component {
   final String id;
-  bool isDeleted;
-  DateTime lastModified;
+  final bool isDeleted;
+  final DateTime lastModified;
   final String name;
   final ComponentType componentType; 
   final List<Adjustment> adjustments;

@@ -2,18 +2,24 @@ import 'package:drift/drift.dart';
 import '../app_database.dart';
 import '../tables/persons.dart';
 import '../tables/adjustments.dart';
+import 'soft_delete_dao_mixin.dart';
 
 part 'persons_dao.g.dart';
 
 @DriftAccessor(tables: [Persons, Adjustments])
-class PersonsDao extends DatabaseAccessor<AppDatabase> with _$PersonsDaoMixin {
+class PersonsDao extends DatabaseAccessor<AppDatabase> with _$PersonsDaoMixin, SoftDeletableDaoMixin<Persons, PersonDb, PersonsCompanion> {
   PersonsDao(super.db);
 
-  Stream<List<PersonDb>> watchAllPersons() => (select(persons)..where((t) => t.isDeleted.equals(false))).watch();
-  Stream<List<PersonDb>> watchDeletedPersons() => (select(persons)..where((t) => t.isDeleted.equals(true))).watch();
+  @override TableInfo<Persons, PersonDb> get softDeletableTable => persons;
+  @override Expression<bool> get isDeletedColumn => persons.isDeleted;
+  @override Expression<String> get idColumn => persons.id;
+  @override PersonsCompanion createSoftDeleteCompanion() => PersonsCompanion(isDeleted: const Value(true), lastModified: Value(DateTime.now().toUtc()));
+
+  Stream<List<PersonDb>> watchAllPersons() => watchAllActive();
+  Stream<List<PersonDb>> watchDeletedPersons() => watchAllDeleted();
 
   Stream<List<PersonWithData>> watchAllPersonsWithData() {
-    final query = (select(persons)..where((t) => t.isDeleted.equals(false))).join([
+    final query = (select(persons)..where((t) => isDeletedColumn.equals(false))).join([
       leftOuterJoin(adjustments, adjustments.personId.equalsExp(persons.id)),
     ]);
 
@@ -51,7 +57,7 @@ class PersonsDao extends DatabaseAccessor<AppDatabase> with _$PersonsDaoMixin {
 
   Future<int> insertPerson(PersonsCompanion entry) => into(persons).insert(entry);
   Future updatePerson(PersonsCompanion entry) => update(persons).replace(entry);
-  Future deletePerson(String id) => (update(persons)..where((t) => t.id.equals(id))).write(PersonsCompanion(isDeleted: const Value(true), lastModified: Value(DateTime.now().toUtc())));
+  Future<int> deletePerson(String id) => softDelete(id);
 
   Future<void> insertPersonWithData({
     required PersonsCompanion person,
@@ -76,6 +82,31 @@ class PersonsDao extends DatabaseAccessor<AppDatabase> with _$PersonsDaoMixin {
         await into(adjustments).insert(adj);
       }
     });
+  }
+
+  Future<List<PersonWithData>> getAllPersonsWithDataBypass() async {
+    final query = select(persons).join([
+      leftOuterJoin(adjustments, adjustments.personId.equalsExp(persons.id)),
+    ]);
+
+    final rows = await query.get();
+    final Map<String, PersonWithData> grouped = {};
+    for (final row in rows) {
+      final person = row.readTable(persons);
+      final adjustment = row.readTableOrNull(adjustments);
+
+      final entry = grouped.putIfAbsent(
+        person.id,
+        () => PersonWithData(person: person, adjustments: []),
+      );
+      if (adjustment != null && !entry.adjustments.any((a) => a.id == adjustment.id)) {
+        entry.adjustments.add(adjustment);
+      }
+    }
+    for (final entry in grouped.values) {
+      entry.adjustments.sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+    }
+    return grouped.values.toList();
   }
 }
 

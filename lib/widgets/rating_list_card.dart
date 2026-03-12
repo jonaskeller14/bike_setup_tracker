@@ -1,28 +1,23 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/filtered_data.dart';
+import '../repositories/app_repository.dart';
 import '../models/person.dart';
 import '../models/bike.dart';
 import '../models/rating.dart';
 import '../models/component.dart';
+import '../utils/rating_actions.dart';
 
 class RatingListCard extends StatelessWidget {
   final Rating rating;
   final int index;
   final double? elevation;
-  final Future<void> Function(Rating rating) editRating;
-  final Future<void> Function(Rating rating) duplicateRating;
-  final Future<void> Function(Rating rating) removeRating;
 
   const RatingListCard({
     super.key,
     required this.rating,
     required this.index,
     this.elevation,
-    required this.editRating,
-    required this.duplicateRating,
-    required this.removeRating,
   });
 
   Column _ratingAdjustmentsColumn(BuildContext context, {required Rating rating}) {
@@ -41,10 +36,10 @@ class RatingListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final filteredData = context.watch<FilteredData>();
-    final bikes = filteredData.bikes;
-    final persons = filteredData.persons;
-    final components = filteredData.components;
+    final appRepository = context.watch<AppRepository>();
+    final bikes = appRepository.bikes;
+    final persons = appRepository.persons;
+    final components = appRepository.components;
 
     return Card(
       key:  ValueKey(rating.id),
@@ -180,9 +175,9 @@ class RatingListCard extends StatelessWidget {
                   PopupMenuButton<String>(
                     onSelected: (value) {
                       switch (value) {
-                        case 'edit': editRating(rating);
-                        case 'duplicate': duplicateRating(rating);
-                        case 'remove': removeRating(rating);
+                        case 'edit': RatingActions.editRating(context, rating: rating);
+                        case 'duplicate': RatingActions.duplicateRating(context, rating: rating);
+                        case 'remove': RatingActions.removeRating(context, rating: rating);
                       }
                     },
                     itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[

@@ -1,18 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../models/component.dart';
+import 'package:provider/provider.dart';
+import '../repositories/app_repository.dart';
+import '../utils/component_actions.dart';
 import 'component_list_card.dart';
 import 'chips/component_list_filter_widget.dart';
 
 class ComponentList extends StatelessWidget {
-  final Map<String, Component> components;
-  final Future<void> Function(int oldIndex, int newIndex) onReorderComponent;
-
-  const ComponentList({
-    super.key,
-    required this.components,
-    required this.onReorderComponent,
-  });
+  const ComponentList({super.key});
 
   Widget _emptyPlaceholder(BuildContext context) {
     return Padding(
@@ -36,7 +31,8 @@ class ComponentList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final componentsList = components.values.toList();
+    final appRepository = context.watch<AppRepository>();
+    final componentsList = appRepository.filteredComponents.values.toList();
 
     Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
       return AnimatedBuilder(
@@ -58,14 +54,14 @@ class ComponentList extends StatelessWidget {
       );
     }
 
-    return components.isEmpty
+    return componentsList.isEmpty
         ? _emptyPlaceholder(context)
         : ReorderableListView.builder(
             itemCount: componentsList.length,
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
             header: ComponentListFilterWidget(),
             proxyDecorator: proxyDecorator,
-            onReorder: onReorderComponent,
+            onReorder: (int oldIndex, int newIndex) => ComponentActions.onReorderComponents(context, oldIndex: oldIndex, newIndex: newIndex),
             itemBuilder: (context, index) {
               final component = componentsList[index];
               return ComponentListCard(

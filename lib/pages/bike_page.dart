@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
-import '../models/filtered_data.dart';
+import '../repositories/app_repository.dart';
 import '../widgets/dialogs/discard_changes.dart';
 
 enum BikePageMode {
@@ -113,10 +113,10 @@ class _BikePageState extends State<BikePage> {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    final filteredData = context.watch<FilteredData>();
-    final existingBikes = filteredData.bikes;
-    final persons = filteredData.persons;
-    final stravaGears = filteredData.stravaGears;
+    final appRepository = context.watch<AppRepository>();
+    final existingBikes = appRepository.bikes;
+    final persons = appRepository.persons;
+    final stravaGears = appRepository.stravaGears;
 
     return PopScope( 
       canPop: !_formHasChanges,

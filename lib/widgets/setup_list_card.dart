@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../models/filtered_data.dart';
+import '../repositories/app_repository.dart';
 import '../models/setup.dart';
 import '../models/bike.dart';
 import '../models/weather.dart';
@@ -54,8 +54,8 @@ class SetupListCard extends StatelessWidget {
 
   ListTile _setupListTile(BuildContext context, Setup setup) {
     final appSettings = context.watch<AppSettings>();
-    final filteredData = context.watch<FilteredData>();
-    final bikes = filteredData.bikes;
+    final appRepository = context.watch<AppRepository>();
+    final bikes = appRepository.bikes;
     
     return ListTile(
       contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
@@ -228,10 +228,10 @@ class SetupListCard extends StatelessWidget {
       trailing: PopupMenuButton<_SetupListCardPopupMenuButtonOptions>(
         onSelected: (_SetupListCardPopupMenuButtonOptions value) {
           switch (value) {
-            case _SetupListCardPopupMenuButtonOptions.edit: SetupActions.editSetup(context, setup);
+            case _SetupListCardPopupMenuButtonOptions.edit: SetupActions.editSetup(context, setup: setup);
             case _SetupListCardPopupMenuButtonOptions.share: SetupActions.shareSetup(context, setup: setup);
-            case _SetupListCardPopupMenuButtonOptions.restore: SetupActions.duplicateSetup(context, setup);
-            case _SetupListCardPopupMenuButtonOptions.remove: SetupActions.removeSetup(context, setup);
+            case _SetupListCardPopupMenuButtonOptions.restore: SetupActions.duplicateSetup(context, setup: setup);
+            case _SetupListCardPopupMenuButtonOptions.remove: SetupActions.removeSetup(context, setup: setup);
           }
         },
         itemBuilder: (BuildContext context) => <PopupMenuEntry<_SetupListCardPopupMenuButtonOptions>>[
@@ -282,11 +282,11 @@ class SetupListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final filteredData = context.watch<FilteredData>();
-    final setups = filteredData.setups;
-    final components = filteredData.components;
-    final persons = filteredData.persons;
-    final ratings = filteredData.ratings;
+    final appRepository = context.watch<AppRepository>();
+    final setups = appRepository.setups;
+    final components = appRepository.components;
+    final persons = appRepository.persons;
+    final ratings = appRepository.ratings;
     final setup = setups[setupId];
     if (setup == null) return const SizedBox.shrink();
 

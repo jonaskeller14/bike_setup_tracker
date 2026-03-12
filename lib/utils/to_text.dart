@@ -2,24 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/adjustment/adjustment.dart';
-import '../models/filtered_data.dart';
-import '../models/app_data.dart';
+import '../repositories/app_repository.dart';
 import '../models/app_settings.dart';
 import '../models/setup.dart';
+import '../models/selected_data.dart';
 import '../models/weather.dart';
 
 String toText({
   required BuildContext context,
-  required AppData appData,
-  required List<String> selectedPersons,
-  required List<String> selectedBikes,
-  required List<String> selectedComponents,
-  required List<String> selectedSetups,
+  required SelectedData selectedData,
 }) {
   final appSettings = context.read<AppSettings>();
   final buffer = StringBuffer();
 
-  final persons = appData.persons.values.where((p) => selectedPersons.contains(p.id));
+  final persons = selectedData.persons.values;
   if (appSettings.enablePerson && persons.isNotEmpty) {
     buffer.writeln("PROFILES:");
     for (final p in persons) {
@@ -28,12 +24,12 @@ String toText({
     buffer.writeln("\n-----------\n");
   }
 
-  final bikes = appData.bikes.values.where((b) => selectedBikes.contains(b.id));
+  final bikes = selectedData.bikes.values;
   if (bikes.isNotEmpty) {
     buffer.writeln("BIKES:");
     for (final b in bikes) {
       if (appSettings.enablePerson) {
-        buffer.writeln("🚲 ${b.name} (${appData.persons[b.person]?.name ?? '-'})${b.isDeleted ? ' [DELETED]' : ''}");
+        buffer.writeln("🚲 ${b.name} (${selectedData.persons[b.person]?.name ?? '-'})${b.isDeleted ? ' [DELETED]' : ''}");
       } else {
         buffer.writeln("🚲 ${b.name}${b.isDeleted ? ' [DELETED]' : ''}");
       }
@@ -42,14 +38,14 @@ String toText({
     buffer.writeln("\n-----------\n");
   }
 
-  final setups = appData.setups.values.where((s) => selectedSetups.contains(s.id)).toList();
+  final setups = selectedData.setups.values.toList();
   setups.sort((a, b) => b.datetime.compareTo(a.datetime)); // Sort newest first
 
   if (setups.isNotEmpty) {
     buffer.writeln("SETUPS:");
     for (int i = 0; i < setups.length; i++) {
       final setup = setups[i];
-      _appendSetupText(buffer, setup, appData.bikes, appData.persons, appData.components, appData.ratings, appSettings);
+      _appendSetupText(buffer, setup, selectedData.bikes, selectedData.persons, selectedData.components, selectedData.ratings, appSettings);
       if (i < setups.length - 1) {
         buffer.writeln("\n-----------\n");
       }
@@ -64,16 +60,16 @@ String setupToText({
   required Setup setup,
 }) {
   final appSettings = context.read<AppSettings>();
-  final filteredData = context.read<FilteredData>();
+  final appRepository = context.read<AppRepository>();
   final buffer = StringBuffer();
 
   _appendSetupText(
     buffer, 
     setup, 
-    filteredData.bikes, 
-    filteredData.persons, 
-    filteredData.components, 
-    filteredData.ratings, 
+    appRepository.bikes, 
+    appRepository.persons, 
+    appRepository.components, 
+    appRepository.ratings, 
     appSettings
   );
 

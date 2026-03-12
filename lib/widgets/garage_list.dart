@@ -1,19 +1,16 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/app_data.dart';
+import '../repositories/app_repository.dart';
 import '../models/component.dart';
-import '../models/filtered_data.dart';
+import '../utils/bike_actions.dart';
 import 'garage_bike_card.dart';
 import 'garage_uninstalled_card.dart';
 import 'chips/bike_list_filter_widget.dart';
 
 class GarageList extends StatefulWidget {
-  final Future<void> Function(int oldIndex, int newIndex) onReorderBikes;
-
   const GarageList({
     super.key,
-    required this.onReorderBikes,
   });
 
   @override
@@ -27,10 +24,10 @@ class _GarageListState extends State<GarageList> {
   void _onAcceptWithDetails({String? newBike}) {
     if (_draggedComponentNotifier.value == null) return;
     final Component component =  _draggedComponentNotifier.value!;
-    final appData = context.read<AppData>();
+    final appRepository = context.read<AppRepository>();
     
     Future.microtask(() {
-      appData.editComponent(component.copyWithNewInstallation(newBike));
+      appRepository.editComponent(component.copyWithNewInstallation(newBike));
       _draggedComponentNotifier.value = null;
     });
   }
@@ -65,8 +62,8 @@ class _GarageListState extends State<GarageList> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredData = context.watch<FilteredData>();
-    final bikesList = filteredData.filteredBikes.values.toList();
+    final appRepository = context.watch<AppRepository>();
+    final bikesList = appRepository.filteredBikes.values.toList();
 
     Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
       return AnimatedBuilder(
@@ -113,7 +110,7 @@ class _GarageListState extends State<GarageList> {
               ],
             ),
             proxyDecorator: proxyDecorator,
-            onReorder: widget.onReorderBikes,
+            onReorder: (int oldIndex, int newIndex) => BikeActions.onReorderBikes(context, oldIndex: oldIndex, newIndex: newIndex),
             itemBuilder: (context, index) {
               final bike = bikesList[index];
               return GarageBikeCard(

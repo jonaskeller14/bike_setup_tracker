@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/app_settings.dart';
-import '../models/filtered_data.dart';
+import '../repositories/app_repository.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/setup.dart';
 import '../services/strava_service.dart';
@@ -93,9 +93,9 @@ class StravaActivitiyPageContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    final filteredData = context.watch<FilteredData>();
-    final stravaGear = filteredData.stravaGears[stravaActivity.gearId];
-    final athlete = filteredData.stravaAthletes[stravaActivity.athlete];
+    final appRepository = context.watch<AppRepository>();
+    final stravaGear = appRepository.stravaGears[stravaActivity.gearId];
+    final athlete = appRepository.stravaAthletes[stravaActivity.athlete];
     
     return SingleChildScrollView(
       child: Column(
@@ -216,8 +216,8 @@ class StravaActivitiyPageContent extends StatelessWidget {
             // Add Setups related to this activity
             Builder(
               builder: (context) {
-                final allSetupsForGear = filteredData.filteredSetups.values
-                    .where((s) => filteredData.bikes[s.bike]?.stravaGear == stravaGear.id)
+                final allSetupsForGear = appRepository.filteredSetups.values
+                    .where((s) => appRepository.bikes[s.bike]?.stravaGear == stravaGear.id)
                     .toList();
                 
                 // Setups added after activity started, but before it ended

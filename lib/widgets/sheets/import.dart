@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../models/app_data.dart';
+import '../../models/selected_data.dart';
 import '../../utils/file_import.dart';
 import '../../database/app_database.dart';
 import 'data_select.dart';
@@ -27,12 +27,12 @@ Future<void> importData(BuildContext context) async {
   if (!context.mounted) return;
 
   try {
-    final localData = context.read<AppData>();
+    final database = context.read<AppDatabase>();
     switch (importResult.importMethod) {
       case ImportMethod.overwrite:
-        FileImport.overwrite(remoteData: importResult.appData, localData: localData);
+        await FileImport.overwrite(remoteData: importResult.dataToImport, database: database);
       case ImportMethod.merge:
-        FileImport.merge(remoteData: importResult.appData, localData: localData);
+        await FileImport.merge(remoteData: importResult.dataToImport, database: database);
     }
     scaffoldMessenger.showSnackBar(
       SnackBar(
@@ -70,8 +70,8 @@ enum ImportMethod {
 
 class ImportResult {
   final ImportMethod importMethod;
-  final AppData appData;
-  const ImportResult({required this.importMethod, required this.appData});
+  final SelectedData dataToImport;
+  const ImportResult({required this.importMethod, required this.dataToImport});
 }
 
 enum ImportSheetFlowSteps {
@@ -93,8 +93,8 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
   ImportSheetFlowSteps _step = ImportSheetFlowSteps.step1SelectSource;
   final List<ImportSheetFlowSteps> _previousSteps = [];
 
-  AppData? _remoteAllData;
-  AppData? _remoteSelectedData;
+  SelectedData? _remoteAllData;
+  SelectedData? _remoteSelectedData;
 
   void _setNextStep(ImportSheetFlowSteps nextStep) {
     setState(() {
@@ -140,16 +140,16 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
         duration: const Duration(milliseconds: 300),
         child: switch (_step) {
           ImportSheetFlowSteps.step1SelectSource => SelectImportSourceSheetContent(
-            onFile: (AppData appData) {
-              _remoteAllData = appData;
+            onFile: (SelectedData appRepository) {
+              _remoteAllData = appRepository;
               if (_remoteAllData == null) return;
               _setNextStep(ImportSheetFlowSteps.step3SelectDataMethod);
             }, 
             onBackup: () => _setNextStep(ImportSheetFlowSteps.step2SelectBackup),
           ),
           ImportSheetFlowSteps.step2SelectBackup => BackupSheetContent(
-            onRestore: (AppData appData) async {
-              _remoteAllData = appData;
+            onRestore: (SelectedData appRepository) async {
+              _remoteAllData = appRepository;
               if (_remoteAllData == null) return;
               _setNextStep(ImportSheetFlowSteps.step3SelectDataMethod);
             },
@@ -166,8 +166,14 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
             onBack: _onBack,
           ),
           ImportSheetFlowSteps.step4SelectDataItems => SelectDataItemsSheetContent(
-            allData: _remoteAllData!,
-            onConfirm: (AppData selectedData) {
+            allData: SelectedData(
+              persons: _remoteAllData!.persons,
+              bikes: _remoteAllData!.bikes,
+              components: _remoteAllData!.components,
+              setups: _remoteAllData!.setups,
+              ratings: _remoteAllData!.ratings,
+            ),
+            onConfirm: (SelectedData selectedData) {
               _remoteSelectedData = selectedData;
               _setNextStep(ImportSheetFlowSteps.step5SelectImportMethod);
             }, 
@@ -176,11 +182,11 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
           ImportSheetFlowSteps.step5SelectImportMethod => SelectImportMethodSheetContent(
             onOverwrite: () => Navigator.of(context).pop(ImportResult(
               importMethod: ImportMethod.overwrite, 
-              appData: _remoteSelectedData!,
+              dataToImport: _remoteSelectedData!,
             )), 
             onMerge: () => Navigator.of(context).pop(ImportResult(
               importMethod: ImportMethod.merge, 
-              appData: _remoteSelectedData!,
+              dataToImport: _remoteSelectedData!,
             )), 
             onBack: _onBack,
           ),
@@ -191,7 +197,7 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
 }
 
 class SelectImportSourceSheetContent extends StatefulWidget {
-  final Function(AppData) onFile;
+  final Function(SelectedData) onFile;
   final VoidCallback onBackup;
 
   const SelectImportSourceSheetContent({

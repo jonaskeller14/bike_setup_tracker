@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import '../models/app_settings.dart';
-import '../models/filtered_data.dart';
+import '../repositories/app_repository.dart';
 import '../models/person.dart';
 import '../models/adjustment/adjustment.dart';
 import 'adjustment/boolean_adjustment_page.dart';
@@ -341,9 +341,9 @@ class _PersonPageState extends State<PersonPage> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredData = context.watch<FilteredData>();
-    final existingPersons = filteredData.persons;
-    final stravaAthletes = filteredData.stravaAthletes;
+    final appRepository = context.watch<AppRepository>();
+    final existingPersons = appRepository.persons;
+    final stravaAthletes = appRepository.stravaAthletes;
 
     return PopScope( 
       canPop: !_formHasChanges,

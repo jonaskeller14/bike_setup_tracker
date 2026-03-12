@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
-import '../pages/home_page.dart';
+import '../utils/setup_actions.dart';
 import 'navigation_service.dart';
 
 class DeepLinkService {
@@ -65,6 +65,6 @@ class DeepLinkService {
     final context = NavigationService.context;
     if (context == null) return;
 
-    await HomePage.addSetup(context);
+    await SetupActions.addSetup(context);
   }
 }

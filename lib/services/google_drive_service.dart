@@ -8,9 +8,11 @@ import 'package:googleapis/servicecontrol/v2.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../utils/backup.dart';
-import '../models/app_data.dart';
+import '../repositories/app_repository.dart';
 import '../database/app_database.dart';
+import '../models/selected_data.dart';
 import '../utils/file_import.dart';
+import 'data_export_service.dart';
 
 enum GoogleDriveServiceStatus {
   idle,
@@ -33,7 +35,6 @@ class GoogleDriveService extends ChangeNotifier {
   GoogleDriveServiceStatus _status = GoogleDriveServiceStatus.idle;
   drive.DriveApi? _driveApi;
 
-  AppData _appData;
   DateTime? _appDataLastModified;
   final AppDatabase appDatabase;
 
@@ -49,11 +50,11 @@ class GoogleDriveService extends ChangeNotifier {
   String get errorMessage => _errorMessage;
   GoogleDriveServiceStatus get status => _status;
 
-  GoogleDriveService(this._appData, this.appDatabase);
+  GoogleDriveService(AppRepository _, this.appDatabase);
 
-  void update({required AppData newAppData}) async {
+  void update({required AppRepository newAppData}) async {
     if (_appDataLastModified != null && !newAppData.lastModified.isAfter(_appDataLastModified!)) {
-      debugPrint("GoogleDriveService.update aborted because AppData.lastModified");
+      debugPrint("GoogleDriveService.update aborted because AppRepository.lastModified");
       return;
     }
     if (status == GoogleDriveServiceStatus.syncing) {
@@ -62,7 +63,6 @@ class GoogleDriveService extends ChangeNotifier {
     }
 
     _appDataLastModified = newAppData.lastModified;
-    _appData = newAppData;
 
     if (!_isInitialized) {
       await _silentSetup();  // scheduleSilentSync() and saveBackup() included here
@@ -310,7 +310,8 @@ class GoogleDriveService extends ChangeNotifier {
 
   Future<void> _upload() async {
     if (_driveApi == null) throw Exception("Drive API not initialized");
-    final jsonString = jsonEncode(_appData.toJson());
+    final exportData = await DataExportService.backupDatabaseToJson(appDatabase);
+    final jsonString = jsonEncode(exportData);
     final List<int> fileBytes = utf8.encode(jsonString);
     final media = drive.Media(
       Stream.fromIterable([fileBytes]),
@@ -359,8 +360,8 @@ class GoogleDriveService extends ChangeNotifier {
 
     final jsonString = utf8.decode(dataStore);
     final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
-    final AppData remoteData = AppData.addJson(data: AppData(appDatabase), json: jsonData);
-    FileImport.merge(remoteData: remoteData, localData: _appData);
+    final SelectedData remoteData = SelectedData.fromJson(jsonData);
+    await FileImport.merge(remoteData: remoteData, database: appDatabase);
   }
 
   Future<String?> _getFileId() async {
@@ -419,7 +420,8 @@ class GoogleDriveService extends ChangeNotifier {
         return;
       }
 
-      final jsonString = jsonEncode(_appData.toJson());
+      final exportData = await DataExportService.backupDatabaseToJson(appDatabase);
+      final jsonString = jsonEncode(exportData);
       final List<int> fileBytes = utf8.encode(jsonString);
       final media = drive.Media(
         Stream.fromIterable([fileBytes]),
@@ -544,7 +546,7 @@ class GoogleDriveService extends ChangeNotifier {
 
       final jsonString = utf8.decode(dataStore);
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
-      return ReadGoogleDriveBackupResult.success(AppData.addJson(data: AppData(appDatabase), json: jsonData));
+      return ReadGoogleDriveBackupResult.success(SelectedData.fromJson(jsonData));
     } catch (e) {
       debugPrint('Reading Google Drive backup failed: $fileId: $e');
       return ReadGoogleDriveBackupResult.failure("Reading Google Drive backup failed: $e");
@@ -613,7 +615,7 @@ class GetGoogleDriveBackupsResult {
 }
 
 class ReadGoogleDriveBackupResult {
-  final AppData? appData;
+  final SelectedData? appData;
   final String? errorMessage;
   final bool isError;
 

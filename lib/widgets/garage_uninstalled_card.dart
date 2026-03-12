@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
 import '../models/component.dart';
-import '../models/filtered_data.dart';
-import '../models/app_data.dart';
-import '../pages/component_page.dart';
+import '../repositories/app_repository.dart';
+import '../utils/component_actions.dart';
 import 'dashed_border_painter.dart';
 import 'component_list_card.dart';
 import 'garage_component_icon_card.dart';
@@ -24,18 +23,6 @@ class GarageUninstalledCard extends StatelessWidget{
     required this.setDraggedComponent,
     required this.draggedComponentNotifier,
   });
-
-  Future<void> _addComponent(BuildContext context, {required String? initialBike}) async {
-    final data = context.read<AppData>();
-    
-    final component = await Navigator.push<Component>(
-      context,
-      MaterialPageRoute(builder: (context) => ComponentPage.add(initialBike: initialBike)),
-    );
-    if (component == null) return;
-
-    data.addComponent(component);
-  }
 
   Widget _releaseToDeinstallWidget(BuildContext context) {
     return CustomPaint(
@@ -82,7 +69,7 @@ class GarageUninstalledCard extends StatelessWidget{
 
   Widget _dragHereToDeinstall(BuildContext context) {
     return InkWell(
-      onTap: () => _addComponent(context, initialBike: null),
+      onTap: () => ComponentActions.addComponent(context, initialBike: null),
       borderRadius: BorderRadius.circular(12),
       child: CustomPaint(
         painter: DashedBorderPainter(
@@ -121,8 +108,8 @@ class GarageUninstalledCard extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    final filteredData = context.watch<FilteredData>();
-    final Map<String, Component> deinstalledComponents = Map.fromEntries(filteredData.components.entries.where((ce) => !filteredData.bikes.keys.contains(ce.value.bike)));
+    final appRepository = context.watch<AppRepository>();
+    final Map<String, Component> deinstalledComponents = Map.fromEntries(appRepository.components.entries.where((ce) => !appRepository.bikes.keys.contains(ce.value.bike)));
 
     return DragTarget<Object>(
       builder: (context, candidateItems, rejectedItems) {
@@ -163,7 +150,7 @@ class GarageUninstalledCard extends StatelessWidget{
                                     key: ValueKey(deinstalledComponents),
                                     onReorder: (int oldIndex, int newIndex) =>
                                         context
-                                            .read<AppData>()
+                                            .read<AppRepository>()
                                             .reorderComponent(
                                               oldIndex: oldIndex,
                                               newIndex: newIndex,
@@ -187,7 +174,7 @@ class GarageUninstalledCard extends StatelessWidget{
                                         ),
                                       ),
                                       child: InkWell(
-                                        onTap: () => _addComponent(context, initialBike: null),
+                                        onTap: () => ComponentActions.addComponent(context, initialBike: null),
                                         borderRadius: BorderRadius.circular(12),
                                         child: Padding(
                                           padding: const EdgeInsets.all(10),

@@ -12,8 +12,8 @@ enum TodoPriority {
 
 class TodoRule {
   final String id;
-  bool isDeleted;
-  DateTime lastModified;
+  final bool isDeleted;
+  final DateTime lastModified;
   final String name;
   final String? notes;
   final TodoPriority priority;

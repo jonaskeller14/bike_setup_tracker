@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import '../models/filtered_data.dart';
+import '../repositories/app_repository.dart';
 import '../widgets/chips/map_filter_widget.dart';
 import '../widgets/sheets/strava_activity.dart';
 import '../widgets/sheets/setup_display.dart';
@@ -20,11 +20,11 @@ class _MapPageState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredData = context.watch<FilteredData>();
-    final setups = filteredData.filteredSetups.values.where(
+    final appRepository = context.watch<AppRepository>();
+    final setups = appRepository.filteredSetups.values.where(
       (s) => s.position?.latitude != null && s.position?.longitude != null,
     );
-    final stravaActivities = filteredData.filteredStravaActivities.values.where(
+    final stravaActivities = appRepository.filteredStravaActivities.values.where(
       (a) => a.startLat != null && a.startLon != null,
     );
 

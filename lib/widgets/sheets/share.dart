@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../models/app_data.dart';
+import '../../database/app_database.dart';
+import '../../repositories/app_repository.dart';
+import '../../models/selected_data.dart';
+import '../../services/share_service.dart';
 import '../../utils/file_export.dart';
 import '../../utils/to_text.dart';
 import 'data_select.dart';
@@ -14,7 +17,7 @@ Future<void> shareData(BuildContext context) async {
     showDragHandle: true,
     useSafeArea: true,
     builder: (sheetContext) {
-      return ShareSheetFlow(appData: context.read<AppData>());
+      return ShareSheetFlow(appRepository: context.read<AppRepository>());
     },
   );
 
@@ -24,36 +27,30 @@ Future<void> shareData(BuildContext context) async {
   switch (shareResult.format) {
     case ShareFormats.json: FileExport.shareJson(
       context: context,
-      data: shareResult.appData,
+      database: context.read<AppDatabase>(),
+      selectedData: shareResult.selectedData,
     );
     case ShareFormats.text: 
       final String content = toText(
         context: context, 
-        appData: context.read<AppData>(),
-        selectedPersons: shareResult.appData.persons.keys.toList(), 
-        selectedBikes: shareResult.appData.bikes.keys.toList(), 
-        selectedComponents: shareResult.appData.components.keys.toList(), 
-        selectedSetups: shareResult.appData.setups.keys.toList(),
+        selectedData: shareResult.selectedData,
       );
-      await FileExport.shareText(
-        context: context,
-        content: content,
-      );
+      await ShareService.shareText(context: context, text: content);
     case ShareFormats.csv: FileExport.shareCsv(
       context: context,
-      data: shareResult.appData,
+      data: shareResult.selectedData,
     );
     case ShareFormats.xlsx: FileExport.shareXlsx(
       context: context,
-      data: shareResult.appData,
+      data: shareResult.selectedData,
     );
   }
 }
 
 class ShareResult {
   final ShareFormats format;
-  final AppData appData;
-  const ShareResult({required this.format, required this.appData});
+  final SelectedData selectedData;
+  const ShareResult({required this.format, required this.selectedData});
 }
 
 enum ShareFormats {
@@ -70,9 +67,9 @@ enum ShareSheetFlowSteps {
 }
 
 class ShareSheetFlow extends StatefulWidget {
-  final AppData appData;
+  final AppRepository appRepository;
 
-  const ShareSheetFlow({super.key, required this.appData});
+  const ShareSheetFlow({super.key, required this.appRepository});
 
   @override
   State<StatefulWidget> createState() => _ShareSheetFlowState();
@@ -120,14 +117,29 @@ class _ShareSheetFlowState extends State<ShareSheetFlow> {
             },
           ),
           ShareSheetFlowSteps.step2SelectDataMehod => SelectDataMethodSheetContent(
-            onAllSelected: () => Navigator.of(context).pop(ShareResult(format: _shareFormat!, appData: widget.appData)),
+            onAllSelected: () => Navigator.of(context).pop(ShareResult(
+              format: _shareFormat!, 
+              selectedData: SelectedData(
+                persons: widget.appRepository.persons,
+                bikes: widget.appRepository.bikes,
+                components: widget.appRepository.components,
+                setups: widget.appRepository.setups,
+                ratings: widget.appRepository.ratings,
+              )
+            )),
             onManualSelected: () => setState(() => _step = ShareSheetFlowSteps.step3SelectDataItems),
             onBack: _onBack, 
           ),
           ShareSheetFlowSteps.step3SelectDataItems => SelectDataItemsSheetContent(
-            allData: widget.appData,
-            onConfirm: (AppData selectedData) {
-              Navigator.of(context).pop(ShareResult(format: _shareFormat!, appData: selectedData));
+            allData: SelectedData(
+              persons: widget.appRepository.persons,
+              bikes: widget.appRepository.bikes,
+              components: widget.appRepository.components,
+              setups: widget.appRepository.setups,
+              ratings: widget.appRepository.ratings,
+            ),
+            onConfirm: (SelectedData selected) {
+              Navigator.of(context).pop(ShareResult(format: _shareFormat!, selectedData: selected));
             },
             onBack: _onBack,
           ),

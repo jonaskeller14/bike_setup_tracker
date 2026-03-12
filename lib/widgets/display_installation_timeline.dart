@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:timelines_plus/timelines_plus.dart';
 import '../models/component.dart';
-import '../models/filtered_data.dart';
+import '../repositories/app_repository.dart';
 import '../models/app_settings.dart';
 import 'package:intl/intl.dart';
 
@@ -18,8 +18,8 @@ class DisplayInstallationTimeline extends StatelessWidget {
     final textTheme = theme.textTheme;
 
     final appSettings = context.watch<AppSettings>();
-    final filteredData = context.watch<FilteredData>();
-    final bikes = filteredData.bikes;
+    final appRepository = context.watch<AppRepository>();
+    final bikes = appRepository.bikes;
 
     final installations = component.installations;
 

@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import '../models/filtered_data.dart';
+import '../repositories/app_repository.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/person.dart';
@@ -128,8 +128,8 @@ class _AdjustmentTableRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final filteredData = context.read<FilteredData>();
-    final components = filteredData.components;
+    final appRepository = context.read<AppRepository>();
+    final components = appRepository.components;
     final dividerColor = Theme.of(context).colorScheme.outline.withValues(alpha: 0.5);
     
     return Row(

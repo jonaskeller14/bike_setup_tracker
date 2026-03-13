@@ -5,6 +5,8 @@ import '../models/setup.dart';
 import '../pages/setup_page.dart';
 import '../services/share_service.dart';
 import 'to_text.dart';
+import 'bike_actions.dart';
+import 'component_actions.dart';
 
 class SetupActions {
   static Future<void> addSetup(BuildContext context) async {
@@ -16,7 +18,12 @@ class SetupActions {
         showCloseIcon: true, 
         closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
         content: Text("Add a bike first", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
+        backgroundColor: Theme.of(context).colorScheme.errorContainer,
+        action: SnackBarAction(
+          label: 'ADD',
+          textColor: Theme.of(context).colorScheme.onErrorContainer,
+          onPressed: () => BikeActions.addBike(context),
+        ),
       ));
       return;
     }
@@ -26,7 +33,12 @@ class SetupActions {
         showCloseIcon: true, 
         closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
         content: Text("Add a component first", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
+        backgroundColor: Theme.of(context).colorScheme.errorContainer,
+        action: SnackBarAction(
+          label: 'ADD',
+          textColor: Theme.of(context).colorScheme.onErrorContainer,
+          onPressed: () => ComponentActions.addComponent(context),
+        ),
       ));
       return;
     }

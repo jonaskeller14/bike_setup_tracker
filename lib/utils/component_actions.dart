@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/component.dart';
 import '../pages/component_page.dart';
 import '../repositories/app_repository.dart';
+import 'bike_actions.dart';
 
 class ComponentActions {
   static Future<void> addComponent(BuildContext context, {Object? initialBike = const _Sentinel()}) async {
@@ -16,7 +17,12 @@ class ComponentActions {
           showCloseIcon: true,
           closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
           content: Text("Add a bike first", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-          backgroundColor: Theme.of(context).colorScheme.errorContainer
+          backgroundColor: Theme.of(context).colorScheme.errorContainer,
+          action: SnackBarAction(
+            label: 'ADD',
+            textColor: Theme.of(context).colorScheme.onErrorContainer,
+            onPressed: () => BikeActions.addBike(context),
+          ),
         ));
         return;
       }

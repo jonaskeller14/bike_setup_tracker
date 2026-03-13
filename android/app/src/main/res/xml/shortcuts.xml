@@ -3,7 +3,7 @@
     <shortcut
         android:shortcutId="add_setup"
         android:enabled="true"
-        android:icon="@drawable/ic_launcher_foreground"
+        android:icon="@drawable/ic_add"
         android:shortcutShortLabel="@string/shortcut_add_setup_short"
         android:shortcutLongLabel="@string/shortcut_add_setup_long">
         <intent

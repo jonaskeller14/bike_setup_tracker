@@ -24,7 +24,7 @@ class QuickActionsService {
       ShortcutItem(
         type: 'add_setup',
         localizedTitle: 'Add New Setup',
-        // icon: 'i_add', // Not used for now, using default or generic
+        icon: 'ic_add',
       ),
     ]).catchError((e) {
       debugPrint('Failed to set shortcut items: $e');

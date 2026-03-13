@@ -348,7 +348,7 @@ extension SetupDbMapper on SetupDb {
 }
 
 extension StravaAthleteDbMapper on StravaAthleteDb {
-  StravaAthlete toModel({Set<String> gears = const {}}) {
+  StravaAthlete toModel() {
     return StravaAthlete(
       id: id,
       lastModified: lastModified,
@@ -399,6 +399,7 @@ extension StravaAthleteMapper on StravaAthlete {
       firstname: Value(firstname),
       lastname: Value(lastname),
       profile: Value(profile),
+      gears: Value(gears),
     );
   }
 }
@@ -433,4 +434,3 @@ extension StravaActivityMapper on StravaActivity {
     );
   }
 }
-

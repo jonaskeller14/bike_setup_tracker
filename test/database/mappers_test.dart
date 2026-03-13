@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/strava/strava_athlete.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -171,6 +172,37 @@ void main() {
         expect(model.unit, 'psi');
         expect((model as NumericalAdjustment).min, 0.0);
       });
+    });
+
+    test('StravaAthlete Mapping', () {
+      final athlete = StravaAthlete(
+        id: 123,
+        firstname: 'Jonas',
+        lastname: 'Keller',
+        profile: 'https://example.com/profile.jpg',
+        gears: {'gear1', 'gear2'},
+        lastModified: DateTime(2023, 1, 1).toUtc(),
+      );
+
+      // Model -> Companion
+      final companion = athlete.toCompanion();
+      expect(companion.id.value, 123);
+      expect(companion.firstname.value, 'Jonas');
+      expect(companion.gears.value, {'gear1', 'gear2'});
+
+      // DB Row -> Model
+      final data = StravaAthleteDb(
+        id: 123,
+        firstname: 'Jonas',
+        lastname: 'Keller',
+        profile: 'https://example.com/profile.jpg',
+        gears: {'gear1', 'gear2'},
+        lastModified: DateTime(2023, 1, 1).toUtc(),
+      );
+      final model = data.toModel();
+      expect(model.id, 123);
+      expect(model.firstname, 'Jonas');
+      expect(model.gears, {'gear1', 'gear2'});
     });
   });
 }

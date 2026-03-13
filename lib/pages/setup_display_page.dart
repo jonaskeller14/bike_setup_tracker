@@ -423,7 +423,7 @@ class SetupDisplayPageContent extends StatelessWidget {
   SliverToBoxAdapter _legend(BuildContext context) {
     return SliverToBoxAdapter(
       child: Padding(
-        padding: EdgeInsets.only(left: 16, right: 16, bottom: 16 + MediaQuery.of(context).padding.bottom),
+        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
         child: const InitialChangedValueLegend(),
       ),
     );
@@ -727,41 +727,48 @@ class SetupDisplayPageContent extends StatelessWidget {
     return CustomScrollView(
       slivers: [
         _setupTitle(context, setup: setup),
-        SliverMainAxisGroup(
-          slivers: [
-            _sectionTitle(context, title: "Context"),
-            _contextSection(context, setup: setup, bike: bike, person: person),
-          ],
-        ),
-        SliverMainAxisGroup(
-          slivers: [
-            const SliverToBoxAdapter(child: Divider(height: 8)),
-            _sectionTitle(context, title: "Values"),
-            _valueSection(
-              context,
-              setup: setup,
-              person: person, 
-              bikeComponents: bikeComponents,
-              danglingBikeAdjustmentValues: danglingBikeAdjustmentValues,
-              danglingPersonAdjustmentValues: danglingPersonAdjustmentValues,
-            ),
-          ]
-        ),
-        if (appSettings.enableRating) ...[
-          SliverMainAxisGroup(
+        SliverSafeArea(
+          top: false,
+          sliver: SliverMainAxisGroup(
             slivers: [
-              const SliverToBoxAdapter(child: Divider(height: 8)),
-              _sectionTitle(context, title: "Rating"),
-              _ratingSection(
-                context,
-                setup: setup, 
-                filteredRatings: filteredRatings, 
-                danglingRatingAdjustmentValues: danglingRatingAdjustmentValues
+              SliverMainAxisGroup(
+                slivers: [
+                  _sectionTitle(context, title: "Context"),
+                  _contextSection(context, setup: setup, bike: bike, person: person),
+                ],
               ),
-            ]
+              SliverMainAxisGroup(
+                slivers: [
+                  const SliverToBoxAdapter(child: Divider(height: 8)),
+                  _sectionTitle(context, title: "Values"),
+                  _valueSection(
+                    context,
+                    setup: setup,
+                    person: person, 
+                    bikeComponents: bikeComponents,
+                    danglingBikeAdjustmentValues: danglingBikeAdjustmentValues,
+                    danglingPersonAdjustmentValues: danglingPersonAdjustmentValues,
+                  ),
+                ]
+              ),
+              if (appSettings.enableRating) ...[
+                SliverMainAxisGroup(
+                  slivers: [
+                    const SliverToBoxAdapter(child: Divider(height: 8)),
+                    _sectionTitle(context, title: "Rating"),
+                    _ratingSection(
+                      context,
+                      setup: setup, 
+                      filteredRatings: filteredRatings, 
+                      danglingRatingAdjustmentValues: danglingRatingAdjustmentValues
+                    ),
+                  ]
+                ),
+              ],
+              _legend(context),
+            ],
           ),
-        ],
-        _legend(context),
+        ),
       ],
     );
   }

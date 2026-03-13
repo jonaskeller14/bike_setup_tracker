@@ -228,6 +228,7 @@ class StravaService extends ChangeNotifier {
               .doc(_userId)
               .set({'fcm_token': token}, SetOptions(merge: true));
           debugPrint("FCM Token registered for $_userId");
+          debugPrint("FCM Token: $token");
         }
       }
     } catch (e) {

@@ -12,6 +12,7 @@ import 'services/strava_service.dart';
 import 'services/navigation_service.dart';
 import 'services/deep_link_service.dart';
 import 'services/quick_actions_service.dart';
+import 'services/notification_service.dart';
 import 'utils/file_export.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
@@ -181,6 +182,7 @@ class LoadingGate extends StatelessWidget {
                 // Initialize Services after Snapshots are done and context is available
                 DeepLinkService().init();
                 QuickActionsService().init();
+                NotificationService().init(appRepository);
                 return const BikeSetupTrackerApp();
               },
             ),

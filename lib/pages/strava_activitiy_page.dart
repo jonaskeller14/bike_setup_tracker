@@ -7,6 +7,7 @@ import '../models/strava/strava_activity.dart';
 import '../models/setup.dart';
 import '../services/strava_service.dart';
 import '../widgets/setup_list_card.dart';
+import 'setup_page.dart';
 
 class StravaActivityPage extends StatelessWidget {
   final StravaActivity stravaActivity;
@@ -244,10 +245,6 @@ class StravaActivitiyPageContent extends StatelessWidget {
                 final uniqueSetups = relevantSetups.toSet().toList();
                 uniqueSetups.sort((a, b) => b.datetimeLocal.compareTo(a.datetimeLocal));
 
-                if (uniqueSetups.isEmpty) {
-                  return const SizedBox.shrink();
-                }
-
                 return ExpansionTile(
                   shape: const Border(),
                   collapsedShape: const Border(),
@@ -257,16 +254,39 @@ class StravaActivitiyPageContent extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   childrenPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  children: uniqueSetups.map((setup) {
-                    return SetupListCard(
-                      setupId: setup.id,
-                      displayOnlyChanges: false,
-                      displayBikeAdjustmentValues: true,
-                      displayPersonAdjustmentValues: true,
-                      displayRatingAdjustmentValues: true,
-                      onTap: null,
-                    );
-                  }).toList(),
+                  children: [
+                    ...uniqueSetups.map((setup) {
+                      return SetupListCard(
+                        setupId: setup.id,
+                        displayOnlyChanges: false,
+                        displayBikeAdjustmentValues: true,
+                        displayPersonAdjustmentValues: true,
+                        displayRatingAdjustmentValues: true,
+                        onTap: null,
+                      );
+                    }),
+                    const SizedBox(height: 8),
+                    Center(
+                      child: TextButton.icon(
+                        onPressed: () async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SetupPage.addFromStravaActivity(
+                                context: context,
+                                stravaActivity: stravaActivity,
+                              ),
+                            ),
+                          );
+                          if (result is Setup) {
+                            appRepository.addSetup(result);
+                          }
+                        },
+                        icon: const Icon(Icons.add),
+                        label: const Text("Add Setup"),
+                      ),
+                    ),
+                  ],
                 );
               }
             ),

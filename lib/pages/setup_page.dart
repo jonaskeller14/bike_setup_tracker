@@ -12,6 +12,7 @@ import '../models/rating.dart';
 import '../models/bike.dart';
 import '../models/setup.dart';
 import '../models/component.dart';
+import '../models/strava/strava_activity.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../services/weather_service.dart';
@@ -37,15 +38,38 @@ enum SetupPageMode {
 class SetupPage extends StatefulWidget {
   final Setup? setup;
   final SetupPageMode mode;
+  final DateTime? initialDateTimeUtc;
+  final DateTime? initialDateTimeLocal;
+  final Bike? initialBike;
 
   const SetupPage._({
     super.key,
     this.setup,
     required this.mode,
+    this.initialDateTimeUtc,
+    this.initialDateTimeLocal,
+    this.initialBike,
   });
 
   factory SetupPage.add({Key? key}) => 
     SetupPage._(key: key, mode: SetupPageMode.add);
+
+  factory SetupPage.addFromStravaActivity({
+    Key? key, 
+    required BuildContext context,
+    required StravaActivity stravaActivity,
+  }) {
+    final appRepository = context.read<AppRepository>();
+    final bike = appRepository.bikes.values.firstWhereOrNull((b) => b.stravaGear == stravaActivity.gearId);
+    
+    return SetupPage._(
+      key: key, 
+      mode: SetupPageMode.add, 
+      initialDateTimeUtc: stravaActivity.startDate,
+      initialDateTimeLocal: stravaActivity.startDateLocal,
+      initialBike: bike,
+    );
+  }
 
   factory SetupPage.edit({Key? key, required Setup setup}) => 
     SetupPage._(key: key, setup: setup, mode: SetupPageMode.edit);
@@ -109,10 +133,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _notesController.addListener(_changeListener);
 
     final now = DateTime.now();
-    _selectedDateTimeUtc = widget.setup?.datetime ?? now.toUtc();
-    _initialDateTimeUtc = _selectedDateTimeUtc;
-    _selectedDateTimeLocal = widget.setup?.datetimeLocal ?? now;
+    _selectedDateTimeLocal = widget.setup?.datetimeLocal ?? widget.initialDateTimeLocal ?? now;
     _initialDateTimeLocal = _selectedDateTimeLocal;
+
+    _selectedDateTimeUtc = widget.setup?.datetime ?? widget.initialDateTimeUtc ?? _selectedDateTimeLocal.toUtc();
+    _initialDateTimeUtc = _selectedDateTimeUtc;
     
     final appRepository = context.read<AppRepository>();
 
@@ -122,8 +147,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _tags.addAll(widget.setup?.tags ?? appRepository.selectedSetupTags);
 
     final bikes = appRepository.bikes;
-    _initialBike = widget.setup?.bike ?? appRepository.filteredBikes.keys.first;
-    _initialPerson = (widget.setup?.person ?? bikes[_initialBike]?.person);
+    _initialBike = widget.setup?.bike ?? widget.initialBike?.id ?? appRepository.filteredBikes.keys.firstOrNull ?? '';
+    
+    _initialPerson = widget.setup?.person ?? bikes[_initialBike]?.person;
 
     _onBikeChange(_initialBike);
 

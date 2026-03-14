@@ -110,20 +110,51 @@ class StravaSheet extends StatelessWidget {
                             label: Text(g.name),
                           );
 
-                          if (linkedBike == null && unlinkedBikes.isNotEmpty) {
-                            return PopupMenuButton<Bike>(
-                              tooltip: "Link to Bike",
-                              onSelected: (Bike bike) {
-                                final updatedBike = bike.copyWith(stravaGear: g.id);
-                                context.read<AppData>().editBike(updatedBike);
+                          if (linkedBike == null) {
+                            return PopupMenuButton<_StravaGearMenuOption>(
+                              tooltip: "Bike Options",
+                              onSelected: (_StravaGearMenuOption option) {
+                                switch (option) {
+                                  case _LinkToBike():
+                                    final updatedBike = option.bike.copyWith(stravaGear: g.id);
+                                    context.read<AppData>().editBike(updatedBike);
+                                  case _AddNewBike():
+                                    final newBike = Bike(
+                                      name: g.name,
+                                      person: null,
+                                      stravaGear: g.id,
+                                    );
+                                    context.read<AppData>().addBike(newBike);
+                                }
                               },
                               itemBuilder: (BuildContext context) {
-                                return unlinkedBikes.map((Bike bike) {
-                                  return PopupMenuItem<Bike>(
-                                    value: bike,
-                                    child: Text("Link to '${bike.name}'"),
-                                  );
-                                }).toList();
+                                return [
+                                  if (unlinkedBikes.isNotEmpty) ...[
+                                    ...unlinkedBikes.map((Bike bike) {
+                                      return PopupMenuItem<_StravaGearMenuOption>(
+                                        value: _LinkToBike(bike),
+                                        child: Row(
+                                          spacing: 8,
+                                          children: [
+                                            const Icon(Icons.link),
+                                            Expanded(child: Text("Link to '${bike.name}'", overflow: TextOverflow.ellipsis)),
+                                          ],
+                                        ),
+                                      );
+                                    }),
+                                    const PopupMenuDivider(),
+                                  ],
+                                  PopupMenuItem<_StravaGearMenuOption>(
+                                    value: const _AddNewBike(),
+                                    child: Row(
+                                      spacing: 8,
+                                      children: [
+                                        const Icon(Icons.add),
+                                        const Text("Add as new Bike"),
+                                      ],
+                                    ),
+                                  ),
+                                ];
                               },
                               child: chip,
                             );
@@ -133,9 +164,7 @@ class StravaSheet extends StatelessWidget {
                             triggerMode: TooltipTriggerMode.tap,
                             preferBelow: false,
                             showDuration: const Duration(seconds: 5),
-                            message: linkedBike == null
-                                ? "Strava Gear '${g.name}' is not linked yet. For linking, edit the Bike you want to link in the Bike tab."
-                                : "Strava Gear '${g.name}' is linked to the Bike '${linkedBike.name}'",
+                            message: "Strava Gear '${g.name}' is linked to the Bike '${linkedBike.name}'",
                             child: chip,
                           );
                         }).toList(),
@@ -385,4 +414,17 @@ class StravaSheet extends StatelessWidget {
       ),
     );
   }
+}
+
+sealed class _StravaGearMenuOption {
+  const _StravaGearMenuOption();
+}
+
+class _LinkToBike extends _StravaGearMenuOption {
+  final Bike bike;
+  const _LinkToBike(this.bike);
+}
+
+class _AddNewBike extends _StravaGearMenuOption {
+  const _AddNewBike();
 }

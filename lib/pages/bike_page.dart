@@ -10,6 +10,7 @@ enum BikePageMode {
   add,
   edit,
   duplicate,
+  template,
 }
 
 class BikePage extends StatefulWidget {
@@ -26,6 +27,9 @@ class BikePage extends StatefulWidget {
 
   factory BikePage.duplicate({Key? key, required Bike bike}) => 
     BikePage._(key: key, bike: bike, mode: BikePageMode.duplicate);
+
+  factory BikePage.template({Key? key, required Bike bike}) => 
+    BikePage._(key: key, bike: bike, mode: BikePageMode.template);
 
   @override
   State<BikePage> createState() => _BikePageState();
@@ -120,7 +124,9 @@ class _BikePageState extends State<BikePage> {
       child: Scaffold(
         appBar: AppBar(
           title: switch (widget.mode) {
-            BikePageMode.add || BikePageMode.duplicate => const Text('Add Bike'),
+            BikePageMode.add || 
+            BikePageMode.duplicate || 
+            BikePageMode.template => const Text('Add Bike'),
             BikePageMode.edit => const Text('Edit Bike'),
           },
           actions: [

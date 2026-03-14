@@ -16,6 +16,7 @@ class Component {
   final List<Adjustment> adjustments;
   final List<Installation> installations;
   final String? notes;
+  final int orderIndex;
 
   String? get bike => installations.lastOrNull?.parent;
 
@@ -29,6 +30,7 @@ class Component {
     required this.installations,
     required this.componentType,
     this.notes,
+    this.orderIndex = 0,
     List<Adjustment>? adjustments,
   }) : adjustments = adjustments ?? [],
        id = id ?? const Uuid().v4(),
@@ -62,6 +64,7 @@ class Component {
     Object? componentType = const _Sentinel(),
     Object? adjustments = const _Sentinel(),
     Object? installations = const _Sentinel(),
+    Object? orderIndex = const _Sentinel(),
   }) {
     return Component(
       id: id is _Sentinel
@@ -88,11 +91,14 @@ class Component {
       installations: installations is _Sentinel
           ? this.installations
           : (installations as List<Installation>),  
+      orderIndex: orderIndex is _Sentinel
+          ? this.orderIndex
+          : (orderIndex as int),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'version': 2,
+    'version': 3,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
@@ -100,6 +106,7 @@ class Component {
     'componentType': componentType.toString(),
     'installations': installations.map((i) => i.toJson()).toList(),
     'notes': notes,
+    'orderIndex': orderIndex,
     'adjustments': adjustments.map((a) => a.toJson()).toList(),
   };
 
@@ -125,8 +132,9 @@ class Component {
             ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson, defaultCategory: AdjustmentCategory.component))
             .toList()
             ?? <Adjustment>[],
+          orderIndex: json["orderIndex"] as int? ?? 0,
         );
-      case 2:
+      case 2 || 3:
         return Component(
           id: json["id"] as String,
           isDeleted: json["isDeleted"] as bool,
@@ -144,6 +152,7 @@ class Component {
             ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson, defaultCategory: AdjustmentCategory.component))
             .toList()
             ?? <Adjustment>[],
+          orderIndex: json["orderIndex"] as int? ?? 0,
         );
       default: throw Exception("Json Version $version of Component incompatible."); 
     }

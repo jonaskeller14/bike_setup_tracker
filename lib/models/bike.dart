@@ -9,6 +9,7 @@ class Bike {
   final String? notes;
   final String? person;
   final String? stravaGear;
+  final int orderIndex;
 
   static const IconData iconData = Icons.pedal_bike;
 
@@ -20,13 +21,14 @@ class Bike {
     this.notes,
     required this.person,
     this.stravaGear,
+    this.orderIndex = 0,
   })
     : id = id ?? const Uuid().v4(),
       isDeleted = isDeleted ?? false,
       lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
 
   Map<String, dynamic> toJson() => {
-    'version': 3,
+    'version': 4,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
@@ -34,12 +36,13 @@ class Bike {
     'notes': notes,
     'person': person,
     'stravaGear': stravaGear,
+    'orderIndex': orderIndex,
   };
 
   factory Bike.fromJson(Map<String, dynamic> json) {
     final int? version = json["version"];
     switch (version) {
-      case null || 1 || 2 || 3:
+      case null || 1 || 2 || 3 || 4:
         return Bike(
           id: json["id"],
           isDeleted: json["isDeleted"],
@@ -48,6 +51,7 @@ class Bike {
           notes: json['notes'], // = null
           person: json['person'], // = null
           stravaGear: json['stravaGear'], // = null
+          orderIndex: json['orderIndex'] as int? ?? 0,
         );
       default: throw Exception("Json Version $version of Bike incompatible.");
     }
@@ -88,6 +92,7 @@ class Bike {
     Object? notes = const _Sentinel(),
     Object? person = const _Sentinel(),
     Object? stravaGear = const _Sentinel(),
+    Object? orderIndex = const _Sentinel(),
   }) {
     return Bike(
       id: id is _Sentinel ? this.id : (id as String),
@@ -97,6 +102,7 @@ class Bike {
       notes: notes is _Sentinel ? this.notes : (notes as String?),
       person: person is _Sentinel ? this.person : (person as String?),
       stravaGear: stravaGear is _Sentinel ? this.stravaGear : (stravaGear as String?),
+      orderIndex: orderIndex is _Sentinel ? this.orderIndex : (orderIndex as int),
     );
   }
 }

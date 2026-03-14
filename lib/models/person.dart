@@ -10,6 +10,7 @@ class Person {
   final String name;
   final String? notes;
   final int? stravaAthlete;
+  final int orderIndex;
   final List<Adjustment> adjustments;
 
   static const IconData iconData = Icons.person;
@@ -21,6 +22,7 @@ class Person {
     required this.name,
     this.notes,
     this.stravaAthlete,
+    this.orderIndex = 0,
     List<Adjustment>? adjustments,
   }) : adjustments = adjustments ?? [],
        id = id ?? const Uuid().v4(),
@@ -37,19 +39,21 @@ class Person {
   }
 
   Map<String, dynamic> toJson() => {
+    'version': 1,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
     'name': name,
     'notes': notes,
     'stravaAthlete': stravaAthlete,
+    'orderIndex': orderIndex,
     'adjustments': adjustments.map((a) => a.toJson()).toList(),
   };
 
   factory Person.fromJson(Map<String, dynamic> json) {
     final int? version = json["version"];
     switch (version) {
-      case null:
+      case null || 1:
         return Person(
           id: json["id"],
           isDeleted: json["isDeleted"],
@@ -60,6 +64,7 @@ class Person {
           adjustments: (json["adjustments"] as List<dynamic>?)?.map((adjustmentJson) => Adjustment.fromJson(
             adjustmentJson, 
             defaultCategory: AdjustmentCategory.body)).toList() ?? <Adjustment>[],
+          orderIndex: json['orderIndex'] as int? ?? 0,
         );
       default: throw Exception("Json Version $version of Person incompatible.");
     }
@@ -99,6 +104,7 @@ class Person {
     Object? name = const _Sentinel(),
     Object? notes = const _Sentinel(),
     Object? stravaAthlete = const _Sentinel(),
+    Object? orderIndex = const _Sentinel(),
     Object? adjustments = const _Sentinel(),
   }) {
     return Person(
@@ -120,6 +126,9 @@ class Person {
       stravaAthlete: stravaAthlete is _Sentinel 
           ? this.stravaAthlete 
           : (stravaAthlete as int?),
+      orderIndex: orderIndex is _Sentinel 
+          ? this.orderIndex 
+          : (orderIndex as int),
       adjustments: adjustments is _Sentinel 
           ? this.adjustments 
           : (adjustments as List<Adjustment>),

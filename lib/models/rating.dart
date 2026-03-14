@@ -19,6 +19,7 @@ class Rating {
   final String? notes;
   final String? filter; // id of filter object (Bike, Component, Person)
   final FilterType filterType;
+  final int orderIndex;
   final List<Adjustment> adjustments;
 
   static const IconData iconData = Icons.star;
@@ -31,6 +32,7 @@ class Rating {
     this.notes,
     required this.filter,
     required this.filterType,
+    this.orderIndex = 0,
     List<Adjustment>? adjustments,
   }) : adjustments = adjustments ?? [],
        id = id ?? const Uuid().v4(),
@@ -49,7 +51,7 @@ class Rating {
   }
   
   Map<String, dynamic> toJson() => {
-    'version': 1,
+    'version': 2,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
@@ -57,13 +59,14 @@ class Rating {
     'notes': notes,
     "filter": filter,
     "filterType": filterType.toString(),
+    'orderIndex': orderIndex,
     'adjustments': adjustments.map((a) => a.toJson()).toList(),
   };
 
   factory Rating.fromJson({required Map<String, dynamic> json}) {
     final int? version = json["version"];
     switch (version) {
-      case null || 1:
+      case null || 1 || 2:
         return Rating(
           id: json["id"],
           isDeleted: json["isDeleted"],
@@ -79,6 +82,7 @@ class Rating {
             ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson, defaultCategory: AdjustmentCategory.rating))
             .toList()
             ?? <Adjustment>[],
+          orderIndex: json["orderIndex"] as int? ?? 0,
         );
       default: throw Exception("Json Version $version of Rating incompatible.");
     }
@@ -120,6 +124,7 @@ class Rating {
     Object? notes = const _Sentinel(),
     Object? filter = const _Sentinel(),
     Object? filterType = const _Sentinel(),
+    Object? orderIndex = const _Sentinel(),
     Object? adjustments = const _Sentinel(),
   }) {
     return Rating(
@@ -144,6 +149,9 @@ class Rating {
       filterType: filterType is _Sentinel 
           ? this.filterType 
           : (filterType as FilterType),
+      orderIndex: orderIndex is _Sentinel 
+          ? this.orderIndex 
+          : (orderIndex as int),
       adjustments: adjustments is _Sentinel 
           ? this.adjustments 
           : (adjustments as List<Adjustment>),

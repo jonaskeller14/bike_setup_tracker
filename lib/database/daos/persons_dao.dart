@@ -19,7 +19,10 @@ class PersonsDao extends DatabaseAccessor<AppDatabase> with _$PersonsDaoMixin, S
   Stream<List<PersonDb>> watchDeletedPersons() => watchAllDeleted();
 
   Stream<List<PersonWithData>> watchAllPersonsWithData() {
-    final query = (select(persons)..where((t) => isDeletedColumn.equals(false))).join([
+    final query = (select(persons)
+          ..where((t) => isDeletedColumn.equals(false))
+          ..orderBy([(t) => OrderingTerm(expression: persons.orderIndex)]))
+        .join([
       leftOuterJoin(adjustments, adjustments.personId.equalsExp(persons.id)),
     ]);
 
@@ -107,6 +110,15 @@ class PersonsDao extends DatabaseAccessor<AppDatabase> with _$PersonsDaoMixin, S
       entry.adjustments.sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
     }
     return grouped.values.toList();
+  }
+
+  Future<void> reorder(List<String> ids) async {
+    await transaction(() async {
+      for (int i = 0; i < ids.length; i++) {
+        await (update(persons)..where((t) => t.id.equals(ids[i])))
+            .write(PersonsCompanion(orderIndex: Value(i)));
+      }
+    });
   }
 }
 

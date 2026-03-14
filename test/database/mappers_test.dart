@@ -34,6 +34,7 @@ void main() {
         person: 'person1',
         isDeleted: false,
         lastModified: DateTime(2023, 1, 1).toUtc(),
+        orderIndex: 0,
       );
       final model = data.toModel();
       expect(model.id, 'bike1');
@@ -64,6 +65,7 @@ void main() {
         name: 'Jonas',
         isDeleted: false,
         lastModified: DateTime(2023, 1, 1).toUtc(),
+        orderIndex: 0,
       );
       final model = data.toModel(adjustments: [
         NumericalAdjustment(id: 'adj1', name: 'Weight', notes: '', unit: 'kg', category: AdjustmentCategory.body),
@@ -99,6 +101,7 @@ void main() {
         componentType: ComponentType.fork,
         isDeleted: false,
         lastModified: DateTime(2023, 1, 1).toUtc(),
+        orderIndex: 0,
       );
       final model = data.toModel(
         adjustments: [

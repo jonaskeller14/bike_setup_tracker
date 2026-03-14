@@ -565,13 +565,105 @@ class AppRepository extends ChangeNotifier {
     );
   }
 
-  Future<void> reorderRating({required int oldIndex, required int newIndex, required List<Rating> filteredRatingsList}) async {}
+  Future<void> reorderRating({required int oldIndex, required int newIndex, required List<Rating> filteredRatingsList}) async {
+    final globalList = ratings.values.toList()..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+    final itemToMove = filteredRatingsList[oldIndex];
+    final int globalOldIndex = globalList.indexOf(itemToMove);
+    final targetItem = newIndex < filteredRatingsList.length ? filteredRatingsList[newIndex] : null;
+    final int globalNewIndex = targetItem == null ? globalList.length : globalList.indexOf(targetItem);
 
-  Future<void> reorderPerson({required int oldIndex, required int newIndex, required List<Person> filteredPersonsList}) async {}
+    int adjustedNewIndex = globalNewIndex;
+    if (globalOldIndex < globalNewIndex) adjustedNewIndex -= 1;
 
-  Future<void> reorderComponent({required int oldIndex, required int newIndex, required List<Component> filteredComponentsList, bool adjustNewIndex = true}) async {}
+    globalList.removeAt(globalOldIndex);
+    globalList.insert(adjustedNewIndex, itemToMove);
 
-  Future<void> reorderBike({required int oldIndex, required int newIndex, required List<Bike> filteredBikesList}) async {}
+    // Optimistic Update: Manually rearrange state and re-filter immediately to prevent 
+    // the UI from 'snapping back' while we wait for the database round-trip.
+    _ratings = {
+      for (int i = 0; i < globalList.length; i++)
+        globalList[i].id: globalList[i].copyWith(orderIndex: i)
+    };
+    _filter();
+    notifyListeners();
+
+    await database.ratingsDao.reorder(globalList.map((e) => e.id).toList());
+  }
+
+  Future<void> reorderPerson({required int oldIndex, required int newIndex, required List<Person> filteredPersonsList}) async {
+    final globalList = persons.values.toList()..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+    final itemToMove = filteredPersonsList[oldIndex];
+    final int globalOldIndex = globalList.indexOf(itemToMove);
+    final targetItem = newIndex < filteredPersonsList.length ? filteredPersonsList[newIndex] : null;
+    final int globalNewIndex = targetItem == null ? globalList.length : globalList.indexOf(targetItem);
+
+    int adjustedNewIndex = globalNewIndex;
+    if (globalOldIndex < globalNewIndex) adjustedNewIndex -= 1;
+
+    globalList.removeAt(globalOldIndex);
+    globalList.insert(adjustedNewIndex, itemToMove);
+
+    // Optimistic Update: Manually rearrange state and re-filter immediately to prevent 
+    // the UI from 'snapping back' while we wait for the database round-trip.
+    _persons = {
+      for (int i = 0; i < globalList.length; i++)
+        globalList[i].id: globalList[i].copyWith(orderIndex: i)
+    };
+    _filter();
+    notifyListeners();
+
+    await database.personsDao.reorder(globalList.map((e) => e.id).toList());
+  }
+
+  Future<void> reorderComponent({required int oldIndex, required int newIndex, required List<Component> filteredComponentsList, bool adjustNewIndex = true}) async {
+    final globalList = components.values.toList()..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+    final itemToMove = filteredComponentsList[oldIndex];
+    final int globalOldIndex = globalList.indexOf(itemToMove);
+    final targetItem = newIndex < filteredComponentsList.length ? filteredComponentsList[newIndex] : null;
+    final int globalNewIndex = targetItem == null ? globalList.length : globalList.indexOf(targetItem);
+
+    int adjustedNewIndex = globalNewIndex;
+    if (adjustNewIndex && globalOldIndex < globalNewIndex) adjustedNewIndex -= 1;
+
+    globalList.removeAt(globalOldIndex);
+    globalList.insert(adjustedNewIndex, itemToMove);
+
+    // Optimistic Update: Manually rearrange state and re-filter immediately to prevent 
+    // the UI from 'snapping back' while we wait for the database round-trip.
+    _components = {
+      for (int i = 0; i < globalList.length; i++)
+        globalList[i].id: globalList[i].copyWith(orderIndex: i)
+    };
+    _filter();
+    notifyListeners();
+
+    await database.componentsDao.reorder(globalList.map((e) => e.id).toList());
+  }
+
+  Future<void> reorderBike({required int oldIndex, required int newIndex, required List<Bike> filteredBikesList}) async {
+    final globalList = bikes.values.toList()..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+    final itemToMove = filteredBikesList[oldIndex];
+    final int globalOldIndex = globalList.indexOf(itemToMove);
+    final targetItem = newIndex < filteredBikesList.length ? filteredBikesList[newIndex] : null;
+    final int globalNewIndex = targetItem == null ? globalList.length : globalList.indexOf(targetItem);
+
+    int adjustedNewIndex = globalNewIndex;
+    if (globalOldIndex < globalNewIndex) adjustedNewIndex -= 1;
+
+    globalList.removeAt(globalOldIndex);
+    globalList.insert(adjustedNewIndex, itemToMove);
+
+    // Optimistic Update: Manually rearrange state and re-filter immediately to prevent 
+    // the UI from 'snapping back' while we wait for the database round-trip.
+    _bikes = {
+      for (int i = 0; i < globalList.length; i++)
+        globalList[i].id: globalList[i].copyWith(orderIndex: i)
+    };
+    _filter();
+    notifyListeners();
+
+    await database.bikesDao.reorder(globalList.map((e) => e.id).toList());
+  }
 
   Future<void> setStravaActivities(Iterable<StravaActivity> activities) async {
     for (var a in activities) {

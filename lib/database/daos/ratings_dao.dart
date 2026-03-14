@@ -34,7 +34,10 @@ class RatingsDao extends DatabaseAccessor<AppDatabase> with _$RatingsDaoMixin, S
   Future<int> deleteRating(String id) => softDelete(id);
 
   Stream<List<RatingWithData>> watchAllRatingsWithData() {
-    final query = (select(ratings)..where((t) => isDeletedColumn.equals(false))).join([
+    final query = (select(ratings)
+          ..where((t) => isDeletedColumn.equals(false))
+          ..orderBy([(t) => OrderingTerm(expression: ratings.orderIndex)]))
+        .join([
       leftOuterJoin(adjustments, adjustments.ratingId.equalsExp(ratings.id)),
     ]);
 
@@ -107,6 +110,15 @@ class RatingsDao extends DatabaseAccessor<AppDatabase> with _$RatingsDaoMixin, S
       entry.adjustments.sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
     }
     return grouped.values.toList();
+  }
+
+  Future<void> reorder(List<String> ids) async {
+    await transaction(() async {
+      for (int i = 0; i < ids.length; i++) {
+        await (update(ratings)..where((t) => t.id.equals(ids[i])))
+            .write(RatingsCompanion(orderIndex: Value(i)));
+      }
+    });
   }
 }
 

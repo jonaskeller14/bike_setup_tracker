@@ -1028,6 +1028,18 @@ class $BikesTable extends Bikes with TableInfo<$BikesTable, BikeDb> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _orderIndexMeta = const VerificationMeta(
+    'orderIndex',
+  );
+  @override
+  late final GeneratedColumn<int> orderIndex = GeneratedColumn<int>(
+    'order_index',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1037,6 +1049,7 @@ class $BikesTable extends Bikes with TableInfo<$BikesTable, BikeDb> {
     notes,
     person,
     stravaGear,
+    orderIndex,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1098,6 +1111,12 @@ class $BikesTable extends Bikes with TableInfo<$BikesTable, BikeDb> {
         stravaGear.isAcceptableOrUnknown(data['strava_gear']!, _stravaGearMeta),
       );
     }
+    if (data.containsKey('order_index')) {
+      context.handle(
+        _orderIndexMeta,
+        orderIndex.isAcceptableOrUnknown(data['order_index']!, _orderIndexMeta),
+      );
+    }
     return context;
   }
 
@@ -1135,6 +1154,10 @@ class $BikesTable extends Bikes with TableInfo<$BikesTable, BikeDb> {
         DriftSqlType.string,
         data['${effectivePrefix}strava_gear'],
       ),
+      orderIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}order_index'],
+      )!,
     );
   }
 
@@ -1152,6 +1175,7 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
   final String? notes;
   final String? person;
   final String? stravaGear;
+  final int orderIndex;
   const BikeDb({
     required this.id,
     required this.isDeleted,
@@ -1160,6 +1184,7 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
     this.notes,
     this.person,
     this.stravaGear,
+    required this.orderIndex,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1177,6 +1202,7 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
     if (!nullToAbsent || stravaGear != null) {
       map['strava_gear'] = Variable<String>(stravaGear);
     }
+    map['order_index'] = Variable<int>(orderIndex);
     return map;
   }
 
@@ -1195,6 +1221,7 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
       stravaGear: stravaGear == null && nullToAbsent
           ? const Value.absent()
           : Value(stravaGear),
+      orderIndex: Value(orderIndex),
     );
   }
 
@@ -1211,6 +1238,7 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
       notes: serializer.fromJson<String?>(json['notes']),
       person: serializer.fromJson<String?>(json['person']),
       stravaGear: serializer.fromJson<String?>(json['stravaGear']),
+      orderIndex: serializer.fromJson<int>(json['orderIndex']),
     );
   }
   @override
@@ -1224,6 +1252,7 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
       'notes': serializer.toJson<String?>(notes),
       'person': serializer.toJson<String?>(person),
       'stravaGear': serializer.toJson<String?>(stravaGear),
+      'orderIndex': serializer.toJson<int>(orderIndex),
     };
   }
 
@@ -1235,6 +1264,7 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
     Value<String?> notes = const Value.absent(),
     Value<String?> person = const Value.absent(),
     Value<String?> stravaGear = const Value.absent(),
+    int? orderIndex,
   }) => BikeDb(
     id: id ?? this.id,
     isDeleted: isDeleted ?? this.isDeleted,
@@ -1243,6 +1273,7 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
     notes: notes.present ? notes.value : this.notes,
     person: person.present ? person.value : this.person,
     stravaGear: stravaGear.present ? stravaGear.value : this.stravaGear,
+    orderIndex: orderIndex ?? this.orderIndex,
   );
   BikeDb copyWithCompanion(BikesCompanion data) {
     return BikeDb(
@@ -1257,6 +1288,9 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
       stravaGear: data.stravaGear.present
           ? data.stravaGear.value
           : this.stravaGear,
+      orderIndex: data.orderIndex.present
+          ? data.orderIndex.value
+          : this.orderIndex,
     );
   }
 
@@ -1269,14 +1303,23 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
           ..write('name: $name, ')
           ..write('notes: $notes, ')
           ..write('person: $person, ')
-          ..write('stravaGear: $stravaGear')
+          ..write('stravaGear: $stravaGear, ')
+          ..write('orderIndex: $orderIndex')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, isDeleted, lastModified, name, notes, person, stravaGear);
+  int get hashCode => Object.hash(
+    id,
+    isDeleted,
+    lastModified,
+    name,
+    notes,
+    person,
+    stravaGear,
+    orderIndex,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1287,7 +1330,8 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
           other.name == this.name &&
           other.notes == this.notes &&
           other.person == this.person &&
-          other.stravaGear == this.stravaGear);
+          other.stravaGear == this.stravaGear &&
+          other.orderIndex == this.orderIndex);
 }
 
 class BikesCompanion extends UpdateCompanion<BikeDb> {
@@ -1298,6 +1342,7 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
   final Value<String?> notes;
   final Value<String?> person;
   final Value<String?> stravaGear;
+  final Value<int> orderIndex;
   final Value<int> rowid;
   const BikesCompanion({
     this.id = const Value.absent(),
@@ -1307,6 +1352,7 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
     this.notes = const Value.absent(),
     this.person = const Value.absent(),
     this.stravaGear = const Value.absent(),
+    this.orderIndex = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   BikesCompanion.insert({
@@ -1317,6 +1363,7 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
     this.notes = const Value.absent(),
     this.person = const Value.absent(),
     this.stravaGear = const Value.absent(),
+    this.orderIndex = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        lastModified = Value(lastModified),
@@ -1329,6 +1376,7 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
     Expression<String>? notes,
     Expression<String>? person,
     Expression<String>? stravaGear,
+    Expression<int>? orderIndex,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1339,6 +1387,7 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
       if (notes != null) 'notes': notes,
       if (person != null) 'person': person,
       if (stravaGear != null) 'strava_gear': stravaGear,
+      if (orderIndex != null) 'order_index': orderIndex,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1351,6 +1400,7 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
     Value<String?>? notes,
     Value<String?>? person,
     Value<String?>? stravaGear,
+    Value<int>? orderIndex,
     Value<int>? rowid,
   }) {
     return BikesCompanion(
@@ -1361,6 +1411,7 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
       notes: notes ?? this.notes,
       person: person ?? this.person,
       stravaGear: stravaGear ?? this.stravaGear,
+      orderIndex: orderIndex ?? this.orderIndex,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1389,6 +1440,9 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
     if (stravaGear.present) {
       map['strava_gear'] = Variable<String>(stravaGear.value);
     }
+    if (orderIndex.present) {
+      map['order_index'] = Variable<int>(orderIndex.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1405,6 +1459,7 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
           ..write('notes: $notes, ')
           ..write('person: $person, ')
           ..write('stravaGear: $stravaGear, ')
+          ..write('orderIndex: $orderIndex, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1479,6 +1534,18 @@ class $ComponentsTable extends Components
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _orderIndexMeta = const VerificationMeta(
+    'orderIndex',
+  );
+  @override
+  late final GeneratedColumn<int> orderIndex = GeneratedColumn<int>(
+    'order_index',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1487,6 +1554,7 @@ class $ComponentsTable extends Components
     name,
     componentType,
     notes,
+    orderIndex,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1536,6 +1604,12 @@ class $ComponentsTable extends Components
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
+    if (data.containsKey('order_index')) {
+      context.handle(
+        _orderIndexMeta,
+        orderIndex.isAcceptableOrUnknown(data['order_index']!, _orderIndexMeta),
+      );
+    }
     return context;
   }
 
@@ -1571,6 +1645,10 @@ class $ComponentsTable extends Components
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
+      orderIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}order_index'],
+      )!,
     );
   }
 
@@ -1590,6 +1668,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
   final String name;
   final ComponentType componentType;
   final String? notes;
+  final int orderIndex;
   const ComponentDb({
     required this.id,
     required this.isDeleted,
@@ -1597,6 +1676,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     required this.name,
     required this.componentType,
     this.notes,
+    required this.orderIndex,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1613,6 +1693,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
+    map['order_index'] = Variable<int>(orderIndex);
     return map;
   }
 
@@ -1626,6 +1707,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
+      orderIndex: Value(orderIndex),
     );
   }
 
@@ -1643,6 +1725,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
         serializer.fromJson<String>(json['componentType']),
       ),
       notes: serializer.fromJson<String?>(json['notes']),
+      orderIndex: serializer.fromJson<int>(json['orderIndex']),
     );
   }
   @override
@@ -1657,6 +1740,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
         $ComponentsTable.$convertercomponentType.toJson(componentType),
       ),
       'notes': serializer.toJson<String?>(notes),
+      'orderIndex': serializer.toJson<int>(orderIndex),
     };
   }
 
@@ -1667,6 +1751,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     String? name,
     ComponentType? componentType,
     Value<String?> notes = const Value.absent(),
+    int? orderIndex,
   }) => ComponentDb(
     id: id ?? this.id,
     isDeleted: isDeleted ?? this.isDeleted,
@@ -1674,6 +1759,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     name: name ?? this.name,
     componentType: componentType ?? this.componentType,
     notes: notes.present ? notes.value : this.notes,
+    orderIndex: orderIndex ?? this.orderIndex,
   );
   ComponentDb copyWithCompanion(ComponentsCompanion data) {
     return ComponentDb(
@@ -1687,6 +1773,9 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           ? data.componentType.value
           : this.componentType,
       notes: data.notes.present ? data.notes.value : this.notes,
+      orderIndex: data.orderIndex.present
+          ? data.orderIndex.value
+          : this.orderIndex,
     );
   }
 
@@ -1698,14 +1787,22 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           ..write('lastModified: $lastModified, ')
           ..write('name: $name, ')
           ..write('componentType: $componentType, ')
-          ..write('notes: $notes')
+          ..write('notes: $notes, ')
+          ..write('orderIndex: $orderIndex')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, isDeleted, lastModified, name, componentType, notes);
+  int get hashCode => Object.hash(
+    id,
+    isDeleted,
+    lastModified,
+    name,
+    componentType,
+    notes,
+    orderIndex,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1715,7 +1812,8 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           other.lastModified == this.lastModified &&
           other.name == this.name &&
           other.componentType == this.componentType &&
-          other.notes == this.notes);
+          other.notes == this.notes &&
+          other.orderIndex == this.orderIndex);
 }
 
 class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
@@ -1725,6 +1823,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
   final Value<String> name;
   final Value<ComponentType> componentType;
   final Value<String?> notes;
+  final Value<int> orderIndex;
   final Value<int> rowid;
   const ComponentsCompanion({
     this.id = const Value.absent(),
@@ -1733,6 +1832,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     this.name = const Value.absent(),
     this.componentType = const Value.absent(),
     this.notes = const Value.absent(),
+    this.orderIndex = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ComponentsCompanion.insert({
@@ -1742,6 +1842,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     required String name,
     required ComponentType componentType,
     this.notes = const Value.absent(),
+    this.orderIndex = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        lastModified = Value(lastModified),
@@ -1754,6 +1855,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     Expression<String>? name,
     Expression<String>? componentType,
     Expression<String>? notes,
+    Expression<int>? orderIndex,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1763,6 +1865,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
       if (name != null) 'name': name,
       if (componentType != null) 'component_type': componentType,
       if (notes != null) 'notes': notes,
+      if (orderIndex != null) 'order_index': orderIndex,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1774,6 +1877,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     Value<String>? name,
     Value<ComponentType>? componentType,
     Value<String?>? notes,
+    Value<int>? orderIndex,
     Value<int>? rowid,
   }) {
     return ComponentsCompanion(
@@ -1783,6 +1887,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
       name: name ?? this.name,
       componentType: componentType ?? this.componentType,
       notes: notes ?? this.notes,
+      orderIndex: orderIndex ?? this.orderIndex,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1810,6 +1915,9 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (orderIndex.present) {
+      map['order_index'] = Variable<int>(orderIndex.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1825,6 +1933,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
           ..write('name: $name, ')
           ..write('componentType: $componentType, ')
           ..write('notes: $notes, ')
+          ..write('orderIndex: $orderIndex, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1900,6 +2009,18 @@ class $PersonsTable extends Persons with TableInfo<$PersonsTable, PersonDb> {
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _orderIndexMeta = const VerificationMeta(
+    'orderIndex',
+  );
+  @override
+  late final GeneratedColumn<int> orderIndex = GeneratedColumn<int>(
+    'order_index',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1908,6 +2029,7 @@ class $PersonsTable extends Persons with TableInfo<$PersonsTable, PersonDb> {
     name,
     notes,
     stravaAthlete,
+    orderIndex,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1966,6 +2088,12 @@ class $PersonsTable extends Persons with TableInfo<$PersonsTable, PersonDb> {
         ),
       );
     }
+    if (data.containsKey('order_index')) {
+      context.handle(
+        _orderIndexMeta,
+        orderIndex.isAcceptableOrUnknown(data['order_index']!, _orderIndexMeta),
+      );
+    }
     return context;
   }
 
@@ -1999,6 +2127,10 @@ class $PersonsTable extends Persons with TableInfo<$PersonsTable, PersonDb> {
         DriftSqlType.int,
         data['${effectivePrefix}strava_athlete'],
       ),
+      orderIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}order_index'],
+      )!,
     );
   }
 
@@ -2015,6 +2147,7 @@ class PersonDb extends DataClass implements Insertable<PersonDb> {
   final String name;
   final String? notes;
   final int? stravaAthlete;
+  final int orderIndex;
   const PersonDb({
     required this.id,
     required this.isDeleted,
@@ -2022,6 +2155,7 @@ class PersonDb extends DataClass implements Insertable<PersonDb> {
     required this.name,
     this.notes,
     this.stravaAthlete,
+    required this.orderIndex,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2036,6 +2170,7 @@ class PersonDb extends DataClass implements Insertable<PersonDb> {
     if (!nullToAbsent || stravaAthlete != null) {
       map['strava_athlete'] = Variable<int>(stravaAthlete);
     }
+    map['order_index'] = Variable<int>(orderIndex);
     return map;
   }
 
@@ -2051,6 +2186,7 @@ class PersonDb extends DataClass implements Insertable<PersonDb> {
       stravaAthlete: stravaAthlete == null && nullToAbsent
           ? const Value.absent()
           : Value(stravaAthlete),
+      orderIndex: Value(orderIndex),
     );
   }
 
@@ -2066,6 +2202,7 @@ class PersonDb extends DataClass implements Insertable<PersonDb> {
       name: serializer.fromJson<String>(json['name']),
       notes: serializer.fromJson<String?>(json['notes']),
       stravaAthlete: serializer.fromJson<int?>(json['stravaAthlete']),
+      orderIndex: serializer.fromJson<int>(json['orderIndex']),
     );
   }
   @override
@@ -2078,6 +2215,7 @@ class PersonDb extends DataClass implements Insertable<PersonDb> {
       'name': serializer.toJson<String>(name),
       'notes': serializer.toJson<String?>(notes),
       'stravaAthlete': serializer.toJson<int?>(stravaAthlete),
+      'orderIndex': serializer.toJson<int>(orderIndex),
     };
   }
 
@@ -2088,6 +2226,7 @@ class PersonDb extends DataClass implements Insertable<PersonDb> {
     String? name,
     Value<String?> notes = const Value.absent(),
     Value<int?> stravaAthlete = const Value.absent(),
+    int? orderIndex,
   }) => PersonDb(
     id: id ?? this.id,
     isDeleted: isDeleted ?? this.isDeleted,
@@ -2097,6 +2236,7 @@ class PersonDb extends DataClass implements Insertable<PersonDb> {
     stravaAthlete: stravaAthlete.present
         ? stravaAthlete.value
         : this.stravaAthlete,
+    orderIndex: orderIndex ?? this.orderIndex,
   );
   PersonDb copyWithCompanion(PersonsCompanion data) {
     return PersonDb(
@@ -2110,6 +2250,9 @@ class PersonDb extends DataClass implements Insertable<PersonDb> {
       stravaAthlete: data.stravaAthlete.present
           ? data.stravaAthlete.value
           : this.stravaAthlete,
+      orderIndex: data.orderIndex.present
+          ? data.orderIndex.value
+          : this.orderIndex,
     );
   }
 
@@ -2121,14 +2264,22 @@ class PersonDb extends DataClass implements Insertable<PersonDb> {
           ..write('lastModified: $lastModified, ')
           ..write('name: $name, ')
           ..write('notes: $notes, ')
-          ..write('stravaAthlete: $stravaAthlete')
+          ..write('stravaAthlete: $stravaAthlete, ')
+          ..write('orderIndex: $orderIndex')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, isDeleted, lastModified, name, notes, stravaAthlete);
+  int get hashCode => Object.hash(
+    id,
+    isDeleted,
+    lastModified,
+    name,
+    notes,
+    stravaAthlete,
+    orderIndex,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2138,7 +2289,8 @@ class PersonDb extends DataClass implements Insertable<PersonDb> {
           other.lastModified == this.lastModified &&
           other.name == this.name &&
           other.notes == this.notes &&
-          other.stravaAthlete == this.stravaAthlete);
+          other.stravaAthlete == this.stravaAthlete &&
+          other.orderIndex == this.orderIndex);
 }
 
 class PersonsCompanion extends UpdateCompanion<PersonDb> {
@@ -2148,6 +2300,7 @@ class PersonsCompanion extends UpdateCompanion<PersonDb> {
   final Value<String> name;
   final Value<String?> notes;
   final Value<int?> stravaAthlete;
+  final Value<int> orderIndex;
   final Value<int> rowid;
   const PersonsCompanion({
     this.id = const Value.absent(),
@@ -2156,6 +2309,7 @@ class PersonsCompanion extends UpdateCompanion<PersonDb> {
     this.name = const Value.absent(),
     this.notes = const Value.absent(),
     this.stravaAthlete = const Value.absent(),
+    this.orderIndex = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   PersonsCompanion.insert({
@@ -2165,6 +2319,7 @@ class PersonsCompanion extends UpdateCompanion<PersonDb> {
     required String name,
     this.notes = const Value.absent(),
     this.stravaAthlete = const Value.absent(),
+    this.orderIndex = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        lastModified = Value(lastModified),
@@ -2176,6 +2331,7 @@ class PersonsCompanion extends UpdateCompanion<PersonDb> {
     Expression<String>? name,
     Expression<String>? notes,
     Expression<int>? stravaAthlete,
+    Expression<int>? orderIndex,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2185,6 +2341,7 @@ class PersonsCompanion extends UpdateCompanion<PersonDb> {
       if (name != null) 'name': name,
       if (notes != null) 'notes': notes,
       if (stravaAthlete != null) 'strava_athlete': stravaAthlete,
+      if (orderIndex != null) 'order_index': orderIndex,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2196,6 +2353,7 @@ class PersonsCompanion extends UpdateCompanion<PersonDb> {
     Value<String>? name,
     Value<String?>? notes,
     Value<int?>? stravaAthlete,
+    Value<int>? orderIndex,
     Value<int>? rowid,
   }) {
     return PersonsCompanion(
@@ -2205,6 +2363,7 @@ class PersonsCompanion extends UpdateCompanion<PersonDb> {
       name: name ?? this.name,
       notes: notes ?? this.notes,
       stravaAthlete: stravaAthlete ?? this.stravaAthlete,
+      orderIndex: orderIndex ?? this.orderIndex,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2230,6 +2389,9 @@ class PersonsCompanion extends UpdateCompanion<PersonDb> {
     if (stravaAthlete.present) {
       map['strava_athlete'] = Variable<int>(stravaAthlete.value);
     }
+    if (orderIndex.present) {
+      map['order_index'] = Variable<int>(orderIndex.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2245,6 +2407,7 @@ class PersonsCompanion extends UpdateCompanion<PersonDb> {
           ..write('name: $name, ')
           ..write('notes: $notes, ')
           ..write('stravaAthlete: $stravaAthlete, ')
+          ..write('orderIndex: $orderIndex, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2327,6 +2490,18 @@ class $RatingsTable extends Ratings with TableInfo<$RatingsTable, RatingDb> {
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       ).withConverter<FilterType>($RatingsTable.$converterfilterType);
+  static const VerificationMeta _orderIndexMeta = const VerificationMeta(
+    'orderIndex',
+  );
+  @override
+  late final GeneratedColumn<int> orderIndex = GeneratedColumn<int>(
+    'order_index',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2336,6 +2511,7 @@ class $RatingsTable extends Ratings with TableInfo<$RatingsTable, RatingDb> {
     notes,
     filter,
     filterType,
+    orderIndex,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2391,6 +2567,12 @@ class $RatingsTable extends Ratings with TableInfo<$RatingsTable, RatingDb> {
         filter.isAcceptableOrUnknown(data['filter']!, _filterMeta),
       );
     }
+    if (data.containsKey('order_index')) {
+      context.handle(
+        _orderIndexMeta,
+        orderIndex.isAcceptableOrUnknown(data['order_index']!, _orderIndexMeta),
+      );
+    }
     return context;
   }
 
@@ -2430,6 +2612,10 @@ class $RatingsTable extends Ratings with TableInfo<$RatingsTable, RatingDb> {
           data['${effectivePrefix}filter_type'],
         )!,
       ),
+      orderIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}order_index'],
+      )!,
     );
   }
 
@@ -2450,6 +2636,7 @@ class RatingDb extends DataClass implements Insertable<RatingDb> {
   final String? notes;
   final String? filter;
   final FilterType filterType;
+  final int orderIndex;
   const RatingDb({
     required this.id,
     required this.isDeleted,
@@ -2458,6 +2645,7 @@ class RatingDb extends DataClass implements Insertable<RatingDb> {
     this.notes,
     this.filter,
     required this.filterType,
+    required this.orderIndex,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2477,6 +2665,7 @@ class RatingDb extends DataClass implements Insertable<RatingDb> {
         $RatingsTable.$converterfilterType.toSql(filterType),
       );
     }
+    map['order_index'] = Variable<int>(orderIndex);
     return map;
   }
 
@@ -2493,6 +2682,7 @@ class RatingDb extends DataClass implements Insertable<RatingDb> {
           ? const Value.absent()
           : Value(filter),
       filterType: Value(filterType),
+      orderIndex: Value(orderIndex),
     );
   }
 
@@ -2511,6 +2701,7 @@ class RatingDb extends DataClass implements Insertable<RatingDb> {
       filterType: $RatingsTable.$converterfilterType.fromJson(
         serializer.fromJson<String>(json['filterType']),
       ),
+      orderIndex: serializer.fromJson<int>(json['orderIndex']),
     );
   }
   @override
@@ -2526,6 +2717,7 @@ class RatingDb extends DataClass implements Insertable<RatingDb> {
       'filterType': serializer.toJson<String>(
         $RatingsTable.$converterfilterType.toJson(filterType),
       ),
+      'orderIndex': serializer.toJson<int>(orderIndex),
     };
   }
 
@@ -2537,6 +2729,7 @@ class RatingDb extends DataClass implements Insertable<RatingDb> {
     Value<String?> notes = const Value.absent(),
     Value<String?> filter = const Value.absent(),
     FilterType? filterType,
+    int? orderIndex,
   }) => RatingDb(
     id: id ?? this.id,
     isDeleted: isDeleted ?? this.isDeleted,
@@ -2545,6 +2738,7 @@ class RatingDb extends DataClass implements Insertable<RatingDb> {
     notes: notes.present ? notes.value : this.notes,
     filter: filter.present ? filter.value : this.filter,
     filterType: filterType ?? this.filterType,
+    orderIndex: orderIndex ?? this.orderIndex,
   );
   RatingDb copyWithCompanion(RatingsCompanion data) {
     return RatingDb(
@@ -2559,6 +2753,9 @@ class RatingDb extends DataClass implements Insertable<RatingDb> {
       filterType: data.filterType.present
           ? data.filterType.value
           : this.filterType,
+      orderIndex: data.orderIndex.present
+          ? data.orderIndex.value
+          : this.orderIndex,
     );
   }
 
@@ -2571,14 +2768,23 @@ class RatingDb extends DataClass implements Insertable<RatingDb> {
           ..write('name: $name, ')
           ..write('notes: $notes, ')
           ..write('filter: $filter, ')
-          ..write('filterType: $filterType')
+          ..write('filterType: $filterType, ')
+          ..write('orderIndex: $orderIndex')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, isDeleted, lastModified, name, notes, filter, filterType);
+  int get hashCode => Object.hash(
+    id,
+    isDeleted,
+    lastModified,
+    name,
+    notes,
+    filter,
+    filterType,
+    orderIndex,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2589,7 +2795,8 @@ class RatingDb extends DataClass implements Insertable<RatingDb> {
           other.name == this.name &&
           other.notes == this.notes &&
           other.filter == this.filter &&
-          other.filterType == this.filterType);
+          other.filterType == this.filterType &&
+          other.orderIndex == this.orderIndex);
 }
 
 class RatingsCompanion extends UpdateCompanion<RatingDb> {
@@ -2600,6 +2807,7 @@ class RatingsCompanion extends UpdateCompanion<RatingDb> {
   final Value<String?> notes;
   final Value<String?> filter;
   final Value<FilterType> filterType;
+  final Value<int> orderIndex;
   final Value<int> rowid;
   const RatingsCompanion({
     this.id = const Value.absent(),
@@ -2609,6 +2817,7 @@ class RatingsCompanion extends UpdateCompanion<RatingDb> {
     this.notes = const Value.absent(),
     this.filter = const Value.absent(),
     this.filterType = const Value.absent(),
+    this.orderIndex = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   RatingsCompanion.insert({
@@ -2619,6 +2828,7 @@ class RatingsCompanion extends UpdateCompanion<RatingDb> {
     this.notes = const Value.absent(),
     this.filter = const Value.absent(),
     required FilterType filterType,
+    this.orderIndex = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        lastModified = Value(lastModified),
@@ -2632,6 +2842,7 @@ class RatingsCompanion extends UpdateCompanion<RatingDb> {
     Expression<String>? notes,
     Expression<String>? filter,
     Expression<String>? filterType,
+    Expression<int>? orderIndex,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2642,6 +2853,7 @@ class RatingsCompanion extends UpdateCompanion<RatingDb> {
       if (notes != null) 'notes': notes,
       if (filter != null) 'filter': filter,
       if (filterType != null) 'filter_type': filterType,
+      if (orderIndex != null) 'order_index': orderIndex,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2654,6 +2866,7 @@ class RatingsCompanion extends UpdateCompanion<RatingDb> {
     Value<String?>? notes,
     Value<String?>? filter,
     Value<FilterType>? filterType,
+    Value<int>? orderIndex,
     Value<int>? rowid,
   }) {
     return RatingsCompanion(
@@ -2664,6 +2877,7 @@ class RatingsCompanion extends UpdateCompanion<RatingDb> {
       notes: notes ?? this.notes,
       filter: filter ?? this.filter,
       filterType: filterType ?? this.filterType,
+      orderIndex: orderIndex ?? this.orderIndex,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2694,6 +2908,9 @@ class RatingsCompanion extends UpdateCompanion<RatingDb> {
         $RatingsTable.$converterfilterType.toSql(filterType.value),
       );
     }
+    if (orderIndex.present) {
+      map['order_index'] = Variable<int>(orderIndex.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2710,6 +2927,7 @@ class RatingsCompanion extends UpdateCompanion<RatingDb> {
           ..write('notes: $notes, ')
           ..write('filter: $filter, ')
           ..write('filterType: $filterType, ')
+          ..write('orderIndex: $orderIndex, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -7153,6 +7371,7 @@ typedef $$BikesTableCreateCompanionBuilder =
       Value<String?> notes,
       Value<String?> person,
       Value<String?> stravaGear,
+      Value<int> orderIndex,
       Value<int> rowid,
     });
 typedef $$BikesTableUpdateCompanionBuilder =
@@ -7164,6 +7383,7 @@ typedef $$BikesTableUpdateCompanionBuilder =
       Value<String?> notes,
       Value<String?> person,
       Value<String?> stravaGear,
+      Value<int> orderIndex,
       Value<int> rowid,
     });
 
@@ -7231,6 +7451,11 @@ class $$BikesTableFilterComposer extends Composer<_$AppDatabase, $BikesTable> {
 
   ColumnFilters<String> get stravaGear => $composableBuilder(
     column: $table.stravaGear,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7303,6 +7528,11 @@ class $$BikesTableOrderingComposer
     column: $table.stravaGear,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$BikesTableAnnotationComposer
@@ -7336,6 +7566,11 @@ class $$BikesTableAnnotationComposer
 
   GeneratedColumn<String> get stravaGear => $composableBuilder(
     column: $table.stravaGear,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
     builder: (column) => column,
   );
 
@@ -7400,6 +7635,7 @@ class $$BikesTableTableManager
                 Value<String?> notes = const Value.absent(),
                 Value<String?> person = const Value.absent(),
                 Value<String?> stravaGear = const Value.absent(),
+                Value<int> orderIndex = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BikesCompanion(
                 id: id,
@@ -7409,6 +7645,7 @@ class $$BikesTableTableManager
                 notes: notes,
                 person: person,
                 stravaGear: stravaGear,
+                orderIndex: orderIndex,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -7420,6 +7657,7 @@ class $$BikesTableTableManager
                 Value<String?> notes = const Value.absent(),
                 Value<String?> person = const Value.absent(),
                 Value<String?> stravaGear = const Value.absent(),
+                Value<int> orderIndex = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BikesCompanion.insert(
                 id: id,
@@ -7429,6 +7667,7 @@ class $$BikesTableTableManager
                 notes: notes,
                 person: person,
                 stravaGear: stravaGear,
+                orderIndex: orderIndex,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -7486,6 +7725,7 @@ typedef $$ComponentsTableCreateCompanionBuilder =
       required String name,
       required ComponentType componentType,
       Value<String?> notes,
+      Value<int> orderIndex,
       Value<int> rowid,
     });
 typedef $$ComponentsTableUpdateCompanionBuilder =
@@ -7496,6 +7736,7 @@ typedef $$ComponentsTableUpdateCompanionBuilder =
       Value<String> name,
       Value<ComponentType> componentType,
       Value<String?> notes,
+      Value<int> orderIndex,
       Value<int> rowid,
     });
 
@@ -7583,6 +7824,11 @@ class $$ComponentsTableFilterComposer
 
   ColumnFilters<String> get notes => $composableBuilder(
     column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7675,6 +7921,11 @@ class $$ComponentsTableOrderingComposer
     column: $table.notes,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ComponentsTableAnnotationComposer
@@ -7708,6 +7959,11 @@ class $$ComponentsTableAnnotationComposer
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => column,
+  );
 
   Expression<T> adjustmentsRefs<T extends Object>(
     Expression<T> Function($$AdjustmentsTableAnnotationComposer a) f,
@@ -7794,6 +8050,7 @@ class $$ComponentsTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<ComponentType> componentType = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<int> orderIndex = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ComponentsCompanion(
                 id: id,
@@ -7802,6 +8059,7 @@ class $$ComponentsTableTableManager
                 name: name,
                 componentType: componentType,
                 notes: notes,
+                orderIndex: orderIndex,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -7812,6 +8070,7 @@ class $$ComponentsTableTableManager
                 required String name,
                 required ComponentType componentType,
                 Value<String?> notes = const Value.absent(),
+                Value<int> orderIndex = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ComponentsCompanion.insert(
                 id: id,
@@ -7820,6 +8079,7 @@ class $$ComponentsTableTableManager
                 name: name,
                 componentType: componentType,
                 notes: notes,
+                orderIndex: orderIndex,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -7913,6 +8173,7 @@ typedef $$PersonsTableCreateCompanionBuilder =
       required String name,
       Value<String?> notes,
       Value<int?> stravaAthlete,
+      Value<int> orderIndex,
       Value<int> rowid,
     });
 typedef $$PersonsTableUpdateCompanionBuilder =
@@ -7923,6 +8184,7 @@ typedef $$PersonsTableUpdateCompanionBuilder =
       Value<String> name,
       Value<String?> notes,
       Value<int?> stravaAthlete,
+      Value<int> orderIndex,
       Value<int> rowid,
     });
 
@@ -8004,6 +8266,11 @@ class $$PersonsTableFilterComposer
 
   ColumnFilters<int> get stravaAthlete => $composableBuilder(
     column: $table.stravaAthlete,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -8096,6 +8363,11 @@ class $$PersonsTableOrderingComposer
     column: $table.stravaAthlete,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$PersonsTableAnnotationComposer
@@ -8126,6 +8398,11 @@ class $$PersonsTableAnnotationComposer
 
   GeneratedColumn<int> get stravaAthlete => $composableBuilder(
     column: $table.stravaAthlete,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
     builder: (column) => column,
   );
 
@@ -8214,6 +8491,7 @@ class $$PersonsTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<int?> stravaAthlete = const Value.absent(),
+                Value<int> orderIndex = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => PersonsCompanion(
                 id: id,
@@ -8222,6 +8500,7 @@ class $$PersonsTableTableManager
                 name: name,
                 notes: notes,
                 stravaAthlete: stravaAthlete,
+                orderIndex: orderIndex,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -8232,6 +8511,7 @@ class $$PersonsTableTableManager
                 required String name,
                 Value<String?> notes = const Value.absent(),
                 Value<int?> stravaAthlete = const Value.absent(),
+                Value<int> orderIndex = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => PersonsCompanion.insert(
                 id: id,
@@ -8240,6 +8520,7 @@ class $$PersonsTableTableManager
                 name: name,
                 notes: notes,
                 stravaAthlete: stravaAthlete,
+                orderIndex: orderIndex,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -8334,6 +8615,7 @@ typedef $$RatingsTableCreateCompanionBuilder =
       Value<String?> notes,
       Value<String?> filter,
       required FilterType filterType,
+      Value<int> orderIndex,
       Value<int> rowid,
     });
 typedef $$RatingsTableUpdateCompanionBuilder =
@@ -8345,6 +8627,7 @@ typedef $$RatingsTableUpdateCompanionBuilder =
       Value<String?> notes,
       Value<String?> filter,
       Value<FilterType> filterType,
+      Value<int> orderIndex,
       Value<int> rowid,
     });
 
@@ -8416,6 +8699,11 @@ class $$RatingsTableFilterComposer
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
+  ColumnFilters<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> adjustmentsRefs(
     Expression<bool> Function($$AdjustmentsTableFilterComposer f) f,
   ) {
@@ -8485,6 +8773,11 @@ class $$RatingsTableOrderingComposer
     column: $table.filterType,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$RatingsTableAnnotationComposer
@@ -8521,6 +8814,11 @@ class $$RatingsTableAnnotationComposer
         column: $table.filterType,
         builder: (column) => column,
       );
+
+  GeneratedColumn<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => column,
+  );
 
   Expression<T> adjustmentsRefs<T extends Object>(
     Expression<T> Function($$AdjustmentsTableAnnotationComposer a) f,
@@ -8583,6 +8881,7 @@ class $$RatingsTableTableManager
                 Value<String?> notes = const Value.absent(),
                 Value<String?> filter = const Value.absent(),
                 Value<FilterType> filterType = const Value.absent(),
+                Value<int> orderIndex = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RatingsCompanion(
                 id: id,
@@ -8592,6 +8891,7 @@ class $$RatingsTableTableManager
                 notes: notes,
                 filter: filter,
                 filterType: filterType,
+                orderIndex: orderIndex,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -8603,6 +8903,7 @@ class $$RatingsTableTableManager
                 Value<String?> notes = const Value.absent(),
                 Value<String?> filter = const Value.absent(),
                 required FilterType filterType,
+                Value<int> orderIndex = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RatingsCompanion.insert(
                 id: id,
@@ -8612,6 +8913,7 @@ class $$RatingsTableTableManager
                 notes: notes,
                 filter: filter,
                 filterType: filterType,
+                orderIndex: orderIndex,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

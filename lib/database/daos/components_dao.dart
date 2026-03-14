@@ -20,7 +20,10 @@ class ComponentsDao extends DatabaseAccessor<AppDatabase> with _$ComponentsDaoMi
   Stream<List<ComponentDb>> watchDeletedComponents() => watchAllDeleted();
 
   Stream<List<ComponentWithData>> watchAllComponentsWithData() {
-    final query = (select(components)..where((t) => isDeletedColumn.equals(false))).join([
+    final query = (select(components)
+          ..where((t) => isDeletedColumn.equals(false))
+          ..orderBy([(t) => OrderingTerm(expression: components.orderIndex)]))
+        .join([
       leftOuterJoin(adjustments, adjustments.componentId.equalsExp(components.id)),
       leftOuterJoin(installations, installations.componentId.equalsExp(components.id)),
     ]);
@@ -156,6 +159,15 @@ class ComponentsDao extends DatabaseAccessor<AppDatabase> with _$ComponentsDaoMi
       entry.installations.sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
     }
     return grouped.values.toList();
+  }
+
+  Future<void> reorder(List<String> ids) async {
+    await transaction(() async {
+      for (int i = 0; i < ids.length; i++) {
+        await (update(components)..where((t) => t.id.equals(ids[i])))
+            .write(ComponentsCompanion(orderIndex: Value(i)));
+      }
+    });
   }
 }
 

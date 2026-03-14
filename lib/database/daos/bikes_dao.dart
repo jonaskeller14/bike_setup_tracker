@@ -16,7 +16,12 @@ class BikesDao extends DatabaseAccessor<AppDatabase> with _$BikesDaoMixin, SoftD
   @override Expression<String> get idColumn => bikes.id;
   @override BikesCompanion createSoftDeleteCompanion() => BikesCompanion(isDeleted: const Value(true), lastModified: Value(DateTime.now().toUtc()));
 
-  Stream<List<BikeDb>> watchAllBikes() => watchAllActive();
+  Stream<List<BikeDb>> watchAllBikes() {
+    return (select(softDeletableTable)
+          ..where((t) => isDeletedColumn.equals(false))
+          ..orderBy([(t) => OrderingTerm(expression: bikes.orderIndex)]))
+        .watch();
+  }
   Stream<List<BikeDb>> watchDeletedBikes() => watchAllDeleted();
   Future<List<BikeDb>> getAllBikesBypass() => select(bikes).get();
 
@@ -31,4 +36,13 @@ class BikesDao extends DatabaseAccessor<AppDatabase> with _$BikesDaoMixin, SoftD
   Future<int> insertBike(BikesCompanion entry) => into(bikes).insert(entry);
   Future updateBike(BikesCompanion entry) => update(bikes).replace(entry);
   Future<int> deleteBike(String id) => softDelete(id);
+
+  Future<void> reorder(List<String> ids) async {
+    await transaction(() async {
+      for (int i = 0; i < ids.length; i++) {
+        await (update(bikes)..where((t) => t.id.equals(ids[i])))
+            .write(BikesCompanion(orderIndex: Value(i)));
+      }
+    });
+  }
 }

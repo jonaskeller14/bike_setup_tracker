@@ -10,6 +10,7 @@ class Ratings extends Table {
   TextColumn get notes => text().nullable()();
   TextColumn get filter => text().nullable()();
   TextColumn get filterType => textEnum<FilterType>()();
+  IntColumn get orderIndex => integer().withDefault(const Constant(0))();
 
   @override
   Set<Column> get primaryKey => {id};

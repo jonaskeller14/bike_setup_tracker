@@ -8,6 +8,7 @@ class Persons extends Table {
   TextColumn get name => text()();
   TextColumn get notes => text().nullable()();
   IntColumn get stravaAthlete => integer().nullable()();
+  IntColumn get orderIndex => integer().withDefault(const Constant(0))();
 
   @override
   Set<Column> get primaryKey => {id};

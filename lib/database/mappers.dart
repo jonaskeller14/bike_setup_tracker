@@ -26,6 +26,7 @@ extension BikeDbMapper on BikeDb {
       notes: notes,
       person: person,
       stravaGear: stravaGear,
+      orderIndex: orderIndex,
     );
   }
 }
@@ -44,6 +45,7 @@ extension ComponentDbMapper on ComponentDb {
       componentType: componentType,
       adjustments: adjustments,
       installations: installations,
+      orderIndex: orderIndex,
     );
   }
 }
@@ -84,6 +86,7 @@ extension PersonDbMapper on PersonDb {
       notes: notes,
       stravaAthlete: stravaAthlete,
       adjustments: adjustments,
+      orderIndex: orderIndex,
     );
   }
 }
@@ -99,6 +102,7 @@ extension RatingDbMapper on RatingDb {
       filter: filter,
       filterType: filterType,
       adjustments: adjustments,
+      orderIndex: orderIndex,
     );
   }
 }
@@ -143,6 +147,7 @@ extension BikeMapper on Bike {
       notes: notes == null ? const Value.absent() : Value<String?>(notes),
       person: person == null ? const Value.absent() : Value<String?>(person),
       stravaGear: stravaGear == null ? const Value.absent() : Value<String?>(stravaGear),
+      orderIndex: Value<int>(orderIndex),
     );
   }
 }
@@ -156,6 +161,7 @@ extension ComponentMapper on Component {
       name: Value<String>(name),
       notes: notes == null ? const Value.absent() : Value<String?>(notes),
       componentType: Value<ComponentType>(componentType),
+      orderIndex: Value<int>(orderIndex),
     );
   }
 }
@@ -206,6 +212,7 @@ extension PersonMapper on Person {
       name: Value<String>(name),
       notes: notes == null ? const Value.absent() : Value<String?>(notes),
       stravaAthlete: stravaAthlete == null ? const Value.absent() : Value<int?>(stravaAthlete),
+      orderIndex: Value<int>(orderIndex),
     );
   }
 }
@@ -220,6 +227,7 @@ extension RatingMapper on Rating {
       notes: notes == null ? const Value.absent() : Value<String?>(notes),
       filter: filter == null ? const Value.absent() : Value<String?>(filter),
       filterType: Value<FilterType>(filterType),
+      orderIndex: Value<int>(orderIndex),
     );
   }
 }

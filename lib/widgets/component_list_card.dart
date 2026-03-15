@@ -14,6 +14,7 @@ class ComponentListCard extends StatelessWidget{
   final int? index;
   final double? elevation;
   final Color? color;
+  final bool showCurrentAdjustmentValues;
 
   const ComponentListCard({
     super.key,
@@ -21,6 +22,7 @@ class ComponentListCard extends StatelessWidget{
     this.index,
     this.elevation,
     this.color,
+    this.showCurrentAdjustmentValues = true,
   });
 
   Future<void> _editComponent(BuildContext context, {required Component component}) async {
@@ -218,18 +220,19 @@ class ComponentListCard extends StatelessWidget{
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
-              child: AdjustmentCompactDisplayList(
-                components: [component],
-                adjustmentValues: setups.values.lastWhereOrNull((s) => s.bike == component.bike)?.bikeAdjustmentValues ?? {},
-                showComponentIcons: false,
-                missingValuesPlaceholder: true,
-                displayBikeAdjustmentValues: true,
-                displayPersonAdjustmentValues: false,
-                displayRatingAdjustmentValues: false,
+            if (showCurrentAdjustmentValues)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
+                child: AdjustmentCompactDisplayList(
+                  components: [component],
+                  adjustmentValues: setups.values.lastWhereOrNull((s) => s.bike == component.bike)?.bikeAdjustmentValues ?? {},
+                  showComponentIcons: false,
+                  missingValuesPlaceholder: true,
+                  displayBikeAdjustmentValues: true,
+                  displayPersonAdjustmentValues: false,
+                  displayRatingAdjustmentValues: false,
+                ),
               ),
-            ),
           ],
         ),
       ),

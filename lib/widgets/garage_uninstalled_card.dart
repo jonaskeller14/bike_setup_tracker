@@ -244,6 +244,7 @@ class GarageUninstalledCard extends StatelessWidget{
                       component: deinstalledComponents[componentToShowDetails]!,
                       index: null,
                       color: Theme.of(context).colorScheme.tertiaryContainer,
+                      showCurrentAdjustmentValues: false,
                     ),
                   ),
                 ),

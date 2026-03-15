@@ -306,9 +306,13 @@ class AppRepository extends ChangeNotifier {
       _filteredStravaActivities = stravaActivities;
       return;
     }
+    
     final selectedStravaGear = bikes[_selectedBike]?.stravaGear;
     if (selectedStravaGear == null) {
-      _filteredStravaActivities = stravaActivities;
+      _filteredStravaActivities = Map.fromEntries(stravaActivities.entries.where((entry) {
+        final stravaGear = entry.value.gearId;
+        return stravaGear == null || !bikes.values.any((b) => b.stravaGear == stravaGear);
+      }));
       return;
     }
 

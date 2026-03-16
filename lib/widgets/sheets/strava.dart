@@ -100,35 +100,52 @@ class StravaSheet extends StatelessWidget {
                         spacing: 4,
                         runSpacing: 4,
                         children: gears.map((g) {
-                          final linkedBike = filteredData.bikes.values.firstWhereOrNull((b) => b.stravaGear == g.id);
+                          final linkedBikes = filteredData.bikes.values.where((b) => b.stravaGear == g.id);
                           final unlinkedBikes = filteredData.bikes.values.where((b) => b.stravaGear == null).toList();
 
                           final Widget chip = Chip(
-                            avatar: linkedBike == null
+                            avatar: linkedBikes.isEmpty
                                 ? Icon(Icons.link_off, color: Theme.of(context).colorScheme.error)
                                 : const Icon(Icons.link),
                             label: Text(g.name),
                           );
 
-                          if (linkedBike == null) {
-                            return PopupMenuButton<_StravaGearMenuOption>(
-                              tooltip: "Bike Options",
-                              onSelected: (_StravaGearMenuOption option) {
-                                switch (option) {
-                                  case _LinkToBike():
-                                    final updatedBike = option.bike.copyWith(stravaGear: g.id);
-                                    context.read<AppData>().editBike(updatedBike);
-                                  case _AddNewBike():
-                                    final newBike = Bike(
-                                      name: g.name,
-                                      person: null,
-                                      stravaGear: g.id,
+                          return PopupMenuButton<_StravaGearMenuOption>(
+                            tooltip: "Bike Options",
+                            onSelected: (_StravaGearMenuOption option) {
+                              switch (option) {
+                                case _LinkToBike():
+                                  final updatedBike = option.bike.copyWith(stravaGear: g.id);
+                                  context.read<AppData>().editBike(updatedBike);
+                                case _AddNewBike():
+                                  final newBike = Bike(
+                                    name: g.name,
+                                    person: null,
+                                    stravaGear: g.id,
+                                  );
+                                  context.read<AppData>().addBike(newBike);
+                                case _UnlinkBike():
+                                  final updatedBike = option.bike.copyWith(stravaGear: null);
+                                  context.read<AppData>().editBike(updatedBike);
+                              }
+                            },
+                            itemBuilder: (BuildContext context) {
+                              return [
+                                if (linkedBikes.isNotEmpty) ...[
+                                  ...linkedBikes.map((Bike linkedBike) {
+                                    return PopupMenuItem<_StravaGearMenuOption>(
+                                      value: _UnlinkBike(linkedBike),
+                                      child: Row(
+                                        spacing: 8,
+                                        children: [
+                                          const Icon(Icons.link_off),
+                                          Expanded(child: Text("Unlink Bike '${linkedBike.name}'", overflow: TextOverflow.ellipsis)),
+                                        ],
+                                      ),
                                     );
-                                    context.read<AppData>().addBike(newBike);
-                                }
-                              },
-                              itemBuilder: (BuildContext context) {
-                                return [
+                                  })
+                                ]
+                                else ... [
                                   if (unlinkedBikes.isNotEmpty) ...[
                                     ...unlinkedBikes.map((Bike bike) {
                                       return PopupMenuItem<_StravaGearMenuOption>(
@@ -154,17 +171,9 @@ class StravaSheet extends StatelessWidget {
                                       ],
                                     ),
                                   ),
-                                ];
-                              },
-                              child: chip,
-                            );
-                          }
-
-                          return Tooltip(
-                            triggerMode: TooltipTriggerMode.tap,
-                            preferBelow: false,
-                            showDuration: const Duration(seconds: 5),
-                            message: "Strava Gear '${g.name}' is linked to the Bike '${linkedBike.name}'",
+                                ]
+                              ];
+                            },
                             child: chip,
                           );
                         }).toList(),
@@ -427,4 +436,8 @@ class _LinkToBike extends _StravaGearMenuOption {
 
 class _AddNewBike extends _StravaGearMenuOption {
   const _AddNewBike();
+}
+class _UnlinkBike extends _StravaGearMenuOption {
+  final Bike bike;
+  const _UnlinkBike(this.bike);
 }

@@ -22,8 +22,15 @@ Future<void> showStravaSheet({required BuildContext context}) async {
   );
 }
 
-class StravaSheet extends StatelessWidget {
+class StravaSheet extends StatefulWidget {
   const StravaSheet({super.key});
+
+  @override
+  State<StravaSheet> createState() => _StravaSheetState();
+}
+
+class _StravaSheetState extends State<StravaSheet> {
+  final GlobalKey<TooltipState> _syncInfoTooltipKey = GlobalKey<TooltipState>();
 
   @override
   Widget build(BuildContext context) {
@@ -368,7 +375,9 @@ class StravaSheet extends StatelessWidget {
       subtitle: const Text("Activities import automatically after your ride."),
       dense: true,
       contentPadding: EdgeInsets.zero,
+      onTap: () => _syncInfoTooltipKey.currentState?.ensureTooltipVisible(),
       trailing: Tooltip(
+        key: _syncInfoTooltipKey,
         triggerMode: TooltipTriggerMode.tap,
         preferBelow: false,
         showDuration: const Duration(seconds: 10),

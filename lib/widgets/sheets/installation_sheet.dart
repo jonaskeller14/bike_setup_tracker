@@ -7,6 +7,24 @@ import '../../repositories/app_repository.dart';
 import '../set_installation_timeline.dart';
 import 'sheet.dart';
 
+Future<void> showInstallationSheet(BuildContext context, {
+  required Component component, 
+  required String? targetBikeId
+}) async {
+  return showModalBottomSheet<void>(
+    useSafeArea: true,
+    showDragHandle: true,
+    isScrollControlled: true,
+    context: context, 
+    builder: (context) {
+      return InstallationSheet(
+        component: component,
+        targetBikeId: targetBikeId,
+      );
+    },
+  );
+}
+
 class InstallationSheet extends StatefulWidget {
   final Component component;
   final String? targetBikeId;
@@ -61,69 +79,84 @@ class _InstallationSheetState extends State<InstallationSheet> {
     final targetBikeName = widget.targetBikeId == null ? "Archive" : (bikes[widget.targetBikeId]?.name ?? "Unknown Bike");
 
     return SafeArea(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   sheetTitle(context, 'Set Installation Timeline'),
                   sheetCloseButton(context),
                 ],
               ),
-              const SizedBox(height: 16),
-              // Origin -> Arrow -> Target Preview
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+            ),
+            const SizedBox(height: 16),
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(
-                      child: _BikePreview(
-                        name: originBikeName,
-                        isDeinstalled: originBikeId == null,
+                    // Origin -> Arrow -> Target Preview
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: _BikePreview(
+                              name: originBikeName,
+                              isDeinstalled: originBikeId == null,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Icon(Icons.arrow_forward, color: theme.colorScheme.primary),
+                          ),
+                          Expanded(
+                            child: _BikePreview(
+                              name: targetBikeName,
+                              isDeinstalled: widget.targetBikeId == null,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Icon(Icons.arrow_forward, color: theme.colorScheme.primary),
-                    ),
-                    Expanded(
-                      child: _BikePreview(
-                        name: targetBikeName,
-                        isDeinstalled: widget.targetBikeId == null,
-                      ),
+                    const SizedBox(height: 24),
+                    SetInstallationTimeline(
+                      initialInstallations: _installations,
+                      originalInstallations: widget.component.installations,
+                      onChanged: (newInstallations) {
+                        setState(() {
+                          _installations = newInstallations;
+                        });
+                      },
+                      isEntryEditable: (index) => index == _installations.length - 1,
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
-              SetInstallationTimeline(
-                initialInstallations: _installations,
-                originalInstallations: widget.component.installations,
-                onChanged: (newInstallations) {
-                  setState(() {
-                    _installations = newInstallations;
-                  });
-                },
-                isEntryEditable: (index) => index == _installations.length - 1,
-              ),
-              const SizedBox(height: 24),
-              FilledButton(
+            ),
+            Container(
+              padding: const EdgeInsets.all(16),
+              width: double.infinity,
+              child: FilledButton(
                 onPressed: _onConfirm,
                 child: const Text('Confirm'),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

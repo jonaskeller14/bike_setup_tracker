@@ -32,14 +32,7 @@ class _GarageListState extends State<GarageList> {
     Future.microtask(() {
       if (!mounted) return;
       if (appSettings.enableInstallationTimeline) {
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          builder: (context) => InstallationSheet(
-            component: component,
-            targetBikeId: newBike,
-          ),
-        );
+        showInstallationSheet(context, component: component, targetBikeId: newBike);
       } else {
         appRepository.editComponent(component.copyWithNewInstallation(newBike));
       }

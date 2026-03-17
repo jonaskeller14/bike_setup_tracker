@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import '../converters/utc_datetime_converter.dart';
 import 'components.dart';
 
 @DataClassName('InstallationDb')
@@ -12,7 +13,7 @@ class Installations extends Table {
   // The entity it is installed on (usually a bike id, but parent is generic in existing model)
   TextColumn get parent => text().nullable()();
 
-  DateTimeColumn get dateTimeUTC => dateTime()();
+  DateTimeColumn get dateTimeUTC => dateTime().map(const UtcDateTimeConverter())();
   DateTimeColumn get dateTimeLocal => dateTime()();
 
   @override

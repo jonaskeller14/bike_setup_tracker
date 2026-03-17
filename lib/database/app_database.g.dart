@@ -33,17 +33,15 @@ class $TodoRulesTable extends TodoRules
     ),
     defaultValue: const Constant(false),
   );
-  static const VerificationMeta _lastModifiedMeta = const VerificationMeta(
-    'lastModified',
-  );
   @override
-  late final GeneratedColumn<DateTime> lastModified = GeneratedColumn<DateTime>(
-    'last_modified',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
+      GeneratedColumn<DateTime>(
+        'last_modified',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($TodoRulesTable.$converterlastModified);
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -104,17 +102,6 @@ class $TodoRulesTable extends TodoRules
         isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
       );
     }
-    if (data.containsKey('last_modified')) {
-      context.handle(
-        _lastModifiedMeta,
-        lastModified.isAcceptableOrUnknown(
-          data['last_modified']!,
-          _lastModifiedMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_lastModifiedMeta);
-    }
     if (data.containsKey('name')) {
       context.handle(
         _nameMeta,
@@ -146,10 +133,12 @@ class $TodoRulesTable extends TodoRules
         DriftSqlType.bool,
         data['${effectivePrefix}is_deleted'],
       )!,
-      lastModified: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}last_modified'],
-      )!,
+      lastModified: $TodoRulesTable.$converterlastModified.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_modified'],
+        )!,
+      ),
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
@@ -172,6 +161,8 @@ class $TodoRulesTable extends TodoRules
     return $TodoRulesTable(attachedDatabase, alias);
   }
 
+  static TypeConverter<DateTime, DateTime> $converterlastModified =
+      const UtcDateTimeConverter();
   static JsonTypeConverter2<TodoPriority, String, String> $converterpriority =
       const EnumNameConverter<TodoPriority>(TodoPriority.values);
 }
@@ -196,7 +187,11 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['is_deleted'] = Variable<bool>(isDeleted);
-    map['last_modified'] = Variable<DateTime>(lastModified);
+    {
+      map['last_modified'] = Variable<DateTime>(
+        $TodoRulesTable.$converterlastModified.toSql(lastModified),
+      );
+    }
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
@@ -387,7 +382,9 @@ class TodoRulesCompanion extends UpdateCompanion<TodoRuleDb> {
       map['is_deleted'] = Variable<bool>(isDeleted.value);
     }
     if (lastModified.present) {
-      map['last_modified'] = Variable<DateTime>(lastModified.value);
+      map['last_modified'] = Variable<DateTime>(
+        $TodoRulesTable.$converterlastModified.toSql(lastModified.value),
+      );
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -451,17 +448,15 @@ class $TodoEntriesTable extends TodoEntries
     ),
     defaultValue: const Constant(false),
   );
-  static const VerificationMeta _lastModifiedMeta = const VerificationMeta(
-    'lastModified',
-  );
   @override
-  late final GeneratedColumn<DateTime> lastModified = GeneratedColumn<DateTime>(
-    'last_modified',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
+      GeneratedColumn<DateTime>(
+        'last_modified',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($TodoEntriesTable.$converterlastModified);
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -480,17 +475,15 @@ class $TodoEntriesTable extends TodoEntries
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _dateTimeUTCMeta = const VerificationMeta(
-    'dateTimeUTC',
-  );
   @override
-  late final GeneratedColumn<DateTime> dateTimeUTC = GeneratedColumn<DateTime>(
-    'date_time_u_t_c',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> dateTimeUTC =
+      GeneratedColumn<DateTime>(
+        'date_time_u_t_c',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($TodoEntriesTable.$converterdateTimeUTC);
   static const VerificationMeta _dateTimeLocalMeta = const VerificationMeta(
     'dateTimeLocal',
   );
@@ -551,17 +544,6 @@ class $TodoEntriesTable extends TodoEntries
         isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
       );
     }
-    if (data.containsKey('last_modified')) {
-      context.handle(
-        _lastModifiedMeta,
-        lastModified.isAcceptableOrUnknown(
-          data['last_modified']!,
-          _lastModifiedMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_lastModifiedMeta);
-    }
     if (data.containsKey('name')) {
       context.handle(
         _nameMeta,
@@ -575,17 +557,6 @@ class $TodoEntriesTable extends TodoEntries
         _notesMeta,
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
-    }
-    if (data.containsKey('date_time_u_t_c')) {
-      context.handle(
-        _dateTimeUTCMeta,
-        dateTimeUTC.isAcceptableOrUnknown(
-          data['date_time_u_t_c']!,
-          _dateTimeUTCMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_dateTimeUTCMeta);
     }
     if (data.containsKey('date_time_local')) {
       context.handle(
@@ -623,10 +594,12 @@ class $TodoEntriesTable extends TodoEntries
         DriftSqlType.bool,
         data['${effectivePrefix}is_deleted'],
       )!,
-      lastModified: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}last_modified'],
-      )!,
+      lastModified: $TodoEntriesTable.$converterlastModified.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_modified'],
+        )!,
+      ),
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
@@ -635,10 +608,12 @@ class $TodoEntriesTable extends TodoEntries
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
-      dateTimeUTC: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}date_time_u_t_c'],
-      )!,
+      dateTimeUTC: $TodoEntriesTable.$converterdateTimeUTC.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}date_time_u_t_c'],
+        )!,
+      ),
       dateTimeLocal: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}date_time_local'],
@@ -654,6 +629,11 @@ class $TodoEntriesTable extends TodoEntries
   $TodoEntriesTable createAlias(String alias) {
     return $TodoEntriesTable(attachedDatabase, alias);
   }
+
+  static TypeConverter<DateTime, DateTime> $converterlastModified =
+      const UtcDateTimeConverter();
+  static TypeConverter<DateTime, DateTime> $converterdateTimeUTC =
+      const UtcDateTimeConverter();
 }
 
 class TodoEntryDb extends DataClass implements Insertable<TodoEntryDb> {
@@ -680,12 +660,20 @@ class TodoEntryDb extends DataClass implements Insertable<TodoEntryDb> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['is_deleted'] = Variable<bool>(isDeleted);
-    map['last_modified'] = Variable<DateTime>(lastModified);
+    {
+      map['last_modified'] = Variable<DateTime>(
+        $TodoEntriesTable.$converterlastModified.toSql(lastModified),
+      );
+    }
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
-    map['date_time_u_t_c'] = Variable<DateTime>(dateTimeUTC);
+    {
+      map['date_time_u_t_c'] = Variable<DateTime>(
+        $TodoEntriesTable.$converterdateTimeUTC.toSql(dateTimeUTC),
+      );
+    }
     map['date_time_local'] = Variable<DateTime>(dateTimeLocal);
     map['todo_rule'] = Variable<String>(todoRule);
     return map;
@@ -910,7 +898,9 @@ class TodoEntriesCompanion extends UpdateCompanion<TodoEntryDb> {
       map['is_deleted'] = Variable<bool>(isDeleted.value);
     }
     if (lastModified.present) {
-      map['last_modified'] = Variable<DateTime>(lastModified.value);
+      map['last_modified'] = Variable<DateTime>(
+        $TodoEntriesTable.$converterlastModified.toSql(lastModified.value),
+      );
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -919,7 +909,9 @@ class TodoEntriesCompanion extends UpdateCompanion<TodoEntryDb> {
       map['notes'] = Variable<String>(notes.value);
     }
     if (dateTimeUTC.present) {
-      map['date_time_u_t_c'] = Variable<DateTime>(dateTimeUTC.value);
+      map['date_time_u_t_c'] = Variable<DateTime>(
+        $TodoEntriesTable.$converterdateTimeUTC.toSql(dateTimeUTC.value),
+      );
     }
     if (dateTimeLocal.present) {
       map['date_time_local'] = Variable<DateTime>(dateTimeLocal.value);
@@ -979,17 +971,15 @@ class $BikesTable extends Bikes with TableInfo<$BikesTable, BikeDb> {
     ),
     defaultValue: const Constant(false),
   );
-  static const VerificationMeta _lastModifiedMeta = const VerificationMeta(
-    'lastModified',
-  );
   @override
-  late final GeneratedColumn<DateTime> lastModified = GeneratedColumn<DateTime>(
-    'last_modified',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
+      GeneratedColumn<DateTime>(
+        'last_modified',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($BikesTable.$converterlastModified);
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -1074,17 +1064,6 @@ class $BikesTable extends Bikes with TableInfo<$BikesTable, BikeDb> {
         isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
       );
     }
-    if (data.containsKey('last_modified')) {
-      context.handle(
-        _lastModifiedMeta,
-        lastModified.isAcceptableOrUnknown(
-          data['last_modified']!,
-          _lastModifiedMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_lastModifiedMeta);
-    }
     if (data.containsKey('name')) {
       context.handle(
         _nameMeta,
@@ -1134,10 +1113,12 @@ class $BikesTable extends Bikes with TableInfo<$BikesTable, BikeDb> {
         DriftSqlType.bool,
         data['${effectivePrefix}is_deleted'],
       )!,
-      lastModified: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}last_modified'],
-      )!,
+      lastModified: $BikesTable.$converterlastModified.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_modified'],
+        )!,
+      ),
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
@@ -1165,6 +1146,9 @@ class $BikesTable extends Bikes with TableInfo<$BikesTable, BikeDb> {
   $BikesTable createAlias(String alias) {
     return $BikesTable(attachedDatabase, alias);
   }
+
+  static TypeConverter<DateTime, DateTime> $converterlastModified =
+      const UtcDateTimeConverter();
 }
 
 class BikeDb extends DataClass implements Insertable<BikeDb> {
@@ -1191,7 +1175,11 @@ class BikeDb extends DataClass implements Insertable<BikeDb> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['is_deleted'] = Variable<bool>(isDeleted);
-    map['last_modified'] = Variable<DateTime>(lastModified);
+    {
+      map['last_modified'] = Variable<DateTime>(
+        $BikesTable.$converterlastModified.toSql(lastModified),
+      );
+    }
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
@@ -1426,7 +1414,9 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
       map['is_deleted'] = Variable<bool>(isDeleted.value);
     }
     if (lastModified.present) {
-      map['last_modified'] = Variable<DateTime>(lastModified.value);
+      map['last_modified'] = Variable<DateTime>(
+        $BikesTable.$converterlastModified.toSql(lastModified.value),
+      );
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -1496,17 +1486,15 @@ class $ComponentsTable extends Components
     ),
     defaultValue: const Constant(false),
   );
-  static const VerificationMeta _lastModifiedMeta = const VerificationMeta(
-    'lastModified',
-  );
   @override
-  late final GeneratedColumn<DateTime> lastModified = GeneratedColumn<DateTime>(
-    'last_modified',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
+      GeneratedColumn<DateTime>(
+        'last_modified',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($ComponentsTable.$converterlastModified);
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -1579,17 +1567,6 @@ class $ComponentsTable extends Components
         isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
       );
     }
-    if (data.containsKey('last_modified')) {
-      context.handle(
-        _lastModifiedMeta,
-        lastModified.isAcceptableOrUnknown(
-          data['last_modified']!,
-          _lastModifiedMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_lastModifiedMeta);
-    }
     if (data.containsKey('name')) {
       context.handle(
         _nameMeta,
@@ -1627,10 +1604,12 @@ class $ComponentsTable extends Components
         DriftSqlType.bool,
         data['${effectivePrefix}is_deleted'],
       )!,
-      lastModified: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}last_modified'],
-      )!,
+      lastModified: $ComponentsTable.$converterlastModified.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_modified'],
+        )!,
+      ),
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
@@ -1657,6 +1636,8 @@ class $ComponentsTable extends Components
     return $ComponentsTable(attachedDatabase, alias);
   }
 
+  static TypeConverter<DateTime, DateTime> $converterlastModified =
+      const UtcDateTimeConverter();
   static JsonTypeConverter2<ComponentType, String, String>
   $convertercomponentType = const EnumNameConverter(ComponentType.values);
 }
@@ -1683,7 +1664,11 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['is_deleted'] = Variable<bool>(isDeleted);
-    map['last_modified'] = Variable<DateTime>(lastModified);
+    {
+      map['last_modified'] = Variable<DateTime>(
+        $ComponentsTable.$converterlastModified.toSql(lastModified),
+      );
+    }
     map['name'] = Variable<String>(name);
     {
       map['component_type'] = Variable<String>(
@@ -1902,7 +1887,9 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
       map['is_deleted'] = Variable<bool>(isDeleted.value);
     }
     if (lastModified.present) {
-      map['last_modified'] = Variable<DateTime>(lastModified.value);
+      map['last_modified'] = Variable<DateTime>(
+        $ComponentsTable.$converterlastModified.toSql(lastModified.value),
+      );
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -1969,17 +1956,15 @@ class $PersonsTable extends Persons with TableInfo<$PersonsTable, PersonDb> {
     ),
     defaultValue: const Constant(false),
   );
-  static const VerificationMeta _lastModifiedMeta = const VerificationMeta(
-    'lastModified',
-  );
   @override
-  late final GeneratedColumn<DateTime> lastModified = GeneratedColumn<DateTime>(
-    'last_modified',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
+      GeneratedColumn<DateTime>(
+        'last_modified',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($PersonsTable.$converterlastModified);
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -2054,17 +2039,6 @@ class $PersonsTable extends Persons with TableInfo<$PersonsTable, PersonDb> {
         isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
       );
     }
-    if (data.containsKey('last_modified')) {
-      context.handle(
-        _lastModifiedMeta,
-        lastModified.isAcceptableOrUnknown(
-          data['last_modified']!,
-          _lastModifiedMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_lastModifiedMeta);
-    }
     if (data.containsKey('name')) {
       context.handle(
         _nameMeta,
@@ -2111,10 +2085,12 @@ class $PersonsTable extends Persons with TableInfo<$PersonsTable, PersonDb> {
         DriftSqlType.bool,
         data['${effectivePrefix}is_deleted'],
       )!,
-      lastModified: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}last_modified'],
-      )!,
+      lastModified: $PersonsTable.$converterlastModified.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_modified'],
+        )!,
+      ),
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
@@ -2138,6 +2114,9 @@ class $PersonsTable extends Persons with TableInfo<$PersonsTable, PersonDb> {
   $PersonsTable createAlias(String alias) {
     return $PersonsTable(attachedDatabase, alias);
   }
+
+  static TypeConverter<DateTime, DateTime> $converterlastModified =
+      const UtcDateTimeConverter();
 }
 
 class PersonDb extends DataClass implements Insertable<PersonDb> {
@@ -2162,7 +2141,11 @@ class PersonDb extends DataClass implements Insertable<PersonDb> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['is_deleted'] = Variable<bool>(isDeleted);
-    map['last_modified'] = Variable<DateTime>(lastModified);
+    {
+      map['last_modified'] = Variable<DateTime>(
+        $PersonsTable.$converterlastModified.toSql(lastModified),
+      );
+    }
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
@@ -2378,7 +2361,9 @@ class PersonsCompanion extends UpdateCompanion<PersonDb> {
       map['is_deleted'] = Variable<bool>(isDeleted.value);
     }
     if (lastModified.present) {
-      map['last_modified'] = Variable<DateTime>(lastModified.value);
+      map['last_modified'] = Variable<DateTime>(
+        $PersonsTable.$converterlastModified.toSql(lastModified.value),
+      );
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -2443,17 +2428,15 @@ class $RatingsTable extends Ratings with TableInfo<$RatingsTable, RatingDb> {
     ),
     defaultValue: const Constant(false),
   );
-  static const VerificationMeta _lastModifiedMeta = const VerificationMeta(
-    'lastModified',
-  );
   @override
-  late final GeneratedColumn<DateTime> lastModified = GeneratedColumn<DateTime>(
-    'last_modified',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
+      GeneratedColumn<DateTime>(
+        'last_modified',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($RatingsTable.$converterlastModified);
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -2536,17 +2519,6 @@ class $RatingsTable extends Ratings with TableInfo<$RatingsTable, RatingDb> {
         isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
       );
     }
-    if (data.containsKey('last_modified')) {
-      context.handle(
-        _lastModifiedMeta,
-        lastModified.isAcceptableOrUnknown(
-          data['last_modified']!,
-          _lastModifiedMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_lastModifiedMeta);
-    }
     if (data.containsKey('name')) {
       context.handle(
         _nameMeta,
@@ -2590,10 +2562,12 @@ class $RatingsTable extends Ratings with TableInfo<$RatingsTable, RatingDb> {
         DriftSqlType.bool,
         data['${effectivePrefix}is_deleted'],
       )!,
-      lastModified: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}last_modified'],
-      )!,
+      lastModified: $RatingsTable.$converterlastModified.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_modified'],
+        )!,
+      ),
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
@@ -2624,6 +2598,8 @@ class $RatingsTable extends Ratings with TableInfo<$RatingsTable, RatingDb> {
     return $RatingsTable(attachedDatabase, alias);
   }
 
+  static TypeConverter<DateTime, DateTime> $converterlastModified =
+      const UtcDateTimeConverter();
   static JsonTypeConverter2<FilterType, String, String> $converterfilterType =
       const EnumNameConverter<FilterType>(FilterType.values);
 }
@@ -2652,7 +2628,11 @@ class RatingDb extends DataClass implements Insertable<RatingDb> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['is_deleted'] = Variable<bool>(isDeleted);
-    map['last_modified'] = Variable<DateTime>(lastModified);
+    {
+      map['last_modified'] = Variable<DateTime>(
+        $RatingsTable.$converterlastModified.toSql(lastModified),
+      );
+    }
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
@@ -2892,7 +2872,9 @@ class RatingsCompanion extends UpdateCompanion<RatingDb> {
       map['is_deleted'] = Variable<bool>(isDeleted.value);
     }
     if (lastModified.present) {
-      map['last_modified'] = Variable<DateTime>(lastModified.value);
+      map['last_modified'] = Variable<DateTime>(
+        $RatingsTable.$converterlastModified.toSql(lastModified.value),
+      );
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -3656,17 +3638,15 @@ class $InstallationsTable extends Installations
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _dateTimeUTCMeta = const VerificationMeta(
-    'dateTimeUTC',
-  );
   @override
-  late final GeneratedColumn<DateTime> dateTimeUTC = GeneratedColumn<DateTime>(
-    'date_time_u_t_c',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> dateTimeUTC =
+      GeneratedColumn<DateTime>(
+        'date_time_u_t_c',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($InstallationsTable.$converterdateTimeUTC);
   static const VerificationMeta _dateTimeLocalMeta = const VerificationMeta(
     'dateTimeLocal',
   );
@@ -3721,17 +3701,6 @@ class $InstallationsTable extends Installations
         parent.isAcceptableOrUnknown(data['parent']!, _parentMeta),
       );
     }
-    if (data.containsKey('date_time_u_t_c')) {
-      context.handle(
-        _dateTimeUTCMeta,
-        dateTimeUTC.isAcceptableOrUnknown(
-          data['date_time_u_t_c']!,
-          _dateTimeUTCMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_dateTimeUTCMeta);
-    }
     if (data.containsKey('date_time_local')) {
       context.handle(
         _dateTimeLocalMeta,
@@ -3764,10 +3733,12 @@ class $InstallationsTable extends Installations
         DriftSqlType.string,
         data['${effectivePrefix}parent'],
       ),
-      dateTimeUTC: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}date_time_u_t_c'],
-      )!,
+      dateTimeUTC: $InstallationsTable.$converterdateTimeUTC.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}date_time_u_t_c'],
+        )!,
+      ),
       dateTimeLocal: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}date_time_local'],
@@ -3779,6 +3750,9 @@ class $InstallationsTable extends Installations
   $InstallationsTable createAlias(String alias) {
     return $InstallationsTable(attachedDatabase, alias);
   }
+
+  static TypeConverter<DateTime, DateTime> $converterdateTimeUTC =
+      const UtcDateTimeConverter();
 }
 
 class InstallationDb extends DataClass implements Insertable<InstallationDb> {
@@ -3802,7 +3776,11 @@ class InstallationDb extends DataClass implements Insertable<InstallationDb> {
     if (!nullToAbsent || parent != null) {
       map['parent'] = Variable<String>(parent);
     }
-    map['date_time_u_t_c'] = Variable<DateTime>(dateTimeUTC);
+    {
+      map['date_time_u_t_c'] = Variable<DateTime>(
+        $InstallationsTable.$converterdateTimeUTC.toSql(dateTimeUTC),
+      );
+    }
     map['date_time_local'] = Variable<DateTime>(dateTimeLocal);
     return map;
   }
@@ -3974,7 +3952,9 @@ class InstallationsCompanion extends UpdateCompanion<InstallationDb> {
       map['parent'] = Variable<String>(parent.value);
     }
     if (dateTimeUTC.present) {
-      map['date_time_u_t_c'] = Variable<DateTime>(dateTimeUTC.value);
+      map['date_time_u_t_c'] = Variable<DateTime>(
+        $InstallationsTable.$converterdateTimeUTC.toSql(dateTimeUTC.value),
+      );
     }
     if (dateTimeLocal.present) {
       map['date_time_local'] = Variable<DateTime>(dateTimeLocal.value);
@@ -4054,17 +4034,15 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
     ),
     defaultValue: const Constant(false),
   );
-  static const VerificationMeta _lastModifiedMeta = const VerificationMeta(
-    'lastModified',
-  );
   @override
-  late final GeneratedColumn<DateTime> lastModified = GeneratedColumn<DateTime>(
-    'last_modified',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
+      GeneratedColumn<DateTime>(
+        'last_modified',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($SetupsTable.$converterlastModified);
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -4074,17 +4052,15 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _datetimeMeta = const VerificationMeta(
-    'datetime',
-  );
   @override
-  late final GeneratedColumn<DateTime> datetime = GeneratedColumn<DateTime>(
-    'datetime',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> datetime =
+      GeneratedColumn<DateTime>(
+        'datetime',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($SetupsTable.$converterdatetime);
   static const VerificationMeta _datetimeLocalMeta = const VerificationMeta(
     'datetimeLocal',
   );
@@ -4195,17 +4171,6 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
         isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
       );
     }
-    if (data.containsKey('last_modified')) {
-      context.handle(
-        _lastModifiedMeta,
-        lastModified.isAcceptableOrUnknown(
-          data['last_modified']!,
-          _lastModifiedMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_lastModifiedMeta);
-    }
     if (data.containsKey('name')) {
       context.handle(
         _nameMeta,
@@ -4213,14 +4178,6 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
       );
     } else if (isInserting) {
       context.missing(_nameMeta);
-    }
-    if (data.containsKey('datetime')) {
-      context.handle(
-        _datetimeMeta,
-        datetime.isAcceptableOrUnknown(data['datetime']!, _datetimeMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_datetimeMeta);
     }
     if (data.containsKey('datetime_local')) {
       context.handle(
@@ -4264,18 +4221,22 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
         DriftSqlType.bool,
         data['${effectivePrefix}is_deleted'],
       )!,
-      lastModified: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}last_modified'],
-      )!,
+      lastModified: $SetupsTable.$converterlastModified.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_modified'],
+        )!,
+      ),
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
-      datetime: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}datetime'],
-      )!,
+      datetime: $SetupsTable.$converterdatetime.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}datetime'],
+        )!,
+      ),
       datetimeLocal: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}datetime_local'],
@@ -4316,6 +4277,10 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
     return $SetupsTable(attachedDatabase, alias);
   }
 
+  static TypeConverter<DateTime, DateTime> $converterlastModified =
+      const UtcDateTimeConverter();
+  static TypeConverter<DateTime, DateTime> $converterdatetime =
+      const UtcDateTimeConverter();
   static TypeConverter<Set<String>, String> $convertertags =
       const StringListConverter();
   static TypeConverter<LocationData, String> $converterposition =
@@ -4370,9 +4335,17 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       map['person_id'] = Variable<String>(personId);
     }
     map['is_deleted'] = Variable<bool>(isDeleted);
-    map['last_modified'] = Variable<DateTime>(lastModified);
+    {
+      map['last_modified'] = Variable<DateTime>(
+        $SetupsTable.$converterlastModified.toSql(lastModified),
+      );
+    }
     map['name'] = Variable<String>(name);
-    map['datetime'] = Variable<DateTime>(datetime);
+    {
+      map['datetime'] = Variable<DateTime>(
+        $SetupsTable.$converterdatetime.toSql(datetime),
+      );
+    }
     map['datetime_local'] = Variable<DateTime>(datetimeLocal);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
@@ -4710,13 +4683,17 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
       map['is_deleted'] = Variable<bool>(isDeleted.value);
     }
     if (lastModified.present) {
-      map['last_modified'] = Variable<DateTime>(lastModified.value);
+      map['last_modified'] = Variable<DateTime>(
+        $SetupsTable.$converterlastModified.toSql(lastModified.value),
+      );
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
     if (datetime.present) {
-      map['datetime'] = Variable<DateTime>(datetime.value);
+      map['datetime'] = Variable<DateTime>(
+        $SetupsTable.$converterdatetime.toSql(datetime.value),
+      );
     }
     if (datetimeLocal.present) {
       map['datetime_local'] = Variable<DateTime>(datetimeLocal.value);
@@ -5069,17 +5046,15 @@ class $StravaActivitiesTable extends StravaActivities
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _lastModifiedMeta = const VerificationMeta(
-    'lastModified',
-  );
   @override
-  late final GeneratedColumn<DateTime> lastModified = GeneratedColumn<DateTime>(
-    'last_modified',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
+      GeneratedColumn<DateTime>(
+        'last_modified',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($StravaActivitiesTable.$converterlastModified);
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -5109,17 +5084,15 @@ class $StravaActivitiesTable extends StravaActivities
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       ).withConverter<SportType>($StravaActivitiesTable.$convertersportType);
-  static const VerificationMeta _startDateMeta = const VerificationMeta(
-    'startDate',
-  );
   @override
-  late final GeneratedColumn<DateTime> startDate = GeneratedColumn<DateTime>(
-    'start_date',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> startDate =
+      GeneratedColumn<DateTime>(
+        'start_date',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($StravaActivitiesTable.$converterstartDate);
   static const VerificationMeta _startDateLocalMeta = const VerificationMeta(
     'startDateLocal',
   );
@@ -5239,17 +5212,6 @@ class $StravaActivitiesTable extends StravaActivities
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('last_modified')) {
-      context.handle(
-        _lastModifiedMeta,
-        lastModified.isAcceptableOrUnknown(
-          data['last_modified']!,
-          _lastModifiedMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_lastModifiedMeta);
-    }
     if (data.containsKey('name')) {
       context.handle(
         _nameMeta,
@@ -5265,14 +5227,6 @@ class $StravaActivitiesTable extends StravaActivities
       );
     } else if (isInserting) {
       context.missing(_athleteMeta);
-    }
-    if (data.containsKey('start_date')) {
-      context.handle(
-        _startDateMeta,
-        startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_startDateMeta);
     }
     if (data.containsKey('start_date_local')) {
       context.handle(
@@ -5350,10 +5304,12 @@ class $StravaActivitiesTable extends StravaActivities
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
-      lastModified: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}last_modified'],
-      )!,
+      lastModified: $StravaActivitiesTable.$converterlastModified.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_modified'],
+        )!,
+      ),
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
@@ -5368,10 +5324,12 @@ class $StravaActivitiesTable extends StravaActivities
           data['${effectivePrefix}sport_type'],
         )!,
       ),
-      startDate: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}start_date'],
-      )!,
+      startDate: $StravaActivitiesTable.$converterstartDate.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}start_date'],
+        )!,
+      ),
       startDateLocal: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}start_date_local'],
@@ -5412,8 +5370,12 @@ class $StravaActivitiesTable extends StravaActivities
     return $StravaActivitiesTable(attachedDatabase, alias);
   }
 
+  static TypeConverter<DateTime, DateTime> $converterlastModified =
+      const UtcDateTimeConverter();
   static JsonTypeConverter2<SportType, String, String> $convertersportType =
       const EnumNameConverter<SportType>(SportType.values);
+  static TypeConverter<DateTime, DateTime> $converterstartDate =
+      const UtcDateTimeConverter();
 }
 
 class StravaActivityDb extends DataClass
@@ -5452,7 +5414,11 @@ class StravaActivityDb extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['last_modified'] = Variable<DateTime>(lastModified);
+    {
+      map['last_modified'] = Variable<DateTime>(
+        $StravaActivitiesTable.$converterlastModified.toSql(lastModified),
+      );
+    }
     map['name'] = Variable<String>(name);
     map['athlete'] = Variable<int>(athlete);
     {
@@ -5460,7 +5426,11 @@ class StravaActivityDb extends DataClass
         $StravaActivitiesTable.$convertersportType.toSql(sportType),
       );
     }
-    map['start_date'] = Variable<DateTime>(startDate);
+    {
+      map['start_date'] = Variable<DateTime>(
+        $StravaActivitiesTable.$converterstartDate.toSql(startDate),
+      );
+    }
     map['start_date_local'] = Variable<DateTime>(startDateLocal);
     if (!nullToAbsent || gearId != null) {
       map['gear_id'] = Variable<String>(gearId);
@@ -5810,7 +5780,9 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
       map['id'] = Variable<int>(id.value);
     }
     if (lastModified.present) {
-      map['last_modified'] = Variable<DateTime>(lastModified.value);
+      map['last_modified'] = Variable<DateTime>(
+        $StravaActivitiesTable.$converterlastModified.toSql(lastModified.value),
+      );
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -5824,7 +5796,9 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
       );
     }
     if (startDate.present) {
-      map['start_date'] = Variable<DateTime>(startDate.value);
+      map['start_date'] = Variable<DateTime>(
+        $StravaActivitiesTable.$converterstartDate.toSql(startDate.value),
+      );
     }
     if (startDateLocal.present) {
       map['start_date_local'] = Variable<DateTime>(startDateLocal.value);
@@ -5890,17 +5864,15 @@ class $StravaAthletesTable extends StravaAthletes
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _lastModifiedMeta = const VerificationMeta(
-    'lastModified',
-  );
   @override
-  late final GeneratedColumn<DateTime> lastModified = GeneratedColumn<DateTime>(
-    'last_modified',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
+      GeneratedColumn<DateTime>(
+        'last_modified',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($StravaAthletesTable.$converterlastModified);
   static const VerificationMeta _firstnameMeta = const VerificationMeta(
     'firstname',
   );
@@ -5967,17 +5939,6 @@ class $StravaAthletesTable extends StravaAthletes
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('last_modified')) {
-      context.handle(
-        _lastModifiedMeta,
-        lastModified.isAcceptableOrUnknown(
-          data['last_modified']!,
-          _lastModifiedMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_lastModifiedMeta);
-    }
     if (data.containsKey('firstname')) {
       context.handle(
         _firstnameMeta,
@@ -6009,10 +5970,12 @@ class $StravaAthletesTable extends StravaAthletes
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
-      lastModified: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}last_modified'],
-      )!,
+      lastModified: $StravaAthletesTable.$converterlastModified.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_modified'],
+        )!,
+      ),
       firstname: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}firstname'],
@@ -6039,6 +6002,8 @@ class $StravaAthletesTable extends StravaAthletes
     return $StravaAthletesTable(attachedDatabase, alias);
   }
 
+  static TypeConverter<DateTime, DateTime> $converterlastModified =
+      const UtcDateTimeConverter();
   static TypeConverter<Set<String>, String> $convertergears =
       const StringListConverter();
 }
@@ -6062,7 +6027,11 @@ class StravaAthleteDb extends DataClass implements Insertable<StravaAthleteDb> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['last_modified'] = Variable<DateTime>(lastModified);
+    {
+      map['last_modified'] = Variable<DateTime>(
+        $StravaAthletesTable.$converterlastModified.toSql(lastModified),
+      );
+    }
     if (!nullToAbsent || firstname != null) {
       map['firstname'] = Variable<String>(firstname);
     }
@@ -6247,7 +6216,9 @@ class StravaAthletesCompanion extends UpdateCompanion<StravaAthleteDb> {
       map['id'] = Variable<int>(id.value);
     }
     if (lastModified.present) {
-      map['last_modified'] = Variable<DateTime>(lastModified.value);
+      map['last_modified'] = Variable<DateTime>(
+        $StravaAthletesTable.$converterlastModified.toSql(lastModified.value),
+      );
     }
     if (firstname.present) {
       map['firstname'] = Variable<String>(firstname.value);
@@ -6295,17 +6266,15 @@ class $StravaGearsTable extends StravaGears
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _lastModifiedMeta = const VerificationMeta(
-    'lastModified',
-  );
   @override
-  late final GeneratedColumn<DateTime> lastModified = GeneratedColumn<DateTime>(
-    'last_modified',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
+      GeneratedColumn<DateTime>(
+        'last_modified',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($StravaGearsTable.$converterlastModified);
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -6334,17 +6303,6 @@ class $StravaGearsTable extends StravaGears
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('last_modified')) {
-      context.handle(
-        _lastModifiedMeta,
-        lastModified.isAcceptableOrUnknown(
-          data['last_modified']!,
-          _lastModifiedMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_lastModifiedMeta);
-    }
     if (data.containsKey('name')) {
       context.handle(
         _nameMeta,
@@ -6366,10 +6324,12 @@ class $StravaGearsTable extends StravaGears
         DriftSqlType.string,
         data['${effectivePrefix}id'],
       )!,
-      lastModified: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}last_modified'],
-      )!,
+      lastModified: $StravaGearsTable.$converterlastModified.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_modified'],
+        )!,
+      ),
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
@@ -6381,6 +6341,9 @@ class $StravaGearsTable extends StravaGears
   $StravaGearsTable createAlias(String alias) {
     return $StravaGearsTable(attachedDatabase, alias);
   }
+
+  static TypeConverter<DateTime, DateTime> $converterlastModified =
+      const UtcDateTimeConverter();
 }
 
 class StravaGearDb extends DataClass implements Insertable<StravaGearDb> {
@@ -6396,7 +6359,11 @@ class StravaGearDb extends DataClass implements Insertable<StravaGearDb> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['last_modified'] = Variable<DateTime>(lastModified);
+    {
+      map['last_modified'] = Variable<DateTime>(
+        $StravaGearsTable.$converterlastModified.toSql(lastModified),
+      );
+    }
     map['name'] = Variable<String>(name);
     return map;
   }
@@ -6521,7 +6488,9 @@ class StravaGearsCompanion extends UpdateCompanion<StravaGearDb> {
       map['id'] = Variable<String>(id.value);
     }
     if (lastModified.present) {
-      map['last_modified'] = Variable<DateTime>(lastModified.value);
+      map['last_modified'] = Variable<DateTime>(
+        $StravaGearsTable.$converterlastModified.toSql(lastModified.value),
+      );
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -6720,9 +6689,10 @@ class $$TodoRulesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get lastModified => $composableBuilder(
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get lastModified => $composableBuilder(
     column: $table.lastModified,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<String> get name => $composableBuilder(
@@ -6822,10 +6792,11 @@ class $$TodoRulesTableAnnotationComposer
   GeneratedColumn<bool> get isDeleted =>
       $composableBuilder(column: $table.isDeleted, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get lastModified => $composableBuilder(
-    column: $table.lastModified,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
+      $composableBuilder(
+        column: $table.lastModified,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
@@ -7048,9 +7019,10 @@ class $$TodoEntriesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get lastModified => $composableBuilder(
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get lastModified => $composableBuilder(
     column: $table.lastModified,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<String> get name => $composableBuilder(
@@ -7063,9 +7035,10 @@ class $$TodoEntriesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get dateTimeUTC => $composableBuilder(
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get dateTimeUTC => $composableBuilder(
     column: $table.dateTimeUTC,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<DateTime> get dateTimeLocal => $composableBuilder(
@@ -7180,10 +7153,11 @@ class $$TodoEntriesTableAnnotationComposer
   GeneratedColumn<bool> get isDeleted =>
       $composableBuilder(column: $table.isDeleted, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get lastModified => $composableBuilder(
-    column: $table.lastModified,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
+      $composableBuilder(
+        column: $table.lastModified,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
@@ -7191,10 +7165,11 @@ class $$TodoEntriesTableAnnotationComposer
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get dateTimeUTC => $composableBuilder(
-    column: $table.dateTimeUTC,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get dateTimeUTC =>
+      $composableBuilder(
+        column: $table.dateTimeUTC,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<DateTime> get dateTimeLocal => $composableBuilder(
     column: $table.dateTimeLocal,
@@ -7429,9 +7404,10 @@ class $$BikesTableFilterComposer extends Composer<_$AppDatabase, $BikesTable> {
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get lastModified => $composableBuilder(
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get lastModified => $composableBuilder(
     column: $table.lastModified,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<String> get name => $composableBuilder(
@@ -7550,10 +7526,11 @@ class $$BikesTableAnnotationComposer
   GeneratedColumn<bool> get isDeleted =>
       $composableBuilder(column: $table.isDeleted, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get lastModified => $composableBuilder(
-    column: $table.lastModified,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
+      $composableBuilder(
+        column: $table.lastModified,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
@@ -7806,9 +7783,10 @@ class $$ComponentsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get lastModified => $composableBuilder(
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get lastModified => $composableBuilder(
     column: $table.lastModified,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<String> get name => $composableBuilder(
@@ -7943,10 +7921,11 @@ class $$ComponentsTableAnnotationComposer
   GeneratedColumn<bool> get isDeleted =>
       $composableBuilder(column: $table.isDeleted, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get lastModified => $composableBuilder(
-    column: $table.lastModified,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
+      $composableBuilder(
+        column: $table.lastModified,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
@@ -8249,9 +8228,10 @@ class $$PersonsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get lastModified => $composableBuilder(
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get lastModified => $composableBuilder(
     column: $table.lastModified,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<String> get name => $composableBuilder(
@@ -8385,10 +8365,11 @@ class $$PersonsTableAnnotationComposer
   GeneratedColumn<bool> get isDeleted =>
       $composableBuilder(column: $table.isDeleted, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get lastModified => $composableBuilder(
-    column: $table.lastModified,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
+      $composableBuilder(
+        column: $table.lastModified,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
@@ -8673,9 +8654,10 @@ class $$RatingsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get lastModified => $composableBuilder(
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get lastModified => $composableBuilder(
     column: $table.lastModified,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<String> get name => $composableBuilder(
@@ -8795,10 +8777,11 @@ class $$RatingsTableAnnotationComposer
   GeneratedColumn<bool> get isDeleted =>
       $composableBuilder(column: $table.isDeleted, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get lastModified => $composableBuilder(
-    column: $table.lastModified,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
+      $composableBuilder(
+        column: $table.lastModified,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
@@ -9778,9 +9761,10 @@ class $$InstallationsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get dateTimeUTC => $composableBuilder(
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get dateTimeUTC => $composableBuilder(
     column: $table.dateTimeUTC,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<DateTime> get dateTimeLocal => $composableBuilder(
@@ -9880,10 +9864,11 @@ class $$InstallationsTableAnnotationComposer
   GeneratedColumn<String> get parent =>
       $composableBuilder(column: $table.parent, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get dateTimeUTC => $composableBuilder(
-    column: $table.dateTimeUTC,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get dateTimeUTC =>
+      $composableBuilder(
+        column: $table.dateTimeUTC,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<DateTime> get dateTimeLocal => $composableBuilder(
     column: $table.dateTimeLocal,
@@ -10160,9 +10145,10 @@ class $$SetupsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get lastModified => $composableBuilder(
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get lastModified => $composableBuilder(
     column: $table.lastModified,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<String> get name => $composableBuilder(
@@ -10170,10 +10156,11 @@ class $$SetupsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get datetime => $composableBuilder(
-    column: $table.datetime,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime> get datetime =>
+      $composableBuilder(
+        column: $table.datetime,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
   ColumnFilters<DateTime> get datetimeLocal => $composableBuilder(
     column: $table.datetimeLocal,
@@ -10408,15 +10395,16 @@ class $$SetupsTableAnnotationComposer
   GeneratedColumn<bool> get isDeleted =>
       $composableBuilder(column: $table.isDeleted, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get lastModified => $composableBuilder(
-    column: $table.lastModified,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
+      $composableBuilder(
+        column: $table.lastModified,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get datetime =>
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get datetime =>
       $composableBuilder(column: $table.datetime, builder: (column) => column);
 
   GeneratedColumn<DateTime> get datetimeLocal => $composableBuilder(
@@ -11161,9 +11149,10 @@ class $$StravaActivitiesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get lastModified => $composableBuilder(
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get lastModified => $composableBuilder(
     column: $table.lastModified,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<String> get name => $composableBuilder(
@@ -11182,10 +11171,11 @@ class $$StravaActivitiesTableFilterComposer
         builder: (column) => ColumnWithTypeConverterFilters(column),
       );
 
-  ColumnFilters<DateTime> get startDate => $composableBuilder(
-    column: $table.startDate,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime> get startDate =>
+      $composableBuilder(
+        column: $table.startDate,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
   ColumnFilters<DateTime> get startDateLocal => $composableBuilder(
     column: $table.startDateLocal,
@@ -11320,10 +11310,11 @@ class $$StravaActivitiesTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get lastModified => $composableBuilder(
-    column: $table.lastModified,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
+      $composableBuilder(
+        column: $table.lastModified,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
@@ -11334,7 +11325,7 @@ class $$StravaActivitiesTableAnnotationComposer
   GeneratedColumnWithTypeConverter<SportType, String> get sportType =>
       $composableBuilder(column: $table.sportType, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get startDate =>
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get startDate =>
       $composableBuilder(column: $table.startDate, builder: (column) => column);
 
   GeneratedColumn<DateTime> get startDateLocal => $composableBuilder(
@@ -11527,9 +11518,10 @@ class $$StravaAthletesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get lastModified => $composableBuilder(
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get lastModified => $composableBuilder(
     column: $table.lastModified,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<String> get firstname => $composableBuilder(
@@ -11606,10 +11598,11 @@ class $$StravaAthletesTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get lastModified => $composableBuilder(
-    column: $table.lastModified,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
+      $composableBuilder(
+        column: $table.lastModified,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<String> get firstname =>
       $composableBuilder(column: $table.firstname, builder: (column) => column);
@@ -11745,9 +11738,10 @@ class $$StravaGearsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get lastModified => $composableBuilder(
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get lastModified => $composableBuilder(
     column: $table.lastModified,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<String> get name => $composableBuilder(
@@ -11793,10 +11787,11 @@ class $$StravaGearsTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get lastModified => $composableBuilder(
-    column: $table.lastModified,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
+      $composableBuilder(
+        column: $table.lastModified,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);

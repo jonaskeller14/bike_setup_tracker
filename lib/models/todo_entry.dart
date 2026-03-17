@@ -16,13 +16,14 @@ class TodoEntry {
     DateTime? lastModified,
     required this.name,
     this.notes,
-    required this.dateTimeUTC,
+    required DateTime dateTimeUTC,
     required this.dateTimeLocal,
     required this.todoRule,
   })
     : id = id ?? const Uuid().v4(),
       isDeleted = isDeleted ?? false,
-      lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
+      lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc(),
+      dateTimeUTC = dateTimeUTC.toUtc();
   
   Map<String, dynamic> toJson() => {
     'id': id,

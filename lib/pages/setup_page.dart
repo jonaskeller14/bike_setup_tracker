@@ -136,7 +136,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _selectedDateTimeLocal = widget.setup?.datetimeLocal ?? widget.initialDateTimeLocal ?? now;
     _initialDateTimeLocal = _selectedDateTimeLocal;
 
-    _selectedDateTimeUtc = widget.setup?.datetime ?? widget.initialDateTimeUtc ?? _selectedDateTimeLocal.toUtc();
+    _selectedDateTimeUtc = widget.setup?.datetime.copyWith(isUtc: true) ?? widget.initialDateTimeUtc?.copyWith(isUtc: true) ?? _selectedDateTimeLocal.toUtc();
     _initialDateTimeUtc = _selectedDateTimeUtc;
     
     final appRepository = context.read<AppRepository>();
@@ -380,7 +380,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         _person != _initialPerson ||
 
         !equality.equals(_bikeAdjustmentValues, _initialBikeAdjustmentValues) ||
-        !equality.equals(_personAdjustmentValues, _initialRatingAdjustmentValues) ||
+        !equality.equals(_personAdjustmentValues, _initialPersonAdjustmentValues) ||
         !equality.equals(_ratingAdjustmentValues, _initialRatingAdjustmentValues);
 
     if (_formHasChanges != hasChanges) {
@@ -1038,7 +1038,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                             leading: Icon(bikeComponent.componentType.getIconData()),
                                           ),
                                           AdjustmentSetList(
-                                            key: ValueKey([bikeComponent.id, _previousBikeSetup, _bikeAdjustmentValues.values]),
+                                            key: ValueKey(Object.hash(bikeComponent.id, _previousBikeSetup, Object.hashAll(_bikeAdjustmentValues.values))),
                                             adjustments: bikeComponent.adjustments,
                                             initialAdjustmentValues: _previousBikeAdjustmentValues,
                                             adjustmentValues: _bikeAdjustmentValues,
@@ -1132,7 +1132,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                             leading: const Icon(Person.iconData),
                                           ),
                                           AdjustmentSetList(
-                                            key: ValueKey([_person, _previousPersonSetup, _personAdjustmentValues.values]),
+                                            key: ValueKey(Object.hash(_person, _previousPersonSetup, Object.hashAll(_personAdjustmentValues.values))),
                                             adjustments: persons[_person]!.adjustments,
                                             initialAdjustmentValues: _previousPersonAdjustmentValues,
                                             adjustmentValues: _personAdjustmentValues,
@@ -1252,7 +1252,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                               leading: const Icon(Rating.iconData),
                                             ),
                                             AdjustmentSetList(
-                                              key: ValueKey([rating.id, _previousBikeSetup, _bikeAdjustmentValues.values]),
+                                              key: ValueKey(Object.hash(rating.id, _previousBikeSetup, Object.hashAll(_ratingAdjustmentValues.values))),
                                               adjustments: rating.adjustments,
                                               initialAdjustmentValues: _initialRatingAdjustmentValues,
                                               adjustmentValues: _ratingAdjustmentValues,

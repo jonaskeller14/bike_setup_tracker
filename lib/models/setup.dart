@@ -35,7 +35,7 @@ class Setup {
     bool? isDeleted, 
     DateTime? lastModified,
     required this.name,
-    required this.datetime,
+    required DateTime datetime,
     required this.datetimeLocal,
     this.notes,
     required this.tags,
@@ -52,6 +52,7 @@ class Setup {
     required this.isCurrent,
   }) : id = id ?? const Uuid().v4(),
        isDeleted = isDeleted ?? false,
+       datetime = datetime.toUtc(),
        lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
 
   Map<String, dynamic> toJson() => {

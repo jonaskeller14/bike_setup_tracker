@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:drift/drift.dart' hide Component;
 import 'package:geocoding/geocoding.dart' as geo;
 import 'app_database.dart';
@@ -21,7 +22,7 @@ extension BikeDbMapper on BikeDb {
     return Bike(
       id: id,
       isDeleted: isDeleted,
-      lastModified: lastModified,
+      lastModified: _toUtcSafe(lastModified, 'Bike.lastModified'),
       name: name,
       notes: notes,
       person: person,
@@ -39,7 +40,7 @@ extension ComponentDbMapper on ComponentDb {
     return Component(
       id: id,
       isDeleted: isDeleted,
-      lastModified: lastModified,
+      lastModified: _toUtcSafe(lastModified, 'Component.lastModified'),
       name: name,
       notes: notes,
       componentType: componentType,
@@ -54,7 +55,7 @@ extension InstallationDbMapper on InstallationDb {
   Installation toModel() {
     return Installation(
       parent: parent,
-      dateTimeUTC: dateTimeUTC,
+      dateTimeUTC: _toUtcSafe(dateTimeUTC, 'Installation.dateTimeUTC'),
       dateTimeLocal: dateTimeLocal,
     );
   }
@@ -81,7 +82,7 @@ extension PersonDbMapper on PersonDb {
     return Person(
       id: id,
       isDeleted: isDeleted,
-      lastModified: lastModified,
+      lastModified: _toUtcSafe(lastModified, 'Person.lastModified'),
       name: name,
       notes: notes,
       stravaAthlete: stravaAthlete,
@@ -96,7 +97,7 @@ extension RatingDbMapper on RatingDb {
     return Rating(
       id: id,
       isDeleted: isDeleted,
-      lastModified: lastModified,
+      lastModified: _toUtcSafe(lastModified, 'Rating.lastModified'),
       name: name,
       notes: notes,
       filter: filter,
@@ -112,7 +113,7 @@ extension TodoRuleDbMapper on TodoRuleDb {
     return TodoRule(
       id: id,
       isDeleted: isDeleted,
-      lastModified: lastModified,
+      lastModified: _toUtcSafe(lastModified, 'TodoRule.lastModified'),
       name: name,
       notes: notes,
       priority: priority,
@@ -125,10 +126,10 @@ extension TodoEntryDbMapper on TodoEntryDb {
     return TodoEntry(
       id: id,
       isDeleted: isDeleted,
-      lastModified: lastModified,
+      lastModified: _toUtcSafe(lastModified, 'TodoEntry.lastModified'),
       name: name,
       todoRule: todoRule,
-      dateTimeUTC: dateTimeUTC,
+      dateTimeUTC: _toUtcSafe(dateTimeUTC, 'TodoEntry.dateTimeUTC'),
       dateTimeLocal: dateTimeLocal,
       notes: notes,
     );
@@ -321,9 +322,9 @@ extension SetupDbMapper on SetupDb {
     return Setup(
       id: id,
       isDeleted: isDeleted,
-      lastModified: lastModified,
+      lastModified: _toUtcSafe(lastModified, 'Setup.lastModified'),
       name: name,
-      datetime: datetime,
+      datetime: _toUtcSafe(datetime, 'Setup.datetime'),
       datetimeLocal: datetimeLocal,
       notes: notes,
       tags: tags,
@@ -359,7 +360,7 @@ extension StravaAthleteDbMapper on StravaAthleteDb {
   StravaAthlete toModel() {
     return StravaAthlete(
       id: id,
-      lastModified: lastModified,
+      lastModified: _toUtcSafe(lastModified, 'StravaAthlete.lastModified'),
       firstname: firstname,
       lastname: lastname,
       profile: profile,
@@ -372,7 +373,7 @@ extension StravaGearDbMapper on StravaGearDb {
   StravaGear toModel() {
     return StravaGear(
       id: id,
-      lastModified: lastModified,
+      lastModified: _toUtcSafe(lastModified, 'StravaGear.lastModified'),
       name: name,
     );
   }
@@ -382,11 +383,11 @@ extension StravaActivityDbMapper on StravaActivityDb {
   StravaActivity toModel() {
     return StravaActivity(
       id: id,
-      lastModified: lastModified,
+      lastModified: _toUtcSafe(lastModified, 'StravaActivity.lastModified'),
       name: name,
       athlete: athlete,
       sportType: sportType,
-      startDate: startDate,
+      startDate: _toUtcSafe(startDate, 'StravaActivity.startDate'),
       startDateLocal: startDateLocal,
       gearId: gearId,
       startLat: startLat,
@@ -441,4 +442,12 @@ extension StravaActivityMapper on StravaActivity {
       elapsedTime: Value<int>(elapsedTime.inSeconds),
     );
   }
+}
+
+DateTime _toUtcSafe(DateTime dt, String fieldName) {
+  if (!dt.isUtc) {
+    debugPrint('WARNING: $fieldName read from DB as Local time. Converting to UTC.');
+    return dt.toUtc();
+  }
+  return dt;
 }

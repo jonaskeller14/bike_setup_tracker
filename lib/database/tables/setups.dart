@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import '../converters/utc_datetime_converter.dart';
 
 import '../converters/string_list_converter.dart';
 import '../converters/location_data_converter.dart';
@@ -20,10 +21,10 @@ class Setups extends Table {
       text().nullable().references(Persons, #id, onDelete: KeyAction.setNull)();
 
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
-  DateTimeColumn get lastModified => dateTime()();
+  DateTimeColumn get lastModified => dateTime().map(const UtcDateTimeConverter())();
 
   TextColumn get name => text()();
-  DateTimeColumn get datetime => dateTime()(); // UTC
+  DateTimeColumn get datetime => dateTime().map(const UtcDateTimeConverter())(); // UTC
   DateTimeColumn get datetimeLocal => dateTime()();
   TextColumn get notes => text().nullable()();
 

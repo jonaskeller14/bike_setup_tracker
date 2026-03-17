@@ -127,7 +127,7 @@ class StravaActivity {
     required this.name,
     required this.athlete,
     required this.sportType,
-    required this.startDate,
+    required DateTime startDate,
     required this.startDateLocal,
     required this.gearId,
     required this.startLat,
@@ -136,7 +136,8 @@ class StravaActivity {
     required this.totalElevationGain,
     required this.movingTime,
     required this.elapsedTime,
-  }): lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
+  }): lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc(),
+      startDate = startDate.toUtc();
 
   Map<String, dynamic> toJson() => {
     'id': id,

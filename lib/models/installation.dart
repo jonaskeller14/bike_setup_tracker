@@ -3,11 +3,11 @@ class Installation {
   final DateTime dateTimeUTC;
   final DateTime dateTimeLocal;
 
-  const Installation({
+  Installation({
     required this.parent,
-    required this.dateTimeUTC,
+    required DateTime dateTimeUTC,
     required this.dateTimeLocal,
-  });
+  }) : dateTimeUTC = dateTimeUTC.toUtc();
 
   Installation.sinceBeginning({required this.parent})
       : dateTimeUTC = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),

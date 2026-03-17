@@ -3,11 +3,13 @@ import 'package:provider/provider.dart';
 import '../models/app_settings.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
+import '../models/todo_entry.dart';
 import '../repositories/app_repository.dart';
 import '../pages/setup_display_page.dart';
 import 'chips/setup_list_filter_widget.dart';
 import 'setup_list_card.dart';
 import 'strava_list_tile.dart';
+import 'todo_entry_list_card.dart';
 
 class SetupList extends StatelessWidget {
   const SetupList({super.key});
@@ -38,8 +40,13 @@ class SetupList extends StatelessWidget {
     final appRepository = context.watch<AppRepository>();
     final setupsList = appRepository.filteredSetups.values;
     final stravaActivities = appRepository.filteredStravaActivities.values;
+    final todoEntries = appRepository.filteredTodoEntries.values;
 
-    final List<_TimelineEntry> entries =  [...setupsList.map((s) => _SetupEntry(s)), ...stravaActivities.map((a) => _StravaEntry(a))];
+    final List<_TimelineEntry> entries =  [
+      ...setupsList.map((s) => _SetupEntry(s)), 
+      ...stravaActivities.map((a) => _StravaEntry(a)),
+      ...todoEntries.map((t) => _TodoTimeLineEntry(t)),
+    ];
     entries.sort((a, b) => appSettings.setupListSortAscending 
         ? a.date.compareTo(b.date) 
         : b.date.compareTo(a.date));
@@ -72,7 +79,12 @@ class SetupList extends StatelessWidget {
                     displayBikeAdjustmentValues: appSettings.setupListBikeAdjustmentValues,
                     displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues,
                     displayRatingAdjustmentValues: appSettings.setupListRatingAdjustmentValues,
-                  ); 
+                  );
+                case _TodoTimeLineEntry():
+                  final todoEntry = entry.todoEntry;
+                  return TodoEntryListCard(
+                    todoEntryId: todoEntry.id,
+                  );
               }
             },
           );
@@ -93,4 +105,10 @@ class _StravaEntry extends _TimelineEntry {
   final StravaActivity activity;
   _StravaEntry(this.activity);
   @override DateTime get date => activity.startDate;
+}
+
+class _TodoTimeLineEntry extends _TimelineEntry {
+  final TodoEntry todoEntry;
+  _TodoTimeLineEntry(this.todoEntry);
+  @override DateTime get date => todoEntry.dateTimeUTC;
 }

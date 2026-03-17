@@ -36,7 +36,7 @@ class DisplayInstallationTimeline extends StatelessWidget {
           ),
           connectorTheme: ConnectorThemeData(
             thickness: 3.0,
-            color: colorScheme.outlineVariant,
+            color: colorScheme.outline,
           ),
         ),
         builder: TimelineTileBuilder.connected(
@@ -95,7 +95,7 @@ class DisplayInstallationTimeline extends StatelessWidget {
             if (assignment.parent == null) {
               return DashedLineConnector(
 
-                color: colorScheme.outlineVariant,
+                color: colorScheme.outline,
               );
             }
             return SolidLineConnector(

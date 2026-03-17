@@ -359,7 +359,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                 connectorBuilder: (context, index, type) {
                   final installation = _installations[index];
                   if (installation.parent == null) {
-                    return DashedLineConnector(color: colorScheme.outlineVariant);
+                    return DashedLineConnector(color: colorScheme.outline);
                   }
                   return SolidLineConnector(color: colorScheme.primary.withValues(alpha: 0.6));
                 },

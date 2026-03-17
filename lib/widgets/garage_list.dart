@@ -7,6 +7,8 @@ import '../utils/bike_actions.dart';
 import 'garage_bike_card.dart';
 import 'garage_uninstalled_card.dart';
 import 'chips/bike_list_filter_widget.dart';
+import '../models/app_settings.dart';
+import 'sheets/installation_sheet.dart';
 
 class GarageList extends StatefulWidget {
   const GarageList({
@@ -23,11 +25,24 @@ class _GarageListState extends State<GarageList> {
 
   void _onAcceptWithDetails({String? newBike}) {
     if (_draggedComponentNotifier.value == null) return;
-    final Component component =  _draggedComponentNotifier.value!;
+    final component = _draggedComponentNotifier.value!;
     final appRepository = context.read<AppRepository>();
-    
+    final appSettings = context.read<AppSettings>();
+
     Future.microtask(() {
-      appRepository.editComponent(component.copyWithNewInstallation(newBike));
+      if (!mounted) return;
+      if (appSettings.enableInstallationTimeline) {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          builder: (context) => InstallationSheet(
+            component: component,
+            targetBikeId: newBike,
+          ),
+        );
+      } else {
+        appRepository.editComponent(component.copyWithNewInstallation(newBike));
+      }
       _draggedComponentNotifier.value = null;
     });
   }

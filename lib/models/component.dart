@@ -18,7 +18,24 @@ class Component {
   final String? notes;
   final int orderIndex;
 
-  String? get bike => installations.lastOrNull?.parent;
+  String? get bike => bikeAt(DateTime.now().toUtc());
+
+  String? bikeAt(DateTime timeUTC) {
+    if (installations.isEmpty) return null;
+    
+    // Sort installations by dateTimeUTC to ensure chronological order
+    final sorted = List<Installation>.from(installations)
+      ..sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
+      
+    // Find the last installation that happened at or before the given time
+    Installation? result;
+    for (final installation in sorted) {
+      if (installation.dateTimeUTC.isAfter(timeUTC)) break;
+      result = installation;
+    }
+    
+    return result?.parent;
+  }
 
   static const IconData iconData = Icons.grid_view_sharp;
 

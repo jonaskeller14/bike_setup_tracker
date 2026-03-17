@@ -239,6 +239,10 @@ class GarageUninstalledCard extends StatelessWidget{
           ),
         );
       },
+      onWillAcceptWithDetails: (details) {
+        final draggedComp = draggedComponentNotifier.value;
+        return draggedComp != null && draggedComp.bike != null;
+      },
       onAcceptWithDetails: (details) {
         onAcceptWithDetails(newBike: null);
         setDraggedComponent(null);

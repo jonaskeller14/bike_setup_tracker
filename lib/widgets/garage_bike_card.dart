@@ -339,6 +339,10 @@ class GarageBikeCard extends StatelessWidget{
           ),
         ),
       ),
+      onWillAcceptWithDetails: (details) {
+        final draggedComp = draggedComponentNotifier.value;
+        return draggedComp != null && draggedComp.bike != bike.id;
+      },
       onAcceptWithDetails: (details) {
         onAcceptWithDetails(newBike: bike.id);
         setDraggedComponent(null);

@@ -11,12 +11,14 @@ class SetInstallationTimeline extends StatefulWidget {
   final List<Installation> initialInstallations;
   final List<Installation>? originalInstallations;
   final Function(List<Installation>) onChanged;
+  final bool Function(int index)? isEntryEditable;
 
   const SetInstallationTimeline({
     super.key,
     required this.initialInstallations,
     this.originalInstallations,
     required this.onChanged,
+    this.isEntryEditable,
   });
 
   @override
@@ -152,11 +154,12 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Installation Timeline', style: theme.textTheme.titleMedium),
-                  IconButton(
-                    icon: const Icon(Icons.add),
-                    onPressed: _addEntry,
-                    tooltip: 'Add Timeline Entry',
-                  ),
+                  if (widget.isEntryEditable == null)
+                    IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: _addEntry,
+                      tooltip: 'Add Timeline Entry',
+                    ),
                 ],
               ),
             ),
@@ -200,6 +203,8 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                   final bool bikeChanged = _originalInstallations != null &&
                       (originalInstallation == null || installation.parent != originalInstallation.parent);
                   
+                  final bool isEditable = widget.isEntryEditable?.call(index) ?? true;
+                  
                   return Padding(
                     padding: const EdgeInsets.only(left: 12.0, top: 4, bottom: 4),
                     child: Row(
@@ -223,27 +228,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                               ),
                               child: PopupMenuButton<String>(
                                 padding: EdgeInsets.zero,
-                                child: Container(
-                                  // Fix height to match DropdownButtonFormField
-                                  height: 48,
-                                  alignment: Alignment.centerLeft,
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: SingleChildScrollView(
-                                          scrollDirection: Axis.horizontal,
-                                          child: Text(
-                                            formattedDateTime,
-                                            style: theme.textTheme.bodyMedium,
-                                            maxLines: 1,
-                                          ),
-                                        ),
-                                      ),
-                                      Icon(Icons.arrow_drop_down, size: 24, color: colorScheme.onSurfaceVariant),
-                                    ],
-                                  ),
-                                ),
-                                onSelected: (value) async {
+                                onSelected: !isEditable ? null : (value) async {
                                   if (value == 'beginning') {
                                     _updateEntry(index, Installation.sinceBeginning(parent: installation.parent));
                                   } else if (value == 'now') {
@@ -268,6 +253,28 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                     const PopupMenuItem(value: 'select', child: Text('Select date & time...')),
                                   ];
                                 },
+                                child: Container(
+                                  // Fix height to match DropdownButtonFormField
+                                  height: 48,
+                                  alignment: Alignment.centerLeft,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: Text(
+                                            formattedDateTime,
+                                            style: theme.textTheme.bodyMedium?.copyWith(
+                                              color: !isEditable ? theme.disabledColor : null,
+                                            ),
+                                            maxLines: 1,
+                                          ),
+                                        ),
+                                      ),
+                                      Icon(Icons.arrow_drop_down, size: 24, color: !isEditable ? theme.disabledColor : colorScheme.onSurfaceVariant),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -289,11 +296,11 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                             items: [
                               DropdownMenuItem<String?>(
                                 value: null,
-                                child: const Row(
+                                child: Row(
                                   spacing: 8,
                                   children: [
-                                    Icon(Icons.shelves, size: 20),
-                                    Expanded(child: Text('DEINSTALLED', overflow: TextOverflow.ellipsis)),
+                                    Icon(Icons.shelves, size: 20, color: !isEditable ? theme.disabledColor : null),
+                                    Expanded(child: Text('DEINSTALLED', overflow: TextOverflow.ellipsis, style: TextStyle(color: !isEditable ? theme.disabledColor : null))),
                                   ],
                                 ),
                               ),
@@ -302,13 +309,30 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                     child: Row(
                                       spacing: 8,
                                       children: [
-                                        const Icon(Bike.iconData, size: 20),
-                                        Expanded(child: Text(bike.name, overflow: TextOverflow.ellipsis)),
+                                        Icon(Bike.iconData, size: 20, color: !isEditable ? theme.disabledColor : null),
+                                        Expanded(child: Text(bike.name, overflow: TextOverflow.ellipsis, style: TextStyle(color: !isEditable ? theme.disabledColor : null))),
                                       ],
                                     ),
                                   )),
+                              if (installation.parent != null && !bikes.containsKey(installation.parent))
+                                DropdownMenuItem<String?>(
+                                  value: installation.parent,
+                                  child: Row(
+                                    spacing: 8,
+                                    children: [
+                                      Icon(Bike.iconData, size: 20, color: theme.colorScheme.error),
+                                      Expanded(
+                                        child: Text(
+                                          'BIKE NOT FOUND',
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(color: theme.colorScheme.error),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                             ],
-                            onChanged: (val) {
+                            onChanged: !isEditable ? null : (val) {
                               _updateEntry(index, installation.copyWith(parent: val));
                             },
                           ),
@@ -317,8 +341,8 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                           icon: const Icon(Icons.delete_outline, size: 20),
                           padding: const EdgeInsets.only(left: 8),
                           constraints: const BoxConstraints(),
-                          onPressed: _installations.length > 1 ? () => _removeEntry(index) : null,
-                          color: _installations.length > 1 ? null : theme.disabledColor,
+                          onPressed: (_installations.length > 1 && isEditable) ? () => _removeEntry(index) : null,
+                          color: (_installations.length > 1 && isEditable) ? null : theme.disabledColor,
                         ),
                       ],
                     ),

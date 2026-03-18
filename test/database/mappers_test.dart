@@ -102,6 +102,10 @@ void main() {
         isDeleted: false,
         lastModified: DateTime(2023, 1, 1).toUtc(),
         orderIndex: 0,
+        initialDistance: 0.0,
+        initialElevationGain: 0.0,
+        initialMovingTime: Duration.zero,
+        initialElapsedTime: Duration.zero,
       );
       final model = data.toModel(
         adjustments: [

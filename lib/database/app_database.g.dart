@@ -1534,6 +1534,50 @@ class $ComponentsTable extends Components
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _initialDistanceMeta = const VerificationMeta(
+    'initialDistance',
+  );
+  @override
+  late final GeneratedColumn<double> initialDistance = GeneratedColumn<double>(
+    'initial_distance',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
+  static const VerificationMeta _initialElevationGainMeta =
+      const VerificationMeta('initialElevationGain');
+  @override
+  late final GeneratedColumn<double> initialElevationGain =
+      GeneratedColumn<double>(
+        'initial_elevation_gain',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0.0),
+      );
+  @override
+  late final GeneratedColumnWithTypeConverter<Duration, int> initialMovingTime =
+      GeneratedColumn<int>(
+        'initial_moving_time',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0),
+      ).withConverter<Duration>($ComponentsTable.$converterinitialMovingTime);
+  @override
+  late final GeneratedColumnWithTypeConverter<Duration, int>
+  initialElapsedTime = GeneratedColumn<int>(
+    'initial_elapsed_time',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  ).withConverter<Duration>($ComponentsTable.$converterinitialElapsedTime);
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1543,6 +1587,10 @@ class $ComponentsTable extends Components
     componentType,
     notes,
     orderIndex,
+    initialDistance,
+    initialElevationGain,
+    initialMovingTime,
+    initialElapsedTime,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1587,6 +1635,24 @@ class $ComponentsTable extends Components
         orderIndex.isAcceptableOrUnknown(data['order_index']!, _orderIndexMeta),
       );
     }
+    if (data.containsKey('initial_distance')) {
+      context.handle(
+        _initialDistanceMeta,
+        initialDistance.isAcceptableOrUnknown(
+          data['initial_distance']!,
+          _initialDistanceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('initial_elevation_gain')) {
+      context.handle(
+        _initialElevationGainMeta,
+        initialElevationGain.isAcceptableOrUnknown(
+          data['initial_elevation_gain']!,
+          _initialElevationGainMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1628,6 +1694,26 @@ class $ComponentsTable extends Components
         DriftSqlType.int,
         data['${effectivePrefix}order_index'],
       )!,
+      initialDistance: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}initial_distance'],
+      )!,
+      initialElevationGain: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}initial_elevation_gain'],
+      )!,
+      initialMovingTime: $ComponentsTable.$converterinitialMovingTime.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}initial_moving_time'],
+        )!,
+      ),
+      initialElapsedTime: $ComponentsTable.$converterinitialElapsedTime.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}initial_elapsed_time'],
+        )!,
+      ),
     );
   }
 
@@ -1640,6 +1726,10 @@ class $ComponentsTable extends Components
       const UtcDateTimeConverter();
   static JsonTypeConverter2<ComponentType, String, String>
   $convertercomponentType = const EnumNameConverter(ComponentType.values);
+  static TypeConverter<Duration, int> $converterinitialMovingTime =
+      const DurationConverter();
+  static TypeConverter<Duration, int> $converterinitialElapsedTime =
+      const DurationConverter();
 }
 
 class ComponentDb extends DataClass implements Insertable<ComponentDb> {
@@ -1650,6 +1740,10 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
   final ComponentType componentType;
   final String? notes;
   final int orderIndex;
+  final double initialDistance;
+  final double initialElevationGain;
+  final Duration initialMovingTime;
+  final Duration initialElapsedTime;
   const ComponentDb({
     required this.id,
     required this.isDeleted,
@@ -1658,6 +1752,10 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     required this.componentType,
     this.notes,
     required this.orderIndex,
+    required this.initialDistance,
+    required this.initialElevationGain,
+    required this.initialMovingTime,
+    required this.initialElapsedTime,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1679,6 +1777,18 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       map['notes'] = Variable<String>(notes);
     }
     map['order_index'] = Variable<int>(orderIndex);
+    map['initial_distance'] = Variable<double>(initialDistance);
+    map['initial_elevation_gain'] = Variable<double>(initialElevationGain);
+    {
+      map['initial_moving_time'] = Variable<int>(
+        $ComponentsTable.$converterinitialMovingTime.toSql(initialMovingTime),
+      );
+    }
+    {
+      map['initial_elapsed_time'] = Variable<int>(
+        $ComponentsTable.$converterinitialElapsedTime.toSql(initialElapsedTime),
+      );
+    }
     return map;
   }
 
@@ -1693,6 +1803,10 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           ? const Value.absent()
           : Value(notes),
       orderIndex: Value(orderIndex),
+      initialDistance: Value(initialDistance),
+      initialElevationGain: Value(initialElevationGain),
+      initialMovingTime: Value(initialMovingTime),
+      initialElapsedTime: Value(initialElapsedTime),
     );
   }
 
@@ -1711,6 +1825,16 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       ),
       notes: serializer.fromJson<String?>(json['notes']),
       orderIndex: serializer.fromJson<int>(json['orderIndex']),
+      initialDistance: serializer.fromJson<double>(json['initialDistance']),
+      initialElevationGain: serializer.fromJson<double>(
+        json['initialElevationGain'],
+      ),
+      initialMovingTime: serializer.fromJson<Duration>(
+        json['initialMovingTime'],
+      ),
+      initialElapsedTime: serializer.fromJson<Duration>(
+        json['initialElapsedTime'],
+      ),
     );
   }
   @override
@@ -1726,6 +1850,10 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       ),
       'notes': serializer.toJson<String?>(notes),
       'orderIndex': serializer.toJson<int>(orderIndex),
+      'initialDistance': serializer.toJson<double>(initialDistance),
+      'initialElevationGain': serializer.toJson<double>(initialElevationGain),
+      'initialMovingTime': serializer.toJson<Duration>(initialMovingTime),
+      'initialElapsedTime': serializer.toJson<Duration>(initialElapsedTime),
     };
   }
 
@@ -1737,6 +1865,10 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     ComponentType? componentType,
     Value<String?> notes = const Value.absent(),
     int? orderIndex,
+    double? initialDistance,
+    double? initialElevationGain,
+    Duration? initialMovingTime,
+    Duration? initialElapsedTime,
   }) => ComponentDb(
     id: id ?? this.id,
     isDeleted: isDeleted ?? this.isDeleted,
@@ -1745,6 +1877,10 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     componentType: componentType ?? this.componentType,
     notes: notes.present ? notes.value : this.notes,
     orderIndex: orderIndex ?? this.orderIndex,
+    initialDistance: initialDistance ?? this.initialDistance,
+    initialElevationGain: initialElevationGain ?? this.initialElevationGain,
+    initialMovingTime: initialMovingTime ?? this.initialMovingTime,
+    initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
   );
   ComponentDb copyWithCompanion(ComponentsCompanion data) {
     return ComponentDb(
@@ -1761,6 +1897,18 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       orderIndex: data.orderIndex.present
           ? data.orderIndex.value
           : this.orderIndex,
+      initialDistance: data.initialDistance.present
+          ? data.initialDistance.value
+          : this.initialDistance,
+      initialElevationGain: data.initialElevationGain.present
+          ? data.initialElevationGain.value
+          : this.initialElevationGain,
+      initialMovingTime: data.initialMovingTime.present
+          ? data.initialMovingTime.value
+          : this.initialMovingTime,
+      initialElapsedTime: data.initialElapsedTime.present
+          ? data.initialElapsedTime.value
+          : this.initialElapsedTime,
     );
   }
 
@@ -1773,7 +1921,11 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           ..write('name: $name, ')
           ..write('componentType: $componentType, ')
           ..write('notes: $notes, ')
-          ..write('orderIndex: $orderIndex')
+          ..write('orderIndex: $orderIndex, ')
+          ..write('initialDistance: $initialDistance, ')
+          ..write('initialElevationGain: $initialElevationGain, ')
+          ..write('initialMovingTime: $initialMovingTime, ')
+          ..write('initialElapsedTime: $initialElapsedTime')
           ..write(')'))
         .toString();
   }
@@ -1787,6 +1939,10 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     componentType,
     notes,
     orderIndex,
+    initialDistance,
+    initialElevationGain,
+    initialMovingTime,
+    initialElapsedTime,
   );
   @override
   bool operator ==(Object other) =>
@@ -1798,7 +1954,11 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           other.name == this.name &&
           other.componentType == this.componentType &&
           other.notes == this.notes &&
-          other.orderIndex == this.orderIndex);
+          other.orderIndex == this.orderIndex &&
+          other.initialDistance == this.initialDistance &&
+          other.initialElevationGain == this.initialElevationGain &&
+          other.initialMovingTime == this.initialMovingTime &&
+          other.initialElapsedTime == this.initialElapsedTime);
 }
 
 class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
@@ -1809,6 +1969,10 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
   final Value<ComponentType> componentType;
   final Value<String?> notes;
   final Value<int> orderIndex;
+  final Value<double> initialDistance;
+  final Value<double> initialElevationGain;
+  final Value<Duration> initialMovingTime;
+  final Value<Duration> initialElapsedTime;
   final Value<int> rowid;
   const ComponentsCompanion({
     this.id = const Value.absent(),
@@ -1818,6 +1982,10 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     this.componentType = const Value.absent(),
     this.notes = const Value.absent(),
     this.orderIndex = const Value.absent(),
+    this.initialDistance = const Value.absent(),
+    this.initialElevationGain = const Value.absent(),
+    this.initialMovingTime = const Value.absent(),
+    this.initialElapsedTime = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ComponentsCompanion.insert({
@@ -1828,6 +1996,10 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     required ComponentType componentType,
     this.notes = const Value.absent(),
     this.orderIndex = const Value.absent(),
+    this.initialDistance = const Value.absent(),
+    this.initialElevationGain = const Value.absent(),
+    this.initialMovingTime = const Value.absent(),
+    this.initialElapsedTime = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        lastModified = Value(lastModified),
@@ -1841,6 +2013,10 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     Expression<String>? componentType,
     Expression<String>? notes,
     Expression<int>? orderIndex,
+    Expression<double>? initialDistance,
+    Expression<double>? initialElevationGain,
+    Expression<int>? initialMovingTime,
+    Expression<int>? initialElapsedTime,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1851,6 +2027,12 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
       if (componentType != null) 'component_type': componentType,
       if (notes != null) 'notes': notes,
       if (orderIndex != null) 'order_index': orderIndex,
+      if (initialDistance != null) 'initial_distance': initialDistance,
+      if (initialElevationGain != null)
+        'initial_elevation_gain': initialElevationGain,
+      if (initialMovingTime != null) 'initial_moving_time': initialMovingTime,
+      if (initialElapsedTime != null)
+        'initial_elapsed_time': initialElapsedTime,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1863,6 +2045,10 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     Value<ComponentType>? componentType,
     Value<String?>? notes,
     Value<int>? orderIndex,
+    Value<double>? initialDistance,
+    Value<double>? initialElevationGain,
+    Value<Duration>? initialMovingTime,
+    Value<Duration>? initialElapsedTime,
     Value<int>? rowid,
   }) {
     return ComponentsCompanion(
@@ -1873,6 +2059,10 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
       componentType: componentType ?? this.componentType,
       notes: notes ?? this.notes,
       orderIndex: orderIndex ?? this.orderIndex,
+      initialDistance: initialDistance ?? this.initialDistance,
+      initialElevationGain: initialElevationGain ?? this.initialElevationGain,
+      initialMovingTime: initialMovingTime ?? this.initialMovingTime,
+      initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1905,6 +2095,28 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     if (orderIndex.present) {
       map['order_index'] = Variable<int>(orderIndex.value);
     }
+    if (initialDistance.present) {
+      map['initial_distance'] = Variable<double>(initialDistance.value);
+    }
+    if (initialElevationGain.present) {
+      map['initial_elevation_gain'] = Variable<double>(
+        initialElevationGain.value,
+      );
+    }
+    if (initialMovingTime.present) {
+      map['initial_moving_time'] = Variable<int>(
+        $ComponentsTable.$converterinitialMovingTime.toSql(
+          initialMovingTime.value,
+        ),
+      );
+    }
+    if (initialElapsedTime.present) {
+      map['initial_elapsed_time'] = Variable<int>(
+        $ComponentsTable.$converterinitialElapsedTime.toSql(
+          initialElapsedTime.value,
+        ),
+      );
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1921,6 +2133,10 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
           ..write('componentType: $componentType, ')
           ..write('notes: $notes, ')
           ..write('orderIndex: $orderIndex, ')
+          ..write('initialDistance: $initialDistance, ')
+          ..write('initialElevationGain: $initialElevationGain, ')
+          ..write('initialMovingTime: $initialMovingTime, ')
+          ..write('initialElapsedTime: $initialElapsedTime, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -7703,6 +7919,10 @@ typedef $$ComponentsTableCreateCompanionBuilder =
       required ComponentType componentType,
       Value<String?> notes,
       Value<int> orderIndex,
+      Value<double> initialDistance,
+      Value<double> initialElevationGain,
+      Value<Duration> initialMovingTime,
+      Value<Duration> initialElapsedTime,
       Value<int> rowid,
     });
 typedef $$ComponentsTableUpdateCompanionBuilder =
@@ -7714,6 +7934,10 @@ typedef $$ComponentsTableUpdateCompanionBuilder =
       Value<ComponentType> componentType,
       Value<String?> notes,
       Value<int> orderIndex,
+      Value<double> initialDistance,
+      Value<double> initialElevationGain,
+      Value<Duration> initialMovingTime,
+      Value<Duration> initialElapsedTime,
       Value<int> rowid,
     });
 
@@ -7810,6 +8034,28 @@ class $$ComponentsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<double> get initialDistance => $composableBuilder(
+    column: $table.initialDistance,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get initialElevationGain => $composableBuilder(
+    column: $table.initialElevationGain,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<Duration, Duration, int>
+  get initialMovingTime => $composableBuilder(
+    column: $table.initialMovingTime,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<Duration, Duration, int>
+  get initialElapsedTime => $composableBuilder(
+    column: $table.initialElapsedTime,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
   Expression<bool> adjustmentsRefs(
     Expression<bool> Function($$AdjustmentsTableFilterComposer f) f,
   ) {
@@ -7904,6 +8150,26 @@ class $$ComponentsTableOrderingComposer
     column: $table.orderIndex,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<double> get initialDistance => $composableBuilder(
+    column: $table.initialDistance,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get initialElevationGain => $composableBuilder(
+    column: $table.initialElevationGain,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get initialMovingTime => $composableBuilder(
+    column: $table.initialMovingTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get initialElapsedTime => $composableBuilder(
+    column: $table.initialElapsedTime,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ComponentsTableAnnotationComposer
@@ -7943,6 +8209,28 @@ class $$ComponentsTableAnnotationComposer
     column: $table.orderIndex,
     builder: (column) => column,
   );
+
+  GeneratedColumn<double> get initialDistance => $composableBuilder(
+    column: $table.initialDistance,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get initialElevationGain => $composableBuilder(
+    column: $table.initialElevationGain,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<Duration, int> get initialMovingTime =>
+      $composableBuilder(
+        column: $table.initialMovingTime,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<Duration, int> get initialElapsedTime =>
+      $composableBuilder(
+        column: $table.initialElapsedTime,
+        builder: (column) => column,
+      );
 
   Expression<T> adjustmentsRefs<T extends Object>(
     Expression<T> Function($$AdjustmentsTableAnnotationComposer a) f,
@@ -8030,6 +8318,10 @@ class $$ComponentsTableTableManager
                 Value<ComponentType> componentType = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<int> orderIndex = const Value.absent(),
+                Value<double> initialDistance = const Value.absent(),
+                Value<double> initialElevationGain = const Value.absent(),
+                Value<Duration> initialMovingTime = const Value.absent(),
+                Value<Duration> initialElapsedTime = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ComponentsCompanion(
                 id: id,
@@ -8039,6 +8331,10 @@ class $$ComponentsTableTableManager
                 componentType: componentType,
                 notes: notes,
                 orderIndex: orderIndex,
+                initialDistance: initialDistance,
+                initialElevationGain: initialElevationGain,
+                initialMovingTime: initialMovingTime,
+                initialElapsedTime: initialElapsedTime,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -8050,6 +8346,10 @@ class $$ComponentsTableTableManager
                 required ComponentType componentType,
                 Value<String?> notes = const Value.absent(),
                 Value<int> orderIndex = const Value.absent(),
+                Value<double> initialDistance = const Value.absent(),
+                Value<double> initialElevationGain = const Value.absent(),
+                Value<Duration> initialMovingTime = const Value.absent(),
+                Value<Duration> initialElapsedTime = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ComponentsCompanion.insert(
                 id: id,
@@ -8059,6 +8359,10 @@ class $$ComponentsTableTableManager
                 componentType: componentType,
                 notes: notes,
                 orderIndex: orderIndex,
+                initialDistance: initialDistance,
+                initialElevationGain: initialElevationGain,
+                initialMovingTime: initialMovingTime,
+                initialElapsedTime: initialElapsedTime,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

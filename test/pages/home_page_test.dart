@@ -401,6 +401,7 @@ void main() {
     );
     expect(adjRow, findsOneWidget);
     
+    await tester.ensureVisible(adjRow);
     await tester.tap(
       find.descendant(
         of: adjRow,
@@ -506,12 +507,12 @@ void main() {
       findsOneWidget,
     );
 
-    await tester.tap(
-      find.descendant(
-        of: find.byType(Card),
-        matching: find.byType(PopupMenuButton<String>),
-      ),
+    final adjMenu = find.descendant(
+      of: find.byType(Card),
+      matching: find.byType(PopupMenuButton<String>),
     );
+    await tester.ensureVisible(adjMenu);
+    await tester.tap(adjMenu);
     await tester.pumpAndSettle();
     await tester.tap(find.text("Edit"));
     await tester.pumpAndSettle();

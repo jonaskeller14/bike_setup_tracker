@@ -7,6 +7,8 @@ import '../models/bike.dart';
 import '../utils/component_actions.dart';
 import 'adjustment_compact_display_list.dart';
 import '../pages/component_overview_page.dart';
+import '../models/adjustment/adjustment.dart';
+import '../models/app_settings.dart';
 
 class ComponentListCard extends StatelessWidget{
   final Component component;
@@ -26,6 +28,7 @@ class ComponentListCard extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+    final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
     final setups = appRepository.setups;
@@ -97,6 +100,28 @@ class ComponentListCard extends StatelessWidget{
                       ),
                     ],
                   ),
+                  if (appSettings.enableInstallationTimeline && appSettings.enableStrava)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 2,
+                        children: [
+                          _StatItem(
+                            icon: Icons.speed,
+                            label: '${(component.totalDistance / 1000).toStringAsFixed(1)} km',
+                          ),
+                          _StatItem(
+                            icon: Icons.terrain,
+                            label: '${component.totalElevationGain.round()} m',
+                          ),
+                          _StatItem(
+                            icon: Icons.timer,
+                            label: Adjustment.formatValue(component.totalMovingTime),
+                          ),
+                        ],
+                      ),
+                    ),
                   if (component.notes != null && component.notes!.isNotEmpty)
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,6 +216,39 @@ class ComponentListCard extends StatelessWidget{
           ],
         ),
       ),
+    );
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _StatItem({
+    required this.icon,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 2,
+      children: [
+        Icon(
+          icon,
+          size: 13,
+          color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }

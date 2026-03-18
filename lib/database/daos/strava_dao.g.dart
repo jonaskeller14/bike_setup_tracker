@@ -8,6 +8,9 @@ mixin _$StravaDaoMixin on DatabaseAccessor<AppDatabase> {
   $StravaGearsTable get stravaGears => attachedDatabase.stravaGears;
   $StravaActivitiesTable get stravaActivities =>
       attachedDatabase.stravaActivities;
+  $BikesTable get bikes => attachedDatabase.bikes;
+  $ComponentsTable get components => attachedDatabase.components;
+  $InstallationsTable get installations => attachedDatabase.installations;
   StravaDaoManager get managers => StravaDaoManager(this);
 }
 
@@ -26,4 +29,10 @@ class StravaDaoManager {
         _db.attachedDatabase,
         _db.stravaActivities,
       );
+  $$BikesTableTableManager get bikes =>
+      $$BikesTableTableManager(_db.attachedDatabase, _db.bikes);
+  $$ComponentsTableTableManager get components =>
+      $$ComponentsTableTableManager(_db.attachedDatabase, _db.components);
+  $$InstallationsTableTableManager get installations =>
+      $$InstallationsTableTableManager(_db.attachedDatabase, _db.installations);
 }

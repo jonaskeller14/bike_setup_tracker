@@ -18,6 +18,18 @@ class Component {
   final String? notes;
   final int orderIndex;
 
+  // Transient stats from Strava (not persisted)
+  final double totalDistance;
+  final double totalElevationGain;
+  final Duration totalMovingTime;
+  final Duration totalElapsedTime;
+
+  // Persistent initial stats (for used components)
+  final double initialDistance;
+  final double initialElevationGain;
+  final Duration initialMovingTime;
+  final Duration initialElapsedTime;
+
   String? get bike => bikeAt(DateTime.now().toUtc());
 
   String? bikeAt(DateTime timeUTC) {
@@ -49,6 +61,14 @@ class Component {
     this.notes,
     this.orderIndex = 0,
     List<Adjustment>? adjustments,
+    this.totalDistance = 0.0,
+    this.totalElevationGain = 0.0,
+    this.totalMovingTime = Duration.zero,
+    this.totalElapsedTime = Duration.zero,
+    this.initialDistance = 0.0,
+    this.initialElevationGain = 0.0,
+    this.initialMovingTime = Duration.zero,
+    this.initialElapsedTime = Duration.zero,
   }) : adjustments = adjustments ?? [],
        id = id ?? const Uuid().v4(),
        isDeleted = isDeleted ?? false,
@@ -61,6 +81,14 @@ class Component {
       componentType: componentType,
       notes: notes,
       adjustments: adjustments.map((a) => a.deepCopy()).toList(),
+      totalDistance: totalDistance,
+      totalElevationGain: totalElevationGain,
+      totalMovingTime: totalMovingTime,
+      totalElapsedTime: totalElapsedTime,
+      initialDistance: initialDistance,
+      initialElevationGain: initialElevationGain,
+      initialMovingTime: initialMovingTime,
+      initialElapsedTime: initialElapsedTime,
     );
   }
 
@@ -82,6 +110,14 @@ class Component {
     Object? adjustments = const _Sentinel(),
     Object? installations = const _Sentinel(),
     Object? orderIndex = const _Sentinel(),
+    Object? totalDistance = const _Sentinel(),
+    Object? totalElevationGain = const _Sentinel(),
+    Object? totalMovingTime = const _Sentinel(),
+    Object? totalElapsedTime = const _Sentinel(),
+    Object? initialDistance = const _Sentinel(),
+    Object? initialElevationGain = const _Sentinel(),
+    Object? initialMovingTime = const _Sentinel(),
+    Object? initialElapsedTime = const _Sentinel(),
   }) {
     return Component(
       id: id is _Sentinel
@@ -111,11 +147,35 @@ class Component {
       orderIndex: orderIndex is _Sentinel
           ? this.orderIndex
           : (orderIndex as int),
+      totalDistance: totalDistance is _Sentinel
+          ? this.totalDistance
+          : (totalDistance as num).toDouble(),
+      totalElevationGain: totalElevationGain is _Sentinel
+          ? this.totalElevationGain
+          : (totalElevationGain as num).toDouble(),
+      totalMovingTime: totalMovingTime is _Sentinel
+          ? this.totalMovingTime
+          : (totalMovingTime as Duration),
+      totalElapsedTime: totalElapsedTime is _Sentinel
+          ? this.totalElapsedTime
+          : (totalElapsedTime as Duration),
+      initialDistance: initialDistance is _Sentinel
+          ? this.initialDistance
+          : (initialDistance as num).toDouble(),
+      initialElevationGain: initialElevationGain is _Sentinel
+          ? this.initialElevationGain
+          : (initialElevationGain as num).toDouble(),
+      initialMovingTime: initialMovingTime is _Sentinel
+          ? this.initialMovingTime
+          : (initialMovingTime as Duration),
+      initialElapsedTime: initialElapsedTime is _Sentinel
+          ? this.initialElapsedTime
+          : (initialElapsedTime as Duration),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'version': 3,
+    'version': 4,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
@@ -125,6 +185,10 @@ class Component {
     'notes': notes,
     'orderIndex': orderIndex,
     'adjustments': adjustments.map((a) => a.toJson()).toList(),
+    'initialDistance': initialDistance,
+    'initialElevationGain': initialElevationGain,
+    'initialMovingTime': initialMovingTime.inSeconds,
+    'initialElapsedTime': initialElapsedTime.inSeconds,
   };
 
   factory Component.fromJson({required Map<String, dynamic> json}) {
@@ -150,8 +214,16 @@ class Component {
             .toList()
             ?? <Adjustment>[],
           orderIndex: json["orderIndex"] as int? ?? 0,
+          totalDistance: 0.0,
+          totalElevationGain: 0.0,
+          totalMovingTime: Duration.zero,
+          totalElapsedTime: Duration.zero,
+          initialDistance: (json['initialDistance'] as num?)?.toDouble() ?? 0.0,
+          initialElevationGain: (json['initialElevationGain'] as num?)?.toDouble() ?? 0.0,
+          initialMovingTime: Duration(seconds: json['initialMovingTime'] as int? ?? 0),
+          initialElapsedTime: Duration(seconds: json['initialElapsedTime'] as int? ?? 0),
         );
-      case 2 || 3:
+      case 2 || 3 || 4:
         return Component(
           id: json["id"] as String,
           isDeleted: json["isDeleted"] as bool,
@@ -170,6 +242,14 @@ class Component {
             .toList()
             ?? <Adjustment>[],
           orderIndex: json["orderIndex"] as int? ?? 0,
+          totalDistance: 0.0,
+          totalElevationGain: 0.0,
+          totalMovingTime: Duration.zero,
+          totalElapsedTime: Duration.zero,
+          initialDistance: (json['initialDistance'] as num?)?.toDouble() ?? 0.0,
+          initialElevationGain: (json['initialElevationGain'] as num?)?.toDouble() ?? 0.0,
+          initialMovingTime: Duration(seconds: json['initialMovingTime'] as int? ?? 0),
+          initialElapsedTime: Duration(seconds: json['initialElapsedTime'] as int? ?? 0),
         );
       default: throw Exception("Json Version $version of Component incompatible."); 
     }
@@ -187,7 +267,15 @@ class Component {
         componentType == other.componentType &&
         listEquals(installations, other.installations) &&
         notes == other.notes &&
-        listEquals(adjustments, other.adjustments);
+        listEquals(adjustments, other.adjustments) &&
+        totalDistance == other.totalDistance &&
+        totalElevationGain == other.totalElevationGain &&
+        totalMovingTime == other.totalMovingTime &&
+        totalElapsedTime == other.totalElapsedTime &&
+        initialDistance == other.initialDistance &&
+        initialElevationGain == other.initialElevationGain &&
+        initialMovingTime == other.initialMovingTime &&
+        initialElapsedTime == other.initialElapsedTime;
   }
 
   @override
@@ -201,6 +289,14 @@ class Component {
       Object.hashAll(installations),
       notes,
       Object.hashAll(adjustments),
+      totalDistance,
+      totalElevationGain,
+      totalMovingTime,
+      totalElapsedTime,
+      initialDistance,
+      initialElevationGain,
+      initialMovingTime,
+      initialElapsedTime,
     );
   }
 }

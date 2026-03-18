@@ -18,6 +18,7 @@ import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
 import '../models/selected_data.dart';
+import '../models/component_stats.dart';
 
 import '../services/setup_resolution_service.dart';
 import '../utils/file_export.dart';
@@ -39,6 +40,7 @@ class AppRepository extends ChangeNotifier {
   Map<int, StravaAthlete> _stravaAthletes = {};
   Map<int, StravaActivity> _stravaActivities = {};
   Map<String, StravaGear> _stravaGears = {};
+  Map<String, ComponentStats> _componentStats = {};
 
   Map<String, Person> get persons => _persons;
   Map<String, Bike> get bikes => _bikes;
@@ -179,9 +181,13 @@ class AppRepository extends ChangeNotifier {
       _stravaActivities = {for (var a in list) a.id: a.toModel()};
       _dataChanged();
     }));
-
     _subscriptions.add(database.stravaDao.watchAllGears().listen((list) {
       _stravaGears = {for (var g in list) g.id: g.toModel()};
+      _dataChanged();
+    }));
+
+    _subscriptions.add(database.stravaDao.watchComponentStats().listen((map) {
+      _componentStats = map;
       _dataChanged();
     }));
     
@@ -231,6 +237,18 @@ class AppRepository extends ChangeNotifier {
       bikes: _bikes,
       persons: _persons,
     );
+
+    // Apply component stats
+    _components = {
+      for (var entry in _components.entries)
+        entry.key: entry.value.copyWith(
+          totalDistance: _componentStats[entry.key]?.distance ?? entry.value.initialDistance,
+          totalElevationGain: _componentStats[entry.key]?.elevationGain ?? entry.value.initialElevationGain,
+          totalMovingTime: _componentStats[entry.key]?.movingTime ?? entry.value.initialMovingTime,
+          totalElapsedTime: _componentStats[entry.key]?.elapsedTime ?? entry.value.initialElapsedTime,
+        )
+    };
+
     _setupTags = SetupResolutionService.extractAllTags(_setups.values);
   }
 

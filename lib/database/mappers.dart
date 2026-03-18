@@ -47,6 +47,10 @@ extension ComponentDbMapper on ComponentDb {
       adjustments: adjustments,
       installations: installations,
       orderIndex: orderIndex,
+      initialDistance: initialDistance,
+      initialElevationGain: initialElevationGain,
+      initialMovingTime: initialMovingTime,
+      initialElapsedTime: initialElapsedTime,
     );
   }
 }
@@ -163,6 +167,10 @@ extension ComponentMapper on Component {
       notes: notes == null ? const Value.absent() : Value<String?>(notes),
       componentType: Value<ComponentType>(componentType),
       orderIndex: Value<int>(orderIndex),
+      initialDistance: Value<double>(initialDistance),
+      initialElevationGain: Value<double>(initialElevationGain),
+      initialMovingTime: Value<Duration>(initialMovingTime),
+      initialElapsedTime: Value<Duration>(initialElapsedTime),
     );
   }
 }

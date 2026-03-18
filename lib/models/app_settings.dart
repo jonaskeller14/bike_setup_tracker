@@ -18,8 +18,8 @@ class AppSettings extends ChangeNotifier {
   bool _enableSetupTags = false;
   bool _enableStrava = false;
   bool _enableGarage = true;
-  static const bool _enableTodo = false;
-  static const bool _enableInstallationTimeline = false;
+  bool _enableTodo = false;
+  bool _enableInstallationTimeline = false;
 
   // Temporary Settings
   bool _setupListOnlyChanges = false;
@@ -154,6 +154,20 @@ class AppSettings extends ChangeNotifier {
   set enableGarage(bool newValue) {
     if (newValue == _enableGarage) return;
     _enableGarage = newValue;
+    notifyListeners();
+    saveAppSettings();
+  }
+
+  set enableTodo(bool newValue) {
+    if (newValue == _enableTodo) return;
+    _enableTodo = newValue;
+    notifyListeners();
+    saveAppSettings();
+  }
+
+  set enableInstallationTimeline(bool newValue) {
+    if (newValue == _enableInstallationTimeline) return;
+    _enableInstallationTimeline = newValue;
     notifyListeners();
     saveAppSettings();
   }

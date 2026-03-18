@@ -62,7 +62,17 @@ void main() {
 
     appRepository.dispose();
     appRepository = AppRepository(database);
+    
     await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    // Wait for the asynchronous loading of components from the database
+    await tester.runAsync(() async {
+      int attempts = 0;
+      while (appRepository.components['comp1'] == null && attempts < 10) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        attempts++;
+      }
+    });
+
     await tester.pumpAndSettle();
 
     expect(find.text('No setups yet'), findsOneWidget);
@@ -98,7 +108,16 @@ void main() {
     
     appRepository.dispose();
     appRepository = AppRepository(database);
+    
     await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    // Wait for data
+    await tester.runAsync(() async {
+      int attempts = 0;
+      while (appRepository.components['comp1'] == null && attempts < 10) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        attempts++;
+      }
+    });
     await tester.pumpAndSettle();
 
     // Open columns sheet
@@ -142,7 +161,16 @@ void main() {
     
     appRepository.dispose();
     appRepository = AppRepository(database);
+    
     await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    // Wait for data
+    await tester.runAsync(() async {
+      int attempts = 0;
+      while (appRepository.components['comp1'] == null && attempts < 10) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        attempts++;
+      }
+    });
     await tester.pumpAndSettle();
 
     // Sort by name
@@ -195,7 +223,16 @@ void main() {
     
     appRepository.dispose();
     appRepository = AppRepository(database);
+    
     await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    // Wait for data
+    await tester.runAsync(() async {
+      int attempts = 0;
+      while (appRepository.components['comp1'] == null && attempts < 10) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        attempts++;
+      }
+    });
     await tester.pumpAndSettle();
 
     // Sort by Compression
@@ -240,6 +277,14 @@ void main() {
     appRepository = AppRepository(database);
     
     await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    // Wait for data
+    await tester.runAsync(() async {
+      int attempts = 0;
+      while (appRepository.components['comp1'] == null && attempts < 10) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        attempts++;
+      }
+    });
     await tester.pumpAndSettle();
 
     // Initial assertions
@@ -259,6 +304,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Remove 'Rebound' adjustment
+    await tester.ensureVisible(find.byType(PopupMenuButton<String>));
     await tester.tap(find.byType(PopupMenuButton<String>));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Remove'));

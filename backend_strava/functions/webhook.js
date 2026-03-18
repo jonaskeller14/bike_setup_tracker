@@ -1,6 +1,6 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { db, logger, admin } = require("./firebase");
-const { getValidAccessToken, saveActivityToBatch, checkStravaResponse, isBikeActivity } = require("./common");
+const { getValidAccessToken, saveActivityToBatch, checkStravaResponse, isBikeActivity, getTTLTimestamp } = require("./common");
 
 /**
  * STRATEGY: Webhook Listener
@@ -146,7 +146,8 @@ exports.stravaWebhook = onRequest(
                 batch.update(userRef, {
                   strava_auth: admin.firestore.FieldValue.delete(),
                   strava_connected: false,
-                  strava_deauthorized_on_strava_at: admin.firestore.FieldValue.serverTimestamp()
+                  strava_deauthorized_on_strava_at: admin.firestore.FieldValue.serverTimestamp(),
+                  expiresAt: getTTLTimestamp()
                 });
 
                 await batch.commit();

@@ -1,6 +1,6 @@
 const { onRequest, onCall, HttpsError } = require("firebase-functions/v2/https");
 const { db, logger, admin } = require("./firebase");
-const { getValidAccessToken, saveAthleteAndGear, saveActivityToBatch, checkStravaResponse, isBikeActivity } = require("./common");
+const { getValidAccessToken, saveAthleteAndGear, saveActivityToBatch, checkStravaResponse, isBikeActivity, getTTLTimestamp } = require("./common");
 
 /**
  * STRATEGY: Manual Sync (Recent)
@@ -209,7 +209,8 @@ async function writeBatchDoc(userId, activitiesRaw, totalCountSoFar) {
     userId,
     lastModified: admin.firestore.FieldValue.serverTimestamp(),
     activityIds,
-    activities: activitiesMap
+    activities: activitiesMap,
+    expiresAt: getTTLTimestamp()
   };
 
   await db.collection("users").doc(userId)

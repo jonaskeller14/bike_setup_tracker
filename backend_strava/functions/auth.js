@@ -1,6 +1,7 @@
 const { onRequest, onCall, HttpsError } = require("firebase-functions/v2/https");
 const { db, logger, admin } = require("./firebase");
 const { syncFullHistory } = require("./sync");
+const { getTTLTimestamp } = require("./common");
 
 /**
  * STRATEGY: OAuth Token Exchange
@@ -48,6 +49,7 @@ exports.exchangeToken = onRequest(
           updated_at: admin.firestore.FieldValue.serverTimestamp(),
         },
         strava_connected: true,
+        expiresAt: admin.firestore.FieldValue.delete(), // Remove TTL expiration if it exists
         sync_day: new Date().getDay(), // 0=Sun, 1=Mon, ..., 6=Sat — used by scheduledWeeklySync
       }, { merge: true });
 
@@ -105,7 +107,8 @@ exports.deauthorizeUser = onCall({ enforceAppCheck: true }, async (request) => {
       await userRef.update({
         strava_auth: admin.firestore.FieldValue.delete(),
         strava_connected: false,
-        strava_deauthorized_at: admin.firestore.FieldValue.serverTimestamp()
+        strava_deauthorized_on_strava_at: admin.firestore.FieldValue.serverTimestamp(),
+        expiresAt: getTTLTimestamp()
       });
 
       logger.info("USER_DEAUTHORIZED", { userId });

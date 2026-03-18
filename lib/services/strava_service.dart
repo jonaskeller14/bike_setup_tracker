@@ -223,11 +223,21 @@ class StravaService extends ChangeNotifier {
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
         String? token = await messaging.getToken();
         if (token != null) {
+          final Map<String, dynamic> data = {'fcm_token': token};
+          
+          // TTL: Cleanup anonymous users who never link Strava.
+          // If not connected, set expiration to 1 year (365 days) from now.
+          if (!_isConnected) {
+            data['expiresAt'] = Timestamp.fromDate(
+              DateTime.now().add(const Duration(days: 365)),
+            );
+          }
+
           await FirebaseFirestore.instance
               .collection('users')
               .doc(_userId)
-              .set({'fcm_token': token}, SetOptions(merge: true));
-          debugPrint("FCM Token registered for $_userId");
+              .set(data, SetOptions(merge: true));
+          debugPrint("FCM Token registered for $_userId (TTL: ${!_isConnected})");
           debugPrint("FCM Token: $token");
         }
       }

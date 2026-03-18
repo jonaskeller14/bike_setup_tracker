@@ -1,5 +1,9 @@
 const { db, logger, admin } = require("./firebase");
 
+// TTL: Expiration duration for all data (1 year)
+const TTL_DAYS = 365;
+const getTTLTimestamp = () => admin.firestore.Timestamp.fromDate(new Date(Date.now() + TTL_DAYS * 24 * 60 * 60 * 1000));
+
 /**
  * Custom error for Strava API rate limiting (HTTP 429).
  * Parses X-RateLimit-Limit and X-RateLimit-Usage headers to distinguish
@@ -104,7 +108,8 @@ async function saveAthleteAndGear(athlete, userId, batch) {
     profile: athlete.profile,
     gears: [
       ...(athlete.bikes || []).map(b => b.id),
-    ]
+    ],
+    expiresAt: getTTLTimestamp()
   };
 
   batch.set(athleteRef, cleanAthlete, { merge: true });
@@ -119,6 +124,7 @@ async function saveAthleteAndGear(athlete, userId, batch) {
       id: gear.id,
       lastModified: admin.firestore.FieldValue.serverTimestamp(),
       name: gear.name,
+      expiresAt: getTTLTimestamp()
     };
     batch.set(gearRef, cleanGear, { merge: true });
   }
@@ -209,6 +215,7 @@ async function saveActivityToBatch(activity, userId, batch = null) {
     } else {
       // UPDATE Case
       updateData[`activities.${activityId}`] = cleanActivity;
+      updateData.expiresAt = getTTLTimestamp();
     }
 
     if (batch) {
@@ -234,6 +241,7 @@ async function saveActivityToBatch(activity, userId, batch = null) {
       lastModified: admin.firestore.FieldValue.serverTimestamp(),
       [`activities.${activityId}`]: cleanActivity,
       activityIds: admin.firestore.FieldValue.arrayUnion(activityId),
+      expiresAt: getTTLTimestamp()
     };
 
     if (batch) {
@@ -254,7 +262,8 @@ async function saveActivityToBatch(activity, userId, batch = null) {
       activityIds: [activityId],
       activities: {
         [`${activityId}`]: cleanActivity
-      }
+      },
+      expiresAt: getTTLTimestamp()
     };
 
     const newBatchRef = batchesRef.doc(newBatchId);
@@ -273,4 +282,5 @@ module.exports = {
   saveAthleteAndGear,
   saveActivityToBatch,
   isBikeActivity,
+  getTTLTimestamp,
 };

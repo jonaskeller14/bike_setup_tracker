@@ -17,6 +17,7 @@ class TodoRule {
   final String name;
   final String? notes;
   final TodoPriority priority;
+  final String componentId;
 
   TodoRule({
     String? id,
@@ -25,8 +26,8 @@ class TodoRule {
     required this.name,
     this.notes,
     this.priority = TodoPriority.medium,
-  })
-    : id = id ?? const Uuid().v4(),
+    required this.componentId,
+  }) : id = id ?? const Uuid().v4(),
       isDeleted = isDeleted ?? false,
       lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
   
@@ -37,6 +38,7 @@ class TodoRule {
     'name': name,
     'notes': notes,
     'priority': priority.toString(),
+    'componentId': componentId,
   };
 
   factory TodoRule.fromJson(Map<String, dynamic> json) {
@@ -50,6 +52,7 @@ class TodoRule {
         (p) => p.toString() == json['priority'],
         orElse: () => TodoPriority.medium,
       ),
+      componentId: json["componentId"] as String,
     );
   }
 
@@ -63,7 +66,8 @@ class TodoRule {
         lastModified == other.lastModified &&
         name == other.name &&
         notes == other.notes &&
-        priority == other.priority;
+        priority == other.priority &&
+        componentId == other.componentId;
   }
 
   @override
@@ -75,6 +79,7 @@ class TodoRule {
       name,
       notes,
       priority,
+      componentId,
     );
   }
 
@@ -85,6 +90,7 @@ class TodoRule {
     Object? name = const _Sentinel(),
     Object? notes = const _Sentinel(),
     Object? priority = const _Sentinel(),
+    Object? componentId = const _Sentinel(),
   }) {
     return TodoRule(
       id: id is _Sentinel 
@@ -105,6 +111,9 @@ class TodoRule {
       priority: priority is _Sentinel 
           ? this.priority 
           : (priority as TodoPriority),
+      componentId: componentId is _Sentinel
+          ? this.componentId
+          : (componentId as String),
     );
   }
 }

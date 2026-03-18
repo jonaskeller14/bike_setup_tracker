@@ -115,6 +115,7 @@ extension RatingDbMapper on RatingDb {
 extension TodoRuleDbMapper on TodoRuleDb {
   TodoRule toModel() {
     return TodoRule(
+      componentId: componentId,
       id: id,
       isDeleted: isDeleted,
       lastModified: _toUtcSafe(lastModified, 'TodoRule.lastModified'),
@@ -151,7 +152,9 @@ extension BikeMapper on Bike {
       name: Value<String>(name),
       notes: notes == null ? const Value.absent() : Value<String?>(notes),
       person: person == null ? const Value.absent() : Value<String?>(person),
-      stravaGear: stravaGear == null ? const Value.absent() : Value<String?>(stravaGear),
+      stravaGear: stravaGear == null
+          ? const Value.absent()
+          : Value<String?>(stravaGear),
       orderIndex: Value<int>(orderIndex),
     );
   }
@@ -176,7 +179,10 @@ extension ComponentMapper on Component {
 }
 
 extension InstallationMapper on Installation {
-  InstallationsCompanion toCompanion({required String id, required String componentId}) {
+  InstallationsCompanion toCompanion({
+    required String id,
+    required String componentId,
+  }) {
     return InstallationsCompanion(
       id: Value(id),
       componentId: Value(componentId),
@@ -202,11 +208,21 @@ extension AdjustmentMapper on Adjustment {
       notes: notes == null ? const Value.absent() : Value<String?>(notes),
       unit: unit == null ? const Value.absent() : Value<String?>(unit),
       category: Value<AdjustmentCategory>(category),
-      type: Value<AdjustmentType>(AdjustmentType.values.firstWhere((e) => e.name == typeString)),
-      componentId: componentId == null ? const Value.absent() : Value<String?>(componentId),
-      personId: personId == null ? const Value.absent() : Value<String?>(personId),
-      ratingId: ratingId == null ? const Value.absent() : Value<String?>(ratingId),
-      orderIndex: orderIndex == null ? const Value.absent() : Value<int>(orderIndex),
+      type: Value<AdjustmentType>(
+        AdjustmentType.values.firstWhere((e) => e.name == typeString),
+      ),
+      componentId: componentId == null
+          ? const Value.absent()
+          : Value<String?>(componentId),
+      personId: personId == null
+          ? const Value.absent()
+          : Value<String?>(personId),
+      ratingId: ratingId == null
+          ? const Value.absent()
+          : Value<String?>(ratingId),
+      orderIndex: orderIndex == null
+          ? const Value.absent()
+          : Value<int>(orderIndex),
       jsonPayload: Value<String?>(jsonEncode(json)),
     );
   }
@@ -220,7 +236,9 @@ extension PersonMapper on Person {
       lastModified: Value<DateTime>(lastModified),
       name: Value<String>(name),
       notes: notes == null ? const Value.absent() : Value<String?>(notes),
-      stravaAthlete: stravaAthlete == null ? const Value.absent() : Value<int?>(stravaAthlete),
+      stravaAthlete: stravaAthlete == null
+          ? const Value.absent()
+          : Value<int?>(stravaAthlete),
       orderIndex: Value<int>(orderIndex),
     );
   }
@@ -244,6 +262,7 @@ extension RatingMapper on Rating {
 extension TodoRuleMapper on TodoRule {
   TodoRulesCompanion toCompanion() {
     return TodoRulesCompanion(
+      componentId: Value<String>(componentId),
       id: Value<String>(id),
       isDeleted: Value<bool>(isDeleted),
       lastModified: Value<DateTime>(lastModified),
@@ -302,7 +321,6 @@ extension SetupMapper on Setup {
     'subThoroughfare': p.subThoroughfare,
   };
 }
-
 
 extension SetupDbMapper on SetupDb {
   Setup toModel({
@@ -442,10 +460,18 @@ extension StravaActivityMapper on StravaActivity {
       startDate: Value<DateTime>(startDate),
       startDateLocal: Value<DateTime>(startDateLocal),
       gearId: gearId == null ? const Value.absent() : Value<String?>(gearId),
-      startLat: startLat == null ? const Value.absent() : Value<double?>(startLat),
-      startLon: startLon == null ? const Value.absent() : Value<double?>(startLon),
-      distance: distance == null ? const Value.absent() : Value<double?>(distance),
-      totalElevationGain: totalElevationGain == null ? const Value.absent() : Value<double?>(totalElevationGain),
+      startLat: startLat == null
+          ? const Value.absent()
+          : Value<double?>(startLat),
+      startLon: startLon == null
+          ? const Value.absent()
+          : Value<double?>(startLon),
+      distance: distance == null
+          ? const Value.absent()
+          : Value<double?>(distance),
+      totalElevationGain: totalElevationGain == null
+          ? const Value.absent()
+          : Value<double?>(totalElevationGain),
       movingTime: Value<int>(movingTime.inSeconds),
       elapsedTime: Value<int>(elapsedTime.inSeconds),
     );

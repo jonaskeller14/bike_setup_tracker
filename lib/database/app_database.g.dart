@@ -3,6 +3,693 @@
 part of 'app_database.dart';
 
 // ignore_for_file: type=lint
+class $ComponentsTable extends Components
+    with TableInfo<$ComponentsTable, ComponentDb> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ComponentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
+      GeneratedColumn<DateTime>(
+        'last_modified',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($ComponentsTable.$converterlastModified);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<ComponentType, String>
+  componentType = GeneratedColumn<String>(
+    'component_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  ).withConverter<ComponentType>($ComponentsTable.$convertercomponentType);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _orderIndexMeta = const VerificationMeta(
+    'orderIndex',
+  );
+  @override
+  late final GeneratedColumn<int> orderIndex = GeneratedColumn<int>(
+    'order_index',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _initialDistanceMeta = const VerificationMeta(
+    'initialDistance',
+  );
+  @override
+  late final GeneratedColumn<double> initialDistance = GeneratedColumn<double>(
+    'initial_distance',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
+  static const VerificationMeta _initialElevationGainMeta =
+      const VerificationMeta('initialElevationGain');
+  @override
+  late final GeneratedColumn<double> initialElevationGain =
+      GeneratedColumn<double>(
+        'initial_elevation_gain',
+        aliasedName,
+        false,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0.0),
+      );
+  @override
+  late final GeneratedColumnWithTypeConverter<Duration, int> initialMovingTime =
+      GeneratedColumn<int>(
+        'initial_moving_time',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0),
+      ).withConverter<Duration>($ComponentsTable.$converterinitialMovingTime);
+  @override
+  late final GeneratedColumnWithTypeConverter<Duration, int>
+  initialElapsedTime = GeneratedColumn<int>(
+    'initial_elapsed_time',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  ).withConverter<Duration>($ComponentsTable.$converterinitialElapsedTime);
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    isDeleted,
+    lastModified,
+    name,
+    componentType,
+    notes,
+    orderIndex,
+    initialDistance,
+    initialElevationGain,
+    initialMovingTime,
+    initialElapsedTime,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'components';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ComponentDb> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('order_index')) {
+      context.handle(
+        _orderIndexMeta,
+        orderIndex.isAcceptableOrUnknown(data['order_index']!, _orderIndexMeta),
+      );
+    }
+    if (data.containsKey('initial_distance')) {
+      context.handle(
+        _initialDistanceMeta,
+        initialDistance.isAcceptableOrUnknown(
+          data['initial_distance']!,
+          _initialDistanceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('initial_elevation_gain')) {
+      context.handle(
+        _initialElevationGainMeta,
+        initialElevationGain.isAcceptableOrUnknown(
+          data['initial_elevation_gain']!,
+          _initialElevationGainMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ComponentDb map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ComponentDb(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
+      lastModified: $ComponentsTable.$converterlastModified.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_modified'],
+        )!,
+      ),
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      componentType: $ComponentsTable.$convertercomponentType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}component_type'],
+        )!,
+      ),
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      orderIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}order_index'],
+      )!,
+      initialDistance: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}initial_distance'],
+      )!,
+      initialElevationGain: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}initial_elevation_gain'],
+      )!,
+      initialMovingTime: $ComponentsTable.$converterinitialMovingTime.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}initial_moving_time'],
+        )!,
+      ),
+      initialElapsedTime: $ComponentsTable.$converterinitialElapsedTime.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}initial_elapsed_time'],
+        )!,
+      ),
+    );
+  }
+
+  @override
+  $ComponentsTable createAlias(String alias) {
+    return $ComponentsTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<DateTime, DateTime> $converterlastModified =
+      const UtcDateTimeConverter();
+  static JsonTypeConverter2<ComponentType, String, String>
+  $convertercomponentType = const EnumNameConverter(ComponentType.values);
+  static TypeConverter<Duration, int> $converterinitialMovingTime =
+      const DurationConverter();
+  static TypeConverter<Duration, int> $converterinitialElapsedTime =
+      const DurationConverter();
+}
+
+class ComponentDb extends DataClass implements Insertable<ComponentDb> {
+  final String id;
+  final bool isDeleted;
+  final DateTime lastModified;
+  final String name;
+  final ComponentType componentType;
+  final String? notes;
+  final int orderIndex;
+  final double initialDistance;
+  final double initialElevationGain;
+  final Duration initialMovingTime;
+  final Duration initialElapsedTime;
+  const ComponentDb({
+    required this.id,
+    required this.isDeleted,
+    required this.lastModified,
+    required this.name,
+    required this.componentType,
+    this.notes,
+    required this.orderIndex,
+    required this.initialDistance,
+    required this.initialElevationGain,
+    required this.initialMovingTime,
+    required this.initialElapsedTime,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    {
+      map['last_modified'] = Variable<DateTime>(
+        $ComponentsTable.$converterlastModified.toSql(lastModified),
+      );
+    }
+    map['name'] = Variable<String>(name);
+    {
+      map['component_type'] = Variable<String>(
+        $ComponentsTable.$convertercomponentType.toSql(componentType),
+      );
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['order_index'] = Variable<int>(orderIndex);
+    map['initial_distance'] = Variable<double>(initialDistance);
+    map['initial_elevation_gain'] = Variable<double>(initialElevationGain);
+    {
+      map['initial_moving_time'] = Variable<int>(
+        $ComponentsTable.$converterinitialMovingTime.toSql(initialMovingTime),
+      );
+    }
+    {
+      map['initial_elapsed_time'] = Variable<int>(
+        $ComponentsTable.$converterinitialElapsedTime.toSql(initialElapsedTime),
+      );
+    }
+    return map;
+  }
+
+  ComponentsCompanion toCompanion(bool nullToAbsent) {
+    return ComponentsCompanion(
+      id: Value(id),
+      isDeleted: Value(isDeleted),
+      lastModified: Value(lastModified),
+      name: Value(name),
+      componentType: Value(componentType),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      orderIndex: Value(orderIndex),
+      initialDistance: Value(initialDistance),
+      initialElevationGain: Value(initialElevationGain),
+      initialMovingTime: Value(initialMovingTime),
+      initialElapsedTime: Value(initialElapsedTime),
+    );
+  }
+
+  factory ComponentDb.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ComponentDb(
+      id: serializer.fromJson<String>(json['id']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      lastModified: serializer.fromJson<DateTime>(json['lastModified']),
+      name: serializer.fromJson<String>(json['name']),
+      componentType: $ComponentsTable.$convertercomponentType.fromJson(
+        serializer.fromJson<String>(json['componentType']),
+      ),
+      notes: serializer.fromJson<String?>(json['notes']),
+      orderIndex: serializer.fromJson<int>(json['orderIndex']),
+      initialDistance: serializer.fromJson<double>(json['initialDistance']),
+      initialElevationGain: serializer.fromJson<double>(
+        json['initialElevationGain'],
+      ),
+      initialMovingTime: serializer.fromJson<Duration>(
+        json['initialMovingTime'],
+      ),
+      initialElapsedTime: serializer.fromJson<Duration>(
+        json['initialElapsedTime'],
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'lastModified': serializer.toJson<DateTime>(lastModified),
+      'name': serializer.toJson<String>(name),
+      'componentType': serializer.toJson<String>(
+        $ComponentsTable.$convertercomponentType.toJson(componentType),
+      ),
+      'notes': serializer.toJson<String?>(notes),
+      'orderIndex': serializer.toJson<int>(orderIndex),
+      'initialDistance': serializer.toJson<double>(initialDistance),
+      'initialElevationGain': serializer.toJson<double>(initialElevationGain),
+      'initialMovingTime': serializer.toJson<Duration>(initialMovingTime),
+      'initialElapsedTime': serializer.toJson<Duration>(initialElapsedTime),
+    };
+  }
+
+  ComponentDb copyWith({
+    String? id,
+    bool? isDeleted,
+    DateTime? lastModified,
+    String? name,
+    ComponentType? componentType,
+    Value<String?> notes = const Value.absent(),
+    int? orderIndex,
+    double? initialDistance,
+    double? initialElevationGain,
+    Duration? initialMovingTime,
+    Duration? initialElapsedTime,
+  }) => ComponentDb(
+    id: id ?? this.id,
+    isDeleted: isDeleted ?? this.isDeleted,
+    lastModified: lastModified ?? this.lastModified,
+    name: name ?? this.name,
+    componentType: componentType ?? this.componentType,
+    notes: notes.present ? notes.value : this.notes,
+    orderIndex: orderIndex ?? this.orderIndex,
+    initialDistance: initialDistance ?? this.initialDistance,
+    initialElevationGain: initialElevationGain ?? this.initialElevationGain,
+    initialMovingTime: initialMovingTime ?? this.initialMovingTime,
+    initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
+  );
+  ComponentDb copyWithCompanion(ComponentsCompanion data) {
+    return ComponentDb(
+      id: data.id.present ? data.id.value : this.id,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      lastModified: data.lastModified.present
+          ? data.lastModified.value
+          : this.lastModified,
+      name: data.name.present ? data.name.value : this.name,
+      componentType: data.componentType.present
+          ? data.componentType.value
+          : this.componentType,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      orderIndex: data.orderIndex.present
+          ? data.orderIndex.value
+          : this.orderIndex,
+      initialDistance: data.initialDistance.present
+          ? data.initialDistance.value
+          : this.initialDistance,
+      initialElevationGain: data.initialElevationGain.present
+          ? data.initialElevationGain.value
+          : this.initialElevationGain,
+      initialMovingTime: data.initialMovingTime.present
+          ? data.initialMovingTime.value
+          : this.initialMovingTime,
+      initialElapsedTime: data.initialElapsedTime.present
+          ? data.initialElapsedTime.value
+          : this.initialElapsedTime,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ComponentDb(')
+          ..write('id: $id, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('lastModified: $lastModified, ')
+          ..write('name: $name, ')
+          ..write('componentType: $componentType, ')
+          ..write('notes: $notes, ')
+          ..write('orderIndex: $orderIndex, ')
+          ..write('initialDistance: $initialDistance, ')
+          ..write('initialElevationGain: $initialElevationGain, ')
+          ..write('initialMovingTime: $initialMovingTime, ')
+          ..write('initialElapsedTime: $initialElapsedTime')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    isDeleted,
+    lastModified,
+    name,
+    componentType,
+    notes,
+    orderIndex,
+    initialDistance,
+    initialElevationGain,
+    initialMovingTime,
+    initialElapsedTime,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ComponentDb &&
+          other.id == this.id &&
+          other.isDeleted == this.isDeleted &&
+          other.lastModified == this.lastModified &&
+          other.name == this.name &&
+          other.componentType == this.componentType &&
+          other.notes == this.notes &&
+          other.orderIndex == this.orderIndex &&
+          other.initialDistance == this.initialDistance &&
+          other.initialElevationGain == this.initialElevationGain &&
+          other.initialMovingTime == this.initialMovingTime &&
+          other.initialElapsedTime == this.initialElapsedTime);
+}
+
+class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
+  final Value<String> id;
+  final Value<bool> isDeleted;
+  final Value<DateTime> lastModified;
+  final Value<String> name;
+  final Value<ComponentType> componentType;
+  final Value<String?> notes;
+  final Value<int> orderIndex;
+  final Value<double> initialDistance;
+  final Value<double> initialElevationGain;
+  final Value<Duration> initialMovingTime;
+  final Value<Duration> initialElapsedTime;
+  final Value<int> rowid;
+  const ComponentsCompanion({
+    this.id = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.lastModified = const Value.absent(),
+    this.name = const Value.absent(),
+    this.componentType = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.orderIndex = const Value.absent(),
+    this.initialDistance = const Value.absent(),
+    this.initialElevationGain = const Value.absent(),
+    this.initialMovingTime = const Value.absent(),
+    this.initialElapsedTime = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ComponentsCompanion.insert({
+    required String id,
+    this.isDeleted = const Value.absent(),
+    required DateTime lastModified,
+    required String name,
+    required ComponentType componentType,
+    this.notes = const Value.absent(),
+    this.orderIndex = const Value.absent(),
+    this.initialDistance = const Value.absent(),
+    this.initialElevationGain = const Value.absent(),
+    this.initialMovingTime = const Value.absent(),
+    this.initialElapsedTime = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       lastModified = Value(lastModified),
+       name = Value(name),
+       componentType = Value(componentType);
+  static Insertable<ComponentDb> custom({
+    Expression<String>? id,
+    Expression<bool>? isDeleted,
+    Expression<DateTime>? lastModified,
+    Expression<String>? name,
+    Expression<String>? componentType,
+    Expression<String>? notes,
+    Expression<int>? orderIndex,
+    Expression<double>? initialDistance,
+    Expression<double>? initialElevationGain,
+    Expression<int>? initialMovingTime,
+    Expression<int>? initialElapsedTime,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (lastModified != null) 'last_modified': lastModified,
+      if (name != null) 'name': name,
+      if (componentType != null) 'component_type': componentType,
+      if (notes != null) 'notes': notes,
+      if (orderIndex != null) 'order_index': orderIndex,
+      if (initialDistance != null) 'initial_distance': initialDistance,
+      if (initialElevationGain != null)
+        'initial_elevation_gain': initialElevationGain,
+      if (initialMovingTime != null) 'initial_moving_time': initialMovingTime,
+      if (initialElapsedTime != null)
+        'initial_elapsed_time': initialElapsedTime,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ComponentsCompanion copyWith({
+    Value<String>? id,
+    Value<bool>? isDeleted,
+    Value<DateTime>? lastModified,
+    Value<String>? name,
+    Value<ComponentType>? componentType,
+    Value<String?>? notes,
+    Value<int>? orderIndex,
+    Value<double>? initialDistance,
+    Value<double>? initialElevationGain,
+    Value<Duration>? initialMovingTime,
+    Value<Duration>? initialElapsedTime,
+    Value<int>? rowid,
+  }) {
+    return ComponentsCompanion(
+      id: id ?? this.id,
+      isDeleted: isDeleted ?? this.isDeleted,
+      lastModified: lastModified ?? this.lastModified,
+      name: name ?? this.name,
+      componentType: componentType ?? this.componentType,
+      notes: notes ?? this.notes,
+      orderIndex: orderIndex ?? this.orderIndex,
+      initialDistance: initialDistance ?? this.initialDistance,
+      initialElevationGain: initialElevationGain ?? this.initialElevationGain,
+      initialMovingTime: initialMovingTime ?? this.initialMovingTime,
+      initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (lastModified.present) {
+      map['last_modified'] = Variable<DateTime>(
+        $ComponentsTable.$converterlastModified.toSql(lastModified.value),
+      );
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (componentType.present) {
+      map['component_type'] = Variable<String>(
+        $ComponentsTable.$convertercomponentType.toSql(componentType.value),
+      );
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (orderIndex.present) {
+      map['order_index'] = Variable<int>(orderIndex.value);
+    }
+    if (initialDistance.present) {
+      map['initial_distance'] = Variable<double>(initialDistance.value);
+    }
+    if (initialElevationGain.present) {
+      map['initial_elevation_gain'] = Variable<double>(
+        initialElevationGain.value,
+      );
+    }
+    if (initialMovingTime.present) {
+      map['initial_moving_time'] = Variable<int>(
+        $ComponentsTable.$converterinitialMovingTime.toSql(
+          initialMovingTime.value,
+        ),
+      );
+    }
+    if (initialElapsedTime.present) {
+      map['initial_elapsed_time'] = Variable<int>(
+        $ComponentsTable.$converterinitialElapsedTime.toSql(
+          initialElapsedTime.value,
+        ),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ComponentsCompanion(')
+          ..write('id: $id, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('lastModified: $lastModified, ')
+          ..write('name: $name, ')
+          ..write('componentType: $componentType, ')
+          ..write('notes: $notes, ')
+          ..write('orderIndex: $orderIndex, ')
+          ..write('initialDistance: $initialDistance, ')
+          ..write('initialElevationGain: $initialElevationGain, ')
+          ..write('initialMovingTime: $initialMovingTime, ')
+          ..write('initialElapsedTime: $initialElapsedTime, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $TodoRulesTable extends TodoRules
     with TableInfo<$TodoRulesTable, TodoRuleDb> {
   @override
@@ -42,6 +729,20 @@ class $TodoRulesTable extends TodoRules
         type: DriftSqlType.dateTime,
         requiredDuringInsert: true,
       ).withConverter<DateTime>($TodoRulesTable.$converterlastModified);
+  static const VerificationMeta _componentIdMeta = const VerificationMeta(
+    'componentId',
+  );
+  @override
+  late final GeneratedColumn<String> componentId = GeneratedColumn<String>(
+    'component_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES components (id)',
+    ),
+  );
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -75,6 +776,7 @@ class $TodoRulesTable extends TodoRules
     id,
     isDeleted,
     lastModified,
+    componentId,
     name,
     notes,
     priority,
@@ -101,6 +803,17 @@ class $TodoRulesTable extends TodoRules
         _isDeletedMeta,
         isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
       );
+    }
+    if (data.containsKey('component_id')) {
+      context.handle(
+        _componentIdMeta,
+        componentId.isAcceptableOrUnknown(
+          data['component_id']!,
+          _componentIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_componentIdMeta);
     }
     if (data.containsKey('name')) {
       context.handle(
@@ -139,6 +852,10 @@ class $TodoRulesTable extends TodoRules
           data['${effectivePrefix}last_modified'],
         )!,
       ),
+      componentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}component_id'],
+      )!,
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
@@ -171,6 +888,7 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
   final String id;
   final bool isDeleted;
   final DateTime lastModified;
+  final String componentId;
   final String name;
   final String? notes;
   final TodoPriority priority;
@@ -178,6 +896,7 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
     required this.id,
     required this.isDeleted,
     required this.lastModified,
+    required this.componentId,
     required this.name,
     this.notes,
     required this.priority,
@@ -192,6 +911,7 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
         $TodoRulesTable.$converterlastModified.toSql(lastModified),
       );
     }
+    map['component_id'] = Variable<String>(componentId);
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
@@ -209,6 +929,7 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
       id: Value(id),
       isDeleted: Value(isDeleted),
       lastModified: Value(lastModified),
+      componentId: Value(componentId),
       name: Value(name),
       notes: notes == null && nullToAbsent
           ? const Value.absent()
@@ -226,6 +947,7 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
       id: serializer.fromJson<String>(json['id']),
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
       lastModified: serializer.fromJson<DateTime>(json['lastModified']),
+      componentId: serializer.fromJson<String>(json['componentId']),
       name: serializer.fromJson<String>(json['name']),
       notes: serializer.fromJson<String?>(json['notes']),
       priority: $TodoRulesTable.$converterpriority.fromJson(
@@ -240,6 +962,7 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
       'id': serializer.toJson<String>(id),
       'isDeleted': serializer.toJson<bool>(isDeleted),
       'lastModified': serializer.toJson<DateTime>(lastModified),
+      'componentId': serializer.toJson<String>(componentId),
       'name': serializer.toJson<String>(name),
       'notes': serializer.toJson<String?>(notes),
       'priority': serializer.toJson<String>(
@@ -252,6 +975,7 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
     String? id,
     bool? isDeleted,
     DateTime? lastModified,
+    String? componentId,
     String? name,
     Value<String?> notes = const Value.absent(),
     TodoPriority? priority,
@@ -259,6 +983,7 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
     id: id ?? this.id,
     isDeleted: isDeleted ?? this.isDeleted,
     lastModified: lastModified ?? this.lastModified,
+    componentId: componentId ?? this.componentId,
     name: name ?? this.name,
     notes: notes.present ? notes.value : this.notes,
     priority: priority ?? this.priority,
@@ -270,6 +995,9 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
       lastModified: data.lastModified.present
           ? data.lastModified.value
           : this.lastModified,
+      componentId: data.componentId.present
+          ? data.componentId.value
+          : this.componentId,
       name: data.name.present ? data.name.value : this.name,
       notes: data.notes.present ? data.notes.value : this.notes,
       priority: data.priority.present ? data.priority.value : this.priority,
@@ -282,6 +1010,7 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
           ..write('id: $id, ')
           ..write('isDeleted: $isDeleted, ')
           ..write('lastModified: $lastModified, ')
+          ..write('componentId: $componentId, ')
           ..write('name: $name, ')
           ..write('notes: $notes, ')
           ..write('priority: $priority')
@@ -290,8 +1019,15 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, isDeleted, lastModified, name, notes, priority);
+  int get hashCode => Object.hash(
+    id,
+    isDeleted,
+    lastModified,
+    componentId,
+    name,
+    notes,
+    priority,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -299,6 +1035,7 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
           other.id == this.id &&
           other.isDeleted == this.isDeleted &&
           other.lastModified == this.lastModified &&
+          other.componentId == this.componentId &&
           other.name == this.name &&
           other.notes == this.notes &&
           other.priority == this.priority);
@@ -308,6 +1045,7 @@ class TodoRulesCompanion extends UpdateCompanion<TodoRuleDb> {
   final Value<String> id;
   final Value<bool> isDeleted;
   final Value<DateTime> lastModified;
+  final Value<String> componentId;
   final Value<String> name;
   final Value<String?> notes;
   final Value<TodoPriority> priority;
@@ -316,6 +1054,7 @@ class TodoRulesCompanion extends UpdateCompanion<TodoRuleDb> {
     this.id = const Value.absent(),
     this.isDeleted = const Value.absent(),
     this.lastModified = const Value.absent(),
+    this.componentId = const Value.absent(),
     this.name = const Value.absent(),
     this.notes = const Value.absent(),
     this.priority = const Value.absent(),
@@ -325,17 +1064,20 @@ class TodoRulesCompanion extends UpdateCompanion<TodoRuleDb> {
     required String id,
     this.isDeleted = const Value.absent(),
     required DateTime lastModified,
+    required String componentId,
     required String name,
     this.notes = const Value.absent(),
     this.priority = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        lastModified = Value(lastModified),
+       componentId = Value(componentId),
        name = Value(name);
   static Insertable<TodoRuleDb> custom({
     Expression<String>? id,
     Expression<bool>? isDeleted,
     Expression<DateTime>? lastModified,
+    Expression<String>? componentId,
     Expression<String>? name,
     Expression<String>? notes,
     Expression<String>? priority,
@@ -345,6 +1087,7 @@ class TodoRulesCompanion extends UpdateCompanion<TodoRuleDb> {
       if (id != null) 'id': id,
       if (isDeleted != null) 'is_deleted': isDeleted,
       if (lastModified != null) 'last_modified': lastModified,
+      if (componentId != null) 'component_id': componentId,
       if (name != null) 'name': name,
       if (notes != null) 'notes': notes,
       if (priority != null) 'priority': priority,
@@ -356,6 +1099,7 @@ class TodoRulesCompanion extends UpdateCompanion<TodoRuleDb> {
     Value<String>? id,
     Value<bool>? isDeleted,
     Value<DateTime>? lastModified,
+    Value<String>? componentId,
     Value<String>? name,
     Value<String?>? notes,
     Value<TodoPriority>? priority,
@@ -365,6 +1109,7 @@ class TodoRulesCompanion extends UpdateCompanion<TodoRuleDb> {
       id: id ?? this.id,
       isDeleted: isDeleted ?? this.isDeleted,
       lastModified: lastModified ?? this.lastModified,
+      componentId: componentId ?? this.componentId,
       name: name ?? this.name,
       notes: notes ?? this.notes,
       priority: priority ?? this.priority,
@@ -385,6 +1130,9 @@ class TodoRulesCompanion extends UpdateCompanion<TodoRuleDb> {
       map['last_modified'] = Variable<DateTime>(
         $TodoRulesTable.$converterlastModified.toSql(lastModified.value),
       );
+    }
+    if (componentId.present) {
+      map['component_id'] = Variable<String>(componentId.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -409,6 +1157,7 @@ class TodoRulesCompanion extends UpdateCompanion<TodoRuleDb> {
           ..write('id: $id, ')
           ..write('isDeleted: $isDeleted, ')
           ..write('lastModified: $lastModified, ')
+          ..write('componentId: $componentId, ')
           ..write('name: $name, ')
           ..write('notes: $notes, ')
           ..write('priority: $priority, ')
@@ -1450,693 +2199,6 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
           ..write('person: $person, ')
           ..write('stravaGear: $stravaGear, ')
           ..write('orderIndex: $orderIndex, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $ComponentsTable extends Components
-    with TableInfo<$ComponentsTable, ComponentDb> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $ComponentsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
-    'isDeleted',
-  );
-  @override
-  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
-    'is_deleted',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_deleted" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  @override
-  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
-      GeneratedColumn<DateTime>(
-        'last_modified',
-        aliasedName,
-        false,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: true,
-      ).withConverter<DateTime>($ComponentsTable.$converterlastModified);
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
-  @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-    'name',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  @override
-  late final GeneratedColumnWithTypeConverter<ComponentType, String>
-  componentType = GeneratedColumn<String>(
-    'component_type',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  ).withConverter<ComponentType>($ComponentsTable.$convertercomponentType);
-  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
-  @override
-  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
-    'notes',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _orderIndexMeta = const VerificationMeta(
-    'orderIndex',
-  );
-  @override
-  late final GeneratedColumn<int> orderIndex = GeneratedColumn<int>(
-    'order_index',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(0),
-  );
-  static const VerificationMeta _initialDistanceMeta = const VerificationMeta(
-    'initialDistance',
-  );
-  @override
-  late final GeneratedColumn<double> initialDistance = GeneratedColumn<double>(
-    'initial_distance',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(0.0),
-  );
-  static const VerificationMeta _initialElevationGainMeta =
-      const VerificationMeta('initialElevationGain');
-  @override
-  late final GeneratedColumn<double> initialElevationGain =
-      GeneratedColumn<double>(
-        'initial_elevation_gain',
-        aliasedName,
-        false,
-        type: DriftSqlType.double,
-        requiredDuringInsert: false,
-        defaultValue: const Constant(0.0),
-      );
-  @override
-  late final GeneratedColumnWithTypeConverter<Duration, int> initialMovingTime =
-      GeneratedColumn<int>(
-        'initial_moving_time',
-        aliasedName,
-        false,
-        type: DriftSqlType.int,
-        requiredDuringInsert: false,
-        defaultValue: const Constant(0),
-      ).withConverter<Duration>($ComponentsTable.$converterinitialMovingTime);
-  @override
-  late final GeneratedColumnWithTypeConverter<Duration, int>
-  initialElapsedTime = GeneratedColumn<int>(
-    'initial_elapsed_time',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(0),
-  ).withConverter<Duration>($ComponentsTable.$converterinitialElapsedTime);
-  @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    isDeleted,
-    lastModified,
-    name,
-    componentType,
-    notes,
-    orderIndex,
-    initialDistance,
-    initialElevationGain,
-    initialMovingTime,
-    initialElapsedTime,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'components';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<ComponentDb> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('is_deleted')) {
-      context.handle(
-        _isDeletedMeta,
-        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
-      );
-    }
-    if (data.containsKey('name')) {
-      context.handle(
-        _nameMeta,
-        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_nameMeta);
-    }
-    if (data.containsKey('notes')) {
-      context.handle(
-        _notesMeta,
-        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
-      );
-    }
-    if (data.containsKey('order_index')) {
-      context.handle(
-        _orderIndexMeta,
-        orderIndex.isAcceptableOrUnknown(data['order_index']!, _orderIndexMeta),
-      );
-    }
-    if (data.containsKey('initial_distance')) {
-      context.handle(
-        _initialDistanceMeta,
-        initialDistance.isAcceptableOrUnknown(
-          data['initial_distance']!,
-          _initialDistanceMeta,
-        ),
-      );
-    }
-    if (data.containsKey('initial_elevation_gain')) {
-      context.handle(
-        _initialElevationGainMeta,
-        initialElevationGain.isAcceptableOrUnknown(
-          data['initial_elevation_gain']!,
-          _initialElevationGainMeta,
-        ),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  ComponentDb map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return ComponentDb(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}id'],
-      )!,
-      isDeleted: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_deleted'],
-      )!,
-      lastModified: $ComponentsTable.$converterlastModified.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime,
-          data['${effectivePrefix}last_modified'],
-        )!,
-      ),
-      name: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}name'],
-      )!,
-      componentType: $ComponentsTable.$convertercomponentType.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}component_type'],
-        )!,
-      ),
-      notes: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}notes'],
-      ),
-      orderIndex: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}order_index'],
-      )!,
-      initialDistance: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}initial_distance'],
-      )!,
-      initialElevationGain: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}initial_elevation_gain'],
-      )!,
-      initialMovingTime: $ComponentsTable.$converterinitialMovingTime.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.int,
-          data['${effectivePrefix}initial_moving_time'],
-        )!,
-      ),
-      initialElapsedTime: $ComponentsTable.$converterinitialElapsedTime.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.int,
-          data['${effectivePrefix}initial_elapsed_time'],
-        )!,
-      ),
-    );
-  }
-
-  @override
-  $ComponentsTable createAlias(String alias) {
-    return $ComponentsTable(attachedDatabase, alias);
-  }
-
-  static TypeConverter<DateTime, DateTime> $converterlastModified =
-      const UtcDateTimeConverter();
-  static JsonTypeConverter2<ComponentType, String, String>
-  $convertercomponentType = const EnumNameConverter(ComponentType.values);
-  static TypeConverter<Duration, int> $converterinitialMovingTime =
-      const DurationConverter();
-  static TypeConverter<Duration, int> $converterinitialElapsedTime =
-      const DurationConverter();
-}
-
-class ComponentDb extends DataClass implements Insertable<ComponentDb> {
-  final String id;
-  final bool isDeleted;
-  final DateTime lastModified;
-  final String name;
-  final ComponentType componentType;
-  final String? notes;
-  final int orderIndex;
-  final double initialDistance;
-  final double initialElevationGain;
-  final Duration initialMovingTime;
-  final Duration initialElapsedTime;
-  const ComponentDb({
-    required this.id,
-    required this.isDeleted,
-    required this.lastModified,
-    required this.name,
-    required this.componentType,
-    this.notes,
-    required this.orderIndex,
-    required this.initialDistance,
-    required this.initialElevationGain,
-    required this.initialMovingTime,
-    required this.initialElapsedTime,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
-    map['is_deleted'] = Variable<bool>(isDeleted);
-    {
-      map['last_modified'] = Variable<DateTime>(
-        $ComponentsTable.$converterlastModified.toSql(lastModified),
-      );
-    }
-    map['name'] = Variable<String>(name);
-    {
-      map['component_type'] = Variable<String>(
-        $ComponentsTable.$convertercomponentType.toSql(componentType),
-      );
-    }
-    if (!nullToAbsent || notes != null) {
-      map['notes'] = Variable<String>(notes);
-    }
-    map['order_index'] = Variable<int>(orderIndex);
-    map['initial_distance'] = Variable<double>(initialDistance);
-    map['initial_elevation_gain'] = Variable<double>(initialElevationGain);
-    {
-      map['initial_moving_time'] = Variable<int>(
-        $ComponentsTable.$converterinitialMovingTime.toSql(initialMovingTime),
-      );
-    }
-    {
-      map['initial_elapsed_time'] = Variable<int>(
-        $ComponentsTable.$converterinitialElapsedTime.toSql(initialElapsedTime),
-      );
-    }
-    return map;
-  }
-
-  ComponentsCompanion toCompanion(bool nullToAbsent) {
-    return ComponentsCompanion(
-      id: Value(id),
-      isDeleted: Value(isDeleted),
-      lastModified: Value(lastModified),
-      name: Value(name),
-      componentType: Value(componentType),
-      notes: notes == null && nullToAbsent
-          ? const Value.absent()
-          : Value(notes),
-      orderIndex: Value(orderIndex),
-      initialDistance: Value(initialDistance),
-      initialElevationGain: Value(initialElevationGain),
-      initialMovingTime: Value(initialMovingTime),
-      initialElapsedTime: Value(initialElapsedTime),
-    );
-  }
-
-  factory ComponentDb.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return ComponentDb(
-      id: serializer.fromJson<String>(json['id']),
-      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
-      lastModified: serializer.fromJson<DateTime>(json['lastModified']),
-      name: serializer.fromJson<String>(json['name']),
-      componentType: $ComponentsTable.$convertercomponentType.fromJson(
-        serializer.fromJson<String>(json['componentType']),
-      ),
-      notes: serializer.fromJson<String?>(json['notes']),
-      orderIndex: serializer.fromJson<int>(json['orderIndex']),
-      initialDistance: serializer.fromJson<double>(json['initialDistance']),
-      initialElevationGain: serializer.fromJson<double>(
-        json['initialElevationGain'],
-      ),
-      initialMovingTime: serializer.fromJson<Duration>(
-        json['initialMovingTime'],
-      ),
-      initialElapsedTime: serializer.fromJson<Duration>(
-        json['initialElapsedTime'],
-      ),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'isDeleted': serializer.toJson<bool>(isDeleted),
-      'lastModified': serializer.toJson<DateTime>(lastModified),
-      'name': serializer.toJson<String>(name),
-      'componentType': serializer.toJson<String>(
-        $ComponentsTable.$convertercomponentType.toJson(componentType),
-      ),
-      'notes': serializer.toJson<String?>(notes),
-      'orderIndex': serializer.toJson<int>(orderIndex),
-      'initialDistance': serializer.toJson<double>(initialDistance),
-      'initialElevationGain': serializer.toJson<double>(initialElevationGain),
-      'initialMovingTime': serializer.toJson<Duration>(initialMovingTime),
-      'initialElapsedTime': serializer.toJson<Duration>(initialElapsedTime),
-    };
-  }
-
-  ComponentDb copyWith({
-    String? id,
-    bool? isDeleted,
-    DateTime? lastModified,
-    String? name,
-    ComponentType? componentType,
-    Value<String?> notes = const Value.absent(),
-    int? orderIndex,
-    double? initialDistance,
-    double? initialElevationGain,
-    Duration? initialMovingTime,
-    Duration? initialElapsedTime,
-  }) => ComponentDb(
-    id: id ?? this.id,
-    isDeleted: isDeleted ?? this.isDeleted,
-    lastModified: lastModified ?? this.lastModified,
-    name: name ?? this.name,
-    componentType: componentType ?? this.componentType,
-    notes: notes.present ? notes.value : this.notes,
-    orderIndex: orderIndex ?? this.orderIndex,
-    initialDistance: initialDistance ?? this.initialDistance,
-    initialElevationGain: initialElevationGain ?? this.initialElevationGain,
-    initialMovingTime: initialMovingTime ?? this.initialMovingTime,
-    initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
-  );
-  ComponentDb copyWithCompanion(ComponentsCompanion data) {
-    return ComponentDb(
-      id: data.id.present ? data.id.value : this.id,
-      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
-      lastModified: data.lastModified.present
-          ? data.lastModified.value
-          : this.lastModified,
-      name: data.name.present ? data.name.value : this.name,
-      componentType: data.componentType.present
-          ? data.componentType.value
-          : this.componentType,
-      notes: data.notes.present ? data.notes.value : this.notes,
-      orderIndex: data.orderIndex.present
-          ? data.orderIndex.value
-          : this.orderIndex,
-      initialDistance: data.initialDistance.present
-          ? data.initialDistance.value
-          : this.initialDistance,
-      initialElevationGain: data.initialElevationGain.present
-          ? data.initialElevationGain.value
-          : this.initialElevationGain,
-      initialMovingTime: data.initialMovingTime.present
-          ? data.initialMovingTime.value
-          : this.initialMovingTime,
-      initialElapsedTime: data.initialElapsedTime.present
-          ? data.initialElapsedTime.value
-          : this.initialElapsedTime,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('ComponentDb(')
-          ..write('id: $id, ')
-          ..write('isDeleted: $isDeleted, ')
-          ..write('lastModified: $lastModified, ')
-          ..write('name: $name, ')
-          ..write('componentType: $componentType, ')
-          ..write('notes: $notes, ')
-          ..write('orderIndex: $orderIndex, ')
-          ..write('initialDistance: $initialDistance, ')
-          ..write('initialElevationGain: $initialElevationGain, ')
-          ..write('initialMovingTime: $initialMovingTime, ')
-          ..write('initialElapsedTime: $initialElapsedTime')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    id,
-    isDeleted,
-    lastModified,
-    name,
-    componentType,
-    notes,
-    orderIndex,
-    initialDistance,
-    initialElevationGain,
-    initialMovingTime,
-    initialElapsedTime,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is ComponentDb &&
-          other.id == this.id &&
-          other.isDeleted == this.isDeleted &&
-          other.lastModified == this.lastModified &&
-          other.name == this.name &&
-          other.componentType == this.componentType &&
-          other.notes == this.notes &&
-          other.orderIndex == this.orderIndex &&
-          other.initialDistance == this.initialDistance &&
-          other.initialElevationGain == this.initialElevationGain &&
-          other.initialMovingTime == this.initialMovingTime &&
-          other.initialElapsedTime == this.initialElapsedTime);
-}
-
-class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
-  final Value<String> id;
-  final Value<bool> isDeleted;
-  final Value<DateTime> lastModified;
-  final Value<String> name;
-  final Value<ComponentType> componentType;
-  final Value<String?> notes;
-  final Value<int> orderIndex;
-  final Value<double> initialDistance;
-  final Value<double> initialElevationGain;
-  final Value<Duration> initialMovingTime;
-  final Value<Duration> initialElapsedTime;
-  final Value<int> rowid;
-  const ComponentsCompanion({
-    this.id = const Value.absent(),
-    this.isDeleted = const Value.absent(),
-    this.lastModified = const Value.absent(),
-    this.name = const Value.absent(),
-    this.componentType = const Value.absent(),
-    this.notes = const Value.absent(),
-    this.orderIndex = const Value.absent(),
-    this.initialDistance = const Value.absent(),
-    this.initialElevationGain = const Value.absent(),
-    this.initialMovingTime = const Value.absent(),
-    this.initialElapsedTime = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  ComponentsCompanion.insert({
-    required String id,
-    this.isDeleted = const Value.absent(),
-    required DateTime lastModified,
-    required String name,
-    required ComponentType componentType,
-    this.notes = const Value.absent(),
-    this.orderIndex = const Value.absent(),
-    this.initialDistance = const Value.absent(),
-    this.initialElevationGain = const Value.absent(),
-    this.initialMovingTime = const Value.absent(),
-    this.initialElapsedTime = const Value.absent(),
-    this.rowid = const Value.absent(),
-  }) : id = Value(id),
-       lastModified = Value(lastModified),
-       name = Value(name),
-       componentType = Value(componentType);
-  static Insertable<ComponentDb> custom({
-    Expression<String>? id,
-    Expression<bool>? isDeleted,
-    Expression<DateTime>? lastModified,
-    Expression<String>? name,
-    Expression<String>? componentType,
-    Expression<String>? notes,
-    Expression<int>? orderIndex,
-    Expression<double>? initialDistance,
-    Expression<double>? initialElevationGain,
-    Expression<int>? initialMovingTime,
-    Expression<int>? initialElapsedTime,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (isDeleted != null) 'is_deleted': isDeleted,
-      if (lastModified != null) 'last_modified': lastModified,
-      if (name != null) 'name': name,
-      if (componentType != null) 'component_type': componentType,
-      if (notes != null) 'notes': notes,
-      if (orderIndex != null) 'order_index': orderIndex,
-      if (initialDistance != null) 'initial_distance': initialDistance,
-      if (initialElevationGain != null)
-        'initial_elevation_gain': initialElevationGain,
-      if (initialMovingTime != null) 'initial_moving_time': initialMovingTime,
-      if (initialElapsedTime != null)
-        'initial_elapsed_time': initialElapsedTime,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  ComponentsCompanion copyWith({
-    Value<String>? id,
-    Value<bool>? isDeleted,
-    Value<DateTime>? lastModified,
-    Value<String>? name,
-    Value<ComponentType>? componentType,
-    Value<String?>? notes,
-    Value<int>? orderIndex,
-    Value<double>? initialDistance,
-    Value<double>? initialElevationGain,
-    Value<Duration>? initialMovingTime,
-    Value<Duration>? initialElapsedTime,
-    Value<int>? rowid,
-  }) {
-    return ComponentsCompanion(
-      id: id ?? this.id,
-      isDeleted: isDeleted ?? this.isDeleted,
-      lastModified: lastModified ?? this.lastModified,
-      name: name ?? this.name,
-      componentType: componentType ?? this.componentType,
-      notes: notes ?? this.notes,
-      orderIndex: orderIndex ?? this.orderIndex,
-      initialDistance: initialDistance ?? this.initialDistance,
-      initialElevationGain: initialElevationGain ?? this.initialElevationGain,
-      initialMovingTime: initialMovingTime ?? this.initialMovingTime,
-      initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (isDeleted.present) {
-      map['is_deleted'] = Variable<bool>(isDeleted.value);
-    }
-    if (lastModified.present) {
-      map['last_modified'] = Variable<DateTime>(
-        $ComponentsTable.$converterlastModified.toSql(lastModified.value),
-      );
-    }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
-    }
-    if (componentType.present) {
-      map['component_type'] = Variable<String>(
-        $ComponentsTable.$convertercomponentType.toSql(componentType.value),
-      );
-    }
-    if (notes.present) {
-      map['notes'] = Variable<String>(notes.value);
-    }
-    if (orderIndex.present) {
-      map['order_index'] = Variable<int>(orderIndex.value);
-    }
-    if (initialDistance.present) {
-      map['initial_distance'] = Variable<double>(initialDistance.value);
-    }
-    if (initialElevationGain.present) {
-      map['initial_elevation_gain'] = Variable<double>(
-        initialElevationGain.value,
-      );
-    }
-    if (initialMovingTime.present) {
-      map['initial_moving_time'] = Variable<int>(
-        $ComponentsTable.$converterinitialMovingTime.toSql(
-          initialMovingTime.value,
-        ),
-      );
-    }
-    if (initialElapsedTime.present) {
-      map['initial_elapsed_time'] = Variable<int>(
-        $ComponentsTable.$converterinitialElapsedTime.toSql(
-          initialElapsedTime.value,
-        ),
-      );
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('ComponentsCompanion(')
-          ..write('id: $id, ')
-          ..write('isDeleted: $isDeleted, ')
-          ..write('lastModified: $lastModified, ')
-          ..write('name: $name, ')
-          ..write('componentType: $componentType, ')
-          ..write('notes: $notes, ')
-          ..write('orderIndex: $orderIndex, ')
-          ..write('initialDistance: $initialDistance, ')
-          ..write('initialElevationGain: $initialElevationGain, ')
-          ..write('initialMovingTime: $initialMovingTime, ')
-          ..write('initialElapsedTime: $initialElapsedTime, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -6732,10 +6794,10 @@ class StravaGearsCompanion extends UpdateCompanion<StravaGearDb> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
+  late final $ComponentsTable components = $ComponentsTable(this);
   late final $TodoRulesTable todoRules = $TodoRulesTable(this);
   late final $TodoEntriesTable todoEntries = $TodoEntriesTable(this);
   late final $BikesTable bikes = $BikesTable(this);
-  late final $ComponentsTable components = $ComponentsTable(this);
   late final $PersonsTable persons = $PersonsTable(this);
   late final $RatingsTable ratings = $RatingsTable(this);
   late final $AdjustmentsTable adjustments = $AdjustmentsTable(this);
@@ -6760,10 +6822,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
+    components,
     todoRules,
     todoEntries,
     bikes,
-    components,
     persons,
     ratings,
     adjustments,
@@ -6842,11 +6904,652 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ]);
 }
 
+typedef $$ComponentsTableCreateCompanionBuilder =
+    ComponentsCompanion Function({
+      required String id,
+      Value<bool> isDeleted,
+      required DateTime lastModified,
+      required String name,
+      required ComponentType componentType,
+      Value<String?> notes,
+      Value<int> orderIndex,
+      Value<double> initialDistance,
+      Value<double> initialElevationGain,
+      Value<Duration> initialMovingTime,
+      Value<Duration> initialElapsedTime,
+      Value<int> rowid,
+    });
+typedef $$ComponentsTableUpdateCompanionBuilder =
+    ComponentsCompanion Function({
+      Value<String> id,
+      Value<bool> isDeleted,
+      Value<DateTime> lastModified,
+      Value<String> name,
+      Value<ComponentType> componentType,
+      Value<String?> notes,
+      Value<int> orderIndex,
+      Value<double> initialDistance,
+      Value<double> initialElevationGain,
+      Value<Duration> initialMovingTime,
+      Value<Duration> initialElapsedTime,
+      Value<int> rowid,
+    });
+
+final class $$ComponentsTableReferences
+    extends BaseReferences<_$AppDatabase, $ComponentsTable, ComponentDb> {
+  $$ComponentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$TodoRulesTable, List<TodoRuleDb>>
+  _todoRulesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.todoRules,
+    aliasName: $_aliasNameGenerator(db.components.id, db.todoRules.componentId),
+  );
+
+  $$TodoRulesTableProcessedTableManager get todoRulesRefs {
+    final manager = $$TodoRulesTableTableManager(
+      $_db,
+      $_db.todoRules,
+    ).filter((f) => f.componentId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_todoRulesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$AdjustmentsTable, List<AdjustmentDb>>
+  _adjustmentsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.adjustments,
+    aliasName: $_aliasNameGenerator(
+      db.components.id,
+      db.adjustments.componentId,
+    ),
+  );
+
+  $$AdjustmentsTableProcessedTableManager get adjustmentsRefs {
+    final manager = $$AdjustmentsTableTableManager(
+      $_db,
+      $_db.adjustments,
+    ).filter((f) => f.componentId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_adjustmentsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$InstallationsTable, List<InstallationDb>>
+  _installationsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.installations,
+    aliasName: $_aliasNameGenerator(
+      db.components.id,
+      db.installations.componentId,
+    ),
+  );
+
+  $$InstallationsTableProcessedTableManager get installationsRefs {
+    final manager = $$InstallationsTableTableManager(
+      $_db,
+      $_db.installations,
+    ).filter((f) => f.componentId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_installationsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$ComponentsTableFilterComposer
+    extends Composer<_$AppDatabase, $ComponentsTable> {
+  $$ComponentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get lastModified => $composableBuilder(
+    column: $table.lastModified,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ComponentType, ComponentType, String>
+  get componentType => $composableBuilder(
+    column: $table.componentType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get initialDistance => $composableBuilder(
+    column: $table.initialDistance,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get initialElevationGain => $composableBuilder(
+    column: $table.initialElevationGain,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<Duration, Duration, int>
+  get initialMovingTime => $composableBuilder(
+    column: $table.initialMovingTime,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<Duration, Duration, int>
+  get initialElapsedTime => $composableBuilder(
+    column: $table.initialElapsedTime,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  Expression<bool> todoRulesRefs(
+    Expression<bool> Function($$TodoRulesTableFilterComposer f) f,
+  ) {
+    final $$TodoRulesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.todoRules,
+      getReferencedColumn: (t) => t.componentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TodoRulesTableFilterComposer(
+            $db: $db,
+            $table: $db.todoRules,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> adjustmentsRefs(
+    Expression<bool> Function($$AdjustmentsTableFilterComposer f) f,
+  ) {
+    final $$AdjustmentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.adjustments,
+      getReferencedColumn: (t) => t.componentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AdjustmentsTableFilterComposer(
+            $db: $db,
+            $table: $db.adjustments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> installationsRefs(
+    Expression<bool> Function($$InstallationsTableFilterComposer f) f,
+  ) {
+    final $$InstallationsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.installations,
+      getReferencedColumn: (t) => t.componentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InstallationsTableFilterComposer(
+            $db: $db,
+            $table: $db.installations,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$ComponentsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ComponentsTable> {
+  $$ComponentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastModified => $composableBuilder(
+    column: $table.lastModified,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get componentType => $composableBuilder(
+    column: $table.componentType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get initialDistance => $composableBuilder(
+    column: $table.initialDistance,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get initialElevationGain => $composableBuilder(
+    column: $table.initialElevationGain,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get initialMovingTime => $composableBuilder(
+    column: $table.initialMovingTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get initialElapsedTime => $composableBuilder(
+    column: $table.initialElapsedTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ComponentsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ComponentsTable> {
+  $$ComponentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
+      $composableBuilder(
+        column: $table.lastModified,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<ComponentType, String> get componentType =>
+      $composableBuilder(
+        column: $table.componentType,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get initialDistance => $composableBuilder(
+    column: $table.initialDistance,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get initialElevationGain => $composableBuilder(
+    column: $table.initialElevationGain,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<Duration, int> get initialMovingTime =>
+      $composableBuilder(
+        column: $table.initialMovingTime,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<Duration, int> get initialElapsedTime =>
+      $composableBuilder(
+        column: $table.initialElapsedTime,
+        builder: (column) => column,
+      );
+
+  Expression<T> todoRulesRefs<T extends Object>(
+    Expression<T> Function($$TodoRulesTableAnnotationComposer a) f,
+  ) {
+    final $$TodoRulesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.todoRules,
+      getReferencedColumn: (t) => t.componentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TodoRulesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.todoRules,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> adjustmentsRefs<T extends Object>(
+    Expression<T> Function($$AdjustmentsTableAnnotationComposer a) f,
+  ) {
+    final $$AdjustmentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.adjustments,
+      getReferencedColumn: (t) => t.componentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AdjustmentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.adjustments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> installationsRefs<T extends Object>(
+    Expression<T> Function($$InstallationsTableAnnotationComposer a) f,
+  ) {
+    final $$InstallationsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.installations,
+      getReferencedColumn: (t) => t.componentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$InstallationsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.installations,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$ComponentsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ComponentsTable,
+          ComponentDb,
+          $$ComponentsTableFilterComposer,
+          $$ComponentsTableOrderingComposer,
+          $$ComponentsTableAnnotationComposer,
+          $$ComponentsTableCreateCompanionBuilder,
+          $$ComponentsTableUpdateCompanionBuilder,
+          (ComponentDb, $$ComponentsTableReferences),
+          ComponentDb,
+          PrefetchHooks Function({
+            bool todoRulesRefs,
+            bool adjustmentsRefs,
+            bool installationsRefs,
+          })
+        > {
+  $$ComponentsTableTableManager(_$AppDatabase db, $ComponentsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ComponentsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ComponentsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ComponentsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<DateTime> lastModified = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<ComponentType> componentType = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<int> orderIndex = const Value.absent(),
+                Value<double> initialDistance = const Value.absent(),
+                Value<double> initialElevationGain = const Value.absent(),
+                Value<Duration> initialMovingTime = const Value.absent(),
+                Value<Duration> initialElapsedTime = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ComponentsCompanion(
+                id: id,
+                isDeleted: isDeleted,
+                lastModified: lastModified,
+                name: name,
+                componentType: componentType,
+                notes: notes,
+                orderIndex: orderIndex,
+                initialDistance: initialDistance,
+                initialElevationGain: initialElevationGain,
+                initialMovingTime: initialMovingTime,
+                initialElapsedTime: initialElapsedTime,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                Value<bool> isDeleted = const Value.absent(),
+                required DateTime lastModified,
+                required String name,
+                required ComponentType componentType,
+                Value<String?> notes = const Value.absent(),
+                Value<int> orderIndex = const Value.absent(),
+                Value<double> initialDistance = const Value.absent(),
+                Value<double> initialElevationGain = const Value.absent(),
+                Value<Duration> initialMovingTime = const Value.absent(),
+                Value<Duration> initialElapsedTime = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ComponentsCompanion.insert(
+                id: id,
+                isDeleted: isDeleted,
+                lastModified: lastModified,
+                name: name,
+                componentType: componentType,
+                notes: notes,
+                orderIndex: orderIndex,
+                initialDistance: initialDistance,
+                initialElevationGain: initialElevationGain,
+                initialMovingTime: initialMovingTime,
+                initialElapsedTime: initialElapsedTime,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ComponentsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                todoRulesRefs = false,
+                adjustmentsRefs = false,
+                installationsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (todoRulesRefs) db.todoRules,
+                    if (adjustmentsRefs) db.adjustments,
+                    if (installationsRefs) db.installations,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (todoRulesRefs)
+                        await $_getPrefetchedData<
+                          ComponentDb,
+                          $ComponentsTable,
+                          TodoRuleDb
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ComponentsTableReferences
+                              ._todoRulesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ComponentsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).todoRulesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.componentId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (adjustmentsRefs)
+                        await $_getPrefetchedData<
+                          ComponentDb,
+                          $ComponentsTable,
+                          AdjustmentDb
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ComponentsTableReferences
+                              ._adjustmentsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ComponentsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).adjustmentsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.componentId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (installationsRefs)
+                        await $_getPrefetchedData<
+                          ComponentDb,
+                          $ComponentsTable,
+                          InstallationDb
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ComponentsTableReferences
+                              ._installationsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ComponentsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).installationsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.componentId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$ComponentsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ComponentsTable,
+      ComponentDb,
+      $$ComponentsTableFilterComposer,
+      $$ComponentsTableOrderingComposer,
+      $$ComponentsTableAnnotationComposer,
+      $$ComponentsTableCreateCompanionBuilder,
+      $$ComponentsTableUpdateCompanionBuilder,
+      (ComponentDb, $$ComponentsTableReferences),
+      ComponentDb,
+      PrefetchHooks Function({
+        bool todoRulesRefs,
+        bool adjustmentsRefs,
+        bool installationsRefs,
+      })
+    >;
 typedef $$TodoRulesTableCreateCompanionBuilder =
     TodoRulesCompanion Function({
       required String id,
       Value<bool> isDeleted,
       required DateTime lastModified,
+      required String componentId,
       required String name,
       Value<String?> notes,
       Value<TodoPriority> priority,
@@ -6857,6 +7560,7 @@ typedef $$TodoRulesTableUpdateCompanionBuilder =
       Value<String> id,
       Value<bool> isDeleted,
       Value<DateTime> lastModified,
+      Value<String> componentId,
       Value<String> name,
       Value<String?> notes,
       Value<TodoPriority> priority,
@@ -6866,6 +7570,25 @@ typedef $$TodoRulesTableUpdateCompanionBuilder =
 final class $$TodoRulesTableReferences
     extends BaseReferences<_$AppDatabase, $TodoRulesTable, TodoRuleDb> {
   $$TodoRulesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ComponentsTable _componentIdTable(_$AppDatabase db) =>
+      db.components.createAlias(
+        $_aliasNameGenerator(db.todoRules.componentId, db.components.id),
+      );
+
+  $$ComponentsTableProcessedTableManager get componentId {
+    final $_column = $_itemColumn<String>('component_id')!;
+
+    final manager = $$ComponentsTableTableManager(
+      $_db,
+      $_db.components,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_componentIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
 
   static MultiTypedResultKey<$TodoEntriesTable, List<TodoEntryDb>>
   _todoEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
@@ -6926,6 +7649,29 @@ class $$TodoRulesTableFilterComposer
     column: $table.priority,
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
+
+  $$ComponentsTableFilterComposer get componentId {
+    final $$ComponentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.componentId,
+      referencedTable: $db.components,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ComponentsTableFilterComposer(
+            $db: $db,
+            $table: $db.components,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   Expression<bool> todoEntriesRefs(
     Expression<bool> Function($$TodoEntriesTableFilterComposer f) f,
@@ -6991,6 +7737,29 @@ class $$TodoRulesTableOrderingComposer
     column: $table.priority,
     builder: (column) => ColumnOrderings(column),
   );
+
+  $$ComponentsTableOrderingComposer get componentId {
+    final $$ComponentsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.componentId,
+      referencedTable: $db.components,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ComponentsTableOrderingComposer(
+            $db: $db,
+            $table: $db.components,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$TodoRulesTableAnnotationComposer
@@ -7022,6 +7791,29 @@ class $$TodoRulesTableAnnotationComposer
 
   GeneratedColumnWithTypeConverter<TodoPriority, String> get priority =>
       $composableBuilder(column: $table.priority, builder: (column) => column);
+
+  $$ComponentsTableAnnotationComposer get componentId {
+    final $$ComponentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.componentId,
+      referencedTable: $db.components,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ComponentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.components,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   Expression<T> todoEntriesRefs<T extends Object>(
     Expression<T> Function($$TodoEntriesTableAnnotationComposer a) f,
@@ -7062,7 +7854,7 @@ class $$TodoRulesTableTableManager
           $$TodoRulesTableUpdateCompanionBuilder,
           (TodoRuleDb, $$TodoRulesTableReferences),
           TodoRuleDb,
-          PrefetchHooks Function({bool todoEntriesRefs})
+          PrefetchHooks Function({bool componentId, bool todoEntriesRefs})
         > {
   $$TodoRulesTableTableManager(_$AppDatabase db, $TodoRulesTable table)
     : super(
@@ -7080,6 +7872,7 @@ class $$TodoRulesTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
                 Value<DateTime> lastModified = const Value.absent(),
+                Value<String> componentId = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<TodoPriority> priority = const Value.absent(),
@@ -7088,6 +7881,7 @@ class $$TodoRulesTableTableManager
                 id: id,
                 isDeleted: isDeleted,
                 lastModified: lastModified,
+                componentId: componentId,
                 name: name,
                 notes: notes,
                 priority: priority,
@@ -7098,6 +7892,7 @@ class $$TodoRulesTableTableManager
                 required String id,
                 Value<bool> isDeleted = const Value.absent(),
                 required DateTime lastModified,
+                required String componentId,
                 required String name,
                 Value<String?> notes = const Value.absent(),
                 Value<TodoPriority> priority = const Value.absent(),
@@ -7106,6 +7901,7 @@ class $$TodoRulesTableTableManager
                 id: id,
                 isDeleted: isDeleted,
                 lastModified: lastModified,
+                componentId: componentId,
                 name: name,
                 notes: notes,
                 priority: priority,
@@ -7119,36 +7915,72 @@ class $$TodoRulesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({todoEntriesRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (todoEntriesRefs) db.todoEntries],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (todoEntriesRefs)
-                    await $_getPrefetchedData<
-                      TodoRuleDb,
-                      $TodoRulesTable,
-                      TodoEntryDb
-                    >(
-                      currentTable: table,
-                      referencedTable: $$TodoRulesTableReferences
-                          ._todoEntriesRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$TodoRulesTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).todoEntriesRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.todoRule == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({componentId = false, todoEntriesRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (todoEntriesRefs) db.todoEntries,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (componentId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.componentId,
+                                    referencedTable: $$TodoRulesTableReferences
+                                        ._componentIdTable(db),
+                                    referencedColumn: $$TodoRulesTableReferences
+                                        ._componentIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (todoEntriesRefs)
+                        await $_getPrefetchedData<
+                          TodoRuleDb,
+                          $TodoRulesTable,
+                          TodoEntryDb
+                        >(
+                          currentTable: table,
+                          referencedTable: $$TodoRulesTableReferences
+                              ._todoEntriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$TodoRulesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).todoEntriesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.todoRule == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -7165,7 +7997,7 @@ typedef $$TodoRulesTableProcessedTableManager =
       $$TodoRulesTableUpdateCompanionBuilder,
       (TodoRuleDb, $$TodoRulesTableReferences),
       TodoRuleDb,
-      PrefetchHooks Function({bool todoEntriesRefs})
+      PrefetchHooks Function({bool componentId, bool todoEntriesRefs})
     >;
 typedef $$TodoEntriesTableCreateCompanionBuilder =
     TodoEntriesCompanion Function({
@@ -7909,544 +8741,6 @@ typedef $$BikesTableProcessedTableManager =
       (BikeDb, $$BikesTableReferences),
       BikeDb,
       PrefetchHooks Function({bool setupsRefs})
-    >;
-typedef $$ComponentsTableCreateCompanionBuilder =
-    ComponentsCompanion Function({
-      required String id,
-      Value<bool> isDeleted,
-      required DateTime lastModified,
-      required String name,
-      required ComponentType componentType,
-      Value<String?> notes,
-      Value<int> orderIndex,
-      Value<double> initialDistance,
-      Value<double> initialElevationGain,
-      Value<Duration> initialMovingTime,
-      Value<Duration> initialElapsedTime,
-      Value<int> rowid,
-    });
-typedef $$ComponentsTableUpdateCompanionBuilder =
-    ComponentsCompanion Function({
-      Value<String> id,
-      Value<bool> isDeleted,
-      Value<DateTime> lastModified,
-      Value<String> name,
-      Value<ComponentType> componentType,
-      Value<String?> notes,
-      Value<int> orderIndex,
-      Value<double> initialDistance,
-      Value<double> initialElevationGain,
-      Value<Duration> initialMovingTime,
-      Value<Duration> initialElapsedTime,
-      Value<int> rowid,
-    });
-
-final class $$ComponentsTableReferences
-    extends BaseReferences<_$AppDatabase, $ComponentsTable, ComponentDb> {
-  $$ComponentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static MultiTypedResultKey<$AdjustmentsTable, List<AdjustmentDb>>
-  _adjustmentsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.adjustments,
-    aliasName: $_aliasNameGenerator(
-      db.components.id,
-      db.adjustments.componentId,
-    ),
-  );
-
-  $$AdjustmentsTableProcessedTableManager get adjustmentsRefs {
-    final manager = $$AdjustmentsTableTableManager(
-      $_db,
-      $_db.adjustments,
-    ).filter((f) => f.componentId.id.sqlEquals($_itemColumn<String>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_adjustmentsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
-  static MultiTypedResultKey<$InstallationsTable, List<InstallationDb>>
-  _installationsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.installations,
-    aliasName: $_aliasNameGenerator(
-      db.components.id,
-      db.installations.componentId,
-    ),
-  );
-
-  $$InstallationsTableProcessedTableManager get installationsRefs {
-    final manager = $$InstallationsTableTableManager(
-      $_db,
-      $_db.installations,
-    ).filter((f) => f.componentId.id.sqlEquals($_itemColumn<String>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_installationsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
-
-class $$ComponentsTableFilterComposer
-    extends Composer<_$AppDatabase, $ComponentsTable> {
-  $$ComponentsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isDeleted => $composableBuilder(
-    column: $table.isDeleted,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
-  get lastModified => $composableBuilder(
-    column: $table.lastModified,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  ColumnFilters<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<ComponentType, ComponentType, String>
-  get componentType => $composableBuilder(
-    column: $table.componentType,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  ColumnFilters<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get orderIndex => $composableBuilder(
-    column: $table.orderIndex,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get initialDistance => $composableBuilder(
-    column: $table.initialDistance,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get initialElevationGain => $composableBuilder(
-    column: $table.initialElevationGain,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<Duration, Duration, int>
-  get initialMovingTime => $composableBuilder(
-    column: $table.initialMovingTime,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<Duration, Duration, int>
-  get initialElapsedTime => $composableBuilder(
-    column: $table.initialElapsedTime,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  Expression<bool> adjustmentsRefs(
-    Expression<bool> Function($$AdjustmentsTableFilterComposer f) f,
-  ) {
-    final $$AdjustmentsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.adjustments,
-      getReferencedColumn: (t) => t.componentId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$AdjustmentsTableFilterComposer(
-            $db: $db,
-            $table: $db.adjustments,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<bool> installationsRefs(
-    Expression<bool> Function($$InstallationsTableFilterComposer f) f,
-  ) {
-    final $$InstallationsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.installations,
-      getReferencedColumn: (t) => t.componentId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$InstallationsTableFilterComposer(
-            $db: $db,
-            $table: $db.installations,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$ComponentsTableOrderingComposer
-    extends Composer<_$AppDatabase, $ComponentsTable> {
-  $$ComponentsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get isDeleted => $composableBuilder(
-    column: $table.isDeleted,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get lastModified => $composableBuilder(
-    column: $table.lastModified,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get componentType => $composableBuilder(
-    column: $table.componentType,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get orderIndex => $composableBuilder(
-    column: $table.orderIndex,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get initialDistance => $composableBuilder(
-    column: $table.initialDistance,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get initialElevationGain => $composableBuilder(
-    column: $table.initialElevationGain,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get initialMovingTime => $composableBuilder(
-    column: $table.initialMovingTime,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get initialElapsedTime => $composableBuilder(
-    column: $table.initialElapsedTime,
-    builder: (column) => ColumnOrderings(column),
-  );
-}
-
-class $$ComponentsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $ComponentsTable> {
-  $$ComponentsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<bool> get isDeleted =>
-      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
-      $composableBuilder(
-        column: $table.lastModified,
-        builder: (column) => column,
-      );
-
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<ComponentType, String> get componentType =>
-      $composableBuilder(
-        column: $table.componentType,
-        builder: (column) => column,
-      );
-
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
-
-  GeneratedColumn<int> get orderIndex => $composableBuilder(
-    column: $table.orderIndex,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<double> get initialDistance => $composableBuilder(
-    column: $table.initialDistance,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<double> get initialElevationGain => $composableBuilder(
-    column: $table.initialElevationGain,
-    builder: (column) => column,
-  );
-
-  GeneratedColumnWithTypeConverter<Duration, int> get initialMovingTime =>
-      $composableBuilder(
-        column: $table.initialMovingTime,
-        builder: (column) => column,
-      );
-
-  GeneratedColumnWithTypeConverter<Duration, int> get initialElapsedTime =>
-      $composableBuilder(
-        column: $table.initialElapsedTime,
-        builder: (column) => column,
-      );
-
-  Expression<T> adjustmentsRefs<T extends Object>(
-    Expression<T> Function($$AdjustmentsTableAnnotationComposer a) f,
-  ) {
-    final $$AdjustmentsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.adjustments,
-      getReferencedColumn: (t) => t.componentId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$AdjustmentsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.adjustments,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<T> installationsRefs<T extends Object>(
-    Expression<T> Function($$InstallationsTableAnnotationComposer a) f,
-  ) {
-    final $$InstallationsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.installations,
-      getReferencedColumn: (t) => t.componentId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$InstallationsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.installations,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$ComponentsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $ComponentsTable,
-          ComponentDb,
-          $$ComponentsTableFilterComposer,
-          $$ComponentsTableOrderingComposer,
-          $$ComponentsTableAnnotationComposer,
-          $$ComponentsTableCreateCompanionBuilder,
-          $$ComponentsTableUpdateCompanionBuilder,
-          (ComponentDb, $$ComponentsTableReferences),
-          ComponentDb,
-          PrefetchHooks Function({bool adjustmentsRefs, bool installationsRefs})
-        > {
-  $$ComponentsTableTableManager(_$AppDatabase db, $ComponentsTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$ComponentsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$ComponentsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$ComponentsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<String> id = const Value.absent(),
-                Value<bool> isDeleted = const Value.absent(),
-                Value<DateTime> lastModified = const Value.absent(),
-                Value<String> name = const Value.absent(),
-                Value<ComponentType> componentType = const Value.absent(),
-                Value<String?> notes = const Value.absent(),
-                Value<int> orderIndex = const Value.absent(),
-                Value<double> initialDistance = const Value.absent(),
-                Value<double> initialElevationGain = const Value.absent(),
-                Value<Duration> initialMovingTime = const Value.absent(),
-                Value<Duration> initialElapsedTime = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => ComponentsCompanion(
-                id: id,
-                isDeleted: isDeleted,
-                lastModified: lastModified,
-                name: name,
-                componentType: componentType,
-                notes: notes,
-                orderIndex: orderIndex,
-                initialDistance: initialDistance,
-                initialElevationGain: initialElevationGain,
-                initialMovingTime: initialMovingTime,
-                initialElapsedTime: initialElapsedTime,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                required String id,
-                Value<bool> isDeleted = const Value.absent(),
-                required DateTime lastModified,
-                required String name,
-                required ComponentType componentType,
-                Value<String?> notes = const Value.absent(),
-                Value<int> orderIndex = const Value.absent(),
-                Value<double> initialDistance = const Value.absent(),
-                Value<double> initialElevationGain = const Value.absent(),
-                Value<Duration> initialMovingTime = const Value.absent(),
-                Value<Duration> initialElapsedTime = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => ComponentsCompanion.insert(
-                id: id,
-                isDeleted: isDeleted,
-                lastModified: lastModified,
-                name: name,
-                componentType: componentType,
-                notes: notes,
-                orderIndex: orderIndex,
-                initialDistance: initialDistance,
-                initialElevationGain: initialElevationGain,
-                initialMovingTime: initialMovingTime,
-                initialElapsedTime: initialElapsedTime,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$ComponentsTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback:
-              ({adjustmentsRefs = false, installationsRefs = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (adjustmentsRefs) db.adjustments,
-                    if (installationsRefs) db.installations,
-                  ],
-                  addJoins: null,
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (adjustmentsRefs)
-                        await $_getPrefetchedData<
-                          ComponentDb,
-                          $ComponentsTable,
-                          AdjustmentDb
-                        >(
-                          currentTable: table,
-                          referencedTable: $$ComponentsTableReferences
-                              ._adjustmentsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$ComponentsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).adjustmentsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.componentId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (installationsRefs)
-                        await $_getPrefetchedData<
-                          ComponentDb,
-                          $ComponentsTable,
-                          InstallationDb
-                        >(
-                          currentTable: table,
-                          referencedTable: $$ComponentsTableReferences
-                              ._installationsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$ComponentsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).installationsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.componentId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
-              },
-        ),
-      );
-}
-
-typedef $$ComponentsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $ComponentsTable,
-      ComponentDb,
-      $$ComponentsTableFilterComposer,
-      $$ComponentsTableOrderingComposer,
-      $$ComponentsTableAnnotationComposer,
-      $$ComponentsTableCreateCompanionBuilder,
-      $$ComponentsTableUpdateCompanionBuilder,
-      (ComponentDb, $$ComponentsTableReferences),
-      ComponentDb,
-      PrefetchHooks Function({bool adjustmentsRefs, bool installationsRefs})
     >;
 typedef $$PersonsTableCreateCompanionBuilder =
     PersonsCompanion Function({
@@ -12183,14 +12477,14 @@ typedef $$StravaGearsTableProcessedTableManager =
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
+  $$ComponentsTableTableManager get components =>
+      $$ComponentsTableTableManager(_db, _db.components);
   $$TodoRulesTableTableManager get todoRules =>
       $$TodoRulesTableTableManager(_db, _db.todoRules);
   $$TodoEntriesTableTableManager get todoEntries =>
       $$TodoEntriesTableTableManager(_db, _db.todoEntries);
   $$BikesTableTableManager get bikes =>
       $$BikesTableTableManager(_db, _db.bikes);
-  $$ComponentsTableTableManager get components =>
-      $$ComponentsTableTableManager(_db, _db.components);
   $$PersonsTableTableManager get persons =>
       $$PersonsTableTableManager(_db, _db.persons);
   $$RatingsTableTableManager get ratings =>

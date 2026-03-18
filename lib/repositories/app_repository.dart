@@ -268,8 +268,8 @@ class AppRepository extends ChangeNotifier {
     _filterSetups();
     _filterPersons();
     _filterRatings();
-    _filterTodoRules();
-    _filterTodoEntries();
+    _filterTodoRules();  // after _filterComponents()
+    _filterTodoEntries();  // after _filterTodoRules()
     _filterStravaActivities();
   }
 
@@ -312,11 +312,19 @@ class AppRepository extends ChangeNotifier {
   }
 
   void _filterTodoRules() {
-    _filteredTodoRules = todoRules;
+    _filteredTodoRules = Map.fromEntries(
+      todoRules.entries.where(
+        (entry) => _filteredComponents.containsKey(entry.value.componentId),
+      ),
+    );
   }
 
   void _filterTodoEntries() {
-    _filteredTodoEntries = todoEntries;
+    _filteredTodoEntries = Map.fromEntries(
+      todoEntries.entries.where(
+        (entry) => _filteredTodoRules.containsKey(entry.value.todoRule),
+      ),
+    );
   }
 
   void _filterStravaActivities() {

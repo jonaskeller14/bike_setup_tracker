@@ -45,29 +45,32 @@ import 'converters/duration_converter.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [
-  TodoRules,
-  TodoEntries,
-  Bikes,
-  Components,
-  Adjustments,
-  Installations,
-  Setups,
-  SetupAdjustmentValues,
-  Persons,
-  Ratings,
-  StravaActivities,
-  StravaAthletes,
-  StravaGears,
-], daos: [
-  BikesDao,
-  ComponentsDao,
-  SetupsDao,
-  PersonsDao,
-  RatingsDao,
-  TodoDao,
-  StravaDao,
-])
+@DriftDatabase(
+  tables: [
+    TodoRules,
+    TodoEntries,
+    Bikes,
+    Components,
+    Adjustments,
+    Installations,
+    Setups,
+    SetupAdjustmentValues,
+    Persons,
+    Ratings,
+    StravaActivities,
+    StravaAthletes,
+    StravaGears,
+  ],
+  daos: [
+    BikesDao,
+    ComponentsDao,
+    SetupsDao,
+    PersonsDao,
+    RatingsDao,
+    TodoDao,
+    StravaDao,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
   AppDatabase.memory() : super(NativeDatabase.memory());

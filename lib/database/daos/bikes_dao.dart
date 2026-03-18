@@ -8,13 +8,21 @@ import 'soft_delete_dao_mixin.dart';
 part 'bikes_dao.g.dart';
 
 @DriftAccessor(tables: [Bikes, Components, Setups])
-class BikesDao extends DatabaseAccessor<AppDatabase> with _$BikesDaoMixin, SoftDeletableDaoMixin<Bikes, BikeDb, BikesCompanion> {
+class BikesDao extends DatabaseAccessor<AppDatabase>
+    with _$BikesDaoMixin, SoftDeletableDaoMixin<Bikes, BikeDb, BikesCompanion> {
   BikesDao(super.db);
 
-  @override TableInfo<Bikes, BikeDb> get softDeletableTable => bikes;
-  @override Expression<bool> get isDeletedColumn => bikes.isDeleted;
-  @override Expression<String> get idColumn => bikes.id;
-  @override BikesCompanion createSoftDeleteCompanion() => BikesCompanion(isDeleted: const Value(true), lastModified: Value(DateTime.now().toUtc()));
+  @override
+  TableInfo<Bikes, BikeDb> get softDeletableTable => bikes;
+  @override
+  Expression<bool> get isDeletedColumn => bikes.isDeleted;
+  @override
+  Expression<String> get idColumn => bikes.id;
+  @override
+  BikesCompanion createSoftDeleteCompanion() => BikesCompanion(
+    isDeleted: const Value(true),
+    lastModified: Value(DateTime.now().toUtc()),
+  );
 
   Stream<List<BikeDb>> watchAllBikes() {
     return (select(softDeletableTable)
@@ -22,6 +30,7 @@ class BikesDao extends DatabaseAccessor<AppDatabase> with _$BikesDaoMixin, SoftD
           ..orderBy([(t) => OrderingTerm(expression: bikes.orderIndex)]))
         .watch();
   }
+
   Stream<List<BikeDb>> watchDeletedBikes() => watchAllDeleted();
   Future<List<BikeDb>> getAllBikesBypass() => select(bikes).get();
 
@@ -40,8 +49,9 @@ class BikesDao extends DatabaseAccessor<AppDatabase> with _$BikesDaoMixin, SoftD
   Future<void> reorder(List<String> ids) async {
     await transaction(() async {
       for (int i = 0; i < ids.length; i++) {
-        await (update(bikes)..where((t) => t.id.equals(ids[i])))
-            .write(BikesCompanion(orderIndex: Value(i)));
+        await (update(bikes)..where((t) => t.id.equals(ids[i]))).write(
+          BikesCompanion(orderIndex: Value(i)),
+        );
       }
     });
   }

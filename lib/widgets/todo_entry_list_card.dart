@@ -16,9 +16,9 @@ class TodoEntryListCard extends StatelessWidget {
     final appRepository = context.watch<AppRepository>();
     final todoEntry = appRepository.todoEntries[todoEntryId];
     if (todoEntry == null) return const SizedBox.shrink();
-    
+
     final todoRules = appRepository.todoRules;
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       clipBehavior: Clip.antiAlias, // Borderradius for InkWell,

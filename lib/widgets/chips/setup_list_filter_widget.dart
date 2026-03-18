@@ -23,8 +23,7 @@ class SetupListFilterWidget extends StatelessWidget {
         children: [
           SetupListSort(),
           SetupListSearch(),
-          if (appSettings.enableMap)
-            SetupListMap(),
+          SetupListMap(),
           BikeAndTagsFilterChip(enableSetupTagFilter: appSettings.enableSetupTags),
           SetupListValuesFilter(),
         ],

@@ -17,7 +17,6 @@ class AppSettings extends ChangeNotifier {
   bool _enableRating = false;
   bool _enableSetupTags = false;
   bool _enableStrava = false;
-  static const bool _enableMap = true;
   bool _enableGarage = true;
 
   // Temporary Settings
@@ -41,7 +40,6 @@ class AppSettings extends ChangeNotifier {
   bool get enableRating => _enableRating;
   bool get enableSetupTags => _enableSetupTags;
   bool get enableStrava => _enableStrava;
-  bool get enableMap => _enableMap;
   bool get enableGarage => _enableGarage;
 
   // Temporary Settings

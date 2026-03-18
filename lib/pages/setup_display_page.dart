@@ -253,7 +253,7 @@ class SetupDisplayPageContent extends StatelessWidget {
                       dense: true,
                       enabled: setup.place != null,
                     ),
-                    if (setup.position?.latitude != null && setup.position?.longitude != null && appSettings.enableMap)
+                    if (setup.position?.latitude != null && setup.position?.longitude != null)
                       SizedBox(
                         height: 200,
                         child: ClipRRect(

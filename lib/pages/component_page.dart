@@ -224,11 +224,6 @@ class _ComponentPageState extends State<ComponentPage> {
     Navigator.of(context).pop(null);
   }
 
-  String? _validateName(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Name is required';
-    return null;
-  }
-
   Widget _buildGuideRow(IconData icon, String type, String example) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -350,6 +345,151 @@ class _ComponentPageState extends State<ComponentPage> {
     );
   }
 
+  Widget _nameField() {
+    return TextFormField(
+      controller: _nameController,
+      textInputAction: TextInputAction.next,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autofocus: widget.mode == ComponentPageMode.add,
+      onChanged: (value) => setState(() {}), // see filled/fillColor
+      decoration: InputDecoration(
+        labelText: 'Component Name',
+        border: OutlineInputBorder(),
+        hintText: 'Enter component name',
+        fillColor: Colors.orange.withValues(alpha: 0.08),
+        filled: widget.mode == ComponentPageMode.edit && _nameController.text.trim() != widget.component?.name,
+      ),
+      validator: (String? value) {
+        if (value == null || value.trim().isEmpty) return 'Name is required';
+        return null;
+      },
+    );
+  }
+
+  Widget _componentTypeField({required int existingComponentsCount}) {
+    return DropdownButtonFormField<ComponentType>(
+      initialValue: _componentType,
+      isExpanded: true,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      hint: const Text("Please select type"),
+      decoration: InputDecoration(
+        labelText: 'Type',
+        border: OutlineInputBorder(),
+        hintText: "Choose a type for this component",
+        helperText: existingComponentsCount > 0
+            ? Intl.plural(
+                existingComponentsCount,
+                one: "WARNING: There is one ${_componentType?.value}-Component already installed on this bike.",
+                other: "WARNING: There are $existingComponentsCount ${_componentType?.value}-Components already installed on this bike.",
+              )
+            : null,
+        fillColor: Colors.orange.withValues(alpha: 0.08),
+        filled: widget.mode == ComponentPageMode.edit && _componentType != widget.component?.componentType,
+      ),
+      items: ComponentType.values.map((componentType) {
+        return DropdownMenuItem<ComponentType>(
+          value: componentType,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            spacing: 8,
+            children: [
+              Icon(componentType.getIconData()),
+              Expanded(child: Text(componentType.value, overflow: TextOverflow.ellipsis)),
+            ],
+          ),
+        );
+      }).toList(),
+      onChanged: (ComponentType? newComponentType) {
+        if (newComponentType == null) return;
+        setState(() {
+          _componentType = newComponentType;
+        });
+        _changeListener();
+      },
+      validator: (value) {
+        if (value == null) {
+          return 'Component type cannot be empty. You can edit it later.';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _notesField() {
+    return TextFormField(
+      controller: _notesController,
+      minLines: 2,
+      maxLines: null,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      decoration: InputDecoration(
+        labelText: 'Notes (optional)',
+        hintText: 'Enter brand, model, serial number, costs, ...',
+        border: OutlineInputBorder(),
+        fillColor: Colors.orange.withValues(alpha: 0.08),
+        filled: widget.mode == ComponentPageMode.edit && _notesController.text.trim() != (widget.component?.notes ?? ""),
+      ),
+    );
+  }
+
+  Widget _bikesDropdownField({required Map<String, Bike> bikes}) {
+    return DropdownButtonFormField<String?>(
+      initialValue: _bike,
+      isExpanded: true,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      decoration: InputDecoration(
+        labelText: 'Bike',
+        border: OutlineInputBorder(),
+        hintText: "Choose a bike for this component",
+        helperText: _bike == null ? "WARNING: Select Bike to install Component." : null,
+        fillColor: Colors.orange.withValues(alpha: 0.08),
+        filled: widget.mode == ComponentPageMode.edit && _bike != _initialBike,
+      ),
+      validator: (String? newBike) {
+        if (newBike is String && !bikes.containsKey(newBike)) return "Please select valid bike";
+        return null;
+      },
+      items: bikes.values.map((b) {
+        return DropdownMenuItem<String?>(
+          value: b.id,
+          child: Row(
+            spacing: 8,
+            children: [
+              const Icon(Bike.iconData),
+              Expanded(child: Text(b.name, overflow: TextOverflow.ellipsis))
+            ],
+          ),
+        );
+      }).toList() + [
+        DropdownMenuItem<String?>(
+          value: null,
+          child: Row(
+            spacing: 8,
+            children: [
+              const Icon(Icons.shelves),
+              Expanded(child: Text("NOT INSTALLED", overflow: TextOverflow.ellipsis))
+            ],
+          ),
+        ),
+        if (_bike != null && !bikes.containsKey(_bike))
+          DropdownMenuItem<String?>(
+            value: _bike,
+            child: Row(
+              spacing: 8,
+              children: [
+                Icon(Bike.iconData, color: Theme.of(context).colorScheme.error),
+                Expanded(child: Text("BIKE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+              ],
+            ),
+          ),
+      ],
+      onChanged: (String? newBike) {
+        setState(() => _bike = newBike);
+        _changeListener();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
@@ -379,135 +519,10 @@ class _ComponentPageState extends State<ComponentPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextFormField(
-                    controller: _nameController,
-                    textInputAction: TextInputAction.next,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    autofocus: widget.mode == ComponentPageMode.add,
-                    onChanged: (value) => setState(() {}), // see filled/fillColor
-                    decoration: InputDecoration(
-                      labelText: 'Component Name',
-                      border: OutlineInputBorder(),
-                      hintText: 'Enter component name',
-                      fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.mode == ComponentPageMode.edit && _nameController.text.trim() != widget.component?.name,
-                    ),
-                    validator: _validateName,
-                  ),
+                  _nameField(),
                   const SizedBox(height: 12),
-                  if (appSettings.enableInstallationTimeline)
-                    SetInstallationTimeline(
-                      initialInstallations: _installations,
-                      originalInstallations: widget.mode == ComponentPageMode.edit ? widget.component?.installations : null,
-                      onChanged: (newInstallations) {
-                        setState(() => _installations = List.from(newInstallations));
-                        _changeListener();
-                      },
-                    )
-                  else
-                    DropdownButtonFormField<String?>(
-                      initialValue: _bike,
-                      isExpanded: true,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      decoration: InputDecoration(
-                        labelText: 'Bike',
-                        border: OutlineInputBorder(),
-                        hintText: "Choose a bike for this component",
-                        helperText: _bike == null ? "WARNING: Select Bike to install Component." : null,
-                        fillColor: Colors.orange.withValues(alpha: 0.08),
-                        filled: widget.mode == ComponentPageMode.edit && _bike != _initialBike,
-                      ),
-                      validator: (String? newBike) {
-                        if (newBike is String && !bikes.containsKey(newBike)) return "Please select valid bike";
-                        return null;
-                      },
-                      items: bikes.values.map((b) {
-                        return DropdownMenuItem<String?>(
-                          value: b.id,
-                          child: Row(
-                            spacing: 8,
-                            children: [
-                              const Icon(Bike.iconData),
-                              Expanded(child: Text(b.name, overflow: TextOverflow.ellipsis))
-                            ],
-                          ),
-                        );
-                      }).toList() + [
-                        DropdownMenuItem<String?>(
-                          value: null,
-                          child: Row(
-                            spacing: 8,
-                            children: [
-                              const Icon(Icons.shelves),
-                              Expanded(child: Text("NOT INSTALLED", overflow: TextOverflow.ellipsis))
-                            ],
-                          ),
-                        ),
-                        if (_bike != null && !bikes.containsKey(_bike))
-                          DropdownMenuItem<String?>(
-                            value: _bike,
-                            child: Row(
-                              spacing: 8,
-                              children: [
-                                Icon(Bike.iconData, color: Theme.of(context).colorScheme.error),
-                                Expanded(child: Text("BIKE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
-                              ],
-                            ),
-                          ),
-                      ],
-                      onChanged: (String? newBike) {
-                        setState(() => _bike = newBike);
-                        _changeListener();
-                      },
-                    ),
+                  _componentTypeField(existingComponentsCount: existingComponentsCount),
                   const SizedBox(height: 12),
-                  DropdownButtonFormField<ComponentType>(
-                    initialValue: _componentType,
-                    isExpanded: true,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    hint: const Text("Please select type"),
-                    decoration: InputDecoration(
-                      labelText: 'Type',
-                      border: OutlineInputBorder(),
-                      hintText: "Choose a type for this component",
-                      helperText: existingComponentsCount > 0
-                          ? Intl.plural(
-                              existingComponentsCount,
-                              one: "WARNING: There is one ${_componentType?.value}-Component already installed on this bike.",
-                              other: "WARNING: There are $existingComponentsCount ${_componentType?.value}-Components already installed on this bike.",
-                            )
-                          : null,
-                      fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.mode == ComponentPageMode.edit && _componentType != widget.component?.componentType,
-                    ),
-                    items: ComponentType.values.map((componentType) {
-                      return DropdownMenuItem<ComponentType>(
-                        value: componentType,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          spacing: 8,
-                          children: [
-                            Icon(componentType.getIconData()),
-                            Expanded(child: Text(componentType.value, overflow: TextOverflow.ellipsis)),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (ComponentType? newComponentType) {
-                      if (newComponentType == null) return;
-                      setState(() {
-                        _componentType = newComponentType;
-                      });
-                      _changeListener();
-                    },
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Component type cannot be empty. You can edit it later.';
-                      }
-                      return null;
-                    },
-                  ),
                   Center(
                     child: TextButton.icon(
                       onPressed: () => setState(() => _expanded = !_expanded),
@@ -523,23 +538,25 @@ class _ComponentPageState extends State<ComponentPage> {
                   ),
                   if (_expanded) ...[
                     const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _notesController,
-                      minLines: 2,
-                      maxLines: null,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      decoration: InputDecoration(
-                        labelText: 'Notes (optional)',
-                        hintText: 'Enter brand, model, serial number, costs, ...',
-                        border: OutlineInputBorder(),
-                        fillColor: Colors.orange.withValues(alpha: 0.08),
-                        filled: widget.mode == ComponentPageMode.edit && _notesController.text.trim() != (widget.component?.notes ?? ""),
-                      ),
-                    ),
+                    _notesField(),
                   ],
-                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 12),
+                  if (appSettings.enableInstallationTimeline)
+                    SetInstallationTimeline(
+                      initialInstallations: _installations,
+                      originalInstallations: widget.mode == ComponentPageMode.edit ? widget.component?.installations : null,
+                      onChanged: (newInstallations) {
+                        setState(() => _installations = List.from(newInstallations));
+                        _changeListener();
+                      },
+                    )
+                  else
+                    _bikesDropdownField(bikes: bikes),
+
+                  const SizedBox(height: 12),                  
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
+                    padding: const EdgeInsets.only(bottom: 8, left: 4),
                     child: Text("Adjustments", style: Theme.of(context).textTheme.titleMedium),
                   ),
                   FormField<List<Adjustment>>(

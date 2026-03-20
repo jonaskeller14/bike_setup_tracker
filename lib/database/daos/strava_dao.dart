@@ -30,6 +30,12 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
   Future<List<StravaAthleteDb>> getAllAthletesBypass() => select(stravaAthletes).get();
   Future<List<StravaGearDb>> getAllGearsBypass() => select(stravaGears).get();
   Future<List<StravaActivityDb>> getAllActivitiesBypass() => select(stravaActivities).get();
+  Future<List<StravaActivityDb>> getActivitiesPaginated({required int limit, required int offset}) {
+    return (select(stravaActivities)
+          ..orderBy([(t) => OrderingTerm(expression: t.startDate, mode: OrderingMode.desc)])
+          ..limit(limit, offset: offset))
+        .get();
+  }
 
   Future upsertAthlete(StravaAthletesCompanion entry) => into(stravaAthletes).insertOnConflictUpdate(entry);
   Future upsertGear(StravaGearsCompanion entry) => into(stravaGears).insertOnConflictUpdate(entry);

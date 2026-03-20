@@ -42,10 +42,18 @@ class SetupList extends StatelessWidget {
     final stravaActivities = appRepository.filteredStravaActivities.values;
     final todoEntries = appRepository.filteredTodoEntries.values;
 
+    final oldestActivityDate = stravaActivities.isEmpty 
+        ? null 
+        : stravaActivities.map((a) => a.startDate).reduce((a, b) => a.isBefore(b) ? a : b);
+
     final List<_TimelineEntry> entries =  [
-      ...setupsList.map((s) => _SetupEntry(s)), 
+      ...setupsList
+          .where((s) => oldestActivityDate == null || !appRepository.hasMoreStrava || !s.datetime.isBefore(oldestActivityDate))
+          .map((s) => _SetupEntry(s)), 
       ...stravaActivities.map((a) => _StravaEntry(a)),
-      ...todoEntries.map((t) => _TodoTimeLineEntry(t)),
+      ...todoEntries
+          .where((t) => oldestActivityDate == null || !appRepository.hasMoreStrava || !t.dateTimeUTC.isBefore(oldestActivityDate))
+          .map((t) => _TodoTimeLineEntry(t)),
     ];
     entries.sort((a, b) => appSettings.setupListSortAscending 
         ? a.date.compareTo(b.date) 
@@ -55,13 +63,40 @@ class SetupList extends StatelessWidget {
         ? _emptyPlaceholder(context)
         : ListView.builder(
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
-            itemCount: entries.length + 1, // 1 header
+            itemCount: entries.length + 1 + (appRepository.isLoadingMoreStrava ? 1 : 0), // 1 header + optional loader
             itemBuilder: (context, index) {
               if (index == 0) {
                 return SetupListFilterWidget();
               }
+
+              if (index > entries.length) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
               
               final entry = entries[index - 1];
+
+              // Check for lazy loading trigger
+              if (entry is _StravaEntry && appRepository.hasMoreStrava && !appRepository.isLoadingMoreStrava) {
+                final activities = appRepository.filteredStravaActivities.values.toList();
+                if (activities.length >= 5) {
+                   final tailActivities = activities.sublist(activities.length - 5);
+                   if (tailActivities.contains(entry.activity)) {
+                     WidgetsBinding.instance.addPostFrameCallback((_) {
+                       appRepository.loadMoreStravaActivities();
+                     });
+                   }
+                } else if (activities.isNotEmpty && activities.last == entry.activity) {
+                   WidgetsBinding.instance.addPostFrameCallback((_) {
+                     appRepository.loadMoreStravaActivities();
+                   });
+                }
+              }
+
               switch (entry) {
                 case _StravaEntry(): 
                   return StravaListTile(stravaActivity: entry.activity);

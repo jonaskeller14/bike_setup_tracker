@@ -42,6 +42,14 @@ class AppRepository extends ChangeNotifier {
   Map<String, StravaGear> _stravaGears = {};
   Map<String, ComponentStats> _componentStats = {};
 
+  int _stravaOffset = 0;
+  final int _stravaLimit = 50;
+  bool _hasMoreStrava = true;
+  bool _isLoadingMoreStrava = false;
+
+  bool get hasMoreStrava => _hasMoreStrava;
+  bool get isLoadingMoreStrava => _isLoadingMoreStrava;
+
   Map<String, Person> get persons => _persons;
   Map<String, Bike> get bikes => _bikes;
   Map<String, Setup> get setups => _setups;
@@ -177,10 +185,8 @@ class AppRepository extends ChangeNotifier {
       _dataChanged();
     }));
 
-    _subscriptions.add(database.stravaDao.watchAllActivities().listen((list) {
-      _stravaActivities = {for (var a in list) a.id: a.toModel()};
-      _dataChanged();
-    }));
+    _initialStravaLoad();
+
     _subscriptions.add(database.stravaDao.watchAllGears().listen((list) {
       _stravaGears = {for (var g in list) g.id: g.toModel()};
       _dataChanged();
@@ -345,6 +351,39 @@ class AppRepository extends ChangeNotifier {
     _filteredStravaActivities = Map.fromEntries(stravaActivities.entries.where((entry) {
       return entry.value.gearId == selectedStravaGear;
     }));
+  }
+
+  Future<void> _initialStravaLoad() async {
+    _stravaOffset = 0;
+    _hasMoreStrava = true;
+    _isLoadingMoreStrava = true;
+    notifyListeners();
+
+    final list = await database.stravaDao.getActivitiesPaginated(limit: _stravaLimit, offset: 0);
+    _stravaActivities = {for (var a in list) a.id: a.toModel()};
+    _stravaOffset = list.length;
+    if (list.length < _stravaLimit) _hasMoreStrava = false;
+    _isLoadingMoreStrava = false;
+    _dataChanged();
+  }
+
+  Future<void> loadMoreStravaActivities() async {
+    if (_isLoadingMoreStrava || !_hasMoreStrava) return;
+    _isLoadingMoreStrava = true;
+    notifyListeners();
+
+    final list = await database.stravaDao.getActivitiesPaginated(limit: _stravaLimit, offset: _stravaOffset);
+    if (list.isEmpty) {
+      _hasMoreStrava = false;
+    } else {
+      for (var a in list) {
+        _stravaActivities[a.id] = a.toModel();
+      }
+      _stravaOffset += list.length;
+      if (list.length < _stravaLimit) _hasMoreStrava = false;
+    }
+    _isLoadingMoreStrava = false;
+    _dataChanged();
   }
 
   void onBikeTap(String? newBike) {
@@ -698,6 +737,14 @@ class AppRepository extends ChangeNotifier {
   Future<void> setStravaActivities(Iterable<StravaActivity> activities) async {
     for (var a in activities) {
       await database.stravaDao.upsertActivity(a.toCompanion());
+      // Removed direct cache update to allow pagination to control the viewable items.
+      // New activities will be visible after an initial reload or if they fall into the loaded range.
+    }
+    // Refresh the first page if we are at the top, to show potentially new activities
+    if (_stravaOffset <= _stravaLimit) {
+      _initialStravaLoad();
+    } else {
+       _dataChanged();
     }
   }
 
@@ -717,5 +764,9 @@ class AppRepository extends ChangeNotifier {
     await database.delete(database.stravaActivities).go();
     await database.delete(database.stravaAthletes).go();
     await database.delete(database.stravaGears).go();
+    _stravaActivities = {};
+    _stravaOffset = 0;
+    _hasMoreStrava = true;
+    _dataChanged();
   }
 }

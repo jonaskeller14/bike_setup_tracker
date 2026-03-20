@@ -4,8 +4,8 @@ import "../set_adjustment/set_adjustment.dart";
 
 class DisplayNumericalAdjustmentWidget extends StatelessWidget {
   final NumericalAdjustment adjustment;
-  final double? initialValue;
-  final double? value;
+  final num? initialValue;
+  final num? value;
   final bool highlighting;
 
   const DisplayNumericalAdjustmentWidget({

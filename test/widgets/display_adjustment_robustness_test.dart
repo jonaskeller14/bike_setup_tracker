@@ -1,0 +1,87 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:bike_setup_tracker/widgets/display_adjustment/display_step_adjustment.dart';
+import 'package:bike_setup_tracker/widgets/display_adjustment/display_numerical_adjustment.dart';
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+
+void main() {
+  group('Display Widgets Robustness Tests', () {
+    testWidgets('DisplayStepAdjustmentWidget handles int and double values', (WidgetTester tester) async {
+      final adjustment = StepAdjustment(
+        id: 'step1',
+        name: 'Step Adj',
+        notes: '',
+        unit: 'clicks',
+        category: AdjustmentCategory.component,
+        step: 1,
+        min: 0,
+        max: 10,
+        visualization: StepAdjustmentVisualization.slider,
+      );
+
+      // Test with int
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: DisplayStepAdjustmentWidget(
+            key: const ValueKey('int'),
+            adjustment: adjustment,
+            initialValue: 5,
+            value: 6,
+          ),
+        ),
+      ));
+      expect(find.text('6 clicks'), findsOneWidget);
+
+      // Test with double (robustness check)
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: DisplayStepAdjustmentWidget(
+            key: const ValueKey('double'),
+            adjustment: adjustment,
+            initialValue: 5.0 as dynamic, // Force double
+            value: 6.0 as dynamic,
+          ),
+        ),
+      ));
+      expect(find.text('6 clicks'), findsOneWidget);
+    });
+
+    testWidgets('DisplayNumericalAdjustmentWidget handles int and double values', (WidgetTester tester) async {
+      final adjustment = NumericalAdjustment(
+        id: 'num1',
+        name: 'Num Adj',
+        notes: '',
+        unit: 'mm',
+        category: AdjustmentCategory.component,
+        min: 0,
+        max: 100,
+      );
+
+      // Test with double
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: DisplayNumericalAdjustmentWidget(
+            key: const ValueKey('double'),
+            adjustment: adjustment,
+            initialValue: 10.5,
+            value: 12.0,
+          ),
+        ),
+      ));
+      expect(find.text('12 mm'), findsOneWidget);
+
+      // Test with int (robustness check)
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: DisplayNumericalAdjustmentWidget(
+            key: const ValueKey('int'),
+            adjustment: adjustment,
+            initialValue: 10 as dynamic,
+            value: 12 as dynamic,
+          ),
+        ),
+      ));
+      expect(find.text('12 mm'), findsOneWidget);
+    });
+  });
+}

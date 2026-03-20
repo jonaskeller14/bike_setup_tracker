@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/database/daos/setups_dao.dart';
 import 'package:bike_setup_tracker/models/strava/strava_athlete.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -159,6 +160,55 @@ void main() {
       expect(model.isCurrent, true);
       expect(model.tags, contains('race'));
       expect(model.bike, 'bike1');
+    });
+
+    test('Setup Value Parsing (int vs double)', () {
+      final setupDb = SetupDb(
+        id: 's1',
+        bikeId: 'b1',
+        isDeleted: false,
+        lastModified: DateTime.now().toUtc(),
+        name: 'Test Setup',
+        datetime: DateTime.now().toUtc(),
+        datetimeLocal: DateTime.now(),
+        tags: {},
+      );
+
+      final stepAdj = AdjustmentDb(
+        id: 'adj_step',
+        name: 'Step Adj',
+        category: AdjustmentCategory.component,
+        type: AdjustmentType.step,
+        orderIndex: 0,
+        componentId: 'c1',
+      );
+
+      final numericalAdj = AdjustmentDb(
+        id: 'adj_num',
+        name: 'Num Adj',
+        category: AdjustmentCategory.component,
+        type: AdjustmentType.numerical,
+        orderIndex: 1,
+        componentId: 'c1',
+      );
+
+      final values = [
+        TypedSetupValue(
+          adjustment: stepAdj,
+          value: SetupAdjustmentValueDb(setupId: 's1', adjustmentId: 'adj_step', value: '10'),
+        ),
+        TypedSetupValue(
+          adjustment: numericalAdj,
+          value: SetupAdjustmentValueDb(setupId: 's1', adjustmentId: 'adj_num', value: '10.5'),
+        ),
+      ];
+
+      final model = setupDb.toModel(values: values);
+
+      expect(model.bikeAdjustmentValues['adj_step'], isA<int>());
+      expect(model.bikeAdjustmentValues['adj_step'], 10);
+      expect(model.bikeAdjustmentValues['adj_num'], isA<double>());
+      expect(model.bikeAdjustmentValues['adj_num'], 10.5);
     });
 
     group('Detailed Adjustment Mapping', () {

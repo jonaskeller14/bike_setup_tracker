@@ -4,8 +4,8 @@ import "../set_adjustment/set_adjustment.dart";
 
 class DisplayStepAdjustmentWidget extends StatelessWidget {
   final StepAdjustment adjustment;
-  final int? initialValue;
-  final int? value;
+  final num? initialValue;
+  final num? value;
   final bool highlighting;
 
   const DisplayStepAdjustmentWidget({

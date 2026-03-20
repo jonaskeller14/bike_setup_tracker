@@ -371,8 +371,9 @@ extension SetupDbMapper on SetupDb {
       case AdjustmentType.boolean:
         return valStr.toLowerCase() == 'true';
       case AdjustmentType.numerical:
-      case AdjustmentType.step:
         return double.tryParse(valStr);
+      case AdjustmentType.step:
+        return int.tryParse(valStr);
       case AdjustmentType.categorical:
       case AdjustmentType.text:
         return valStr;

@@ -63,6 +63,7 @@ dependencies:
   simple_icons: ^14.6.1
   weather_icons: ^3.0.0
   flutter_map: ^8.2.2
+  flutter_map_marker_cluster: ^8.2.2
   latlong2: ^0.9.1
   app_links: ^7.0.0
   excel: ^4.0.6

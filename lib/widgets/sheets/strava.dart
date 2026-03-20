@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +5,7 @@ import 'package:simple_icons/simple_icons.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../repositories/app_repository.dart';
+import '../../models/strava/strava_activity.dart';
 import '../../models/strava/strava_athlete.dart';
 import '../../services/strava_service.dart';
 import 'sheet.dart';
@@ -37,7 +37,6 @@ class _StravaSheetState extends State<StravaSheet> {
     final stravaService = context.watch<StravaService>();
     final athletes = appRepository.stravaAthletes.values;
     final gears = appRepository.stravaGears.values;
-    final latestActivities = appRepository.stravaActivities.values.sortedBy((a) => a.startDate).reversed.take(3);
     
     return SafeArea(
       child: Padding(
@@ -186,23 +185,37 @@ class _StravaSheetState extends State<StravaSheet> {
                       ),
                     ],
                     
-                    if (latestActivities.isNotEmpty) ...[
-                      const Divider(),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8),
-                        child: Text("Latest Synced Activities:", style: TextStyle(fontWeight: FontWeight.bold)),
-                      ),
-                      ...latestActivities.map((activity) => StravaListTile(
-                        stravaActivity: activity,
-                        contentPadding: EdgeInsets.zero,
-                      )),
-                    ] else
-                      const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(32),
-                          child: Text("No activities synced yet.", style: TextStyle(fontStyle: FontStyle.italic)),
-                        ),
-                      ),
+                    FutureBuilder<List<StravaActivity>>(
+                      future: appRepository.latestStravaActivities,
+                      builder: (context, snapshot) {
+                        final latestActivities = snapshot.data ?? [];
+                        if (latestActivities.isNotEmpty) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Divider(),
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                                child: Text("Latest Synced Activities:", style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              ...latestActivities.map((activity) => StravaListTile(
+                                stravaActivity: activity,
+                                contentPadding: EdgeInsets.zero,
+                              )),
+                            ],
+                          );
+                        } else if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator()));
+                        } else {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(32),
+                              child: Text("No activities synced yet.", style: TextStyle(fontStyle: FontStyle.italic)),
+                            ),
+                          );
+                        }
+                      },
+                    ),
                   ],
                 ),
               )

@@ -38,28 +38,43 @@ class SetupList extends StatelessWidget {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
+    final sortAscending = appRepository.stravaSortAscending;
     final setupsList = appRepository.filteredSetups.values;
     final stravaActivities = appRepository.filteredStravaActivities.values;
     final todoEntries = appRepository.filteredTodoEntries.values;
 
-    final oldestActivityDate = stravaActivities.isEmpty 
+    // Horizon date is the "furthest" loaded activity date in the current scroll direction.
+    // ASC: newest activity date. DESC: oldest activity date.
+    final horizonDate = stravaActivities.isEmpty 
         ? null 
-        : stravaActivities.map((a) => a.startDate).reduce((a, b) => a.isBefore(b) ? a : b);
+        : sortAscending
+            ? stravaActivities.map((a) => a.startDate).reduce((a, b) => a.isAfter(b) ? a : b)
+            : stravaActivities.map((a) => a.startDate).reduce((a, b) => a.isBefore(b) ? a : b);
 
     final List<_TimelineEntry> entries =  [
       ...setupsList
-          .where((s) => oldestActivityDate == null || !appRepository.hasMoreStrava || !s.datetime.isBefore(oldestActivityDate))
+          .where((s) {
+            if (horizonDate == null || !appRepository.hasMoreStrava) return true;
+            return sortAscending 
+                ? !s.datetime.isAfter(horizonDate) // ASC: hide newer than horizon
+                : !s.datetime.isBefore(horizonDate); // DESC: hide older than horizon
+          })
           .map((s) => _SetupEntry(s)), 
       ...stravaActivities.map((a) => _StravaEntry(a)),
       ...todoEntries
-          .where((t) => oldestActivityDate == null || !appRepository.hasMoreStrava || !t.dateTimeUTC.isBefore(oldestActivityDate))
+          .where((t) {
+            if (horizonDate == null || !appRepository.hasMoreStrava) return true;
+            return sortAscending 
+                ? !t.dateTimeUTC.isAfter(horizonDate) // ASC: hide newer than horizon
+                : !t.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
+          })
           .map((t) => _TodoTimeLineEntry(t)),
     ];
-    entries.sort((a, b) => appSettings.setupListSortAscending 
+    entries.sort((a, b) => sortAscending 
         ? a.date.compareTo(b.date) 
         : b.date.compareTo(a.date));
 
-    return setupsList.isEmpty
+    return setupsList.isEmpty && stravaActivities.isEmpty && todoEntries.isEmpty
         ? _emptyPlaceholder(context)
         : ListView.builder(
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
@@ -83,6 +98,10 @@ class SetupList extends StatelessWidget {
               // Check for lazy loading trigger
               if (entry is _StravaEntry && appRepository.hasMoreStrava && !appRepository.isLoadingMoreStrava) {
                 final activities = appRepository.filteredStravaActivities.values.toList();
+                activities.sort((a, b) => sortAscending 
+                    ? a.startDate.compareTo(b.startDate) 
+                    : b.startDate.compareTo(a.startDate));
+                
                 if (activities.length >= 5) {
                    final tailActivities = activities.sublist(activities.length - 5);
                    if (tailActivities.contains(entry.activity)) {
@@ -116,9 +135,8 @@ class SetupList extends StatelessWidget {
                     displayRatingAdjustmentValues: appSettings.setupListRatingAdjustmentValues,
                   );
                 case _TodoTimeLineEntry():
-                  final todoEntry = entry.todoEntry;
                   return TodoEntryListCard(
-                    todoEntryId: todoEntry.id,
+                    todoEntryId: entry.todoEntry.id,
                   );
               }
             },
@@ -133,17 +151,20 @@ sealed class _TimelineEntry {
 class _SetupEntry extends _TimelineEntry {
   final Setup setup;
   _SetupEntry(this.setup);
-  @override DateTime get date => setup.datetime;
+  @override
+  DateTime get date => setup.datetime;
 }
 
 class _StravaEntry extends _TimelineEntry {
   final StravaActivity activity;
   _StravaEntry(this.activity);
-  @override DateTime get date => activity.startDate;
+  @override
+  DateTime get date => activity.startDate;
 }
 
 class _TodoTimeLineEntry extends _TimelineEntry {
   final TodoEntry todoEntry;
   _TodoTimeLineEntry(this.todoEntry);
-  @override DateTime get date => todoEntry.dateTimeUTC;
+  @override
+  DateTime get date => todoEntry.dateTimeUTC;
 }

@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
+import 'package:drift/drift.dart' as drift;
 import 'package:uuid/uuid.dart';
-
 import '../database/app_database.dart';
 import '../database/mappers.dart';
-
 import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/person.dart';
@@ -26,6 +26,12 @@ import '../utils/file_export.dart';
 class AppRepository extends ChangeNotifier {
   final AppDatabase database;
   final List<StreamSubscription> _subscriptions = [];
+  
+  /// Track if the repository has been disposed. 
+  /// This is used as a safety guard for asynchronous operations that might 
+  /// complete after the repository is closed (common in tests), preventing
+  /// 'notifyListeners() called after dispose()' crashes.
+  bool _isDisposed = false;
 
   // ---------------------------------------------------------------------------
   // RAW STATE FROM DB (Read-Only Cache for immediate access)
@@ -43,12 +49,49 @@ class AppRepository extends ChangeNotifier {
   Map<String, ComponentStats> _componentStats = {};
 
   int _stravaOffset = 0;
-  final int _stravaLimit = 50;
+  int _stravaLimit = 50;
   bool _hasMoreStrava = true;
   bool _isLoadingMoreStrava = false;
+  bool _stravaSortAscending = false;
 
   bool get hasMoreStrava => _hasMoreStrava;
   bool get isLoadingMoreStrava => _isLoadingMoreStrava;
+  bool get stravaSortAscending => _stravaSortAscending;
+
+  Stream<List<StravaActivity>> get stravaActivitiesWithPosition => database.stravaDao.watchActivitiesWithPosition().map((list) => list.map((a) => a.toModel()).toList());
+
+  /// Debug helper to override the pagination chunk size in tests.
+  void debugSetStravaLimit(int limit) {
+    _stravaLimit = limit;
+  }
+
+  Future<List<StravaActivity>> get latestStravaActivities async {
+    final list = await database.stravaDao.getActivitiesPaginated(limit: 3, offset: 0, mode: drift.OrderingMode.desc);
+    return list.map((a) => a.toModel()).toList();
+  }
+
+  Future<List<StravaActivity>> getFilteredStravaActivitiesWithPosition() async {
+    final allWithPos = await database.stravaDao.watchActivitiesWithPosition().first;
+    final activities = allWithPos.map((a) => a.toModel()).toList();
+    
+    if (_selectedBike == null) return activities;
+    
+    final selectedStravaGear = bikes[_selectedBike]?.stravaGear;
+    if (selectedStravaGear == null) {
+      return activities.where((a) {
+        final stravaGear = a.gearId;
+        return stravaGear == null || !bikes.values.any((b) => b.stravaGear == stravaGear);
+      }).toList();
+    }
+
+    return activities.where((a) => a.gearId == selectedStravaGear).toList();
+  }
+
+  Future<StravaActivity?> getStravaActivity(int id) async {
+    if (_stravaActivities.containsKey(id)) return _stravaActivities[id];
+    final dbActivity = await database.stravaDao.getActivityById(id);
+    return dbActivity?.toModel();
+  }
 
   Map<String, Person> get persons => _persons;
   Map<String, Bike> get bikes => _bikes;
@@ -131,11 +174,12 @@ class AppRepository extends ChangeNotifier {
 
   Future<void> initialize() async {
     FileExport.deleteOldBackups();
-    notifyListeners();
+    await initialStravaLoad();
   }
 
   @override
   void dispose() {
+    _isDisposed = true;
     for (final s in _subscriptions) {
       s.cancel();
     }
@@ -185,8 +229,6 @@ class AppRepository extends ChangeNotifier {
       _dataChanged();
     }));
 
-    _initialStravaLoad();
-
     _subscriptions.add(database.stravaDao.watchAllGears().listen((list) {
       _stravaGears = {for (var g in list) g.id: g.toModel()};
       _dataChanged();
@@ -226,15 +268,23 @@ class AppRepository extends ChangeNotifier {
   }
 
   void _notifyIfActive() {
-    if (hasListeners) {
-      notifyListeners();
-    }
+    if (_isDisposed || !hasListeners) return;
+    notifyListeners();
   }
 
   void _dataChanged() {
+    if (_isDisposed) return;
     _resolveData();
     _filter();
     notifyListeners();
+  }
+
+  @override
+  void notifyListeners() {
+    // Safety guard to avoid 'notifyListeners() called after dispose()' crashes
+    // during tests or fast navigational changes.
+    if (_isDisposed) return;
+    super.notifyListeners();
   }
 
   void _resolveData() {
@@ -353,13 +403,18 @@ class AppRepository extends ChangeNotifier {
     }));
   }
 
-  Future<void> _initialStravaLoad() async {
+  Future<void> initialStravaLoad() async {
     _stravaOffset = 0;
     _hasMoreStrava = true;
     _isLoadingMoreStrava = true;
     notifyListeners();
 
-    final list = await database.stravaDao.getActivitiesPaginated(limit: _stravaLimit, offset: 0);
+    final list = await database.stravaDao.getActivitiesPaginated(
+      limit: _stravaLimit, 
+      offset: 0,
+      mode: _stravaSortAscending ? drift.OrderingMode.asc : drift.OrderingMode.desc,
+    );
+    if (_isDisposed) return;
     _stravaActivities = {for (var a in list) a.id: a.toModel()};
     _stravaOffset = list.length;
     if (list.length < _stravaLimit) _hasMoreStrava = false;
@@ -367,21 +422,30 @@ class AppRepository extends ChangeNotifier {
     _dataChanged();
   }
 
+  Future<void> setStravaSortOrder(bool ascending) async {
+    if (_stravaSortAscending == ascending) return;
+    _stravaSortAscending = ascending;
+    // Reset and reload
+    _stravaActivities = {};
+    _stravaOffset = 0;
+    _hasMoreStrava = true;
+    await initialStravaLoad();
+  }
+
   Future<void> loadMoreStravaActivities() async {
     if (_isLoadingMoreStrava || !_hasMoreStrava) return;
     _isLoadingMoreStrava = true;
     notifyListeners();
 
-    final list = await database.stravaDao.getActivitiesPaginated(limit: _stravaLimit, offset: _stravaOffset);
-    if (list.isEmpty) {
-      _hasMoreStrava = false;
-    } else {
-      for (var a in list) {
-        _stravaActivities[a.id] = a.toModel();
-      }
-      _stravaOffset += list.length;
-      if (list.length < _stravaLimit) _hasMoreStrava = false;
-    }
+    final list = await database.stravaDao.getActivitiesPaginated(
+      limit: _stravaLimit, 
+      offset: _stravaOffset,
+      mode: _stravaSortAscending ? drift.OrderingMode.asc : drift.OrderingMode.desc,
+    );
+    if (_isDisposed) return;
+    _stravaActivities.addAll({for (var a in list) a.id: a.toModel()});
+    _stravaOffset += list.length;
+    if (list.length < _stravaLimit) _hasMoreStrava = false;
     _isLoadingMoreStrava = false;
     _dataChanged();
   }
@@ -742,7 +806,7 @@ class AppRepository extends ChangeNotifier {
     }
     // Refresh the first page if we are at the top, to show potentially new activities
     if (_stravaOffset <= _stravaLimit) {
-      _initialStravaLoad();
+      initialStravaLoad();
     } else {
        _dataChanged();
     }

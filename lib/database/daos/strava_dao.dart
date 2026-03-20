@@ -30,11 +30,22 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
   Future<List<StravaAthleteDb>> getAllAthletesBypass() => select(stravaAthletes).get();
   Future<List<StravaGearDb>> getAllGearsBypass() => select(stravaGears).get();
   Future<List<StravaActivityDb>> getAllActivitiesBypass() => select(stravaActivities).get();
-  Future<List<StravaActivityDb>> getActivitiesPaginated({required int limit, required int offset}) {
+  Future<List<StravaActivityDb>> getActivitiesPaginated({required int limit, required int offset, OrderingMode mode = OrderingMode.desc}) {
     return (select(stravaActivities)
-          ..orderBy([(t) => OrderingTerm(expression: t.startDate, mode: OrderingMode.desc)])
+          ..orderBy([(t) => OrderingTerm(expression: t.startDate, mode: mode)])
           ..limit(limit, offset: offset))
         .get();
+  }
+
+  Stream<List<StravaActivityDb>> watchActivitiesWithPosition() {
+    return (select(stravaActivities)
+          ..where((t) => t.startLat.isNotNull() & t.startLon.isNotNull())
+          ..orderBy([(t) => OrderingTerm(expression: t.startDate, mode: OrderingMode.desc)]))
+        .watch();
+  }
+
+  Future<StravaActivityDb?> getActivityById(int id) {
+    return (select(stravaActivities)..where((t) => t.id.equals(id))).getSingleOrNull();
   }
 
   Future upsertAthlete(StravaAthletesCompanion entry) => into(stravaAthletes).insertOnConflictUpdate(entry);

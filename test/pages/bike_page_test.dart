@@ -62,9 +62,7 @@ void main() {
     expect(bikeNameField, findsOneWidget);
     await tester.enterText(bikeNameField, 'TestBike #1');
 
-    await tester.runAsync(() async {
-      await tester.tap(find.byIcon(Icons.check));
-    });
+    await tester.tap(find.byIcon(Icons.check));
     await tester.pumpAndSettle();
     expect(find.byType(BikePage), findsNothing);
   });
@@ -92,9 +90,7 @@ void main() {
     expect(bikeNameField, findsOneWidget);
     await tester.enterText(bikeNameField, 'TestBike #1 new');
 
-    await tester.runAsync(() async {
-      await tester.tap(find.byIcon(Icons.check));
-    });
+    await tester.tap(find.byIcon(Icons.check));
     await tester.pumpAndSettle();
     expect(find.byType(BikePage), findsNothing);
   });

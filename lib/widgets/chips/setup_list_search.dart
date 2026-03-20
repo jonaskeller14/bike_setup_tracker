@@ -41,7 +41,7 @@ class SetupListSearch extends StatelessWidget {
         final appRepository = context.read<AppRepository>();
 
         final controllerText = controller.text.trim().toLowerCase();
-        final Iterable<Setup> setups = appSettings.setupListSortAscending
+        final Iterable<Setup> setups = appRepository.stravaSortAscending
             ? appRepository.filteredSetups.values
             : appRepository.filteredSetups.values.toList().reversed;
         final Iterable<Setup> suggestedSetups = setups.where((s) {

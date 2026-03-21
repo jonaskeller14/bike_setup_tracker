@@ -11,6 +11,7 @@ import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/person.dart';
 import '../models/setup.dart';
+import '../models/installation.dart';
 import '../models/rating.dart';
 import '../models/todo_rule.dart';
 import '../models/todo_entry.dart';
@@ -139,6 +140,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, TodoRule> _filteredTodoRules = {};
   Map<String, TodoEntry> _filteredTodoEntries = {};
   Map<int, StravaActivity> _filteredStravaActivities = {};
+  List<ComponentInstallation> _filteredInstallations = [];
 
   Map<String, Bike> get filteredBikes => _filteredBikes;
   Map<String, Person> get filteredPersons => _filteredPersons;
@@ -148,6 +150,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, TodoRule> get filteredTodoRules => _filteredTodoRules;
   Map<String, TodoEntry> get filteredTodoEntries => _filteredTodoEntries;
   Map<int, StravaActivity> get filteredStravaActivities => _filteredStravaActivities;
+  List<ComponentInstallation> get filteredInstallations => _filteredInstallations;
 
   // ---------------------------------------------------------------------------
   // DELETED ITEMS (for TrashPage)
@@ -327,6 +330,7 @@ class AppRepository extends ChangeNotifier {
     _filterTodoRules();  // after _filterComponents()
     _filterTodoEntries();  // after _filterTodoRules()
     _filterStravaActivities();
+    _filterInstallations();
   }
 
   void _filterBikes() {
@@ -401,6 +405,31 @@ class AppRepository extends ChangeNotifier {
     _filteredStravaActivities = Map.fromEntries(stravaActivities.entries.where((entry) {
       return entry.value.gearId == selectedStravaGear;
     }));
+  }
+
+  void _filterInstallations() {
+    _filteredInstallations = [];
+    for (final component in components.values) {
+      final sorted = List<Installation>.from(component.installations)
+        ..sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
+      
+      for (int i = 0; i < sorted.length; i++) {
+        final installation = sorted[i];
+        if (installation.dateTimeUTC.millisecondsSinceEpoch == 0) continue;
+        
+        final originParent = i > 0 ? sorted[i-1].parent : null;
+        
+        final ci = ComponentInstallation(
+          component: component,
+          installation: installation,
+          originParent: originParent,
+        );
+        
+        if (selectedBike == null || installation.parent == selectedBike || originParent == selectedBike) {
+          _filteredInstallations.add(ci);
+        }
+      }
+    }
   }
 
   Future<void> initialStravaLoad() async {
@@ -833,4 +862,16 @@ class AppRepository extends ChangeNotifier {
     _hasMoreStrava = true;
     _dataChanged();
   }
+}
+
+class ComponentInstallation {
+  final Component component;
+  final Installation installation;
+  final String? originParent;
+
+  ComponentInstallation({
+    required this.component,
+    required this.installation,
+    this.originParent,
+  });
 }

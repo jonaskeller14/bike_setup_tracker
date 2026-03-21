@@ -10,6 +10,7 @@ import 'chips/setup_list_filter_widget.dart';
 import 'setup_list_card.dart';
 import 'strava_list_tile.dart';
 import 'todo_entry_list_card.dart';
+import 'installation_list_tile.dart';
 
 class SetupList extends StatelessWidget {
   const SetupList({super.key});
@@ -42,6 +43,7 @@ class SetupList extends StatelessWidget {
     final setupsList = appRepository.filteredSetups.values;
     final stravaActivities = appRepository.filteredStravaActivities.values;
     final todoEntries = appRepository.filteredTodoEntries.values;
+    final installations = appRepository.filteredInstallations;
 
     // Horizon date is the "furthest" loaded activity date in the current scroll direction.
     // ASC: newest activity date. DESC: oldest activity date.
@@ -69,6 +71,14 @@ class SetupList extends StatelessWidget {
                 : !t.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
           })
           .map((t) => _TodoTimeLineEntry(t)),
+      ...installations
+          .where((ci) {
+            if (horizonDate == null || !appRepository.hasMoreStrava) return true;
+            return sortAscending 
+                ? !ci.installation.dateTimeUTC.isAfter(horizonDate) // ASC: hide newer than horizon
+                : !ci.installation.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
+          })
+          .map((ci) => _InstallationEntry(ci)),
     ];
     entries.sort((a, b) => sortAscending 
         ? a.date.compareTo(b.date) 
@@ -138,6 +148,10 @@ class SetupList extends StatelessWidget {
                   return TodoEntryListCard(
                     todoEntryId: entry.todoEntry.id,
                   );
+                case _InstallationEntry():
+                  return InstallationListTile(
+                    componentInstallation: entry.componentInstallation,
+                  );
               }
             },
           );
@@ -167,4 +181,11 @@ class _TodoTimeLineEntry extends _TimelineEntry {
   _TodoTimeLineEntry(this.todoEntry);
   @override
   DateTime get date => todoEntry.dateTimeUTC;
+}
+
+class _InstallationEntry extends _TimelineEntry {
+  final ComponentInstallation componentInstallation;
+  _InstallationEntry(this.componentInstallation);
+  @override
+  DateTime get date => componentInstallation.installation.dateTimeUTC;
 }

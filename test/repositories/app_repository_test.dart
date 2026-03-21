@@ -194,4 +194,105 @@ void main() {
       expect(repository.ratings.containsKey(rating1.id), true);
     });
   });
+  group("AppRepository - Installations", () {
+    late AppDatabase database;
+    late AppRepository repository;
+    final bike1 = Bike(name: "Bike #1", person: null);
+    final bike2 = Bike(name: "Bike #2", person: null);
+
+    setUp(() async {
+      database = AppDatabase.memory();
+      repository = AppRepository(database);
+      await pumpEventQueue();
+    });
+
+    tearDown(() async {
+      await database.close();
+    });
+
+    test("filteredInstallations excludes sinceBeginning", () async {
+      final component = Component(
+        name: "C1",
+        installations: [
+          Installation.sinceBeginning(parent: bike1.id),
+          Installation(parent: bike1.id, dateTimeUTC: DateTime(2025).toUtc(), dateTimeLocal: DateTime(2025).toLocal()),
+        ],
+        componentType: ComponentType.fork,
+      );
+
+      await repository.addBike(bike1);
+      await repository.addComponent(component);
+      await pumpEventQueue();
+
+      expect(repository.filteredInstallations.length, 1);
+      expect(repository.filteredInstallations.first.installation.dateTimeUTC, DateTime(2025).toUtc());
+    });
+
+    test("filteredInstallations filters by selectedBike", () async {
+      final component1 = Component(
+        name: "C1",
+        installations: [
+          Installation(parent: bike1.id, dateTimeUTC: DateTime(2025).toUtc(), dateTimeLocal: DateTime(2025).toLocal()),
+        ],
+        componentType: ComponentType.fork,
+      );
+      final component2 = Component(
+        name: "C2",
+        installations: [
+          Installation(parent: bike2.id, dateTimeUTC: DateTime(2025).toUtc(), dateTimeLocal: DateTime(2025).toLocal()),
+        ],
+        componentType: ComponentType.fork,
+      );
+
+      await repository.addBike(bike1);
+      await repository.addBike(bike2);
+      await repository.addComponent(component1);
+      await repository.addComponent(component2);
+      await pumpEventQueue();
+
+      expect(repository.filteredInstallations.length, 2);
+
+      repository.onBikeTap(bike1.id);
+      await pumpEventQueue();
+
+      expect(repository.filteredInstallations.length, 1);
+      expect(repository.filteredInstallations.first.component.name, "C1");
+    });
+
+    test("filteredInstallations includes deinstallations for selectedBike", () async {
+      final component = Component(
+        name: "C1",
+        installations: [
+          Installation.sinceBeginning(parent: bike1.id),
+          // Event 1: move from bike1 to bike2
+          Installation(parent: bike2.id, dateTimeUTC: DateTime(2025, 1, 1).toUtc(), dateTimeLocal: DateTime(2025, 1, 1).toLocal()),
+          // Event 2: move from bike2 to null (Archive)
+          Installation(parent: null, dateTimeUTC: DateTime(2025, 1, 2).toUtc(), dateTimeLocal: DateTime(2025, 1, 2).toLocal()),
+        ],
+        componentType: ComponentType.fork,
+      );
+
+      await repository.addBike(bike1);
+      await repository.addBike(bike2);
+      await repository.addComponent(component);
+      await pumpEventQueue();
+
+      // Without filter: 2 events (sinceBeginning is excluded)
+      expect(repository.filteredInstallations.length, 2);
+
+      // Filter by bike1: should see Event 1 (origin is bike1)
+      repository.onBikeTap(bike1.id);
+      await pumpEventQueue();
+      expect(repository.filteredInstallations.length, 1);
+      expect(repository.filteredInstallations.first.originParent, bike1.id);
+      expect(repository.filteredInstallations.first.installation.parent, bike2.id);
+
+      // Filter by bike2: should see Event 1 (target is bike2) AND Event 2 (origin is bike2)
+      repository.onBikeTap(bike2.id); 
+      await pumpEventQueue();
+      expect(repository.filteredInstallations.length, 2);
+      expect(repository.filteredInstallations.any((ci) => ci.originParent == bike1.id && ci.installation.parent == bike2.id), true);
+      expect(repository.filteredInstallations.any((ci) => ci.originParent == bike2.id && ci.installation.parent == null), true);
+    });
+  });
 }

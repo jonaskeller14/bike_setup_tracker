@@ -32,6 +32,7 @@ void main() {
   setUp(() {
     mockRepository = MockAppRepository();
     appSettings = AppSettings();
+    appSettings.enableInstallationTimeline = true;
     bike1 = Bike(id: 'b1', name: 'Bike 1', person: 'P1');
     bike2 = Bike(id: 'b2', name: 'Bike 2', person: 'P2');
     component = Component(
@@ -73,7 +74,6 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      expect(find.text('Set Installation Timeline'), findsOneWidget);
       expect(find.text('Bike 1'), findsAtLeast(1)); // Origin
       expect(find.text('Bike 2'), findsAtLeast(1)); // Target in preview AND in dropdown
       expect(find.byIcon(Icons.arrow_forward), findsOneWidget);

@@ -49,19 +49,19 @@ class PersonActions {
 
   static Future<void> removePerson(BuildContext context, {required Person person}) async {
     final appRepository = context.read<AppRepository>();
+    final appSettings = context.read<AppSettings>();
+    final messenger = ScaffoldMessenger.of(context);
 
-    final obsoleteRatings = appRepository.ratings.values.where((r) => r.filterType == FilterType.person && r.filter == person.id);
+    final obsoleteRatings = appRepository.ratings.values.where((r) => r.filterType == FilterType.person && r.filter == person.id).toList();
 
     await appRepository.removePerson(person);
     await appRepository.removeRatings(obsoleteRatings);
 
-    if (!context.mounted) return;
-
     String message = "Person '${person.name}' moved to trash.";
-    if (obsoleteRatings.isNotEmpty && context.read<AppSettings>().enableRating) {
+    if (obsoleteRatings.isNotEmpty && appSettings.enableRating) {
       message += "\n${obsoleteRatings.length} Ratings which belong to this person are deleted as well.";
     }
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    messenger.showSnackBar(SnackBar(
       content: Text(message),
       duration: const Duration(seconds: 5),
       persist: false,

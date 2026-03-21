@@ -70,11 +70,11 @@ class ComponentActions {
 
   static Future<void> removeComponent(BuildContext context, {required Component component}) async {
     final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
     await appRepository.removeComponents([component]);
 
-    if (!context.mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    messenger.showSnackBar(SnackBar(
       content: Text("Component '${component.name}' moved to trash."),
       duration: const Duration(seconds: 5),
       persist: false,

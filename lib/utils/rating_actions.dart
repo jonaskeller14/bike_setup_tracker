@@ -49,11 +49,11 @@ class RatingActions {
 
   static Future<void> removeRating(BuildContext context, {required Rating rating}) async {
     final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
     await appRepository.removeRatings([rating]);
 
-    if (!context.mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    messenger.showSnackBar(SnackBar(
       content: Text("Rating '${rating.name}' moved to trash."),
       duration: const Duration(seconds: 5),
       persist: false,

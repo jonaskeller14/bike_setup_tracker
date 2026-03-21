@@ -33,15 +33,14 @@ class TodoActions {
 
   static Future<void> removeTodoRule(BuildContext context, {required TodoRule todoRule}) async {
     final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
     
     final obsoleteTodoEntries = appRepository.todoEntries.values.where((te) => te.todoRule == todoRule.id).toList();
 
     await appRepository.removeTodoRules([todoRule]);
     await appRepository.removeTodoEntries(obsoleteTodoEntries);
 
-    if (!context.mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    messenger.showSnackBar(SnackBar(
       content: Text("Todo '${todoRule.name}' and corresponding entries moved to trash."),
       duration: const Duration(seconds: 5),
       persist: false,
@@ -84,11 +83,10 @@ class TodoActions {
 
   static Future<void> removeTodoEntry(BuildContext context, {required TodoEntry todoEntry}) async {
     final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
     await appRepository.removeTodoEntries([todoEntry]);
 
-    if (!context.mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    messenger.showSnackBar(SnackBar(
       content: Text("Todo Entry '${todoEntry.name}' moved to trash."),
       duration: const Duration(seconds: 5),
       persist: false,

@@ -35,20 +35,20 @@ class BikeActions {
 
   static Future<void> removeBike(BuildContext context, {required Bike bike}) async {
     final appRepository = context.read<AppRepository>();
+    final appSettings = context.read<AppSettings>();
+    final messenger = ScaffoldMessenger.of(context);
 
     final obsoleteComponents = appRepository.components.values.where((c) => c.bike == bike.id).toList();
     final obsoleteSetups = appRepository.setups.values.where((s) => s.bike == bike.id).toList();
-    final obsoleteRatings = appRepository.ratings.values.where((r) => r.filterType == FilterType.bike && r.filter == bike.id);
+    final obsoleteRatings = appRepository.ratings.values.where((r) => r.filterType == FilterType.bike && r.filter == bike.id).toList();
 
     await appRepository.removeBike(bike);
     await appRepository.removeComponents(obsoleteComponents);
     await appRepository.removeSetups(obsoleteSetups);
     await appRepository.removeRatings(obsoleteRatings);
     
-    if (!context.mounted) return;
-
     String message = "Bike '${bike.name}' moved to trash.";
-    if (context.read<AppSettings>().enableRating) {
+    if (appSettings.enableRating) {
       if (obsoleteComponents.isNotEmpty || obsoleteSetups.isNotEmpty || obsoleteRatings.isNotEmpty) {
         message += "\n${obsoleteComponents.length} Components, ${obsoleteSetups.length} Setups and ${obsoleteRatings.length} Ratings which belong to this Bike are deleted as well.";
       }
@@ -57,7 +57,7 @@ class BikeActions {
         message += "\n${obsoleteComponents.length} Components, ${obsoleteSetups.length} Setups which belong to this Bike are deleted as well.";
       }
     }
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    messenger.showSnackBar(SnackBar(
       content: Text(message),
       duration: const Duration(seconds: 10),
       persist: false,

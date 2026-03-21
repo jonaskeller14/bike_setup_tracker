@@ -78,11 +78,11 @@ class SetupActions {
 
   static Future<void> removeSetup(BuildContext context, {required Setup setup}) async {
     final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
     await appRepository.removeSetups([setup]);
 
-    if (!context.mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    messenger.showSnackBar(SnackBar(
       content: Text("Setup '${setup.name}' moved to trash."),
       duration: const Duration(seconds: 5),
       persist: false,

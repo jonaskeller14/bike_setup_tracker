@@ -90,7 +90,7 @@ class _InstallationSheetState extends State<InstallationSheet> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  sheetTitle(context, 'Set Installation Timeline'),
+                  sheetTitle(context, widget.component.name),
                   sheetCloseButton(context),
                 ],
               ),

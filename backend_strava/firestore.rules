@@ -1,0 +1,32 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if the user is authorized for the document/subcollection
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      // Users can only read their own document (contains Strava connection status, sync history, etc.)
+      allow read: if isOwner(userId);
+      
+      // Allow initial creation (anonymous auth) with only specific fields
+      allow create: if isOwner(userId)
+                    && request.resource.data.keys().hasOnly(['fcm_token', 'expiresAt']);
+      
+      // Allow specific updates from the client (FCM tokens and TTL)
+      // This prevents the client from accidentally or maliciously overwriting sensitive 'strava_auth' tokens
+      allow update: if isOwner(userId) 
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fcm_token', 'expiresAt']);
+
+      // Subcollections (activity_batches, athletes, gears)
+      // Users can ONLY read these. They are populated by Backend Cloud Functions using the Admin SDK.
+      match /{subcollection=**} {
+        allow read: if isOwner(userId);
+        allow write: if false; 
+      }
+    }
+  }
+}

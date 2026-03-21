@@ -554,12 +554,7 @@ class AppRepository extends ChangeNotifier {
   Future<void> restoreSetups(Iterable<Setup> setups) async {
     for (var setup in setups) {
       final updated = setup.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-      await database.setupsDao.updateSetupWithValues(
-        setup: updated.toCompanion(),
-        bikeValues: updated.bikeAdjustmentValues, 
-        personValues: updated.personAdjustmentValues, 
-        ratingValues: updated.ratingAdjustmentValues
-      );
+      await database.setupsDao.updateSetup(updated.toCompanion());
     }
   }
 

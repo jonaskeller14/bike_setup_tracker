@@ -896,6 +896,53 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     );
   }
 
+  Widget _bikeField({required Map<String, Bike> bikes}) {
+    return DropdownButtonFormField<String>(
+      initialValue: _bike,
+      isExpanded: true,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      decoration: InputDecoration(
+        labelText: 'Bike',
+        border: OutlineInputBorder(),
+        hintText: "Choose a bike for this component",
+        fillColor: Colors.orange.withValues(alpha: 0.08),
+        filled: widget.mode == SetupPageMode.edit && _bike != widget.setup?.bike,
+      ),
+      validator: (String? newBike) {
+        if (newBike == null) return "Bike cannot be empty.";
+        if (!bikes.keys.contains(newBike)) return "Please select valid bike";
+        return null;
+      },
+      items: bikes.values.map((b) {
+        return DropdownMenuItem<String>(
+          value: b.id,
+          child: Row(
+            spacing: 8,
+            children: [
+              const Icon(Bike.iconData),
+              Expanded(
+                child: Text(b.name, overflow: TextOverflow.ellipsis),
+              ),
+            ],
+          ),
+        );
+      }).toList() + [
+        if (!bikes.containsKey(_bike))
+        DropdownMenuItem<String>(
+          value: _bike,
+          child: Row(
+            spacing: 8,
+            children: [
+              Icon(Bike.iconData, color: Theme.of(context).colorScheme.error),
+              Expanded(child: Text("BIKE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+            ],
+          ),
+        ),
+      ],
+      onChanged: (String? newBike) => _onBikeChange(newBike),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
@@ -934,50 +981,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                           const SizedBox(height: 12),
                           _wrap(),
                           const SizedBox(height: 12),
-                          DropdownButtonFormField<String>(
-                            initialValue: _bike,
-                            isExpanded: true,
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
-                            decoration: InputDecoration(
-                              labelText: 'Bike',
-                              border: OutlineInputBorder(),
-                              hintText: "Choose a bike for this component",
-                              fillColor: Colors.orange.withValues(alpha: 0.08),
-                              filled: widget.mode == SetupPageMode.edit && _bike != widget.setup?.bike,
-                            ),
-                            validator: (String? newBike) {
-                              if (newBike == null) return "Bike cannot be empty.";
-                              if (!bikes.keys.contains(newBike)) return "Please select valid bike";
-                              return null;
-                            },
-                            items: bikes.values.map((b) {
-                              return DropdownMenuItem<String>(
-                                value: b.id,
-                                child: Row(
-                                  spacing: 8,
-                                  children: [
-                                    const Icon(Bike.iconData),
-                                    Expanded(
-                                      child: Text(b.name, overflow: TextOverflow.ellipsis),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList() + [
-                              if (!bikes.containsKey(_bike))
-                              DropdownMenuItem<String>(
-                                value: _bike,
-                                child: Row(
-                                  spacing: 8,
-                                  children: [
-                                    Icon(Bike.iconData, color: Theme.of(context).colorScheme.error),
-                                    Expanded(child: Text("BIKE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
-                                  ],
-                                ),
-                              ),
-                            ],
-                            onChanged: (String? newBike) => _onBikeChange(newBike),
-                          ),
+                          _bikeField(bikes: bikes),
                           const SizedBox(height: 12),
                           if (context.read<AppSettings>().enablePerson || context.read<AppSettings>().enableRating)
                             TabBar.secondary(
@@ -987,7 +991,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                 if (context.read<AppSettings>().enablePerson)
                                   const Tab(icon: Icon(Person.iconData)),
                                 if (context.read<AppSettings>().enableRating)
-                                const Tab(icon: Icon(Rating.iconData)),
+                                  const Tab(icon: Icon(Rating.iconData)),
                               ],
                             ),
                         ],

@@ -2,6 +2,7 @@ import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/rating.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
@@ -147,6 +148,102 @@ void main() {
       
       expect(repository.setups.containsKey(setup1.id), true);
     });
+
+    test("restoreBike preserves setup adjustment values", () async {
+      final adjustment = NumericalAdjustment(
+        name: "Pressure",
+        notes: "",
+        unit: "psi",
+        category: AdjustmentCategory.component,
+      );
+      final bikeWithAdj = bike1.copyWith(id: bike1.id);
+      final component = Component(
+        name: "Fork",
+        componentType: ComponentType.fork,
+        adjustments: [adjustment],
+        installations: [Installation.sinceBeginning(parent: bikeWithAdj.id)],
+      );
+      
+      final setupWithVals = setup1.copyWith(
+        bike: bikeWithAdj.id,
+        bikeAdjustmentValues: {adjustment.id: 100.0},
+      );
+
+      await repository.addBike(bikeWithAdj);
+      await repository.addComponent(component);
+      await repository.addSetup(setupWithVals);
+      await pumpEventQueue();
+
+      expect(repository.setups[setupWithVals.id]?.bikeAdjustmentValues[adjustment.id], 100.0);
+
+      // Simulate BikeActions.removeBike logic
+      final obsoleteComponents = repository.components.values.where((c) => c.bike == bikeWithAdj.id).toList();
+      final obsoleteSetups = repository.setups.values.where((s) => s.bike == bikeWithAdj.id).toList();
+
+      await repository.removeBike(bikeWithAdj);
+      await repository.removeComponents(obsoleteComponents);
+      await repository.removeSetups(obsoleteSetups);
+      await pumpEventQueue();
+
+      expect(repository.bikes.containsKey(bikeWithAdj.id), false);
+      expect(repository.setups.containsKey(setupWithVals.id), false);
+      
+      final deletedSetup = repository.deletedSetups.firstWhere((s) => s.id == setupWithVals.id);
+      expect(deletedSetup.bikeAdjustmentValues.isEmpty, true); // This is the bug: it should NOT be empty but it IS
+
+      // Restore using the object from the repository's deleted list (simulating TrashPage)
+      await repository.restoreBike(bikeWithAdj);
+      await repository.restoreComponents(obsoleteComponents);
+      await repository.restoreSetups([deletedSetup]);
+      await pumpEventQueue();
+
+      expect(repository.bikes.containsKey(bikeWithAdj.id), true);
+      expect(repository.setups.containsKey(setupWithVals.id), true);
+      // This is expected to fail before the fix
+      expect(repository.setups[setupWithVals.id]?.bikeAdjustmentValues[adjustment.id], 100.0);
+    });
+
+    test("restoreBike preserves component installations", () async {
+      final bikeWithComp = bike1.copyWith(id: bike1.id);
+      final component = Component(
+        name: "Fork",
+        componentType: ComponentType.fork,
+        adjustments: [],
+        installations: [
+          Installation.sinceBeginning(parent: bikeWithComp.id),
+          Installation(
+            parent: null, // Archive
+            dateTimeUTC: DateTime(2025, 1, 1).toUtc(),
+            dateTimeLocal: DateTime(2025, 1, 1).toLocal(),
+          ),
+        ],
+      );
+
+      await repository.addBike(bikeWithComp);
+      await repository.addComponent(component);
+      await pumpEventQueue();
+
+      expect(repository.components[component.id]?.installations.length, 2);
+
+      // Simulate removal
+      final obsoleteComponents = [repository.components[component.id]!];
+      await repository.removeComponents(obsoleteComponents);
+      await pumpEventQueue();
+
+      expect(repository.components.containsKey(component.id), false);
+      final deletedComponent = repository.deletedComponents.firstWhere((c) => c.id == component.id);
+      
+      // The current implementation uses toModel(installations: []) for deleted components
+      expect(deletedComponent.installations.isEmpty, true);
+
+      // Restore
+      await repository.restoreComponents([deletedComponent]);
+      await pumpEventQueue();
+
+      expect(repository.components.containsKey(component.id), true);
+      // This should ALREADY pass because restoreComponents uses updateComponent (root only)
+      expect(repository.components[component.id]?.installations.length, 2);
+    });
   });
 
   group("AppRepository - Persons", () {
@@ -170,6 +267,36 @@ void main() {
       
       expect(repository.persons.containsKey(person1.id), true);
     });
+
+    test("restorePerson preserves adjustments", () async {
+      final adjustment = NumericalAdjustment(
+        name: "Weight",
+        notes: "",
+        unit: "kg",
+        category: AdjustmentCategory.body,
+      );
+      final personWithAdj = person1.copyWith(id: person1.id, adjustments: [adjustment]);
+
+      await repository.addPerson(personWithAdj);
+      await pumpEventQueue();
+
+      expect(repository.persons[personWithAdj.id]?.adjustments.length, 1);
+
+      // Remove
+      await repository.removePerson(personWithAdj);
+      await pumpEventQueue();
+
+      expect(repository.persons.containsKey(personWithAdj.id), false);
+      final deletedPerson = repository.deletedPersons.firstWhere((p) => p.id == personWithAdj.id);
+      expect(deletedPerson.adjustments.isEmpty, true);
+
+      // Restore
+      await repository.restorePerson(deletedPerson);
+      await pumpEventQueue();
+
+      expect(repository.persons.containsKey(personWithAdj.id), true);
+      expect(repository.persons[personWithAdj.id]?.adjustments.length, 1);
+    });
   });
 
   group("AppRepository - Ratings", () {
@@ -192,6 +319,36 @@ void main() {
       await pumpEventQueue();
       
       expect(repository.ratings.containsKey(rating1.id), true);
+    });
+
+    test("restoreRating preserves adjustments", () async {
+      final adjustment = NumericalAdjustment(
+        name: "Difficulty",
+        notes: "",
+        unit: "",
+        category: AdjustmentCategory.rating,
+      );
+      final ratingWithAdj = rating1.copyWith(id: rating1.id, adjustments: [adjustment]);
+
+      await repository.addRating(ratingWithAdj);
+      await pumpEventQueue();
+
+      expect(repository.ratings[ratingWithAdj.id]?.adjustments.length, 1);
+
+      // Remove
+      await repository.removeRatings([ratingWithAdj]);
+      await pumpEventQueue();
+
+      expect(repository.ratings.containsKey(ratingWithAdj.id), false);
+      final deletedRating = repository.deletedRatings.firstWhere((r) => r.id == ratingWithAdj.id);
+      expect(deletedRating.adjustments.isEmpty, true);
+
+      // Restore
+      await repository.restoreRatings([deletedRating]);
+      await pumpEventQueue();
+
+      expect(repository.ratings.containsKey(ratingWithAdj.id), true);
+      expect(repository.ratings[ratingWithAdj.id]?.adjustments.length, 1);
     });
   });
   group("AppRepository - Installations", () {

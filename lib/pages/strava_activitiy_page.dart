@@ -28,7 +28,9 @@ class StravaActivityPage extends StatelessWidget {
           ),
         ],
       ),
-      body: StravaActivitiyPageContent(stravaActivity: stravaActivity),
+      body: SafeArea(
+        child: StravaActivitiyPageContent(stravaActivity: stravaActivity)
+      ),
     );
   }
 }

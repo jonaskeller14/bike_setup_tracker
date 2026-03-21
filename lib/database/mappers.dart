@@ -325,7 +325,6 @@ extension SetupMapper on Setup {
 extension SetupDbMapper on SetupDb {
   Setup toModel({
     List<TypedSetupValue> values = const [],
-    bool isCurrent = false,
   }) {
     final bikeAdjustmentValues = <String, dynamic>{};
     final personAdjustmentValues = <String, dynamic>{};
@@ -362,7 +361,6 @@ extension SetupDbMapper on SetupDb {
       position: position,
       place: place,
       weather: weather,
-      isCurrent: isCurrent,
     );
   }
 

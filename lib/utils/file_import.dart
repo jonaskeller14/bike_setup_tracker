@@ -308,28 +308,6 @@ class FileImport {
     }
   }
 
-  static void determinePreviousSetups({required Iterable<Setup> setups}) {
-    // Assumes setups is sorted
-    Map<String, Setup> previousBikeSetups = {};
-    Map<String, Setup> previousPersonSetups = {};
-
-    for (final setup in setups.where((s) => !s.isDeleted)) {
-      final bike = setup.bike;
-      final previousBikeSetup = previousBikeSetups[bike];
-      setup.previousBikeSetup = previousBikeSetup == null ? setup.previousBikeSetup = null : setup.previousBikeSetup = previousBikeSetup;
-      previousBikeSetups[bike] = setup;
-
-      final person = setup.person;
-      if (person == null) {
-        setup.previousPersonSetup = null;
-        continue;
-      }
-      final previousPersonSetup = previousPersonSetups[person];
-      setup.previousPersonSetup = previousPersonSetup == null ? setup.previousPersonSetup = null : setup.previousPersonSetup = previousPersonSetup;
-      previousPersonSetups[person] = setup;
-    }
-  }
-
   static void cleanupIsDeleted({required SelectedData data}) {
     final thirtyDays = const Duration(days: 30);
     final deleteDateTime = DateTime.now().toUtc().subtract(thirtyDays);

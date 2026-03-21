@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
 import '../repositories/app_repository.dart';
 import '../models/component.dart';
@@ -31,7 +30,6 @@ class ComponentListCard extends StatelessWidget{
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
-    final setups = appRepository.setups;
     return Card(
       key: ValueKey(component.id),
       elevation: elevation,
@@ -205,7 +203,7 @@ class ComponentListCard extends StatelessWidget{
                 padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
                 child: AdjustmentCompactDisplayList(
                   components: [component],
-                  adjustmentValues: setups.values.lastWhereOrNull((s) => s.bike == component.bike)?.bikeAdjustmentValues ?? {},
+                  adjustmentValues: appRepository.currentAdjustmentValues,
                   showComponentIcons: false,
                   missingValuesPlaceholder: true,
                   displayBikeAdjustmentValues: true,

@@ -37,7 +37,6 @@ class DataExportService {
           .where((s) => subset == null || subset.setups.containsKey(s.setup.id))
           .map((s) => s.setup.toModel(
                 values: s.values,
-                isCurrent: false, // isCurrent is transient UI state, doesn't matter for JSON
               ).toJson())
           .toList(),
       'components': components

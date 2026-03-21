@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bike_setup_tracker/widgets/adjustment_edit_list.dart';
 
 void main() {
   late AppDatabase database;
@@ -100,7 +101,6 @@ void main() {
         bikeAdjustmentValues: {'adj1': 5},
         personAdjustmentValues: {},
         ratingAdjustmentValues: {},
-        isCurrent: false,
       );
       await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
       await appRepository.addSetup(setup);
@@ -155,8 +155,8 @@ void main() {
     await tester.runAsync(() async {
       await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
       await appRepository.addComponent(component);
-      await appRepository.addSetup(Setup(id: 's1', name: 'A Setup', datetime: DateTime(2023).toUtc(), datetimeLocal: DateTime(2023), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false));
-      await appRepository.addSetup(Setup(id: 's2', name: 'B Setup', datetime: DateTime(2024).toUtc(), datetimeLocal: DateTime(2024), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false));
+      await appRepository.addSetup(Setup(id: 's1', name: 'A Setup', datetime: DateTime(2023).toUtc(), datetimeLocal: DateTime(2023), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's2', name: 'B Setup', datetime: DateTime(2024).toUtc(), datetimeLocal: DateTime(2024), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
     });
     
     appRepository.dispose();
@@ -218,7 +218,7 @@ void main() {
     await tester.runAsync(() async {
       await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
       await appRepository.addComponent(component);
-      await appRepository.addSetup(Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5, 'adj2': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false));
+      await appRepository.addSetup(Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5, 'adj2': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
     });
     
     appRepository.dispose();
@@ -270,7 +270,7 @@ void main() {
     await tester.runAsync(() async {
       await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
       await appRepository.addComponent(component);
-      await appRepository.addSetup(Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}, isCurrent: false));
+      await appRepository.addSetup(Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
     });
     
     appRepository.dispose();
@@ -304,8 +304,9 @@ void main() {
     await tester.pumpAndSettle();
 
     // Remove 'Rebound' adjustment
-    await tester.ensureVisible(find.byType(PopupMenuButton<String>));
-    await tester.tap(find.byType(PopupMenuButton<String>));
+    final popupMenu = find.descendant(of: find.byType(AdjustmentEditList), matching: find.byType(PopupMenuButton<String>));
+    await tester.ensureVisible(popupMenu);
+    await tester.tap(popupMenu);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Remove'));
     await tester.pumpAndSettle();

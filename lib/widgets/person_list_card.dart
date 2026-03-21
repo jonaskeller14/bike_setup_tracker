@@ -47,7 +47,6 @@ class PersonListCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
-    final setups = appRepository.setups;
     
     return Card(
       key: ValueKey(person.id),
@@ -83,7 +82,7 @@ class PersonListCard extends StatelessWidget {
                 person.name,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              enabled: setups.values.lastWhereOrNull((s) => s.person == person.id) != null,
+              enabled: appRepository.setups.values.lastWhereOrNull((s) => s.person == person.id) != null,
               subtitle: _bikeColumn(context, person: person, bikes: bikes),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -140,7 +139,7 @@ class PersonListCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
               child: AdjustmentCompactDisplayList(
                 components: [person],
-                adjustmentValues: setups.values.lastWhereOrNull((s) => s.person == person.id)?.personAdjustmentValues ?? {},
+                adjustmentValues: appRepository.currentAdjustmentValues,
                 showComponentIcons: false,
                 missingValuesPlaceholder: true,
                 displayBikeAdjustmentValues: false,

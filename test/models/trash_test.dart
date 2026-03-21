@@ -42,7 +42,6 @@ void main() {
         bikeAdjustmentValues: {},
         personAdjustmentValues: {},
         ratingAdjustmentValues: {},
-        isCurrent: true,
       );
     });
 

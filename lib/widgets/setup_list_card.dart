@@ -314,7 +314,11 @@ class SetupListCard extends StatelessWidget {
                   child: AdjustmentCompactDisplayList(
                     components: [for (var c in components.values) c, for (var p in persons.values) p, for (var r in ratings.values) r],
                     adjustmentValues: {for (var e in setup.personAdjustmentValues.entries) e.key: e.value, for (var e in setup.bikeAdjustmentValues.entries) e.key: e.value, for (var e in setup.ratingAdjustmentValues.entries) e.key: e.value},
-                    previousAdjustmentValues: {for (var e in (setup.previousBikeSetup?.bikeAdjustmentValues.entries ?? {}.entries)) e.key: e.value, for (var e in (setup.previousPersonSetup?.personAdjustmentValues.entries ?? {}.entries)) e.key: e.value},
+                    previousAdjustmentValues: {
+                      for (var e in setup.previousBikeAdjustmentValues.entries) e.key: e.value, 
+                      for (var e in setup.previousPersonAdjustmentValues.entries) e.key: e.value,
+                      for (var e in setup.previousRatingAdjustmentValues.entries) e.key: e.value,
+                    },
                     showComponentIcons: true,
                     highlightInitialValues: true,
                     displayOnlyChanges: displayOnlyChanges,

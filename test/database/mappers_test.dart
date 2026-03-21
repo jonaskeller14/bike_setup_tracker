@@ -128,7 +128,6 @@ void main() {
         tags: {'race'},
         bike: 'bike1',
         person: 'person1',
-        isCurrent: true,
         bikeAdjustmentValues: {'adj1': 10},
         personAdjustmentValues: {'adj2': 5},
         ratingAdjustmentValues: {'adj3': 3},
@@ -154,10 +153,9 @@ void main() {
         lastModified: DateTime(2023, 1, 1).toUtc(),
       );
       
-      final model = data.toModel(isCurrent: true);
+      final model = data.toModel();
 
       expect(model.id, 'setup1');
-      expect(model.isCurrent, true);
       expect(model.tags, contains('race'));
       expect(model.bike, 'bike1');
     });

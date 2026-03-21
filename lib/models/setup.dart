@@ -24,9 +24,11 @@ class Setup {
   final geo.Placemark? place;
   final Weather? weather;
 
-  Setup? previousBikeSetup;
-  Setup? previousPersonSetup;
-  bool isCurrent;
+  // Transient values resolved at runtime
+  bool isCurrent = false;
+  Map<String, dynamic> previousBikeAdjustmentValues = {};
+  Map<String, dynamic> previousPersonAdjustmentValues = {};
+  Map<String, dynamic> previousRatingAdjustmentValues = {};
 
   static const IconData iconData = Icons.tune;
 
@@ -47,9 +49,6 @@ class Setup {
     this.place,
     this.position,
     this.weather,
-    this.previousBikeSetup,
-    this.previousPersonSetup,
-    required this.isCurrent,
   }) : id = id ?? const Uuid().v4(),
        isDeleted = isDeleted ?? false,
        datetime = datetime.toUtc(),
@@ -73,9 +72,6 @@ class Setup {
     'position': position != null ? locationDataToJson(position!) : null,
     'place': place != null ? _placemarkToJson(place!) : null,
     'weather': weather?.toJson(),
-    'previousBikeSetup': previousBikeSetup?.id,
-    'previousPersonSetup': previousPersonSetup?.id,
-    'isCurrent': isCurrent,
   };
 
   factory Setup.fromJson({required Map<String, dynamic> json}) {
@@ -99,9 +95,6 @@ class Setup {
           position: json['position'] != null ? _locationDataFromJson(json['position']) : null,
           place: json['place'] != null ? _placemarkFromJson(json['place']) : null,
           weather: json['weather'] != null ? Weather.fromJson(json['weather']) : null,
-          previousBikeSetup: null, // linked later
-          previousPersonSetup: null, // linked later
-          isCurrent: json['isCurrent'] ?? false, //reset later
         );
       default: throw Exception("Json Version $version of Setup incompatible.");
     }
@@ -258,7 +251,6 @@ class Setup {
       notes: notes,
       datetime: now.toUtc(),
       datetimeLocal: now,
-      isCurrent: true,
       position: null,
       place: null,
       weather: null,
@@ -268,9 +260,9 @@ class Setup {
       bikeAdjustmentValues: Map.from(bikeAdjustmentValues),
       personAdjustmentValues: Map.from(personAdjustmentValues),
       ratingAdjustmentValues: {},
-      previousBikeSetup: null,
-      previousPersonSetup: null,      
-    );
+    )..previousBikeAdjustmentValues = Map.from(previousBikeAdjustmentValues)
+     ..previousPersonAdjustmentValues = Map.from(previousPersonAdjustmentValues)
+     ..previousRatingAdjustmentValues = Map.from(previousRatingAdjustmentValues);
   }
 
   Setup copyWith({
@@ -290,9 +282,10 @@ class Setup {
     Object? position = const _Sentinel(),
     Object? place = const _Sentinel(),
     Object? weather = const _Sentinel(),
-    Object? previousBikeSetup= const _Sentinel(),
-    Object? previousPersonSetup= const _Sentinel(),
     Object? isCurrent = const _Sentinel(),
+    Object? previousBikeAdjustmentValues = const _Sentinel(),
+    Object? previousPersonAdjustmentValues = const _Sentinel(),
+    Object? previousRatingAdjustmentValues = const _Sentinel(),
   }) {
     return Setup(
       id: id is _Sentinel
@@ -343,16 +336,18 @@ class Setup {
       weather: weather is _Sentinel
           ? this.weather
           : (weather as Weather?),
-      previousBikeSetup: previousBikeSetup is _Sentinel
-          ? this.previousBikeSetup
-          : (previousBikeSetup as Setup?),
-      previousPersonSetup: previousPersonSetup is _Sentinel
-          ? this.previousPersonSetup
-          : (previousPersonSetup as Setup?),
-      isCurrent: isCurrent is _Sentinel
+    )..isCurrent = isCurrent is _Sentinel
           ? this.isCurrent
-          : (isCurrent as bool),
-    );
+          : (isCurrent as bool)
+     ..previousBikeAdjustmentValues = previousBikeAdjustmentValues is _Sentinel
+          ? this.previousBikeAdjustmentValues
+          : (previousBikeAdjustmentValues as Map<String, dynamic>)
+     ..previousPersonAdjustmentValues = previousPersonAdjustmentValues is _Sentinel
+          ? this.previousPersonAdjustmentValues
+          : (previousPersonAdjustmentValues as Map<String, dynamic>)
+     ..previousRatingAdjustmentValues = previousRatingAdjustmentValues is _Sentinel
+          ? this.previousRatingAdjustmentValues
+          : (previousRatingAdjustmentValues as Map<String, dynamic>);
   }
 
   @override

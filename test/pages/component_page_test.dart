@@ -21,6 +21,7 @@ void main() {
     database = AppDatabase.memory();
     appRepository = AppRepository(database);
     appSettings = AppSettings();
+    appSettings.enableInstallationTimeline = false;
   });
 
   tearDown(() async {

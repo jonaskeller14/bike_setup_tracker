@@ -391,9 +391,9 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                                 _ => null,
                               };
                               final initialValue = switch (column.section) {
-                                TableColumnSection.componentAdjustments => setup.previousBikeSetup?.bikeAdjustmentValues[column.label],
-                                TableColumnSection.ratingMetrics => null,
-                                TableColumnSection.personAttributes => setup.previousPersonSetup?.personAdjustmentValues[column.label],
+                                TableColumnSection.componentAdjustments => setup.previousBikeAdjustmentValues[column.label],
+                                TableColumnSection.ratingMetrics => setup.previousRatingAdjustmentValues[column.label],
+                                TableColumnSection.personAttributes => setup.previousPersonAdjustmentValues[column.label],
                                 _ => null,
                               };
              

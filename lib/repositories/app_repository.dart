@@ -48,6 +48,7 @@ class AppRepository extends ChangeNotifier {
   Map<int, StravaActivity> _stravaActivities = {};
   Map<String, StravaGear> _stravaGears = {};
   Map<String, ComponentStats> _componentStats = {};
+  Map<String, dynamic> _currentAdjustmentValues = {};
 
   int _stravaOffset = 0;
   int _stravaLimit = 50;
@@ -104,6 +105,7 @@ class AppRepository extends ChangeNotifier {
   Map<int, StravaAthlete> get stravaAthletes => _stravaAthletes;
   Map<int, StravaActivity> get stravaActivities => _stravaActivities;
   Map<String, StravaGear> get stravaGears => _stravaGears;
+  Map<String, dynamic> get currentAdjustmentValues => _currentAdjustmentValues;
 
   DateTime get lastModified {
     final allDates = [
@@ -291,11 +293,15 @@ class AppRepository extends ChangeNotifier {
   }
 
   void _resolveData() {
-    _setups = SetupResolutionService.resolveSetups(
+    final result = SetupResolutionService.resolveSetups(
       setups: _setups,
       bikes: _bikes,
       persons: _persons,
+      components: _components,
+      ratings: _ratings,
     );
+    _setups = result.setups;
+    _currentAdjustmentValues = result.globalState;
 
     // Apply component stats
     _components = {

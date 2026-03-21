@@ -86,7 +86,6 @@ void main() async {
       bikeAdjustmentValues: {}, 
       personAdjustmentValues: {}, 
       ratingAdjustmentValues: {},
-      isCurrent: false,
     ));
   }
 

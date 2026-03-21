@@ -501,7 +501,7 @@ class SetupDisplayPageContent extends StatelessWidget {
                       ),
                       AdjustmentDisplayList(
                         adjustments: rating.adjustments,
-                        initialAdjustmentValues: {},
+                        initialAdjustmentValues: setup.previousRatingAdjustmentValues,
                         adjustmentValues: setup.ratingAdjustmentValues,
                       ),
                     ],
@@ -528,7 +528,7 @@ class SetupDisplayPageContent extends StatelessWidget {
                       ...danglingRatingAdjustmentValues.entries.map((danglingAdjustmentValue) {
                         return DisplayDanglingAdjustmentWidget(
                           name: danglingAdjustmentValue.key, 
-                          initialValue: null,
+                          initialValue: setup.previousRatingAdjustmentValues[danglingAdjustmentValue.key],
                           value: danglingAdjustmentValue.value,
                         );
                       }),
@@ -585,7 +585,7 @@ class SetupDisplayPageContent extends StatelessWidget {
                       ),
                       AdjustmentDisplayList(
                         adjustments: bikeComponent.adjustments,
-                        initialAdjustmentValues: setup.previousBikeSetup?.bikeAdjustmentValues ?? {},
+                        initialAdjustmentValues: setup.previousBikeAdjustmentValues,
                         adjustmentValues: setup.bikeAdjustmentValues,
                       ),
                     ],
@@ -612,7 +612,7 @@ class SetupDisplayPageContent extends StatelessWidget {
                       ...danglingBikeAdjustmentValues.entries.map((danglingAdjustmentValue) {
                         return DisplayDanglingAdjustmentWidget(
                           name: danglingAdjustmentValue.key, 
-                          initialValue: setup.previousBikeSetup?.bikeAdjustmentValues[danglingAdjustmentValue.key], 
+                          initialValue: setup.previousBikeAdjustmentValues[danglingAdjustmentValue.key], 
                           value: danglingAdjustmentValue.value
                         );
                       }),
@@ -639,7 +639,7 @@ class SetupDisplayPageContent extends StatelessWidget {
                       ),
                       AdjustmentDisplayList(
                         adjustments: person.adjustments,
-                        initialAdjustmentValues: setup.previousPersonSetup?.personAdjustmentValues ?? {},
+                        initialAdjustmentValues: setup.previousPersonAdjustmentValues,
                         adjustmentValues: setup.personAdjustmentValues,
                       ),
                     ],
@@ -665,7 +665,7 @@ class SetupDisplayPageContent extends StatelessWidget {
                         ...danglingPersonAdjustmentValues.entries.map((danglingAdjustmentValue) {
                           return DisplayDanglingAdjustmentWidget(
                             name: danglingAdjustmentValue.key, 
-                            initialValue: setup.previousPersonSetup?.personAdjustmentValues[danglingAdjustmentValue.key], 
+                            initialValue: setup.previousPersonAdjustmentValues[danglingAdjustmentValue.key], 
                             value: danglingAdjustmentValue.value,
                           );
                         }),
@@ -690,7 +690,7 @@ class SetupDisplayPageContent extends StatelessWidget {
     final components = appRepository.components;
 
     final Bike? bike = bikes[setup.bike];
-    Iterable<Component> bikeComponents = components.values.where((c) => c.bike == setup.bike);
+    Iterable<Component> bikeComponents = components.values.where((c) => c.bikeAt(setup.datetimeLocal.toUtc()) == setup.bike);
     final Person? person = persons[setup.person];
 
     final Map<String, dynamic> danglingBikeAdjustmentValues = Map.from(setup.bikeAdjustmentValues);

@@ -3,33 +3,42 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../sheets/setup_list_values_filter.dart';
 
-class SetupListValuesFilter extends StatelessWidget {
-  const SetupListValuesFilter({super.key});
+class SetupListDisplayFilterChip extends StatelessWidget {
+  const SetupListDisplayFilterChip({super.key});
 
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
+    
+    // Check if any visible display setting is not in its default state
+    bool isFilterActive = appSettings.setupListOnlyChanges || 
+        !appSettings.setupListBikeAdjustmentValues || 
+        !appSettings.setupListPersonAdjustmentValues || 
+        !appSettings.setupListRatingAdjustmentValues ||
+        !appSettings.displayShowSetups ||
+        (appSettings.enableStrava && !appSettings.displayShowActivities) ||
+        (appSettings.enableInstallationTimeline && !appSettings.displayShowInstallations) ||
+        (appSettings.enableTodo && !appSettings.displayShowTodos);
+
     return FilterChip(
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, // Removes the 48px constraint
-      avatar: const Icon(Icons.list_alt),
-      label: const Text("Values"),
+      avatar: const Icon(Icons.tune),
+      label: const Text("Display"),
       showCheckmark: false,
-      selected: appSettings.setupListOnlyChanges || 
-          !appSettings.setupListBikeAdjustmentValues || 
-          !appSettings.setupListPersonAdjustmentValues || 
-          !appSettings.setupListRatingAdjustmentValues,
+      selected: isFilterActive,
       onSelected: (bool value) async {
-        await showSetupListValuesFilterSheet(context: context);
+        await showSetupListDisplayFilterSheet(context: context);
       },
-      onDeleted: appSettings.setupListOnlyChanges || 
-          !appSettings.setupListBikeAdjustmentValues || 
-          !appSettings.setupListPersonAdjustmentValues || 
-          !appSettings.setupListRatingAdjustmentValues
+      onDeleted: isFilterActive
           ? () {
               appSettings.setupListOnlyChanges = false;
               appSettings.setupListBikeAdjustmentValues = true;
               appSettings.setupListPersonAdjustmentValues = true;
               appSettings.setupListRatingAdjustmentValues = true;
+              appSettings.displayShowSetups = true;
+              appSettings.displayShowActivities = true;
+              appSettings.displayShowInstallations = true;
+              appSettings.displayShowTodos = true;
             }
           : null,
     );

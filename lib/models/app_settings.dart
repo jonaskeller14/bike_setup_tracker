@@ -26,6 +26,10 @@ class AppSettings extends ChangeNotifier {
   bool _setupListBikeAdjustmentValues = true;
   bool _setupListPersonAdjustmentValues = true;
   bool _setupListRatingAdjustmentValues = true;
+  bool _displayShowSetups = true;
+  bool _displayShowActivities = true;
+  bool _displayShowInstallations = true;
+  bool _displayShowTodos = true;
 
   bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;
@@ -50,6 +54,10 @@ class AppSettings extends ChangeNotifier {
   bool get setupListBikeAdjustmentValues => _setupListBikeAdjustmentValues;
   bool get setupListPersonAdjustmentValues => _setupListPersonAdjustmentValues;
   bool get setupListRatingAdjustmentValues => _setupListRatingAdjustmentValues;
+  bool get displayShowSetups => _displayShowSetups;
+  bool get displayShowActivities => _displayShowActivities;
+  bool get displayShowInstallations => _displayShowInstallations;
+  bool get displayShowTodos => _displayShowTodos;
 
   set showOnboarding(bool newShowOnboarding) {
     if (_showOnboarding == newShowOnboarding) return;
@@ -191,6 +199,30 @@ class AppSettings extends ChangeNotifier {
   set setupListRatingAdjustmentValues(bool newValue) {
     if (newValue == _setupListRatingAdjustmentValues) return;
     _setupListRatingAdjustmentValues = newValue;
+    notifyListeners();
+  }
+
+  set displayShowSetups(bool newValue) {
+    if (newValue == _displayShowSetups) return;
+    _displayShowSetups = newValue;
+    notifyListeners();
+  }
+
+  set displayShowActivities(bool newValue) {
+    if (newValue == _displayShowActivities) return;
+    _displayShowActivities = newValue;
+    notifyListeners();
+  }
+
+  set displayShowInstallations(bool newValue) {
+    if (newValue == _displayShowInstallations) return;
+    _displayShowInstallations = newValue;
+    notifyListeners();
+  }
+
+  set displayShowTodos(bool newValue) {
+    if (newValue == _displayShowTodos) return;
+    _displayShowTodos = newValue;
     notifyListeners();
   }
 

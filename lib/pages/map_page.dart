@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
+import '../models/app_settings.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/chips/map_filter_widget.dart';
 import '../widgets/sheets/strava_activity.dart';
@@ -22,6 +23,7 @@ class _MapPageState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
+    final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final setups = appRepository.filteredSetups.values.where(
       (s) => s.position?.latitude != null && s.position?.longitude != null,
@@ -33,7 +35,7 @@ class _MapPageState extends State<MapPage> {
         final stravaActivities = snapshot.data ?? [];
         
         final List<Marker> markers = [
-          ...setups.map(
+          if (appSettings.displayShowSetups) ...setups.map(
             (setup) => Marker(
               point: LatLng(setup.position!.latitude!, setup.position!.longitude!),
               width: 40,
@@ -57,7 +59,7 @@ class _MapPageState extends State<MapPage> {
               ),
             ),
           ),
-          ...stravaActivities.map(
+          if (appSettings.enableStrava && appSettings.displayShowActivities) ...stravaActivities.map(
             (activity) => Marker(
               point: LatLng(activity.startLat!, activity.startLon!),
               width: 40,

@@ -6,18 +6,18 @@ import '../../models/person.dart';
 import '../../models/rating.dart';
 import 'sheet.dart';
 
-Future<void> showSetupListValuesFilterSheet({required BuildContext context}) async {
+Future<void> showSetupListDisplayFilterSheet({required BuildContext context}) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
     context: context, 
-    builder: (context) => SetupListValuesFilterSheetContent(),
+    builder: (context) => SetupListDisplayFilterSheetContent(),
   );
 }
 
-class SetupListValuesFilterSheetContent extends StatelessWidget {
-  const SetupListValuesFilterSheetContent({super.key});
+class SetupListDisplayFilterSheetContent extends StatelessWidget {
+  const SetupListDisplayFilterSheetContent({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,7 @@ class SetupListValuesFilterSheetContent extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                sheetTitle(context, 'Values Filter'),
+                sheetTitle(context, 'Display Options'),
                 sheetCloseButton(context),
               ],
             ),
@@ -47,6 +47,62 @@ class SetupListValuesFilterSheetContent extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Visibility", style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 6,
+                          children: [
+                            FilterChip(
+                              label: const Text("Setups"),
+                              showCheckmark: false,
+                              selected: appSettings.displayShowSetups,
+                              onSelected: (bool selected) => appSettings.displayShowSetups = selected,
+                              onDeleted: appSettings.displayShowSetups
+                                  ? () => appSettings.displayShowSetups = false
+                                  : null
+                            ),
+                            if (appSettings.enableStrava)
+                              FilterChip(
+                                label: const Text("Strava Activities"),
+                                showCheckmark: false,
+                                selected: appSettings.displayShowActivities,
+                                onSelected: (bool selected) => appSettings.displayShowActivities = selected,
+                                onDeleted: appSettings.displayShowActivities
+                                    ? () => appSettings.displayShowActivities = false
+                                    : null
+                              ),
+                            if (appSettings.enableTodo)
+                              FilterChip(
+                                label: const Text("Todos"),
+                                showCheckmark: false,
+                                selected: appSettings.displayShowTodos,
+                                onSelected: (bool selected) => appSettings.displayShowTodos = selected,
+                                onDeleted: appSettings.displayShowTodos
+                                    ? () => appSettings.displayShowTodos = false
+                                    : null
+                              ),
+                            if (appSettings.enableInstallationTimeline)
+                              FilterChip(
+                                label: const Text("Installations"),
+                                showCheckmark: false,
+                                selected: appSettings.displayShowInstallations,
+                                onSelected: (bool selected) => appSettings.displayShowInstallations = selected,
+                                onDeleted: appSettings.displayShowInstallations
+                                    ? () => appSettings.displayShowInstallations = false
+                                    : null
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

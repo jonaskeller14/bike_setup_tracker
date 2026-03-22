@@ -54,7 +54,7 @@ class SetupList extends StatelessWidget {
             : stravaActivities.map((a) => a.startDate).reduce((a, b) => a.isBefore(b) ? a : b);
 
     final List<_TimelineEntry> entries =  [
-      ...setupsList
+      if (appSettings.displayShowSetups) ...setupsList
           .where((s) {
             if (horizonDate == null || !appRepository.hasMoreStrava) return true;
             return sortAscending 
@@ -62,8 +62,8 @@ class SetupList extends StatelessWidget {
                 : !s.datetime.isBefore(horizonDate); // DESC: hide older than horizon
           })
           .map((s) => _SetupEntry(s)), 
-      ...stravaActivities.map((a) => _StravaEntry(a)),
-      ...todoEntries
+      if (appSettings.displayShowActivities) ...stravaActivities.map((a) => _StravaEntry(a)),
+      if (appSettings.displayShowTodos) ...todoEntries
           .where((t) {
             if (horizonDate == null || !appRepository.hasMoreStrava) return true;
             return sortAscending 
@@ -71,7 +71,7 @@ class SetupList extends StatelessWidget {
                 : !t.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
           })
           .map((t) => _TodoTimeLineEntry(t)),
-      ...installations
+      if (appSettings.displayShowInstallations) ...installations
           .where((ci) {
             if (horizonDate == null || !appRepository.hasMoreStrava) return true;
             return sortAscending 

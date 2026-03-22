@@ -9,7 +9,7 @@ import '../pages/setup_display_page.dart';
 import 'chips/setup_list_filter_widget.dart';
 import 'setup_list_card.dart';
 import 'strava_list_tile.dart';
-import 'todo_entry_list_card.dart';
+import 'todo_entry_list_item.dart';
 import 'installation_list_tile.dart';
 
 class SetupList extends StatelessWidget {
@@ -145,7 +145,7 @@ class SetupList extends StatelessWidget {
                     displayRatingAdjustmentValues: appSettings.setupListRatingAdjustmentValues,
                   );
                 case _TodoTimeLineEntry():
-                  return TodoEntryListCard(
+                  return TodoEntryListItem(
                     todoEntryId: entry.todoEntry.id,
                   );
                 case _InstallationEntry():

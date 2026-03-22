@@ -194,99 +194,101 @@ class _TodoRulePageState extends State<TodoRulePage> {
             IconButton(icon: const Icon(Icons.check), onPressed: _saveTodoRule),
           ],
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  autofocus: widget.mode == TodoRulePageMode.add,
-                  onChanged: (value) => setState(() {}),
-                  decoration: InputDecoration(
-                    labelText: 'Todo Name',
-                    border: OutlineInputBorder(),
-                    hintText: 'Enter todo name',
-                    fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled:
-                        widget.mode == TodoRulePageMode.edit &&
-                        _nameController.text.trim() != widget.todoRule?.name,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: _nameController,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    autofocus: widget.mode == TodoRulePageMode.add,
+                    onChanged: (value) => setState(() {}),
+                    decoration: InputDecoration(
+                      labelText: 'Todo Name',
+                      border: OutlineInputBorder(),
+                      hintText: 'Enter todo name',
+                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      filled:
+                          widget.mode == TodoRulePageMode.edit &&
+                          _nameController.text.trim() != widget.todoRule?.name,
+                    ),
+                    validator: _validateName,
+                    onFieldSubmitted: (_) => _saveTodoRule(),
                   ),
-                  validator: _validateName,
-                  onFieldSubmitted: (_) => _saveTodoRule(),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  initialValue: _componentId,
-                  isExpanded: true,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(
-                    labelText: 'Component',
-                    border: OutlineInputBorder(),
-                    hintText: "Choose a component",
-                    fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled:
-                        widget.mode == TodoRulePageMode.edit &&
-                        _componentId != widget.todoRule?.componentId,
-                  ),
-                  validator: _validateComponent,
-                  items: components.values
-                      .map((c) => _dropdownMenuItemComponent(c))
-                      .toList(),
-                  onChanged: (String? newValue) {
-                    setState(() => _componentId = newValue);
-                    _changeListener();
-                  },
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<TodoPriority>(
-                  initialValue: _priority,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: 'Priority',
-                    border: OutlineInputBorder(),
-                    fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled:
-                        widget.mode == TodoRulePageMode.edit &&
-                        _priority != widget.todoRule?.priority,
-                  ),
-                  items: TodoPriority.values.map((priority) {
-                    return DropdownMenuItem<TodoPriority>(
-                      value: priority,
-                      child: Text(priority.label),
-                    );
-                  }).toList(),
-                  onChanged: (TodoPriority? newValue) {
-                    if (newValue != null) {
-                      setState(() {
-                        _priority = newValue;
-                      });
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String>(
+                    initialValue: _componentId,
+                    isExpanded: true,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(
+                      labelText: 'Component',
+                      border: OutlineInputBorder(),
+                      hintText: "Choose a component",
+                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      filled:
+                          widget.mode == TodoRulePageMode.edit &&
+                          _componentId != widget.todoRule?.componentId,
+                    ),
+                    validator: _validateComponent,
+                    items: components.values
+                        .map((c) => _dropdownMenuItemComponent(c))
+                        .toList(),
+                    onChanged: (String? newValue) {
+                      setState(() => _componentId = newValue);
                       _changeListener();
-                    }
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _notesController,
-                  minLines: 2,
-                  maxLines: null,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(
-                    labelText: 'Notes (optional)',
-                    hintText: 'Add additional details or instructions...',
-                    border: OutlineInputBorder(),
-                    fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled:
-                        widget.mode == TodoRulePageMode.edit &&
-                        _notesController.text.trim() !=
-                            (widget.todoRule?.notes ?? ""),
+                    },
                   ),
-                ),
-              ],
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<TodoPriority>(
+                    initialValue: _priority,
+                    isExpanded: true,
+                    decoration: InputDecoration(
+                      labelText: 'Priority',
+                      border: OutlineInputBorder(),
+                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      filled:
+                          widget.mode == TodoRulePageMode.edit &&
+                          _priority != widget.todoRule?.priority,
+                    ),
+                    items: TodoPriority.values.map((priority) {
+                      return DropdownMenuItem<TodoPriority>(
+                        value: priority,
+                        child: Text(priority.label),
+                      );
+                    }).toList(),
+                    onChanged: (TodoPriority? newValue) {
+                      if (newValue != null) {
+                        setState(() {
+                          _priority = newValue;
+                        });
+                        _changeListener();
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _notesController,
+                    minLines: 2,
+                    maxLines: null,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(
+                      labelText: 'Notes (optional)',
+                      hintText: 'Add additional details or instructions...',
+                      border: OutlineInputBorder(),
+                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      filled:
+                          widget.mode == TodoRulePageMode.edit &&
+                          _notesController.text.trim() !=
+                              (widget.todoRule?.notes ?? ""),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

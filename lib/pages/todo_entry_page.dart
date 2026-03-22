@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import '../models/app_settings.dart';
 import '../models/todo_entry.dart';
 import '../models/todo_rule.dart';
+import '../repositories/app_repository.dart';
 import '../widgets/dialogs/discard_changes.dart';
 
 enum TodoEntryPageMode { add, edit, duplicate }
@@ -30,7 +31,9 @@ class TodoEntryPage extends StatefulWidget {
 }
 
 class _TodoEntryPageState extends State<TodoEntryPage> {
+  late String _initialName;
   late TextEditingController _nameController;
+  late String? _initialNotes;
   late TextEditingController _notesController;
 
   late DateTime _selectedDateTimeUtc;
@@ -44,10 +47,12 @@ class _TodoEntryPageState extends State<TodoEntryPage> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.todoEntry?.name ?? widget.todoRule.name);
+    _initialName = widget.todoEntry?.name ?? widget.todoRule.name;
+    _nameController = TextEditingController(text: _initialName);
     _nameController.addListener(_changeListener);
     
-    _notesController = TextEditingController(text: widget.todoEntry?.notes);
+    _initialNotes = widget.todoEntry?.notes;
+    _notesController = TextEditingController(text: _initialNotes);
     _notesController.addListener(_changeListener);
 
     final now = DateTime.now();
@@ -59,8 +64,8 @@ class _TodoEntryPageState extends State<TodoEntryPage> {
   }
 
   void _changeListener() {
-    final hasChanges = _nameController.text.trim() != (widget.todoEntry?.name ?? '') ||
-        _notesController.text.trim() != (widget.todoEntry?.notes ?? '') || 
+    final hasChanges = _nameController.text.trim() != _initialName ||
+        _notesController.text.trim() != (_initialNotes ?? '') || 
         _initialDateTimeUtc != _selectedDateTimeUtc || 
         _initialDateTimeLocal != _selectedDateTimeLocal;
     if (_formHasChanges != hasChanges) {
@@ -178,6 +183,8 @@ class _TodoEntryPageState extends State<TodoEntryPage> {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.read<AppSettings>();
+    final appRepository = context.watch<AppRepository>();
+    final component = appRepository.components[widget.todoRule.componentId];
     
     return PopScope( 
       canPop: !_formHasChanges,
@@ -192,67 +199,157 @@ class _TodoEntryPageState extends State<TodoEntryPage> {
             IconButton(icon: const Icon(Icons.check), onPressed: _saveTodoEntry),
           ],
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  autofocus: widget.mode == TodoEntryPageMode.add,
-                  onChanged: (value) => setState(() {}),
-                  decoration: InputDecoration(
-                    labelText: 'Todo Name',
-                    border: OutlineInputBorder(),
-                    hintText: 'Enter todo name',
-                    fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.mode == TodoEntryPageMode.edit && _nameController.text.trim() != widget.todoEntry?.name,
-                  ),
-                  validator: _validateName,
-                  onFieldSubmitted: (_) => _saveTodoEntry(),
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _notesController,
-                  minLines: 2,
-                  maxLines: null,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(
-                    labelText: 'Notes (optional)',
-                    hintText: 'Add additional details...',
-                    border: OutlineInputBorder(),
-                    fillColor: Colors.orange.withValues(alpha: 0.08),
-                    filled: widget.mode == TodoEntryPageMode.edit && _notesController.text.trim() != (widget.todoEntry?.notes ?? ""),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8.0,
-                  runSpacing: 4.0,
-                  children: [
-                    ActionChip(
-                      avatar: const Icon(Icons.calendar_month),
-                      label: Text(
-                        DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal),
-                      ),
-                      backgroundColor: widget.mode == TodoEntryPageMode.edit && (_selectedDateTimeUtc.year != _initialDateTimeUtc.year || _selectedDateTimeUtc.month != _initialDateTimeUtc.month || _selectedDateTimeUtc.day != _initialDateTimeUtc.day) ? Colors.orange.withValues(alpha: 0.08) : null,
-                      onPressed: _pickDate,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    ActionChip(
-                      avatar: const Icon(Icons.access_time),
-                      label: Text(
-                        DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      title: Text(
+                        widget.todoRule.name,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      backgroundColor: widget.mode == TodoEntryPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute) ? Colors.orange.withValues(alpha: 0.08) : null,
-                      onPressed: _pickTime,
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            spacing: 2,
+                            children: [
+                              Icon(
+                                component?.componentType.getIconData() ?? Icons.grid_view_sharp, 
+                                size: 13, 
+                                color: component != null ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
+                              ),
+                              Flexible(
+                                child: Text(
+                                  component?.name ?? "COMPONENT NOT FOUND",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: component != null ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            spacing: 2,
+                            children: [
+                              Icon(Icons.traffic, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              Text(
+                                'Priority: ${widget.todoRule.priority.label}',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (widget.todoRule.notes != null && widget.todoRule.notes!.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              spacing: 2,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 3), // tweak to match font size
+                                  child: Icon(
+                                    Icons.notes,
+                                    size: 13,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    widget.todoRule.notes!,
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _nameController,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    autofocus: widget.mode == TodoEntryPageMode.add,
+                    onChanged: (value) => setState(() {}),
+                    decoration: InputDecoration(
+                      labelText: 'Todo Entry Name',
+                      border: OutlineInputBorder(),
+                      hintText: 'Enter todo entry name',
+                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      filled: widget.mode == TodoEntryPageMode.edit && _nameController.text.trim() != widget.todoEntry?.name,
+                    ),
+                    validator: _validateName,
+                    onFieldSubmitted: (_) => _saveTodoEntry(),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _notesController,
+                    minLines: 2,
+                    maxLines: null,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(
+                      labelText: 'Notes (optional)',
+                      hintText: 'Add additional details...',
+                      border: OutlineInputBorder(),
+                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      filled: widget.mode == TodoEntryPageMode.edit && _notesController.text.trim() != (widget.todoEntry?.notes ?? ""),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8.0,
+                    runSpacing: 4.0,
+                    children: [
+                      ActionChip(
+                        avatar: const Icon(Icons.calendar_month),
+                        label: Text(
+                          DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal),
+                        ),
+                        backgroundColor: widget.mode == TodoEntryPageMode.edit && (_selectedDateTimeUtc.year != _initialDateTimeUtc.year || _selectedDateTimeUtc.month != _initialDateTimeUtc.month || _selectedDateTimeUtc.day != _initialDateTimeUtc.day) ? Colors.orange.withValues(alpha: 0.08) : null,
+                        onPressed: _pickDate,
+                      ),
+                      ActionChip(
+                        avatar: const Icon(Icons.access_time),
+                        label: Text(
+                          DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal),
+                        ),
+                        backgroundColor: widget.mode == TodoEntryPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute) ? Colors.orange.withValues(alpha: 0.08) : null,
+                        onPressed: _pickTime,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

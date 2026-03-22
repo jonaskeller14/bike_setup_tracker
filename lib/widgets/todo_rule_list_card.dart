@@ -13,6 +13,7 @@ class TodoRuleListCard extends StatelessWidget {
     final appRepository = context.watch<AppRepository>();
     final todoRule = appRepository.todoRules[todoRuleId];
     if (todoRule == null) return const SizedBox.shrink();
+    final component = appRepository.components[todoRule.componentId];
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
@@ -28,6 +29,29 @@ class TodoRuleListCard extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 2,
+              children: [
+                Icon(
+                  component?.componentType.getIconData() ?? Icons.grid_view_sharp, 
+                  size: 13, 
+                  color: component != null ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
+                ),
+                Flexible(
+                  child: Text(
+                    component?.name ?? "COMPONENT NOT FOUND",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: component != null ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
             Row(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,

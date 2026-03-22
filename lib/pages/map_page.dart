@@ -182,9 +182,11 @@ class _MapPageState extends State<MapPage> {
                   ),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsetsGeometry.all(8),
-                child: MapFilterWidget(),
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsetsGeometry.all(8),
+                  child: MapFilterWidget(),
+                ),
               ),
             ],
           ),

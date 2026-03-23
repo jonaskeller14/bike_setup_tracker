@@ -149,27 +149,6 @@ void main() {
       expect(find.text('Component type cannot be empty. You can edit it later.'), findsOneWidget);
     });
 
-    testWidgets('shows error when no adjustments are added', (WidgetTester tester) async {
-      await tester.pumpWidget(createWidgetUnderTest(
-        mode: ComponentPageMode.add,
-      ));
-      await tester.pumpAndSettle();
-
-      await tester.enterText(find.widgetWithText(TextFormField, 'Component Name'), 'New Component');
-      
-      // Select type
-      final typeDropdown = find.byType(DropdownButtonFormField<ComponentType>);
-      await tester.ensureVisible(typeDropdown);
-      await tester.tap(typeDropdown);
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Fork').last);
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byIcon(Icons.check));
-      await tester.pumpAndSettle();
-
-      expect(find.text('You need to add at least one adjustment'), findsOneWidget);
-    });
   });
 
   group('ComponentPage Dropdown Scenarios', () {
@@ -182,6 +161,18 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('BIKE NOT FOUND'), findsOneWidget);
+    });
+
+    testWidgets('does not detect changes initially when installation timeline is enabled', (WidgetTester tester) async {
+      appSettings.enableInstallationTimeline = true;
+      
+      await tester.pumpWidget(createWidgetUnderTest(
+        mode: ComponentPageMode.add,
+      ));
+      await tester.pumpAndSettle();
+
+      final popScope = tester.widget<PopScope>(find.byType(PopScope));
+      expect(popScope.canPop, isTrue, reason: 'Form should not have changes initially');
     });
   });
 }

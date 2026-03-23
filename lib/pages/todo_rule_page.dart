@@ -235,7 +235,8 @@ class _TodoRulePageState extends State<TodoRulePage> {
                           _componentId != widget.todoRule?.componentId,
                     ),
                     validator: _validateComponent,
-                    items: components.values
+                    items: (components.values.toList()
+                          ..sort((a, b) => (a.bike ?? "").compareTo(b.bike ?? "")))
                         .map((c) => _dropdownMenuItemComponent(c))
                         .toList(),
                     onChanged: (String? newValue) {

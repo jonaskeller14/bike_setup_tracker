@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MockAppRepository extends Mock implements AppRepository {}
 
@@ -30,6 +31,7 @@ void main() {
   });
 
   setUp(() {
+    SharedPreferences.setMockInitialValues({});
     mockRepository = MockAppRepository();
     appSettings = AppSettings();
     appSettings.enableInstallationTimeline = true;

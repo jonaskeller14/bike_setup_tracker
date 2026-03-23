@@ -58,6 +58,8 @@ class _ComponentPageState extends State<ComponentPage> {
   late String? _bike;
   late String? _initialBike;
   late ComponentType? _componentType;
+  late ComponentType? _initialComponentType;
+  late List<Installation> _initialInstallations;
   bool _expanded = false;
 
   @override
@@ -79,8 +81,10 @@ class _ComponentPageState extends State<ComponentPage> {
     _bike = _initialBike;
 
     _installations = widget.component?.installations ?? (context.read<AppSettings>().enableInstallationTimeline ? [Installation.sinceBeginning(parent: _initialBike)] : []);
+    _initialInstallations = List.from(_installations);
 
     _componentType = widget.component?.componentType;
+    _initialComponentType = _componentType;
     _notesController = TextEditingController(text: widget.component?.notes);
     _notesController.addListener(_changeListener);
     if (widget.mode != ComponentPageMode.add) _expanded = true;
@@ -90,8 +94,8 @@ class _ComponentPageState extends State<ComponentPage> {
     final hasChanges = _nameController.text.trim() != (widget.component?.name ?? '') || 
         _notesController.text.trim() != (widget.component?.notes ?? '') ||
         _bike != _initialBike || 
-        _componentType != widget.component?.componentType ||
-        !listEquals(_installations, widget.component?.installations ?? []) || //FIXME
+        _componentType != _initialComponentType ||
+        !listEquals(_installations, _initialInstallations) ||
         _initialAdjustments.length != _adjustments.length || 
         _adjustments.asMap().entries.any((entry) => entry.value != _initialAdjustments[entry.key]);
 

@@ -522,7 +522,11 @@ class _RatingPageState extends State<RatingPage> {
       _FilterFilterType(null, FilterType.global),
       ...bikes.values.map((b) => _FilterFilterTypeBike(b.id, FilterType.bike, b)),
       ...ComponentType.values.map((ct) => _FilterFilterTypeComponentType(ct.toString(), FilterType.componentType, ct)),
-      ...components.values.map((c) => _FilterFilterTypeComponent(c.id, FilterType.component, c)),
+      ...(() {
+        final sortedComponents = components.values.toList()
+          ..sort((a, b) => (a.bike ?? "").compareTo(b.bike ?? ""));
+        return sortedComponents.map((c) => _FilterFilterTypeComponent(c.id, FilterType.component, c));
+      })(),
       ...persons.values.map((p) => _FilterFilterTypePerson(p.id, FilterType.person, p)),
     ];
 

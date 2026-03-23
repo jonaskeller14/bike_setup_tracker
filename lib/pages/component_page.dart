@@ -581,13 +581,6 @@ class _ComponentPageState extends State<ComponentPage> {
                   ),
                   FormField<List<Adjustment>>(
                     initialValue: _adjustments,
-                    validator: (_) { // Evaluate _adjustments for robustness
-                      if (_adjustments.isEmpty) {
-                        return 'You need to add at least one adjustment';
-                      }
-                      return null;
-                    },
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
                     builder: (FormFieldState<List<Adjustment>> field) {
                       void notify() => field.didChange(List.from(_adjustments));
   

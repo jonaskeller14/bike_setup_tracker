@@ -445,7 +445,7 @@ class _RatingPageState extends State<RatingPage> {
         spacing: 8,
         children: [
           Icon(fftct.componentType.getIconData()),
-          Expanded(child: Text(fftct.componentType.value, overflow: TextOverflow.ellipsis))
+          Expanded(child: Text(fftct.componentType.label, overflow: TextOverflow.ellipsis))
         ],
       ),
     );

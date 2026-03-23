@@ -129,7 +129,7 @@ class RatingListCard extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               FilterType.componentType => Text(
-                                ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter)?.value ?? "-",
+                                ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter)?.label ?? "-",
                                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                                 overflow: TextOverflow.ellipsis,
                               ),

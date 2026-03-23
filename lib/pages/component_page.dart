@@ -367,7 +367,7 @@ class _ComponentPageState extends State<ComponentPage> {
   }
 
   Widget _componentTypeField({required int existingComponentsCount}) {
-    return DropdownButtonFormField<ComponentType>(
+    return DropdownButtonFormField<Object?>(
       initialValue: _componentType,
       isExpanded: true,
       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -379,36 +379,56 @@ class _ComponentPageState extends State<ComponentPage> {
         helperText: existingComponentsCount > 0
             ? Intl.plural(
                 existingComponentsCount,
-                one: "WARNING: There is one ${_componentType?.value}-Component already installed on this bike.",
-                other: "WARNING: There are $existingComponentsCount ${_componentType?.value}-Components already installed on this bike.",
+                one: "WARNING: There is one ${_componentType?.label}-Component already installed on this bike.",
+                other: "WARNING: There are $existingComponentsCount ${_componentType?.label}-Components already installed on this bike.",
               )
             : null,
         fillColor: Colors.orange.withValues(alpha: 0.08),
         filled: widget.mode == ComponentPageMode.edit && _componentType != widget.component?.componentType,
       ),
-      items: ComponentType.values.map((componentType) {
-        return DropdownMenuItem<ComponentType>(
-          value: componentType,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            spacing: 8,
-            children: [
-              Icon(componentType.getIconData()),
-              Expanded(child: Text(componentType.value, overflow: TextOverflow.ellipsis)),
-            ],
-          ),
-        );
-      }).toList(),
-      onChanged: (ComponentType? newComponentType) {
-        if (newComponentType == null) return;
+      items: () {
+        final items = <DropdownMenuItem<Object?>>[];
+        for (final category in ComponentTypeCategory.values) {
+          items.add(
+            DropdownMenuItem<Object?>(
+              enabled: false,
+              value: category,
+              child: Text(
+                category.label.toUpperCase(),
+                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2),
+              ),
+            ),
+          );
+          items.addAll(
+            ComponentType.values
+                .where((t) => t.category == category)
+                .map((componentType) {
+              return DropdownMenuItem<Object?>(
+                value: componentType,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  spacing: 8,
+                  children: [
+                    Icon(componentType.getIconData()),
+                    Expanded(child: Text(componentType.label, overflow: TextOverflow.ellipsis)),
+                  ],
+                ),
+              );
+            })
+          );
+        }
+        return items;
+      }(),
+      onChanged: (Object? newComponentType) {
+        if (newComponentType == null || newComponentType is! ComponentType) return;
         setState(() {
           _componentType = newComponentType;
         });
         _changeListener();
       },
-      validator: (value) {
-        if (value == null) {
+      validator: (Object? value) {
+        if (value == null || value is! ComponentType) {
           return 'Component type cannot be empty. You can edit it later.';
         }
         return null;

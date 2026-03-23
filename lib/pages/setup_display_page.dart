@@ -486,7 +486,7 @@ class SetupDisplayPageContent extends StatelessWidget {
                               FilterType.bike => Text(bikes[rating.filter]?.name ?? "-", overflow: TextOverflow.ellipsis),
                               FilterType.person => Text(persons[rating.filter]?.name ?? "-", overflow: TextOverflow.ellipsis),
                               FilterType.componentType => Text(
-                                ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter)?.value ?? "-",
+                                ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter)?.label ?? "-",
                                 overflow: TextOverflow.ellipsis,
                               ),
                               FilterType.component => Text(

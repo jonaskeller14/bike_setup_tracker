@@ -201,10 +201,7 @@ class Component {
           isDeleted: json["isDeleted"] as bool,
           lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
           name: json['name'] as String,
-          componentType: ComponentType.values.firstWhere(
-            (e) => e.toString() == json['componentType'],
-            orElse: () => ComponentType.other,
-          ),
+          componentType: ComponentType.fromString(json['componentType']),
           installations: [
             Installation.sinceBeginning(parent: bike)
           ],
@@ -229,10 +226,7 @@ class Component {
           isDeleted: json["isDeleted"] as bool,
           lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
           name: json['name'] as String,
-          componentType: ComponentType.values.firstWhere(
-            (e) => e.toString() == json['componentType'],
-            orElse: () => ComponentType.other,
-          ),
+          componentType: ComponentType.fromString(json['componentType']),
           installations: (json["installations"] as List<dynamic>?)
             ?.map((i) => Installation.fromJson(i))
             .toList() ?? [],

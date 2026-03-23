@@ -24,6 +24,7 @@ class StravaService extends ChangeNotifier {
   StravaServiceStatus _status = StravaServiceStatus.idle;
   String _errorMessage = '';
   bool _isInitialized = false;
+  bool _isDisconnecting = false;
 
   StravaServiceStatus get status => _status;
   String get errorMessage => _errorMessage;
@@ -49,11 +50,19 @@ class StravaService extends ChangeNotifier {
   @override
   void dispose() {
     _isDisposed = true;
+    _stopListening();
+    super.dispose();
+  }
+
+  void _stopListening() {
     _activitiesSubscription?.cancel();
     _userDocSubscription?.cancel();
     _athleteSubscription?.cancel();
     _gearSubscription?.cancel();
-    super.dispose();
+    _activitiesSubscription = null;
+    _userDocSubscription = null;
+    _athleteSubscription = null;
+    _gearSubscription = null;
   }
 
   @override
@@ -66,19 +75,30 @@ class StravaService extends ChangeNotifier {
   Future<void> update({required AppRepository appRepository}) async {
     _appRepository = appRepository;
 
-    if (_isInitialized) return;
+    if (_isInitialized || _isDisconnecting) return;
     _isInitialized = true;
 
     try {
       await _loadUserId();
       _listenToUserDocument();
-      _listenToActivities();
-      _listenToAthlete();
-      _listenToGear();
       _registerFcmToken();
     } catch (e) {
       _isInitialized = false;
-      debugPrint("StravaService.update failed: $e");
+    }
+  }
+
+  /// Helper to process sync dates from Firestore (handles both Timestamps and Strings)
+  DateTime? _parseDateTime(dynamic value) {
+    if (value is Timestamp) return value.toDate();
+    if (value is String) return DateTime.tryParse(value);
+    return null;
+  }
+
+  /// Centralized error handling
+  void _handleError(String context, dynamic error, {String? userMessage}) {
+    debugPrint("StravaService $context: $error");
+    if (userMessage != null) {
+      errorMessage = userMessage;
     }
   }
 
@@ -91,57 +111,55 @@ class StravaService extends ChangeNotifier {
         .doc(_userId)
         .snapshots()
         .listen((snapshot) {
-      if (snapshot.exists) {
-        final data = snapshot.data();
-        if (data == null) return;
+      if (!snapshot.exists) return;
+      final data = snapshot.data();
+      if (data == null) return;
 
-        final bool wasConnected = _isConnected;
-        _isConnected = data['strava_connected'] ?? false;
+      final bool wasConnected = _isConnected;
+      _isConnected = data['strava_connected'] ?? false;
 
-        // Sync Status tracking (Idle, Syncing, Error)
-        final String remoteStatus = data['strava_sync_status'] ?? 'idle';
-        final String remoteError = data['strava_sync_error'] ?? '';
+      // Update Sync Status
+      final String remoteStatus = data['strava_sync_status'] ?? 'idle';
+      final String remoteError = data['strava_sync_error'] ?? '';
 
-        if (remoteStatus == 'syncing') {
-          _status = StravaServiceStatus.syncing;
-          _errorMessage = ''; 
-        } else if (remoteStatus == 'error') {
-          _status = StravaServiceStatus.idle;
-          _errorMessage = remoteError.isNotEmpty ? remoteError : 'Sync failed';
-        } else {
-          _status = StravaServiceStatus.idle;
-        }
-        
-        // Parse last recent sync time
-        final dynamic lastRecentData = data['strava_sync_last_recent'];
-        if (lastRecentData is Timestamp) {
-          _lastRecentSync = lastRecentData.toDate();
-        } else if (lastRecentData is String) {
-          _lastRecentSync = DateTime.tryParse(lastRecentData);
-        }
-
-        // Parse last full sync time
-        final dynamic lastFullData = data['strava_sync_last_full'];
-        if (lastFullData is Timestamp) {
-          _lastFullSync = lastFullData.toDate();
-        } else if (lastFullData is String) {
-          _lastFullSync = DateTime.tryParse(lastFullData);
-        }
-
-        // Parse sync day (0=Sun, 1=Mon, ..., 6=Sat)
-        _syncDay = data['sync_day'] as int?;
-
-        // If status or connection changed, notify listeners
-        notifyListeners();
-
-        if (wasConnected != _isConnected) {
-          debugPrint("Strava connection status changed: $_isConnected");
-        }
+      if (remoteStatus == 'syncing') {
+        _status = StravaServiceStatus.syncing;
+        _errorMessage = ''; 
+      } else if (remoteStatus == 'error') {
+        _status = StravaServiceStatus.idle;
+        _errorMessage = remoteError.isNotEmpty ? remoteError : 'Sync failed';
+      } else {
+        _status = StravaServiceStatus.idle;
       }
-    }, onError: (e) {
-      debugPrint("Error listening to user document: $e");
-      errorMessage = "Could not verify connection (No internet?)";
-    });
+      
+      _lastRecentSync = _parseDateTime(data['strava_sync_last_recent']);
+      _lastFullSync = _parseDateTime(data['strava_sync_last_full']);
+      _syncDay = data['sync_day'] as int?;
+
+      notifyListeners();
+
+      // Reactive Lifecycle: Start/Stop data listeners based on connection state
+      if (_isConnected && (_activitiesSubscription == null)) {
+        _startDataListeners();
+      } else if (!_isConnected && (wasConnected)) {
+        _stopDataListeners();
+      }
+    }, onError: (e) => _handleError("UserDoc", e, userMessage: "Connection verify failed"));
+  }
+
+  void _startDataListeners() {
+    _listenToActivities();
+    _listenToAthlete();
+    _listenToGear();
+  }
+
+  void _stopDataListeners() {
+    _activitiesSubscription?.cancel();
+    _athleteSubscription?.cancel();
+    _gearSubscription?.cancel();
+    _activitiesSubscription = null;
+    _athleteSubscription = null;
+    _gearSubscription = null;
   }
 
   void _listenToActivities() {
@@ -154,6 +172,8 @@ class StravaService extends ChangeNotifier {
         .collection('activity_batches')
         .snapshots()
         .listen((snapshot) {
+      if (!_isConnected) return;
+
       final List<StravaActivity> allActivities = [];
       for (var doc in snapshot.docs) {
         final data = doc.data();
@@ -165,10 +185,7 @@ class StravaService extends ChangeNotifier {
         }
       }
       _appRepository.setStravaActivities(allActivities);
-    }, onError: (e) {
-      debugPrint("Strava sync stream error: $e");
-      errorMessage = "Background sync error (Internet issue?)";
-    });
+    }, onError: (e) => _handleError("SyncStream", e, userMessage: "Background sync error"));
   }
 
   void _listenToAthlete() {
@@ -182,16 +199,14 @@ class StravaService extends ChangeNotifier {
         .doc('athlete')
         .snapshots()
         .listen((snapshot) {
+      if (!_isConnected) return;
       if (snapshot.exists && snapshot.data() != null) {
         final athlete = StravaAthlete.fromFirestore(snapshot.data()!);
         _appRepository.setStravaAthletes([athlete]);
-        debugPrint("Strava athlete synced: ${athlete.firstname} ${athlete.lastname}");
       } else {
         _appRepository.setStravaAthletes([]);
       }
-    }, onError: (e) {
-      debugPrint("Strava athlete sync error: $e");
-    });
+    }, onError: (e) => _handleError("AthleteSync", e));
   }
 
   void _listenToGear() {
@@ -204,14 +219,10 @@ class StravaService extends ChangeNotifier {
         .collection('gears')
         .snapshots()
         .listen((snapshot) {
+      if (!_isConnected) return;
       final gears = snapshot.docs.map((doc) => StravaGear.fromFirestore(doc.data())).toList();
       _appRepository.setStravaGears(gears);
-      if (gears.isNotEmpty) {
-        debugPrint("Strava gear synced: ${gears.length} items");
-      }
-    }, onError: (e) {
-      debugPrint("Strava gear sync error: $e");
-    });
+    }, onError: (e) => _handleError("GearSync", e));
   }
 
   Future<void> _registerFcmToken() async {
@@ -228,21 +239,14 @@ class StravaService extends ChangeNotifier {
           // TTL: Cleanup anonymous users who never link Strava.
           // If not connected, set expiration to 1 year (365 days) from now.
           if (!_isConnected) {
-            data['expiresAt'] = Timestamp.fromDate(
-              DateTime.now().add(const Duration(days: 365)),
-            );
+            data['expiresAt'] = Timestamp.fromDate(DateTime.now().add(const Duration(days: 365)));
           }
 
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(_userId)
-              .set(data, SetOptions(merge: true));
-          debugPrint("FCM Token registered for $_userId (TTL: ${!_isConnected})");
-          debugPrint("FCM Token: $token");
+          await FirebaseFirestore.instance.collection('users').doc(_userId).set(data, SetOptions(merge: true));
         }
       }
     } catch (e) {
-      debugPrint("Error registering FCM token: $e");
+      _handleError("FcmToken", e);
     }
   }
 
@@ -270,16 +274,13 @@ class StravaService extends ChangeNotifier {
   /// Returns null if sync_day is not set or no full sync has happened yet.
   DateTime? get nextFullSync {
     if (_syncDay == null) return null;
-    
     final now = DateTime.now();
     // Find the next occurrence of sync_day
     // sync_day: 0=Sun, 1=Mon, ..., 6=Sat (JS convention, same as DateTime.sunday=7 in Dart)
     // Dart: 1=Mon, 2=Tue, ..., 7=Sun
     final dartWeekday = _syncDay == 0 ? DateTime.sunday : _syncDay!;
-    
     int daysUntil = dartWeekday - now.weekday;
     if (daysUntil <= 0) daysUntil += 7;
-    
     return DateTime(now.year, now.month, now.day + daysUntil);
   }
 
@@ -289,7 +290,6 @@ class StravaService extends ChangeNotifier {
     if (!_isConnected) return false;
     if (_status == StravaServiceStatus.syncing) return false;
     if (_lastRecentSync == null) return true;
-    
     final difference = DateTime.now().difference(_lastRecentSync!);
     return difference.inDays >= 7;
   }
@@ -322,10 +322,7 @@ class StravaService extends ChangeNotifier {
       );
 
       if (await canLaunchUrl(authUrl)) {
-        await launchUrl(
-          authUrl,
-          mode: LaunchMode.externalApplication, // use Strava App if existing
-        );
+        await launchUrl(authUrl, mode: LaunchMode.externalApplication);
       } else {
         throw 'Could not open Strava-Login';
       }
@@ -340,46 +337,38 @@ class StravaService extends ChangeNotifier {
 
   Future<void> disconnect() async {
     if (_userId == null) return;
-    
+    _isDisconnecting = true;
     status = StravaServiceStatus.syncing;
     errorMessage = "Disconnecting...";
     
     try {
-      // 1. Call Backend Cleanup
       final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
       await functions.httpsCallable('deauthorizeUser').call();
-
-      // 2. Clear Local State
-      _appRepository.clearStravaData();
+      _stopListening();
+      await _appRepository.clearStravaData();
 
       _isConnected = false;
       errorMessage = "";
       status = StravaServiceStatus.idle;
+      _isInitialized = false; 
       notifyListeners();
-      debugPrint("Strava disconnected and data wiped.");
-
     } catch (e) {
-      debugPrint("Error disconnecting Strava: $e");
       errorMessage = "Disconnection failed: $e";
       status = StravaServiceStatus.idle;
+    } finally {
+      _isDisconnecting = false;
     }
   }
 
   Future<void> triggerManualSync() async {
     if (_userId == null) return;
-    
     status = StravaServiceStatus.syncing;
-    errorMessage = ""; // Clear previous errors
-    
+    errorMessage = "";
     try {
       final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
-      final result = await functions.httpsCallable('syncActivities').call();
-      
-      debugPrint("Manual sync successful: ${result.data}");
+      await functions.httpsCallable('syncActivities').call();
       status = StravaServiceStatus.idle;
-      
     } catch (e) {
-      debugPrint("Error manually syncing Strava: $e");
       errorMessage = "Sync failed: $e";
       status = StravaServiceStatus.idle;
     }
@@ -387,19 +376,13 @@ class StravaService extends ChangeNotifier {
 
   Future<void> triggerFullHistorySync() async {
     if (_userId == null) return;
-    
     status = StravaServiceStatus.syncing;
-    errorMessage = ""; // Clear previous errors
-    
+    errorMessage = "";
     try {
       final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
-      final result = await functions.httpsCallable('syncFullHistory').call();
-      
-      debugPrint("Full history sync triggered successfully: ${result.data}");
+      await functions.httpsCallable('syncFullHistory').call();
       status = StravaServiceStatus.idle;
-      
     } catch (e) {
-      debugPrint("Error triggering full history sync: $e");
       errorMessage = "Full history sync fail: $e";
       status = StravaServiceStatus.idle;
     }

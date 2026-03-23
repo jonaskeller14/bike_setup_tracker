@@ -55,6 +55,7 @@ class AppRepository extends ChangeNotifier {
   bool _hasMoreStrava = true;
   bool _isLoadingMoreStrava = false;
   bool _stravaSortAscending = false;
+  int _stravaOperationVersion = 0;
 
   bool get hasMoreStrava => _hasMoreStrava;
   bool get isLoadingMoreStrava => _isLoadingMoreStrava;
@@ -829,11 +830,22 @@ class AppRepository extends ChangeNotifier {
   }
 
   Future<void> setStravaActivities(Iterable<StravaActivity> activities) async {
-    for (var a in activities) {
-      await database.stravaDao.upsertActivity(a.toCompanion());
-      // Removed direct cache update to allow pagination to control the viewable items.
-      // New activities will be visible after an initial reload or if they fall into the loaded range.
+    final versionAtStart = _stravaOperationVersion;
+    
+    // Perform bulk upsert in a single transaction for performance and to reduce race conditions
+    await database.transaction(() async {
+      for (var a in activities) {
+        // Check if we were cleared while processing
+        if (versionAtStart != _stravaOperationVersion) return;
+        await database.stravaDao.upsertActivity(a.toCompanion());
+      }
+    });
+
+    if (versionAtStart != _stravaOperationVersion) {
+      return;
     }
+
+    debugPrint("AppRepository finished upserting activities to database (v$versionAtStart).");
     // Refresh the first page if we are at the top, to show potentially new activities
     if (_stravaOffset <= _stravaLimit) {
       initialStravaLoad();
@@ -855,10 +867,14 @@ class AppRepository extends ChangeNotifier {
   }
   
   Future<void> clearStravaData() async {
+    _stravaOperationVersion++; 
+    
     await database.delete(database.stravaActivities).go();
     await database.delete(database.stravaAthletes).go();
     await database.delete(database.stravaGears).go();
     _stravaActivities = {};
+    _stravaAthletes = {};
+    _stravaGears = {};
     _stravaOffset = 0;
     _hasMoreStrava = true;
     _dataChanged();

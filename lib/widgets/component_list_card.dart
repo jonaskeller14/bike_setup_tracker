@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../repositories/app_repository.dart';
 import '../models/component.dart';
@@ -6,7 +7,6 @@ import '../models/bike.dart';
 import '../utils/component_actions.dart';
 import 'adjustment_compact_display_list.dart';
 import '../pages/component_overview_page.dart';
-import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 
 class ComponentListCard extends StatelessWidget{
@@ -98,28 +98,6 @@ class ComponentListCard extends StatelessWidget{
                       ),
                     ],
                   ),
-                  if (appSettings.enableInstallationTimeline && appSettings.enableStrava)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 2,
-                        children: [
-                          _StatItem(
-                            icon: Icons.speed,
-                            label: '${(component.totalDistance / 1000).toStringAsFixed(1)} km',
-                          ),
-                          _StatItem(
-                            icon: Icons.terrain,
-                            label: '${component.totalElevationGain.round()} m',
-                          ),
-                          _StatItem(
-                            icon: Icons.timer,
-                            label: Adjustment.formatValue(component.totalMovingTime),
-                          ),
-                        ],
-                      ),
-                    ),
                   if (component.notes != null && component.notes!.isNotEmpty)
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,6 +119,25 @@ class ComponentListCard extends StatelessWidget{
                               fontSize: 13,
                             ),
                           ),
+                        ),
+                      ],
+                    ),
+                  if (appSettings.enableInstallationTimeline && appSettings.enableStrava)
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 2,
+                      children: [
+                        _StatItem(
+                          icon: Icons.speed,
+                          label: '${NumberFormat.decimalPattern().format((component.totalDistance / 1000).round())} km',
+                        ),
+                        _StatItem(
+                          icon: Icons.terrain,
+                          label: '${NumberFormat.decimalPattern().format(component.totalElevationGain.round())} m',
+                        ),
+                        _StatItem(
+                          icon: Icons.timer,
+                          label: '${NumberFormat.decimalPattern().format(component.totalMovingTime.inHours)}h ${component.totalMovingTime.inMinutes.remainder(60)}m',
                         ),
                       ],
                     ),
@@ -236,7 +233,7 @@ class _StatItem extends StatelessWidget {
         Icon(
           icon,
           size: 13,
-          color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
         Text(
           label,

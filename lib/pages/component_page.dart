@@ -55,8 +55,6 @@ class _ComponentPageState extends State<ComponentPage> {
   late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
   late List<Installation> _installations;
-  late String? _bike;
-  late String? _initialBike;
   late ComponentType? _componentType;
   late ComponentType? _initialComponentType;
   late List<Installation> _initialInstallations;
@@ -73,14 +71,14 @@ class _ComponentPageState extends State<ComponentPage> {
     _initialAdjustments = List.from(_adjustments);
     
     final appRepository = context.read<AppRepository>();
-    _initialBike = widget.component != null 
+    final initialBike = widget.component != null 
         ? widget.component!.bike 
         : widget.initialBike is _Sentinel
             ? appRepository.filteredBikes.keys.firstOrNull
             : widget.initialBike as String?;    
-    _bike = _initialBike;
 
-    _installations = widget.component?.installations ?? (context.read<AppSettings>().enableInstallationTimeline ? [Installation.sinceBeginning(parent: _initialBike)] : []);
+    _installations = widget.component?.installations ?? [Installation.sinceBeginning(parent: initialBike)];
+    _installations.sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
     _initialInstallations = List.from(_installations);
 
     _componentType = widget.component?.componentType;
@@ -93,7 +91,6 @@ class _ComponentPageState extends State<ComponentPage> {
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != (widget.component?.name ?? '') || 
         _notesController.text.trim() != (widget.component?.notes ?? '') ||
-        _bike != _initialBike || 
         _componentType != _initialComponentType ||
         !listEquals(_installations, _initialInstallations) ||
         _initialAdjustments.length != _adjustments.length || 
@@ -200,7 +197,6 @@ class _ComponentPageState extends State<ComponentPage> {
   }
 
   void _saveComponent() {
-    final appSettings = context.read<AppSettings>();
     if (!_formKey.currentState!.validate()) return;
     
     final name = _nameController.text.trim();
@@ -211,7 +207,7 @@ class _ComponentPageState extends State<ComponentPage> {
       id: widget.mode == ComponentPageMode.edit ? widget.component?.id : null, 
       name: name,
       componentType: _componentType!,
-      installations: appSettings.enableInstallationTimeline ? _installations : [Installation.sinceBeginning(parent: _bike)],
+      installations: _installations,
       notes: notes.isEmpty ? null : notes,
       adjustments: _adjustments,
     );
@@ -458,16 +454,16 @@ class _ComponentPageState extends State<ComponentPage> {
 
   Widget _bikesDropdownField({required Map<String, Bike> bikes}) {
     return DropdownButtonFormField<String?>(
-      initialValue: _bike,
+      initialValue: _installations.lastOrNull?.parent,
       isExpanded: true,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
         labelText: 'Bike',
         border: OutlineInputBorder(),
         hintText: "Choose a bike for this component",
-        helperText: _bike == null ? "WARNING: Select Bike to install Component." : null,
+        helperText: _installations.lastOrNull?.parent == null ? "WARNING: Select Bike to install Component." : null,
         fillColor: Colors.orange.withValues(alpha: 0.08),
-        filled: widget.mode == ComponentPageMode.edit && _bike != _initialBike,
+        filled: widget.mode == ComponentPageMode.edit && _installations.lastOrNull?.parent != _initialInstallations.lastOrNull?.parent,
       ),
       validator: (String? newBike) {
         if (newBike is String && !bikes.containsKey(newBike)) return "Please select valid bike";
@@ -495,9 +491,9 @@ class _ComponentPageState extends State<ComponentPage> {
             ],
           ),
         ),
-        if (_bike != null && !bikes.containsKey(_bike))
+        if (_installations.lastOrNull?.parent != null && !bikes.containsKey(_installations.lastOrNull?.parent))
           DropdownMenuItem<String?>(
-            value: _bike,
+            value: _installations.lastOrNull?.parent,
             child: Row(
               spacing: 8,
               children: [
@@ -508,18 +504,22 @@ class _ComponentPageState extends State<ComponentPage> {
           ),
       ],
       onChanged: (String? newBike) {
-        setState(() => _bike = newBike);
+        setState(() => _installations = [Installation.sinceBeginning(parent: newBike)]);
         _changeListener();
       },
     );
   }
+
+  bool get _isComplexInstallation => _installations.length > 1 || 
+      (_installations.isNotEmpty && _installations.first.dateTimeUTC.millisecondsSinceEpoch > 0);
 
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
-    final existingComponentsCount = appRepository.components.values.where((c) => c.bike == _bike && c.componentType == _componentType && widget.component?.id != c.id).length;
+    final currentBike = _installations.lastOrNull?.parent;  // _installations are sorted in init() 
+    final existingComponentsCount = appRepository.components.values.where((c) => c.bike == currentBike && c.componentType == _componentType && widget.component?.id != c.id).length;
 
     return PopScope( 
       canPop: !_formHasChanges,
@@ -566,7 +566,7 @@ class _ComponentPageState extends State<ComponentPage> {
                   ],
 
                   const SizedBox(height: 12),
-                  if (appSettings.enableInstallationTimeline)
+                  if (appSettings.enableInstallationTimeline || _isComplexInstallation)
                     SetInstallationTimeline(
                       initialInstallations: _installations,
                       originalInstallations: widget.mode == ComponentPageMode.edit ? widget.component?.installations : null,

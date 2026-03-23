@@ -244,10 +244,10 @@ class AppSettings extends ChangeNotifier {
       _precipitationUnit = json['precipitationUnit'] ?? _precipitationUnit;
       _enableGoogleDrive = json['enableGoogleDrive'] ?? _enableGoogleDrive;
       _enableTextAdjustment = json['enableTextAdjustment'] ?? _enableTextAdjustment;
-      _enablePerson = json['enablePerson'] ?? _enablePerson;
-      _enableRating = json['enableRating'] ?? _enableRating;
+      // _enablePerson = json['enablePerson'] ?? _enablePerson;
+      // _enableRating = json['enableRating'] ?? _enableRating;
       _enableSetupTags = json['enableSetupTags'] ?? _enableSetupTags;
-      _enableStrava = json['enableStrava'] ?? _enableStrava;
+      // _enableStrava = json['enableStrava'] ?? _enableStrava;
       _enableGarage = json['enableGarage'] ?? _enableGarage;
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");

@@ -5,6 +5,18 @@ class BikeIcons {
 
   static const String _fontFamily = 'BikeIcons';
 
+  static const IconData stem = IconData(0xe915, fontFamily: _fontFamily);
+  static const IconData shifter = IconData(0xe916, fontFamily: _fontFamily);
+  static const IconData brakeCalliper = IconData(0xe917, fontFamily: _fontFamily);
+  static const IconData grip = IconData(0xe918, fontFamily: _fontFamily);
+  static const IconData brakeLever = IconData(0xe919, fontFamily: _fontFamily);
+  static const IconData bottomBracket = IconData(0xe91a, fontFamily: _fontFamily);
+  static const IconData headset = IconData(0xe91b, fontFamily: _fontFamily);
+  static const IconData crank = IconData(0xe91c, fontFamily: _fontFamily);
+  static const IconData battery = IconData(0xe91d, fontFamily: _fontFamily);
+  static const IconData derailleur = IconData(0xe912, fontFamily: _fontFamily);
+  static const IconData chainring = IconData(0xe913, fontFamily: _fontFamily);
+  static const IconData casette = IconData(0xe914, fontFamily: _fontFamily);
   static const IconData shiftInnerCable = IconData(0xe90f, fontFamily: _fontFamily);
   static const IconData bearing = IconData(0xe910, fontFamily: _fontFamily);
   static const IconData brakePad = IconData(0xe911, fontFamily: _fontFamily);

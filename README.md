@@ -3,7 +3,7 @@
 *Component setup tracker for mountain bikers & road cyclists. Log and forget!*
 
 [![Flutter Test Check](https://github.com/jonaskeller14/bike_setup_tracker/actions/workflows/flutter_test.yml/badge.svg)](https://github.com/jonaskeller14/bike_setup_tracker/actions)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: All Rights Reserved](https://img.shields.io/badge/License-All_Rights_Reserved-red.svg)](LICENSE)
 [![Play Store Downloads](https://playbadges.pavi2410.com/badge/downloads?id=com.jonaskeller14.bike_setup_tracker&pretty)](https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker)
 [![Play Store Ratings](https://playbadges.pavi2410.com/badge/ratings?id=com.jonaskeller14.bike_setup_tracker&pretty)](https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker)
 
@@ -117,3 +117,12 @@ Ditch the notebook. Download Bike Setup Tracker and tune your ride with precisio
   <img src="assets/store/app-store/iPad-Pro-13-inch_M5/04_Setup-History.png" width="31%">
   <img src="assets/store/app-store/iPad-Pro-13-inch_M5/05_Putting-Adjustments-in-Context.png" width="31%">
 </p>
+
+## ⚖️ License & Contributions
+This project is All Rights Reserved.
+
+**Review:** You are welcome to review the source code for educational or evaluation purposes.
+
+**Developers:** Feel free to fork and submit Pull Requests! I love collaborating on code improvements.
+
+**Restriction:** You may not publish this app or use its branding (logos/icons) as your own.

@@ -7,7 +7,7 @@ import '../../repositories/app_repository.dart';
 import '../set_installation_timeline.dart';
 import 'sheet.dart';
 
-Future<void> showInstallationSheet(BuildContext context, {
+Future<void> showAddInstallationSheet(BuildContext context, {
   required Component component, 
   required String? targetBikeId
 }) async {
@@ -17,9 +17,27 @@ Future<void> showInstallationSheet(BuildContext context, {
     isScrollControlled: true,
     context: context, 
     builder: (context) {
-      return InstallationSheet(
+      return InstallationSheet.add(
         component: component,
         targetBikeId: targetBikeId,
+      );
+    },
+  );
+}
+
+Future<void> showEditInstallationSheet(BuildContext context, {
+  required Component component, 
+  required ComponentInstallation editEntry,
+}) async {
+  return showModalBottomSheet<void>(
+    useSafeArea: true,
+    showDragHandle: true,
+    isScrollControlled: true,
+    context: context, 
+    builder: (context) {
+      return InstallationSheet.edit(
+        component: component,
+        editEntry: editEntry,
       );
     },
   );
@@ -28,12 +46,26 @@ Future<void> showInstallationSheet(BuildContext context, {
 class InstallationSheet extends StatefulWidget {
   final Component component;
   final String? targetBikeId;
+  final ComponentInstallation? editEntry;
 
-  const InstallationSheet({
+  const InstallationSheet._({
     super.key,
     required this.component,
-    required this.targetBikeId,
+    this.targetBikeId,
+    this.editEntry,
   });
+
+  factory InstallationSheet.add({
+    Key? key,
+    required Component component,
+    required String? targetBikeId,
+  }) => InstallationSheet._(key: key, component: component, targetBikeId: targetBikeId);
+
+  factory InstallationSheet.edit({
+    Key? key,
+    required Component component,
+    required ComponentInstallation editEntry,
+  }) => InstallationSheet._(key: key, component: component, editEntry: editEntry);
 
   @override
   State<InstallationSheet> createState() => _InstallationSheetState();
@@ -41,21 +73,27 @@ class InstallationSheet extends StatefulWidget {
 
 class _InstallationSheetState extends State<InstallationSheet> {
   late List<Installation> _installations;
+  late Installation _editableInstallation;
   final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    // Start with current installations + a new one for the target
+    // Start with current installations
     _installations = List.from(widget.component.installations);
     
-    // Add the new installation entry
-    final now = DateTime.now();
-    _installations.add(Installation(
-      parent: widget.targetBikeId,
-      dateTimeUTC: now.toUtc(),
-      dateTimeLocal: now,
-    ));
+    if (widget.editEntry != null) {
+      _editableInstallation = widget.editEntry!.installation;
+    } else {
+      // Add the new installation entry
+      final now = DateTime.now();
+      _editableInstallation = Installation(
+        parent: widget.targetBikeId,
+        dateTimeUTC: now.toUtc(),
+        dateTimeLocal: now,
+      );
+      _installations.add(_editableInstallation);
+    }
   }
 
   void _onConfirm() {
@@ -68,15 +106,30 @@ class _InstallationSheetState extends State<InstallationSheet> {
     }
   }
 
+  bool get _hasChanges {
+    if (_installations.length != widget.component.installations.length) return true;
+    for (int i = 0; i < _installations.length; i++) {
+      if (_installations[i] != widget.component.installations[i]) return true;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
     final theme = Theme.of(context);
     
-    final originBikeId = widget.component.bike;
+    final originBikeId = widget.editEntry != null 
+        ? widget.editEntry!.originParent 
+        : widget.component.bike;
+        
+    final targetBikeId = widget.editEntry != null
+        ? widget.editEntry!.installation.parent
+        : widget.targetBikeId;
+        
     final originBikeName = originBikeId == null ? "Archive" : (bikes[originBikeId]?.name ?? "Unknown Bike");
-    final targetBikeName = widget.targetBikeId == null ? "Archive" : (bikes[widget.targetBikeId]?.name ?? "Unknown Bike");
+    final targetBikeName = targetBikeId == null ? "Archive" : (bikes[targetBikeId]?.name ?? "Unknown Bike");
 
     return SafeArea(
       child: Form(
@@ -139,10 +192,14 @@ class _InstallationSheetState extends State<InstallationSheet> {
                       originalInstallations: widget.component.installations,
                       onChanged: (newInstallations) {
                         setState(() {
-                          _installations = newInstallations;
+                          final addedItems = newInstallations.where((n) => !_installations.contains(n)).toList();
+                          if (addedItems.isNotEmpty) {
+                            _editableInstallation = addedItems.first;
+                          }
+                          _installations = List.from(newInstallations);
                         });
                       },
-                      isEntryEditable: (index) => index == _installations.length - 1,
+                      isEntryEditable: (installation) => installation == _editableInstallation,
                     ),
                   ],
                 ),
@@ -152,8 +209,8 @@ class _InstallationSheetState extends State<InstallationSheet> {
               padding: const EdgeInsets.all(16),
               width: double.infinity,
               child: FilledButton(
-                onPressed: _onConfirm,
-                child: const Text('Confirm'),
+                onPressed: _hasChanges ? _onConfirm : null,
+                child: const Text('Save'),
               ),
             ),
           ],

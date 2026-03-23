@@ -7,10 +7,12 @@ import '../repositories/app_repository.dart';
 
 class InstallationListTile extends StatelessWidget {
   final ComponentInstallation componentInstallation;
+  final VoidCallback? onTap;
 
   const InstallationListTile({
     super.key,
     required this.componentInstallation,
+    this.onTap,
   });
 
   @override
@@ -30,6 +32,7 @@ class InstallationListTile extends StatelessWidget {
     final isTargetError = componentInstallation.installation.parent != null && !bikes.containsKey(componentInstallation.installation.parent);
 
     return ListTile(
+      onTap: onTap,
       title: Text("${componentInstallation.installation.parent != null ? 'Installed' : 'Deinstalled'} '${componentInstallation.component.name}'"),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -69,7 +69,7 @@ void main() {
   group('InstallationSheet', () {
     testWidgets('renders correct origin and target', (WidgetTester tester) async {
       await tester.pumpWidget(createWidgetUnderTest(
-        InstallationSheet(
+        InstallationSheet.add(
           component: component,
           targetBikeId: 'b2',
         ),
@@ -83,13 +83,13 @@ void main() {
 
     testWidgets('confirms changes calls editComponent', (WidgetTester tester) async {
       await tester.pumpWidget(createWidgetUnderTest(
-        InstallationSheet(
+        InstallationSheet.add(
           component: component,
           targetBikeId: 'b2',
         ),
       ));
 
-      await tester.tap(find.text('Confirm'));
+      await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();
 
       verify(() => mockRepository.editComponent(any())).called(1);
@@ -107,7 +107,7 @@ void main() {
       await tester.pumpWidget(createWidgetUnderTest(
         SetInstallationTimeline(
           initialInstallations: installations,
-          isEntryEditable: (index) => index == 1, // Only the second one is editable
+          isEntryEditable: (installation) => installation == installations[1], // Only the second one is editable
           onChanged: (_) {},
         ),
       ));

@@ -11,7 +11,7 @@ class SetInstallationTimeline extends StatefulWidget {
   final List<Installation> initialInstallations;
   final List<Installation>? originalInstallations;
   final Function(List<Installation>) onChanged;
-  final bool Function(int index)? isEntryEditable;
+  final bool Function(Installation installation)? isEntryEditable;
 
   const SetInstallationTimeline({
     super.key,
@@ -203,7 +203,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                   final bool bikeChanged = _originalInstallations != null &&
                       (originalInstallation == null || installation.parent != originalInstallation.parent);
                   
-                  final bool isEditable = widget.isEntryEditable?.call(index) ?? true;
+                  final bool isEditable = widget.isEntryEditable?.call(installation) ?? true;
                   
                   return Padding(
                     padding: const EdgeInsets.only(left: 12.0, top: 4, bottom: 4),

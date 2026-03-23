@@ -11,6 +11,7 @@ import 'setup_list_card.dart';
 import 'strava_list_tile.dart';
 import 'todo_entry_list_item.dart';
 import 'installation_list_tile.dart';
+import 'sheets/installation_sheet.dart';
 
 class SetupList extends StatelessWidget {
   const SetupList({super.key});
@@ -151,6 +152,13 @@ class SetupList extends StatelessWidget {
                 case _InstallationEntry():
                   return InstallationListTile(
                     componentInstallation: entry.componentInstallation,
+                    onTap: () {
+                      showEditInstallationSheet(
+                        context,
+                        component: entry.componentInstallation.component,
+                        editEntry: entry.componentInstallation,
+                      );
+                    },
                   );
               }
             },

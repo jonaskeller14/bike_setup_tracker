@@ -32,7 +32,7 @@ class _GarageListState extends State<GarageList> {
     Future.microtask(() {
       if (!mounted) return;
       if (appSettings.enableInstallationTimeline) {
-        showInstallationSheet(context, component: component, targetBikeId: newBike);
+        showAddInstallationSheet(context, component: component, targetBikeId: newBike);
       } else {
         appRepository.editComponent(component.copyWithNewInstallation(newBike));
       }

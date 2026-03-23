@@ -25,7 +25,7 @@ class SetupList extends StatelessWidget {
           Expanded(
             child: Center(
               child: Text(
-                'No setups yet',
+                'No entries yet',
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
               ),
             ),
@@ -84,7 +84,7 @@ class SetupList extends StatelessWidget {
         ? a.date.compareTo(b.date) 
         : b.date.compareTo(a.date));
 
-    return setupsList.isEmpty && stravaActivities.isEmpty && todoEntries.isEmpty
+    return entries.isEmpty && !appRepository.isLoadingMoreStrava
         ? _emptyPlaceholder(context)
         : ListView.builder(
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),

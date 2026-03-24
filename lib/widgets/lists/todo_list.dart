@@ -1,8 +1,8 @@
-import 'package:bike_setup_tracker/widgets/todo_rule_list_card.dart';
+import 'package:bike_setup_tracker/widgets/items/todo_rule_list_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../repositories/app_repository.dart';
-import 'chips/todo_list_filter_widget.dart';
+import '../../repositories/app_repository.dart';
+import '../chips/todo_list_filter_widget.dart';
 
 class TodoList extends StatelessWidget {
   const TodoList({super.key});

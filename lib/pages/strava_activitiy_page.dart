@@ -6,7 +6,7 @@ import '../repositories/app_repository.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/setup.dart';
 import '../services/strava_service.dart';
-import '../widgets/setup_list_card.dart';
+import '../widgets/items/setup_list_card.dart';
 import 'setup_page.dart';
 
 class StravaActivityPage extends StatelessWidget {

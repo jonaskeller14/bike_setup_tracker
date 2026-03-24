@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/component.dart';
+import '../../models/component.dart';
 
 class GarageComponentIconCard extends StatelessWidget {
   final Component component;

@@ -1,12 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../repositories/app_repository.dart';
-import '../models/person.dart';
-import '../models/bike.dart';
-import '../models/rating.dart';
-import '../models/component.dart';
-import '../utils/rating_actions.dart';
+import '../../repositories/app_repository.dart';
+import '../../models/person.dart';
+import '../../models/bike.dart';
+import '../../models/rating.dart';
+import '../../models/component.dart';
+import '../../utils/rating_actions.dart';
 
 class RatingListCard extends StatelessWidget {
   final Rating rating;

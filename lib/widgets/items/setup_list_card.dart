@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../repositories/app_repository.dart';
-import '../models/setup.dart';
-import '../models/bike.dart';
-import '../models/weather.dart';
-import '../models/app_settings.dart';
-import 'adjustment_compact_display_list.dart';
-import '../utils/setup_actions.dart';
+import '../../repositories/app_repository.dart';
+import '../../models/setup.dart';
+import '../../models/bike.dart';
+import '../../models/weather.dart';
+import '../../models/app_settings.dart';
+import '../lists/adjustment_compact_display_list.dart';
+import '../../utils/setup_actions.dart';
 
 class SetupListCard extends StatelessWidget {
   final String setupId;

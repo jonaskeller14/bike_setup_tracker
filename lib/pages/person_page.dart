@@ -11,7 +11,7 @@ import 'adjustment/step_adjustment_page.dart';
 import 'adjustment/categorical_adjustment_page.dart';
 import 'adjustment/text_adjustment_page.dart';
 import 'adjustment/duration_adjustment_page.dart';
-import '../widgets/adjustment_edit_list.dart';
+import '../widgets/lists/adjustment_edit_list.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/sheets/person_add_adjustment.dart';
 import '../widgets/dashed_border_painter.dart';

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../repositories/app_repository.dart';
-import '../models/component.dart';
-import '../models/bike.dart';
-import '../utils/component_actions.dart';
-import 'adjustment_compact_display_list.dart';
-import '../pages/component_overview_page.dart';
-import '../models/app_settings.dart';
+import '../../repositories/app_repository.dart';
+import '../../models/component.dart';
+import '../../models/bike.dart';
+import '../../utils/component_actions.dart';
+import '../lists/adjustment_compact_display_list.dart';
+import '../../pages/component_overview_page.dart';
+import '../../models/app_settings.dart';
 
 class ComponentListCard extends StatelessWidget{
   final Component component;

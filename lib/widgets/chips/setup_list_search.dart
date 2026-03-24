@@ -4,7 +4,7 @@ import '../../models/app_settings.dart';
 import '../../repositories/app_repository.dart';
 import '../../models/setup.dart';
 import '../../pages/setup_display_page.dart';
-import '../setup_list_card.dart';
+import '../items/setup_list_card.dart';
 
 class SetupListSearch extends StatelessWidget {
   const SetupListSearch({

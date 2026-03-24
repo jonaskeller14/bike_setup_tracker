@@ -1,13 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../repositories/app_repository.dart';
-import '../utils/rating_actions.dart';
-import 'rating_list_card.dart';
-import 'chips/rating_list_filter_widget.dart';
+import '../../repositories/app_repository.dart';
+import '../../utils/component_actions.dart';
+import '../items/component_list_card.dart';
+import '../chips/component_list_filter_widget.dart';
 
-class RatingList extends StatelessWidget {
-  const RatingList({super.key});
+class ComponentList extends StatelessWidget {
+  const ComponentList({super.key});
 
   Widget _emptyPlaceholder(BuildContext context) {
     return Padding(
@@ -15,11 +15,11 @@ class RatingList extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          RatingListFilterWidget(),
+          ComponentListFilterWidget(),
           Expanded(
             child: Center(
               child: Text(
-                'No ratings yet',
+                'No components yet',
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
               ),
             ),
@@ -32,7 +32,7 @@ class RatingList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
-    final ratingsList = appRepository.filteredRatings.values.toList();
+    final componentsList = appRepository.filteredComponents.values.toList();
 
     Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
       return AnimatedBuilder(
@@ -43,8 +43,8 @@ class RatingList extends StatelessWidget {
           final double scale = lerpDouble(1, 1.03, animValue)!;
           return Transform.scale(
             scale: scale,
-            child: RatingListCard(
-              rating: ratingsList[index],
+            child: ComponentListCard(
+              component: componentsList[index],
               index: index,
               elevation: elevation,
             ),
@@ -54,19 +54,19 @@ class RatingList extends StatelessWidget {
       );
     }
 
-    return ratingsList.isEmpty
+    return componentsList.isEmpty
         ? _emptyPlaceholder(context)
         : ReorderableListView.builder(
-            itemCount: ratingsList.length,
+            itemCount: componentsList.length,
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
-            header: RatingListFilterWidget(),
+            header: ComponentListFilterWidget(),
             proxyDecorator: proxyDecorator,
-            onReorder: (int oldIndex, int newIndex) => RatingActions.onReorderRating(context, oldIndex: oldIndex, newIndex: newIndex),
+            onReorder: (int oldIndex, int newIndex) => ComponentActions.onReorderComponents(context, oldIndex: oldIndex, newIndex: newIndex),
             itemBuilder: (context, index) {
-              final rating = ratingsList[index];
-              return RatingListCard(
-                key: ValueKey(rating.id),
-                rating: rating,
+              final component = componentsList[index];
+              return ComponentListCard(
+                key: ValueKey(component.id),
+                component: component,
                 index: index,
               );
             },

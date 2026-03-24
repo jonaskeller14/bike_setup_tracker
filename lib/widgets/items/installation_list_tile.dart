@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../models/app_settings.dart';
-import '../models/bike.dart';
-import '../repositories/app_repository.dart';
+import '../../models/app_settings.dart';
+import '../../models/bike.dart';
+import '../../repositories/app_repository.dart';
 
 class InstallationListTile extends StatelessWidget {
   final ComponentInstallation componentInstallation;

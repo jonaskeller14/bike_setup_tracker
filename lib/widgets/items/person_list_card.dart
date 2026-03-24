@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
-import '../models/app_settings.dart';
-import '../repositories/app_repository.dart';
-import '../models/bike.dart';
-import '../models/person.dart';
-import '../utils/person_actions.dart';
-import 'adjustment_compact_display_list.dart';
+import '../../models/app_settings.dart';
+import '../../repositories/app_repository.dart';
+import '../../models/bike.dart';
+import '../../models/person.dart';
+import '../../utils/person_actions.dart';
+import '../lists/adjustment_compact_display_list.dart';
 
 class PersonListCard extends StatelessWidget {
   final Person person;

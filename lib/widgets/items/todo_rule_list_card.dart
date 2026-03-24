@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../repositories/app_repository.dart';
-import '../utils/todo_actions.dart';
+import '../../repositories/app_repository.dart';
+import '../../utils/todo_actions.dart';
 
 class TodoRuleListCard extends StatelessWidget {
   final String todoRuleId;

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../models/app_settings.dart';
-import '../models/strava/strava_activity.dart';
-import '../services/strava_service.dart';
-import '../pages/strava_activitiy_page.dart';
+import '../../models/app_settings.dart';
+import '../../models/strava/strava_activity.dart';
+import '../../services/strava_service.dart';
+import '../../pages/strava_activitiy_page.dart';
 
 class StravaListTile extends StatelessWidget {
   final StravaActivity stravaActivity;

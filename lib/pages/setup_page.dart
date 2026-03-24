@@ -626,26 +626,32 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   void _onBikeAdjustmentValueChanged({required Adjustment adjustment, required dynamic newValue}) {
     _bikeAdjustmentValues[adjustment.id] = newValue;
+    _changeListener();
   }
 
   void _onPersonAdjustmentValueChanged({required Adjustment adjustment, required dynamic newValue}) {
     _personAdjustmentValues[adjustment.id] = newValue;
+    _changeListener();
   }
 
   void _onRatingAdjustmentValueChanged({required Adjustment adjustment, required dynamic newValue}) {
     _ratingAdjustmentValues[adjustment.id] = newValue;
+    _changeListener();
   }
 
   void _removeFromBikeAdjustmentValues({required Adjustment adjustment}) {
     _bikeAdjustmentValues.remove(adjustment.id);
+    _changeListener();
   }
 
   void _removeFromPersonAdjustmentValues({required Adjustment adjustment}) {
     _personAdjustmentValues.remove(adjustment.id);
+    _changeListener();
   }
 
   void _removeFromRatingAdjustmentValues({required Adjustment adjustment}) {
     _ratingAdjustmentValues.remove(adjustment.id);
+    _changeListener();
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {
@@ -1025,7 +1031,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                     danglingBikeAdjustmentValues: _danglingBikeAdjustmentValues,
                     onAdjustmentValueChanged: _onBikeAdjustmentValueChanged,
                     onRemoveFromAdjustmentValues: _removeFromBikeAdjustmentValues,
-                    changeListener: _changeListener,
                     onDanglingRemove: (id) => setState(() {
                       _danglingBikeAdjustmentValues.remove(id);
                       _bikeAdjustmentValues.remove(id);

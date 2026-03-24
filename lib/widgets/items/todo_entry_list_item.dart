@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../models/app_settings.dart';
-import '../repositories/app_repository.dart';
-import '../utils/todo_actions.dart';
+import '../../models/app_settings.dart';
+import '../../repositories/app_repository.dart';
+import '../../utils/todo_actions.dart';
 
 class TodoEntryListItem extends StatelessWidget {
   final String todoEntryId;

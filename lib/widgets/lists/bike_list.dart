@@ -1,13 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../repositories/app_repository.dart';
-import '../utils/person_actions.dart';
-import 'person_list_card.dart';
-import 'chips/person_list_filter_widget.dart';
+import '../../repositories/app_repository.dart';
+import '../../utils/bike_actions.dart';
+import '../items/bike_list_card.dart';
+import '../chips/bike_list_filter_widget.dart';
 
-class PersonList extends StatelessWidget {
-  const PersonList({super.key});
+class BikeList extends StatelessWidget {
+  const BikeList({super.key});
 
   Widget _emptyPlaceholder(BuildContext context) {
     return Padding(
@@ -15,11 +15,11 @@ class PersonList extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          PersonListFilterWidget(),
+          BikeListFilterWidget(),
           Expanded(
             child: Center(
               child: Text(
-                'No profile yet',
+                'No bikes yet',
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
               ),
             ),
@@ -32,7 +32,7 @@ class PersonList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
-    final personsList = appRepository.filteredPersons.values.toList();
+    final bikesList = appRepository.bikes.values.toList();
 
     Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
       return AnimatedBuilder(
@@ -43,8 +43,8 @@ class PersonList extends StatelessWidget {
           final double scale = lerpDouble(1, 1.03, animValue)!;
           return Transform.scale(
             scale: scale,
-            child: PersonListCard(
-              person: personsList[index],
+            child: BikeListCard(
+              bike: bikesList[index],
               index: index,
               elevation: elevation,
             ),
@@ -54,19 +54,19 @@ class PersonList extends StatelessWidget {
       );
     }
 
-    return personsList.isEmpty
+    return bikesList.isEmpty
         ? _emptyPlaceholder(context)
         : ReorderableListView.builder(
-            itemCount: personsList.length,
+            itemCount: bikesList.length,
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
-            header: PersonListFilterWidget(),
+            header: BikeListFilterWidget(),
             proxyDecorator: proxyDecorator,
-            onReorder: (int oldIndex, int newIndex) => PersonActions.onReorderPerson(context, oldIndex: oldIndex, newIndex: newIndex),
+            onReorder: (int oldIndex, int newIndex) => BikeActions.onReorderBikes(context, oldIndex: oldIndex, newIndex: newIndex),
             itemBuilder: (context, index) {
-              final person = personsList[index];
-              return PersonListCard(
-                key: ValueKey(person.id),
-                person: person,
+              final bike = bikesList[index];
+              return BikeListCard(
+                key: ValueKey(bike.id),
+                bike: bike,
                 index: index,
               );
             },

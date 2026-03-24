@@ -9,7 +9,7 @@ import '../../models/strava/strava_activity.dart';
 import '../../models/strava/strava_athlete.dart';
 import '../../services/strava_service.dart';
 import 'sheet.dart';
-import '../strava_list_tile.dart';
+import '../items/strava_list_tile.dart';
 
 Future<void> showStravaSheet({required BuildContext context}) async {
   return await showModalBottomSheet<void>(

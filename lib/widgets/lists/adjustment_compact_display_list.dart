@@ -1,12 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import '../repositories/app_repository.dart';
-import '../models/bike.dart';
-import '../models/component.dart';
-import '../models/person.dart';
-import '../models/rating.dart';
-import '../models/adjustment/adjustment.dart';
+import '../../repositories/app_repository.dart';
+import '../../models/bike.dart';
+import '../../models/component.dart';
+import '../../models/person.dart';
+import '../../models/rating.dart';
+import '../../models/adjustment/adjustment.dart';
 
 class AdjustmentCompactDisplayList extends StatelessWidget {
   final List<dynamic> components; // List<Component OR Person OR Rating>

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
-import '../models/component.dart';
-import '../repositories/app_repository.dart';
-import '../utils/component_actions.dart';
-import 'dashed_border_painter.dart';
+import '../../models/component.dart';
+import '../../repositories/app_repository.dart';
+import '../../utils/component_actions.dart';
+import '../dashed_border_painter.dart';
 import 'component_list_card.dart';
 import 'garage_component_icon_card.dart';
 

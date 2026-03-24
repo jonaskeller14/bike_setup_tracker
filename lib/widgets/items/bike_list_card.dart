@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
-import '../repositories/app_repository.dart';
-import '../models/app_settings.dart';
-import '../models/person.dart';
-import '../models/bike.dart';
-import '../utils/bike_actions.dart';
+import '../../repositories/app_repository.dart';
+import '../../models/app_settings.dart';
+import '../../models/person.dart';
+import '../../models/bike.dart';
+import '../../utils/bike_actions.dart';
 
 class BikeListCard extends StatelessWidget{
   final Bike bike;

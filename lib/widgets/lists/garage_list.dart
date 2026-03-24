@@ -1,14 +1,14 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../repositories/app_repository.dart';
-import '../models/component.dart';
-import '../utils/bike_actions.dart';
-import 'garage_bike_card.dart';
-import 'garage_uninstalled_card.dart';
-import 'chips/bike_list_filter_widget.dart';
-import '../models/app_settings.dart';
-import 'sheets/installation_sheet.dart';
+import '../../repositories/app_repository.dart';
+import '../../models/component.dart';
+import '../../utils/bike_actions.dart';
+import '../items/garage_bike_card.dart';
+import '../items/garage_uninstalled_card.dart';
+import '../chips/bike_list_filter_widget.dart';
+import '../../models/app_settings.dart';
+import '../sheets/installation_sheet.dart';
 
 class GarageList extends StatefulWidget {
   const GarageList({

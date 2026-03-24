@@ -5,7 +5,7 @@ import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
-import 'adjustment_set_list.dart';
+import 'lists/adjustment_set_list.dart';
 import 'display_adjustment/display_dangling_adjustment.dart';
 import 'initial_changed_value_legend.dart';
 import '../models/adjustment/adjustment.dart';
@@ -89,7 +89,6 @@ class SetupBikeTab extends StatelessWidget {
   final Map<String, dynamic> danglingBikeAdjustmentValues;
   final void Function({required Adjustment adjustment, required dynamic newValue}) onAdjustmentValueChanged;
   final void Function({required Adjustment adjustment}) onRemoveFromAdjustmentValues;
-  final VoidCallback changeListener;
   final Function(String) onDanglingRemove; 
 
   const SetupBikeTab({
@@ -101,7 +100,6 @@ class SetupBikeTab extends StatelessWidget {
     required this.danglingBikeAdjustmentValues,
     required this.onAdjustmentValueChanged,
     required this.onRemoveFromAdjustmentValues,
-    required this.changeListener,
     required this.onDanglingRemove,
   });
 
@@ -136,7 +134,6 @@ class SetupBikeTab extends StatelessWidget {
                     adjustmentValues: bikeAdjustmentValues,
                     onAdjustmentValueChanged: onAdjustmentValueChanged,
                     removeFromAdjustmentValues: onRemoveFromAdjustmentValues,
-                    changeListener: changeListener,
                   ),
                 ],
               ),
@@ -235,7 +232,6 @@ class SetupPersonTab extends StatelessWidget {
                   adjustmentValues: personAdjustmentValues,
                   onAdjustmentValueChanged: onAdjustmentValueChanged,
                   removeFromAdjustmentValues: onRemoveFromAdjustmentValues,
-                  changeListener: changeListener,
                 ),
               ],
             ),
@@ -347,7 +343,6 @@ class SetupRatingTab extends StatelessWidget {
                     adjustmentValues: ratingAdjustmentValues,
                     onAdjustmentValueChanged: onAdjustmentValueChanged,
                     removeFromAdjustmentValues: onRemoveFromAdjustmentValues,
-                    changeListener: changeListener,
                   ),
                 ],
               ),

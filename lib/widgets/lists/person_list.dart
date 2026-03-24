@@ -1,13 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../repositories/app_repository.dart';
-import '../utils/component_actions.dart';
-import 'component_list_card.dart';
-import 'chips/component_list_filter_widget.dart';
+import '../../repositories/app_repository.dart';
+import '../../utils/person_actions.dart';
+import '../items/person_list_card.dart';
+import '../chips/person_list_filter_widget.dart';
 
-class ComponentList extends StatelessWidget {
-  const ComponentList({super.key});
+class PersonList extends StatelessWidget {
+  const PersonList({super.key});
 
   Widget _emptyPlaceholder(BuildContext context) {
     return Padding(
@@ -15,11 +15,11 @@ class ComponentList extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ComponentListFilterWidget(),
+          PersonListFilterWidget(),
           Expanded(
             child: Center(
               child: Text(
-                'No components yet',
+                'No profile yet',
                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
               ),
             ),
@@ -32,7 +32,7 @@ class ComponentList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
-    final componentsList = appRepository.filteredComponents.values.toList();
+    final personsList = appRepository.filteredPersons.values.toList();
 
     Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
       return AnimatedBuilder(
@@ -43,8 +43,8 @@ class ComponentList extends StatelessWidget {
           final double scale = lerpDouble(1, 1.03, animValue)!;
           return Transform.scale(
             scale: scale,
-            child: ComponentListCard(
-              component: componentsList[index],
+            child: PersonListCard(
+              person: personsList[index],
               index: index,
               elevation: elevation,
             ),
@@ -54,19 +54,19 @@ class ComponentList extends StatelessWidget {
       );
     }
 
-    return componentsList.isEmpty
+    return personsList.isEmpty
         ? _emptyPlaceholder(context)
         : ReorderableListView.builder(
-            itemCount: componentsList.length,
+            itemCount: personsList.length,
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
-            header: ComponentListFilterWidget(),
+            header: PersonListFilterWidget(),
             proxyDecorator: proxyDecorator,
-            onReorder: (int oldIndex, int newIndex) => ComponentActions.onReorderComponents(context, oldIndex: oldIndex, newIndex: newIndex),
+            onReorder: (int oldIndex, int newIndex) => PersonActions.onReorderPerson(context, oldIndex: oldIndex, newIndex: newIndex),
             itemBuilder: (context, index) {
-              final component = componentsList[index];
-              return ComponentListCard(
-                key: ValueKey(component.id),
-                component: component,
+              final person = personsList[index];
+              return PersonListCard(
+                key: ValueKey(person.id),
+                person: person,
                 index: index,
               );
             },

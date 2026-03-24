@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../models/adjustment/adjustment.dart';
-import 'set_adjustment/set_boolean_adjustment.dart';
-import 'set_adjustment/set_categorical_adjustment.dart';
-import 'set_adjustment/set_numerical_adjustment.dart';
-import 'set_adjustment/set_step_adjustment.dart';
-import 'set_adjustment/set_text_adjustment.dart';
-import 'set_adjustment/set_duration_adjustment.dart';
+import '../../models/adjustment/adjustment.dart';
+import '../set_adjustment/set_boolean_adjustment.dart';
+import '../set_adjustment/set_categorical_adjustment.dart';
+import '../set_adjustment/set_numerical_adjustment.dart';
+import '../set_adjustment/set_step_adjustment.dart';
+import '../set_adjustment/set_text_adjustment.dart';
+import '../set_adjustment/set_duration_adjustment.dart';
 
 class AdjustmentSetList extends StatefulWidget {
   final List<Adjustment> adjustments;
@@ -14,7 +14,6 @@ class AdjustmentSetList extends StatefulWidget {
   final Map<String, dynamic> adjustmentValues;
   final void Function({required Adjustment adjustment, required dynamic newValue}) onAdjustmentValueChanged;
   final void Function({required Adjustment adjustment}) removeFromAdjustmentValues;
-  final void Function() changeListener;
 
   const AdjustmentSetList({
     super.key,
@@ -23,7 +22,6 @@ class AdjustmentSetList extends StatefulWidget {
     required this.adjustmentValues,
     required this.onAdjustmentValueChanged,
     required this.removeFromAdjustmentValues,
-    required this.changeListener,
   });
 
   @override
@@ -84,7 +82,6 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
                 } else {
                   widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
                 }
-                widget.changeListener();
               },
             );
           case NumericalAdjustment():
@@ -96,12 +93,11 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
               onChanged: (String newValue) {
                 setState(() => _adjustmentValues[adjustment.id] = newValue);
                 final parsedValue = double.tryParse(newValue);
-                if (parsedValue != null) {                
-                  widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: parsedValue);
-                } else {
+                if (parsedValue == null) {                
                   widget.removeFromAdjustmentValues(adjustment: adjustment);
+                } else {
+                  widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: parsedValue);
                 }
-                widget.changeListener();
               },
             );
           case StepAdjustment():
@@ -122,7 +118,6 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
                 } else {
                   widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue.toInt());
                 }
-                widget.changeListener();
               },
             );
           case CategoricalAdjustment():
@@ -132,11 +127,8 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
               initialValue: widget.initialAdjustmentValues[adjustment.id],
               value: _adjustmentValues[adjustment.id], 
               onChanged: (String? newValue) {
-                setState(() {
-                  _adjustmentValues[adjustment.id] = newValue;
-                });
+                setState(() => _adjustmentValues[adjustment.id] = newValue);
                 widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
-                widget.changeListener();
               },
             );
           case TextAdjustment():
@@ -152,7 +144,6 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
                 } else {
                   widget.removeFromAdjustmentValues(adjustment: adjustment);
                 }
-                widget.changeListener();
               },
             );
           case DurationAdjustment():
@@ -169,7 +160,6 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
                 } else {
                   widget.removeFromAdjustmentValues(adjustment: adjustment);
                 }
-                widget.changeListener();
               },
             );
         }

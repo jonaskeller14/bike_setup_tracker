@@ -94,6 +94,25 @@ class SetupActions {
     ));
   }
 
+  static Future<void> restoreSetup(BuildContext context, {required Setup setup}) async {
+    final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    await appRepository.restoreSetups([setup]);
+
+    messenger.showSnackBar(SnackBar(
+      content: Text("Setup '${setup.name}' restored from trash."),
+      duration: const Duration(seconds: 5),
+      persist: false,
+      showCloseIcon: true,
+      action: SnackBarAction(
+        label: 'UNDO',
+        onPressed: () async => await appRepository.removeSetups([setup]),
+      ),
+    ));
+  }
+
+
   static Future<void> shareSetup(BuildContext context, {required Setup setup}) async {
     final String content = setupToText(
       context: context,

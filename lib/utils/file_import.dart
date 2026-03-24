@@ -317,6 +317,8 @@ class FileImport {
     data.bikes.removeWhere((_, b) => b.isDeleted && b.lastModified.isBefore(deleteDateTime));
     data.components.removeWhere((_, c) => c.isDeleted && c.lastModified.isBefore(deleteDateTime));
     data.setups.removeWhere((_, s) => s.isDeleted && s.lastModified.isBefore(deleteDateTime));
+    data.todoRules.removeWhere((_, tr) => tr.isDeleted && tr.lastModified.isBefore(deleteDateTime));
+    data.todoEntries.removeWhere((_, te) => te.isDeleted && te.lastModified.isBefore(deleteDateTime));
   }
 }
 

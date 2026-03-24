@@ -73,6 +73,24 @@ class PersonActions {
     ));
   }
 
+  static Future<void> restorePerson(BuildContext context, {required Person person}) async {
+    final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    await appRepository.restorePerson(person);
+
+    messenger.showSnackBar(SnackBar(
+      content: Text("Person '${person.name}' restored from trash."),
+      duration: const Duration(seconds: 5),
+      persist: false,
+      showCloseIcon: true,
+      action: SnackBarAction(
+        label: 'UNDO',
+        onPressed: () async => await appRepository.removePerson(person),
+      ),
+    ));
+  }
+
   static Future<void> onReorderPerson(BuildContext context, {required int oldIndex, required int newIndex}) async {
     final appRepository = context.read<AppRepository>();
     appRepository.reorderPerson(oldIndex: oldIndex, newIndex: newIndex, filteredPersonsList: appRepository.filteredPersons.values.toList());

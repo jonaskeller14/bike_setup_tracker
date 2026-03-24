@@ -86,6 +86,24 @@ class ComponentActions {
     ));
   }
 
+  static Future<void> restoreComponent(BuildContext context, {required Component component}) async {
+    final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    await appRepository.restoreComponents([component]);
+
+    messenger.showSnackBar(SnackBar(
+      content: Text("Component '${component.name}' restored from trash."),
+      duration: const Duration(seconds: 5),
+      persist: false,
+      showCloseIcon: true,
+      action: SnackBarAction(
+        label: 'UNDO',
+        onPressed: () async => await appRepository.removeComponents([component]),
+      ),
+    ));
+  }
+
   static Future<void> onReorderComponents(BuildContext context, {required int oldIndex, required int newIndex}) async {
     final appRepository = context.read<AppRepository>();
     appRepository.reorderComponent(oldIndex: oldIndex, newIndex: newIndex, filteredComponentsList: appRepository.filteredComponents.values.toList());

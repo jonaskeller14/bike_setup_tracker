@@ -8,41 +8,30 @@ import '../models/component.dart';
 import '../models/setup.dart';
 import '../models/rating.dart';
 import '../models/app_settings.dart';
+import '../models/todo_entry.dart';
+import '../models/todo_rule.dart';
+import '../utils/bike_actions.dart';
+import '../utils/component_actions.dart';
+import '../utils/person_actions.dart';
+import '../utils/rating_actions.dart';
+import '../utils/setup_actions.dart';
+import '../utils/todo_actions.dart';
 
 class TrashPage extends StatelessWidget{
   const TrashPage({super.key});
 
-  ListTile _trashItem({required BuildContext context, required dynamic deletedItem}) {
+  ListTile _trashItem({required BuildContext context, required _TrashItem deletedItem}) {
     final appSettings = context.read<AppSettings>();
     final dateFormat = DateFormat(appSettings.dateFormat);
     final timeFormat = DateFormat(appSettings.timeFormat);
 
-    final data = context.read<AppRepository>();
-
-    final lastModified = deletedItem.lastModified as DateTime;
-
     return ListTile(
-      leading: switch(deletedItem) {
-        Bike() => const Icon(Bike.iconData),
-        Component() => Icon(deletedItem.componentType.getIconData()),
-        Setup() => const Icon(Setup.iconData),
-        Person() => const Icon(Person.iconData),
-        Rating() => const Icon(Rating.iconData),
-        _ => null,
-      },
+      leading: Icon(deletedItem.iconData),
       title: Text(deletedItem.name, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text("Deleted at: ${dateFormat.format(lastModified.toLocal())} ${timeFormat.format(lastModified.toLocal())}"),
+      subtitle: Text("Deleted at: ${dateFormat.format(deletedItem.lastModified.toLocal())} ${timeFormat.format(deletedItem.lastModified.toLocal())}"),
       trailing: IconButton(
         icon: Icon(Icons.restore_from_trash),
-        onPressed: () {
-          switch (deletedItem) {
-            case Bike(): data.restoreBike(deletedItem);
-            case Component(): data.restoreComponents([deletedItem]);
-            case Setup(): data.restoreSetups([deletedItem]);
-            case Person(): data.restorePerson(deletedItem);
-            case Rating(): data.restoreRatings([deletedItem]);
-          }
-        },
+        onPressed: () => deletedItem.restore(context),
       ),
     );
   }
@@ -51,12 +40,16 @@ class TrashPage extends StatelessWidget{
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
 
-    final deletedCombined = <dynamic>[];
-    deletedCombined.addAll(appRepository.deletedPersons);
-    deletedCombined.addAll(appRepository.deletedBikes);
-    deletedCombined.addAll(appRepository.deletedComponents);
-    deletedCombined.addAll(appRepository.deletedSetups);
-    deletedCombined.addAll(appRepository.deletedRatings);
+    final deletedCombined = <_TrashItem>[
+      ...appRepository.deletedPersons.map((p) => _PersonTrashItem(p)),
+      ...appRepository.deletedBikes.map((b) => _BikeTrashItem(b)),
+      ...appRepository.deletedComponents.map((c) => _ComponentTrashItem(c)),
+      ...appRepository.deletedSetups.map((s) => _SetupTrashItem(s)),
+      ...appRepository.deletedRatings.map((r) => _RatingTrashItem(r)),
+      ...appRepository.deletedTodoRules.map((tr) => _TodoRuleTrashItem(tr)),
+      ...appRepository.deletedTodoEntries.map((te) => _TodoEntryTrashItem(te)),
+    ];
+
     deletedCombined.sort((a, b) => b.lastModified.compareTo(a.lastModified));
 
     return Scaffold(
@@ -109,4 +102,96 @@ class TrashPage extends StatelessWidget{
       ),
     );
   }
+}
+
+sealed class _TrashItem {
+  DateTime get lastModified;
+  IconData get iconData;
+  String get name;
+  void restore(BuildContext context);
+  const _TrashItem();
+}
+
+class _BikeTrashItem extends _TrashItem {
+  final Bike bike;
+  @override DateTime get lastModified => bike.lastModified;
+  @override IconData get iconData => Bike.iconData;
+  @override String get name => bike.name;
+  @override
+  void restore(BuildContext context) async {
+    await BikeActions.restoreBike(context, bike: bike);
+  }
+  const _BikeTrashItem(this.bike);
+}
+
+class _PersonTrashItem extends _TrashItem {
+  final Person person;
+  @override DateTime get lastModified => person.lastModified;
+  @override IconData get iconData => Person.iconData;
+  @override String get name => person.name;
+  @override
+  void restore(BuildContext context) async {
+    await PersonActions.restorePerson(context, person: person);
+  }
+  const _PersonTrashItem(this.person);
+}
+
+class _ComponentTrashItem extends _TrashItem {
+  final Component component;
+  @override DateTime get lastModified => component.lastModified;
+  @override IconData get iconData => component.componentType.getIconData();
+  @override String get name => component.name;
+  @override
+  void restore(BuildContext context) async {
+    await ComponentActions.restoreComponent(context, component: component);
+  }
+  const _ComponentTrashItem(this.component);
+}
+
+class _SetupTrashItem extends _TrashItem {
+  final Setup setup;
+  @override DateTime get lastModified => setup.lastModified;
+  @override IconData get iconData => Setup.iconData;
+  @override String get name => setup.name;
+  @override
+  void restore(BuildContext context) async {
+    await SetupActions.restoreSetup(context, setup: setup);
+  }
+  const _SetupTrashItem(this.setup);
+}
+
+class _RatingTrashItem extends _TrashItem {
+  final Rating rating;
+  @override DateTime get lastModified => rating.lastModified;
+  @override IconData get iconData => Rating.iconData;
+  @override String get name => rating.name;
+  @override
+  void restore(BuildContext context) async {
+    await RatingActions.restoreRating(context, rating: rating);
+  }
+  const _RatingTrashItem(this.rating);
+}
+
+class _TodoRuleTrashItem extends _TrashItem {
+  final TodoRule todoRule;
+  @override DateTime get lastModified => todoRule.lastModified;
+  @override IconData get iconData => Icons.check_box_outline_blank;
+  @override String get name => todoRule.name;
+  @override
+  void restore(BuildContext context) async {
+    await TodoActions.restoreTodoRule(context, todoRule: todoRule);
+  }
+  const _TodoRuleTrashItem(this.todoRule);
+}
+
+class _TodoEntryTrashItem extends _TrashItem {
+  final TodoEntry todoEntry;
+  @override DateTime get lastModified => todoEntry.lastModified;
+  @override IconData get iconData => Icons.check_box_outlined;
+  @override String get name => todoEntry.name;
+  @override
+  void restore(BuildContext context) async {
+    await TodoActions.restoreTodoEntry(context, todoEntry: todoEntry);
+  }
+  const _TodoEntryTrashItem(this.todoEntry);
 }

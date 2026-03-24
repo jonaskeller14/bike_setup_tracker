@@ -20,7 +20,6 @@ import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
 import '../models/selected_data.dart';
 import '../models/component_stats.dart';
-
 import '../services/setup_resolution_service.dart';
 import '../utils/file_export.dart';
 
@@ -163,12 +162,16 @@ class AppRepository extends ChangeNotifier {
   List<Component> _deletedComponents = [];
   List<Setup> _deletedSetups = [];
   List<Rating> _deletedRatings = [];
+  List<TodoRule> _deletedTodoRules = [];
+  List<TodoEntry> _deletedTodoEntries = [];
 
   List<Person> get deletedPersons => _deletedPersons;
   List<Bike> get deletedBikes => _deletedBikes;
   List<Component> get deletedComponents => _deletedComponents;
   List<Setup> get deletedSetups => _deletedSetups;
   List<Rating> get deletedRatings => _deletedRatings;
+  List<TodoRule> get deletedTodoRules => _deletedTodoRules;
+  List<TodoEntry> get deletedTodoEntries => _deletedTodoEntries;
 
   // ---------------------------------------------------------------------------
   // INITIALIZATION AND STREAMS
@@ -269,6 +272,14 @@ class AppRepository extends ChangeNotifier {
     }));
     _subscriptions.add(database.ratingsDao.watchDeletedRatings().listen((list) {
       _deletedRatings = list.map((r) => r.toModel(adjustments: [])).toList();
+      _notifyIfActive();
+    }));
+    _subscriptions.add(database.todoDao.watchDeletedRules().listen((list) {
+      _deletedTodoRules = list.map((tr) => tr.toModel()).toList();
+      _notifyIfActive();
+    }));
+    _subscriptions.add(database.todoDao.watchDeletedEntries().listen((list) {
+      _deletedTodoEntries = list.map((te) => te.toModel()).toList();
       _notifyIfActive();
     }));
   }

@@ -74,6 +74,26 @@ class BikeActions {
     ));
   }
 
+  static Future<void> restoreBike(BuildContext context, {required Bike bike}) async {
+    final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    await appRepository.restoreBike(bike);
+
+    messenger.showSnackBar(SnackBar(
+      content: Text("Bike '${bike.name}' restored from trash."),
+      duration: const Duration(seconds: 5),
+      persist: false,
+      showCloseIcon: true,
+      action: SnackBarAction(
+        label: 'UNDO',
+        onPressed: () async {
+          await appRepository.removeBike(bike);
+        },
+      ),
+    ));
+  }
+
   static Future<void> onReorderBikes(BuildContext context, {required int oldIndex, required int newIndex}) async {
     final appRepository = context.read<AppRepository>();
     appRepository.reorderBike(oldIndex: oldIndex, newIndex: newIndex, filteredBikesList: appRepository.bikes.values.toList());

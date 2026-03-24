@@ -16,6 +16,7 @@ class TodoDao extends DatabaseAccessor<AppDatabase> with _$TodoDaoMixin, SoftDel
   @override TodoRulesCompanion createSoftDeleteCompanion() => TodoRulesCompanion(isDeleted: const Value(true), lastModified: Value(DateTime.now().toUtc()));
 
   Stream<List<TodoRuleDb>> watchAllRules() => watchAllActive();
+  Stream<List<TodoRuleDb>> watchDeletedRules() => watchAllDeleted();
 
   Stream<List<TodoEntryDb>> watchEntriesForRule(String ruleId) {
     return (select(todoEntries)
@@ -25,6 +26,7 @@ class TodoDao extends DatabaseAccessor<AppDatabase> with _$TodoDaoMixin, SoftDel
   }
 
   Stream<List<TodoEntryDb>> watchAllEntries() => (select(todoEntries)..where((t) => t.isDeleted.equals(false))).watch();
+  Stream<List<TodoEntryDb>> watchDeletedEntries() => (select(todoEntries)..where((t) => t.isDeleted.equals(true))).watch();
 
   Future<List<TodoRuleDb>> getAllRulesBypass() => select(todoRules).get();
   Future<List<TodoEntryDb>> getAllEntriesBypass() => select(todoEntries).get();

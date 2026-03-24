@@ -67,6 +67,26 @@ class RatingActions {
     ));
   }
 
+  static Future<void> restoreRating(BuildContext context, {required Rating rating}) async {
+    final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    await appRepository.restoreRatings([rating]);
+
+    messenger.showSnackBar(SnackBar(
+      content: Text("Rating '${rating.name}' moved to trash."),
+      duration: const Duration(seconds: 5),
+      persist: false,
+      showCloseIcon: true,
+      action: SnackBarAction(
+        label: 'UNDO',
+        onPressed: () async {
+          await appRepository.removeRatings([rating]);
+        },
+      ),
+    ));
+  }
+
   static Future<void> onReorderRating(BuildContext context, {required int oldIndex, required int newIndex}) async {
     final appRepository = context.read<AppRepository>();
     appRepository.reorderRating(oldIndex: oldIndex, newIndex: newIndex, filteredRatingsList: appRepository.filteredRatings.values.toList());

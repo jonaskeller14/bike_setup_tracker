@@ -55,6 +55,26 @@ class TodoActions {
     ));
   }
 
+  static Future<void> restoreTodoRule(BuildContext context, {required TodoRule todoRule}) async {
+    final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+    
+    await appRepository.restoreTodoRules([todoRule]);
+
+    messenger.showSnackBar(SnackBar(
+      content: Text("Todo '${todoRule.name}' restored from trash."),
+      duration: const Duration(seconds: 5),
+      persist: false,
+      showCloseIcon: true,
+      action: SnackBarAction(
+        label: 'UNDO',
+        onPressed: () async {
+          await appRepository.removeTodoRules([todoRule]);
+        },
+      ),
+    ));
+  }
+
   static Future<void> addTodoEntry(BuildContext context, {required TodoRule todoRule}) async {
     final appRepository = context.read<AppRepository>();
 
@@ -94,6 +114,23 @@ class TodoActions {
       action: SnackBarAction(
         label: 'UNDO',
         onPressed: () async => await appRepository.restoreTodoEntries([todoEntry]),
+      ),
+    ));
+  }
+
+  static Future<void> restoreTodoEntry(BuildContext context, {required TodoEntry todoEntry}) async {
+    final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+    await appRepository.restoreTodoEntries([todoEntry]);
+
+    messenger.showSnackBar(SnackBar(
+      content: Text("Todo Entry '${todoEntry.name}' restored from trash."),
+      duration: const Duration(seconds: 5),
+      persist: false,
+      showCloseIcon: true,
+      action: SnackBarAction(
+        label: 'UNDO',
+        onPressed: () async => await appRepository.removeTodoEntries([todoEntry]),
       ),
     ));
   }

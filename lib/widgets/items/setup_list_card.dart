@@ -225,57 +225,27 @@ class SetupListCard extends StatelessWidget {
             ),
         ],
       ),
-      trailing: PopupMenuButton<_SetupListCardPopupMenuButtonOptions>(
-        onSelected: (_SetupListCardPopupMenuButtonOptions value) {
+      trailing: PopupMenuButton<_SetupOptions>(
+        onSelected: (_SetupOptions value) {
           switch (value) {
-            case _SetupListCardPopupMenuButtonOptions.edit: SetupActions.editSetup(context, setup: setup);
-            case _SetupListCardPopupMenuButtonOptions.share: SetupActions.shareSetup(context, setup: setup);
-            case _SetupListCardPopupMenuButtonOptions.restore: SetupActions.duplicateSetup(context, setup: setup);
-            case _SetupListCardPopupMenuButtonOptions.remove: SetupActions.removeSetup(context, setup: setup);
+            case _SetupOptions.edit: SetupActions.editSetup(context, setup: setup);
+            case _SetupOptions.share: SetupActions.shareSetup(context, setup: setup);
+            case _SetupOptions.restore: SetupActions.duplicateSetup(context, setup: setup);
+            case _SetupOptions.remove: SetupActions.removeSetup(context, setup: setup);
           }
         },
-        itemBuilder: (BuildContext context) => <PopupMenuEntry<_SetupListCardPopupMenuButtonOptions>>[
-          const PopupMenuItem<_SetupListCardPopupMenuButtonOptions>(
-            value: _SetupListCardPopupMenuButtonOptions.edit,
+        itemBuilder: (BuildContext context) => _SetupOptions.values.map((option) {
+          return PopupMenuItem<_SetupOptions>(
+            value: option,
             child: Row(
+              spacing: 10,
               children: [
-                Icon(Icons.edit, size: 20),
-                SizedBox(width: 10),
-                Text('Edit'),
+                Icon(option.iconData, size: 20),
+                Text(option.label),
               ],
             ),
-          ),
-          const PopupMenuItem<_SetupListCardPopupMenuButtonOptions>(
-            value: _SetupListCardPopupMenuButtonOptions.share,
-            child: Row(
-              children: [
-                Icon(Icons.share, size: 20),
-                SizedBox(width: 10),
-                Text('Share'),
-              ],
-            ),
-          ),
-          const PopupMenuItem<_SetupListCardPopupMenuButtonOptions>(
-            value: _SetupListCardPopupMenuButtonOptions.restore,
-            child: Row(
-              children: [
-                Icon(Icons.restore, size: 20),
-                SizedBox(width: 10),
-                Text('Restore'),
-              ],
-            ),
-          ),
-          const PopupMenuItem<_SetupListCardPopupMenuButtonOptions>(
-            value: _SetupListCardPopupMenuButtonOptions.remove,
-            child: Row(
-              children: [
-                Icon(Icons.delete, size: 20),
-                SizedBox(width: 10),
-                Text('Remove'),
-              ],
-            ),
-          ),
-        ],
+          );
+        }).toList(),
       ),
     );
   }
@@ -338,9 +308,12 @@ class SetupListCard extends StatelessWidget {
   }
 }
 
-enum _SetupListCardPopupMenuButtonOptions {
-  edit,
-  share,
-  restore,
-  remove,
+enum _SetupOptions {
+  edit("Edit", Icons.edit),
+  share("Share", Icons.share),
+  restore("Restore", Icons.restore),
+  remove("Remove", Icons.delete);
+  final String label;
+  final IconData iconData;
+  const _SetupOptions(this.label, this.iconData);
 }

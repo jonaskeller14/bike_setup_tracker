@@ -93,20 +93,20 @@ class TodoRuleListCard extends StatelessWidget {
               ),            
           ],
         ),
-        trailing: PopupMenuButton<_TodoRuleListCardPopupMenuButtonOptions>(
-          onSelected: (_TodoRuleListCardPopupMenuButtonOptions value) {
+        trailing: PopupMenuButton<_TodoRuleOptions>(
+          onSelected: (_TodoRuleOptions value) {
             switch (value) {
-              case _TodoRuleListCardPopupMenuButtonOptions.edit:
+              case _TodoRuleOptions.edit:
                 TodoActions.editTodoRule(context, todoRule: todoRule);
-              case _TodoRuleListCardPopupMenuButtonOptions.remove:
+              case _TodoRuleOptions.remove:
                 TodoActions.removeTodoRule(context, todoRule: todoRule);
-              case _TodoRuleListCardPopupMenuButtonOptions.addEntry:
+              case _TodoRuleOptions.addEntry:
                 TodoActions.addTodoEntry(context, todoRule: todoRule);
             }
           },
-          itemBuilder: (BuildContext context) => <PopupMenuEntry<_TodoRuleListCardPopupMenuButtonOptions>>[
-            const PopupMenuItem<_TodoRuleListCardPopupMenuButtonOptions>(
-              value: _TodoRuleListCardPopupMenuButtonOptions.edit,
+          itemBuilder: (BuildContext context) => <PopupMenuEntry<_TodoRuleOptions>>[
+            const PopupMenuItem<_TodoRuleOptions>(
+              value: _TodoRuleOptions.edit,
               child: Row(
                 spacing: 10,
                 children: [
@@ -115,8 +115,8 @@ class TodoRuleListCard extends StatelessWidget {
                 ],
               ),
             ),
-            const PopupMenuItem<_TodoRuleListCardPopupMenuButtonOptions>(
-              value: _TodoRuleListCardPopupMenuButtonOptions.remove,
+            const PopupMenuItem<_TodoRuleOptions>(
+              value: _TodoRuleOptions.remove,
               child: Row(
                 spacing: 10,
                 children: [
@@ -127,7 +127,7 @@ class TodoRuleListCard extends StatelessWidget {
             ),
             const PopupMenuDivider(),
             const PopupMenuItem(
-              value: _TodoRuleListCardPopupMenuButtonOptions.addEntry,
+              value: _TodoRuleOptions.addEntry,
               child: Row(
                 spacing: 10,
                 children: [
@@ -143,7 +143,7 @@ class TodoRuleListCard extends StatelessWidget {
   }
 }
 
-enum _TodoRuleListCardPopupMenuButtonOptions {
+enum _TodoRuleOptions {
   edit,
   remove,
   addEntry,

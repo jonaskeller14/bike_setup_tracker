@@ -91,46 +91,26 @@ class PersonListCard extends StatelessWidget {
                     index: index,
                     child: const Icon(Icons.drag_handle),
                   ),
-                  PopupMenuButton<String>(
-                    onSelected: (value) {
+                  PopupMenuButton<_PersonOptions>(
+                    onSelected: (_PersonOptions value) {
                       switch (value) {
-                        case 'edit': PersonActions.editPerson(context, person: person);
-                        case 'duplicate': PersonActions.duplicatePerson(context, person: person);
-                        case 'remove': PersonActions.removePerson(context, person: person);
+                        case _PersonOptions.edit: PersonActions.editPerson(context, person: person);
+                        case _PersonOptions.duplicate: PersonActions.duplicatePerson(context, person: person);
+                        case _PersonOptions.remove: PersonActions.removePerson(context, person: person);
                       }
                     },
-                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                      const PopupMenuItem<String>(
-                        value: 'edit',
+                    itemBuilder: (BuildContext context) => _PersonOptions.values.map((option) {
+                      return PopupMenuItem<_PersonOptions>(
+                        value: option,
                         child: Row(
+                          spacing: 10,
                           children: [
-                            Icon(Icons.edit, size: 20),
-                            SizedBox(width: 10),
-                            Text('Edit'),
+                            Icon(option.iconData, size: 20),
+                            Text(option.label),
                           ],
                         ),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'duplicate',
-                        child: Row(
-                          children: [
-                            Icon(Icons.copy, size: 20),
-                            SizedBox(width: 10),
-                            Text('Duplicate'),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'remove',
-                        child: Row(
-                          children: [
-                            Icon(Icons.delete, size: 20),
-                            SizedBox(width: 10),
-                            Text('Remove'),
-                          ],
-                        ),
-                      ),
-                    ],
+                      );
+                    }).toList(),
                   ),
                 ],
               ),
@@ -152,4 +132,13 @@ class PersonListCard extends StatelessWidget {
       ),
     );
   }
+}
+
+enum _PersonOptions {
+  edit("Edit", Icons.edit),
+  duplicate("Duplicate", Icons.copy),
+  remove("Remove", Icons.delete);
+  final String label;
+  final IconData iconData;
+  const _PersonOptions(this.label, this.iconData);
 }

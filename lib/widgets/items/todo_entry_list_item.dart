@@ -117,6 +117,7 @@ class TodoEntryListItem extends StatelessWidget {
             ),
         ],
       ),
+      contentPadding: const EdgeInsets.only(left: 16, right: 16),
       trailing: PopupMenuButton<_TodoEntryListCardPopupMenuButtonOptions>(
         onSelected: (_TodoEntryListCardPopupMenuButtonOptions value) {
           switch (value) {

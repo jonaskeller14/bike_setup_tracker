@@ -151,46 +151,26 @@ class ComponentListCard extends StatelessWidget{
                       index: index!,
                       child: const Icon(Icons.drag_handle),
                     ),
-                  PopupMenuButton<String>(
+                  PopupMenuButton<_ComponentOptions>(
                     onSelected: (value) {
                       switch (value) {
-                        case 'edit': ComponentActions.editComponent(context, component: component);
-                        case 'duplicate': ComponentActions.duplicateComponent(context, component: component);
-                        case 'remove': ComponentActions.removeComponent(context, component: component);
+                        case _ComponentOptions.edit: ComponentActions.editComponent(context, component: component);
+                        case _ComponentOptions.duplicate: ComponentActions.duplicateComponent(context, component: component);
+                        case _ComponentOptions.remove: ComponentActions.removeComponent(context, component: component);
                       }
                     },
-                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                      const PopupMenuItem<String>(
-                        value: 'edit',
+                    itemBuilder: (BuildContext context) => _ComponentOptions.values.map((option) {
+                      return PopupMenuItem<_ComponentOptions>(
+                        value: option,
                         child: Row(
+                          spacing: 10,
                           children: [
-                            Icon(Icons.edit, size: 20),
-                            SizedBox(width: 10),
-                            Text('Edit'),
+                            Icon(option.iconData, size: 20),
+                            Text(option.label),
                           ],
                         ),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'duplicate',
-                        child: Row(
-                          children: [
-                            Icon(Icons.copy, size: 20),
-                            SizedBox(width: 10),
-                            Text('Duplicate'),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'remove',
-                        child: Row(
-                          children: [
-                            Icon(Icons.delete, size: 20),
-                            SizedBox(width: 10),
-                            Text('Remove'),
-                          ],
-                        ),
-                      ),
-                    ],
+                      );
+                    }).toList(),
                   ),
                 ],
               ),
@@ -213,6 +193,15 @@ class ComponentListCard extends StatelessWidget{
       ),
     );
   }
+}
+
+enum _ComponentOptions {
+  edit("Edit", Icons.edit),
+  duplicate("Duplicate", Icons.copy),
+  remove("Remove", Icons.delete);
+  final String label;
+  final IconData iconData;
+  const _ComponentOptions(this.label, this.iconData);
 }
 
 class _StatItem extends StatelessWidget {

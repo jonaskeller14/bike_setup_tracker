@@ -172,46 +172,26 @@ class RatingListCard extends StatelessWidget {
                     index: index,
                     child: const Icon(Icons.drag_handle),
                   ),
-                  PopupMenuButton<String>(
+                  PopupMenuButton<_RatingOptions>(
                     onSelected: (value) {
                       switch (value) {
-                        case 'edit': RatingActions.editRating(context, rating: rating);
-                        case 'duplicate': RatingActions.duplicateRating(context, rating: rating);
-                        case 'remove': RatingActions.removeRating(context, rating: rating);
+                        case _RatingOptions.edit: RatingActions.editRating(context, rating: rating);
+                        case _RatingOptions.duplicate: RatingActions.duplicateRating(context, rating: rating);
+                        case _RatingOptions.remove: RatingActions.removeRating(context, rating: rating);
                       }
                     },
-                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                      const PopupMenuItem<String>(
-                        value: 'edit',
+                    itemBuilder: (BuildContext context) => _RatingOptions.values.map((option) {
+                      return PopupMenuItem<_RatingOptions>(
+                        value: option,
                         child: Row(
+                          spacing: 10,
                           children: [
-                            Icon(Icons.edit, size: 20),
-                            SizedBox(width: 10),
-                            Text('Edit'),
+                            Icon(option.iconData, size: 20),
+                            Text(option.label),
                           ],
                         ),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'duplicate',
-                        child: Row(
-                          children: [
-                            Icon(Icons.copy, size: 20),
-                            SizedBox(width: 10),
-                            Text('Duplicate'),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'remove',
-                        child: Row(
-                          children: [
-                            Icon(Icons.delete, size: 20),
-                            SizedBox(width: 10),
-                            Text('Remove'),
-                          ],
-                        ),
-                      ),
-                    ],
+                      );
+                    }).toList(),
                   ),
                 ],
               ),
@@ -225,4 +205,13 @@ class RatingListCard extends StatelessWidget {
       ),
     );
   }
+}
+
+enum _RatingOptions {
+  edit("Edit", Icons.edit),
+  duplicate("Duplicate", Icons.copy),
+  remove("Remove", Icons.delete);
+  final String label;
+  final IconData iconData;
+  const _RatingOptions(this.label, this.iconData);
 }

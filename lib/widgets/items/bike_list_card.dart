@@ -134,35 +134,25 @@ class BikeListCard extends StatelessWidget{
                   index: index,
                   child: const Icon(Icons.drag_handle),
                 ),
-                PopupMenuButton<String>(
+                PopupMenuButton<_BikeOptions>(
                   onSelected: (value) {
                     switch (value) {
-                      case 'edit': BikeActions.editBike(context, bike: bike);
-                      case 'remove': BikeActions.removeBike(context, bike: bike);
+                      case _BikeOptions.edit: BikeActions.editBike(context, bike: bike);
+                      case _BikeOptions.remove: BikeActions.removeBike(context, bike: bike);
                     }
                   },
-                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                    const PopupMenuItem<String>(
-                      value: 'edit',
+                  itemBuilder: (BuildContext context) => _BikeOptions.values.map((option) {
+                    return PopupMenuItem<_BikeOptions>(
+                      value: option,
                       child: Row(
+                        spacing: 10,
                         children: [
-                          Icon(Icons.edit, size: 20),
-                          SizedBox(width: 10),
-                          Text('Edit'),
+                          Icon(option.iconData, size: 20),
+                          Text(option.label),
                         ],
                       ),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'remove',
-                      child: Row(
-                        children: [
-                          Icon(Icons.delete, size: 20),
-                          SizedBox(width: 10),
-                          Text('Remove'),
-                        ],
-                      ),
-                    ),
-                  ],
+                    );
+                  }).toList(),
                 ),
               ],
             )
@@ -171,4 +161,12 @@ class BikeListCard extends StatelessWidget{
       ),
     );
   }
+}
+
+enum _BikeOptions {
+  edit("Edit", Icons.edit),
+  remove("Remove", Icons.delete);
+  final String label;
+  final IconData iconData;
+  const _BikeOptions(this.label, this.iconData);
 }

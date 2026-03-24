@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/app_settings.dart';
@@ -52,6 +53,10 @@ class _ComponentPageState extends State<ComponentPage> {
   bool _formHasChanges = false;
   late TextEditingController _nameController;
   late TextEditingController _notesController;
+  late TextEditingController _initialDistanceController;
+  late TextEditingController _initialElevationGainController;
+  late TextEditingController _initialMovingTimeController;
+  late TextEditingController _initialElapsedTimeController;
   late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
   late List<Installation> _installations;
@@ -83,8 +88,19 @@ class _ComponentPageState extends State<ComponentPage> {
 
     _componentType = widget.component?.componentType;
     _initialComponentType = _componentType;
+
     _notesController = TextEditingController(text: widget.component?.notes);
     _notesController.addListener(_changeListener);
+
+    _initialDistanceController = TextEditingController(text: widget.component?.initialDistance.toString() ?? "0.0");
+    _initialDistanceController.addListener(_changeListener);
+    _initialElevationGainController = TextEditingController(text: widget.component?.initialElevationGain.toString() ?? "0.0");
+    _initialElevationGainController.addListener(_changeListener);
+    _initialMovingTimeController = TextEditingController(text: widget.component?.initialMovingTime.inHours.toString() ?? "0");
+    _initialMovingTimeController.addListener(_changeListener);
+    _initialElapsedTimeController = TextEditingController(text: widget.component?.initialElapsedTime.inHours.toString() ?? "0");
+    _initialElapsedTimeController.addListener(_changeListener);
+
     if (widget.mode != ComponentPageMode.add) _expanded = true;
   }
 
@@ -109,6 +125,15 @@ class _ComponentPageState extends State<ComponentPage> {
     _nameController.dispose();
     _notesController.removeListener(_changeListener);
     _notesController.dispose();
+
+    _initialDistanceController.removeListener(_changeListener);
+    _initialDistanceController.dispose();
+    _initialElevationGainController.removeListener(_changeListener);
+    _initialElevationGainController.dispose();
+    _initialMovingTimeController.removeListener(_changeListener);
+    _initialMovingTimeController.dispose();
+    _initialElapsedTimeController.removeListener(_changeListener);
+    _initialElapsedTimeController.dispose();
     super.dispose();
   }
 
@@ -201,18 +226,24 @@ class _ComponentPageState extends State<ComponentPage> {
     
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
+    final initialDistance = double.parse(_initialDistanceController.text.trim());
+    final initialElevationGain = double.parse(_initialElevationGainController.text.trim());
+    final initialElapsedTime = int.parse(_initialElapsedTimeController.text.trim());
+    final initialMovingTime = int.parse(_initialMovingTimeController.text.trim());
     _formHasChanges = false;
-    
-    final updatedComponent = Component(
+
+    Navigator.pop(context, Component(
       id: widget.mode == ComponentPageMode.edit ? widget.component?.id : null, 
       name: name,
       componentType: _componentType!,
       installations: _installations,
       notes: notes.isEmpty ? null : notes,
       adjustments: _adjustments,
-    );
-
-    Navigator.pop(context, updatedComponent);
+      initialDistance: initialDistance,
+      initialElevationGain: initialElevationGain,
+      initialElapsedTime: Duration(hours: initialElapsedTime),
+      initialMovingTime: Duration(hours: initialMovingTime),
+    ));
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {
@@ -442,6 +473,7 @@ class _ComponentPageState extends State<ComponentPage> {
       minLines: 2,
       maxLines: null,
       autovalidateMode: AutovalidateMode.onUserInteraction,
+      onChanged: (value) => setState(() {}), // see filled/fillColor
       decoration: InputDecoration(
         labelText: 'Notes (optional)',
         hintText: 'Enter brand, model, serial number, costs, ...',
@@ -449,6 +481,126 @@ class _ComponentPageState extends State<ComponentPage> {
         fillColor: Colors.orange.withValues(alpha: 0.08),
         filled: widget.mode == ComponentPageMode.edit && _notesController.text.trim() != (widget.component?.notes ?? ""),
       ),
+    );
+  }
+
+  Widget _initialStatsFields() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 12,
+      children: [
+        Row(
+          spacing: 12,
+          children: [
+            Expanded(
+              child: TextFormField(
+                keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: false),
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),],
+                controller: _initialDistanceController,
+                textInputAction: TextInputAction.next,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                onChanged: (value) => setState(() {}), // see filled/fillColor
+                decoration: InputDecoration(
+                  labelText: 'Initial Distance (optional)',
+                  hintText: 'Enter Initial Distance',
+                  border: OutlineInputBorder(),
+                  visualDensity: VisualDensity.compact,
+                  suffixText: "m", //FIXME: also change in init and save
+                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                  filled: widget.mode == ComponentPageMode.edit && double.tryParse(_initialDistanceController.text.trim()) != widget.component?.initialDistance,
+                ),
+                validator: (String? newValue) {
+                  if (newValue == null || newValue.isEmpty || double.tryParse(newValue) == null) {
+                    return "Please enter a valid value";
+                  }
+                  return null;
+                },
+              ),
+            ),
+            Expanded(
+              child: TextFormField(
+                keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: false),
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),],
+                controller: _initialElevationGainController,
+                textInputAction: TextInputAction.next,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                onChanged: (value) => setState(() {}), // see filled/fillColor
+                decoration: InputDecoration(
+                  labelText: 'Initial Elevation Gain (optional)',
+                  hintText: 'Enter Initial Elevation Gain',
+                  border: OutlineInputBorder(),
+                  visualDensity: VisualDensity.compact,
+                  suffixText: "m",
+                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                  filled: widget.mode == ComponentPageMode.edit && double.tryParse(_initialElevationGainController.text.trim()) != widget.component?.initialElevationGain,
+                ),
+                validator: (String? newValue) {
+                  if (newValue == null || newValue.isEmpty || double.tryParse(newValue) == null) {
+                    return "Please enter a valid value";
+                  }
+                  return null;
+                },
+              ),
+            ),
+          ],
+        ),
+        Row(
+          spacing: 12,
+          children: [
+            Expanded(
+              child: TextFormField(
+                keyboardType: const TextInputType.numberWithOptions(decimal: false, signed: false),
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*$')),],
+                controller: _initialMovingTimeController,
+                textInputAction: TextInputAction.next,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                onChanged: (value) => setState(() {}), // see filled/fillColor
+                decoration: InputDecoration(
+                  labelText: 'Initial Moving Time (optional)',
+                  hintText: 'Enter Initial Moving Time',
+                  border: OutlineInputBorder(),
+                  visualDensity: VisualDensity.compact,
+                  suffixText: "h",
+                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                  filled: widget.mode == ComponentPageMode.edit && int.tryParse(_initialMovingTimeController.text.trim()) != widget.component?.initialMovingTime.inHours,
+                ),
+                validator: (String? newValue) {
+                  if (newValue == null || newValue.isEmpty || int.tryParse(newValue) == null) {
+                    return "Please enter a valid value";
+                  }
+                  return null;
+                },
+              )
+            ),
+            Expanded(
+              child: TextFormField(
+                keyboardType: const TextInputType.numberWithOptions(decimal: false, signed: false),
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*$')),],
+                controller: _initialElapsedTimeController,
+                textInputAction: TextInputAction.next,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                onChanged: (value) => setState(() {}), // see filled/fillColor
+                decoration: InputDecoration(
+                  labelText: 'Initial Elapsed Time (optional)',
+                  hintText: 'Enter Initial Elapsed Time',
+                  border: OutlineInputBorder(),
+                  visualDensity: VisualDensity.compact,
+                  suffixText: "h",
+                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                  filled: widget.mode == ComponentPageMode.edit && int.tryParse(_initialElapsedTimeController.text.trim()) != widget.component?.initialElapsedTime.inHours,
+                ),
+                validator: (String? newValue) {
+                  if (newValue == null || newValue.isEmpty || int.tryParse(newValue) == null) {
+                    return "Please enter a valid value";
+                  }
+                  return null;
+                },
+              )
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -563,6 +715,10 @@ class _ComponentPageState extends State<ComponentPage> {
                   if (_expanded) ...[
                     const SizedBox(height: 12),
                     _notesField(),
+                    if (appSettings.enableInstallationTimeline && appSettings.enableStrava) ...[
+                      const SizedBox(height: 24),
+                      _initialStatsFields(),
+                    ]
                   ],
 
                   const SizedBox(height: 12),

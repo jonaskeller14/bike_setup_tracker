@@ -323,6 +323,17 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                 hintText: 'Enter minimum value',
                                 border: OutlineInputBorder(),
                                 prefixIcon: const Icon(Icons.vertical_align_bottom),
+                                suffixIcon: _previewAdjustment.min != double.negativeInfinity
+                                    ? IconButton(
+                                        icon: const Icon(Icons.clear),
+                                        onPressed: () {
+                                          setState(() {
+                                            _previewAdjustment = _previewAdjustment.copyWith(min: null);
+                                            _minController.clear();
+                                          });
+                                        },
+                                      )
+                                    : null,
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
                                 filled: widget.mode == AdjustmentPageMode.edit && (double.tryParse(_minController.text.trim()) ?? double.negativeInfinity) != widget.adjustment?.min,
                               ),
@@ -355,6 +366,17 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                 hintText: 'Enter maximum value',
                                 border: OutlineInputBorder(),
                                 prefixIcon: const Icon(Icons.vertical_align_top),
+                                suffixIcon: _previewAdjustment.max != double.infinity
+                                    ? IconButton(
+                                        icon: const Icon(Icons.clear),
+                                        onPressed: () {
+                                          setState(() {
+                                            _previewAdjustment = _previewAdjustment.copyWith(max: null);
+                                            _maxController.clear();
+                                          });
+                                        },
+                                      )
+                                    : null,
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
                                 filled: widget.mode == AdjustmentPageMode.edit && (double.tryParse(_maxController.text.trim()) ?? double.infinity) != widget.adjustment?.max,
                               ),

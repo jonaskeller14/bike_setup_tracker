@@ -108,3 +108,7 @@ sealed class Adjustment {
     }
   }
 }
+
+class _Sentinel {
+  const _Sentinel();
+}

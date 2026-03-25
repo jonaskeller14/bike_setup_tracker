@@ -28,6 +28,26 @@ class DurationAdjustment extends Adjustment {
     );
   }
 
+  DurationAdjustment copyWith({
+    Object? id = const _Sentinel(),
+    Object? name = const _Sentinel(),
+    Object? notes = const _Sentinel(),
+    Object? unit = const _Sentinel(),
+    Object? category = const _Sentinel(),
+    Object? min = const _Sentinel(),
+    Object? max = const _Sentinel(),
+  }) {
+    return DurationAdjustment(
+      id: id is _Sentinel ? this.id : (id as String),
+      name: name is _Sentinel ? this.name : (name as String),
+      notes: notes is _Sentinel ? this.notes : (notes as String?),
+      unit: unit is _Sentinel ? this.unit : (unit as String?),
+      category: category is _Sentinel ? this.category : (category as AdjustmentCategory),
+      min: min is _Sentinel ? this.min : (min as Duration?),
+      max: max is _Sentinel ? this.max : (max as Duration?),
+    );
+  }
+
   @override
   bool isValidValue(dynamic value) {  
     return value is Duration && (min == null || value.compareTo(min!) >= 0) && (max == null || value.compareTo(max!) <= 0);

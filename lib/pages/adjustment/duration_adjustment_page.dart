@@ -283,23 +283,17 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                 hintText: 'Select minimum duration',
                                 border: OutlineInputBorder(),
                                 prefixIcon: const Icon(Icons.vertical_align_bottom),
-                                suffixIcon: _previewAdjustment.min != null ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: () {
-                                    setState(() {
-                                      _previewAdjustment = DurationAdjustment(
-                                        id: _previewAdjustment.id,
-                                        name: _previewAdjustment.name,
-                                        notes: _previewAdjustment.notes,
-                                        unit: _previewAdjustment.unit,
-                                        min: null,
-                                        max: _previewAdjustment.max,
-                                        category: _category,
-                                      );
-                                      _minController.clear();
-                                    });
-                                  },
-                                ) : null,
+                                suffixIcon: _previewAdjustment.min != null
+                                    ? IconButton(
+                                        icon: const Icon(Icons.clear),
+                                        onPressed: () {
+                                          setState(() {
+                                            _previewAdjustment = _previewAdjustment.copyWith(min: null);
+                                            _minController.clear();
+                                          });
+                                        },
+                                      )
+                                    : null,
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
                                 filled: widget.mode == AdjustmentPageMode.edit && _previewAdjustment.min != widget.adjustment?.min,
                               ),
@@ -337,23 +331,17 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                 hintText: 'Select maximum duration',
                                 border: OutlineInputBorder(),
                                 prefixIcon: const Icon(Icons.vertical_align_top),
-                                suffixIcon: _previewAdjustment.max != null ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: () {
-                                    setState(() {
-                                      _previewAdjustment = DurationAdjustment(
-                                        id: _previewAdjustment.id,
-                                        name: _previewAdjustment.name,
-                                        notes: _previewAdjustment.notes,
-                                        unit: _previewAdjustment.unit,
-                                        min: _previewAdjustment.min,
-                                        max: null,
-                                        category: _category,
-                                      );
-                                      _maxController.clear();
-                                    });
-                                  },
-                                ) : null,
+                                suffixIcon: _previewAdjustment.max != null
+                                    ? IconButton(
+                                        icon: const Icon(Icons.clear),
+                                        onPressed: () {
+                                          setState(() {
+                                            _previewAdjustment = _previewAdjustment.copyWith(max: null);
+                                            _maxController.clear();
+                                          });
+                                        },
+                                      )
+                                    : null,
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
                                 filled: widget.mode == AdjustmentPageMode.edit && _previewAdjustment.max != widget.adjustment?.max,
                               ),

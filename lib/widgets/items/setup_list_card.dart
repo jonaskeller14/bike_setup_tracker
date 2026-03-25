@@ -282,7 +282,9 @@ class SetupListCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
                   child: AdjustmentCompactDisplayList(
-                    components: [for (var c in components.values) c, for (var p in persons.values) p, for (var r in ratings.values) r],
+                    components: components.values,
+                    persons: persons.values,
+                    ratings: ratings.values,
                     adjustmentValues: {for (var e in setup.personAdjustmentValues.entries) e.key: e.value, for (var e in setup.bikeAdjustmentValues.entries) e.key: e.value, for (var e in setup.ratingAdjustmentValues.entries) e.key: e.value},
                     previousAdjustmentValues: {
                       for (var e in setup.previousBikeAdjustmentValues.entries) e.key: e.value, 

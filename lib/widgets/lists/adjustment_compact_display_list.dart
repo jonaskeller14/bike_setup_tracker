@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../../repositories/app_repository.dart';
@@ -9,7 +8,9 @@ import '../../models/rating.dart';
 import '../../models/adjustment/adjustment.dart';
 
 class AdjustmentCompactDisplayList extends StatelessWidget {
-  final List<dynamic> components; // List<Component OR Person OR Rating>
+  final Iterable<Component> components;
+  final Iterable<Person> persons;
+  final Iterable<Rating> ratings;
   final Map<String, dynamic> adjustmentValues;
   final Map<String, dynamic> previousAdjustmentValues;
   final bool showComponentIcons;
@@ -22,7 +23,9 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
 
   AdjustmentCompactDisplayList({
     super.key,
-    required this.components,
+    this.components = const [],
+    this.persons = const [],
+    this.ratings = const [],
     required this.adjustmentValues,
     Map<String, dynamic>? previousAdjustmentValues,
     this.showComponentIcons = false,
@@ -36,52 +39,58 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> columnChildren = [];
-    for (int index = 0; index < components.length; index++) {
-      final component = components[index];
-      if (component is Component && !displayBikeAdjustmentValues) continue;
-      if (component is Person && !displayPersonAdjustmentValues) continue;
-      if (component is Rating && !displayRatingAdjustmentValues) continue;
+    final items = <_Item>[
+      if (displayBikeAdjustmentValues)
+        ...components.map((c) => _ComponentItem(c)),
+      if (displayPersonAdjustmentValues)
+        ...persons.map((p) => _PersonItem(p)),
+      if (displayRatingAdjustmentValues)
+        ...ratings.map((r) => _RatingItem(r)),
+    ];
 
-      final componentAdjustments = component.adjustments as List<Adjustment>;
-      final Map<Adjustment, dynamic> componentAdjustmentValues = missingValuesPlaceholder
+    List<Widget> columnChildren = [];
+    for (int index = 0; index < items.length; index++) {
+      final item = items[index];
+
+      final itemAdjustments = item.adjustments;
+      final Map<Adjustment, dynamic> itemAdjustmentValues = missingValuesPlaceholder
           ? Map.fromEntries(  // keep order of component.adjustments
-            componentAdjustments
+            itemAdjustments
                 .map((adj) => MapEntry<Adjustment, dynamic>(adj, adjustmentValues[adj.id] ?? '-'))
           )
           : Map.fromEntries(  // keep order of component.adjustments
-            componentAdjustments
+            itemAdjustments
                 .where((adj) => adjustmentValues.containsKey(adj.id))
                 .map((adj) => MapEntry<Adjustment, dynamic>(adj, adjustmentValues[adj.id] ?? '-'))
           );
-      if (componentAdjustmentValues.isEmpty) continue;
+      if (itemAdjustmentValues.isEmpty) continue;
 
       final Map<Adjustment, dynamic> componentPreviousAdjustmentValues = Map.fromEntries(
-        componentAdjustments
+        itemAdjustments
             .where((adj) => previousAdjustmentValues.containsKey(adj.id))
             .map((adj) => MapEntry(adj, previousAdjustmentValues[adj.id])),
       );
 
       if (displayOnlyChanges) {
-        bool keepComponent = false;
+        bool keepItem = false;
 
-        for (final entry in componentAdjustmentValues.entries) {
+        for (final entry in itemAdjustmentValues.entries) {
           final adjustment = entry.key;
           final value = entry.value;
           final previousValue = previousAdjustmentValues[adjustment.id];
 
           final bool valueHasChangedOrInitial = previousValue == null || value != previousValue;
           if (valueHasChangedOrInitial) {
-            keepComponent = true;
+            keepItem = true;
             break;
           }
         }
-        if (!keepComponent) continue;
+        if (!keepItem) continue;
       }
 
       columnChildren.add(_AdjustmentTableRow(
-        component: component,
-        adjustmentValues: componentAdjustmentValues,
+        item: item,
+        adjustmentValues: itemAdjustmentValues,
         previousAdjustmentValues: componentPreviousAdjustmentValues,
         showComponentIcons: showComponentIcons,
         highlightInitialValues: highlightInitialValues,
@@ -110,7 +119,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
 }
 
 class _AdjustmentTableRow extends StatelessWidget {
-  final dynamic component; // Component or Person
+  final _Item item;
   final Map<Adjustment, dynamic> adjustmentValues;
   final Map<Adjustment, dynamic> previousAdjustmentValues;
   final bool showComponentIcons;
@@ -118,7 +127,7 @@ class _AdjustmentTableRow extends StatelessWidget {
   final bool displayOnlyChanges;
 
   _AdjustmentTableRow({
-    required this.component,
+    required this.item,
     required this.adjustmentValues,
     Map<Adjustment, dynamic>? previousAdjustmentValues,
     required this.showComponentIcons,
@@ -128,8 +137,7 @@ class _AdjustmentTableRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appRepository = context.read<AppRepository>();
-    final components = appRepository.components;
+    
     final dividerColor = Theme.of(context).colorScheme.outline.withValues(alpha: 0.5);
     
     return Row(
@@ -143,25 +151,10 @@ class _AdjustmentTableRow extends StatelessWidget {
             triggerMode: TooltipTriggerMode.longPress,
             preferBelow: false,
             showDuration: const Duration(seconds: 5),
-            message: component.name,
+            message: item.name,
             child: Padding(
               padding: const EdgeInsets.only(top: 6),
-              child: switch (component) {
-                Component() => Icon(component.componentType.getIconData()),
-                Person() => const Icon(Person.iconData),
-                Rating() => Badge(
-                  label: switch(component.filterType as FilterType) {
-                    FilterType.global => Text("*", style: Theme.of(context).textTheme.labelMedium),
-                    FilterType.bike => const Icon(Bike.iconData, size: 14),
-                    FilterType.componentType => Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == component.filter) ?? ComponentType.other).getIconData(), size: 14),
-                    FilterType.component => Icon((components[component.filter]?.componentType ?? ComponentType.other).getIconData(), size: 14),
-                    FilterType.person => const Icon(Person.iconData, size: 14),
-                  }, 
-                  backgroundColor: Colors.transparent,
-                  child: const Icon(Rating.iconData)
-                ),
-                _ => const Icon(Icons.question_mark),
-              },
+              child: item.buildIcon(context),
             ),
           ),
         Expanded(
@@ -411,4 +404,48 @@ class _VerticalDivider extends StatelessWidget {
       color: color,
     );
   }
+}
+
+sealed class _Item {
+  List<Adjustment> get adjustments;
+  String get name;
+  Widget buildIcon(BuildContext context);
+}
+
+class _ComponentItem extends _Item {
+  final Component _component;
+  @override List<Adjustment> get adjustments => _component.adjustments;
+  @override String get name => _component.name;
+  @override Icon buildIcon(BuildContext _) => Icon(_component.componentType.getIconData());
+  _ComponentItem(this._component);
+}
+
+class _PersonItem extends _Item {
+  final Person _person;
+  @override List<Adjustment> get adjustments => _person.adjustments;
+  @override String get name => _person.name;
+  @override Icon buildIcon(BuildContext _) => Icon(Person.iconData);
+  _PersonItem(this._person);
+}
+
+class _RatingItem extends _Item {
+  final Rating _rating;
+  @override List<Adjustment> get adjustments => _rating.adjustments;
+  @override String get name => _rating.name;
+  @override Widget buildIcon(BuildContext context) {
+    final appRepository = context.read<AppRepository>();
+    final components = appRepository.components;
+    return Badge(
+      label: switch(_rating.filterType) {
+        FilterType.global => Text("*", style: Theme.of(context).textTheme.labelMedium),
+        FilterType.bike => const Icon(Bike.iconData, size: 14),
+        FilterType.componentType => Icon(ComponentType.fromString(_rating.filter).getIconData(), size: 14),
+        FilterType.component => Icon((components[_rating.filter]?.componentType ?? ComponentType.other).getIconData(), size: 14),
+        FilterType.person => const Icon(Person.iconData, size: 14),
+      }, 
+      backgroundColor: Colors.transparent,
+      child: const Icon(Rating.iconData)
+    );
+  }
+  _RatingItem(this._rating);
 }

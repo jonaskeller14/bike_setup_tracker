@@ -304,7 +304,10 @@ void main() {
     await tester.pumpAndSettle();
 
     // Remove 'Rebound' adjustment
-    final popupMenu = find.descendant(of: find.byType(AdjustmentEditList), matching: find.byType(PopupMenuButton<String>));
+    final popupMenu = find.descendant(
+      of: find.byType(AdjustmentEditList), 
+      matching: find.bySubtype<PopupMenuButton<Enum>>()
+    );
     await tester.ensureVisible(popupMenu);
     await tester.tap(popupMenu);
     await tester.pumpAndSettle();

@@ -205,7 +205,7 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      final popups = find.byType(PopupMenuButton<String>);
+      final popups = find.bySubtype<PopupMenuButton>();
       await tester.tap(popups.at(1));
       await tester.pumpAndSettle();
 

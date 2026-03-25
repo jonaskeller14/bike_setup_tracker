@@ -13,7 +13,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
   final Iterable<Rating> ratings;
   final Map<String, dynamic> adjustmentValues;
   final Map<String, dynamic> previousAdjustmentValues;
-  final bool showComponentIcons;
+  final bool showRowIcons;
   final bool highlightInitialValues;
   final bool displayOnlyChanges;
   final bool displayBikeAdjustmentValues;
@@ -21,21 +21,21 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
   final bool displayRatingAdjustmentValues;
   final bool missingValuesPlaceholder;
 
-  AdjustmentCompactDisplayList({
+  const AdjustmentCompactDisplayList({
     super.key,
     this.components = const [],
     this.persons = const [],
     this.ratings = const [],
     required this.adjustmentValues,
-    Map<String, dynamic>? previousAdjustmentValues,
-    this.showComponentIcons = false,
+    this.previousAdjustmentValues = const {},
+    this.showRowIcons = false,
     this.highlightInitialValues = false,
     this.displayOnlyChanges = false,
     this.displayBikeAdjustmentValues = true,
     this.displayPersonAdjustmentValues = true,
     this.displayRatingAdjustmentValues = true,
     this.missingValuesPlaceholder = false,
-  }) : previousAdjustmentValues = previousAdjustmentValues ?? {};
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -49,23 +49,21 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
     ];
 
     List<Widget> columnChildren = [];
-    for (int index = 0; index < items.length; index++) {
-      final item = items[index];
-
+    for (final item in items) {
       final itemAdjustments = item.adjustments;
       final Map<Adjustment, dynamic> itemAdjustmentValues = missingValuesPlaceholder
-          ? Map.fromEntries(  // keep order of component.adjustments
+          ? Map.fromEntries(  // keep order of item.adjustments
             itemAdjustments
                 .map((adj) => MapEntry<Adjustment, dynamic>(adj, adjustmentValues[adj.id] ?? '-'))
           )
-          : Map.fromEntries(  // keep order of component.adjustments
+          : Map.fromEntries(  // keep order of item.adjustments
             itemAdjustments
                 .where((adj) => adjustmentValues.containsKey(adj.id))
                 .map((adj) => MapEntry<Adjustment, dynamic>(adj, adjustmentValues[adj.id] ?? '-'))
           );
       if (itemAdjustmentValues.isEmpty) continue;
 
-      final Map<Adjustment, dynamic> componentPreviousAdjustmentValues = Map.fromEntries(
+      final Map<Adjustment, dynamic> itemPreviousAdjustmentValues = Map.fromEntries(
         itemAdjustments
             .where((adj) => previousAdjustmentValues.containsKey(adj.id))
             .map((adj) => MapEntry(adj, previousAdjustmentValues[adj.id])),
@@ -91,8 +89,8 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
       columnChildren.add(_AdjustmentTableRow(
         item: item,
         adjustmentValues: itemAdjustmentValues,
-        previousAdjustmentValues: componentPreviousAdjustmentValues,
-        showComponentIcons: showComponentIcons,
+        previousAdjustmentValues: itemPreviousAdjustmentValues,
+        showRowIcons: showRowIcons,
         highlightInitialValues: highlightInitialValues,
         displayOnlyChanges: displayOnlyChanges,
       ));
@@ -122,18 +120,18 @@ class _AdjustmentTableRow extends StatelessWidget {
   final _Item item;
   final Map<Adjustment, dynamic> adjustmentValues;
   final Map<Adjustment, dynamic> previousAdjustmentValues;
-  final bool showComponentIcons;
+  final bool showRowIcons;
   final bool highlightInitialValues;
   final bool displayOnlyChanges;
 
-  _AdjustmentTableRow({
+  const _AdjustmentTableRow({
     required this.item,
     required this.adjustmentValues,
-    Map<Adjustment, dynamic>? previousAdjustmentValues,
-    required this.showComponentIcons,
+    this.previousAdjustmentValues = const {},
+    required this.showRowIcons,
     required this.highlightInitialValues,
     required this.displayOnlyChanges,
-  }) : previousAdjustmentValues = previousAdjustmentValues ?? {};
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -146,7 +144,7 @@ class _AdjustmentTableRow extends StatelessWidget {
       mainAxisSize: MainAxisSize.max,
       spacing: 6,
       children: [
-        if (showComponentIcons)
+        if (showRowIcons)
           Tooltip(
             triggerMode: TooltipTriggerMode.longPress,
             preferBelow: false,

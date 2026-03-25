@@ -181,7 +181,7 @@ class ComponentListCard extends StatelessWidget{
                 child: AdjustmentCompactDisplayList(
                   components: [component],
                   adjustmentValues: appRepository.currentAdjustmentValues,
-                  showComponentIcons: false,
+                  showRowIcons: false,
                   missingValuesPlaceholder: true,
                   displayBikeAdjustmentValues: true,
                   displayPersonAdjustmentValues: false,

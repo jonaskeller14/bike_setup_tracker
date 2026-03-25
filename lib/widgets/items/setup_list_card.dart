@@ -291,7 +291,7 @@ class SetupListCard extends StatelessWidget {
                       for (var e in setup.previousPersonAdjustmentValues.entries) e.key: e.value,
                       for (var e in setup.previousRatingAdjustmentValues.entries) e.key: e.value,
                     },
-                    showComponentIcons: true,
+                    showRowIcons: true,
                     highlightInitialValues: true,
                     displayOnlyChanges: displayOnlyChanges,
                     displayBikeAdjustmentValues: displayBikeAdjustmentValues,

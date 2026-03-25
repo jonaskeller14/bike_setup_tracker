@@ -120,7 +120,7 @@ class PersonListCard extends StatelessWidget {
               child: AdjustmentCompactDisplayList(
                 persons: [person],
                 adjustmentValues: appRepository.currentAdjustmentValues,
-                showComponentIcons: false,
+                showRowIcons: false,
                 missingValuesPlaceholder: true,
                 displayBikeAdjustmentValues: false,
                 displayPersonAdjustmentValues: true,

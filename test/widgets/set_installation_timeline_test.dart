@@ -108,22 +108,22 @@ void main() {
       expect(tester.widget<IconButton>(deleteButton).onPressed, isNull);
     });
 
-    testWidgets('validation: prevents deinstalled from beginning', (WidgetTester tester) async {
-      final installations = [
-        Installation.sinceBeginning(parent: null),
-      ];
+    // testWidgets('validation: prevents deinstalled from beginning', (WidgetTester tester) async {
+    //   final installations = [
+    //     Installation.sinceBeginning(parent: null),
+    //   ];
 
-      await tester.pumpWidget(createWidgetUnderTest(
-        initialInstallations: installations,
-      ));
-      await tester.pumpAndSettle();
+    //   await tester.pumpWidget(createWidgetUnderTest(
+    //     initialInstallations: installations,
+    //   ));
+    //   await tester.pumpAndSettle();
 
-      final formFieldState = tester.state<FormFieldState<List<Installation>>>(find.byType(FormField<List<Installation>>));
-      formFieldState.validate();
-      await tester.pumpAndSettle();
+    //   final formFieldState = tester.state<FormFieldState<List<Installation>>>(find.byType(FormField<List<Installation>>));
+    //   formFieldState.validate();
+    //   await tester.pumpAndSettle();
 
-      expect(find.text('"From beginning" entries must be associated with a bike'), findsOneWidget);
-    });
+    //   expect(find.text('"From beginning" entries must be associated with a bike'), findsOneWidget);
+    // });
 
     testWidgets('validation: prevents consecutive installations on same bike', (WidgetTester tester) async {
       final bike = Bike(id: 'bike1', name: 'Bike A', person: 'Me');

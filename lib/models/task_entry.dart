@@ -1,6 +1,6 @@
 import 'package:uuid/uuid.dart';
 
-class TodoEntry {
+class TaskEntry {
   final String id;
   final bool isDeleted;
   final DateTime lastModified;
@@ -8,9 +8,9 @@ class TodoEntry {
   final String? notes;
   final DateTime dateTimeUTC;
   final DateTime dateTimeLocal;
-  final String todoRule;
+  final String taskRule;
 
-  TodoEntry({
+  TaskEntry({
     String? id,
     bool? isDeleted,
     DateTime? lastModified,
@@ -18,7 +18,7 @@ class TodoEntry {
     this.notes,
     required DateTime dateTimeUTC,
     required this.dateTimeLocal,
-    required this.todoRule,
+    required this.taskRule,
   })
     : id = id ?? const Uuid().v4(),
       isDeleted = isDeleted ?? false,
@@ -33,11 +33,11 @@ class TodoEntry {
     'notes': notes,
     'dateTimeUTC': dateTimeUTC.toUtc().toIso8601String(),
     'dateTimeLocal': dateTimeLocal.toLocal().toIso8601String(),
-    'todoRule': todoRule,
+    'taskRule': taskRule,
   };
 
-  factory TodoEntry.fromJson(Map<String, dynamic> json) {
-    return TodoEntry(
+  factory TaskEntry.fromJson(Map<String, dynamic> json) {
+    return TaskEntry(
         id: json['id'],
         isDeleted: json["isDeleted"],
         lastModified: DateTime.parse(json["lastModified"]),
@@ -45,14 +45,14 @@ class TodoEntry {
         notes: json['notes'] != null ? json['notes'] as String : null,
         dateTimeUTC: DateTime.parse(json['dateTimeUTC']).toUtc(),
         dateTimeLocal: DateTime.parse(json['dateTimeLocal'] ?? ''),
-        todoRule: json['todoRule'],
+        taskRule: json['taskRule'],
     );
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is TodoEntry &&
+        other is TaskEntry &&
         runtimeType == other.runtimeType &&
         id == other.id &&
         isDeleted == other.isDeleted &&
@@ -61,7 +61,7 @@ class TodoEntry {
         notes == other.notes &&
         dateTimeUTC == other.dateTimeUTC &&
         dateTimeLocal == other.dateTimeLocal && 
-        todoRule == other.todoRule;     
+        taskRule == other.taskRule;     
   }
 
   @override
@@ -74,11 +74,11 @@ class TodoEntry {
       notes,
       dateTimeUTC,
       dateTimeLocal,
-      todoRule,
+      taskRule,
     ]);
   }
 
-  TodoEntry copyWith({
+  TaskEntry copyWith({
     Object? id = const _Sentinel(),
     Object? isDeleted= const _Sentinel(),
     Object? lastModified = const _Sentinel(),
@@ -86,9 +86,9 @@ class TodoEntry {
     Object? notes = const _Sentinel(),
     Object? dateTimeUTC = const _Sentinel(),
     Object? dateTimeLocal = const _Sentinel(),
-    Object? todoRule = const _Sentinel(),
+    Object? taskRule = const _Sentinel(),
   }) {
-    return TodoEntry(
+    return TaskEntry(
       id: id is _Sentinel
           ? this.id
           : (id as String),
@@ -110,9 +110,9 @@ class TodoEntry {
       dateTimeLocal: dateTimeLocal is _Sentinel
           ? this.dateTimeLocal
           : (dateTimeLocal as DateTime),
-      todoRule: todoRule is _Sentinel
-          ? this.todoRule
-          : (todoRule as String), 
+      taskRule: taskRule is _Sentinel
+          ? this.taskRule
+          : (taskRule as String), 
     );
   }
 }

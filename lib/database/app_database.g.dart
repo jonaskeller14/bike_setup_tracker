@@ -690,12 +690,12 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
   }
 }
 
-class $TodoRulesTable extends TodoRules
-    with TableInfo<$TodoRulesTable, TodoRuleDb> {
+class $TaskRulesTable extends TaskRules
+    with TableInfo<$TaskRulesTable, TaskRuleDb> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $TodoRulesTable(this.attachedDatabase, [this._alias]);
+  $TaskRulesTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -728,7 +728,7 @@ class $TodoRulesTable extends TodoRules
         false,
         type: DriftSqlType.dateTime,
         requiredDuringInsert: true,
-      ).withConverter<DateTime>($TodoRulesTable.$converterlastModified);
+      ).withConverter<DateTime>($TaskRulesTable.$converterlastModified);
   static const VerificationMeta _componentIdMeta = const VerificationMeta(
     'componentId',
   );
@@ -762,7 +762,7 @@ class $TodoRulesTable extends TodoRules
     requiredDuringInsert: false,
   );
   @override
-  late final GeneratedColumnWithTypeConverter<TodoPriority, String> priority =
+  late final GeneratedColumnWithTypeConverter<TaskPriority, String> priority =
       GeneratedColumn<String>(
         'priority',
         aliasedName,
@@ -770,7 +770,7 @@ class $TodoRulesTable extends TodoRules
         type: DriftSqlType.string,
         requiredDuringInsert: false,
         defaultValue: const Constant('medium'),
-      ).withConverter<TodoPriority>($TodoRulesTable.$converterpriority);
+      ).withConverter<TaskPriority>($TaskRulesTable.$converterpriority);
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -785,10 +785,10 @@ class $TodoRulesTable extends TodoRules
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'todo_rules';
+  static const String $name = 'task_rules';
   @override
   VerificationContext validateIntegrity(
-    Insertable<TodoRuleDb> instance, {
+    Insertable<TaskRuleDb> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -835,9 +835,9 @@ class $TodoRulesTable extends TodoRules
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  TodoRuleDb map(Map<String, dynamic> data, {String? tablePrefix}) {
+  TaskRuleDb map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return TodoRuleDb(
+    return TaskRuleDb(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -846,7 +846,7 @@ class $TodoRulesTable extends TodoRules
         DriftSqlType.bool,
         data['${effectivePrefix}is_deleted'],
       )!,
-      lastModified: $TodoRulesTable.$converterlastModified.fromSql(
+      lastModified: $TaskRulesTable.$converterlastModified.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime,
           data['${effectivePrefix}last_modified'],
@@ -864,7 +864,7 @@ class $TodoRulesTable extends TodoRules
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
-      priority: $TodoRulesTable.$converterpriority.fromSql(
+      priority: $TaskRulesTable.$converterpriority.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
           data['${effectivePrefix}priority'],
@@ -874,25 +874,25 @@ class $TodoRulesTable extends TodoRules
   }
 
   @override
-  $TodoRulesTable createAlias(String alias) {
-    return $TodoRulesTable(attachedDatabase, alias);
+  $TaskRulesTable createAlias(String alias) {
+    return $TaskRulesTable(attachedDatabase, alias);
   }
 
   static TypeConverter<DateTime, DateTime> $converterlastModified =
       const UtcDateTimeConverter();
-  static JsonTypeConverter2<TodoPriority, String, String> $converterpriority =
-      const EnumNameConverter<TodoPriority>(TodoPriority.values);
+  static JsonTypeConverter2<TaskPriority, String, String> $converterpriority =
+      const EnumNameConverter<TaskPriority>(TaskPriority.values);
 }
 
-class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
+class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
   final String id;
   final bool isDeleted;
   final DateTime lastModified;
   final String componentId;
   final String name;
   final String? notes;
-  final TodoPriority priority;
-  const TodoRuleDb({
+  final TaskPriority priority;
+  const TaskRuleDb({
     required this.id,
     required this.isDeleted,
     required this.lastModified,
@@ -908,7 +908,7 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
     map['is_deleted'] = Variable<bool>(isDeleted);
     {
       map['last_modified'] = Variable<DateTime>(
-        $TodoRulesTable.$converterlastModified.toSql(lastModified),
+        $TaskRulesTable.$converterlastModified.toSql(lastModified),
       );
     }
     map['component_id'] = Variable<String>(componentId);
@@ -918,14 +918,14 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
     }
     {
       map['priority'] = Variable<String>(
-        $TodoRulesTable.$converterpriority.toSql(priority),
+        $TaskRulesTable.$converterpriority.toSql(priority),
       );
     }
     return map;
   }
 
-  TodoRulesCompanion toCompanion(bool nullToAbsent) {
-    return TodoRulesCompanion(
+  TaskRulesCompanion toCompanion(bool nullToAbsent) {
+    return TaskRulesCompanion(
       id: Value(id),
       isDeleted: Value(isDeleted),
       lastModified: Value(lastModified),
@@ -938,19 +938,19 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
     );
   }
 
-  factory TodoRuleDb.fromJson(
+  factory TaskRuleDb.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return TodoRuleDb(
+    return TaskRuleDb(
       id: serializer.fromJson<String>(json['id']),
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
       lastModified: serializer.fromJson<DateTime>(json['lastModified']),
       componentId: serializer.fromJson<String>(json['componentId']),
       name: serializer.fromJson<String>(json['name']),
       notes: serializer.fromJson<String?>(json['notes']),
-      priority: $TodoRulesTable.$converterpriority.fromJson(
+      priority: $TaskRulesTable.$converterpriority.fromJson(
         serializer.fromJson<String>(json['priority']),
       ),
     );
@@ -966,20 +966,20 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
       'name': serializer.toJson<String>(name),
       'notes': serializer.toJson<String?>(notes),
       'priority': serializer.toJson<String>(
-        $TodoRulesTable.$converterpriority.toJson(priority),
+        $TaskRulesTable.$converterpriority.toJson(priority),
       ),
     };
   }
 
-  TodoRuleDb copyWith({
+  TaskRuleDb copyWith({
     String? id,
     bool? isDeleted,
     DateTime? lastModified,
     String? componentId,
     String? name,
     Value<String?> notes = const Value.absent(),
-    TodoPriority? priority,
-  }) => TodoRuleDb(
+    TaskPriority? priority,
+  }) => TaskRuleDb(
     id: id ?? this.id,
     isDeleted: isDeleted ?? this.isDeleted,
     lastModified: lastModified ?? this.lastModified,
@@ -988,8 +988,8 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
     notes: notes.present ? notes.value : this.notes,
     priority: priority ?? this.priority,
   );
-  TodoRuleDb copyWithCompanion(TodoRulesCompanion data) {
-    return TodoRuleDb(
+  TaskRuleDb copyWithCompanion(TaskRulesCompanion data) {
+    return TaskRuleDb(
       id: data.id.present ? data.id.value : this.id,
       isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
       lastModified: data.lastModified.present
@@ -1006,7 +1006,7 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
 
   @override
   String toString() {
-    return (StringBuffer('TodoRuleDb(')
+    return (StringBuffer('TaskRuleDb(')
           ..write('id: $id, ')
           ..write('isDeleted: $isDeleted, ')
           ..write('lastModified: $lastModified, ')
@@ -1031,7 +1031,7 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is TodoRuleDb &&
+      (other is TaskRuleDb &&
           other.id == this.id &&
           other.isDeleted == this.isDeleted &&
           other.lastModified == this.lastModified &&
@@ -1041,16 +1041,16 @@ class TodoRuleDb extends DataClass implements Insertable<TodoRuleDb> {
           other.priority == this.priority);
 }
 
-class TodoRulesCompanion extends UpdateCompanion<TodoRuleDb> {
+class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
   final Value<String> id;
   final Value<bool> isDeleted;
   final Value<DateTime> lastModified;
   final Value<String> componentId;
   final Value<String> name;
   final Value<String?> notes;
-  final Value<TodoPriority> priority;
+  final Value<TaskPriority> priority;
   final Value<int> rowid;
-  const TodoRulesCompanion({
+  const TaskRulesCompanion({
     this.id = const Value.absent(),
     this.isDeleted = const Value.absent(),
     this.lastModified = const Value.absent(),
@@ -1060,7 +1060,7 @@ class TodoRulesCompanion extends UpdateCompanion<TodoRuleDb> {
     this.priority = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  TodoRulesCompanion.insert({
+  TaskRulesCompanion.insert({
     required String id,
     this.isDeleted = const Value.absent(),
     required DateTime lastModified,
@@ -1073,7 +1073,7 @@ class TodoRulesCompanion extends UpdateCompanion<TodoRuleDb> {
        lastModified = Value(lastModified),
        componentId = Value(componentId),
        name = Value(name);
-  static Insertable<TodoRuleDb> custom({
+  static Insertable<TaskRuleDb> custom({
     Expression<String>? id,
     Expression<bool>? isDeleted,
     Expression<DateTime>? lastModified,
@@ -1095,17 +1095,17 @@ class TodoRulesCompanion extends UpdateCompanion<TodoRuleDb> {
     });
   }
 
-  TodoRulesCompanion copyWith({
+  TaskRulesCompanion copyWith({
     Value<String>? id,
     Value<bool>? isDeleted,
     Value<DateTime>? lastModified,
     Value<String>? componentId,
     Value<String>? name,
     Value<String?>? notes,
-    Value<TodoPriority>? priority,
+    Value<TaskPriority>? priority,
     Value<int>? rowid,
   }) {
-    return TodoRulesCompanion(
+    return TaskRulesCompanion(
       id: id ?? this.id,
       isDeleted: isDeleted ?? this.isDeleted,
       lastModified: lastModified ?? this.lastModified,
@@ -1128,7 +1128,7 @@ class TodoRulesCompanion extends UpdateCompanion<TodoRuleDb> {
     }
     if (lastModified.present) {
       map['last_modified'] = Variable<DateTime>(
-        $TodoRulesTable.$converterlastModified.toSql(lastModified.value),
+        $TaskRulesTable.$converterlastModified.toSql(lastModified.value),
       );
     }
     if (componentId.present) {
@@ -1142,7 +1142,7 @@ class TodoRulesCompanion extends UpdateCompanion<TodoRuleDb> {
     }
     if (priority.present) {
       map['priority'] = Variable<String>(
-        $TodoRulesTable.$converterpriority.toSql(priority.value),
+        $TaskRulesTable.$converterpriority.toSql(priority.value),
       );
     }
     if (rowid.present) {
@@ -1153,7 +1153,7 @@ class TodoRulesCompanion extends UpdateCompanion<TodoRuleDb> {
 
   @override
   String toString() {
-    return (StringBuffer('TodoRulesCompanion(')
+    return (StringBuffer('TaskRulesCompanion(')
           ..write('id: $id, ')
           ..write('isDeleted: $isDeleted, ')
           ..write('lastModified: $lastModified, ')
@@ -1167,12 +1167,12 @@ class TodoRulesCompanion extends UpdateCompanion<TodoRuleDb> {
   }
 }
 
-class $TodoEntriesTable extends TodoEntries
-    with TableInfo<$TodoEntriesTable, TodoEntryDb> {
+class $TaskEntriesTable extends TaskEntries
+    with TableInfo<$TaskEntriesTable, TaskEntryDb> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $TodoEntriesTable(this.attachedDatabase, [this._alias]);
+  $TaskEntriesTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -1205,7 +1205,7 @@ class $TodoEntriesTable extends TodoEntries
         false,
         type: DriftSqlType.dateTime,
         requiredDuringInsert: true,
-      ).withConverter<DateTime>($TodoEntriesTable.$converterlastModified);
+      ).withConverter<DateTime>($TaskEntriesTable.$converterlastModified);
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -1232,7 +1232,7 @@ class $TodoEntriesTable extends TodoEntries
         false,
         type: DriftSqlType.dateTime,
         requiredDuringInsert: true,
-      ).withConverter<DateTime>($TodoEntriesTable.$converterdateTimeUTC);
+      ).withConverter<DateTime>($TaskEntriesTable.$converterdateTimeUTC);
   static const VerificationMeta _dateTimeLocalMeta = const VerificationMeta(
     'dateTimeLocal',
   );
@@ -1245,18 +1245,18 @@ class $TodoEntriesTable extends TodoEntries
         type: DriftSqlType.dateTime,
         requiredDuringInsert: true,
       );
-  static const VerificationMeta _todoRuleMeta = const VerificationMeta(
-    'todoRule',
+  static const VerificationMeta _taskRuleMeta = const VerificationMeta(
+    'taskRule',
   );
   @override
-  late final GeneratedColumn<String> todoRule = GeneratedColumn<String>(
-    'todo_rule',
+  late final GeneratedColumn<String> taskRule = GeneratedColumn<String>(
+    'task_rule',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES todo_rules (id) ON DELETE CASCADE',
+      'REFERENCES task_rules (id) ON DELETE CASCADE',
     ),
   );
   @override
@@ -1268,16 +1268,16 @@ class $TodoEntriesTable extends TodoEntries
     notes,
     dateTimeUTC,
     dateTimeLocal,
-    todoRule,
+    taskRule,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'todo_entries';
+  static const String $name = 'task_entries';
   @override
   VerificationContext validateIntegrity(
-    Insertable<TodoEntryDb> instance, {
+    Insertable<TaskEntryDb> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -1318,13 +1318,13 @@ class $TodoEntriesTable extends TodoEntries
     } else if (isInserting) {
       context.missing(_dateTimeLocalMeta);
     }
-    if (data.containsKey('todo_rule')) {
+    if (data.containsKey('task_rule')) {
       context.handle(
-        _todoRuleMeta,
-        todoRule.isAcceptableOrUnknown(data['todo_rule']!, _todoRuleMeta),
+        _taskRuleMeta,
+        taskRule.isAcceptableOrUnknown(data['task_rule']!, _taskRuleMeta),
       );
     } else if (isInserting) {
-      context.missing(_todoRuleMeta);
+      context.missing(_taskRuleMeta);
     }
     return context;
   }
@@ -1332,9 +1332,9 @@ class $TodoEntriesTable extends TodoEntries
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  TodoEntryDb map(Map<String, dynamic> data, {String? tablePrefix}) {
+  TaskEntryDb map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return TodoEntryDb(
+    return TaskEntryDb(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -1343,7 +1343,7 @@ class $TodoEntriesTable extends TodoEntries
         DriftSqlType.bool,
         data['${effectivePrefix}is_deleted'],
       )!,
-      lastModified: $TodoEntriesTable.$converterlastModified.fromSql(
+      lastModified: $TaskEntriesTable.$converterlastModified.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime,
           data['${effectivePrefix}last_modified'],
@@ -1357,7 +1357,7 @@ class $TodoEntriesTable extends TodoEntries
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
-      dateTimeUTC: $TodoEntriesTable.$converterdateTimeUTC.fromSql(
+      dateTimeUTC: $TaskEntriesTable.$converterdateTimeUTC.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime,
           data['${effectivePrefix}date_time_u_t_c'],
@@ -1367,16 +1367,16 @@ class $TodoEntriesTable extends TodoEntries
         DriftSqlType.dateTime,
         data['${effectivePrefix}date_time_local'],
       )!,
-      todoRule: attachedDatabase.typeMapping.read(
+      taskRule: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}todo_rule'],
+        data['${effectivePrefix}task_rule'],
       )!,
     );
   }
 
   @override
-  $TodoEntriesTable createAlias(String alias) {
-    return $TodoEntriesTable(attachedDatabase, alias);
+  $TaskEntriesTable createAlias(String alias) {
+    return $TaskEntriesTable(attachedDatabase, alias);
   }
 
   static TypeConverter<DateTime, DateTime> $converterlastModified =
@@ -1385,7 +1385,7 @@ class $TodoEntriesTable extends TodoEntries
       const UtcDateTimeConverter();
 }
 
-class TodoEntryDb extends DataClass implements Insertable<TodoEntryDb> {
+class TaskEntryDb extends DataClass implements Insertable<TaskEntryDb> {
   final String id;
   final bool isDeleted;
   final DateTime lastModified;
@@ -1393,8 +1393,8 @@ class TodoEntryDb extends DataClass implements Insertable<TodoEntryDb> {
   final String? notes;
   final DateTime dateTimeUTC;
   final DateTime dateTimeLocal;
-  final String todoRule;
-  const TodoEntryDb({
+  final String taskRule;
+  const TaskEntryDb({
     required this.id,
     required this.isDeleted,
     required this.lastModified,
@@ -1402,7 +1402,7 @@ class TodoEntryDb extends DataClass implements Insertable<TodoEntryDb> {
     this.notes,
     required this.dateTimeUTC,
     required this.dateTimeLocal,
-    required this.todoRule,
+    required this.taskRule,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1411,7 +1411,7 @@ class TodoEntryDb extends DataClass implements Insertable<TodoEntryDb> {
     map['is_deleted'] = Variable<bool>(isDeleted);
     {
       map['last_modified'] = Variable<DateTime>(
-        $TodoEntriesTable.$converterlastModified.toSql(lastModified),
+        $TaskEntriesTable.$converterlastModified.toSql(lastModified),
       );
     }
     map['name'] = Variable<String>(name);
@@ -1420,16 +1420,16 @@ class TodoEntryDb extends DataClass implements Insertable<TodoEntryDb> {
     }
     {
       map['date_time_u_t_c'] = Variable<DateTime>(
-        $TodoEntriesTable.$converterdateTimeUTC.toSql(dateTimeUTC),
+        $TaskEntriesTable.$converterdateTimeUTC.toSql(dateTimeUTC),
       );
     }
     map['date_time_local'] = Variable<DateTime>(dateTimeLocal);
-    map['todo_rule'] = Variable<String>(todoRule);
+    map['task_rule'] = Variable<String>(taskRule);
     return map;
   }
 
-  TodoEntriesCompanion toCompanion(bool nullToAbsent) {
-    return TodoEntriesCompanion(
+  TaskEntriesCompanion toCompanion(bool nullToAbsent) {
+    return TaskEntriesCompanion(
       id: Value(id),
       isDeleted: Value(isDeleted),
       lastModified: Value(lastModified),
@@ -1439,16 +1439,16 @@ class TodoEntryDb extends DataClass implements Insertable<TodoEntryDb> {
           : Value(notes),
       dateTimeUTC: Value(dateTimeUTC),
       dateTimeLocal: Value(dateTimeLocal),
-      todoRule: Value(todoRule),
+      taskRule: Value(taskRule),
     );
   }
 
-  factory TodoEntryDb.fromJson(
+  factory TaskEntryDb.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return TodoEntryDb(
+    return TaskEntryDb(
       id: serializer.fromJson<String>(json['id']),
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
       lastModified: serializer.fromJson<DateTime>(json['lastModified']),
@@ -1456,7 +1456,7 @@ class TodoEntryDb extends DataClass implements Insertable<TodoEntryDb> {
       notes: serializer.fromJson<String?>(json['notes']),
       dateTimeUTC: serializer.fromJson<DateTime>(json['dateTimeUTC']),
       dateTimeLocal: serializer.fromJson<DateTime>(json['dateTimeLocal']),
-      todoRule: serializer.fromJson<String>(json['todoRule']),
+      taskRule: serializer.fromJson<String>(json['taskRule']),
     );
   }
   @override
@@ -1470,11 +1470,11 @@ class TodoEntryDb extends DataClass implements Insertable<TodoEntryDb> {
       'notes': serializer.toJson<String?>(notes),
       'dateTimeUTC': serializer.toJson<DateTime>(dateTimeUTC),
       'dateTimeLocal': serializer.toJson<DateTime>(dateTimeLocal),
-      'todoRule': serializer.toJson<String>(todoRule),
+      'taskRule': serializer.toJson<String>(taskRule),
     };
   }
 
-  TodoEntryDb copyWith({
+  TaskEntryDb copyWith({
     String? id,
     bool? isDeleted,
     DateTime? lastModified,
@@ -1482,8 +1482,8 @@ class TodoEntryDb extends DataClass implements Insertable<TodoEntryDb> {
     Value<String?> notes = const Value.absent(),
     DateTime? dateTimeUTC,
     DateTime? dateTimeLocal,
-    String? todoRule,
-  }) => TodoEntryDb(
+    String? taskRule,
+  }) => TaskEntryDb(
     id: id ?? this.id,
     isDeleted: isDeleted ?? this.isDeleted,
     lastModified: lastModified ?? this.lastModified,
@@ -1491,10 +1491,10 @@ class TodoEntryDb extends DataClass implements Insertable<TodoEntryDb> {
     notes: notes.present ? notes.value : this.notes,
     dateTimeUTC: dateTimeUTC ?? this.dateTimeUTC,
     dateTimeLocal: dateTimeLocal ?? this.dateTimeLocal,
-    todoRule: todoRule ?? this.todoRule,
+    taskRule: taskRule ?? this.taskRule,
   );
-  TodoEntryDb copyWithCompanion(TodoEntriesCompanion data) {
-    return TodoEntryDb(
+  TaskEntryDb copyWithCompanion(TaskEntriesCompanion data) {
+    return TaskEntryDb(
       id: data.id.present ? data.id.value : this.id,
       isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
       lastModified: data.lastModified.present
@@ -1508,13 +1508,13 @@ class TodoEntryDb extends DataClass implements Insertable<TodoEntryDb> {
       dateTimeLocal: data.dateTimeLocal.present
           ? data.dateTimeLocal.value
           : this.dateTimeLocal,
-      todoRule: data.todoRule.present ? data.todoRule.value : this.todoRule,
+      taskRule: data.taskRule.present ? data.taskRule.value : this.taskRule,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('TodoEntryDb(')
+    return (StringBuffer('TaskEntryDb(')
           ..write('id: $id, ')
           ..write('isDeleted: $isDeleted, ')
           ..write('lastModified: $lastModified, ')
@@ -1522,7 +1522,7 @@ class TodoEntryDb extends DataClass implements Insertable<TodoEntryDb> {
           ..write('notes: $notes, ')
           ..write('dateTimeUTC: $dateTimeUTC, ')
           ..write('dateTimeLocal: $dateTimeLocal, ')
-          ..write('todoRule: $todoRule')
+          ..write('taskRule: $taskRule')
           ..write(')'))
         .toString();
   }
@@ -1536,12 +1536,12 @@ class TodoEntryDb extends DataClass implements Insertable<TodoEntryDb> {
     notes,
     dateTimeUTC,
     dateTimeLocal,
-    todoRule,
+    taskRule,
   );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is TodoEntryDb &&
+      (other is TaskEntryDb &&
           other.id == this.id &&
           other.isDeleted == this.isDeleted &&
           other.lastModified == this.lastModified &&
@@ -1549,10 +1549,10 @@ class TodoEntryDb extends DataClass implements Insertable<TodoEntryDb> {
           other.notes == this.notes &&
           other.dateTimeUTC == this.dateTimeUTC &&
           other.dateTimeLocal == this.dateTimeLocal &&
-          other.todoRule == this.todoRule);
+          other.taskRule == this.taskRule);
 }
 
-class TodoEntriesCompanion extends UpdateCompanion<TodoEntryDb> {
+class TaskEntriesCompanion extends UpdateCompanion<TaskEntryDb> {
   final Value<String> id;
   final Value<bool> isDeleted;
   final Value<DateTime> lastModified;
@@ -1560,9 +1560,9 @@ class TodoEntriesCompanion extends UpdateCompanion<TodoEntryDb> {
   final Value<String?> notes;
   final Value<DateTime> dateTimeUTC;
   final Value<DateTime> dateTimeLocal;
-  final Value<String> todoRule;
+  final Value<String> taskRule;
   final Value<int> rowid;
-  const TodoEntriesCompanion({
+  const TaskEntriesCompanion({
     this.id = const Value.absent(),
     this.isDeleted = const Value.absent(),
     this.lastModified = const Value.absent(),
@@ -1570,10 +1570,10 @@ class TodoEntriesCompanion extends UpdateCompanion<TodoEntryDb> {
     this.notes = const Value.absent(),
     this.dateTimeUTC = const Value.absent(),
     this.dateTimeLocal = const Value.absent(),
-    this.todoRule = const Value.absent(),
+    this.taskRule = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  TodoEntriesCompanion.insert({
+  TaskEntriesCompanion.insert({
     required String id,
     this.isDeleted = const Value.absent(),
     required DateTime lastModified,
@@ -1581,15 +1581,15 @@ class TodoEntriesCompanion extends UpdateCompanion<TodoEntryDb> {
     this.notes = const Value.absent(),
     required DateTime dateTimeUTC,
     required DateTime dateTimeLocal,
-    required String todoRule,
+    required String taskRule,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        lastModified = Value(lastModified),
        name = Value(name),
        dateTimeUTC = Value(dateTimeUTC),
        dateTimeLocal = Value(dateTimeLocal),
-       todoRule = Value(todoRule);
-  static Insertable<TodoEntryDb> custom({
+       taskRule = Value(taskRule);
+  static Insertable<TaskEntryDb> custom({
     Expression<String>? id,
     Expression<bool>? isDeleted,
     Expression<DateTime>? lastModified,
@@ -1597,7 +1597,7 @@ class TodoEntriesCompanion extends UpdateCompanion<TodoEntryDb> {
     Expression<String>? notes,
     Expression<DateTime>? dateTimeUTC,
     Expression<DateTime>? dateTimeLocal,
-    Expression<String>? todoRule,
+    Expression<String>? taskRule,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1608,12 +1608,12 @@ class TodoEntriesCompanion extends UpdateCompanion<TodoEntryDb> {
       if (notes != null) 'notes': notes,
       if (dateTimeUTC != null) 'date_time_u_t_c': dateTimeUTC,
       if (dateTimeLocal != null) 'date_time_local': dateTimeLocal,
-      if (todoRule != null) 'todo_rule': todoRule,
+      if (taskRule != null) 'task_rule': taskRule,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
-  TodoEntriesCompanion copyWith({
+  TaskEntriesCompanion copyWith({
     Value<String>? id,
     Value<bool>? isDeleted,
     Value<DateTime>? lastModified,
@@ -1621,10 +1621,10 @@ class TodoEntriesCompanion extends UpdateCompanion<TodoEntryDb> {
     Value<String?>? notes,
     Value<DateTime>? dateTimeUTC,
     Value<DateTime>? dateTimeLocal,
-    Value<String>? todoRule,
+    Value<String>? taskRule,
     Value<int>? rowid,
   }) {
-    return TodoEntriesCompanion(
+    return TaskEntriesCompanion(
       id: id ?? this.id,
       isDeleted: isDeleted ?? this.isDeleted,
       lastModified: lastModified ?? this.lastModified,
@@ -1632,7 +1632,7 @@ class TodoEntriesCompanion extends UpdateCompanion<TodoEntryDb> {
       notes: notes ?? this.notes,
       dateTimeUTC: dateTimeUTC ?? this.dateTimeUTC,
       dateTimeLocal: dateTimeLocal ?? this.dateTimeLocal,
-      todoRule: todoRule ?? this.todoRule,
+      taskRule: taskRule ?? this.taskRule,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1648,7 +1648,7 @@ class TodoEntriesCompanion extends UpdateCompanion<TodoEntryDb> {
     }
     if (lastModified.present) {
       map['last_modified'] = Variable<DateTime>(
-        $TodoEntriesTable.$converterlastModified.toSql(lastModified.value),
+        $TaskEntriesTable.$converterlastModified.toSql(lastModified.value),
       );
     }
     if (name.present) {
@@ -1659,14 +1659,14 @@ class TodoEntriesCompanion extends UpdateCompanion<TodoEntryDb> {
     }
     if (dateTimeUTC.present) {
       map['date_time_u_t_c'] = Variable<DateTime>(
-        $TodoEntriesTable.$converterdateTimeUTC.toSql(dateTimeUTC.value),
+        $TaskEntriesTable.$converterdateTimeUTC.toSql(dateTimeUTC.value),
       );
     }
     if (dateTimeLocal.present) {
       map['date_time_local'] = Variable<DateTime>(dateTimeLocal.value);
     }
-    if (todoRule.present) {
-      map['todo_rule'] = Variable<String>(todoRule.value);
+    if (taskRule.present) {
+      map['task_rule'] = Variable<String>(taskRule.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -1676,7 +1676,7 @@ class TodoEntriesCompanion extends UpdateCompanion<TodoEntryDb> {
 
   @override
   String toString() {
-    return (StringBuffer('TodoEntriesCompanion(')
+    return (StringBuffer('TaskEntriesCompanion(')
           ..write('id: $id, ')
           ..write('isDeleted: $isDeleted, ')
           ..write('lastModified: $lastModified, ')
@@ -1684,7 +1684,7 @@ class TodoEntriesCompanion extends UpdateCompanion<TodoEntryDb> {
           ..write('notes: $notes, ')
           ..write('dateTimeUTC: $dateTimeUTC, ')
           ..write('dateTimeLocal: $dateTimeLocal, ')
-          ..write('todoRule: $todoRule, ')
+          ..write('taskRule: $taskRule, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -6795,8 +6795,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $ComponentsTable components = $ComponentsTable(this);
-  late final $TodoRulesTable todoRules = $TodoRulesTable(this);
-  late final $TodoEntriesTable todoEntries = $TodoEntriesTable(this);
+  late final $TaskRulesTable taskRules = $TaskRulesTable(this);
+  late final $TaskEntriesTable taskEntries = $TaskEntriesTable(this);
   late final $BikesTable bikes = $BikesTable(this);
   late final $PersonsTable persons = $PersonsTable(this);
   late final $RatingsTable ratings = $RatingsTable(this);
@@ -6815,7 +6815,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final SetupsDao setupsDao = SetupsDao(this as AppDatabase);
   late final PersonsDao personsDao = PersonsDao(this as AppDatabase);
   late final RatingsDao ratingsDao = RatingsDao(this as AppDatabase);
-  late final TodoDao todoDao = TodoDao(this as AppDatabase);
+  late final TaskDao taskDao = TaskDao(this as AppDatabase);
   late final StravaDao stravaDao = StravaDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -6823,8 +6823,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     components,
-    todoRules,
-    todoEntries,
+    taskRules,
+    taskEntries,
     bikes,
     persons,
     ratings,
@@ -6840,10 +6840,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
     WritePropagation(
       on: TableUpdateQuery.onTableName(
-        'todo_rules',
+        'task_rules',
         limitUpdateKind: UpdateKind.delete,
       ),
-      result: [TableUpdate('todo_entries', kind: UpdateKind.delete)],
+      result: [TableUpdate('task_entries', kind: UpdateKind.delete)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
@@ -6939,19 +6939,19 @@ final class $$ComponentsTableReferences
     extends BaseReferences<_$AppDatabase, $ComponentsTable, ComponentDb> {
   $$ComponentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$TodoRulesTable, List<TodoRuleDb>>
-  _todoRulesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.todoRules,
-    aliasName: $_aliasNameGenerator(db.components.id, db.todoRules.componentId),
+  static MultiTypedResultKey<$TaskRulesTable, List<TaskRuleDb>>
+  _taskRulesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.taskRules,
+    aliasName: $_aliasNameGenerator(db.components.id, db.taskRules.componentId),
   );
 
-  $$TodoRulesTableProcessedTableManager get todoRulesRefs {
-    final manager = $$TodoRulesTableTableManager(
+  $$TaskRulesTableProcessedTableManager get taskRulesRefs {
+    final manager = $$TaskRulesTableTableManager(
       $_db,
-      $_db.todoRules,
+      $_db.taskRules,
     ).filter((f) => f.componentId.id.sqlEquals($_itemColumn<String>('id')!));
 
-    final cache = $_typedResult.readTableOrNull(_todoRulesRefsTable($_db));
+    final cache = $_typedResult.readTableOrNull(_taskRulesRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -7068,22 +7068,22 @@ class $$ComponentsTableFilterComposer
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
-  Expression<bool> todoRulesRefs(
-    Expression<bool> Function($$TodoRulesTableFilterComposer f) f,
+  Expression<bool> taskRulesRefs(
+    Expression<bool> Function($$TaskRulesTableFilterComposer f) f,
   ) {
-    final $$TodoRulesTableFilterComposer composer = $composerBuilder(
+    final $$TaskRulesTableFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.todoRules,
+      referencedTable: $db.taskRules,
       getReferencedColumn: (t) => t.componentId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$TodoRulesTableFilterComposer(
+          }) => $$TaskRulesTableFilterComposer(
             $db: $db,
-            $table: $db.todoRules,
+            $table: $db.taskRules,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7269,22 +7269,22 @@ class $$ComponentsTableAnnotationComposer
         builder: (column) => column,
       );
 
-  Expression<T> todoRulesRefs<T extends Object>(
-    Expression<T> Function($$TodoRulesTableAnnotationComposer a) f,
+  Expression<T> taskRulesRefs<T extends Object>(
+    Expression<T> Function($$TaskRulesTableAnnotationComposer a) f,
   ) {
-    final $$TodoRulesTableAnnotationComposer composer = $composerBuilder(
+    final $$TaskRulesTableAnnotationComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.todoRules,
+      referencedTable: $db.taskRules,
       getReferencedColumn: (t) => t.componentId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$TodoRulesTableAnnotationComposer(
+          }) => $$TaskRulesTableAnnotationComposer(
             $db: $db,
-            $table: $db.todoRules,
+            $table: $db.taskRules,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7359,7 +7359,7 @@ class $$ComponentsTableTableManager
           (ComponentDb, $$ComponentsTableReferences),
           ComponentDb,
           PrefetchHooks Function({
-            bool todoRulesRefs,
+            bool taskRulesRefs,
             bool adjustmentsRefs,
             bool installationsRefs,
           })
@@ -7441,35 +7441,35 @@ class $$ComponentsTableTableManager
               .toList(),
           prefetchHooksCallback:
               ({
-                todoRulesRefs = false,
+                taskRulesRefs = false,
                 adjustmentsRefs = false,
                 installationsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
-                    if (todoRulesRefs) db.todoRules,
+                    if (taskRulesRefs) db.taskRules,
                     if (adjustmentsRefs) db.adjustments,
                     if (installationsRefs) db.installations,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
                     return [
-                      if (todoRulesRefs)
+                      if (taskRulesRefs)
                         await $_getPrefetchedData<
                           ComponentDb,
                           $ComponentsTable,
-                          TodoRuleDb
+                          TaskRuleDb
                         >(
                           currentTable: table,
                           referencedTable: $$ComponentsTableReferences
-                              ._todoRulesRefsTable(db),
+                              ._taskRulesRefsTable(db),
                           managerFromTypedResult: (p0) =>
                               $$ComponentsTableReferences(
                                 db,
                                 table,
                                 p0,
-                              ).todoRulesRefs,
+                              ).taskRulesRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.componentId == item.id,
@@ -7539,41 +7539,41 @@ typedef $$ComponentsTableProcessedTableManager =
       (ComponentDb, $$ComponentsTableReferences),
       ComponentDb,
       PrefetchHooks Function({
-        bool todoRulesRefs,
+        bool taskRulesRefs,
         bool adjustmentsRefs,
         bool installationsRefs,
       })
     >;
-typedef $$TodoRulesTableCreateCompanionBuilder =
-    TodoRulesCompanion Function({
+typedef $$TaskRulesTableCreateCompanionBuilder =
+    TaskRulesCompanion Function({
       required String id,
       Value<bool> isDeleted,
       required DateTime lastModified,
       required String componentId,
       required String name,
       Value<String?> notes,
-      Value<TodoPriority> priority,
+      Value<TaskPriority> priority,
       Value<int> rowid,
     });
-typedef $$TodoRulesTableUpdateCompanionBuilder =
-    TodoRulesCompanion Function({
+typedef $$TaskRulesTableUpdateCompanionBuilder =
+    TaskRulesCompanion Function({
       Value<String> id,
       Value<bool> isDeleted,
       Value<DateTime> lastModified,
       Value<String> componentId,
       Value<String> name,
       Value<String?> notes,
-      Value<TodoPriority> priority,
+      Value<TaskPriority> priority,
       Value<int> rowid,
     });
 
-final class $$TodoRulesTableReferences
-    extends BaseReferences<_$AppDatabase, $TodoRulesTable, TodoRuleDb> {
-  $$TodoRulesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+final class $$TaskRulesTableReferences
+    extends BaseReferences<_$AppDatabase, $TaskRulesTable, TaskRuleDb> {
+  $$TaskRulesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $ComponentsTable _componentIdTable(_$AppDatabase db) =>
       db.components.createAlias(
-        $_aliasNameGenerator(db.todoRules.componentId, db.components.id),
+        $_aliasNameGenerator(db.taskRules.componentId, db.components.id),
       );
 
   $$ComponentsTableProcessedTableManager get componentId {
@@ -7590,28 +7590,28 @@ final class $$TodoRulesTableReferences
     );
   }
 
-  static MultiTypedResultKey<$TodoEntriesTable, List<TodoEntryDb>>
-  _todoEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.todoEntries,
-    aliasName: $_aliasNameGenerator(db.todoRules.id, db.todoEntries.todoRule),
+  static MultiTypedResultKey<$TaskEntriesTable, List<TaskEntryDb>>
+  _taskEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.taskEntries,
+    aliasName: $_aliasNameGenerator(db.taskRules.id, db.taskEntries.taskRule),
   );
 
-  $$TodoEntriesTableProcessedTableManager get todoEntriesRefs {
-    final manager = $$TodoEntriesTableTableManager(
+  $$TaskEntriesTableProcessedTableManager get taskEntriesRefs {
+    final manager = $$TaskEntriesTableTableManager(
       $_db,
-      $_db.todoEntries,
-    ).filter((f) => f.todoRule.id.sqlEquals($_itemColumn<String>('id')!));
+      $_db.taskEntries,
+    ).filter((f) => f.taskRule.id.sqlEquals($_itemColumn<String>('id')!));
 
-    final cache = $_typedResult.readTableOrNull(_todoEntriesRefsTable($_db));
+    final cache = $_typedResult.readTableOrNull(_taskEntriesRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
 }
 
-class $$TodoRulesTableFilterComposer
-    extends Composer<_$AppDatabase, $TodoRulesTable> {
-  $$TodoRulesTableFilterComposer({
+class $$TaskRulesTableFilterComposer
+    extends Composer<_$AppDatabase, $TaskRulesTable> {
+  $$TaskRulesTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -7644,7 +7644,7 @@ class $$TodoRulesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<TodoPriority, TodoPriority, String>
+  ColumnWithTypeConverterFilters<TaskPriority, TaskPriority, String>
   get priority => $composableBuilder(
     column: $table.priority,
     builder: (column) => ColumnWithTypeConverterFilters(column),
@@ -7673,22 +7673,22 @@ class $$TodoRulesTableFilterComposer
     return composer;
   }
 
-  Expression<bool> todoEntriesRefs(
-    Expression<bool> Function($$TodoEntriesTableFilterComposer f) f,
+  Expression<bool> taskEntriesRefs(
+    Expression<bool> Function($$TaskEntriesTableFilterComposer f) f,
   ) {
-    final $$TodoEntriesTableFilterComposer composer = $composerBuilder(
+    final $$TaskEntriesTableFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.todoEntries,
-      getReferencedColumn: (t) => t.todoRule,
+      referencedTable: $db.taskEntries,
+      getReferencedColumn: (t) => t.taskRule,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$TodoEntriesTableFilterComposer(
+          }) => $$TaskEntriesTableFilterComposer(
             $db: $db,
-            $table: $db.todoEntries,
+            $table: $db.taskEntries,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7699,9 +7699,9 @@ class $$TodoRulesTableFilterComposer
   }
 }
 
-class $$TodoRulesTableOrderingComposer
-    extends Composer<_$AppDatabase, $TodoRulesTable> {
-  $$TodoRulesTableOrderingComposer({
+class $$TaskRulesTableOrderingComposer
+    extends Composer<_$AppDatabase, $TaskRulesTable> {
+  $$TaskRulesTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -7762,9 +7762,9 @@ class $$TodoRulesTableOrderingComposer
   }
 }
 
-class $$TodoRulesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $TodoRulesTable> {
-  $$TodoRulesTableAnnotationComposer({
+class $$TaskRulesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TaskRulesTable> {
+  $$TaskRulesTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -7789,7 +7789,7 @@ class $$TodoRulesTableAnnotationComposer
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<TodoPriority, String> get priority =>
+  GeneratedColumnWithTypeConverter<TaskPriority, String> get priority =>
       $composableBuilder(column: $table.priority, builder: (column) => column);
 
   $$ComponentsTableAnnotationComposer get componentId {
@@ -7815,22 +7815,22 @@ class $$TodoRulesTableAnnotationComposer
     return composer;
   }
 
-  Expression<T> todoEntriesRefs<T extends Object>(
-    Expression<T> Function($$TodoEntriesTableAnnotationComposer a) f,
+  Expression<T> taskEntriesRefs<T extends Object>(
+    Expression<T> Function($$TaskEntriesTableAnnotationComposer a) f,
   ) {
-    final $$TodoEntriesTableAnnotationComposer composer = $composerBuilder(
+    final $$TaskEntriesTableAnnotationComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.todoEntries,
-      getReferencedColumn: (t) => t.todoRule,
+      referencedTable: $db.taskEntries,
+      getReferencedColumn: (t) => t.taskRule,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$TodoEntriesTableAnnotationComposer(
+          }) => $$TaskEntriesTableAnnotationComposer(
             $db: $db,
-            $table: $db.todoEntries,
+            $table: $db.taskEntries,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7841,32 +7841,32 @@ class $$TodoRulesTableAnnotationComposer
   }
 }
 
-class $$TodoRulesTableTableManager
+class $$TaskRulesTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $TodoRulesTable,
-          TodoRuleDb,
-          $$TodoRulesTableFilterComposer,
-          $$TodoRulesTableOrderingComposer,
-          $$TodoRulesTableAnnotationComposer,
-          $$TodoRulesTableCreateCompanionBuilder,
-          $$TodoRulesTableUpdateCompanionBuilder,
-          (TodoRuleDb, $$TodoRulesTableReferences),
-          TodoRuleDb,
-          PrefetchHooks Function({bool componentId, bool todoEntriesRefs})
+          $TaskRulesTable,
+          TaskRuleDb,
+          $$TaskRulesTableFilterComposer,
+          $$TaskRulesTableOrderingComposer,
+          $$TaskRulesTableAnnotationComposer,
+          $$TaskRulesTableCreateCompanionBuilder,
+          $$TaskRulesTableUpdateCompanionBuilder,
+          (TaskRuleDb, $$TaskRulesTableReferences),
+          TaskRuleDb,
+          PrefetchHooks Function({bool componentId, bool taskEntriesRefs})
         > {
-  $$TodoRulesTableTableManager(_$AppDatabase db, $TodoRulesTable table)
+  $$TaskRulesTableTableManager(_$AppDatabase db, $TaskRulesTable table)
     : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$TodoRulesTableFilterComposer($db: db, $table: table),
+              $$TaskRulesTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$TodoRulesTableOrderingComposer($db: db, $table: table),
+              $$TaskRulesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$TodoRulesTableAnnotationComposer($db: db, $table: table),
+              $$TaskRulesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
@@ -7875,9 +7875,9 @@ class $$TodoRulesTableTableManager
                 Value<String> componentId = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
-                Value<TodoPriority> priority = const Value.absent(),
+                Value<TaskPriority> priority = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) => TodoRulesCompanion(
+              }) => TaskRulesCompanion(
                 id: id,
                 isDeleted: isDeleted,
                 lastModified: lastModified,
@@ -7895,9 +7895,9 @@ class $$TodoRulesTableTableManager
                 required String componentId,
                 required String name,
                 Value<String?> notes = const Value.absent(),
-                Value<TodoPriority> priority = const Value.absent(),
+                Value<TaskPriority> priority = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) => TodoRulesCompanion.insert(
+              }) => TaskRulesCompanion.insert(
                 id: id,
                 isDeleted: isDeleted,
                 lastModified: lastModified,
@@ -7911,16 +7911,16 @@ class $$TodoRulesTableTableManager
               .map(
                 (e) => (
                   e.readTable(table),
-                  $$TodoRulesTableReferences(db, table, e),
+                  $$TaskRulesTableReferences(db, table, e),
                 ),
               )
               .toList(),
           prefetchHooksCallback:
-              ({componentId = false, todoEntriesRefs = false}) {
+              ({componentId = false, taskEntriesRefs = false}) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
-                    if (todoEntriesRefs) db.todoEntries,
+                    if (taskEntriesRefs) db.taskEntries,
                   ],
                   addJoins:
                       <
@@ -7943,9 +7943,9 @@ class $$TodoRulesTableTableManager
                               state.withJoin(
                                     currentTable: table,
                                     currentColumn: table.componentId,
-                                    referencedTable: $$TodoRulesTableReferences
+                                    referencedTable: $$TaskRulesTableReferences
                                         ._componentIdTable(db),
-                                    referencedColumn: $$TodoRulesTableReferences
+                                    referencedColumn: $$TaskRulesTableReferences
                                         ._componentIdTable(db)
                                         .id,
                                   )
@@ -7956,24 +7956,24 @@ class $$TodoRulesTableTableManager
                       },
                   getPrefetchedDataCallback: (items) async {
                     return [
-                      if (todoEntriesRefs)
+                      if (taskEntriesRefs)
                         await $_getPrefetchedData<
-                          TodoRuleDb,
-                          $TodoRulesTable,
-                          TodoEntryDb
+                          TaskRuleDb,
+                          $TaskRulesTable,
+                          TaskEntryDb
                         >(
                           currentTable: table,
-                          referencedTable: $$TodoRulesTableReferences
-                              ._todoEntriesRefsTable(db),
+                          referencedTable: $$TaskRulesTableReferences
+                              ._taskEntriesRefsTable(db),
                           managerFromTypedResult: (p0) =>
-                              $$TodoRulesTableReferences(
+                              $$TaskRulesTableReferences(
                                 db,
                                 table,
                                 p0,
-                              ).todoEntriesRefs,
+                              ).taskEntriesRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
-                                (e) => e.todoRule == item.id,
+                                (e) => e.taskRule == item.id,
                               ),
                           typedResults: items,
                         ),
@@ -7985,22 +7985,22 @@ class $$TodoRulesTableTableManager
       );
 }
 
-typedef $$TodoRulesTableProcessedTableManager =
+typedef $$TaskRulesTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $TodoRulesTable,
-      TodoRuleDb,
-      $$TodoRulesTableFilterComposer,
-      $$TodoRulesTableOrderingComposer,
-      $$TodoRulesTableAnnotationComposer,
-      $$TodoRulesTableCreateCompanionBuilder,
-      $$TodoRulesTableUpdateCompanionBuilder,
-      (TodoRuleDb, $$TodoRulesTableReferences),
-      TodoRuleDb,
-      PrefetchHooks Function({bool componentId, bool todoEntriesRefs})
+      $TaskRulesTable,
+      TaskRuleDb,
+      $$TaskRulesTableFilterComposer,
+      $$TaskRulesTableOrderingComposer,
+      $$TaskRulesTableAnnotationComposer,
+      $$TaskRulesTableCreateCompanionBuilder,
+      $$TaskRulesTableUpdateCompanionBuilder,
+      (TaskRuleDb, $$TaskRulesTableReferences),
+      TaskRuleDb,
+      PrefetchHooks Function({bool componentId, bool taskEntriesRefs})
     >;
-typedef $$TodoEntriesTableCreateCompanionBuilder =
-    TodoEntriesCompanion Function({
+typedef $$TaskEntriesTableCreateCompanionBuilder =
+    TaskEntriesCompanion Function({
       required String id,
       Value<bool> isDeleted,
       required DateTime lastModified,
@@ -8008,11 +8008,11 @@ typedef $$TodoEntriesTableCreateCompanionBuilder =
       Value<String?> notes,
       required DateTime dateTimeUTC,
       required DateTime dateTimeLocal,
-      required String todoRule,
+      required String taskRule,
       Value<int> rowid,
     });
-typedef $$TodoEntriesTableUpdateCompanionBuilder =
-    TodoEntriesCompanion Function({
+typedef $$TaskEntriesTableUpdateCompanionBuilder =
+    TaskEntriesCompanion Function({
       Value<String> id,
       Value<bool> isDeleted,
       Value<DateTime> lastModified,
@@ -8020,27 +8020,27 @@ typedef $$TodoEntriesTableUpdateCompanionBuilder =
       Value<String?> notes,
       Value<DateTime> dateTimeUTC,
       Value<DateTime> dateTimeLocal,
-      Value<String> todoRule,
+      Value<String> taskRule,
       Value<int> rowid,
     });
 
-final class $$TodoEntriesTableReferences
-    extends BaseReferences<_$AppDatabase, $TodoEntriesTable, TodoEntryDb> {
-  $$TodoEntriesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+final class $$TaskEntriesTableReferences
+    extends BaseReferences<_$AppDatabase, $TaskEntriesTable, TaskEntryDb> {
+  $$TaskEntriesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $TodoRulesTable _todoRuleTable(_$AppDatabase db) =>
-      db.todoRules.createAlias(
-        $_aliasNameGenerator(db.todoEntries.todoRule, db.todoRules.id),
+  static $TaskRulesTable _taskRuleTable(_$AppDatabase db) =>
+      db.taskRules.createAlias(
+        $_aliasNameGenerator(db.taskEntries.taskRule, db.taskRules.id),
       );
 
-  $$TodoRulesTableProcessedTableManager get todoRule {
-    final $_column = $_itemColumn<String>('todo_rule')!;
+  $$TaskRulesTableProcessedTableManager get taskRule {
+    final $_column = $_itemColumn<String>('task_rule')!;
 
-    final manager = $$TodoRulesTableTableManager(
+    final manager = $$TaskRulesTableTableManager(
       $_db,
-      $_db.todoRules,
+      $_db.taskRules,
     ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_todoRuleTable($_db));
+    final item = $_typedResult.readTableOrNull(_taskRuleTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -8048,9 +8048,9 @@ final class $$TodoEntriesTableReferences
   }
 }
 
-class $$TodoEntriesTableFilterComposer
-    extends Composer<_$AppDatabase, $TodoEntriesTable> {
-  $$TodoEntriesTableFilterComposer({
+class $$TaskEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $TaskEntriesTable> {
+  $$TaskEntriesTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -8094,20 +8094,20 @@ class $$TodoEntriesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  $$TodoRulesTableFilterComposer get todoRule {
-    final $$TodoRulesTableFilterComposer composer = $composerBuilder(
+  $$TaskRulesTableFilterComposer get taskRule {
+    final $$TaskRulesTableFilterComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.todoRule,
-      referencedTable: $db.todoRules,
+      getCurrentColumn: (t) => t.taskRule,
+      referencedTable: $db.taskRules,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$TodoRulesTableFilterComposer(
+          }) => $$TaskRulesTableFilterComposer(
             $db: $db,
-            $table: $db.todoRules,
+            $table: $db.taskRules,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -8118,9 +8118,9 @@ class $$TodoEntriesTableFilterComposer
   }
 }
 
-class $$TodoEntriesTableOrderingComposer
-    extends Composer<_$AppDatabase, $TodoEntriesTable> {
-  $$TodoEntriesTableOrderingComposer({
+class $$TaskEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $TaskEntriesTable> {
+  $$TaskEntriesTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -8162,20 +8162,20 @@ class $$TodoEntriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  $$TodoRulesTableOrderingComposer get todoRule {
-    final $$TodoRulesTableOrderingComposer composer = $composerBuilder(
+  $$TaskRulesTableOrderingComposer get taskRule {
+    final $$TaskRulesTableOrderingComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.todoRule,
-      referencedTable: $db.todoRules,
+      getCurrentColumn: (t) => t.taskRule,
+      referencedTable: $db.taskRules,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$TodoRulesTableOrderingComposer(
+          }) => $$TaskRulesTableOrderingComposer(
             $db: $db,
-            $table: $db.todoRules,
+            $table: $db.taskRules,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -8186,9 +8186,9 @@ class $$TodoEntriesTableOrderingComposer
   }
 }
 
-class $$TodoEntriesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $TodoEntriesTable> {
-  $$TodoEntriesTableAnnotationComposer({
+class $$TaskEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TaskEntriesTable> {
+  $$TaskEntriesTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -8224,20 +8224,20 @@ class $$TodoEntriesTableAnnotationComposer
     builder: (column) => column,
   );
 
-  $$TodoRulesTableAnnotationComposer get todoRule {
-    final $$TodoRulesTableAnnotationComposer composer = $composerBuilder(
+  $$TaskRulesTableAnnotationComposer get taskRule {
+    final $$TaskRulesTableAnnotationComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.todoRule,
-      referencedTable: $db.todoRules,
+      getCurrentColumn: (t) => t.taskRule,
+      referencedTable: $db.taskRules,
       getReferencedColumn: (t) => t.id,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$TodoRulesTableAnnotationComposer(
+          }) => $$TaskRulesTableAnnotationComposer(
             $db: $db,
-            $table: $db.todoRules,
+            $table: $db.taskRules,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -8248,32 +8248,32 @@ class $$TodoEntriesTableAnnotationComposer
   }
 }
 
-class $$TodoEntriesTableTableManager
+class $$TaskEntriesTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $TodoEntriesTable,
-          TodoEntryDb,
-          $$TodoEntriesTableFilterComposer,
-          $$TodoEntriesTableOrderingComposer,
-          $$TodoEntriesTableAnnotationComposer,
-          $$TodoEntriesTableCreateCompanionBuilder,
-          $$TodoEntriesTableUpdateCompanionBuilder,
-          (TodoEntryDb, $$TodoEntriesTableReferences),
-          TodoEntryDb,
-          PrefetchHooks Function({bool todoRule})
+          $TaskEntriesTable,
+          TaskEntryDb,
+          $$TaskEntriesTableFilterComposer,
+          $$TaskEntriesTableOrderingComposer,
+          $$TaskEntriesTableAnnotationComposer,
+          $$TaskEntriesTableCreateCompanionBuilder,
+          $$TaskEntriesTableUpdateCompanionBuilder,
+          (TaskEntryDb, $$TaskEntriesTableReferences),
+          TaskEntryDb,
+          PrefetchHooks Function({bool taskRule})
         > {
-  $$TodoEntriesTableTableManager(_$AppDatabase db, $TodoEntriesTable table)
+  $$TaskEntriesTableTableManager(_$AppDatabase db, $TaskEntriesTable table)
     : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$TodoEntriesTableFilterComposer($db: db, $table: table),
+              $$TaskEntriesTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$TodoEntriesTableOrderingComposer($db: db, $table: table),
+              $$TaskEntriesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$TodoEntriesTableAnnotationComposer($db: db, $table: table),
+              $$TaskEntriesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
@@ -8283,9 +8283,9 @@ class $$TodoEntriesTableTableManager
                 Value<String?> notes = const Value.absent(),
                 Value<DateTime> dateTimeUTC = const Value.absent(),
                 Value<DateTime> dateTimeLocal = const Value.absent(),
-                Value<String> todoRule = const Value.absent(),
+                Value<String> taskRule = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) => TodoEntriesCompanion(
+              }) => TaskEntriesCompanion(
                 id: id,
                 isDeleted: isDeleted,
                 lastModified: lastModified,
@@ -8293,7 +8293,7 @@ class $$TodoEntriesTableTableManager
                 notes: notes,
                 dateTimeUTC: dateTimeUTC,
                 dateTimeLocal: dateTimeLocal,
-                todoRule: todoRule,
+                taskRule: taskRule,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -8305,9 +8305,9 @@ class $$TodoEntriesTableTableManager
                 Value<String?> notes = const Value.absent(),
                 required DateTime dateTimeUTC,
                 required DateTime dateTimeLocal,
-                required String todoRule,
+                required String taskRule,
                 Value<int> rowid = const Value.absent(),
-              }) => TodoEntriesCompanion.insert(
+              }) => TaskEntriesCompanion.insert(
                 id: id,
                 isDeleted: isDeleted,
                 lastModified: lastModified,
@@ -8315,18 +8315,18 @@ class $$TodoEntriesTableTableManager
                 notes: notes,
                 dateTimeUTC: dateTimeUTC,
                 dateTimeLocal: dateTimeLocal,
-                todoRule: todoRule,
+                taskRule: taskRule,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
                   e.readTable(table),
-                  $$TodoEntriesTableReferences(db, table, e),
+                  $$TaskEntriesTableReferences(db, table, e),
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({todoRule = false}) {
+          prefetchHooksCallback: ({taskRule = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -8346,15 +8346,15 @@ class $$TodoEntriesTableTableManager
                       dynamic
                     >
                   >(state) {
-                    if (todoRule) {
+                    if (taskRule) {
                       state =
                           state.withJoin(
                                 currentTable: table,
-                                currentColumn: table.todoRule,
-                                referencedTable: $$TodoEntriesTableReferences
-                                    ._todoRuleTable(db),
-                                referencedColumn: $$TodoEntriesTableReferences
-                                    ._todoRuleTable(db)
+                                currentColumn: table.taskRule,
+                                referencedTable: $$TaskEntriesTableReferences
+                                    ._taskRuleTable(db),
+                                referencedColumn: $$TaskEntriesTableReferences
+                                    ._taskRuleTable(db)
                                     .id,
                               )
                               as T;
@@ -8371,19 +8371,19 @@ class $$TodoEntriesTableTableManager
       );
 }
 
-typedef $$TodoEntriesTableProcessedTableManager =
+typedef $$TaskEntriesTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $TodoEntriesTable,
-      TodoEntryDb,
-      $$TodoEntriesTableFilterComposer,
-      $$TodoEntriesTableOrderingComposer,
-      $$TodoEntriesTableAnnotationComposer,
-      $$TodoEntriesTableCreateCompanionBuilder,
-      $$TodoEntriesTableUpdateCompanionBuilder,
-      (TodoEntryDb, $$TodoEntriesTableReferences),
-      TodoEntryDb,
-      PrefetchHooks Function({bool todoRule})
+      $TaskEntriesTable,
+      TaskEntryDb,
+      $$TaskEntriesTableFilterComposer,
+      $$TaskEntriesTableOrderingComposer,
+      $$TaskEntriesTableAnnotationComposer,
+      $$TaskEntriesTableCreateCompanionBuilder,
+      $$TaskEntriesTableUpdateCompanionBuilder,
+      (TaskEntryDb, $$TaskEntriesTableReferences),
+      TaskEntryDb,
+      PrefetchHooks Function({bool taskRule})
     >;
 typedef $$BikesTableCreateCompanionBuilder =
     BikesCompanion Function({
@@ -12479,10 +12479,10 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$ComponentsTableTableManager get components =>
       $$ComponentsTableTableManager(_db, _db.components);
-  $$TodoRulesTableTableManager get todoRules =>
-      $$TodoRulesTableTableManager(_db, _db.todoRules);
-  $$TodoEntriesTableTableManager get todoEntries =>
-      $$TodoEntriesTableTableManager(_db, _db.todoEntries);
+  $$TaskRulesTableTableManager get taskRules =>
+      $$TaskRulesTableTableManager(_db, _db.taskRules);
+  $$TaskEntriesTableTableManager get taskEntries =>
+      $$TaskEntriesTableTableManager(_db, _db.taskEntries);
   $$BikesTableTableManager get bikes =>
       $$BikesTableTableManager(_db, _db.bikes);
   $$PersonsTableTableManager get persons =>

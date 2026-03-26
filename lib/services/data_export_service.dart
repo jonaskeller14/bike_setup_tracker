@@ -15,8 +15,8 @@ class DataExportService {
     final persons = await database.personsDao.getAllPersonsWithDataBypass();
     final ratings = await database.ratingsDao.getAllRatingsWithDataBypass();
     
-    final todoRules = await database.todoDao.getAllRulesBypass();
-    final todoEntries = await database.todoDao.getAllEntriesBypass();
+    final taskRules = await database.taskDao.getAllRulesBypass();
+    final taskEntries = await database.taskDao.getAllEntriesBypass();
     
     final athletes = await database.stravaDao.getAllAthletesBypass();
     final gears = await database.stravaDao.getAllGearsBypass();
@@ -52,8 +52,8 @@ class DataExportService {
                 adjustments: r.adjustments.map((a) => a.toModel()).toList(),
               ).toJson())
           .toList(),
-      'todoRules': todoRules.map((tr) => tr.toModel().toJson()).toList(),
-      'todoEntries': todoEntries.map((te) => te.toModel().toJson()).toList(),
+      'taskRules': taskRules.map((tr) => tr.toModel().toJson()).toList(),
+      'taskEntries': taskEntries.map((te) => te.toModel().toJson()).toList(),
       'stravaAthletes': athletes.map((a) => a.toModel().toJson()).toList(),
       'stravaGears': gears.map((g) => g.toModel().toJson()).toList(),
       'stravaActivities': activities.map((a) => a.toModel().toJson()).toList(),

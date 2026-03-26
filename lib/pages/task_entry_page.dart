@@ -3,34 +3,34 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import '../models/app_settings.dart';
-import '../models/todo_entry.dart';
-import '../models/todo_rule.dart';
+import '../models/task_entry.dart';
+import '../models/task_rule.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/dialogs/discard_changes.dart';
 
-enum TodoEntryPageMode { add, edit, duplicate }
+enum TaskEntryPageMode { add, edit, duplicate }
 
-class TodoEntryPage extends StatefulWidget {
-  final TodoEntry? todoEntry;
-  final TodoRule todoRule;
-  final TodoEntryPageMode mode;
+class TaskEntryPage extends StatefulWidget {
+  final TaskEntry? taskEntry;
+  final TaskRule taskRule;
+  final TaskEntryPageMode mode;
 
-  const TodoEntryPage._({super.key, this.todoEntry, required this.todoRule, required this.mode});
+  const TaskEntryPage._({super.key, this.taskEntry, required this.taskRule, required this.mode});
 
-  factory TodoEntryPage.add({Key? key, required TodoRule todoRule}) => 
-    TodoEntryPage._(key: key, todoRule: todoRule, mode: TodoEntryPageMode.add);
+  factory TaskEntryPage.add({Key? key, required TaskRule taskRule}) => 
+    TaskEntryPage._(key: key, taskRule: taskRule, mode: TaskEntryPageMode.add);
 
-  factory TodoEntryPage.edit({Key? key, required TodoEntry todoEntry, required TodoRule todoRule}) => 
-    TodoEntryPage._(key: key, todoEntry: todoEntry, todoRule: todoRule, mode: TodoEntryPageMode.edit);
+  factory TaskEntryPage.edit({Key? key, required TaskEntry taskEntry, required TaskRule taskRule}) => 
+    TaskEntryPage._(key: key, taskEntry: taskEntry, taskRule: taskRule, mode: TaskEntryPageMode.edit);
 
-  factory TodoEntryPage.duplicate({Key? key, required TodoEntry todoEntry, required TodoRule todoRule}) => 
-    TodoEntryPage._(key: key, todoEntry: todoEntry, todoRule: todoRule, mode: TodoEntryPageMode.duplicate);
+  factory TaskEntryPage.duplicate({Key? key, required TaskEntry taskEntry, required TaskRule taskRule}) => 
+    TaskEntryPage._(key: key, taskEntry: taskEntry, taskRule: taskRule, mode: TaskEntryPageMode.duplicate);
 
   @override
-  State<TodoEntryPage> createState() => _TodoEntryPageState();
+  State<TaskEntryPage> createState() => _TaskEntryPageState();
 }
 
-class _TodoEntryPageState extends State<TodoEntryPage> {
+class _TaskEntryPageState extends State<TaskEntryPage> {
   late String _initialName;
   late TextEditingController _nameController;
   late String? _initialNotes;
@@ -47,19 +47,19 @@ class _TodoEntryPageState extends State<TodoEntryPage> {
   @override
   void initState() {
     super.initState();
-    _initialName = widget.todoEntry?.name ?? widget.todoRule.name;
+    _initialName = widget.taskEntry?.name ?? widget.taskRule.name;
     _nameController = TextEditingController(text: _initialName);
     _nameController.addListener(_changeListener);
     
-    _initialNotes = widget.todoEntry?.notes;
+    _initialNotes = widget.taskEntry?.notes;
     _notesController = TextEditingController(text: _initialNotes);
     _notesController.addListener(_changeListener);
 
     final now = DateTime.now();
-    _selectedDateTimeLocal = widget.todoEntry?.dateTimeLocal ?? now;
+    _selectedDateTimeLocal = widget.taskEntry?.dateTimeLocal ?? now;
     _initialDateTimeLocal = _selectedDateTimeLocal;
     
-    _selectedDateTimeUtc = widget.todoEntry?.dateTimeUTC ?? _selectedDateTimeLocal.toUtc();
+    _selectedDateTimeUtc = widget.taskEntry?.dateTimeUTC ?? _selectedDateTimeLocal.toUtc();
     _initialDateTimeUtc = _selectedDateTimeUtc;
   }
 
@@ -87,7 +87,7 @@ class _TodoEntryPageState extends State<TodoEntryPage> {
   Future<void> _pickDate() async {
     final pickedDate = await showDatePicker(
       context: context,
-      helpText: "Select Todo Entry Date",
+      helpText: "Select Task Entry Date",
       errorInvalidText: "Date cannot be in the future",
       selectableDayPredicate: (DateTime pickedDate) => !_selectedDateTimeLocal.copyWith(
         day: pickedDate.day,
@@ -117,7 +117,7 @@ class _TodoEntryPageState extends State<TodoEntryPage> {
   Future<void> _pickTime() async {
     TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      helpText: "Select Todo Entry Time",
+      helpText: "Select Task Entry Time",
       initialTime: TimeOfDay.fromDateTime(_selectedDateTimeLocal),
     );
 
@@ -143,7 +143,7 @@ class _TodoEntryPageState extends State<TodoEntryPage> {
     _changeListener();
   }
 
-  void _saveTodoEntry() {
+  void _saveTaskEntry() {
     if (!_formKey.currentState!.validate()) return;
     
     final name = _nameController.text.trim();
@@ -152,13 +152,13 @@ class _TodoEntryPageState extends State<TodoEntryPage> {
     
     debugPrint("$_selectedDateTimeLocal");
     debugPrint("$_selectedDateTimeUtc");
-    Navigator.pop(context, TodoEntry(
-      id: widget.mode == TodoEntryPageMode.edit 
-          ? widget.todoEntry!.id 
+    Navigator.pop(context, TaskEntry(
+      id: widget.mode == TaskEntryPageMode.edit 
+          ? widget.taskEntry!.id 
           : const Uuid().v4(), 
       name: name,
       notes: notes.isEmpty ? null : notes,
-      todoRule: widget.todoRule.id,
+      taskRule: widget.taskRule.id,
       dateTimeUTC: _selectedDateTimeUtc,
       dateTimeLocal: _selectedDateTimeLocal,
       isDeleted: false,
@@ -184,7 +184,7 @@ class _TodoEntryPageState extends State<TodoEntryPage> {
   Widget build(BuildContext context) {
     final appSettings = context.read<AppSettings>();
     final appRepository = context.watch<AppRepository>();
-    final component = appRepository.components[widget.todoRule.componentId];
+    final component = appRepository.components[widget.taskRule.componentId];
     
     return PopScope( 
       canPop: !_formHasChanges,
@@ -192,11 +192,11 @@ class _TodoEntryPageState extends State<TodoEntryPage> {
       child: Scaffold(
         appBar: AppBar(
           title: switch (widget.mode) {
-            TodoEntryPageMode.add || TodoEntryPageMode.duplicate => const Text('Add Todo Entry'),
-            TodoEntryPageMode.edit => const Text('Edit Todo Entry'),
+            TaskEntryPageMode.add || TaskEntryPageMode.duplicate => const Text('Add Task Entry'),
+            TaskEntryPageMode.edit => const Text('Edit Task Entry'),
           },
           actions: [
-            IconButton(icon: const Icon(Icons.check), onPressed: _saveTodoEntry),
+            IconButton(icon: const Icon(Icons.check), onPressed: _saveTaskEntry),
           ],
         ),
         body: SafeArea(
@@ -217,7 +217,7 @@ class _TodoEntryPageState extends State<TodoEntryPage> {
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       title: Text(
-                        widget.todoRule.name,
+                        widget.taskRule.name,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -257,7 +257,7 @@ class _TodoEntryPageState extends State<TodoEntryPage> {
                             children: [
                               Icon(Icons.traffic, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                               Text(
-                                'Priority: ${widget.todoRule.priority.label}',
+                                'Priority: ${widget.taskRule.priority.label}',
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                                   fontSize: 13,
@@ -265,7 +265,7 @@ class _TodoEntryPageState extends State<TodoEntryPage> {
                               ),
                             ],
                           ),
-                          if (widget.todoRule.notes != null && widget.todoRule.notes!.isNotEmpty) ...[
+                          if (widget.taskRule.notes != null && widget.taskRule.notes!.isNotEmpty) ...[
                             const SizedBox(height: 4),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -281,7 +281,7 @@ class _TodoEntryPageState extends State<TodoEntryPage> {
                                 ),
                                 Expanded(
                                   child: Text(
-                                    widget.todoRule.notes!,
+                                    widget.taskRule.notes!,
                                     style: TextStyle(
                                       color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                                       fontSize: 13,
@@ -299,17 +299,17 @@ class _TodoEntryPageState extends State<TodoEntryPage> {
                   TextFormField(
                     controller: _nameController,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
-                    autofocus: widget.mode == TodoEntryPageMode.add,
+                    autofocus: widget.mode == TaskEntryPageMode.add,
                     onChanged: (value) => setState(() {}),
                     decoration: InputDecoration(
-                      labelText: 'Todo Entry Name',
+                      labelText: 'Task Entry Name',
                       border: OutlineInputBorder(),
-                      hintText: 'Enter todo entry name',
+                      hintText: 'Enter task entry name',
                       fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.mode == TodoEntryPageMode.edit && _nameController.text.trim() != widget.todoEntry?.name,
+                      filled: widget.mode == TaskEntryPageMode.edit && _nameController.text.trim() != widget.taskEntry?.name,
                     ),
                     validator: _validateName,
-                    onFieldSubmitted: (_) => _saveTodoEntry(),
+                    onFieldSubmitted: (_) => _saveTaskEntry(),
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -322,7 +322,7 @@ class _TodoEntryPageState extends State<TodoEntryPage> {
                       hintText: 'Add additional details...',
                       border: OutlineInputBorder(),
                       fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.mode == TodoEntryPageMode.edit && _notesController.text.trim() != (widget.todoEntry?.notes ?? ""),
+                      filled: widget.mode == TaskEntryPageMode.edit && _notesController.text.trim() != (widget.taskEntry?.notes ?? ""),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -335,7 +335,7 @@ class _TodoEntryPageState extends State<TodoEntryPage> {
                         label: Text(
                           DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal),
                         ),
-                        backgroundColor: widget.mode == TodoEntryPageMode.edit && (_selectedDateTimeUtc.year != _initialDateTimeUtc.year || _selectedDateTimeUtc.month != _initialDateTimeUtc.month || _selectedDateTimeUtc.day != _initialDateTimeUtc.day) ? Colors.orange.withValues(alpha: 0.08) : null,
+                        backgroundColor: widget.mode == TaskEntryPageMode.edit && (_selectedDateTimeUtc.year != _initialDateTimeUtc.year || _selectedDateTimeUtc.month != _initialDateTimeUtc.month || _selectedDateTimeUtc.day != _initialDateTimeUtc.day) ? Colors.orange.withValues(alpha: 0.08) : null,
                         onPressed: _pickDate,
                       ),
                       ActionChip(
@@ -343,7 +343,7 @@ class _TodoEntryPageState extends State<TodoEntryPage> {
                         label: Text(
                           DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal),
                         ),
-                        backgroundColor: widget.mode == TodoEntryPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute) ? Colors.orange.withValues(alpha: 0.08) : null,
+                        backgroundColor: widget.mode == TaskEntryPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute) ? Colors.orange.withValues(alpha: 0.08) : null,
                         onPressed: _pickTime,
                       ),
                     ],

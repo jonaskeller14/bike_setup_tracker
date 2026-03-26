@@ -74,14 +74,14 @@ class SetupListDisplayFilterSheetContent extends StatelessWidget {
                                     ? () => appSettings.displayShowActivities = false
                                     : null
                               ),
-                            if (appSettings.enableTodo)
+                            if (appSettings.enableTask)
                               FilterChip(
-                                label: const Text("Todos"),
+                                label: const Text("Tasks"),
                                 showCheckmark: false,
-                                selected: appSettings.displayShowTodos,
-                                onSelected: (bool selected) => appSettings.displayShowTodos = selected,
-                                onDeleted: appSettings.displayShowTodos
-                                    ? () => appSettings.displayShowTodos = false
+                                selected: appSettings.displayShowTasks,
+                                onSelected: (bool selected) => appSettings.displayShowTasks = selected,
+                                onDeleted: appSettings.displayShowTasks
+                                    ? () => appSettings.displayShowTasks = false
                                     : null
                               ),
                             if (appSettings.enableInstallationTimeline)

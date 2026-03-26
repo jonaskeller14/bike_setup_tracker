@@ -1,41 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/todo_rule.dart';
+import '../models/task_rule.dart';
 import '../models/component.dart';
 import '../models/bike.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import 'package:uuid/uuid.dart';
 
-enum TodoRulePageMode { add, edit, duplicate }
+enum TaskRulePageMode { add, edit, duplicate }
 
-class TodoRulePage extends StatefulWidget {
-  final TodoRule? todoRule;
-  final TodoRulePageMode mode;
+class TaskRulePage extends StatefulWidget {
+  final TaskRule? taskRule;
+  final TaskRulePageMode mode;
 
-  const TodoRulePage._({super.key, this.todoRule, required this.mode});
+  const TaskRulePage._({super.key, this.taskRule, required this.mode});
 
-  factory TodoRulePage.add({Key? key}) =>
-      TodoRulePage._(key: key, mode: TodoRulePageMode.add);
+  factory TaskRulePage.add({Key? key}) =>
+      TaskRulePage._(key: key, mode: TaskRulePageMode.add);
 
-  factory TodoRulePage.edit({Key? key, required TodoRule todoRule}) =>
-      TodoRulePage._(key: key, todoRule: todoRule, mode: TodoRulePageMode.edit);
+  factory TaskRulePage.edit({Key? key, required TaskRule taskRule}) =>
+      TaskRulePage._(key: key, taskRule: taskRule, mode: TaskRulePageMode.edit);
 
-  factory TodoRulePage.duplicate({Key? key, required TodoRule todoRule}) =>
-      TodoRulePage._(
+  factory TaskRulePage.duplicate({Key? key, required TaskRule taskRule}) =>
+      TaskRulePage._(
         key: key,
-        todoRule: todoRule,
-        mode: TodoRulePageMode.duplicate,
+        taskRule: taskRule,
+        mode: TaskRulePageMode.duplicate,
       );
 
   @override
-  State<TodoRulePage> createState() => _TodoRulePageState();
+  State<TaskRulePage> createState() => _TaskRulePageState();
 }
 
-class _TodoRulePageState extends State<TodoRulePage> {
+class _TaskRulePageState extends State<TaskRulePage> {
   late TextEditingController _nameController;
   late TextEditingController _notesController;
-  TodoPriority _priority = TodoPriority.medium;
+  TaskPriority _priority = TaskPriority.medium;
   String? _componentId;
 
   final _formKey = GlobalKey<FormState>();
@@ -44,24 +44,24 @@ class _TodoRulePageState extends State<TodoRulePage> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.todoRule?.name);
+    _nameController = TextEditingController(text: widget.taskRule?.name);
     _nameController.addListener(_changeListener);
 
-    _notesController = TextEditingController(text: widget.todoRule?.notes);
+    _notesController = TextEditingController(text: widget.taskRule?.notes);
     _notesController.addListener(_changeListener);
 
-    if (widget.mode != TodoRulePageMode.add && widget.todoRule != null) {
-      _priority = widget.todoRule!.priority;
-      _componentId = widget.todoRule!.componentId;
+    if (widget.mode != TaskRulePageMode.add && widget.taskRule != null) {
+      _priority = widget.taskRule!.priority;
+      _componentId = widget.taskRule!.componentId;
     }
   }
 
   void _changeListener() {
     final hasChanges =
-        _nameController.text.trim() != (widget.todoRule?.name ?? '') ||
-        _notesController.text.trim() != (widget.todoRule?.notes ?? '') ||
-        _priority != (widget.todoRule?.priority ?? TodoPriority.medium) ||
-        _componentId != widget.todoRule?.componentId;
+        _nameController.text.trim() != (widget.taskRule?.name ?? '') ||
+        _notesController.text.trim() != (widget.taskRule?.notes ?? '') ||
+        _priority != (widget.taskRule?.priority ?? TaskPriority.medium) ||
+        _componentId != widget.taskRule?.componentId;
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -78,7 +78,7 @@ class _TodoRulePageState extends State<TodoRulePage> {
     super.dispose();
   }
 
-  void _saveTodoRule() {
+  void _saveTaskRule() {
     if (!_formKey.currentState!.validate()) return;
 
     final name = _nameController.text.trim();
@@ -87,10 +87,10 @@ class _TodoRulePageState extends State<TodoRulePage> {
 
     Navigator.pop(
       context,
-      TodoRule(
+      TaskRule(
         componentId: _componentId!,
-        id: widget.mode == TodoRulePageMode.edit
-            ? widget.todoRule!.id
+        id: widget.mode == TaskRulePageMode.edit
+            ? widget.taskRule!.id
             : const Uuid().v4(),
         name: name,
         notes: notes.isEmpty ? null : notes,
@@ -186,12 +186,12 @@ class _TodoRulePageState extends State<TodoRulePage> {
       child: Scaffold(
         appBar: AppBar(
           title: switch (widget.mode) {
-            TodoRulePageMode.add ||
-            TodoRulePageMode.duplicate => const Text('Add Todo'),
-            TodoRulePageMode.edit => const Text('Edit Todo'),
+            TaskRulePageMode.add ||
+            TaskRulePageMode.duplicate => const Text('Add Task'),
+            TaskRulePageMode.edit => const Text('Edit Task'),
           },
           actions: [
-            IconButton(icon: const Icon(Icons.check), onPressed: _saveTodoRule),
+            IconButton(icon: const Icon(Icons.check), onPressed: _saveTaskRule),
           ],
         ),
         body: SafeArea(
@@ -206,19 +206,19 @@ class _TodoRulePageState extends State<TodoRulePage> {
                   TextFormField(
                     controller: _nameController,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
-                    autofocus: widget.mode == TodoRulePageMode.add,
+                    autofocus: widget.mode == TaskRulePageMode.add,
                     onChanged: (value) => setState(() {}),
                     decoration: InputDecoration(
-                      labelText: 'Todo Name',
+                      labelText: 'Task Name',
                       border: OutlineInputBorder(),
-                      hintText: 'Enter todo name',
+                      hintText: 'Enter task name',
                       fillColor: Colors.orange.withValues(alpha: 0.08),
                       filled:
-                          widget.mode == TodoRulePageMode.edit &&
-                          _nameController.text.trim() != widget.todoRule?.name,
+                          widget.mode == TaskRulePageMode.edit &&
+                          _nameController.text.trim() != widget.taskRule?.name,
                     ),
                     validator: _validateName,
-                    onFieldSubmitted: (_) => _saveTodoRule(),
+                    onFieldSubmitted: (_) => _saveTaskRule(),
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
@@ -231,8 +231,8 @@ class _TodoRulePageState extends State<TodoRulePage> {
                       hintText: "Choose a component",
                       fillColor: Colors.orange.withValues(alpha: 0.08),
                       filled:
-                          widget.mode == TodoRulePageMode.edit &&
-                          _componentId != widget.todoRule?.componentId,
+                          widget.mode == TaskRulePageMode.edit &&
+                          _componentId != widget.taskRule?.componentId,
                     ),
                     validator: _validateComponent,
                     items: (components.values.toList()
@@ -245,7 +245,7 @@ class _TodoRulePageState extends State<TodoRulePage> {
                     },
                   ),
                   const SizedBox(height: 12),
-                  DropdownButtonFormField<TodoPriority>(
+                  DropdownButtonFormField<TaskPriority>(
                     initialValue: _priority,
                     isExpanded: true,
                     decoration: InputDecoration(
@@ -253,16 +253,16 @@ class _TodoRulePageState extends State<TodoRulePage> {
                       border: OutlineInputBorder(),
                       fillColor: Colors.orange.withValues(alpha: 0.08),
                       filled:
-                          widget.mode == TodoRulePageMode.edit &&
-                          _priority != widget.todoRule?.priority,
+                          widget.mode == TaskRulePageMode.edit &&
+                          _priority != widget.taskRule?.priority,
                     ),
-                    items: TodoPriority.values.map((priority) {
-                      return DropdownMenuItem<TodoPriority>(
+                    items: TaskPriority.values.map((priority) {
+                      return DropdownMenuItem<TaskPriority>(
                         value: priority,
                         child: Text(priority.label),
                       );
                     }).toList(),
-                    onChanged: (TodoPriority? newValue) {
+                    onChanged: (TaskPriority? newValue) {
                       if (newValue != null) {
                         setState(() {
                           _priority = newValue;
@@ -283,9 +283,9 @@ class _TodoRulePageState extends State<TodoRulePage> {
                       border: OutlineInputBorder(),
                       fillColor: Colors.orange.withValues(alpha: 0.08),
                       filled:
-                          widget.mode == TodoRulePageMode.edit &&
+                          widget.mode == TaskRulePageMode.edit &&
                           _notesController.text.trim() !=
-                              (widget.todoRule?.notes ?? ""),
+                              (widget.taskRule?.notes ?? ""),
                     ),
                   ),
                 ],

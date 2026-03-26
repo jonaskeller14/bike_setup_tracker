@@ -1,31 +1,31 @@
 import 'package:uuid/uuid.dart';
 
-enum TodoPriority {
+enum TaskPriority {
   low('Low'),
   medium('Medium'),
   high('High'),
   critical('Critical');
 
   final String label;
-  const TodoPriority(this.label);
+  const TaskPriority(this.label);
 }
 
-class TodoRule {
+class TaskRule {
   final String id;
   final bool isDeleted;
   final DateTime lastModified;
   final String name;
   final String? notes;
-  final TodoPriority priority;
+  final TaskPriority priority;
   final String componentId;
 
-  TodoRule({
+  TaskRule({
     String? id,
     bool? isDeleted,
     DateTime? lastModified,
     required this.name,
     this.notes,
-    this.priority = TodoPriority.medium,
+    this.priority = TaskPriority.medium,
     required this.componentId,
   }) : id = id ?? const Uuid().v4(),
       isDeleted = isDeleted ?? false,
@@ -41,16 +41,16 @@ class TodoRule {
     'componentId': componentId,
   };
 
-  factory TodoRule.fromJson(Map<String, dynamic> json) {
-    return TodoRule(
+  factory TaskRule.fromJson(Map<String, dynamic> json) {
+    return TaskRule(
       id: json["id"] as String,
       isDeleted: json["isDeleted"] as bool,
       lastModified: DateTime.parse(json["lastModified"]),
       name: json["name"] as String,
       notes: json["notes"] as String?,
-      priority: TodoPriority.values.firstWhere(
+      priority: TaskPriority.values.firstWhere(
         (p) => p.toString() == json['priority'],
-        orElse: () => TodoPriority.medium,
+        orElse: () => TaskPriority.medium,
       ),
       componentId: json["componentId"] as String,
     );
@@ -59,7 +59,7 @@ class TodoRule {
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is TodoRule &&
+        other is TaskRule &&
         runtimeType == other.runtimeType &&
         id == other.id &&
         isDeleted == other.isDeleted &&
@@ -83,7 +83,7 @@ class TodoRule {
     );
   }
 
-  TodoRule copyWith({
+  TaskRule copyWith({
     Object? id = const _Sentinel(),
     Object? isDeleted = const _Sentinel(),
     Object? lastModified = const _Sentinel(),
@@ -92,7 +92,7 @@ class TodoRule {
     Object? priority = const _Sentinel(),
     Object? componentId = const _Sentinel(),
   }) {
-    return TodoRule(
+    return TaskRule(
       id: id is _Sentinel 
           ? this.id 
           : (id as String),
@@ -110,7 +110,7 @@ class TodoRule {
           : (notes as String?),
       priority: priority is _Sentinel 
           ? this.priority 
-          : (priority as TodoPriority),
+          : (priority as TaskPriority),
       componentId: componentId is _Sentinel
           ? this.componentId
           : (componentId as String),

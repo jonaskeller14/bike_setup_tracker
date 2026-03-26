@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'bike_and_tags_filter.dart';
 
-class TodoListFilterWidget extends StatelessWidget {
-  const TodoListFilterWidget({super.key});
+class TaskListFilterWidget extends StatelessWidget {
+  const TaskListFilterWidget({super.key});
 
   @override
   Widget build(BuildContext context) {

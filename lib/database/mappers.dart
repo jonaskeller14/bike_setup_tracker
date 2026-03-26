@@ -11,8 +11,8 @@ import '../models/person.dart';
 import '../models/rating.dart';
 import '../models/setup.dart';
 import '../models/installation.dart';
-import '../models/todo_rule.dart';
-import '../models/todo_entry.dart';
+import '../models/task_rule.dart';
+import '../models/task_entry.dart';
 import '../models/weather.dart';
 import 'package:location/location.dart';
 import '../models/strava/strava_athlete.dart';
@@ -114,13 +114,13 @@ extension RatingDbMapper on RatingDb {
   }
 }
 
-extension TodoRuleDbMapper on TodoRuleDb {
-  TodoRule toModel() {
-    return TodoRule(
+extension TaskRuleDbMapper on TaskRuleDb {
+  TaskRule toModel() {
+    return TaskRule(
       componentId: componentId,
       id: id,
       isDeleted: isDeleted,
-      lastModified: _toUtcSafe(lastModified, 'TodoRule.lastModified'),
+      lastModified: _toUtcSafe(lastModified, 'TaskRule.lastModified'),
       name: name,
       notes: notes,
       priority: priority,
@@ -128,15 +128,15 @@ extension TodoRuleDbMapper on TodoRuleDb {
   }
 }
 
-extension TodoEntryDbMapper on TodoEntryDb {
-  TodoEntry toModel() {
-    return TodoEntry(
+extension TaskEntryDbMapper on TaskEntryDb {
+  TaskEntry toModel() {
+    return TaskEntry(
       id: id,
       isDeleted: isDeleted,
-      lastModified: _toUtcSafe(lastModified, 'TodoEntry.lastModified'),
+      lastModified: _toUtcSafe(lastModified, 'TaskEntry.lastModified'),
       name: name,
-      todoRule: todoRule,
-      dateTimeUTC: _toUtcSafe(dateTimeUTC, 'TodoEntry.dateTimeUTC'),
+      taskRule: taskRule,
+      dateTimeUTC: _toUtcSafe(dateTimeUTC, 'TaskEntry.dateTimeUTC'),
       dateTimeLocal: dateTimeLocal,
       notes: notes,
     );
@@ -257,23 +257,23 @@ extension RatingMapper on Rating {
   }
 }
 
-extension TodoRuleMapper on TodoRule {
-  TodoRulesCompanion toCompanion() {
-    return TodoRulesCompanion(
+extension TaskRuleMapper on TaskRule {
+  TaskRulesCompanion toCompanion() {
+    return TaskRulesCompanion(
       componentId: Value<String>(componentId),
       id: Value<String>(id),
       isDeleted: Value<bool>(isDeleted),
       lastModified: Value<DateTime>(lastModified),
       name: Value<String>(name),
       notes: Value<String?>(notes),
-      priority: Value<TodoPriority>(priority),
+      priority: Value<TaskPriority>(priority),
     );
   }
 }
 
-extension TodoEntryMapper on TodoEntry {
-  TodoEntriesCompanion toCompanion() {
-    return TodoEntriesCompanion(
+extension TaskEntryMapper on TaskEntry {
+  TaskEntriesCompanion toCompanion() {
+    return TaskEntriesCompanion(
       id: Value<String>(id),
       isDeleted: Value<bool>(isDeleted),
       lastModified: Value<DateTime>(lastModified),
@@ -281,7 +281,7 @@ extension TodoEntryMapper on TodoEntry {
       notes: Value<String?>(notes),
       dateTimeUTC: Value<DateTime>(dateTimeUTC),
       dateTimeLocal: Value<DateTime>(dateTimeLocal),
-      todoRule: Value<String>(todoRule),
+      taskRule: Value<String>(taskRule),
     );
   }
 }

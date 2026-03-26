@@ -6,8 +6,8 @@ import "../../models/bike.dart";
 import "../../models/component.dart";
 import "../../models/setup.dart";
 import "../../models/rating.dart";
-import "../../models/todo_entry.dart";
-import "../../models/todo_rule.dart";
+import "../../models/task_entry.dart";
+import "../../models/task_rule.dart";
 import "../../repositories/app_repository.dart";
 import "../../models/selected_data.dart";
 import 'sheet.dart';
@@ -55,8 +55,8 @@ class _DataSelectFlowState extends State<DataSelectFlow> {
                   components: widget.allData.components,
                   setups: widget.allData.setups,
                   ratings: widget.allData.ratings,
-                  todoRules: widget.allData.todoRules,
-                  todoEntries: widget.allData.todoEntries,
+                  taskRules: widget.allData.taskRules,
+                  taskEntries: widget.allData.taskEntries,
                 ),
                 onBack: () => setState(() => isManualSelection = false),
                 onConfirm: (data) => Navigator.of(context).pop(data),
@@ -68,8 +68,8 @@ class _DataSelectFlowState extends State<DataSelectFlow> {
                   components: widget.allData.components,
                   setups: widget.allData.setups,
                   ratings: widget.allData.ratings,
-                  todoRules: widget.allData.todoRules,
-                  todoEntries: widget.allData.todoEntries,
+                  taskRules: widget.allData.taskRules,
+                  taskEntries: widget.allData.taskEntries,
                 )),
                 onManualSelected: () => setState(() => isManualSelection = true),
               ),
@@ -150,8 +150,8 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
   late final List<Setup> selectedSetups;
   late final List<Person> selectedPersons;
   late final List<Rating> selectedRatings;
-  late final List<TodoRule> selectedTodoRules;
-  late final List<TodoEntry> selectedTodoEntries;
+  late final List<TaskRule> selectedTaskRules;
+  late final List<TaskEntry> selectedTaskEntries;
 
   @override
   void initState() {
@@ -162,8 +162,8 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
     selectedSetups = widget.allData.setups.values.toList();
     selectedPersons = widget.allData.persons.values.toList();
     selectedRatings = widget.allData.ratings.values.toList();
-    selectedTodoRules = widget.allData.todoRules.values.toList();
-    selectedTodoEntries = widget.allData.todoEntries.values.toList();
+    selectedTaskRules = widget.allData.taskRules.values.toList();
+    selectedTaskEntries = widget.allData.taskEntries.values.toList();
   }
 
   Widget _bikeWidget(Bike bike) {
@@ -357,27 +357,27 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
     );
   }
 
-  Widget _todoRuleWidget(TodoRule todoRule) {
+  Widget _taskRuleWidget(TaskRule taskRule) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       child: CheckboxListTile(
         secondary: const Icon(Icons.check_box_outline_blank),
         title: Text(
-          todoRule.name,
+          taskRule.name,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            decoration: todoRule.isDeleted ? TextDecoration.lineThrough : null,
+            decoration: taskRule.isDeleted ? TextDecoration.lineThrough : null,
           ),
         ),
         //TODO: Add subtitle with filter
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         dense: true,
-        value: selectedTodoRules.contains(todoRule),
+        value: selectedTaskRules.contains(taskRule),
         onChanged: (bool? checked) {
           setState(() {
             if (checked == true) {
-              selectedTodoRules.add(todoRule);
+              selectedTaskRules.add(taskRule);
             } else {
-              selectedTodoRules.remove(todoRule);
+              selectedTaskRules.remove(taskRule);
             }
           });
         },
@@ -385,27 +385,27 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
     );
   }
 
-  Widget _todoEntryWidget(TodoEntry todoEntry) {
+  Widget _taskEntryWidget(TaskEntry taskEntry) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       child: CheckboxListTile(
         secondary: const Icon(Icons.check_box_outlined),
         title: Text(
-          todoEntry.name,
+          taskEntry.name,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            decoration: todoEntry.isDeleted ? TextDecoration.lineThrough : null,
+            decoration: taskEntry.isDeleted ? TextDecoration.lineThrough : null,
           ),
         ),
         //TODO: Add subtitle with rule
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         dense: true,
-        value: selectedTodoEntries.contains(todoEntry),
+        value: selectedTaskEntries.contains(taskEntry),
         onChanged: (bool? checked) {
           setState(() {
             if (checked == true) {
-              selectedTodoEntries.add(todoEntry);
+              selectedTaskEntries.add(taskEntry);
             } else {
-              selectedTodoEntries.remove(todoEntry);
+              selectedTaskEntries.remove(taskEntry);
             }
           });
         },
@@ -557,10 +557,10 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                       children: widget.allData.ratings.values.map((r) => _ratingWidget(r)).toList(),
                     ),
                   ],
-                  if (appSettings.enableTodo || widget.allData.todoRules.isNotEmpty) ... [
+                  if (appSettings.enableTask || widget.allData.taskRules.isNotEmpty) ... [
                     const SizedBox(height: 16),
                     ExpansionTile(
-                      title: Text("Todos (${selectedTodoRules.length} / ${widget.allData.todoRules.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      title: Text("Tasks (${selectedTaskRules.length} / ${widget.allData.taskRules.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                       tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
                       controlAffinity: ListTileControlAffinity.leading,
                       childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -568,24 +568,24 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                       collapsedShape: const Border(),
                       trailing: Checkbox(
                         tristate: true,
-                        value: selectedTodoRules.isEmpty && widget.allData.todoRules.isNotEmpty
+                        value: selectedTaskRules.isEmpty && widget.allData.taskRules.isNotEmpty
                             ? false 
-                            : (selectedTodoRules.length == widget.allData.todoRules.length ? true : null),
+                            : (selectedTaskRules.length == widget.allData.taskRules.length ? true : null),
                         onChanged: (bool? newValue) {
                           switch (newValue) {
-                            case false: setState(() => selectedTodoRules.clear());
-                            case true: setState(() {selectedTodoRules.clear(); selectedTodoRules.addAll(widget.allData.todoRules.values);});
-                            case null: setState(() => selectedTodoRules.clear());
+                            case false: setState(() => selectedTaskRules.clear());
+                            case true: setState(() {selectedTaskRules.clear(); selectedTaskRules.addAll(widget.allData.taskRules.values);});
+                            case null: setState(() => selectedTaskRules.clear());
                           }
                         },
                       ),
-                      children: widget.allData.todoRules.values.map((tr) => _todoRuleWidget(tr)).toList(),
+                      children: widget.allData.taskRules.values.map((tr) => _taskRuleWidget(tr)).toList(),
                     ),
                   ],
-                  if (appSettings.enableTodo || widget.allData.todoEntries.isNotEmpty) ...[
+                  if (appSettings.enableTask || widget.allData.taskEntries.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     ExpansionTile(
-                      title: Text("Todo Entries (${selectedTodoEntries.length} / ${widget.allData.todoEntries.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      title: Text("Task Entries (${selectedTaskEntries.length} / ${widget.allData.taskEntries.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                       tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
                       controlAffinity: ListTileControlAffinity.leading,
                       childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
@@ -593,18 +593,18 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                       collapsedShape: const Border(),
                       trailing: Checkbox(
                         tristate: true,
-                        value: selectedTodoEntries.isEmpty && widget.allData.todoEntries.isNotEmpty
+                        value: selectedTaskEntries.isEmpty && widget.allData.taskEntries.isNotEmpty
                             ? false 
-                            : (selectedTodoEntries.length == widget.allData.todoEntries.length ? true : null),
+                            : (selectedTaskEntries.length == widget.allData.taskEntries.length ? true : null),
                         onChanged: (bool? newValue) {
                           switch (newValue) {
-                            case false: setState(() => selectedTodoEntries.clear());
-                            case true: setState(() {selectedTodoEntries.clear(); selectedTodoEntries.addAll(widget.allData.todoEntries.values);});
-                            case null: setState(() => selectedTodoEntries.clear());
+                            case false: setState(() => selectedTaskEntries.clear());
+                            case true: setState(() {selectedTaskEntries.clear(); selectedTaskEntries.addAll(widget.allData.taskEntries.values);});
+                            case null: setState(() => selectedTaskEntries.clear());
                           }
                         },
                       ),
-                      children: widget.allData.todoEntries.values.map((te) => _todoEntryWidget(te)).toList(),
+                      children: widget.allData.taskEntries.values.map((te) => _taskEntryWidget(te)).toList(),
                     ),
                   ],
                 ],
@@ -623,8 +623,8 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                   components: <String, Component>{for (var item in selectedComponents) item.id: item},
                   setups: <String, Setup>{for (var item in selectedSetups) item.id: item},
                   ratings: <String, Rating>{for (var item in selectedRatings) item.id: item},
-                  todoRules: <String, TodoRule>{for (var item in selectedTodoRules) item.id: item},
-                  todoEntries: <String, TodoEntry>{for (var item in selectedTodoEntries) item.id: item}
+                  taskRules: <String, TaskRule>{for (var item in selectedTaskRules) item.id: item},
+                  taskEntries: <String, TaskEntry>{for (var item in selectedTaskEntries) item.id: item}
                 );
                 widget.onConfirm(selectedData);
               },

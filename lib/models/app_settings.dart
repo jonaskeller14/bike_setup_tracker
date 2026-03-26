@@ -18,7 +18,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableSetupTags = false;
   bool _enableStrava = false;
   bool _enableGarage = true;
-  bool _enableTodo = false;
+  bool _enableTask = false;
   bool _enableInstallationTimeline = false;
 
   // Temporary Settings
@@ -29,7 +29,7 @@ class AppSettings extends ChangeNotifier {
   bool _displayShowSetups = true;
   bool _displayShowActivities = true;
   bool _displayShowInstallations = true;
-  bool _displayShowTodos = true;
+  bool _displayShowTasks = true;
 
   bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;
@@ -46,7 +46,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableSetupTags => _enableSetupTags;
   bool get enableStrava => _enableStrava;
   bool get enableGarage => _enableGarage;
-  bool get enableTodo => _enableTodo;
+  bool get enableTask => _enableTask;
   bool get enableInstallationTimeline => _enableInstallationTimeline;
 
   // Temporary Settings
@@ -57,7 +57,7 @@ class AppSettings extends ChangeNotifier {
   bool get displayShowSetups => _displayShowSetups;
   bool get displayShowActivities => _displayShowActivities;
   bool get displayShowInstallations => _displayShowInstallations;
-  bool get displayShowTodos => _displayShowTodos;
+  bool get displayShowTasks => _displayShowTasks;
 
   set showOnboarding(bool newShowOnboarding) {
     if (_showOnboarding == newShowOnboarding) return;
@@ -164,9 +164,9 @@ class AppSettings extends ChangeNotifier {
     saveAppSettings();
   }
 
-  set enableTodo(bool newValue) {
-    if (newValue == _enableTodo) return;
-    _enableTodo = newValue;
+  set enableTask(bool newValue) {
+    if (newValue == _enableTask) return;
+    _enableTask = newValue;
     notifyListeners();
     saveAppSettings();
   }
@@ -220,9 +220,9 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
   }
 
-  set displayShowTodos(bool newValue) {
-    if (newValue == _displayShowTodos) return;
-    _displayShowTodos = newValue;
+  set displayShowTasks(bool newValue) {
+    if (newValue == _displayShowTasks) return;
+    _displayShowTasks = newValue;
     notifyListeners();
   }
 

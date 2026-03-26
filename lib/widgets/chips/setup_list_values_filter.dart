@@ -18,7 +18,7 @@ class SetupListDisplayFilterChip extends StatelessWidget {
         !appSettings.displayShowSetups ||
         (appSettings.enableStrava && !appSettings.displayShowActivities) ||
         (appSettings.enableInstallationTimeline && !appSettings.displayShowInstallations) ||
-        (appSettings.enableTodo && !appSettings.displayShowTodos);
+        (appSettings.enableTask && !appSettings.displayShowTasks);
 
     return FilterChip(
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, // Removes the 48px constraint
@@ -38,7 +38,7 @@ class SetupListDisplayFilterChip extends StatelessWidget {
               appSettings.displayShowSetups = true;
               appSettings.displayShowActivities = true;
               appSettings.displayShowInstallations = true;
-              appSettings.displayShowTodos = true;
+              appSettings.displayShowTasks = true;
             }
           : null,
     );

@@ -12,13 +12,13 @@ import '../utils/component_actions.dart';
 import '../utils/person_actions.dart';
 import '../utils/rating_actions.dart';
 import '../utils/setup_actions.dart';
-import '../utils/todo_actions.dart';
+import '../utils/task_actions.dart';
 import '../widgets/lists/garage_list.dart';
 import '../widgets/strava_sync_button.dart';
 import 'trash_page.dart';
 import 'app_settings_page.dart';
 import 'about_page.dart';
-import '../widgets/lists/todo_list.dart';
+import '../widgets/lists/task_list.dart';
 import '../widgets/lists/person_list.dart';
 import '../widgets/lists/rating_list.dart';
 import '../widgets/lists/bike_list.dart';
@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     
-    _currentPageIndex = _currentPageIndex.clamp(0, (-1)+ (appSettings.enableGarage ? 1 : 2) + 1 + (appSettings.enablePerson ? 1 : 0) + (appSettings.enableRating ? 1: 0) + (appSettings.enableTodo ? 1 : 0));
+    _currentPageIndex = _currentPageIndex.clamp(0, (-1)+ (appSettings.enableGarage ? 1 : 2) + 1 + (appSettings.enablePerson ? 1 : 0) + (appSettings.enableRating ? 1: 0) + (appSettings.enableTask ? 1 : 0));
     return Scaffold(
       appBar: AppBar(
         leading: Padding(
@@ -72,8 +72,8 @@ class _HomePageState extends State<HomePage> {
             const Text("Profile"),
           if (appSettings.enableRating)
             const Text("Ratings"),
-          if (appSettings.enableTodo)
-            const Text("Todos"),
+          if (appSettings.enableTask)
+            const Text("Tasks"),
         ][_currentPageIndex],
         actions: [
           if (appSettings.enableStrava)
@@ -175,8 +175,8 @@ class _HomePageState extends State<HomePage> {
             const NavigationDestination(icon: Icon(Person.iconData), label: "Profile"),
           if (appSettings.enableRating)
             const NavigationDestination(icon: Icon(Rating.iconData), label: "Ratings"),
-          if (appSettings.enableTodo)
-            const NavigationDestination(icon: Icon(Icons.checklist), label: "Todos"), //FIXME: Display Badge with open Todo number
+          if (appSettings.enableTask)
+            const NavigationDestination(icon: Icon(Icons.checklist), label: "Tasks"), //FIXME: Display Badge with open Task number
         ],
       ),
       body: SafeArea(
@@ -192,8 +192,8 @@ class _HomePageState extends State<HomePage> {
             const PersonList(),
           if (appSettings.enableRating)
             const RatingList(),
-          if (appSettings.enableTodo)
-            const TodoList(),
+          if (appSettings.enableTask)
+            const TaskList(),
         ][_currentPageIndex],
       ),
       floatingActionButton: <Widget>[
@@ -238,11 +238,11 @@ class _HomePageState extends State<HomePage> {
             tooltip: 'Add Rating',
             child: const Icon(Icons.add),
           ),
-        if (appSettings.enableTodo)
+        if (appSettings.enableTask)
           FloatingActionButton(
-            heroTag: "addTodo",
-            onPressed: () async {TodoActions.addTodoRule(context);},
-            tooltip: 'Add Todo',
+            heroTag: "addTask",
+            onPressed: () async {TaskActions.addTaskRule(context);},
+            tooltip: 'Add Task',
             child: const Icon(Icons.add),
           ),
       ][_currentPageIndex],

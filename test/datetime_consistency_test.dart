@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/database/mappers.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
-import 'package:bike_setup_tracker/models/todo_entry.dart';
+import 'package:bike_setup_tracker/models/task_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 
@@ -81,33 +81,33 @@ void main() {
       expect(model.dateTimeUTC.isUtc, isTrue);
     });
 
-    test('TodoEntryDbMapper toModel enforces UTC', () {
-      final todoEntryDb = TodoEntryDb(
+    test('TaskEntryDbMapper toModel enforces UTC', () {
+      final taskEntryDb = TaskEntryDb(
         id: '1',
         isDeleted: false,
         lastModified: DateTime.now().toUtc(), // Simulate UtcDateTimeConverter
         name: 'Test',
         dateTimeUTC: DateTime.now().toUtc(), // Simulate UtcDateTimeConverter
         dateTimeLocal: DateTime.now(),
-        todoRule: 'rule1',
+        taskRule: 'rule1',
       );
 
-      final model = todoEntryDb.toModel();
+      final model = taskEntryDb.toModel();
       expect(model.dateTimeUTC.isUtc, isTrue);
       expect(model.lastModified.isUtc, isTrue);
     });
 
-    test('TodoEntry constructor enforces UTC', () {
+    test('TaskEntry constructor enforces UTC', () {
       final localTime = DateTime.now();
-      final todoEntry = TodoEntry(
+      final taskEntry = TaskEntry(
         name: 'Test',
         dateTimeUTC: localTime,
         dateTimeLocal: localTime,
-        todoRule: 'rule1',
+        taskRule: 'rule1',
       );
 
-      expect(todoEntry.dateTimeUTC.isUtc, isTrue);
-      expect(todoEntry.lastModified.isUtc, isTrue);
+      expect(taskEntry.dateTimeUTC.isUtc, isTrue);
+      expect(taskEntry.lastModified.isUtc, isTrue);
     });
 
     test('Installation constructor enforces UTC', () {

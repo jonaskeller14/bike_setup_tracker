@@ -62,11 +62,11 @@ class DatabaseMigrationService {
         ),
       );
 
-      // Todo Rules
+      // Task Rules
       batch.insertAllOnConflictUpdate(
-        db.todoRules,
-        data.todoRules.values.map(
-          (tr) => TodoRulesCompanion.insert(
+        db.taskRules,
+        data.taskRules.values.map(
+          (tr) => TaskRulesCompanion.insert(
             id: tr.id,
             componentId: tr.componentId,
             isDeleted: Value(tr.isDeleted),
@@ -128,11 +128,11 @@ class DatabaseMigrationService {
       // Level 2: Nested Objects (References Level 0 and Level 1)
       // -----------------------------------------------------------------------
 
-      // Todo Entries
+      // Task Entries
       batch.insertAllOnConflictUpdate(
-        db.todoEntries,
-        data.todoEntries.values.map(
-          (te) => TodoEntriesCompanion.insert(
+        db.taskEntries,
+        data.taskEntries.values.map(
+          (te) => TaskEntriesCompanion.insert(
             id: te.id,
             isDeleted: Value(te.isDeleted),
             lastModified: te.lastModified,
@@ -140,7 +140,7 @@ class DatabaseMigrationService {
             notes: Value(te.notes),
             dateTimeUTC: te.dateTimeUTC,
             dateTimeLocal: te.dateTimeLocal,
-            todoRule: te.todoRule,
+            taskRule: te.taskRule,
           ),
         ),
       );

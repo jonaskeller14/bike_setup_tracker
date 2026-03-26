@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../repositories/app_repository.dart';
-import '../../utils/todo_actions.dart';
+import '../../utils/task_actions.dart';
 
-class TodoRuleListCard extends StatelessWidget {
-  final String todoRuleId;
+class TaskRuleListCard extends StatelessWidget {
+  final String taskRuleId;
 
-  const TodoRuleListCard({super.key, required this.todoRuleId});
+  const TaskRuleListCard({super.key, required this.taskRuleId});
 
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
-    final todoRule = appRepository.todoRules[todoRuleId];
-    if (todoRule == null) return const SizedBox.shrink();
-    final component = appRepository.components[todoRule.componentId];
-    final value = appRepository.todoEntries.values.any((te) => te.todoRule == todoRule.id);
+    final taskRule = appRepository.taskRules[taskRuleId];
+    if (taskRule == null) return const SizedBox.shrink();
+    final component = appRepository.components[taskRule.componentId];
+    final value = appRepository.taskEntries.values.any((te) => te.taskRule == taskRule.id);
 
     return Opacity(
       opacity: value ? 0.5 : 1,
@@ -29,13 +29,13 @@ class TodoRuleListCard extends StatelessWidget {
             visualDensity: VisualDensity.compact,
             onChanged: value ? null : (bool? value) {
               HapticFeedback.lightImpact();
-              TodoActions.addTodoEntry(context, todoRule: todoRule);
+              TaskActions.addTaskEntry(context, taskRule: taskRule);
             },
           ),
           contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
           minTileHeight: 0,
           title: Text(
-            todoRule.name,
+            taskRule.name,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               decoration: value ? TextDecoration.lineThrough: null,
               decorationThickness: 2,
@@ -74,7 +74,7 @@ class TodoRuleListCard extends StatelessWidget {
                 children: [
                   Icon(Icons.traffic, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   Text(
-                    'Priority: ${todoRule.priority.label}',
+                    'Priority: ${taskRule.priority.label}',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                       fontSize: 13,
@@ -82,7 +82,7 @@ class TodoRuleListCard extends StatelessWidget {
                   ),
                 ],
               ),
-              if (todoRule.notes != null && todoRule.notes!.isNotEmpty)
+              if (taskRule.notes != null && taskRule.notes!.isNotEmpty)
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -97,7 +97,7 @@ class TodoRuleListCard extends StatelessWidget {
                     const SizedBox(width: 2),
                     Expanded(
                       child: Text(
-                        todoRule.notes!,
+                        taskRule.notes!,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                           fontSize: 13,
@@ -108,20 +108,20 @@ class TodoRuleListCard extends StatelessWidget {
                 ),            
             ],
           ),
-          trailing: PopupMenuButton<_TodoRuleOptions>(
-            onSelected: (_TodoRuleOptions value) {
+          trailing: PopupMenuButton<_TaskRuleOptions>(
+            onSelected: (_TaskRuleOptions value) {
               switch (value) {
-                case _TodoRuleOptions.edit:
-                  TodoActions.editTodoRule(context, todoRule: todoRule);
-                case _TodoRuleOptions.remove:
-                  TodoActions.removeTodoRule(context, todoRule: todoRule);
-                case _TodoRuleOptions.addEntry:
-                  TodoActions.addTodoEntry(context, todoRule: todoRule);
+                case _TaskRuleOptions.edit:
+                  TaskActions.editTaskRule(context, taskRule: taskRule);
+                case _TaskRuleOptions.remove:
+                  TaskActions.removeTaskRule(context, taskRule: taskRule);
+                case _TaskRuleOptions.addEntry:
+                  TaskActions.addTaskEntry(context, taskRule: taskRule);
               }
             },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<_TodoRuleOptions>>[
-              const PopupMenuItem<_TodoRuleOptions>(
-                value: _TodoRuleOptions.edit,
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<_TaskRuleOptions>>[
+              const PopupMenuItem<_TaskRuleOptions>(
+                value: _TaskRuleOptions.edit,
                 child: Row(
                   spacing: 10,
                   children: [
@@ -130,8 +130,8 @@ class TodoRuleListCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const PopupMenuItem<_TodoRuleOptions>(
-                value: _TodoRuleOptions.remove,
+              const PopupMenuItem<_TaskRuleOptions>(
+                value: _TaskRuleOptions.remove,
                 child: Row(
                   spacing: 10,
                   children: [
@@ -143,12 +143,12 @@ class TodoRuleListCard extends StatelessWidget {
               const PopupMenuDivider(),
               PopupMenuItem(
                 enabled: !value,
-                value: _TodoRuleOptions.addEntry,
+                value: _TaskRuleOptions.addEntry,
                 child: Row(
                   spacing: 10,
                   children: [
                     Icon(Icons.check, size: 20),
-                    Text('Add Todo Entry'),
+                    Text('Add Task Entry'),
                   ],
                 ),
               ),
@@ -160,7 +160,7 @@ class TodoRuleListCard extends StatelessWidget {
   }
 }
 
-enum _TodoRuleOptions {
+enum _TaskRuleOptions {
   edit,
   remove,
   addEntry,

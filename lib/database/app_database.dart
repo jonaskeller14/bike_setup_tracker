@@ -4,8 +4,8 @@ import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
-import 'tables/todo_rules.dart';
-import 'tables/todo_entries.dart';
+import 'tables/task_rules.dart';
+import 'tables/task_entries.dart';
 import 'tables/bikes.dart';
 import 'tables/components.dart';
 import 'tables/installations.dart';
@@ -24,11 +24,11 @@ import 'daos/components_dao.dart';
 import 'daos/setups_dao.dart';
 import 'daos/persons_dao.dart';
 import 'daos/ratings_dao.dart';
-import 'daos/todo_dao.dart';
+import 'daos/task_dao.dart';
 import 'daos/strava_dao.dart';
 
 // Import the App Models so that Drift generator can find the Enums
-import '../models/todo_rule.dart';
+import '../models/task_rule.dart';
 import '../models/component.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/rating.dart';
@@ -47,8 +47,8 @@ part 'app_database.g.dart';
 
 @DriftDatabase(
   tables: [
-    TodoRules,
-    TodoEntries,
+    TaskRules,
+    TaskEntries,
     Bikes,
     Components,
     Adjustments,
@@ -67,7 +67,7 @@ part 'app_database.g.dart';
     SetupsDao,
     PersonsDao,
     RatingsDao,
-    TodoDao,
+    TaskDao,
     StravaDao,
   ],
 )

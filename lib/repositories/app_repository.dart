@@ -13,8 +13,8 @@ import '../models/person.dart';
 import '../models/setup.dart';
 import '../models/installation.dart';
 import '../models/rating.dart';
-import '../models/todo_rule.dart';
-import '../models/todo_entry.dart';
+import '../models/task_rule.dart';
+import '../models/task_entry.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
@@ -41,8 +41,8 @@ class AppRepository extends ChangeNotifier {
   Map<String, Setup> _setups = {};
   Map<String, Component> _components = {};
   Map<String, Rating> _ratings = {};
-  Map<String, TodoRule> _todoRules = {};
-  Map<String, TodoEntry> _todoEntries = {};
+  Map<String, TaskRule> _taskRules = {};
+  Map<String, TaskEntry> _taskEntries = {};
   Map<int, StravaAthlete> _stravaAthletes = {};
   Map<int, StravaActivity> _stravaActivities = {};
   Map<String, StravaGear> _stravaGears = {};
@@ -100,8 +100,8 @@ class AppRepository extends ChangeNotifier {
   Map<String, Setup> get setups => _setups;
   Map<String, Component> get components => _components;
   Map<String, Rating> get ratings => _ratings;
-  Map<String, TodoRule> get todoRules => _todoRules;
-  Map<String, TodoEntry> get todoEntries => _todoEntries;
+  Map<String, TaskRule> get taskRules => _taskRules;
+  Map<String, TaskEntry> get taskEntries => _taskEntries;
   Map<int, StravaAthlete> get stravaAthletes => _stravaAthletes;
   Map<int, StravaActivity> get stravaActivities => _stravaActivities;
   Map<String, StravaGear> get stravaGears => _stravaGears;
@@ -114,8 +114,8 @@ class AppRepository extends ChangeNotifier {
       ..._setups.values.map((s) => s.lastModified),
       ..._components.values.map((c) => c.lastModified),
       ..._ratings.values.map((r) => r.lastModified),
-      ..._todoRules.values.map((tr) => tr.lastModified),
-      ..._todoEntries.values.map((te) => te.lastModified),
+      ..._taskRules.values.map((tr) => tr.lastModified),
+      ..._taskEntries.values.map((te) => te.lastModified),
     ].whereType<DateTime>();
 
     if (allDates.isEmpty) return DateTime.fromMillisecondsSinceEpoch(0);
@@ -139,8 +139,8 @@ class AppRepository extends ChangeNotifier {
   Map<String, Rating> _filteredRatings = {};
   Map<String, Component> _filteredComponents = {};
   Map<String, Setup> _filteredSetups = {};
-  Map<String, TodoRule> _filteredTodoRules = {};
-  Map<String, TodoEntry> _filteredTodoEntries = {};
+  Map<String, TaskRule> _filteredTaskRules = {};
+  Map<String, TaskEntry> _filteredTaskEntries = {};
   Map<int, StravaActivity> _filteredStravaActivities = {};
   List<ComponentInstallation> _filteredInstallations = [];
 
@@ -149,8 +149,8 @@ class AppRepository extends ChangeNotifier {
   Map<String, Rating> get filteredRatings => _filteredRatings;
   Map<String, Component> get filteredComponents => _filteredComponents;
   Map<String, Setup> get filteredSetups => _filteredSetups;
-  Map<String, TodoRule> get filteredTodoRules => _filteredTodoRules;
-  Map<String, TodoEntry> get filteredTodoEntries => _filteredTodoEntries;
+  Map<String, TaskRule> get filteredTaskRules => _filteredTaskRules;
+  Map<String, TaskEntry> get filteredTaskEntries => _filteredTaskEntries;
   Map<int, StravaActivity> get filteredStravaActivities => _filteredStravaActivities;
   List<ComponentInstallation> get filteredInstallations => _filteredInstallations;
 
@@ -162,16 +162,16 @@ class AppRepository extends ChangeNotifier {
   List<Component> _deletedComponents = [];
   List<Setup> _deletedSetups = [];
   List<Rating> _deletedRatings = [];
-  List<TodoRule> _deletedTodoRules = [];
-  List<TodoEntry> _deletedTodoEntries = [];
+  List<TaskRule> _deletedTaskRules = [];
+  List<TaskEntry> _deletedTaskEntries = [];
 
   List<Person> get deletedPersons => _deletedPersons;
   List<Bike> get deletedBikes => _deletedBikes;
   List<Component> get deletedComponents => _deletedComponents;
   List<Setup> get deletedSetups => _deletedSetups;
   List<Rating> get deletedRatings => _deletedRatings;
-  List<TodoRule> get deletedTodoRules => _deletedTodoRules;
-  List<TodoEntry> get deletedTodoEntries => _deletedTodoEntries;
+  List<TaskRule> get deletedTaskRules => _deletedTaskRules;
+  List<TaskEntry> get deletedTaskEntries => _deletedTaskEntries;
 
   // ---------------------------------------------------------------------------
   // INITIALIZATION AND STREAMS
@@ -223,13 +223,13 @@ class AppRepository extends ChangeNotifier {
       _dataChanged();
     }));
 
-    _subscriptions.add(database.todoDao.watchAllRules().listen((list) {
-      _todoRules = {for (var r in list) r.id: r.toModel()};
+    _subscriptions.add(database.taskDao.watchAllRules().listen((list) {
+      _taskRules = {for (var r in list) r.id: r.toModel()};
       _dataChanged();
     }));
 
-    _subscriptions.add(database.todoDao.watchAllEntries().listen((list) {
-      _todoEntries = {for (var e in list) e.id: e.toModel()};
+    _subscriptions.add(database.taskDao.watchAllEntries().listen((list) {
+      _taskEntries = {for (var e in list) e.id: e.toModel()};
       _dataChanged();
     }));
 
@@ -274,12 +274,12 @@ class AppRepository extends ChangeNotifier {
       _deletedRatings = list.map((r) => r.toModel(adjustments: [])).toList();
       _notifyIfActive();
     }));
-    _subscriptions.add(database.todoDao.watchDeletedRules().listen((list) {
-      _deletedTodoRules = list.map((tr) => tr.toModel()).toList();
+    _subscriptions.add(database.taskDao.watchDeletedRules().listen((list) {
+      _deletedTaskRules = list.map((tr) => tr.toModel()).toList();
       _notifyIfActive();
     }));
-    _subscriptions.add(database.todoDao.watchDeletedEntries().listen((list) {
-      _deletedTodoEntries = list.map((te) => te.toModel()).toList();
+    _subscriptions.add(database.taskDao.watchDeletedEntries().listen((list) {
+      _deletedTaskEntries = list.map((te) => te.toModel()).toList();
       _notifyIfActive();
     }));
   }
@@ -345,8 +345,8 @@ class AppRepository extends ChangeNotifier {
     _filterSetups();
     _filterPersons();
     _filterRatings();
-    _filterTodoRules();  // after _filterComponents()
-    _filterTodoEntries();  // after _filterTodoRules()
+    _filterTaskRules();  // after _filterComponents()
+    _filterTaskEntries();  // after _filterTaskRules()
     _filterStravaActivities();
     _filterInstallations();
   }
@@ -389,18 +389,18 @@ class AppRepository extends ChangeNotifier {
     }));
   }
 
-  void _filterTodoRules() {
-    _filteredTodoRules = Map.fromEntries(
-      todoRules.entries.where(
+  void _filterTaskRules() {
+    _filteredTaskRules = Map.fromEntries(
+      taskRules.entries.where(
         (entry) => _filteredComponents.containsKey(entry.value.componentId),
       ),
     );
   }
 
-  void _filterTodoEntries() {
-    _filteredTodoEntries = Map.fromEntries(
-      todoEntries.entries.where(
-        (entry) => _filteredTodoRules.containsKey(entry.value.todoRule),
+  void _filterTaskEntries() {
+    _filteredTaskEntries = Map.fromEntries(
+      taskEntries.entries.where(
+        (entry) => _filteredTaskRules.containsKey(entry.value.taskRule),
       ),
     );
   }
@@ -598,29 +598,29 @@ class AppRepository extends ChangeNotifier {
     }
   }
 
-  Future<void> removeTodoRules(Iterable<TodoRule> rules) async {
+  Future<void> removeTaskRules(Iterable<TaskRule> rules) async {
     for (var rule in rules) {
-      await database.todoDao.deleteRule(rule.id);
+      await database.taskDao.deleteRule(rule.id);
     }
   }
 
-  Future<void> restoreTodoRules(Iterable<TodoRule> rules) async {
+  Future<void> restoreTaskRules(Iterable<TaskRule> rules) async {
     for (var rule in rules) {
       final updated = rule.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-      await database.todoDao.updateRule(updated.toCompanion());
+      await database.taskDao.updateRule(updated.toCompanion());
     }
   }
 
-  Future<void> removeTodoEntries(Iterable<TodoEntry> entries) async {
+  Future<void> removeTaskEntries(Iterable<TaskEntry> entries) async {
     for (var entry in entries) {
-      await database.todoDao.deleteEntry(entry.id);
+      await database.taskDao.deleteEntry(entry.id);
     }
   }
 
-  Future<void> restoreTodoEntries(Iterable<TodoEntry> entries) async {
+  Future<void> restoreTaskEntries(Iterable<TaskEntry> entries) async {
     for (var entry in entries) {
       final updated = entry.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
-      await database.todoDao.updateEntry(updated.toCompanion());
+      await database.taskDao.updateEntry(updated.toCompanion());
     }
   }
 
@@ -649,24 +649,24 @@ class AppRepository extends ChangeNotifier {
     );
   }
 
-  Future<void> addTodoRule(TodoRule rule) async {
+  Future<void> addTaskRule(TaskRule rule) async {
     final updated = rule.copyWith(lastModified: DateTime.now().toUtc());
-    await database.todoDao.insertRule(updated.toCompanion());
+    await database.taskDao.insertRule(updated.toCompanion());
   }
 
-  Future<void> editTodoRule(TodoRule rule) async {
+  Future<void> editTaskRule(TaskRule rule) async {
     final updated = rule.copyWith(lastModified: DateTime.now().toUtc());
-    await database.todoDao.updateRule(updated.toCompanion());
+    await database.taskDao.updateRule(updated.toCompanion());
   }
 
-  Future<void> addTodoEntry(TodoEntry entry) async {
+  Future<void> addTaskEntry(TaskEntry entry) async {
     final updated = entry.copyWith(lastModified: DateTime.now().toUtc());
-    await database.todoDao.insertEntry(updated.toCompanion());
+    await database.taskDao.insertEntry(updated.toCompanion());
   }
 
-  Future<void> editTodoEntry(TodoEntry entry) async {
+  Future<void> editTaskEntry(TaskEntry entry) async {
     final updated = entry.copyWith(lastModified: DateTime.now().toUtc());
-    await database.todoDao.updateEntry(updated.toCompanion());
+    await database.taskDao.updateEntry(updated.toCompanion());
   }
 
   Future<void> addComponent(Component component) async {

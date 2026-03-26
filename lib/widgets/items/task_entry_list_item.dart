@@ -3,25 +3,25 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../repositories/app_repository.dart';
-import '../../utils/todo_actions.dart';
+import '../../utils/task_actions.dart';
 
-class TodoEntryListItem extends StatelessWidget {
-  final String todoEntryId;
+class TaskEntryListItem extends StatelessWidget {
+  final String taskEntryId;
 
-  const TodoEntryListItem({super.key, required this.todoEntryId});
+  const TaskEntryListItem({super.key, required this.taskEntryId});
 
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
-    final todoEntry = appRepository.todoEntries[todoEntryId];
-    if (todoEntry == null) return const SizedBox.shrink();
+    final taskEntry = appRepository.taskEntries[taskEntryId];
+    if (taskEntry == null) return const SizedBox.shrink();
 
-    final todoRules = appRepository.todoRules;
+    final taskRules = appRepository.taskRules;
 
     return ListTile(
       titleAlignment: ListTileTitleAlignment.top,
-      title: Text(todoEntry.name),
+      title: Text(taskEntry.name),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -37,7 +37,7 @@ class TodoEntryListItem extends StatelessWidget {
                 children: [
                   Icon(Icons.calendar_month, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   Text(
-                    DateFormat(appSettings.dateFormat).format(todoEntry.dateTimeLocal),
+                    DateFormat(appSettings.dateFormat).format(taskEntry.dateTimeLocal),
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                       fontSize: 12,
@@ -53,7 +53,7 @@ class TodoEntryListItem extends StatelessWidget {
                   Icon(Icons.access_time, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   Flexible(
                     child: Text(
-                      DateFormat(appSettings.timeFormat).format(todoEntry.dateTimeLocal),
+                      DateFormat(appSettings.timeFormat).format(taskEntry.dateTimeLocal),
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                         fontSize: 12,
@@ -70,15 +70,15 @@ class TodoEntryListItem extends StatelessWidget {
                   Icon(
                     Icons.check_box_outlined,
                     size: 12, 
-                    color: todoRules.containsKey(todoEntry.todoRule) 
+                    color: taskRules.containsKey(taskEntry.taskRule) 
                         ? Theme.of(context).colorScheme.onSurfaceVariant
                         : Theme.of(context).colorScheme.error,
                   ),
                   Flexible(
                     child: Text(
-                      todoRules[todoEntry.todoRule]?.name ?? "TODO NOT FOUND",
+                      taskRules[taskEntry.taskRule]?.name ?? "TASK NOT FOUND",
                       style: TextStyle(
-                        color: todoRules.containsKey(todoEntry.todoRule)
+                        color: taskRules.containsKey(taskEntry.taskRule)
                             ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
                             : Theme.of(context).colorScheme.error, 
                         fontSize: 12,
@@ -91,7 +91,7 @@ class TodoEntryListItem extends StatelessWidget {
               ),
             ],
           ),
-          if (todoEntry.notes != null && todoEntry.notes!.isNotEmpty)
+          if (taskEntry.notes != null && taskEntry.notes!.isNotEmpty)
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -106,7 +106,7 @@ class TodoEntryListItem extends StatelessWidget {
                 const SizedBox(width: 2),
                 Expanded(
                   child: Text(
-                    todoEntry.notes!,
+                    taskEntry.notes!,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                       fontSize: 12,
@@ -118,18 +118,18 @@ class TodoEntryListItem extends StatelessWidget {
         ],
       ),
       contentPadding: const EdgeInsets.only(left: 16, right: 16),
-      trailing: PopupMenuButton<_TodoEntryListCardPopupMenuButtonOptions>(
-        onSelected: (_TodoEntryListCardPopupMenuButtonOptions value) {
+      trailing: PopupMenuButton<_TaskEntryListCardPopupMenuButtonOptions>(
+        onSelected: (_TaskEntryListCardPopupMenuButtonOptions value) {
           switch (value) {
-            case _TodoEntryListCardPopupMenuButtonOptions.edit:
-              TodoActions.editTodoEntry(context, todoEntry: todoEntry);
-            case _TodoEntryListCardPopupMenuButtonOptions.remove:
-              TodoActions.removeTodoEntry(context, todoEntry: todoEntry);
+            case _TaskEntryListCardPopupMenuButtonOptions.edit:
+              TaskActions.editTaskEntry(context, taskEntry: taskEntry);
+            case _TaskEntryListCardPopupMenuButtonOptions.remove:
+              TaskActions.removeTaskEntry(context, taskEntry: taskEntry);
           }
         },
-        itemBuilder: (BuildContext context) => <PopupMenuEntry<_TodoEntryListCardPopupMenuButtonOptions>>[
-          const PopupMenuItem<_TodoEntryListCardPopupMenuButtonOptions>(
-            value: _TodoEntryListCardPopupMenuButtonOptions.edit,
+        itemBuilder: (BuildContext context) => <PopupMenuEntry<_TaskEntryListCardPopupMenuButtonOptions>>[
+          const PopupMenuItem<_TaskEntryListCardPopupMenuButtonOptions>(
+            value: _TaskEntryListCardPopupMenuButtonOptions.edit,
             child: Row(
               spacing: 10,
               children: [
@@ -138,8 +138,8 @@ class TodoEntryListItem extends StatelessWidget {
               ],
             )
           ),
-          const PopupMenuItem<_TodoEntryListCardPopupMenuButtonOptions>(
-            value: _TodoEntryListCardPopupMenuButtonOptions.remove,
+          const PopupMenuItem<_TaskEntryListCardPopupMenuButtonOptions>(
+            value: _TaskEntryListCardPopupMenuButtonOptions.remove,
             child: Row(
               spacing: 10,
               children: [
@@ -156,7 +156,7 @@ class TodoEntryListItem extends StatelessWidget {
   }
 }
 
-enum _TodoEntryListCardPopupMenuButtonOptions {
+enum _TaskEntryListCardPopupMenuButtonOptions {
   edit,
   remove,
 }

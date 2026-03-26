@@ -8,14 +8,14 @@ import '../models/component.dart';
 import '../models/setup.dart';
 import '../models/rating.dart';
 import '../models/app_settings.dart';
-import '../models/todo_entry.dart';
-import '../models/todo_rule.dart';
+import '../models/task_entry.dart';
+import '../models/task_rule.dart';
 import '../utils/bike_actions.dart';
 import '../utils/component_actions.dart';
 import '../utils/person_actions.dart';
 import '../utils/rating_actions.dart';
 import '../utils/setup_actions.dart';
-import '../utils/todo_actions.dart';
+import '../utils/task_actions.dart';
 
 class TrashPage extends StatelessWidget{
   const TrashPage({super.key});
@@ -46,8 +46,8 @@ class TrashPage extends StatelessWidget{
       ...appRepository.deletedComponents.map((c) => _ComponentTrashItem(c)),
       ...appRepository.deletedSetups.map((s) => _SetupTrashItem(s)),
       ...appRepository.deletedRatings.map((r) => _RatingTrashItem(r)),
-      ...appRepository.deletedTodoRules.map((tr) => _TodoRuleTrashItem(tr)),
-      ...appRepository.deletedTodoEntries.map((te) => _TodoEntryTrashItem(te)),
+      ...appRepository.deletedTaskRules.map((tr) => _TaskRuleTrashItem(tr)),
+      ...appRepository.deletedTaskEntries.map((te) => _TaskEntryTrashItem(te)),
     ];
 
     deletedCombined.sort((a, b) => b.lastModified.compareTo(a.lastModified));
@@ -172,26 +172,26 @@ class _RatingTrashItem extends _TrashItem {
   const _RatingTrashItem(this.rating);
 }
 
-class _TodoRuleTrashItem extends _TrashItem {
-  final TodoRule todoRule;
-  @override DateTime get lastModified => todoRule.lastModified;
+class _TaskRuleTrashItem extends _TrashItem {
+  final TaskRule taskRule;
+  @override DateTime get lastModified => taskRule.lastModified;
   @override IconData get iconData => Icons.check_box_outline_blank;
-  @override String get name => todoRule.name;
+  @override String get name => taskRule.name;
   @override
   void restore(BuildContext context) async {
-    await TodoActions.restoreTodoRule(context, todoRule: todoRule);
+    await TaskActions.restoreTaskRule(context, taskRule: taskRule);
   }
-  const _TodoRuleTrashItem(this.todoRule);
+  const _TaskRuleTrashItem(this.taskRule);
 }
 
-class _TodoEntryTrashItem extends _TrashItem {
-  final TodoEntry todoEntry;
-  @override DateTime get lastModified => todoEntry.lastModified;
+class _TaskEntryTrashItem extends _TrashItem {
+  final TaskEntry taskEntry;
+  @override DateTime get lastModified => taskEntry.lastModified;
   @override IconData get iconData => Icons.check_box_outlined;
-  @override String get name => todoEntry.name;
+  @override String get name => taskEntry.name;
   @override
   void restore(BuildContext context) async {
-    await TodoActions.restoreTodoEntry(context, todoEntry: todoEntry);
+    await TaskActions.restoreTaskEntry(context, taskEntry: taskEntry);
   }
-  const _TodoEntryTrashItem(this.todoEntry);
+  const _TaskEntryTrashItem(this.taskEntry);
 }

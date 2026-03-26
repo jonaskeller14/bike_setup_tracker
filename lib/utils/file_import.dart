@@ -130,11 +130,11 @@ class FileImport {
       await database.delete(database.stravaActivities).go();
       await database.delete(database.adjustments).go();
       await database.delete(database.installations).go();
-      await database.delete(database.todoEntries).go();
+      await database.delete(database.taskEntries).go();
       await database.delete(database.components).go();
       await database.delete(database.stravaGears).go();
       await database.delete(database.stravaAthletes).go();
-      await database.delete(database.todoRules).go();
+      await database.delete(database.taskRules).go();
       await database.delete(database.ratings).go();
       await database.delete(database.bikes).go();
       await database.delete(database.persons).go();
@@ -255,26 +255,26 @@ class FileImport {
       }
     }
 
-    for (final remoteTodoRule in remoteData.todoRules.values) {
-      final localTodoRule = localData.todoRules[remoteTodoRule.id];
-      if (localTodoRule == null) {
-        if (!remoteTodoRule.isDeleted) localData.todoRules[remoteTodoRule.id] = remoteTodoRule;
+    for (final remoteTaskRule in remoteData.taskRules.values) {
+      final localTaskRule = localData.taskRules[remoteTaskRule.id];
+      if (localTaskRule == null) {
+        if (!remoteTaskRule.isDeleted) localData.taskRules[remoteTaskRule.id] = remoteTaskRule;
         continue;
       }
-      if (remoteTodoRule.lastModified.isAfter(localTodoRule.lastModified)) {
-        localData.todoRules[remoteTodoRule.id] = remoteTodoRule;
+      if (remoteTaskRule.lastModified.isAfter(localTaskRule.lastModified)) {
+        localData.taskRules[remoteTaskRule.id] = remoteTaskRule;
         continue;
       }
     }
 
-    for (final remoteTodoEntry in remoteData.todoEntries.values) {
-      final localTodoEntry = localData.todoEntries[remoteTodoEntry.id];
-      if (localTodoEntry == null) {
-        if (!remoteTodoEntry.isDeleted) localData.todoEntries[remoteTodoEntry.id] = remoteTodoEntry;
+    for (final remoteTaskEntry in remoteData.taskEntries.values) {
+      final localTaskEntry = localData.taskEntries[remoteTaskEntry.id];
+      if (localTaskEntry == null) {
+        if (!remoteTaskEntry.isDeleted) localData.taskEntries[remoteTaskEntry.id] = remoteTaskEntry;
         continue;
       }
-      if (remoteTodoEntry.lastModified.isAfter(localTodoEntry.lastModified)) {
-        localData.todoEntries[remoteTodoEntry.id] = remoteTodoEntry;
+      if (remoteTaskEntry.lastModified.isAfter(localTaskEntry.lastModified)) {
+        localData.taskEntries[remoteTaskEntry.id] = remoteTaskEntry;
         continue;
       }
     }
@@ -317,8 +317,8 @@ class FileImport {
     data.bikes.removeWhere((_, b) => b.isDeleted && b.lastModified.isBefore(deleteDateTime));
     data.components.removeWhere((_, c) => c.isDeleted && c.lastModified.isBefore(deleteDateTime));
     data.setups.removeWhere((_, s) => s.isDeleted && s.lastModified.isBefore(deleteDateTime));
-    data.todoRules.removeWhere((_, tr) => tr.isDeleted && tr.lastModified.isBefore(deleteDateTime));
-    data.todoEntries.removeWhere((_, te) => te.isDeleted && te.lastModified.isBefore(deleteDateTime));
+    data.taskRules.removeWhere((_, tr) => tr.isDeleted && tr.lastModified.isBefore(deleteDateTime));
+    data.taskEntries.removeWhere((_, te) => te.isDeleted && te.lastModified.isBefore(deleteDateTime));
   }
 }
 

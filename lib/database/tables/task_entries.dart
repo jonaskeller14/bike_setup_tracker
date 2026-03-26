@@ -1,9 +1,9 @@
 import 'package:drift/drift.dart';
 import '../converters/utc_datetime_converter.dart';
-import 'todo_rules.dart';
+import 'task_rules.dart';
 
-@DataClassName('TodoEntryDb')
-class TodoEntries extends Table {
+@DataClassName('TaskEntryDb')
+class TaskEntries extends Table {
   TextColumn get id => text()();
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   DateTimeColumn get lastModified => dateTime().map(const UtcDateTimeConverter())();
@@ -11,7 +11,7 @@ class TodoEntries extends Table {
   TextColumn get notes => text().nullable()();
   DateTimeColumn get dateTimeUTC => dateTime().map(const UtcDateTimeConverter())();
   DateTimeColumn get dateTimeLocal => dateTime()();
-  TextColumn get todoRule => text().references(TodoRules, #id, onDelete: KeyAction.cascade)();
+  TextColumn get taskRule => text().references(TaskRules, #id, onDelete: KeyAction.cascade)();
 
   @override
   Set<Column> get primaryKey => {id};

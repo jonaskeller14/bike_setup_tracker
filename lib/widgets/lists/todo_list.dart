@@ -32,19 +32,36 @@ class TodoList extends StatelessWidget {
     final appRepository = context.watch<AppRepository>();
     final todoRules = appRepository.filteredTodoRules.values.toList();
     
-    return todoRules.isEmpty
-        ? _emptyPlaceholder(context)
-        : ListView.builder(
-          padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
-            itemCount: todoRules.length + 1,
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                return TodoListFilterWidget();
-              }
+    if (todoRules.isEmpty) {
+      return _emptyPlaceholder(context);
+    }
 
-              final rule = todoRules[index-1];
-              return TodoRuleListCard(todoRuleId: rule.id);
-            },
-          );
+    final openRules = todoRules.where((r) => !appRepository.todoEntries.values.any((te) => te.todoRule == r.id)).toList();
+    final completedRules = todoRules.where((r) => appRepository.todoEntries.values.any((te) => te.todoRule == r.id)).toList();
+
+    // Sort by lastModified descending to show newest/most recently changed first
+    openRules.sort((a, b) => b.lastModified.compareTo(a.lastModified));
+    completedRules.sort((a, b) => b.lastModified.compareTo(a.lastModified));
+
+    return ListView.builder(
+      padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16 + 100),
+      itemCount: openRules.length + (completedRules.isNotEmpty ? completedRules.length + 2 : 1),
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return TodoListFilterWidget();
+        }
+
+        if (index <= openRules.length) {
+          return TodoRuleListCard(todoRuleId: openRules[index - 1].id);
+        }
+
+        final completedIndex = index - openRules.length - 1;
+        if (completedIndex == 0) {
+          return const Divider(height: 32);
+        }
+
+        return TodoRuleListCard(todoRuleId: completedRules[completedIndex - 1].id);
+      },
+    );
   }
 }

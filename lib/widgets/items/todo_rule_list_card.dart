@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/todo_actions.dart';
@@ -14,17 +15,29 @@ class TodoRuleListCard extends StatelessWidget {
     final todoRule = appRepository.todoRules[todoRuleId];
     if (todoRule == null) return const SizedBox.shrink();
     final component = appRepository.components[todoRule.componentId];
+    final value = appRepository.todoEntries.values.any((te) => te.todoRule == todoRule.id);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       clipBehavior: Clip.antiAlias, // Borderradius for InkWell,
       child: ListTile(
+        leading: Checkbox(
+          value: value,
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          visualDensity: VisualDensity.compact,
+          onChanged: value ? null : (bool? value) {
+            HapticFeedback.lightImpact();
+            TodoActions.addTodoEntry(context, todoRule: todoRule);
+          },
+        ),
         contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
         minTileHeight: 0,
-        titleAlignment: ListTileTitleAlignment.top,
         title: Text(
           todoRule.name,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            decoration: value ? TextDecoration.lineThrough: null,
+            decorationThickness: 2,
+          ),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -121,11 +121,6 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
         }
         for (int i = 0; i < _installations.length; i++) {
           final current = _installations[i];
-          final isFromBeginning = current.dateTimeUTC.millisecondsSinceEpoch == 0;
-
-          if (isFromBeginning && current.parent == null) {
-            return '"From beginning" entries must be associated with a bike';
-          }
 
           if (i < _installations.length - 1) {
             final next = _installations[i + 1];

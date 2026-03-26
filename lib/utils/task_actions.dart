@@ -36,7 +36,7 @@ class TaskActions {
 
     final newRule = await Navigator.push<TaskRule>(
       context,
-      MaterialPageRoute(builder: (context) => TaskRulePage.edit(taskRule: taskRule.deepCopy())),
+      MaterialPageRoute(builder: (context) => TaskRulePage.duplicate(taskRule: taskRule.deepCopy())),
     );
     if (newRule == null) return;
 

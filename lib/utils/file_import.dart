@@ -112,7 +112,7 @@ class FileImport {
     required AppDatabase database,
   }) async {
     // 1. Fetch current DB state into memory
-    final localJson = await DataExportService.backupDatabaseToJson(database);
+    final localJson = await DataExportService.backupDatabaseToJson(database, includeStrava: true);
     final localData = SelectedData.fromJson(localJson);
 
     // 2. Perform merge in memory
@@ -275,18 +275,6 @@ class FileImport {
       }
       if (remoteTaskEntry.lastModified.isAfter(localTaskEntry.lastModified)) {
         localData.taskEntries[remoteTaskEntry.id] = remoteTaskEntry;
-        continue;
-      }
-    }
-
-    for (final remoteStravaActivity in remoteData.stravaActivities.values) {
-      final localStravaActivity = localData.stravaActivities[remoteStravaActivity.id];
-      if (localStravaActivity == null) {
-        localData.stravaActivities[remoteStravaActivity.id] = remoteStravaActivity;
-        continue;
-      }
-      if (remoteStravaActivity.lastModified.isAfter(localStravaActivity.lastModified)) {
-        localData.stravaActivities[remoteStravaActivity.id] = remoteStravaActivity;
         continue;
       }
     }

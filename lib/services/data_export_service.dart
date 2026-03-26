@@ -8,6 +8,7 @@ class DataExportService {
   static Future<Map<String, dynamic>> backupDatabaseToJson(
     AppDatabase database, {
     SelectedData? subset,
+    bool includeStrava = false,
   }) async {
     final bikes = await database.bikesDao.getAllBikesBypass();
     final components = await database.componentsDao.getAllComponentsWithDataBypass();
@@ -18,10 +19,10 @@ class DataExportService {
     final taskRules = await database.taskDao.getAllRulesBypass();
     final taskEntries = await database.taskDao.getAllEntriesBypass();
     
-    final athletes = await database.stravaDao.getAllAthletesBypass();
-    final gears = await database.stravaDao.getAllGearsBypass();
-    final activities = await database.stravaDao.getAllActivitiesBypass();
-
+    final athletes = includeStrava ? await database.stravaDao.getAllAthletesBypass() : <StravaAthleteDb>[];
+    final gears = includeStrava ? await database.stravaDao.getAllGearsBypass() : <StravaGearDb>[];
+    final activities = includeStrava ? await database.stravaDao.getAllActivitiesBypass() : <StravaActivityDb>[];
+    
     return {
       'persons': persons
           .where((p) => subset == null || subset.persons.containsKey(p.person.id))
@@ -54,9 +55,11 @@ class DataExportService {
           .toList(),
       'taskRules': taskRules.map((tr) => tr.toModel().toJson()).toList(),
       'taskEntries': taskEntries.map((te) => te.toModel().toJson()).toList(),
-      'stravaAthletes': athletes.map((a) => a.toModel().toJson()).toList(),
-      'stravaGears': gears.map((g) => g.toModel().toJson()).toList(),
-      'stravaActivities': activities.map((a) => a.toModel().toJson()).toList(),
+      if (includeStrava) ...{
+        'stravaAthletes': athletes.map((a) => a.toModel().toJson()).toList(),
+        'stravaGears': gears.map((g) => g.toModel().toJson()).toList(),
+        'stravaActivities': activities.map((a) => a.toModel().toJson()).toList(),
+      },
     };
   }
 }

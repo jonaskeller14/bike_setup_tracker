@@ -6,6 +6,8 @@ import "../../models/bike.dart";
 import "../../models/component.dart";
 import "../../models/setup.dart";
 import "../../models/rating.dart";
+import "../../models/todo_entry.dart";
+import "../../models/todo_rule.dart";
 import "../../repositories/app_repository.dart";
 import "../../models/selected_data.dart";
 import 'sheet.dart';
@@ -53,6 +55,8 @@ class _DataSelectFlowState extends State<DataSelectFlow> {
                   components: widget.allData.components,
                   setups: widget.allData.setups,
                   ratings: widget.allData.ratings,
+                  todoRules: widget.allData.todoRules,
+                  todoEntries: widget.allData.todoEntries,
                 ),
                 onBack: () => setState(() => isManualSelection = false),
                 onConfirm: (data) => Navigator.of(context).pop(data),
@@ -64,6 +68,8 @@ class _DataSelectFlowState extends State<DataSelectFlow> {
                   components: widget.allData.components,
                   setups: widget.allData.setups,
                   ratings: widget.allData.ratings,
+                  todoRules: widget.allData.todoRules,
+                  todoEntries: widget.allData.todoEntries,
                 )),
                 onManualSelected: () => setState(() => isManualSelection = true),
               ),
@@ -144,6 +150,8 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
   late final List<Setup> selectedSetups;
   late final List<Person> selectedPersons;
   late final List<Rating> selectedRatings;
+  late final List<TodoRule> selectedTodoRules;
+  late final List<TodoEntry> selectedTodoEntries;
 
   @override
   void initState() {
@@ -154,10 +162,261 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
     selectedSetups = widget.allData.setups.values.toList();
     selectedPersons = widget.allData.persons.values.toList();
     selectedRatings = widget.allData.ratings.values.toList();
+    selectedTodoRules = widget.allData.todoRules.values.toList();
+    selectedTodoEntries = widget.allData.todoEntries.values.toList();
+  }
+
+  Widget _bikeWidget(Bike bike) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4.0),
+      child: CheckboxListTile(
+        secondary: const Icon(Bike.iconData),
+        title: Text(
+          bike.name,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            decoration: bike.isDeleted ? TextDecoration.lineThrough : null,
+          ),
+        ),
+        //TODO: Add Person subtitle
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        dense: true,
+        value: selectedBikes.contains(bike),
+        onChanged: (bool? checked) {
+          setState(() {
+            if (checked == true) {
+              selectedBikes.add(bike);
+            } else {
+              selectedBikes.remove(bike);
+            }
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _componentWidget(Component component) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4.0),
+      child: CheckboxListTile(
+        secondary: Icon(component.componentType.getIconData()),
+        title: Text(
+          component.name,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            decoration: component.isDeleted ? TextDecoration.lineThrough : null,
+          ),
+        ),
+        subtitle: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 2,
+          children: [
+            Icon(component.bike != null 
+                ? Bike.iconData 
+                : Icons.shelves, 
+              size: 13, 
+              color: component.bike == null || widget.allData.bikes.containsKey(component.bike) 
+                  ? Theme.of(context).colorScheme.onSurfaceVariant
+                  : Theme.of(context).colorScheme.error,
+            ),
+            Flexible(
+              child: Text(
+                component.bike == null 
+                    ? "Not installed" 
+                    : widget.allData.bikes[component.bike]?.name ?? "BIKE NOT FOUND",
+                style: TextStyle(
+                  color: component.bike == null || widget.allData.bikes.containsKey(component.bike) 
+                      ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                      : Theme.of(context).colorScheme.error,
+                  fontSize: 13,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+          ],
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        dense: true,
+        value: selectedComponents.contains(component),
+        onChanged: (bool? checked) {
+          setState(() {
+            if (checked == true) {
+              selectedComponents.add(component);
+            } else {
+              selectedComponents.remove(component);
+            }
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _setupWidget(Setup setup) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4.0),
+      child: CheckboxListTile(
+        secondary: const Icon(Setup.iconData),
+        title: Text(
+          setup.name,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            decoration: setup.isDeleted ? TextDecoration.lineThrough : null,
+          ),
+        ),
+        subtitle: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 2,
+          children: [
+            Icon(Bike.iconData, 
+              size: 13, 
+              color: widget.allData.bikes.containsKey(setup.bike)
+                  ? Theme.of(context).colorScheme.onSurfaceVariant
+                  : Theme.of(context).colorScheme.error,
+            ),
+            Flexible(
+              child: Text(
+                widget.allData.bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
+                style: TextStyle(
+                  color: widget.allData.bikes.containsKey(setup.bike) 
+                      ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                      : Theme.of(context).colorScheme.error,
+                  fontSize: 13,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+          ],
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        dense: true,
+        value: selectedSetups.contains(setup),
+        onChanged: (bool? checked) {
+          setState(() {
+            if (checked == true) {
+              selectedSetups.add(setup);
+            } else {
+              selectedSetups.remove(setup);
+            }
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _personWidget(Person person) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4.0),
+      child: CheckboxListTile(
+        secondary: const Icon(Person.iconData),
+        title: Text(
+          person.name,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            decoration: person.isDeleted ? TextDecoration.lineThrough : null,
+          ),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        dense: true,
+        value: selectedPersons.contains(person),
+        onChanged: (bool? checked) {
+          setState(() {
+            if (checked == true) {
+              selectedPersons.add(person);
+            } else {
+              selectedPersons.remove(person);
+            }
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _ratingWidget(Rating rating) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4.0),
+      child: CheckboxListTile(
+        secondary: const Icon(Rating.iconData),
+        title: Text(
+          rating.name,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            decoration: rating.isDeleted ? TextDecoration.lineThrough : null,
+          ),
+        ),
+        //TODO: Add subtitle with filter
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        dense: true,
+        value: selectedRatings.contains(rating),
+        onChanged: (bool? checked) {
+          setState(() {
+            if (checked == true) {
+              selectedRatings.add(rating);
+            } else {
+              selectedRatings.remove(rating);
+            }
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _todoRuleWidget(TodoRule todoRule) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4.0),
+      child: CheckboxListTile(
+        secondary: const Icon(Icons.check_box_outline_blank),
+        title: Text(
+          todoRule.name,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            decoration: todoRule.isDeleted ? TextDecoration.lineThrough : null,
+          ),
+        ),
+        //TODO: Add subtitle with filter
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        dense: true,
+        value: selectedTodoRules.contains(todoRule),
+        onChanged: (bool? checked) {
+          setState(() {
+            if (checked == true) {
+              selectedTodoRules.add(todoRule);
+            } else {
+              selectedTodoRules.remove(todoRule);
+            }
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _todoEntryWidget(TodoEntry todoEntry) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4.0),
+      child: CheckboxListTile(
+        secondary: const Icon(Icons.check_box_outlined),
+        title: Text(
+          todoEntry.name,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            decoration: todoEntry.isDeleted ? TextDecoration.lineThrough : null,
+          ),
+        ),
+        //TODO: Add subtitle with rule
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        dense: true,
+        value: selectedTodoEntries.contains(todoEntry),
+        onChanged: (bool? checked) {
+          setState(() {
+            if (checked == true) {
+              selectedTodoEntries.add(todoEntry);
+            } else {
+              selectedTodoEntries.remove(todoEntry);
+            }
+          });
+        },
+      ),
+    );
   }
   
   @override
   Widget build(BuildContext context) {
+    final appSettings = context.watch<AppSettings>();
+
     return SafeArea(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -200,33 +459,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                         }
                       },
                     ),
-                    children: widget.allData.bikes.values.map((bike) {
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 4.0),
-                        child: CheckboxListTile(
-                          secondary: const Icon(Bike.iconData),
-                          title: Text(
-                            bike.name,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              decoration: bike.isDeleted ? TextDecoration.lineThrough : null,
-                            ),
-                          ),
-                          //TODO: Add Person subtitle
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          dense: true,
-                          value: selectedBikes.contains(bike),
-                          onChanged: (bool? checked) {
-                            setState(() {
-                              if (checked == true) {
-                                selectedBikes.add(bike);
-                              } else {
-                                selectedBikes.remove(bike);
-                              }
-                            });
-                          },
-                        ),
-                      );
-                    }).toList(),
+                    children: widget.allData.bikes.values.map((b) => _bikeWidget(b)).toList(),
                   ),
                   const SizedBox(height: 16),
                   ExpansionTile(
@@ -249,61 +482,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                         }
                       },
                     ),
-                    children: widget.allData.components.values.map((component) {
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 4.0),
-                        child: CheckboxListTile(
-                          secondary: Icon(component.componentType.getIconData()),
-                          title: Text(
-                            component.name,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              decoration: component.isDeleted ? TextDecoration.lineThrough : null,
-                            ),
-                          ),
-                          subtitle: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            spacing: 2,
-                            children: [
-                              Icon(component.bike != null 
-                                  ? Bike.iconData 
-                                  : Icons.shelves, 
-                                size: 13, 
-                                color: component.bike == null || widget.allData.bikes.containsKey(component.bike) 
-                                    ? Theme.of(context).colorScheme.onSurfaceVariant
-                                    : Theme.of(context).colorScheme.error,
-                              ),
-                              Flexible(
-                                child: Text(
-                                  component.bike == null 
-                                      ? "Not installed" 
-                                      : widget.allData.bikes[component.bike]?.name ?? "BIKE NOT FOUND",
-                                  style: TextStyle(
-                                    color: component.bike == null || widget.allData.bikes.containsKey(component.bike) 
-                                        ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                                        : Theme.of(context).colorScheme.error,
-                                    fontSize: 13,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
-                              ),
-                            ],
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          dense: true,
-                          value: selectedComponents.contains(component),
-                          onChanged: (bool? checked) {
-                            setState(() {
-                              if (checked == true) {
-                                selectedComponents.add(component);
-                              } else {
-                                selectedComponents.remove(component);
-                              }
-                            });
-                          },
-                        ),
-                      );
-                    }).toList(),
+                    children: widget.allData.components.values.map((c) => _componentWidget(c)).toList(),
                   ),
                   const SizedBox(height: 16),
                   ExpansionTile(
@@ -326,59 +505,9 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                         }
                       },
                     ),
-                    children: widget.allData.setups.values.toList().reversed.map((setup) {
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 4.0),
-                        child: CheckboxListTile(
-                          secondary: const Icon(Setup.iconData),
-                          title: Text(
-                            setup.name,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              decoration: setup.isDeleted ? TextDecoration.lineThrough : null,
-                            ),
-                          ),
-                          subtitle: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            spacing: 2,
-                            children: [
-                              Icon(Bike.iconData, 
-                                size: 13, 
-                                color: widget.allData.bikes.containsKey(setup.bike)
-                                    ? Theme.of(context).colorScheme.onSurfaceVariant
-                                    : Theme.of(context).colorScheme.error,
-                              ),
-                              Flexible(
-                                child: Text(
-                                  widget.allData.bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
-                                  style: TextStyle(
-                                    color: widget.allData.bikes.containsKey(setup.bike) 
-                                        ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                                        : Theme.of(context).colorScheme.error,
-                                    fontSize: 13,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
-                              ),
-                            ],
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          dense: true,
-                          value: selectedSetups.contains(setup),
-                          onChanged: (bool? checked) {
-                            setState(() {
-                              if (checked == true) {
-                                selectedSetups.add(setup);
-                              } else {
-                                selectedSetups.remove(setup);
-                              }
-                            });
-                          },
-                        ),
-                      );
-                    }).toList(),
+                    children: widget.allData.setups.values.toList().reversed.map((s) => _setupWidget(s)).toList(),
                   ),
-                  if (context.read<AppSettings>().enablePerson || widget.allData.persons.isNotEmpty) ...[
+                  if (appSettings.enablePerson || widget.allData.persons.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     ExpansionTile(
                       title: Text("Profiles (${selectedPersons.length} / ${widget.allData.persons.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
@@ -400,35 +529,10 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                           }
                         },
                       ),
-                      children: widget.allData.persons.values.map((person) {
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: CheckboxListTile(
-                            secondary: const Icon(Person.iconData),
-                            title: Text(
-                              person.name,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                decoration: person.isDeleted ? TextDecoration.lineThrough : null,
-                              ),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            dense: true,
-                            value: selectedPersons.contains(person),
-                            onChanged: (bool? checked) {
-                              setState(() {
-                                if (checked == true) {
-                                  selectedPersons.add(person);
-                                } else {
-                                  selectedPersons.remove(person);
-                                }
-                              });
-                            },
-                          ),
-                        );
-                      }).toList(),
+                      children: widget.allData.persons.values.map((p) => _personWidget(p)).toList(),
                     ),
                   ],
-                  if (context.read<AppSettings>().enableRating || widget.allData.ratings.isNotEmpty) ...[
+                  if (appSettings.enableRating || widget.allData.ratings.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     ExpansionTile(
                       title: Text("Ratings (${selectedRatings.length} / ${widget.allData.ratings.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
@@ -450,33 +554,57 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                           }
                         },
                       ),
-                      children: widget.allData.ratings.values.map((rating) {
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: CheckboxListTile(
-                            secondary: const Icon(Person.iconData),
-                            title: Text(
-                              rating.name,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                decoration: rating.isDeleted ? TextDecoration.lineThrough : null,
-                              ),
-                            ),
-                            //TODO: Add subtitle with filter
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            dense: true,
-                            value: selectedRatings.contains(rating),
-                            onChanged: (bool? checked) {
-                              setState(() {
-                                if (checked == true) {
-                                  selectedRatings.add(rating);
-                                } else {
-                                  selectedRatings.remove(rating);
-                                }
-                              });
-                            },
-                          ),
-                        );
-                      }).toList(),
+                      children: widget.allData.ratings.values.map((r) => _ratingWidget(r)).toList(),
+                    ),
+                  ],
+                  if (appSettings.enableTodo || widget.allData.todoRules.isNotEmpty) ... [
+                    const SizedBox(height: 16),
+                    ExpansionTile(
+                      title: Text("Todos (${selectedTodoRules.length} / ${widget.allData.todoRules.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
+                      shape: const Border(),
+                      collapsedShape: const Border(),
+                      trailing: Checkbox(
+                        tristate: true,
+                        value: selectedTodoRules.isEmpty && widget.allData.todoRules.isNotEmpty
+                            ? false 
+                            : (selectedTodoRules.length == widget.allData.todoRules.length ? true : null),
+                        onChanged: (bool? newValue) {
+                          switch (newValue) {
+                            case false: setState(() => selectedTodoRules.clear());
+                            case true: setState(() {selectedTodoRules.clear(); selectedTodoRules.addAll(widget.allData.todoRules.values);});
+                            case null: setState(() => selectedTodoRules.clear());
+                          }
+                        },
+                      ),
+                      children: widget.allData.todoRules.values.map((tr) => _todoRuleWidget(tr)).toList(),
+                    ),
+                  ],
+                  if (appSettings.enableTodo || widget.allData.todoEntries.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    ExpansionTile(
+                      title: Text("Todo Entries (${selectedTodoEntries.length} / ${widget.allData.todoEntries.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
+                      shape: const Border(),
+                      collapsedShape: const Border(),
+                      trailing: Checkbox(
+                        tristate: true,
+                        value: selectedTodoEntries.isEmpty && widget.allData.todoEntries.isNotEmpty
+                            ? false 
+                            : (selectedTodoEntries.length == widget.allData.todoEntries.length ? true : null),
+                        onChanged: (bool? newValue) {
+                          switch (newValue) {
+                            case false: setState(() => selectedTodoEntries.clear());
+                            case true: setState(() {selectedTodoEntries.clear(); selectedTodoEntries.addAll(widget.allData.todoEntries.values);});
+                            case null: setState(() => selectedTodoEntries.clear());
+                          }
+                        },
+                      ),
+                      children: widget.allData.todoEntries.values.map((te) => _todoEntryWidget(te)).toList(),
                     ),
                   ],
                 ],
@@ -495,6 +623,8 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                   components: <String, Component>{for (var item in selectedComponents) item.id: item},
                   setups: <String, Setup>{for (var item in selectedSetups) item.id: item},
                   ratings: <String, Rating>{for (var item in selectedRatings) item.id: item},
+                  todoRules: <String, TodoRule>{for (var item in selectedTodoRules) item.id: item},
+                  todoEntries: <String, TodoEntry>{for (var item in selectedTodoEntries) item.id: item}
                 );
                 widget.onConfirm(selectedData);
               },

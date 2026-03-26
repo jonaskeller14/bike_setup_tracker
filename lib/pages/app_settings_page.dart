@@ -16,6 +16,7 @@ class AppSettingsPage extends StatefulWidget {
 }
 
 class _AppSettingsPageState extends State<AppSettingsPage> {
+  static const debugMode = false;
   static const Map<ThemeMode, Row> _themeModeOptionWidgets = {
     ThemeMode.system: Row(
       spacing: 8,
@@ -331,7 +332,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   infoText: 'Adds the option to add tags to Setups',
                 ),
               ),
-              if (appSettingsReader.enablePerson)
+              if (debugMode)
                 ListTile(
                   leading: Icon(
                     Icons.person,
@@ -352,7 +353,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     },
                   ),
                 ),
-              if (appSettingsReader.enableRating)
+              if (debugMode)
                 ListTile(
                   leading: Icon(
                     Icons.star,
@@ -373,7 +374,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     },
                   ),
                 ),
-              if (appSettingsReader.enableStrava)
+              if (debugMode)
                 ListTile(
                   leading: const Icon(
                     SimpleIcons.strava,
@@ -395,6 +396,48 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     infoText: 'Enable Strava Sync to import Strava Activities',
                   ),
                 ),
+                if (debugMode)
+                  ListTile(
+                    leading: Icon(
+                      Icons.checklist,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    title: const Text("Tasks"),
+                    subtitle: _offOnOptionWidgets[appSettingsReader.enableTask] ?? const Text("-"),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                    onTap: () => appSettingsRadioGroupSheet<bool>(
+                      context: context,
+                      title: "Tasks",
+                      value: appSettingsReader.enableTask,
+                      optionWidgets: _offOnOptionWidgets,
+                      onChanged: (bool? newValue) {
+                        if (newValue == null) return;
+                        appSettingsWriter.enableTask = newValue;
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                if (debugMode)
+                  ListTile(
+                    leading: Icon(
+                      Icons.checklist,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    title: const Text("Installation Timeline"),
+                    subtitle: _offOnOptionWidgets[appSettingsReader.enableInstallationTimeline] ?? const Text("-"),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                    onTap: () => appSettingsRadioGroupSheet<bool>(
+                      context: context,
+                      title: "Installation Timeline",
+                      value: appSettingsReader.enableInstallationTimeline,
+                      optionWidgets: _offOnOptionWidgets,
+                      onChanged: (bool? newValue) {
+                        if (newValue == null) return;
+                        appSettingsWriter.enableInstallationTimeline = newValue;
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
             ],
           ),
         ),

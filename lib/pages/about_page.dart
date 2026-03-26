@@ -18,6 +18,8 @@ class AboutPage extends StatelessWidget {
 
   static const String privacyPolicyUrl = 'https://jonaskeller14.com/bike_setup_tracker/privacy_policy.html';
   static const String eulaUrl = 'https://jonaskeller14.com/bike_setup_tracker/eula.html';
+  static const String playStoreUrl = 'https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker';
+  static const String appStoreUrl = 'https://apps.apple.com/app/id6759974325?action=write-review';
   
 String _getEmailContext() {
     final now = DateTime.now().toUtc().toIso8601String();
@@ -33,11 +35,14 @@ Current Time: $now
 ''';
   }
 
-  Future<void> _launchUrl(BuildContext context, String url) async {
+  Future<void> _launchUrl(BuildContext context, {
+    required String url, 
+    LaunchMode launchMode = LaunchMode.platformDefault,
+  }) async {
     final uri = Uri.parse(url);
     
     if (await canLaunchUrl(uri)) { // Check if browser exists
-      if (await launchUrl(uri)) {
+      if (await launchUrl(uri, mode: launchMode)) {
         return;
       } else {
         if (!context.mounted) return;
@@ -105,7 +110,7 @@ Current Time: $now
       leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
       title: Text(title),
       subtitle: Text(email),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+      trailing: const Icon(Icons.open_in_new, size: 16.0),
       onTap: () => _launchEmail(context, email, subject: subject),
     );
   }
@@ -114,7 +119,7 @@ Current Time: $now
     return ListTile(
       leading: Icon(Icons.description_outlined, color: Theme.of(context).colorScheme.primary),
       title: Text(title),
-      onTap: () => _launchUrl(context, url),
+      onTap: () => _launchUrl(context, url: url),
       trailing: const Icon(Icons.open_in_new, size: 16.0),
     );
   }
@@ -159,10 +164,16 @@ Current Time: $now
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
-              _buildInfoTile(title: 'Version', subtitle: appVersion),
-              _buildInfoTile(title: 'Build Number', subtitle: buildNumber),
-              _buildInfoTile(title: 'Release Date', subtitle: releaseDate),
-        
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildInfoTile(title: 'Version', subtitle: "$appVersion (+$buildNumber)"),
+                  ),
+                  Expanded(
+                    child: _buildInfoTile(title: 'Release Date', subtitle: releaseDate),
+                  ),
+                ],
+              ),
               const Divider(height: 32.0),
               Padding(
                 padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
@@ -170,6 +181,18 @@ Current Time: $now
                   'Contact & Feedback',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
+              ),
+              ListTile(
+                leading: Icon(Icons.star_outline, color: Theme.of(context).colorScheme.primary),
+                title: const Text('Rate this app'),
+                subtitle: Theme.of(context).platform == TargetPlatform.iOS 
+                    ? const Text('Rate this app on Apple AppStore.')
+                    : const Text('Rate this app on Google PlayStore.'),
+                trailing: const Icon(Icons.open_in_new, size: 16.0),
+                onTap: () {
+                  final url = Theme.of(context).platform == TargetPlatform.iOS ? appStoreUrl : playStoreUrl;
+                  _launchUrl(context, url: url, launchMode: LaunchMode.externalApplication);
+                },
               ),
               _buildContactTile(
                 context: context,
@@ -223,7 +246,7 @@ Current Time: $now
                 title: Text("Strava Club Forum"),
                 subtitle: Text("Get help and discuss the app with other users."),
                 trailing: const Icon(Icons.open_in_new, size: 16.0),
-                onTap: () => _launchUrl(context, 'https://www.strava.com/clubs/bike_setup_tracker'),
+                onTap: () => _launchUrl(context, url: 'https://www.strava.com/clubs/bike_setup_tracker'),
               ),
         
               const Divider(height: 32.0),

@@ -13,6 +13,8 @@ import '../models/setup.dart';
 import '../models/installation.dart';
 import '../models/todo_rule.dart';
 import '../models/todo_entry.dart';
+import '../models/weather.dart';
+import 'package:location/location.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
 import '../models/strava/strava_activity.dart';
@@ -150,11 +152,9 @@ extension BikeMapper on Bike {
       isDeleted: Value<bool>(isDeleted),
       lastModified: Value<DateTime>(lastModified),
       name: Value<String>(name),
-      notes: notes == null ? const Value.absent() : Value<String?>(notes),
-      person: person == null ? const Value.absent() : Value<String?>(person),
-      stravaGear: stravaGear == null
-          ? const Value.absent()
-          : Value<String?>(stravaGear),
+      notes: Value<String?>(notes),
+      person: Value<String?>(person),
+      stravaGear: Value<String?>(stravaGear),
       orderIndex: Value<int>(orderIndex),
     );
   }
@@ -167,7 +167,7 @@ extension ComponentMapper on Component {
       isDeleted: Value<bool>(isDeleted),
       lastModified: Value<DateTime>(lastModified),
       name: Value<String>(name),
-      notes: notes == null ? const Value.absent() : Value<String?>(notes),
+      notes: Value<String?>(notes),
       componentType: Value<ComponentType>(componentType),
       orderIndex: Value<int>(orderIndex),
       initialDistance: Value<double>(initialDistance),
@@ -186,7 +186,7 @@ extension InstallationMapper on Installation {
     return InstallationsCompanion(
       id: Value(id),
       componentId: Value(componentId),
-      parent: parent == null ? const Value.absent() : Value(parent),
+      parent: Value<String?>(parent),
       dateTimeUTC: Value(dateTimeUTC),
       dateTimeLocal: Value(dateTimeLocal),
     );
@@ -205,8 +205,8 @@ extension AdjustmentMapper on Adjustment {
     return AdjustmentsCompanion(
       id: Value<String>(id),
       name: Value<String>(name),
-      notes: notes == null ? const Value.absent() : Value<String?>(notes),
-      unit: unit == null ? const Value.absent() : Value<String?>(unit),
+      notes: Value<String?>(notes),
+      unit: Value<String?>(unit),
       category: Value<AdjustmentCategory>(category),
       type: Value<AdjustmentType>(
         AdjustmentType.values.firstWhere((e) => e.name == typeString),
@@ -235,10 +235,8 @@ extension PersonMapper on Person {
       isDeleted: Value<bool>(isDeleted),
       lastModified: Value<DateTime>(lastModified),
       name: Value<String>(name),
-      notes: notes == null ? const Value.absent() : Value<String?>(notes),
-      stravaAthlete: stravaAthlete == null
-          ? const Value.absent()
-          : Value<int?>(stravaAthlete),
+      notes: Value<String?>(notes),
+      stravaAthlete: Value<int?>(stravaAthlete),
       orderIndex: Value<int>(orderIndex),
     );
   }
@@ -251,8 +249,8 @@ extension RatingMapper on Rating {
       isDeleted: Value<bool>(isDeleted),
       lastModified: Value<DateTime>(lastModified),
       name: Value<String>(name),
-      notes: notes == null ? const Value.absent() : Value<String?>(notes),
-      filter: filter == null ? const Value.absent() : Value<String?>(filter),
+      notes: Value<String?>(notes),
+      filter: Value<String?>(filter),
       filterType: Value<FilterType>(filterType),
       orderIndex: Value<int>(orderIndex),
     );
@@ -267,7 +265,7 @@ extension TodoRuleMapper on TodoRule {
       isDeleted: Value<bool>(isDeleted),
       lastModified: Value<DateTime>(lastModified),
       name: Value<String>(name),
-      notes: notes == null ? const Value.absent() : Value<String?>(notes),
+      notes: Value<String?>(notes),
       priority: Value<TodoPriority>(priority),
     );
   }
@@ -280,7 +278,7 @@ extension TodoEntryMapper on TodoEntry {
       isDeleted: Value<bool>(isDeleted),
       lastModified: Value<DateTime>(lastModified),
       name: Value<String>(name),
-      notes: notes == null ? const Value.absent() : Value<String?>(notes),
+      notes: Value<String?>(notes),
       dateTimeUTC: Value<DateTime>(dateTimeUTC),
       dateTimeLocal: Value<DateTime>(dateTimeLocal),
       todoRule: Value<String>(todoRule),
@@ -297,13 +295,13 @@ extension SetupMapper on Setup {
       name: Value<String>(name),
       datetime: Value<DateTime>(datetime),
       datetimeLocal: Value<DateTime>(datetimeLocal),
-      notes: notes == null ? const Value.absent() : Value<String?>(notes),
+      notes: Value<String?>(notes),
       tags: Value<Set<String>>(tags),
       bikeId: Value<String>(bike),
-      personId: person == null ? const Value.absent() : Value<String?>(person),
-      position: position == null ? const Value.absent() : Value(position),
-      place: place == null ? const Value.absent() : Value(place),
-      weather: weather == null ? const Value.absent() : Value(weather),
+      personId: Value<String?>(person),
+      position: Value<LocationData?>(position),
+      place: Value<geo.Placemark?>(place),
+      weather: Value<Weather?>(weather),
     );
   }
 
@@ -458,19 +456,11 @@ extension StravaActivityMapper on StravaActivity {
       sportType: Value<SportType>(sportType),
       startDate: Value<DateTime>(startDate),
       startDateLocal: Value<DateTime>(startDateLocal),
-      gearId: gearId == null ? const Value.absent() : Value<String?>(gearId),
-      startLat: startLat == null
-          ? const Value.absent()
-          : Value<double?>(startLat),
-      startLon: startLon == null
-          ? const Value.absent()
-          : Value<double?>(startLon),
-      distance: distance == null
-          ? const Value.absent()
-          : Value<double?>(distance),
-      totalElevationGain: totalElevationGain == null
-          ? const Value.absent()
-          : Value<double?>(totalElevationGain),
+      gearId: Value<String?>(gearId),
+      startLat: Value<double?>(startLat),
+      startLon: Value<double?>(startLon),
+      distance: Value<double?>(distance),
+      totalElevationGain: Value<double?>(totalElevationGain),
       movingTime: Value<int>(movingTime.inSeconds),
       elapsedTime: Value<int>(elapsedTime.inSeconds),
     );

@@ -83,6 +83,15 @@ class TaskRule {
     );
   }
 
+  TaskRule deepCopy() {
+    return TaskRule(
+      name: name, 
+      notes: notes,
+      priority: priority,
+      componentId: componentId,
+    );
+  }
+
   TaskRule copyWith({
     Object? id = const _Sentinel(),
     Object? isDeleted = const _Sentinel(),

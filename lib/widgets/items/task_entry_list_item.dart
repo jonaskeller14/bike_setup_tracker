@@ -62,32 +62,32 @@ class TaskEntryListItem extends StatelessWidget {
                   ),
                 ],
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 2,
-                children: [
-                  Icon(
-                    Icons.check_box_outlined,
-                    size: 12, 
-                    color: taskRules.containsKey(taskEntry.taskRule) 
-                        ? Theme.of(context).colorScheme.onSurfaceVariant
-                        : Theme.of(context).colorScheme.error,
+            ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            spacing: 2,
+            children: [
+              Icon(
+                Icons.check_box_outlined,
+                size: 12, 
+                color: taskRules.containsKey(taskEntry.taskRule) 
+                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                    : Theme.of(context).colorScheme.error,
+              ),
+              Flexible(
+                child: Text(
+                  taskRules[taskEntry.taskRule]?.name ?? "TASK NOT FOUND",
+                  style: TextStyle(
+                    color: taskRules.containsKey(taskEntry.taskRule)
+                        ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                        : Theme.of(context).colorScheme.error, 
+                    fontSize: 12,
                   ),
-                  Flexible(
-                    child: Text(
-                      taskRules[taskEntry.taskRule]?.name ?? "TASK NOT FOUND",
-                      style: TextStyle(
-                        color: taskRules.containsKey(taskEntry.taskRule)
-                            ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                            : Theme.of(context).colorScheme.error, 
-                        fontSize: 12,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                  ),
-                ],
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
               ),
             ],
           ),

@@ -31,6 +31,18 @@ class TaskActions {
     await appRepository.editTaskRule(editedRule);
   }
 
+  static Future<void> duplicateTaskRule(BuildContext context, {required TaskRule taskRule}) async {
+    final appRepository = context.read<AppRepository>();
+
+    final newRule = await Navigator.push<TaskRule>(
+      context,
+      MaterialPageRoute(builder: (context) => TaskRulePage.edit(taskRule: taskRule.deepCopy())),
+    );
+    if (newRule == null) return;
+
+    await appRepository.addTaskRule(newRule);
+  }
+
   static Future<void> removeTaskRule(BuildContext context, {required TaskRule taskRule}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);

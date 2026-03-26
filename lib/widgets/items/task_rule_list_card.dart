@@ -115,6 +115,8 @@ class TaskRuleListCard extends StatelessWidget {
                   TaskActions.editTaskRule(context, taskRule: taskRule);
                 case _TaskRuleOptions.remove:
                   TaskActions.removeTaskRule(context, taskRule: taskRule);
+                case _TaskRuleOptions.duplicate:
+                  TaskActions.duplicateTaskRule(context, taskRule: taskRule);
                 case _TaskRuleOptions.addEntry:
                   TaskActions.addTaskEntry(context, taskRule: taskRule);
               }
@@ -127,6 +129,16 @@ class TaskRuleListCard extends StatelessWidget {
                   children: [
                     Icon(Icons.edit, size: 20),
                     Text('Edit'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<_TaskRuleOptions>(
+                value: _TaskRuleOptions.duplicate,
+                child: Row(
+                  spacing: 10,
+                  children: [
+                    Icon(Icons.copy, size: 20),
+                    Text('Duplicate'),
                   ],
                 ),
               ),
@@ -162,6 +174,7 @@ class TaskRuleListCard extends StatelessWidget {
 
 enum _TaskRuleOptions {
   edit,
+  duplicate,
   remove,
   addEntry,
 }

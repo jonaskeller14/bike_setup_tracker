@@ -102,9 +102,22 @@ class FileImport {
     }
   }
 
-  static Future<void> overwrite({required SelectedData remoteData, required AppDatabase database}) async {
+  static Future<void> replace({required SelectedData remoteData, required AppDatabase database}) async {
     cleanupIsDeleted(data: remoteData);
     await _importDataToDb(database, remoteData);
+  }
+
+  static Future<void> overwrite({required SelectedData remoteData, required AppDatabase database}) async {
+    // 1. Fetch current DB state into memory
+    final localJson = await DataExportService.backupDatabaseToJson(database, includeStrava: true);
+    final localData = SelectedData.fromJson(localJson);
+
+    // 2. Perform merge in memory
+    _overwriteInternal(remoteData: remoteData, localData: localData);
+    cleanupIsDeleted(data: localData);
+
+    // 3. Write merged state back to DB
+    await _importDataToDb(database, localData);
   }
 
   static Future<void> merge({
@@ -127,13 +140,10 @@ class FileImport {
     await database.transaction(() async {
       await database.delete(database.setupAdjustmentValues).go();
       await database.delete(database.setups).go();
-      await database.delete(database.stravaActivities).go();
       await database.delete(database.adjustments).go();
       await database.delete(database.installations).go();
       await database.delete(database.taskEntries).go();
       await database.delete(database.components).go();
-      await database.delete(database.stravaGears).go();
-      await database.delete(database.stravaAthletes).go();
       await database.delete(database.taskRules).go();
       await database.delete(database.ratings).go();
       await database.delete(database.bikes).go();
@@ -176,47 +186,31 @@ class FileImport {
     for (final remoteRating in remoteData.ratings.values) {
       final localRating = localData.ratings[remoteRating.id];
       
-      // Prio 1: Rating does not exist --> add newPerson if it was not deleted on remote device yet
       if (localRating == null) {
         if (!remoteRating.isDeleted) localData.ratings[remoteRating.id] = remoteRating;
         continue;
       }
       
-      // Prio 2: LastModified (remote edit, remote delete, remote restauration)
       final bool remoteIsNewer = remoteRating.lastModified.isAfter(localRating.lastModified);
       if (remoteIsNewer) {
         localData.ratings[remoteRating.id] = remoteRating;
         continue;
       }
-
-      // final bool remoteIsOlder = remoteRating.lastModified.isBefore(localRating.lastModified);
-      // if (remoteIsOlder) continue; // local wins
-
-      // remote = local
-      // continue;
     }
 
     for (final remoteBike in remoteData.bikes.values) {
       final localBike = localData.bikes[remoteBike.id];
       
-      // Prio 1: Bike does not exist --> add newBike if it was not deleted on remote device yet
       if (localBike == null) {
         if (!remoteBike.isDeleted) localData.bikes[remoteBike.id] = remoteBike;
         continue;
       }
       
-      // Prio 2: LastModified (remote edit, remote delete, remote restauration)
       final bool remoteIsNewer = remoteBike.lastModified.isAfter(localBike.lastModified);
       if (remoteIsNewer) {
         localData.bikes[remoteBike.id] = remoteBike;
         continue;
       }
-
-      // final bool remoteIsOlder = remoteBike.lastModified.isBefore(localBike.lastModified);
-      // if (remoteIsOlder) continue; // local wins
-
-      // remote = local
-      // continue;
     }
 
     for (final remoteSetup in remoteData.setups.values) {
@@ -232,12 +226,6 @@ class FileImport {
         localData.setups[remoteSetup.id] = remoteSetup;
         continue;
       }
-
-      // final bool remoteIsOlder = remoteSetup.lastModified.isBefore(localSetup.lastModified);
-      // if (remoteIsOlder) continue;
-
-      // remote = local
-      // continue;
     }
 
     for (final remoteComponent in remoteData.components.values) {
@@ -278,6 +266,19 @@ class FileImport {
         continue;
       }
     }
+  }
+
+  static void _overwriteInternal({
+    required SelectedData remoteData,
+    required SelectedData localData,
+  }) {
+    localData.persons.addAll(remoteData.persons);
+    localData.bikes.addAll(remoteData.bikes);
+    localData.components.addAll(remoteData.components);
+    localData.setups.addAll(remoteData.setups);
+    localData.ratings.addAll(remoteData.ratings);
+    localData.taskRules.addAll(remoteData.taskRules);
+    localData.taskEntries.addAll(remoteData.taskEntries);
   }
 
   static void determineCurrentSetups({required List<Setup> setups, required Map<String, Bike> bikes}) {

@@ -78,33 +78,6 @@ class DatabaseMigrationService {
         ),
       );
 
-      // Strava Athletes
-      batch.insertAllOnConflictUpdate(
-        db.stravaAthletes,
-        data.stravaAthletes.values.map(
-          (sa) => StravaAthletesCompanion.insert(
-            id: Value(sa.id),
-            lastModified: sa.lastModified,
-            firstname: Value(sa.firstname),
-            lastname: Value(sa.lastname),
-            profile: Value(sa.profile),
-            gears: sa.gears,
-          ),
-        ),
-      );
-
-      // Strava Gears
-      batch.insertAllOnConflictUpdate(
-        db.stravaGears,
-        data.stravaGears.values.map(
-          (sg) => StravaGearsCompanion.insert(
-            id: sg.id,
-            lastModified: sg.lastModified,
-            name: sg.name,
-          ),
-        ),
-      );
-
       // -----------------------------------------------------------------------
       // Level 1: Sub-Components (References Level 0)
       // -----------------------------------------------------------------------
@@ -225,29 +198,6 @@ class DatabaseMigrationService {
       // -----------------------------------------------------------------------
       // Level 3: Events
       // -----------------------------------------------------------------------
-
-      // Strava Activities
-      batch.insertAllOnConflictUpdate(
-        db.stravaActivities,
-        data.stravaActivities.values.map(
-          (sa) => StravaActivitiesCompanion.insert(
-            id: Value(sa.id),
-            lastModified: sa.lastModified,
-            name: sa.name,
-            athlete: sa.athlete,
-            sportType: sa.sportType,
-            startDate: sa.startDate,
-            startDateLocal: sa.startDateLocal,
-            gearId: Value(sa.gearId),
-            startLat: Value(sa.startLat),
-            startLon: Value(sa.startLon),
-            distance: Value(sa.distance),
-            totalElevationGain: Value(sa.totalElevationGain),
-            movingTime: sa.movingTime.inSeconds,
-            elapsedTime: sa.elapsedTime.inSeconds,
-          ),
-        ),
-      );
 
       // Setups
       batch.insertAllOnConflictUpdate(

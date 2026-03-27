@@ -5,9 +5,6 @@ import 'setup.dart';
 import 'rating.dart';
 import 'task_rule.dart';
 import 'task_entry.dart';
-import 'strava/strava_athlete.dart';
-import 'strava/strava_gear.dart';
-import 'strava/strava_activity.dart';
 
 class SelectedData {
   final Map<String, Person> persons;
@@ -17,9 +14,6 @@ class SelectedData {
   final Map<String, Rating> ratings;
   final Map<String, TaskRule> taskRules;
   final Map<String, TaskEntry> taskEntries;
-  final Map<int, StravaAthlete> stravaAthletes;
-  final Map<String, StravaGear> stravaGears;
-  final Map<int, StravaActivity> stravaActivities;
 
   SelectedData({
     this.persons = const {},
@@ -29,9 +23,6 @@ class SelectedData {
     this.ratings = const {},
     this.taskRules = const {},
     this.taskEntries = const {},
-    this.stravaAthletes = const {},
-    this.stravaGears = const {},
-    this.stravaActivities = const {},
   });
 
   factory SelectedData.fromJson(Map<String, dynamic> json) {
@@ -49,12 +40,6 @@ class SelectedData {
         .map((a) => TaskRule.fromJson(a as Map<String, dynamic>));
     final loadedTaskEntries = (json['taskEntries'] as List<dynamic>? ?? [])
         .map((a) => TaskEntry.fromJson(a as Map<String, dynamic>));
-    final loadedStravaAthletes = (json['stravaAthletes'] as List<dynamic>? ?? [])
-        .map((a) => StravaAthlete.fromJson(a as Map<String, dynamic>));
-    final loadedStravaGears = (json['stravaGears'] as List<dynamic>? ?? [])
-        .map((g) => StravaGear.fromJson(g as Map<String, dynamic>));
-    final loadedStravaActivities = (json['stravaActivities'] as List<dynamic>? ?? [])
-        .map((a) => StravaActivity.fromJson(a as Map<String, dynamic>));
 
     return SelectedData(
       persons: {for (var item in loadedPersons) item.id: item},
@@ -64,9 +49,6 @@ class SelectedData {
       ratings: {for (var item in loadedRatings) item.id: item},
       taskRules: {for (var item in loadedTaskRules) item.id: item},
       taskEntries: {for (var item in loadedTaskEntries) item.id: item},
-      stravaAthletes: {for (var item in loadedStravaAthletes) item.id: item},
-      stravaGears: {for (var item in loadedStravaGears) item.id: item},
-      stravaActivities: {for (var item in loadedStravaActivities) item.id: item},
     );
   }
 }

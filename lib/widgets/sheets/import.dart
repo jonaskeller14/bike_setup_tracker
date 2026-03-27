@@ -33,6 +33,8 @@ Future<void> importData(BuildContext context) async {
         await FileImport.overwrite(remoteData: importResult.dataToImport, database: database);
       case ImportMethod.merge:
         await FileImport.merge(remoteData: importResult.dataToImport, database: database);
+      case ImportMethod.replace:
+        await FileImport.replace(remoteData: importResult.dataToImport, database: database);
     }
     scaffoldMessenger.showSnackBar(
       SnackBar(
@@ -41,6 +43,7 @@ Future<void> importData(BuildContext context) async {
         content: switch (importResult.importMethod) {
           ImportMethod.merge => const Text("Data merged successfully"),
           ImportMethod.overwrite => const Text("Data overwritten successfully"),
+          ImportMethod.replace => const Text("Data replaced successfully"),
         },
       )
     );
@@ -49,10 +52,14 @@ Future<void> importData(BuildContext context) async {
       persist: false,
       showCloseIcon: true,
       closeIconColor: onErrorContainerColor,
-      content: switch (importResult.importMethod) {
-        ImportMethod.merge => Text("Merge failed: $e", style: TextStyle(color: onErrorContainerColor)),
-        ImportMethod.overwrite => Text("Overwriting failed: $e", style: TextStyle(color: onErrorContainerColor)),
-      },
+      content: Text(
+        switch (importResult.importMethod) {
+          ImportMethod.merge => "Merge failed: $e",
+          ImportMethod.overwrite => "Overwriting failed: $e",
+          ImportMethod.replace => "Overwriting failed: $e",
+        },
+        style: TextStyle(color: onErrorContainerColor)
+      ),
       backgroundColor: errorContainerColor,
     ));
   }  
@@ -66,6 +73,7 @@ enum ImportSourceOptions {
 enum ImportMethod {
   overwrite,
   merge,
+  replace,
 }
 
 class ImportResult {
@@ -187,7 +195,11 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
             onMerge: () => Navigator.of(context).pop(ImportResult(
               importMethod: ImportMethod.merge, 
               dataToImport: _remoteSelectedData!,
-            )), 
+            )),
+            onReplace:  () => Navigator.of(context).pop(ImportResult(
+              importMethod: ImportMethod.replace,
+              dataToImport: _remoteSelectedData!,
+            )),
             onBack: _onBack,
           ),
         },

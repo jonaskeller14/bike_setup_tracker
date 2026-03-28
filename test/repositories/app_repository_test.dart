@@ -8,6 +8,8 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/task_rule.dart';
+import 'package:bike_setup_tracker/models/task_entry.dart';
 
 /// Allow Drift streams to propagate through subscriptions.
 Future<void> pumpEventQueue() => Future.delayed(const Duration(milliseconds: 100));
@@ -449,6 +451,85 @@ void main() {
       expect(repository.filteredInstallations.length, 2);
       expect(repository.filteredInstallations.any((ci) => ci.originParent == bike1.id && ci.installation.parent == bike2.id), true);
       expect(repository.filteredInstallations.any((ci) => ci.originParent == bike2.id && ci.installation.parent == null), true);
+    });
+  });
+
+  group("AppRepository - Tasks", () {
+    late AppDatabase database;
+    late AppRepository repository;
+    final bike1 = Bike(name: "Bike #1", person: null);
+    late Component component1;
+    late TaskRule rule1;
+
+    setUp(() async {
+      database = AppDatabase.memory();
+      repository = AppRepository(database);
+      await pumpEventQueue();
+      component1 = Component(
+        name: "C1", 
+        installations: [Installation.sinceBeginning(parent: bike1.id)], 
+        componentType: ComponentType.fork, 
+        adjustments: []
+      );
+      rule1 = TaskRule(name: "Rule 1", componentId: component1.id);
+    });
+
+    tearDown(() async {
+      await database.close();
+    });
+
+    test("openTaskCount updates when adding rule and entry", () async {
+      await repository.addBike(bike1);
+      await repository.addComponent(component1);
+      await repository.addTaskRule(rule1);
+      await pumpEventQueue();
+
+      // Rule added, no entry -> open count should be 1
+      expect(repository.filteredOpenTaskRulesCount, 1);
+      expect(repository.filteredOpenTaskRules.containsKey(rule1.id), true);
+
+      final entry1 = TaskEntry(
+        name: "Entry 1",
+        dateTimeUTC: DateTime.now().toUtc(),
+        dateTimeLocal: DateTime.now().toLocal(),
+        taskRule: rule1.id,
+      );
+
+      await repository.addTaskEntry(entry1);
+      await pumpEventQueue();
+
+      // Entry added -> open count should be 0
+      expect(repository.filteredOpenTaskRulesCount, 0);
+      expect(repository.filteredOpenTaskRules.containsKey(rule1.id), false);
+    });
+
+    test("openTaskCount handles filtering by bike", () async {
+      final bike2 = Bike(name: "Bike #2", person: null);
+      final component2 = Component(
+        name: "C2", 
+        installations: [Installation.sinceBeginning(parent: bike2.id)], 
+        componentType: ComponentType.fork, 
+        adjustments: []
+      );
+      final rule2 = TaskRule(name: "Rule 2", componentId: component2.id);
+
+      await repository.addBike(bike1);
+      await repository.addBike(bike2);
+      await repository.addComponent(component1);
+      await repository.addComponent(component2);
+      await repository.addTaskRule(rule1);
+      await repository.addTaskRule(rule2);
+      await pumpEventQueue();
+
+      expect(repository.filteredOpenTaskRulesCount, 2);
+
+      // Filter by bike1
+      repository.onBikeTap(bike1.id);
+      await pumpEventQueue();
+
+      expect(repository.filteredOpenTaskRulesCount, 1);
+      expect(repository.filteredOpenTaskRules.containsKey(rule1.id), true);
+      expect(repository.filteredOpenTaskRules.containsKey(rule2.id), false);
     });
   });
 }

@@ -142,6 +142,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, TaskRule> _filteredTaskRules = {};
   Map<String, TaskEntry> _filteredTaskEntries = {};
   Map<int, StravaActivity> _filteredStravaActivities = {};
+  Map<String, TaskRule> _filteredOpenTaskRules = {};
   List<ComponentInstallation> _filteredInstallations = [];
 
   Map<String, Bike> get filteredBikes => _filteredBikes;
@@ -150,6 +151,8 @@ class AppRepository extends ChangeNotifier {
   Map<String, Component> get filteredComponents => _filteredComponents;
   Map<String, Setup> get filteredSetups => _filteredSetups;
   Map<String, TaskRule> get filteredTaskRules => _filteredTaskRules;
+  Map<String, TaskRule> get filteredOpenTaskRules => _filteredOpenTaskRules;
+  int get filteredOpenTaskRulesCount => _filteredOpenTaskRules.length;
   Map<String, TaskEntry> get filteredTaskEntries => _filteredTaskEntries;
   Map<int, StravaActivity> get filteredStravaActivities => _filteredStravaActivities;
   List<ComponentInstallation> get filteredInstallations => _filteredInstallations;
@@ -393,6 +396,12 @@ class AppRepository extends ChangeNotifier {
     _filteredTaskRules = Map.fromEntries(
       taskRules.entries.where(
         (entry) => _filteredComponents.containsKey(entry.value.componentId),
+      ),
+    );
+
+    _filteredOpenTaskRules = Map.fromEntries(
+      _filteredTaskRules.entries.where(
+        (entry) => !taskEntries.values.any((te) => te.taskRule == entry.key),
       ),
     );
   }

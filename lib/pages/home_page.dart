@@ -176,7 +176,14 @@ class _HomePageState extends State<HomePage> {
           if (appSettings.enableRating)
             const NavigationDestination(icon: Icon(Rating.iconData), label: "Ratings"),
           if (appSettings.enableTask)
-            const NavigationDestination(icon: Icon(Icons.checklist), label: "Tasks"), //FIXME: Display Badge with open Task number
+            NavigationDestination(
+              icon: Badge(
+                label: Text(appRepository.filteredOpenTaskRulesCount.toString()),
+                isLabelVisible: appRepository.filteredOpenTaskRulesCount > 0,
+                child: const Icon(Icons.checklist),
+              ), 
+              label: "Tasks",
+            ),
         ],
       ),
       body: SafeArea(

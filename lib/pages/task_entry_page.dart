@@ -5,8 +5,8 @@ import 'package:uuid/uuid.dart';
 import '../models/app_settings.dart';
 import '../models/task_entry.dart';
 import '../models/task_rule.dart';
-import '../repositories/app_repository.dart';
 import '../widgets/dialogs/discard_changes.dart';
+import '../widgets/task_rule_display_card.dart';
 
 enum TaskEntryPageMode { add, edit, duplicate }
 
@@ -183,9 +183,6 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.read<AppSettings>();
-    final appRepository = context.watch<AppRepository>();
-    final component = appRepository.components[widget.taskRule.componentId];
-    
     return PopScope( 
       canPop: !_formHasChanges,
       onPopInvokedWithResult: _handlePopInvoked,
@@ -208,89 +205,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Card.outlined(
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      title: Text(
-                        widget.taskRule.name,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 4),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            spacing: 2,
-                            children: [
-                              Icon(
-                                component?.componentType.getIconData() ?? Icons.grid_view_sharp, 
-                                size: 13, 
-                                color: component != null ? Theme.of(context).colorScheme.onSurfaceVariant : Theme.of(context).colorScheme.error,
-                              ),
-                              Flexible(
-                                child: Text(
-                                  component?.name ?? "COMPONENT NOT FOUND",
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: component != null 
-                                        ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                                        : Theme.of(context).colorScheme.error,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            spacing: 2,
-                            children: [
-                              Icon(Icons.traffic, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                              Text(
-                                'Priority: ${widget.taskRule.priority.label}',
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                          if (widget.taskRule.notes != null && widget.taskRule.notes!.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              spacing: 2,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 3), // tweak to match font size
-                                  child: Icon(
-                                    Icons.notes,
-                                    size: 13,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    widget.taskRule.notes!,
-                                    style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
+                  TaskRuleDisplayCard(taskRule: widget.taskRule),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _nameController,

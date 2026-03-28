@@ -1,0 +1,64 @@
+import 'package:bike_setup_tracker/widgets/items/task_entry_list_item.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../models/task_rule.dart';
+import '../repositories/app_repository.dart';
+import '../widgets/task_rule_display_card.dart';
+
+class TaskRuleDisplayPage extends StatelessWidget {
+  final TaskRule taskRule;
+
+  const TaskRuleDisplayPage({super.key, required this.taskRule});
+
+  Widget _noTaskEntriesPlaceholder(BuildContext context) {
+    return SizedBox(
+      height: 100,
+      child: Center(
+        child: Text(
+          'No entries yet',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final appRepository = context.watch<AppRepository>();
+    final taskEntries = appRepository.taskEntries.values.where((te) => te.taskRule == taskRule.id).sortedBy((te) => te.dateTimeUTC);
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Task"),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TaskRuleDisplayCard(taskRule: taskRule),
+
+              const SizedBox(height: 16),
+              Text("Entries".toUpperCase(), style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold, 
+                letterSpacing: 1.2, 
+                color: Theme.of(context).colorScheme.primary
+              )),
+              const SizedBox(height: 8),
+
+              if (taskEntries.isEmpty)
+                _noTaskEntriesPlaceholder(context)
+              else
+                ...taskEntries.map((te) => TaskEntryListItem(
+                  taskEntryId: te.id,
+                  contentPadding: EdgeInsets.zero,
+                )),
+            ],
+          ),
+        )
+      ),
+    );
+  }
+}

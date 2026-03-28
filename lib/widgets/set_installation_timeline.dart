@@ -184,9 +184,12 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                 contentsBuilder: (context, index) {
                   final installation = _installations[index];
                   final isFromBeginning = installation.dateTimeUTC.millisecondsSinceEpoch == 0;
-                  final formattedDateTime = isFromBeginning
+                  final dateStr = isFromBeginning
                       ? 'From beginning'
-                      : "${DateFormat(appSettings.dateFormat).format(installation.dateTimeLocal)} ${DateFormat(appSettings.timeFormat).format(installation.dateTimeLocal)}";
+                      : DateFormat(appSettings.dateFormat).format(installation.dateTimeLocal);
+                  final timeStr = isFromBeginning
+                      ? null
+                      : DateFormat(appSettings.timeFormat).format(installation.dateTimeLocal);
 
                   final originalInstallation = (_originalInstallations != null && index < _originalInstallations!.length)
                       ? _originalInstallations![index]
@@ -255,15 +258,30 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                   child: Row(
                                     children: [
                                       Expanded(
-                                        child: SingleChildScrollView(
-                                          scrollDirection: Axis.horizontal,
-                                          child: Text(
-                                            formattedDateTime,
-                                            style: theme.textTheme.bodyMedium?.copyWith(
-                                              color: !isEditable ? theme.disabledColor : null,
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              dateStr,
+                                              style: theme.textTheme.bodyMedium?.copyWith(
+                                                color: !isEditable ? theme.disabledColor : null,
+                                                height: 1.1,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                            maxLines: 1,
-                                          ),
+                                            if (timeStr != null)
+                                              Text(
+                                                timeStr,
+                                                style: theme.textTheme.bodySmall?.copyWith(
+                                                  color: !isEditable ? theme.disabledColor : theme.hintColor,
+                                                  height: 1.1,
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                          ],
                                         ),
                                       ),
                                       Icon(Icons.arrow_drop_down, size: 24, color: !isEditable ? theme.disabledColor : colorScheme.onSurfaceVariant),

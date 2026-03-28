@@ -51,7 +51,7 @@ exports.stravaWebhook = onRequest(
             case 'create':
               logger.info(`CREATE ACTIVITY: ${activityId} for athlete ${athleteId}`);
               try {
-                // Fetch activity details ONCE using the first user's token
+                // 1. Fetch activity details ONCE using the first user's token
                 const firstUserId = usersSnapshot.docs[0].id;
                 const userToken = await getValidAccessToken(firstUserId);
                 const response = await fetch(`https://www.strava.com/api/v3/activities/${activityId}`, {
@@ -60,16 +60,31 @@ exports.stravaWebhook = onRequest(
                 checkStravaResponse(response, "Strava Activity API");
                 const activity = await response.json();
 
-                // Save to EVERY user's batches (delegates bike-only filtering and conversion logic)
-                for (const userDoc of usersSnapshot.docs) {
-                  const userId = userDoc.id;
-                  await saveActivityToBatch(activity, userId);
+                // 2. Perform Sync for EVERY user and collect unique FCM tokens
+                const tokenToUserIds = new Map(); // Map<fcmToken, Set<userId>>
+                const syncPromises = usersSnapshot.docs.map(async (userDoc) => {
+                  const userData = userDoc.data();
+                  
+                  // Sync data to Firestore
+                  await saveActivityToBatch(activity, userDoc.id);
+                  
+                  // Collect FCM token if present
+                  if (userData.fcm_token) {
+                    const token = userData.fcm_token;
+                    if (!tokenToUserIds.has(token)) {
+                      tokenToUserIds.set(token, new Set());
+                    }
+                    tokenToUserIds.get(token).add(userDoc.id);
+                  }
+                });
 
-                  // Send FCM Notification
-                  const fcmToken = userDoc.data().fcm_token;
-                  if (fcmToken) {
+                await Promise.all(syncPromises);
+
+                // 3. Send ONE notification per unique FCM token
+                const notificationPromises = Array.from(tokenToUserIds.keys()).map(async (token) => {
+                  try {
                     await admin.messaging().send({
-                      token: fcmToken,
+                      token: token,
                       notification: {
                         title: "New Activity!",
                         body: `We imported your ride: ${activity.name}`,
@@ -78,10 +93,32 @@ exports.stravaWebhook = onRequest(
                         type: "strava_sync",
                         activityId: String(activityId),
                       }
-                    }).catch(err => logger.error("FCM_SEND_FAILED", { userId, error: err.message }));
+                    });
+                  } catch (err) {
+                    // 4. SMART CLEANUP: If token is stale/invalid, remove it from Firestore
+                    const isStale = err.code === "messaging/registration-token-not-registered" || 
+                                    err.code === "messaging/invalid-argument";
+                    
+                    if (isStale) {
+                      const affectedUserIds = Array.from(tokenToUserIds.get(token));
+                      logger.info("CLEANING_UP_STALE_FCM_TOKEN", { token: token.substring(0, 10) + "...", users: affectedUserIds });
+                      
+                      const cleanupBatch = db.batch();
+                      affectedUserIds.forEach(uid => {
+                        cleanupBatch.update(db.collection("users").doc(uid), {
+                          fcm_token: admin.firestore.FieldValue.delete()
+                        });
+                      });
+                      await cleanupBatch.commit();
+                    } else {
+                      logger.error("FCM_SEND_FAILED", { token: token.substring(0, 10) + "...", error: err.message });
+                    }
                   }
-                }
-                logger.info(`SUCCESSFULLY_PROCESSED_CREATE: ${activityId} for ${usersSnapshot.size} users`);
+                });
+
+                await Promise.all(notificationPromises);
+                
+                logger.info(`SUCCESSFULLY_PROCESSED_CREATE: ${activityId} for ${usersSnapshot.size} users, sent to ${tokenToUserIds.size} devices`);
               } catch (error) {
                 logger.error("WEBHOOK_CREATE_FAILED", { activityId, error: error.message });
               }

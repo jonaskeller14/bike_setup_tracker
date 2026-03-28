@@ -47,7 +47,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
   @override
   void initState() {
     super.initState();
-    _initialName = widget.taskEntry?.name ?? widget.taskRule.name;
+    _initialName = widget.taskEntry?.name ?? "Completed '${widget.taskRule.name}'";
     _nameController = TextEditingController(text: _initialName);
     _nameController.addListener(_changeListener);
     
@@ -208,12 +208,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                  Card.outlined(
                     child: ListTile(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       title: Text(
@@ -239,10 +234,11 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                               Flexible(
                                 child: Text(
                                   component?.name ?? "COMPONENT NOT FOUND",
-                                  maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    color: component != null ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8) : Theme.of(context).colorScheme.error,
+                                    color: component != null 
+                                        ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                                        : Theme.of(context).colorScheme.error,
                                     fontSize: 13,
                                   ),
                                 ),

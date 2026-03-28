@@ -15,6 +15,7 @@ import '../widgets/display_installation_timeline.dart';
 import '../widgets/sheets/column_filter.dart';
 import '../widgets/initial_changed_value_legend.dart';
 import '../utils/table_column.dart';
+import '../models/component.dart';
 
 class ComponentOverviewPage extends StatefulWidget{
   final String componentId;
@@ -162,6 +163,56 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
     );
   }
 
+  Widget _buildStatCard(Component component, AppRepository appRepository) {
+    final totalDistance = component.totalDistance;
+    final totalElevation = component.totalElevationGain;
+    final totalMovingTime = component.totalMovingTime;
+
+    return Card.outlined(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildStatItem(
+                  icon: Icons.map_outlined,
+                  label: "Distance",
+                  value: "${(totalDistance / 1000).toStringAsFixed(1)} km",
+                ),
+                _buildStatItem(
+                  icon: Icons.terrain_outlined,
+                  label: "Elevation",
+                  value: "${totalElevation.round()} m",
+                ),
+                _buildStatItem(
+                  icon: Icons.timer_outlined,
+                  label: "Moving Time",
+                  value: "${totalMovingTime.inHours}h ${totalMovingTime.inMinutes.remainder(60)}m",
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatItem({required IconData icon, required String label, required String value}) {
+    final theme = Theme.of(context);
+    return Column(
+      children: [
+        Icon(icon, size: 20, color: theme.colorScheme.secondary),
+        const SizedBox(height: 4),
+        Text(value, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+        Text(label, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+      ],
+    );
+  }
+
   Widget _noSetupsPlaceholder() {
     return SizedBox(
       height: 100,
@@ -279,13 +330,45 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsetsGeometry.all(16),
-          scrollDirection: Axis.vertical,
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (appSettings.enableStrava && appSettings.enableInstallationTimeline)
+                _buildStatCard(component, appRepository),
+              if (component.notes != null)
+                Card.outlined(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  child: ListTile(
+                    leading: const Icon(Icons.notes),
+                    titleAlignment: ListTileTitleAlignment.top,
+                    title: SelectableText(component.notes!),
+                    dense: true,
+                  ),
+                ),
               if (appSettings.enableInstallationTimeline)
-                DisplayInstallationTimeline(component: component),
+                Card.outlined(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  child: ExpansionTile(
+                    shape: const Border(),
+                    collapsedShape: const Border(),
+                    title: const Text("Installation History"),
+                    leading: const Icon(Icons.history),
+                    childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    children: [
+                      DisplayInstallationTimeline(component: component),
+                    ],
+                  ),
+                ),
+              
+              const SizedBox(height: 16),
+              Text("Adjustment History".toUpperCase(), style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold, 
+                letterSpacing: 1.2, 
+                color: Theme.of(context).colorScheme.primary
+              )),
+              const SizedBox(height: 8),
+
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
@@ -311,6 +394,7 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                   ],
                 ),
               ),
+              const SizedBox(height: 8),
 
               if (activeColumns.isNotEmpty)
                 SingleChildScrollView(

@@ -42,7 +42,7 @@ class _MapPageState extends State<MapPage> {
               height: 40,
               child: GestureDetector(
                 onTap: () async {
-                  await showSetupDisplaySheet(context: context, setup: setup);
+                  await showSetupDetailsSheet(context: context, setup: setup);
                 },
                 child: Icon(
                   Icons.location_pin,

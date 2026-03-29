@@ -359,10 +359,7 @@ class _AdjustmentTableCell extends StatelessWidget {
         children: [
           Text(
             adjustment.name,
-            style: TextStyle(
-              fontWeight: FontWeight.normal,
-              fontSize: 12,
-            ),
+            style: Theme.of(context).textTheme.labelSmall,
             overflow: TextOverflow.ellipsis,
           ),
         ],

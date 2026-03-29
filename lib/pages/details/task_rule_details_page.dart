@@ -1,15 +1,15 @@
-import 'package:bike_setup_tracker/widgets/items/task_entry_list_item.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/task_rule.dart';
-import '../repositories/app_repository.dart';
-import '../widgets/task_rule_display_card.dart';
+import '../../models/task_rule.dart';
+import '../../repositories/app_repository.dart';
+import '../../widgets/task_rule_display_card.dart';
+import '../../widgets/items/task_entry_list_item.dart';
 
-class TaskRuleDisplayPage extends StatelessWidget {
+class TaskRuleDetailsPage extends StatelessWidget {
   final TaskRule taskRule;
 
-  const TaskRuleDisplayPage({super.key, required this.taskRule});
+  const TaskRuleDetailsPage({super.key, required this.taskRule});
 
   Widget _noTaskEntriesPlaceholder(BuildContext context) {
     return SizedBox(
@@ -18,7 +18,10 @@ class TaskRuleDisplayPage extends StatelessWidget {
         child: Text(
           'No entries yet',
           textAlign: TextAlign.center,
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            fontStyle: FontStyle.italic,
+            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+          ),
         ),
       ),
     );

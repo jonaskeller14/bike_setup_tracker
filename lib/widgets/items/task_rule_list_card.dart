@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../models/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/task_actions.dart';
-import '../../pages/task_rule_display_page.dart';
+import '../../pages/details/task_rule_details_page.dart';
 
 class TaskRuleListCard extends StatelessWidget {
   final String taskRuleId;
@@ -40,7 +40,7 @@ class TaskRuleListCard extends StatelessWidget {
             await Navigator.push<TaskRule>(
               context,
               MaterialPageRoute(
-                builder: (context) => TaskRuleDisplayPage(taskRule: taskRule),
+                builder: (context) => TaskRuleDetailsPage(taskRule: taskRule),
               ),
             );
           },

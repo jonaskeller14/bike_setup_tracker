@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../repositories/app_repository.dart';
 import '../../models/setup.dart';
-import '../../pages/setup_display_page.dart';
+import '../../pages/details/setup_details_page.dart';
 import '../items/setup_list_card.dart';
 
 class SetupListSearch extends StatelessWidget {
@@ -53,7 +53,7 @@ class SetupListSearch extends StatelessWidget {
           return SetupListCard(
             setupId: setup.id, 
             onTap: () async {
-              await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDisplayPage(
+              await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDetailsPage(
                 setupIds: suggestedSetups.map((s) => s.id).toList(),
                 initialSetup: setup,
               )));

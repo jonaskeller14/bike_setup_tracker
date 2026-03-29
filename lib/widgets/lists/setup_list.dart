@@ -5,7 +5,7 @@ import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../models/task_entry.dart';
 import '../../repositories/app_repository.dart';
-import '../../pages/setup_display_page.dart';
+import '../../pages/details/setup_details_page.dart';
 import '../chips/setup_list_filter_widget.dart';
 import '../items/setup_list_card.dart';
 import '../items/strava_list_tile.dart';
@@ -135,7 +135,7 @@ class SetupList extends StatelessWidget {
                   return SetupListCard(
                     setupId: setup.id,
                     onTap: () async {
-                      Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDisplayPage(
+                      Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDetailsPage(
                         setupIds: setupsList.map((s) => s.id).toList(),
                         initialSetup: setup,
                       )));

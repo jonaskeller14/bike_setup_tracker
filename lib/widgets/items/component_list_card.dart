@@ -6,7 +6,7 @@ import '../../models/component.dart';
 import '../../models/bike.dart';
 import '../../utils/component_actions.dart';
 import '../lists/adjustment_compact_display_list.dart';
-import '../../pages/component_overview_page.dart';
+import '../../pages/details/component_details_page.dart';
 import '../../models/app_settings.dart';
 
 class ComponentListCard extends StatelessWidget{
@@ -38,10 +38,10 @@ class ComponentListCard extends StatelessWidget{
       color: color,
       child: InkWell(
         onTap: () async {
-          await Navigator.push<Component>(
+          await Navigator.push<void>(
             context,
             MaterialPageRoute(
-              builder: (context) => ComponentOverviewPage(componentId: component.id),
+              builder: (context) => ComponentDetailsPage(componentId: component.id),
             ),
           );
         },
@@ -114,6 +114,8 @@ class ComponentListCard extends StatelessWidget{
                         Expanded(
                           child: Text(
                             component.notes!,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                               fontSize: 13,
@@ -128,7 +130,7 @@ class ComponentListCard extends StatelessWidget{
                       runSpacing: 2,
                       children: [
                         _StatItem(
-                          icon: Icons.speed,
+                          icon: Icons.map,
                           label: '${NumberFormat.decimalPattern().format((component.totalDistance / 1000).round())} km',
                         ),
                         _StatItem(

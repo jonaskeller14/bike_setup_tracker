@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../models/setup.dart';
-import '../../pages/setup_display_page.dart';
+import '../../pages/details/setup_details_page.dart';
 
-Future<void> showSetupDisplaySheet({required BuildContext context, required Setup setup}) async {
+Future<void> showSetupDetailsSheet({required BuildContext context, required Setup setup}) async {
   return await showModalBottomSheet<void>(
     useSafeArea: true,
     showDragHandle: true,
@@ -10,7 +10,7 @@ Future<void> showSetupDisplaySheet({required BuildContext context, required Setu
     context: context, 
     backgroundColor: Theme.of(context).colorScheme.surface,
     builder: (BuildContext context) => SafeArea(
-      child: SetupDisplayPageContent(setup: setup)
+      child: SetupDetailsPageContent(setup: setup)
     ),
   );
 }

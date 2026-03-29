@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../services/strava_service.dart';
-import '../../pages/strava_activitiy_page.dart';
+import '../../pages/details/strava_activitiy_details_page.dart';
 
 class StravaListTile extends StatelessWidget {
   final StravaActivity stravaActivity;
@@ -84,7 +84,7 @@ class StravaListTile extends StatelessWidget {
       dense: true,
       contentPadding: contentPadding,
       onTap: () async {
-        Navigator.push<void>(context, MaterialPageRoute(builder: (context) => StravaActivityPage(
+        Navigator.push<void>(context, MaterialPageRoute(builder: (context) => StravaActivityDetailsPage(
           stravaActivity: stravaActivity,
         )));
       },

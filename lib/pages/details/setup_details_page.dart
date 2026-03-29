@@ -6,34 +6,34 @@ import 'package:weather_icons/weather_icons.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import '../models/app_settings.dart';
-import '../repositories/app_repository.dart';
-import '../models/setup.dart';
-import '../models/person.dart';
-import '../models/component.dart';
-import '../models/rating.dart';
-import '../models/bike.dart';
-import '../models/weather.dart';
-import '../widgets/display_adjustment/display_adjustment_list.dart';
-import '../widgets/display_adjustment/display_dangling_adjustment.dart';
-import '../widgets/initial_changed_value_legend.dart';
-import '../utils/setup_actions.dart';
+import '../../models/app_settings.dart';
+import '../../repositories/app_repository.dart';
+import '../../models/setup.dart';
+import '../../models/person.dart';
+import '../../models/component.dart';
+import '../../models/rating.dart';
+import '../../models/bike.dart';
+import '../../models/weather.dart';
+import '../../widgets/display_adjustment/display_adjustment_list.dart';
+import '../../widgets/display_adjustment/display_dangling_adjustment.dart';
+import '../../widgets/initial_changed_value_legend.dart';
+import '../../utils/setup_actions.dart';
 
-class SetupDisplayPage extends StatefulWidget {
+class SetupDetailsPage extends StatefulWidget {
   final List<String> setupIds;
   final Setup? initialSetup;
 
-  const SetupDisplayPage({
+  const SetupDetailsPage({
     super.key, 
     required this.setupIds,
     this.initialSetup,
   });
 
   @override
-  State<SetupDisplayPage> createState() => _SetupDisplayPageState();
+  State<SetupDetailsPage> createState() => _SetupDetailsPageState();
 }
 
-class _SetupDisplayPageState extends State<SetupDisplayPage> {
+class _SetupDetailsPageState extends State<SetupDetailsPage> {
   late PageController _pageController;
   int _currentPageIndex = 0;
   
@@ -134,17 +134,17 @@ class _SetupDisplayPageState extends State<SetupDisplayPage> {
           final Setup? setup = setups[index];
           if (setup == null) return Expanded(child: Center(child: const Text("Setup not found.")));
 
-          return SetupDisplayPageContent(setup: setup);
+          return SetupDetailsPageContent(setup: setup);
         },
       )
     );
   }
 }
 
-class SetupDisplayPageContent extends StatelessWidget {
+class SetupDetailsPageContent extends StatelessWidget {
   final Setup setup;
 
-  const SetupDisplayPageContent({super.key, required this.setup});
+  const SetupDetailsPageContent({super.key, required this.setup});
 
   SliverAppBar _setupTitle(BuildContext context, {required Setup setup}) {
     final appSettings = context.read<AppSettings>();

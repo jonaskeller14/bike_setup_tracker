@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
+import '../../pages/details/bike_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../models/app_settings.dart';
 import '../../models/person.dart';
@@ -32,7 +33,15 @@ class BikeListCard extends StatelessWidget{
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       clipBehavior: Clip.antiAlias, // Borderradius for InkWell
       child: InkWell(
-        onTap: () => appRepository.onBikeTap(bike.id),
+        onTap: () async {
+          await Navigator.push<void>(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BikeDetailsPage(bikeId: bike.id),
+            ),
+          );
+        },
+        onDoubleTap: () => appRepository.onBikeTap(bike.id),
         child: Opacity(
           opacity: bike.id == appRepository.selectedBike || appRepository.selectedBike == null ? 1 : 0.3,
           child: ListTile(
@@ -116,6 +125,8 @@ class BikeListCard extends StatelessWidget{
                             Expanded(
                               child: Text(
                                 bike.notes!,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                                   fontSize: 13,

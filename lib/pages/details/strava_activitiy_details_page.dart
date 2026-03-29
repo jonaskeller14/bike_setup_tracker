@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../models/app_settings.dart';
-import '../repositories/app_repository.dart';
-import '../models/strava/strava_activity.dart';
-import '../models/setup.dart';
-import '../services/strava_service.dart';
-import '../widgets/items/setup_list_card.dart';
-import 'setup_page.dart';
+import '../../models/app_settings.dart';
+import '../../repositories/app_repository.dart';
+import '../../models/strava/strava_activity.dart';
+import '../../models/setup.dart';
+import '../../services/strava_service.dart';
+import '../../widgets/items/setup_list_card.dart';
+import '../setup_page.dart';
 
-class StravaActivityPage extends StatelessWidget {
+class StravaActivityDetailsPage extends StatelessWidget {
   final StravaActivity stravaActivity;
 
-  const StravaActivityPage({super.key, required this.stravaActivity});
+  const StravaActivityDetailsPage({super.key, required this.stravaActivity});
 
   @override
   Widget build(BuildContext context) {

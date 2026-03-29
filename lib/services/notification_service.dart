@@ -1,7 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import '../repositories/app_repository.dart';
-import '../pages/strava_activitiy_page.dart';
+import '../pages/details/strava_activitiy_details_page.dart';
 import 'navigation_service.dart';
 
 class NotificationService {
@@ -60,7 +60,7 @@ class NotificationService {
     if (activity != null) {
       NavigationService.navigator?.push(
         MaterialPageRoute(
-          builder: (context) => StravaActivityPage(stravaActivity: activity),
+          builder: (context) => StravaActivityDetailsPage(stravaActivity: activity),
         ),
       );
     } else if (retryCount < 3) {

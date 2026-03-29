@@ -7,7 +7,7 @@ import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
-import 'package:bike_setup_tracker/pages/component_overview_page.dart';
+import 'package:bike_setup_tracker/pages/details/component_details_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -40,7 +40,7 @@ void main() {
       ],
       child: MaterialApp(
         home: Scaffold(
-          body: ComponentOverviewPage(
+          body: ComponentDetailsPage(
             componentId: componentId,
           ),
         ),

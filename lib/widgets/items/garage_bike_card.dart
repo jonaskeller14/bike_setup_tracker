@@ -10,6 +10,7 @@ import '../../models/bike.dart';
 import '../../utils/bike_actions.dart';
 import '../../utils/component_actions.dart';
 import '../dashed_border_painter.dart';
+import '../../pages/details/bike_details_page.dart';
 import 'component_list_card.dart';
 import 'garage_component_icon_card.dart';
 
@@ -93,6 +94,14 @@ class GarageBikeCard extends StatelessWidget{
         margin: const EdgeInsets.symmetric(vertical: 4.0),
         clipBehavior: Clip.antiAlias, // Borderradius for InkWell
         child: InkWell(
+          onTap: () async {
+            await Navigator.push<void>(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BikeDetailsPage(bikeId: bike.id),
+              ),
+            );
+          },
           onDoubleTap: () => appRepository.onBikeTap(bike.id),
           child: Column(
             mainAxisSize: MainAxisSize.min,

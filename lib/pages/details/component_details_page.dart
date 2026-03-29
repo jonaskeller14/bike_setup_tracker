@@ -2,31 +2,31 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../models/bike.dart';
-import '../repositories/app_repository.dart';
-import '../models/rating.dart';
-import '../models/setup.dart';
-import '../models/adjustment/adjustment.dart';
-import '../models/weather.dart';
-import '../models/app_settings.dart';
-import '../utils/component_actions.dart';
-import '../widgets/chips/bike_and_tags_filter.dart';
-import '../widgets/display_installation_timeline.dart';
-import '../widgets/sheets/column_filter.dart';
-import '../widgets/initial_changed_value_legend.dart';
-import '../utils/table_column.dart';
-import '../models/component.dart';
+import '../../models/bike.dart';
+import '../../repositories/app_repository.dart';
+import '../../models/rating.dart';
+import '../../models/setup.dart';
+import '../../models/adjustment/adjustment.dart';
+import '../../models/weather.dart';
+import '../../models/app_settings.dart';
+import '../../utils/component_actions.dart';
+import '../../widgets/chips/bike_and_tags_filter.dart';
+import '../../widgets/display_installation_timeline.dart';
+import '../../widgets/sheets/column_filter.dart';
+import '../../widgets/initial_changed_value_legend.dart';
+import '../../utils/table_column.dart';
+import '../../models/component.dart';
 
-class ComponentOverviewPage extends StatefulWidget{
+class ComponentDetailsPage extends StatefulWidget{
   final String componentId;
 
-  const ComponentOverviewPage({super.key, required this.componentId});
+  const ComponentDetailsPage({super.key, required this.componentId});
 
   @override
-  State<ComponentOverviewPage> createState() => _ComponentOverviewPageState();
+  State<ComponentDetailsPage> createState() => _ComponentDetailsPageState();
 }
 
-class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
+class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   bool _sortAscending = true;
   TableColumn? _sortColumn;
 
@@ -181,17 +181,17 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
                 _buildStatItem(
                   icon: Icons.map_outlined,
                   label: "Distance",
-                  value: "${(totalDistance / 1000).toStringAsFixed(1)} km",
+                  value: '${NumberFormat.decimalPattern().format((totalDistance / 1000).round())} km',
                 ),
                 _buildStatItem(
                   icon: Icons.terrain_outlined,
                   label: "Elevation",
-                  value: "${totalElevation.round()} m",
+                  value: '${NumberFormat.decimalPattern().format(totalElevation.round())} m',
                 ),
                 _buildStatItem(
                   icon: Icons.timer_outlined,
                   label: "Moving Time",
-                  value: "${totalMovingTime.inHours}h ${totalMovingTime.inMinutes.remainder(60)}m",
+                  value: '${NumberFormat.decimalPattern().format(totalMovingTime.inHours)}h ${totalMovingTime.inMinutes.remainder(60)}m',
                 ),
               ],
             ),
@@ -313,9 +313,9 @@ class _ComponentOverviewPageState extends State<ComponentOverviewPage> {
     return Scaffold(
       appBar: AppBar(
         title: Row(
+          spacing: 8,
           children: [
             Icon(component.componentType.getIconData()),
-            const SizedBox(width: 8),
             Expanded(
               child: Text(component.name, overflow: TextOverflow.ellipsis),
             ),

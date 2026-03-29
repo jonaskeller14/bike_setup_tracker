@@ -222,7 +222,10 @@ class _ComponentPageState extends State<ComponentPage> {
   }
 
   void _saveComponent() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      setState(() => _expanded = true);
+      return;
+    }
     
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
@@ -712,14 +715,20 @@ class _ComponentPageState extends State<ComponentPage> {
                       ),
                     ),
                   ),
-                  if (_expanded) ...[
-                    const SizedBox(height: 12),
-                    _notesField(),
-                    if (appSettings.enableInstallationTimeline && appSettings.enableStrava) ...[
-                      const SizedBox(height: 24),
-                      _initialStatsFields(),
+                  Visibility(
+                    visible: _expanded,
+                    maintainState: true,
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 12),
+                        _notesField(),
+                        if (appSettings.enableInstallationTimeline && appSettings.enableStrava) ...[
+                          const SizedBox(height: 24),
+                          _initialStatsFields(),
                     ]
-                  ],
+                      ],
+                    ),
+                  ),
 
                   const SizedBox(height: 12),
                   if (appSettings.enableInstallationTimeline || _isComplexInstallation)

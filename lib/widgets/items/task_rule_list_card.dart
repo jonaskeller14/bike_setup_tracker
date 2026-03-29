@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../../models/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/task_actions.dart';
 import '../../pages/details/task_rule_details_page.dart';
@@ -37,10 +36,10 @@ class TaskRuleListCard extends StatelessWidget {
           contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
           minTileHeight: 0,
           onTap: () async {
-            await Navigator.push<TaskRule>(
+            await Navigator.push<void>(
               context,
               MaterialPageRoute(
-                builder: (context) => TaskRuleDetailsPage(taskRule: taskRule),
+                builder: (context) => TaskRuleDetailsPage(taskRuleId: taskRuleId),
               ),
             );
           },

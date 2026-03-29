@@ -220,7 +220,10 @@ class _RatingPageState extends State<RatingPage> {
   }
 
   void _saveRating() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      setState(() => _expanded = true);
+      return;
+    }
     
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
@@ -626,22 +629,28 @@ class _RatingPageState extends State<RatingPage> {
                       ),
                     ),
                   ),
-                  if (_expanded) ...[
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _notesController,
-                      minLines: 2,
-                      maxLines: null,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      decoration: InputDecoration(
-                        labelText: 'Notes (optional)',
-                        hintText: 'Describe the rating procedure, guidelines, instructions, ...',
-                        border: OutlineInputBorder(),
-                        fillColor: Colors.orange.withValues(alpha: 0.08),
-                        filled: widget.mode == RatingPageMode.edit && _notesController.text.trim() != (widget.rating?.notes ?? ""),
-                      ),
+                  Visibility(
+                    visible: _expanded,
+                    maintainState: true,
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _notesController,
+                          minLines: 2,
+                          maxLines: null,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          decoration: InputDecoration(
+                            labelText: 'Notes (optional)',
+                            hintText: 'Describe the rating procedure, guidelines, instructions, ...',
+                            border: OutlineInputBorder(),
+                            fillColor: Colors.orange.withValues(alpha: 0.08),
+                            filled: widget.mode == RatingPageMode.edit && _notesController.text.trim() != (widget.rating?.notes ?? ""),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                   const SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),

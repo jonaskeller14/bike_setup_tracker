@@ -184,7 +184,10 @@ class _PersonPageState extends State<PersonPage> {
   }
 
   void _savePerson() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      setState(() => _expanded = true);
+      return;
+    }
     
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
@@ -400,84 +403,90 @@ class _PersonPageState extends State<PersonPage> {
                       ),
                     ),
                   ),
-                  if (_expanded) ...[
-                    const SizedBox(height: 12),
-                    TextFormField(
-                      controller: _notesController,
-                      minLines: 2,
-                      maxLines: null,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      decoration: InputDecoration(
-                        labelText: 'Notes (optional)',
-                        hintText: 'Enter notes about the person...',
-                        border: OutlineInputBorder(),
-                        fillColor: Colors.orange.withValues(alpha: 0.08),
-                        filled: widget.mode == PersonPageMode.edit && _notesController.text.trim() != (widget.person?.notes ?? ""),
-                      ),
-                    ),
-                    if (context.read<AppSettings>().enableStrava) ...[
-                      const SizedBox(height: 12),
-                      DropdownButtonFormField<int?>(
-                        initialValue: _stravaAthlete,
-                        isExpanded: true,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        decoration: InputDecoration(
-                          labelText: 'Strava Athlete',
-                          border: OutlineInputBorder(),
-                          hintText: "Link Strava Athlete",
-                          helperText: existingPersons.values.any((p) => p.id != widget.person?.id && p.stravaAthlete != null && p.stravaAthlete == _stravaAthlete)
-                            ? "WARNING: Strava Athlete already assigned to another Person"
-                            : null,
-                          fillColor: Colors.orange.withValues(alpha: 0.08),
-                          filled: widget.mode == PersonPageMode.edit && _stravaAthlete != _initialStravaAthlete,
-                        ),
-                        validator: (int? newStravaAthlete) {
-                          if (newStravaAthlete == null) return null;
-                          if (!stravaAthletes.containsKey(newStravaAthlete)) return "Please select valid Athlete";
-                          return null;
-                        },
-                        items: [
-                          DropdownMenuItem<int?>(
-                            value: null,
-                            child: Row(
-                              spacing: 8,
-                              children: [
-                                const Icon(Icons.link_off),
-                                const Expanded(child: Text("NOT LINKED", overflow: TextOverflow.ellipsis))
-                              ],
-                            ),
+                  Visibility(
+                    visible: _expanded,
+                    maintainState: true,
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _notesController,
+                          minLines: 2,
+                          maxLines: null,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          decoration: InputDecoration(
+                            labelText: 'Notes (optional)',
+                            hintText: 'Enter notes about the person...',
+                            border: OutlineInputBorder(),
+                            fillColor: Colors.orange.withValues(alpha: 0.08),
+                            filled: widget.mode == PersonPageMode.edit && _notesController.text.trim() != (widget.person?.notes ?? ""),
                           ),
-                          ...stravaAthletes.values.map((a) {
-                            return DropdownMenuItem<int>(
-                              value: a.id,
-                              child: Row(
-                                spacing: 8,
-                                children: [
-                                  const Icon(SimpleIcons.strava),
-                                  Expanded(child: Text("${a.firstname} ${a.lastname}", overflow: TextOverflow.ellipsis))
-                                ],
-                              ),
-                            );
-                          }),
-                          if (_stravaAthlete != null && !stravaAthletes.containsKey(_stravaAthlete))
-                            DropdownMenuItem<int>(
-                            value: _stravaAthlete,
-                            child: Row(
-                              spacing: 8,
-                              children: [
-                                Icon(SimpleIcons.strava, color: Theme.of(context).colorScheme.error),
-                                Expanded(child: Text("ATHLETE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
-                              ],
+                        ),
+                        if (context.read<AppSettings>().enableStrava) ...[
+                          const SizedBox(height: 12),
+                          DropdownButtonFormField<int?>(
+                            initialValue: _stravaAthlete,
+                            isExpanded: true,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            decoration: InputDecoration(
+                              labelText: 'Strava Athlete',
+                              border: OutlineInputBorder(),
+                              hintText: "Link Strava Athlete",
+                              helperText: existingPersons.values.any((p) => p.id != widget.person?.id && p.stravaAthlete != null && p.stravaAthlete == _stravaAthlete)
+                                ? "WARNING: Strava Athlete already assigned to another Person"
+                                : null,
+                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              filled: widget.mode == PersonPageMode.edit && _stravaAthlete != _initialStravaAthlete,
                             ),
-                          ), 
+                            validator: (int? newStravaAthlete) {
+                              if (newStravaAthlete == null) return null;
+                              if (!stravaAthletes.containsKey(newStravaAthlete)) return "Please select valid Athlete";
+                              return null;
+                            },
+                            items: [
+                              DropdownMenuItem<int?>(
+                                value: null,
+                                child: Row(
+                                  spacing: 8,
+                                  children: [
+                                    const Icon(Icons.link_off),
+                                    const Expanded(child: Text("NOT LINKED", overflow: TextOverflow.ellipsis))
+                                  ],
+                                ),
+                              ),
+                              ...stravaAthletes.values.map((a) {
+                                return DropdownMenuItem<int>(
+                                  value: a.id,
+                                  child: Row(
+                                    spacing: 8,
+                                    children: [
+                                      const Icon(SimpleIcons.strava),
+                                      Expanded(child: Text("${a.firstname} ${a.lastname}", overflow: TextOverflow.ellipsis))
+                                    ],
+                                  ),
+                                );
+                              }),
+                              if (_stravaAthlete != null && !stravaAthletes.containsKey(_stravaAthlete))
+                                DropdownMenuItem<int>(
+                                value: _stravaAthlete,
+                                child: Row(
+                                  spacing: 8,
+                                  children: [
+                                    Icon(SimpleIcons.strava, color: Theme.of(context).colorScheme.error),
+                                    Expanded(child: Text("ATHLETE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+                                  ],
+                                ),
+                              ), 
+                            ],
+                            onChanged: (int? newStravaAthlete) {
+                              setState(() => _stravaAthlete = newStravaAthlete);
+                              _changeListener();
+                            },
+                          ),
                         ],
-                        onChanged: (int? newStravaAthlete) {
-                          setState(() => _stravaAthlete = newStravaAthlete);
-                          _changeListener();
-                        },
-                      ),
-                    ]
-                  ],
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   FormField<List<Adjustment>>(
                     initialValue: _adjustments,

@@ -87,7 +87,10 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
   }
 
   void _saveBooleanAdjustment() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      setState(() => _expanded = true);
+      return;
+    }
 
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
@@ -224,33 +227,39 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                               ),
                             ),
                           ),
-                          if (_expanded) ...[
-                            const SizedBox(height: 12),
-                            TextFormField(
-                              controller: _notesController,
-                              minLines: 2,
-                              maxLines: null,
-                              onChanged: (String? value) {
-                                setState(() {
-                                  _previewAdjustment = BooleanAdjustment(
-                                    name: _previewAdjustment.name, 
-                                    notes: (value == null || value.isEmpty) ? null : value,
-                                    unit: null,
-                                    category: _category,
-                                  );
-                                });
-                              },
-                              autovalidateMode: AutovalidateMode.onUserInteraction,
-                              decoration: InputDecoration(
-                                labelText: 'Notes (optional)',
-                                hintText: 'Enter measuring procedure/instrument/...',
-                                helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
-                                border: OutlineInputBorder(),
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
-                                filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
-                              ),
+                          Visibility(
+                            visible: _expanded,
+                            maintainState: true,
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 12),
+                                TextFormField(
+                                  controller: _notesController,
+                                  minLines: 2,
+                                  maxLines: null,
+                                  onChanged: (String? value) {
+                                    setState(() {
+                                      _previewAdjustment = BooleanAdjustment(
+                                        name: _previewAdjustment.name, 
+                                        notes: (value == null || value.isEmpty) ? null : value,
+                                        unit: null,
+                                        category: _category,
+                                      );
+                                    });
+                                  },
+                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                  decoration: InputDecoration(
+                                    labelText: 'Notes (optional)',
+                                    hintText: 'Enter measuring procedure/instrument/...',
+                                    helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
+                                    border: OutlineInputBorder(),
+                                    fillColor: Colors.orange.withValues(alpha: 0.08),
+                                    filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ],
                       ),
                     ),

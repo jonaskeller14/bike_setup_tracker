@@ -105,7 +105,10 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
   }
 
   void _saveNumericalAdjustment() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      setState(() => _expanded = true);
+      return;
+    }
 
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
@@ -308,121 +311,127 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                               ),
                             ),
                           ),
-                          if (_expanded) ...[
-                            const SizedBox(height: 12),
-                            TextFormField(
-                              controller: _minController,
-                              textInputAction: TextInputAction.next,
-                              autovalidateMode: AutovalidateMode.onUserInteraction,
-                              keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+                          Visibility(
+                            visible: _expanded,
+                            maintainState: true,
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 12),
+                                TextFormField(
+                                  controller: _minController,
+                                  textInputAction: TextInputAction.next,
+                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                  keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+                                  ],
+                                  decoration: InputDecoration(
+                                    labelText: 'Min Value (optional)',
+                                    hintText: 'Enter minimum value',
+                                    border: OutlineInputBorder(),
+                                    prefixIcon: const Icon(Icons.vertical_align_bottom),
+                                    suffixIcon: _minController.text.isNotEmpty
+                                        ? IconButton(
+                                            icon: const Icon(Icons.clear),
+                                            onPressed: () {
+                                              setState(() {
+                                                _previewAdjustment = _previewAdjustment.copyWith(min: null);
+                                                _minController.clear();
+                                              });
+                                            },
+                                          )
+                                        : null,
+                                    fillColor: Colors.orange.withValues(alpha: 0.08),
+                                    filled: widget.mode == AdjustmentPageMode.edit && (double.tryParse(_minController.text.trim()) ?? double.negativeInfinity) != widget.adjustment?.min,
+                                  ),
+                                  validator: _validateMin,
+                                  onChanged: (String value) {
+                                    setState(() {
+                                      _previewValue = null;
+                                      _previewAdjustment = NumericalAdjustment(
+                                        name: _nameController.text.trim(),
+                                        notes: _previewAdjustment.notes,
+                                        unit: _unitController.text.trim(), 
+                                        min: double.tryParse(_minController.text.trim()),
+                                        max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
+                                        category: _category,
+                                      );
+                                    });
+                                  },
+                                ),
+                                const SizedBox(height: 12),
+                                TextFormField(
+                                  controller: _maxController,
+                                  onFieldSubmitted: (_) => _saveNumericalAdjustment(),
+                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                  keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
+                                  ],
+                                  decoration: InputDecoration(
+                                    labelText: 'Max Value (optional)',
+                                    hintText: 'Enter maximum value',
+                                    border: OutlineInputBorder(),
+                                    prefixIcon: const Icon(Icons.vertical_align_top),
+                                    suffixIcon: _maxController.text.isNotEmpty
+                                        ? IconButton(
+                                            icon: const Icon(Icons.clear),
+                                            onPressed: () {
+                                              setState(() {
+                                                _previewAdjustment = _previewAdjustment.copyWith(max: null);
+                                                _maxController.clear();
+                                              });
+                                            },
+                                          )
+                                        : null,
+                                    fillColor: Colors.orange.withValues(alpha: 0.08),
+                                    filled: widget.mode == AdjustmentPageMode.edit && (double.tryParse(_maxController.text.trim()) ?? double.infinity) != widget.adjustment?.max,
+                                  ),
+                                  validator: _validateMax,
+                                  onChanged: (String value) {
+                                    setState(() {
+                                      _previewValue = null;
+                                      _previewAdjustment = NumericalAdjustment(
+                                        name: _nameController.text.trim(),
+                                        notes: _previewAdjustment.notes,
+                                        unit: _unitController.text.trim(), 
+                                        min: double.tryParse(_minController.text.trim()),
+                                        max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
+                                        category: _category,
+                                      );
+                                    });
+                                  },
+                                ),
+                                const SizedBox(height: 12),
+                                TextFormField(
+                                  controller: _notesController,
+                                  minLines: 2,
+                                  maxLines: null,
+                                  onChanged: (String? value) {
+                                    setState(() {
+                                      _previewAdjustment = NumericalAdjustment(
+                                        name: _nameController.text.trim(),
+                                        notes: (value == null || value.isEmpty) ? null : value,
+                                        unit: _unitController.text.trim(), 
+                                        min: double.tryParse(_minController.text.trim()),
+                                        max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
+                                        category: _category,
+                                      );
+                                    });
+                                  },
+                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                  decoration: InputDecoration(
+                                    labelText: 'Notes (optional)',
+                                    hintText: 'Enter measuring procedure/instrument/...',
+                                    helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
+                                    border: OutlineInputBorder(),
+                                    fillColor: Colors.orange.withValues(alpha: 0.08),
+                                    filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
+                                  ),
+                                ),
                               ],
-                              decoration: InputDecoration(
-                                labelText: 'Min Value (optional)',
-                                hintText: 'Enter minimum value',
-                                border: OutlineInputBorder(),
-                                prefixIcon: const Icon(Icons.vertical_align_bottom),
-                                suffixIcon: _previewAdjustment.min != double.negativeInfinity
-                                    ? IconButton(
-                                        icon: const Icon(Icons.clear),
-                                        onPressed: () {
-                                          setState(() {
-                                            _previewAdjustment = _previewAdjustment.copyWith(min: null);
-                                            _minController.clear();
-                                          });
-                                        },
-                                      )
-                                    : null,
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
-                                filled: widget.mode == AdjustmentPageMode.edit && (double.tryParse(_minController.text.trim()) ?? double.negativeInfinity) != widget.adjustment?.min,
-                              ),
-                              validator: _validateMin,
-                              onChanged: (String value) {
-                                setState(() {
-                                  _previewValue = null;
-                                  _previewAdjustment = NumericalAdjustment(
-                                    name: _nameController.text.trim(),
-                                    notes: _previewAdjustment.notes,
-                                    unit: _unitController.text.trim(), 
-                                    min: double.tryParse(_minController.text.trim()),
-                                    max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
-                                    category: _category,
-                                  );
-                                });
-                              },
                             ),
-                            const SizedBox(height: 12),
-                            TextFormField(
-                              controller: _maxController,
-                              onFieldSubmitted: (_) => _saveNumericalAdjustment(),
-                              autovalidateMode: AutovalidateMode.onUserInteraction,
-                              keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*$')),
-                              ],
-                              decoration: InputDecoration(
-                                labelText: 'Max Value (optional)',
-                                hintText: 'Enter maximum value',
-                                border: OutlineInputBorder(),
-                                prefixIcon: const Icon(Icons.vertical_align_top),
-                                suffixIcon: _previewAdjustment.max != double.infinity
-                                    ? IconButton(
-                                        icon: const Icon(Icons.clear),
-                                        onPressed: () {
-                                          setState(() {
-                                            _previewAdjustment = _previewAdjustment.copyWith(max: null);
-                                            _maxController.clear();
-                                          });
-                                        },
-                                      )
-                                    : null,
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
-                                filled: widget.mode == AdjustmentPageMode.edit && (double.tryParse(_maxController.text.trim()) ?? double.infinity) != widget.adjustment?.max,
-                              ),
-                              validator: _validateMax,
-                              onChanged: (String value) {
-                                setState(() {
-                                  _previewValue = null;
-                                  _previewAdjustment = NumericalAdjustment(
-                                    name: _nameController.text.trim(),
-                                    notes: _previewAdjustment.notes,
-                                    unit: _unitController.text.trim(), 
-                                    min: double.tryParse(_minController.text.trim()),
-                                    max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
-                                    category: _category,
-                                  );
-                                });
-                              },
-                            ),
-                            const SizedBox(height: 12),
-                            TextFormField(
-                              controller: _notesController,
-                              minLines: 2,
-                              maxLines: null,
-                              onChanged: (String? value) {
-                                setState(() {
-                                  _previewAdjustment = NumericalAdjustment(
-                                    name: _nameController.text.trim(),
-                                    notes: (value == null || value.isEmpty) ? null : value,
-                                    unit: _unitController.text.trim(), 
-                                    min: double.tryParse(_minController.text.trim()),
-                                    max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
-                                    category: _category,
-                                  );
-                                });
-                              },
-                              autovalidateMode: AutovalidateMode.onUserInteraction,
-                              decoration: InputDecoration(
-                                labelText: 'Notes (optional)',
-                                hintText: 'Enter measuring procedure/instrument/...',
-                                helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
-                                border: OutlineInputBorder(),
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
-                                filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
-                              ),
-                            ),
-                          ],
+                          ),
                         ],
                       ),
                     ),

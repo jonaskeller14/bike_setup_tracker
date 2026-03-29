@@ -1,15 +1,15 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../models/task_rule.dart';
 import '../../repositories/app_repository.dart';
+import '../../utils/task_actions.dart';
 import '../../widgets/task_rule_display_card.dart';
 import '../../widgets/items/task_entry_list_item.dart';
 
 class TaskRuleDetailsPage extends StatelessWidget {
-  final TaskRule taskRule;
+  final String taskRuleId;
 
-  const TaskRuleDetailsPage({super.key, required this.taskRule});
+  const TaskRuleDetailsPage({super.key, required this.taskRuleId});
 
   Widget _noTaskEntriesPlaceholder(BuildContext context) {
     return SizedBox(
@@ -30,10 +30,20 @@ class TaskRuleDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
+
+    final taskRule = appRepository.taskRules[taskRuleId];
+    if (taskRule == null) return const SizedBox.shrink();
+
     final taskEntries = appRepository.taskEntries.values.where((te) => te.taskRule == taskRule.id).sortedBy((te) => te.dateTimeUTC);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Task"),
+        actions: [
+          IconButton(
+            onPressed: () => TaskActions.editTaskRule(context, taskRule: taskRule),
+            icon: const Icon(Icons.edit),
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(

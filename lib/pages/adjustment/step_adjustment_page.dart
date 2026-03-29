@@ -120,7 +120,10 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
   }
 
   void _saveStepAdjustment() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      setState(() => _expanded = true);
+      return;
+    }
 
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
@@ -394,107 +397,113 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               ),
                             ),
                           ),
-                          if (_expanded) ...[
-                            const SizedBox(height: 12),
-                            DropdownButtonFormField<StepAdjustmentVisualization>(
-                              initialValue: visualization,
-                              isExpanded: true,
-                              autovalidateMode: AutovalidateMode.onUserInteraction,
-                              hint: const Text("Please select visualization"),
-                              decoration: InputDecoration(
-                                labelText: 'Visualization',
-                                border: OutlineInputBorder(),
-                                hintText: "Choose a visualization for this adjustment",
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
-                                filled: widget.mode == AdjustmentPageMode.edit && visualization != widget.adjustment?.visualization,
-                              ),
-                              items: StepAdjustmentVisualization.values.map((v) {
-                                return DropdownMenuItem<StepAdjustmentVisualization>(
-                                  value: v,
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      if (v == StepAdjustmentVisualization.slider)
-                                        const Icon(Icons.linear_scale),
-                                      if (v == StepAdjustmentVisualization.sliderWithClockwiseDial) ... [
-                                        const Icon(Icons.linear_scale),
-                                        const Icon(Icons.rotate_right),
-                                      ],
-                                      if (v == StepAdjustmentVisualization.sliderWithCounterclockwiseDial) ... [
-                                        const Icon(Icons.linear_scale),
-                                        const Icon(Icons.rotate_left),
-                                      ],
-                                      if (v == StepAdjustmentVisualization.minusButtonValuePlusButton)
-                                        const Icon(Icons.exposure_plus_1),
-                                      if (v == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial) ... [
-                                        const Icon(Icons.exposure_plus_1),
-                                        const Icon(Icons.rotate_right),
-                                      ],
-                                      if (v == StepAdjustmentVisualization.minusButtonValuePlusButtonCounterclockwiseDial) ... [
-                                        const Icon(Icons.exposure_plus_1),
-                                        const Icon(Icons.rotate_left),
-                                      ],
-                                      SizedBox(width: 8),
-                                      Expanded(child: Text(v.value)),
-                                    ],
+                          Visibility(
+                            visible: _expanded,
+                            maintainState: true,
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 12),
+                                DropdownButtonFormField<StepAdjustmentVisualization>(
+                                  initialValue: visualization,
+                                  isExpanded: true,
+                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                  hint: const Text("Please select visualization"),
+                                  decoration: InputDecoration(
+                                    labelText: 'Visualization',
+                                    border: OutlineInputBorder(),
+                                    hintText: "Choose a visualization for this adjustment",
+                                    fillColor: Colors.orange.withValues(alpha: 0.08),
+                                    filled: widget.mode == AdjustmentPageMode.edit && visualization != widget.adjustment?.visualization,
                                   ),
-                                );
-                              }).toList(),
-                              onChanged: (StepAdjustmentVisualization? newVisualization) {
-                                if (newVisualization == null) return;
-                                setState(() {
-                                  visualization = newVisualization;
-                                  _previewAdjustment = StepAdjustment(
-                                    name: _previewAdjustment.name, 
-                                    notes: _previewAdjustment.notes,
-                                    min: _previewAdjustment.min, 
-                                    max: _previewAdjustment.max, 
-                                    step: _previewAdjustment.step, 
-                                    unit: _previewAdjustment.unit,
-                                    visualization: newVisualization,
-                                    category: _category,
-                                  );
-                                });
-                                _changeListener();
-                              },
-                              validator: (value) {
-                                if (value == null) {
-                                  return 'Component type cannot be empty';
-                                }
-                                return null;
-                              },
+                                  items: StepAdjustmentVisualization.values.map((v) {
+                                    return DropdownMenuItem<StepAdjustmentVisualization>(
+                                      value: v,
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          if (v == StepAdjustmentVisualization.slider)
+                                            const Icon(Icons.linear_scale),
+                                          if (v == StepAdjustmentVisualization.sliderWithClockwiseDial) ... [
+                                            const Icon(Icons.linear_scale),
+                                            const Icon(Icons.rotate_right),
+                                          ],
+                                          if (v == StepAdjustmentVisualization.sliderWithCounterclockwiseDial) ... [
+                                            const Icon(Icons.linear_scale),
+                                            const Icon(Icons.rotate_left),
+                                          ],
+                                          if (v == StepAdjustmentVisualization.minusButtonValuePlusButton)
+                                            const Icon(Icons.exposure_plus_1),
+                                          if (v == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial) ... [
+                                            const Icon(Icons.exposure_plus_1),
+                                            const Icon(Icons.rotate_right),
+                                          ],
+                                          if (v == StepAdjustmentVisualization.minusButtonValuePlusButtonCounterclockwiseDial) ... [
+                                            const Icon(Icons.exposure_plus_1),
+                                            const Icon(Icons.rotate_left),
+                                          ],
+                                          SizedBox(width: 8),
+                                          Expanded(child: Text(v.value)),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                                  onChanged: (StepAdjustmentVisualization? newVisualization) {
+                                    if (newVisualization == null) return;
+                                    setState(() {
+                                      visualization = newVisualization;
+                                      _previewAdjustment = StepAdjustment(
+                                        name: _previewAdjustment.name, 
+                                        notes: _previewAdjustment.notes,
+                                        min: _previewAdjustment.min, 
+                                        max: _previewAdjustment.max, 
+                                        step: _previewAdjustment.step, 
+                                        unit: _previewAdjustment.unit,
+                                        visualization: newVisualization,
+                                        category: _category,
+                                      );
+                                    });
+                                    _changeListener();
+                                  },
+                                  validator: (value) {
+                                    if (value == null) {
+                                      return 'Component type cannot be empty';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 12),
+                                TextFormField(
+                                  controller: _notesController,
+                                  minLines: 2,
+                                  maxLines: null,
+                                  onChanged: (String? value) {
+                                    setState(() {
+                                      _previewAdjustment = StepAdjustment(
+                                        name: _previewAdjustment.name, 
+                                        notes: (value == null || value.isEmpty) ? null : value,
+                                        min: _previewAdjustment.min, 
+                                        max: _previewAdjustment.max, 
+                                        step: _previewAdjustment.step, 
+                                        unit: _previewAdjustment.unit,
+                                        visualization: _previewAdjustment.visualization,
+                                        category: _category,
+                                      );
+                                    });
+                                  },
+                                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                                  decoration: InputDecoration(
+                                    labelText: 'Notes (optional)',
+                                    hintText: 'Enter measuring procedure/instrument/...',
+                                    helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
+                                    border: OutlineInputBorder(),
+                                    fillColor: Colors.orange.withValues(alpha: 0.08),
+                                    filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 12),
-                            TextFormField(
-                              controller: _notesController,
-                              minLines: 2,
-                              maxLines: null,
-                              onChanged: (String? value) {
-                                setState(() {
-                                  _previewAdjustment = StepAdjustment(
-                                    name: _previewAdjustment.name, 
-                                    notes: (value == null || value.isEmpty) ? null : value,
-                                    min: _previewAdjustment.min, 
-                                    max: _previewAdjustment.max, 
-                                    step: _previewAdjustment.step, 
-                                    unit: _previewAdjustment.unit,
-                                    visualization: _previewAdjustment.visualization,
-                                    category: _category,
-                                  );
-                                });
-                              },
-                              autovalidateMode: AutovalidateMode.onUserInteraction,
-                              decoration: InputDecoration(
-                                labelText: 'Notes (optional)',
-                                hintText: 'Enter measuring procedure/instrument/...',
-                                helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
-                                border: OutlineInputBorder(),
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
-                                filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
-                              ),
-                            ),
-                          ],
+                          ),
                         ],
                       ),
                     ),

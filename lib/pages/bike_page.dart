@@ -89,7 +89,10 @@ class _BikePageState extends State<BikePage> {
   }
 
   void _saveBike() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      setState(() => _expanded = true);
+      return;
+    }
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
     _formHasChanges = false;
@@ -312,14 +315,20 @@ class _BikePageState extends State<BikePage> {
                       ),
                     ),
                   ),
-                  if (_expanded) ...[
-                    const SizedBox(height: 12),
-                    _notesField(),
-                    if (appSettings.enableStrava) ...[
-                      const SizedBox(height: 12),
-                      _stravaGearField(existingBikes: existingBikes, stravaGears: stravaGears),
-                    ]
-                  ],
+                  Visibility(
+                    visible: _expanded,
+                    maintainState: true,
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 12),
+                        _notesField(),
+                        if (appSettings.enableStrava) ...[
+                          const SizedBox(height: 12),
+                          _stravaGearField(existingBikes: existingBikes, stravaGears: stravaGears),
+                        ]
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),

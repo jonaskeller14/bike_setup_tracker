@@ -125,6 +125,8 @@ class _ShareSheetFlowState extends State<ShareSheetFlow> {
                 components: widget.appRepository.components,
                 setups: widget.appRepository.setups,
                 ratings: widget.appRepository.ratings,
+                taskRules: widget.appRepository.taskRules,
+                taskEntries: widget.appRepository.taskEntries,
               )
             )),
             onManualSelected: () => setState(() => _step = ShareSheetFlowSteps.step3SelectDataItems),
@@ -137,6 +139,8 @@ class _ShareSheetFlowState extends State<ShareSheetFlow> {
               components: widget.appRepository.components,
               setups: widget.appRepository.setups,
               ratings: widget.appRepository.ratings,
+              taskRules: widget.appRepository.taskRules,
+              taskEntries: widget.appRepository.taskEntries,
             ),
             onConfirm: (SelectedData selected) {
               Navigator.of(context).pop(ShareResult(format: _shareFormat!, selectedData: selected));

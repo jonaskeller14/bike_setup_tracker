@@ -121,6 +121,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
   }
 
   DropdownMenuItem<String> _dropdownMenuItemComponent(Component component) {
+    //FIXME: WARNING: if (edit) => Existing entries refer the new selected component
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
 

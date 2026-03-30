@@ -7,6 +7,7 @@ import '../../models/bike.dart';
 import '../../models/rating.dart';
 import '../../models/component.dart';
 import '../../utils/rating_actions.dart';
+import '../../pages/details/rating_details_page.dart';
 
 class RatingListCard extends StatelessWidget {
   final Rating rating;
@@ -47,6 +48,14 @@ class RatingListCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       clipBehavior: Clip.antiAlias, // Borderradius for InkWell
       child: InkWell(
+        onTap: () async {
+          await Navigator.push<void>(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RatingDetailsPage(ratingId: rating.id),
+            ),
+          );
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

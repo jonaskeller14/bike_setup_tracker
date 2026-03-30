@@ -1,7 +1,7 @@
 enum TableColumnSection {
   generalContext("General Context"),
   weatherContext("Weather Context"),
-  componentAdjustments("ComponentAdjustments"),
+  componentAdjustments("Component Adjustments"),
   personAttributes("Person Attributes"),
   ratingMetrics("Rating Metrics");
   final String label;

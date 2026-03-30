@@ -107,6 +107,8 @@ class TaskRuleListCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         taskRule.notes!,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                           fontSize: 13,

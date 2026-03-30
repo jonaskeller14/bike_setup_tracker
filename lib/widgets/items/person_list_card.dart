@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import '../../models/app_settings.dart';
@@ -8,6 +7,7 @@ import '../../models/bike.dart';
 import '../../models/person.dart';
 import '../../utils/person_actions.dart';
 import '../lists/adjustment_compact_display_list.dart';
+import '../../pages/details/person_details_page.dart';
 
 class PersonListCard extends StatelessWidget {
   final Person person;
@@ -54,6 +54,14 @@ class PersonListCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       clipBehavior: Clip.antiAlias, // Borderradius for InkWell
       child: InkWell(
+        onTap: () async {
+          await Navigator.push<void>(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PersonDetailsPage(personId: person.id),
+            ),
+          );
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -82,7 +90,6 @@ class PersonListCard extends StatelessWidget {
                 person.name,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              enabled: appRepository.setups.values.lastWhereOrNull((s) => s.person == person.id) != null,
               subtitle: _bikeColumn(context, person: person, bikes: bikes),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,

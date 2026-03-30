@@ -174,17 +174,40 @@ class StravaService extends ChangeNotifier {
         .listen((snapshot) {
       if (!_isConnected) return;
 
-      final List<StravaActivity> allActivities = [];
-      for (var doc in snapshot.docs) {
-        final data = doc.data();
-        if (data.containsKey('activities')) {
-          final Map<String, dynamic> activitiesMap = data['activities'];
-          for (var activityData in activitiesMap.values) {
-            allActivities.add(StravaActivity.fromFirestore(activityData));
+      final List<StravaActivity> toUpsert = [];
+      final List<int> toDelete = [];
+
+      for (var change in snapshot.docChanges) {
+        final data = change.doc.data();
+        if (data == null || !data.containsKey('activities')) continue;
+        
+        final Map<String, dynamic> activitiesMap = data['activities'];
+
+        if (change.type == DocumentChangeType.removed) {
+          // If a whole batch is deleted, add all its activities to the deletion list.
+          for (var entry in activitiesMap.entries) {
+            toDelete.add(int.parse(entry.key));
+          }
+          continue;
+        }
+
+        // For added or modified batches: process tombstones and valid activities
+        for (var entry in activitiesMap.entries) {
+          final activityData = entry.value as Map<String, dynamic>;
+          if (activityData['isDeleted'] == true) {
+            toDelete.add(int.parse(entry.key));
+          } else {
+            toUpsert.add(StravaActivity.fromFirestore(activityData));
           }
         }
       }
-      _appRepository.setStravaActivities(allActivities);
+
+      if (toUpsert.isNotEmpty || toDelete.isNotEmpty) {
+        _appRepository.setStravaActivities(
+          toUpsert,
+          toDelete: toDelete,
+        );
+      }
     }, onError: (e) => _handleError("SyncStream", e, userMessage: "Background sync error"));
   }
 

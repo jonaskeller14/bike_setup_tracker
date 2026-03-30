@@ -51,6 +51,7 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
   Future upsertAthlete(StravaAthletesCompanion entry) => into(stravaAthletes).insertOnConflictUpdate(entry);
   Future upsertGear(StravaGearsCompanion entry) => into(stravaGears).insertOnConflictUpdate(entry);
   Future upsertActivity(StravaActivitiesCompanion entry) => into(stravaActivities).insertOnConflictUpdate(entry);
+  Future<int> deleteActivities(Iterable<int> ids) => (delete(stravaActivities)..where((t) => t.id.isIn(ids))).go();
 
   Stream<Map<String, ComponentStats>> watchComponentStats() {
     // This query sums up activities for each component based on its installation history.

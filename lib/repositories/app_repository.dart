@@ -849,11 +849,14 @@ class AppRepository extends ChangeNotifier {
     await database.bikesDao.reorder(globalList.map((e) => e.id).toList());
   }
 
-  Future<void> setStravaActivities(Iterable<StravaActivity> activities) async {
+  Future<void> setStravaActivities(Iterable<StravaActivity> activities, {List<int>? toDelete}) async {
     final versionAtStart = _stravaOperationVersion;
     
-    // Perform bulk upsert in a single transaction for performance and to reduce race conditions
+    // Perform bulk operations in a single transaction for performance and to reduce race conditions
     await database.transaction(() async {
+      if (toDelete != null && toDelete.isNotEmpty) {
+        await database.stravaDao.deleteActivities(toDelete);
+      }
       for (var a in activities) {
         // Check if we were cleared while processing
         if (versionAtStart != _stravaOperationVersion) return;
@@ -865,7 +868,7 @@ class AppRepository extends ChangeNotifier {
       return;
     }
 
-    debugPrint("AppRepository finished upserting activities to database (v$versionAtStart).");
+    debugPrint("AppRepository finished syncing activities with database (v$versionAtStart).");
     // Refresh the first page if we are at the top, to show potentially new activities
     if (_stravaOffset <= _stravaLimit) {
       initialStravaLoad();

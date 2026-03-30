@@ -210,8 +210,11 @@ async function saveActivityToBatch(activity, userId, batch = null) {
 
     if (effectiveDelete) {
       // DELETE Case (or converted-to-delete case)
-      updateData[`activities.${activityId}`] = admin.firestore.FieldValue.delete();
-      updateData.activityIds = admin.firestore.FieldValue.arrayRemove(activityId);
+      updateData[`activities.${activityId}`] = { 
+        id: activityId, 
+        isDeleted: true,
+        lastModified: admin.firestore.FieldValue.serverTimestamp()
+      };
     } else {
       // UPDATE Case
       updateData[`activities.${activityId}`] = cleanActivity;

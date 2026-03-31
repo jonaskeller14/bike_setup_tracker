@@ -16,14 +16,20 @@ class SelectedData {
   final Map<String, TaskEntry> taskEntries;
 
   SelectedData({
-    this.persons = const {},
-    this.bikes = const {},
-    this.components = const {},
-    this.setups = const {},
-    this.ratings = const {},
-    this.taskRules = const {},
-    this.taskEntries = const {},
-  });
+    Map<String, Person>? persons,
+    Map<String, Bike>? bikes,
+    Map<String, Component>? components,
+    Map<String, Setup>? setups,
+    Map<String, Rating>? ratings,
+    Map<String, TaskRule>? taskRules,
+    Map<String, TaskEntry>? taskEntries,
+  })  : persons = persons ?? {},
+        bikes = bikes ?? {},
+        components = components ?? {},
+        setups = setups ?? {},
+        ratings = ratings ?? {},
+        taskRules = taskRules ?? {},
+        taskEntries = taskEntries ?? {};
 
   factory SelectedData.fromJson(Map<String, dynamic> json) {
     final loadedPersons = (json['persons'] as List<dynamic>? ?? [])

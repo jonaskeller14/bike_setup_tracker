@@ -272,6 +272,8 @@ class FileImport {
     required SelectedData remoteData,
     required SelectedData localData,
   }) {
+    // Overwrite existing local items individually with remote entries (by ID).
+    // Unique local items that are not present in remoteData are preserved.
     localData.persons.addAll(remoteData.persons);
     localData.bikes.addAll(remoteData.bikes);
     localData.components.addAll(remoteData.components);

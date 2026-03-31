@@ -33,7 +33,7 @@ class InstallationListTile extends StatelessWidget {
 
     return ListTile(
       onTap: onTap,
-      title: Text("${componentInstallation.installation.parent != null ? 'Installed' : 'Deinstalled'} '${componentInstallation.component.name}'"),
+      title: Text("${componentInstallation.isInitial ? 'Added' : (componentInstallation.installation.parent != null ? 'Installed' : 'Deinstalled')} '${componentInstallation.component.name}'"),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -78,17 +78,24 @@ class InstallationListTile extends StatelessWidget {
           ),
           Row(
             children: [
-              Flexible(
-                child: _CompactBikeLabel(
-                  name: originBikeName,
-                  isDeinstalled: componentInstallation.originParent == null,
-                  isError: isOriginError,
+              if (!componentInstallation.isInitial) ...[
+                Flexible(
+                  child: _CompactBikeLabel(
+                    name: originBikeName,
+                    isDeinstalled: componentInstallation.originParent == null,
+                    isError: isOriginError,
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                child: Icon(Icons.arrow_forward, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
-              ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: Icon(Icons.arrow_forward, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
+              ] else ...[
+                 Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: Icon(Icons.arrow_forward, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
+              ],
               Flexible(
                 child: _CompactBikeLabel(
                   name: targetBikeName,

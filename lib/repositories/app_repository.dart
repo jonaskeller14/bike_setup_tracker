@@ -444,12 +444,15 @@ class AppRepository extends ChangeNotifier {
         final installation = sorted[i];
         if (installation.dateTimeUTC.millisecondsSinceEpoch == 0) continue;
         
-        final originParent = i > 0 ? sorted[i-1].parent : null;
+        final previousInstallation = i > 0 ? sorted[i-1] : null;
+        final originParent = previousInstallation?.parent;
+        final isInitial = i == 0;
         
         final ci = ComponentInstallation(
           component: component,
           installation: installation,
           originParent: originParent,
+          isInitial: isInitial,
         );
         
         if (selectedBike == null || installation.parent == selectedBike || originParent == selectedBike) {
@@ -908,10 +911,12 @@ class ComponentInstallation {
   final Component component;
   final Installation installation;
   final String? originParent;
+  final bool isInitial;
 
   ComponentInstallation({
     required this.component,
     required this.installation,
     this.originParent,
+    this.isInitial = false,
   });
 }

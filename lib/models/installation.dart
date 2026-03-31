@@ -41,7 +41,7 @@ class Installation {
     return Installation(
       parent: json['parent'] as String?,
       dateTimeUTC: DateTime.parse(json['dateTimeUTC'] as String).toUtc(),
-      dateTimeLocal: DateTime.parse(json['dateTimeLocal'] as String),
+      dateTimeLocal: DateTime.parse(json['dateTimeLocal'] as String).copyWith(isUtc: false),
     );
   }
 

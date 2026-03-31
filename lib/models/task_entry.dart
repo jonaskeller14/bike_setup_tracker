@@ -32,7 +32,7 @@ class TaskEntry {
     'name': name,
     'notes': notes,
     'dateTimeUTC': dateTimeUTC.toUtc().toIso8601String(),
-    'dateTimeLocal': dateTimeLocal.toLocal().toIso8601String(),
+    'dateTimeLocal': dateTimeLocal.toIso8601String(),
     'taskRule': taskRule,
   };
 
@@ -44,7 +44,7 @@ class TaskEntry {
         name: json['name'],
         notes: json['notes'] != null ? json['notes'] as String : null,
         dateTimeUTC: DateTime.parse(json['dateTimeUTC']).toUtc(),
-        dateTimeLocal: DateTime.parse(json['dateTimeLocal'] ?? ''),
+        dateTimeLocal: DateTime.parse(json['dateTimeLocal'] ?? '').copyWith(isUtc: false),
         taskRule: json['taskRule'],
     );
   }

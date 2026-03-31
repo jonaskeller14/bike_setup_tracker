@@ -130,7 +130,7 @@ class ComponentListCard extends StatelessWidget{
                       runSpacing: 2,
                       children: [
                         _StatItem(
-                          icon: Icons.map,
+                          icon: Icons.route,
                           label: '${NumberFormat.decimalPattern().format((component.totalDistance / 1000).round())} km',
                         ),
                         _StatItem(

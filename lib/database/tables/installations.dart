@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import '../converters/utc_datetime_converter.dart';
+import '../converters/local_floating_datetime_converter.dart';
 import 'components.dart';
 
 @DataClassName('InstallationDb')
@@ -14,7 +15,7 @@ class Installations extends Table {
   TextColumn get parent => text().nullable()();
 
   DateTimeColumn get dateTimeUTC => dateTime().map(const UtcDateTimeConverter())();
-  DateTimeColumn get dateTimeLocal => dateTime()();
+  DateTimeColumn get dateTimeLocal => dateTime().map(const LocalFloatingDateTimeConverter())();
 
   @override
   Set<Column> get primaryKey => {id};

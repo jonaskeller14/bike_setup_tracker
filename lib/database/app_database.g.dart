@@ -1233,18 +1233,15 @@ class $TaskEntriesTable extends TaskEntries
         type: DriftSqlType.dateTime,
         requiredDuringInsert: true,
       ).withConverter<DateTime>($TaskEntriesTable.$converterdateTimeUTC);
-  static const VerificationMeta _dateTimeLocalMeta = const VerificationMeta(
-    'dateTimeLocal',
-  );
   @override
-  late final GeneratedColumn<DateTime> dateTimeLocal =
-      GeneratedColumn<DateTime>(
-        'date_time_local',
-        aliasedName,
-        false,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: true,
-      );
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime>
+  dateTimeLocal = GeneratedColumn<DateTime>(
+    'date_time_local',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  ).withConverter<DateTime>($TaskEntriesTable.$converterdateTimeLocal);
   static const VerificationMeta _taskRuleMeta = const VerificationMeta(
     'taskRule',
   );
@@ -1307,17 +1304,6 @@ class $TaskEntriesTable extends TaskEntries
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
-    if (data.containsKey('date_time_local')) {
-      context.handle(
-        _dateTimeLocalMeta,
-        dateTimeLocal.isAcceptableOrUnknown(
-          data['date_time_local']!,
-          _dateTimeLocalMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_dateTimeLocalMeta);
-    }
     if (data.containsKey('task_rule')) {
       context.handle(
         _taskRuleMeta,
@@ -1363,10 +1349,12 @@ class $TaskEntriesTable extends TaskEntries
           data['${effectivePrefix}date_time_u_t_c'],
         )!,
       ),
-      dateTimeLocal: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}date_time_local'],
-      )!,
+      dateTimeLocal: $TaskEntriesTable.$converterdateTimeLocal.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}date_time_local'],
+        )!,
+      ),
       taskRule: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}task_rule'],
@@ -1383,6 +1371,8 @@ class $TaskEntriesTable extends TaskEntries
       const UtcDateTimeConverter();
   static TypeConverter<DateTime, DateTime> $converterdateTimeUTC =
       const UtcDateTimeConverter();
+  static TypeConverter<DateTime, DateTime> $converterdateTimeLocal =
+      const LocalFloatingDateTimeConverter();
 }
 
 class TaskEntryDb extends DataClass implements Insertable<TaskEntryDb> {
@@ -1423,7 +1413,11 @@ class TaskEntryDb extends DataClass implements Insertable<TaskEntryDb> {
         $TaskEntriesTable.$converterdateTimeUTC.toSql(dateTimeUTC),
       );
     }
-    map['date_time_local'] = Variable<DateTime>(dateTimeLocal);
+    {
+      map['date_time_local'] = Variable<DateTime>(
+        $TaskEntriesTable.$converterdateTimeLocal.toSql(dateTimeLocal),
+      );
+    }
     map['task_rule'] = Variable<String>(taskRule);
     return map;
   }
@@ -1663,7 +1657,9 @@ class TaskEntriesCompanion extends UpdateCompanion<TaskEntryDb> {
       );
     }
     if (dateTimeLocal.present) {
-      map['date_time_local'] = Variable<DateTime>(dateTimeLocal.value);
+      map['date_time_local'] = Variable<DateTime>(
+        $TaskEntriesTable.$converterdateTimeLocal.toSql(dateTimeLocal.value),
+      );
     }
     if (taskRule.present) {
       map['task_rule'] = Variable<String>(taskRule.value);
@@ -3925,18 +3921,15 @@ class $InstallationsTable extends Installations
         type: DriftSqlType.dateTime,
         requiredDuringInsert: true,
       ).withConverter<DateTime>($InstallationsTable.$converterdateTimeUTC);
-  static const VerificationMeta _dateTimeLocalMeta = const VerificationMeta(
-    'dateTimeLocal',
-  );
   @override
-  late final GeneratedColumn<DateTime> dateTimeLocal =
-      GeneratedColumn<DateTime>(
-        'date_time_local',
-        aliasedName,
-        false,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: true,
-      );
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime>
+  dateTimeLocal = GeneratedColumn<DateTime>(
+    'date_time_local',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  ).withConverter<DateTime>($InstallationsTable.$converterdateTimeLocal);
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -3979,17 +3972,6 @@ class $InstallationsTable extends Installations
         parent.isAcceptableOrUnknown(data['parent']!, _parentMeta),
       );
     }
-    if (data.containsKey('date_time_local')) {
-      context.handle(
-        _dateTimeLocalMeta,
-        dateTimeLocal.isAcceptableOrUnknown(
-          data['date_time_local']!,
-          _dateTimeLocalMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_dateTimeLocalMeta);
-    }
     return context;
   }
 
@@ -4017,10 +3999,12 @@ class $InstallationsTable extends Installations
           data['${effectivePrefix}date_time_u_t_c'],
         )!,
       ),
-      dateTimeLocal: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}date_time_local'],
-      )!,
+      dateTimeLocal: $InstallationsTable.$converterdateTimeLocal.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}date_time_local'],
+        )!,
+      ),
     );
   }
 
@@ -4031,6 +4015,8 @@ class $InstallationsTable extends Installations
 
   static TypeConverter<DateTime, DateTime> $converterdateTimeUTC =
       const UtcDateTimeConverter();
+  static TypeConverter<DateTime, DateTime> $converterdateTimeLocal =
+      const LocalFloatingDateTimeConverter();
 }
 
 class InstallationDb extends DataClass implements Insertable<InstallationDb> {
@@ -4059,7 +4045,11 @@ class InstallationDb extends DataClass implements Insertable<InstallationDb> {
         $InstallationsTable.$converterdateTimeUTC.toSql(dateTimeUTC),
       );
     }
-    map['date_time_local'] = Variable<DateTime>(dateTimeLocal);
+    {
+      map['date_time_local'] = Variable<DateTime>(
+        $InstallationsTable.$converterdateTimeLocal.toSql(dateTimeLocal),
+      );
+    }
     return map;
   }
 
@@ -4235,7 +4225,9 @@ class InstallationsCompanion extends UpdateCompanion<InstallationDb> {
       );
     }
     if (dateTimeLocal.present) {
-      map['date_time_local'] = Variable<DateTime>(dateTimeLocal.value);
+      map['date_time_local'] = Variable<DateTime>(
+        $InstallationsTable.$converterdateTimeLocal.toSql(dateTimeLocal.value),
+      );
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -4339,18 +4331,15 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
         type: DriftSqlType.dateTime,
         requiredDuringInsert: true,
       ).withConverter<DateTime>($SetupsTable.$converterdatetime);
-  static const VerificationMeta _datetimeLocalMeta = const VerificationMeta(
-    'datetimeLocal',
-  );
   @override
-  late final GeneratedColumn<DateTime> datetimeLocal =
-      GeneratedColumn<DateTime>(
-        'datetime_local',
-        aliasedName,
-        false,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: true,
-      );
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime>
+  datetimeLocal = GeneratedColumn<DateTime>(
+    'datetime_local',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  ).withConverter<DateTime>($SetupsTable.$converterdatetimeLocal);
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
@@ -4457,17 +4446,6 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (data.containsKey('datetime_local')) {
-      context.handle(
-        _datetimeLocalMeta,
-        datetimeLocal.isAcceptableOrUnknown(
-          data['datetime_local']!,
-          _datetimeLocalMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_datetimeLocalMeta);
-    }
     if (data.containsKey('notes')) {
       context.handle(
         _notesMeta,
@@ -4515,10 +4493,12 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
           data['${effectivePrefix}datetime'],
         )!,
       ),
-      datetimeLocal: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}datetime_local'],
-      )!,
+      datetimeLocal: $SetupsTable.$converterdatetimeLocal.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}datetime_local'],
+        )!,
+      ),
       notes: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
@@ -4559,6 +4539,8 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
       const UtcDateTimeConverter();
   static TypeConverter<DateTime, DateTime> $converterdatetime =
       const UtcDateTimeConverter();
+  static TypeConverter<DateTime, DateTime> $converterdatetimeLocal =
+      const LocalFloatingDateTimeConverter();
   static TypeConverter<Set<String>, String> $convertertags =
       const StringListConverter();
   static TypeConverter<LocationData, String> $converterposition =
@@ -4624,7 +4606,11 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
         $SetupsTable.$converterdatetime.toSql(datetime),
       );
     }
-    map['datetime_local'] = Variable<DateTime>(datetimeLocal);
+    {
+      map['datetime_local'] = Variable<DateTime>(
+        $SetupsTable.$converterdatetimeLocal.toSql(datetimeLocal),
+      );
+    }
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
@@ -4974,7 +4960,9 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
       );
     }
     if (datetimeLocal.present) {
-      map['datetime_local'] = Variable<DateTime>(datetimeLocal.value);
+      map['datetime_local'] = Variable<DateTime>(
+        $SetupsTable.$converterdatetimeLocal.toSql(datetimeLocal.value),
+      );
     }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
@@ -8087,9 +8075,10 @@ class $$TaskEntriesTableFilterComposer
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
-  ColumnFilters<DateTime> get dateTimeLocal => $composableBuilder(
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get dateTimeLocal => $composableBuilder(
     column: $table.dateTimeLocal,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   $$TaskRulesTableFilterComposer get taskRule {
@@ -8217,10 +8206,11 @@ class $$TaskEntriesTableAnnotationComposer
         builder: (column) => column,
       );
 
-  GeneratedColumn<DateTime> get dateTimeLocal => $composableBuilder(
-    column: $table.dateTimeLocal,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get dateTimeLocal =>
+      $composableBuilder(
+        column: $table.dateTimeLocal,
+        builder: (column) => column,
+      );
 
   $$TaskRulesTableAnnotationComposer get taskRule {
     final $$TaskRulesTableAnnotationComposer composer = $composerBuilder(
@@ -10363,9 +10353,10 @@ class $$InstallationsTableFilterComposer
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
-  ColumnFilters<DateTime> get dateTimeLocal => $composableBuilder(
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get dateTimeLocal => $composableBuilder(
     column: $table.dateTimeLocal,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   $$ComponentsTableFilterComposer get componentId {
@@ -10466,10 +10457,11 @@ class $$InstallationsTableAnnotationComposer
         builder: (column) => column,
       );
 
-  GeneratedColumn<DateTime> get dateTimeLocal => $composableBuilder(
-    column: $table.dateTimeLocal,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get dateTimeLocal =>
+      $composableBuilder(
+        column: $table.dateTimeLocal,
+        builder: (column) => column,
+      );
 
   $$ComponentsTableAnnotationComposer get componentId {
     final $$ComponentsTableAnnotationComposer composer = $composerBuilder(
@@ -10758,9 +10750,10 @@ class $$SetupsTableFilterComposer
         builder: (column) => ColumnWithTypeConverterFilters(column),
       );
 
-  ColumnFilters<DateTime> get datetimeLocal => $composableBuilder(
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get datetimeLocal => $composableBuilder(
     column: $table.datetimeLocal,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<String> get notes => $composableBuilder(
@@ -11003,10 +10996,11 @@ class $$SetupsTableAnnotationComposer
   GeneratedColumnWithTypeConverter<DateTime, DateTime> get datetime =>
       $composableBuilder(column: $table.datetime, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get datetimeLocal => $composableBuilder(
-    column: $table.datetimeLocal,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get datetimeLocal =>
+      $composableBuilder(
+        column: $table.datetimeLocal,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);

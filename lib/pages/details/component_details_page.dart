@@ -179,7 +179,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildStatItem(
-                  icon: Icons.map_outlined,
+                  icon: Icons.route,
                   label: "Distance",
                   value: '${NumberFormat.decimalPattern().format((totalDistance / 1000).round())} km',
                 ),

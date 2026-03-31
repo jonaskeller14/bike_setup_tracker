@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import '../converters/utc_datetime_converter.dart';
+import '../converters/local_floating_datetime_converter.dart';
 
 import '../converters/string_list_converter.dart';
 import '../converters/location_data_converter.dart';
@@ -25,7 +26,7 @@ class Setups extends Table {
 
   TextColumn get name => text()();
   DateTimeColumn get datetime => dateTime().map(const UtcDateTimeConverter())(); // UTC
-  DateTimeColumn get datetimeLocal => dateTime()();
+  DateTimeColumn get datetimeLocal => dateTime().map(const LocalFloatingDateTimeConverter())();
   TextColumn get notes => text().nullable()();
 
   TextColumn get tags => text().map(const StringListConverter())();

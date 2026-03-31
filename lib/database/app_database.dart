@@ -77,7 +77,60 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.memory() : super(NativeDatabase.memory());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onCreate: (Migrator m) async {
+        await m.createAll();
+      },
+      onUpgrade: (Migrator m, int from, int to) async {
+        if (from < 2) {
+          // Fix legacy local timestamps that were stored as absolute UTC epochs 
+          // instead of floating face-values.
+          await _migrateFloatingDates(this);
+        }
+      },
+    );
+  }
+
+  static Future<void> _migrateFloatingDates(AppDatabase db) async {
+    final Map<String, String> tableToColumn = {
+      'setups': 'datetime_local',
+      'installations': 'date_time_local',
+      'task_entries': 'date_time_local',
+      'strava_activities': 'start_date_local',
+    };
+
+    for (final entry in tableToColumn.entries) {
+      final tableName = entry.key;
+      final columnName = entry.value;
+
+      final rows = await db.customSelect('SELECT id, $columnName FROM $tableName').get();
+      for (final row in rows) {
+        final Object id = (tableName == 'strava_activities') 
+            ? row.read<int>('id') 
+            : row.read<String>('id');
+        final rawEpochSeconds = row.read<int?>(columnName);
+        if (rawEpochSeconds == null) continue;
+
+        // 1. Reconstruct EXACT historical local "wall clock" time.
+        // fromMillisecondsSinceEpoch handles DST and historical timezone transitions 
+        // correctly based on when that specific timestamp occurred in the past.
+        final historicalLocal = DateTime.fromMillisecondsSinceEpoch(rawEpochSeconds * 1000);
+
+        // 2. Convert it into our new strict "Face Value UTC" representation.
+        final floatingUtc = const LocalFloatingDateTimeConverter().toSql(historicalLocal);
+        final newEpochSeconds = floatingUtc.millisecondsSinceEpoch ~/ 1000;
+
+        await db.customStatement(
+          'UPDATE $tableName SET $columnName = ? WHERE id = ?',
+          [newEpochSeconds, id],
+        );
+      }
+    }
+  }
 }
 
 LazyDatabase _openConnection() {

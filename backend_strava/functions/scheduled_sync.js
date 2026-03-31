@@ -55,7 +55,7 @@ exports.enqueueWeeklySyncs = onSchedule(
       }
 
     } catch (error) {
-      logger.error("ENQUEUE_SYNC_FATAL", { error: error.message });
+      logger.error("ENQUEUE_SYNC_FATAL", error);
     }
   }
 );
@@ -73,6 +73,7 @@ exports.syncWorker = onTaskDispatched(
     rateLimits: {
       maxConcurrentDispatches: 1, // Stay safe with Strava rate limits
     },
+    region: "europe-west3",
     secrets: ["STRAVA_CLIENT_ID", "STRAVA_CLIENT_SECRET"],
     timeoutSeconds: 540,
     memory: "512MiB",

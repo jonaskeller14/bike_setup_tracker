@@ -41,6 +41,7 @@ import 'converters/location_data_converter.dart';
 import 'converters/placemark_converter.dart';
 import 'converters/weather_converter.dart';
 import 'converters/utc_datetime_converter.dart';
+import 'converters/local_floating_datetime_converter.dart';
 import 'converters/duration_converter.dart';
 
 part 'app_database.g.dart';

@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import '../../converters/utc_datetime_converter.dart';
+import '../../converters/local_floating_datetime_converter.dart';
 import '../../../models/strava/strava_activity.dart'; 
 
 @DataClassName('StravaActivityDb')
@@ -10,7 +11,7 @@ class StravaActivities extends Table {
   IntColumn get athlete => integer()();
   TextColumn get sportType => textEnum<SportType>()();
   DateTimeColumn get startDate => dateTime().map(const UtcDateTimeConverter())();
-  DateTimeColumn get startDateLocal => dateTime()();
+  DateTimeColumn get startDateLocal => dateTime().map(const LocalFloatingDateTimeConverter())();
   TextColumn get gearId => text().nullable()();
   RealColumn get startLat => real().nullable()();
   RealColumn get startLon => real().nullable()();

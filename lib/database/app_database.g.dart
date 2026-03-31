@@ -5371,18 +5371,15 @@ class $StravaActivitiesTable extends StravaActivities
         type: DriftSqlType.dateTime,
         requiredDuringInsert: true,
       ).withConverter<DateTime>($StravaActivitiesTable.$converterstartDate);
-  static const VerificationMeta _startDateLocalMeta = const VerificationMeta(
-    'startDateLocal',
-  );
   @override
-  late final GeneratedColumn<DateTime> startDateLocal =
-      GeneratedColumn<DateTime>(
-        'start_date_local',
-        aliasedName,
-        false,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: true,
-      );
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime>
+  startDateLocal = GeneratedColumn<DateTime>(
+    'start_date_local',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  ).withConverter<DateTime>($StravaActivitiesTable.$converterstartDateLocal);
   static const VerificationMeta _gearIdMeta = const VerificationMeta('gearId');
   @override
   late final GeneratedColumn<String> gearId = GeneratedColumn<String>(
@@ -5506,17 +5503,6 @@ class $StravaActivitiesTable extends StravaActivities
     } else if (isInserting) {
       context.missing(_athleteMeta);
     }
-    if (data.containsKey('start_date_local')) {
-      context.handle(
-        _startDateLocalMeta,
-        startDateLocal.isAcceptableOrUnknown(
-          data['start_date_local']!,
-          _startDateLocalMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_startDateLocalMeta);
-    }
     if (data.containsKey('gear_id')) {
       context.handle(
         _gearIdMeta,
@@ -5608,10 +5594,12 @@ class $StravaActivitiesTable extends StravaActivities
           data['${effectivePrefix}start_date'],
         )!,
       ),
-      startDateLocal: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}start_date_local'],
-      )!,
+      startDateLocal: $StravaActivitiesTable.$converterstartDateLocal.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}start_date_local'],
+        )!,
+      ),
       gearId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}gear_id'],
@@ -5654,6 +5642,8 @@ class $StravaActivitiesTable extends StravaActivities
       const EnumNameConverter<SportType>(SportType.values);
   static TypeConverter<DateTime, DateTime> $converterstartDate =
       const UtcDateTimeConverter();
+  static TypeConverter<DateTime, DateTime> $converterstartDateLocal =
+      const LocalFloatingDateTimeConverter();
 }
 
 class StravaActivityDb extends DataClass
@@ -5709,7 +5699,11 @@ class StravaActivityDb extends DataClass
         $StravaActivitiesTable.$converterstartDate.toSql(startDate),
       );
     }
-    map['start_date_local'] = Variable<DateTime>(startDateLocal);
+    {
+      map['start_date_local'] = Variable<DateTime>(
+        $StravaActivitiesTable.$converterstartDateLocal.toSql(startDateLocal),
+      );
+    }
     if (!nullToAbsent || gearId != null) {
       map['gear_id'] = Variable<String>(gearId);
     }
@@ -6079,7 +6073,11 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
       );
     }
     if (startDateLocal.present) {
-      map['start_date_local'] = Variable<DateTime>(startDateLocal.value);
+      map['start_date_local'] = Variable<DateTime>(
+        $StravaActivitiesTable.$converterstartDateLocal.toSql(
+          startDateLocal.value,
+        ),
+      );
     }
     if (gearId.present) {
       map['gear_id'] = Variable<String>(gearId.value);
@@ -11775,9 +11773,10 @@ class $$StravaActivitiesTableFilterComposer
         builder: (column) => ColumnWithTypeConverterFilters(column),
       );
 
-  ColumnFilters<DateTime> get startDateLocal => $composableBuilder(
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get startDateLocal => $composableBuilder(
     column: $table.startDateLocal,
-    builder: (column) => ColumnFilters(column),
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<String> get gearId => $composableBuilder(
@@ -11926,10 +11925,11 @@ class $$StravaActivitiesTableAnnotationComposer
   GeneratedColumnWithTypeConverter<DateTime, DateTime> get startDate =>
       $composableBuilder(column: $table.startDate, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get startDateLocal => $composableBuilder(
-    column: $table.startDateLocal,
-    builder: (column) => column,
-  );
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get startDateLocal =>
+      $composableBuilder(
+        column: $table.startDateLocal,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<String> get gearId =>
       $composableBuilder(column: $table.gearId, builder: (column) => column);

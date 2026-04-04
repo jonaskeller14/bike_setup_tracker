@@ -38,11 +38,12 @@ exports.stravaWebhook = onRequest(
       // Task names expire after ~1 hour, which is perfect for catching webhook retries.
       const taskName = `${athleteId}_${activityId}_${aspectType}_${eventTime || 'notime'}`;
       
-      const queue = getFunctions().taskQueue("locations/europe-west3/functions/stravaSyncWorker");
+      // Use the fully qualified resource name to ensure the SDK finds the 2nd gen queue in europe-west3
+      const queue = getFunctions().taskQueue("projects/bike-setup-tracker-strava/locations/europe-west3/functions/webhookWorker");
       
       try {
         await queue.enqueue({ event }, { taskName });
-        logger.info("EVENT_ENQUEUED", { taskName });
+        logger.info("EVENT_ENQUEUED", { taskName, queue: "stravaSyncWorker" });
       } catch (e) {
         // Error code 6 is ALREADY_EXISTS in Cloud Tasks
         if (e.code === 6 || e.message?.includes("ALREADY_EXISTS")) {
@@ -64,7 +65,7 @@ exports.stravaWebhook = onRequest(
  * STRATEGY: Background Worker for Webhook Events
  * Handles fetching, syncing, and notifications.
  */
-exports.stravaSyncWorker = onTaskDispatched(
+exports.webhookWorker = onTaskDispatched(
   {
     retryConfig: {
       maxAttempts: 3,
@@ -177,7 +178,7 @@ exports.stravaSyncWorker = onTaskDispatched(
 
       logger.info("WORKER_SUCCESS", { activityId, aspectType });
     } catch (error) {
-      logger.error("WORKER_FAILED", { activityId, error: error.message });
+      logger.error("WEBHOOK_WORKER_FAILED", { activityId, error: error.message });
       throw error; // Let Cloud Task retry based on config
     }
   }

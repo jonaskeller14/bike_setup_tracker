@@ -38,8 +38,7 @@ exports.enqueueWeeklySyncs = onSchedule(
 
       logger.info("ENQUEUE_SYNC_BATCH_FOUND", { count: usersSnapshot.size });
 
-      let delaySeconds = 0;
-      const queue = getFunctions().taskQueue(`locations/europe-west3/functions/syncWorker`);
+      const queue = getFunctions().taskQueue("projects/bike-setup-tracker-strava/locations/europe-west3/functions/scheduledSyncWorker");
 
       // 2. Queue the tasks
       for (const userDoc of usersSnapshot.docs) {
@@ -64,7 +63,7 @@ exports.enqueueWeeklySyncs = onSchedule(
  * STRATEGY: Cloud Task Worker for Sync
  * Executes when a task is dispatched from the queue.
  */
-exports.syncWorker = onTaskDispatched(
+exports.scheduledSyncWorker = onTaskDispatched(
   {
     retryConfig: {
       maxAttempts: 3,

@@ -33,6 +33,36 @@ class BikeActions {
     await appRepository.editBike(editedBike);
   }
 
+  static Future<void> duplicateBikeWithoutComponents(BuildContext context, {required Bike bike}) async {
+    final appRepository = context.read<AppRepository>();
+
+    final newBike = await Navigator.push<Bike>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BikePage.duplicate(bike: bike.deepCopy()),
+      ),
+    );
+    if (newBike == null) return;
+
+    await appRepository.addBike(newBike);
+  }
+
+  static Future<void> duplicateBikeWithComponents(BuildContext context, {required Bike bike}) async {
+    final appRepository = context.read<AppRepository>();
+    final bikeComponents = appRepository.components.values.where((c) => c.bike == bike.id).toList();
+    
+    final newBike = await Navigator.push<Bike>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BikePage.duplicate(bike: bike.deepCopy()),
+      ),
+    );
+    if (newBike == null) return;
+
+    await appRepository.addBike(newBike);
+    await Future.wait(bikeComponents.map((c) => appRepository.addComponent(c.deepCopy().copyWithNewInstallation(newBike.id))));
+  }
+
   static Future<void> removeBike(BuildContext context, {required Bike bike}) async {
     final appRepository = context.read<AppRepository>();
     final appSettings = context.read<AppSettings>();

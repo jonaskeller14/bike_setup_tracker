@@ -84,6 +84,16 @@ class Bike {
     );
   }
 
+  Bike deepCopy() {
+    return Bike(
+      name: name,
+      notes: notes,
+      person: person,
+      stravaGear: stravaGear,
+      orderIndex: orderIndex,
+    );
+  }
+
   Bike copyWith({
     Object? id = const _Sentinel(),
     Object? isDeleted = const _Sentinel(),

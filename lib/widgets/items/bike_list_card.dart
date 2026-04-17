@@ -149,6 +149,7 @@ class BikeListCard extends StatelessWidget{
                   onSelected: (value) {
                     switch (value) {
                       case _BikeOptions.edit: BikeActions.editBike(context, bike: bike);
+                      case _BikeOptions.duplicate: BikeActions.duplicateBikeWithoutComponents(context, bike: bike);
                       case _BikeOptions.remove: BikeActions.removeBike(context, bike: bike);
                     }
                   },
@@ -176,6 +177,7 @@ class BikeListCard extends StatelessWidget{
 
 enum _BikeOptions {
   edit("Edit", Icons.edit),
+  duplicate("Duplicate", Icons.copy),
   remove("Remove", Icons.delete);
   final String label;
   final IconData iconData;

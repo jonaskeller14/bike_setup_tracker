@@ -80,6 +80,7 @@ class Component {
       installations: installations.map((i) => i.copyWith()).toList(),
       componentType: componentType,
       notes: notes,
+      orderIndex: orderIndex,
       adjustments: adjustments.map((a) => a.deepCopy()).toList(),
       totalDistance: totalDistance,
       totalElevationGain: totalElevationGain,

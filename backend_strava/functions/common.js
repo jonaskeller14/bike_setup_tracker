@@ -226,10 +226,10 @@ async function saveActivityToBatch(activity, userId, batch = null) {
     } else {
       await batchDoc.ref.update(updateData);
     }
-    return;
+    return { wasCreated: false, wasUpdated: !effectiveDelete, wasDeleted: effectiveDelete };
   }
 
-  if (effectiveDelete) return; // Activity to delete not found, or new non-bike activity.
+  if (effectiveDelete) return { wasCreated: false, ignored: true }; // Activity to delete not found, or new non-bike activity.
 
   // 3. New Activity -> Find latest batch or create new
   const latestBatchQuery = await batchesRef
@@ -276,6 +276,7 @@ async function saveActivityToBatch(activity, userId, batch = null) {
       await newBatchRef.set(newBatchData);
     }
   }
+  return { wasCreated: true };
 }
 
 module.exports = {

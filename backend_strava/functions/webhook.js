@@ -112,40 +112,18 @@ exports.webhookWorker = onTaskDispatched(
             const activity = await response.json();
 
             // Sync for every user and collect FCM tokens
-            const tokenToUserIds = new Map();
+            // Import for every user
+            let anyImported = false;
             const syncPromises = usersSnapshot.docs.map(async (userDoc) => {
-              const userData = userDoc.data();
-              await saveActivityToBatch(activity, userDoc.id);
-              if (userData.fcm_token) {
-                const token = userData.fcm_token;
-                if (!tokenToUserIds.has(token)) tokenToUserIds.set(token, new Set());
-                tokenToUserIds.get(token).add(userDoc.id);
-              }
+              const result = await saveActivityToBatch(activity, userDoc.id);
+              if (result.wasCreated) anyImported = true;
             });
             await Promise.all(syncPromises);
 
-            // Send notifications
-            const notificationPromises = Array.from(tokenToUserIds.keys()).map(async (token) => {
-              try {
-                await admin.messaging().send({
-                  token: token,
-                  notification: {
-                    title: "New Activity!",
-                    body: `We imported your ride: ${activity.name}`,
-                  },
-                  data: { type: "strava_sync", activityId: String(activityId) }
-                });
-              } catch (err) {
-                const isStale = err.code === "messaging/registration-token-not-registered" || err.code === "messaging/invalid-argument";
-                if (isStale) {
-                  const affectedUserIds = Array.from(tokenToUserIds.get(token));
-                  const cleanupBatch = db.batch();
-                  affectedUserIds.forEach(uid => cleanupBatch.update(db.collection("users").doc(uid), { fcm_token: admin.firestore.FieldValue.delete() }));
-                  await cleanupBatch.commit();
-                }
-              }
-            });
-            await Promise.all(notificationPromises);
+            // Send notifications if newly imported
+            if (anyImported) {
+              await sendImportNotifications(activity, usersSnapshot);
+            }
             break;
           }
 
@@ -157,8 +135,15 @@ exports.webhookWorker = onTaskDispatched(
             });
             checkStravaResponse(response, "Strava Activity API");
             const activity = await response.json();
+            
+            let anyImported = false;
             for (const userDoc of usersSnapshot.docs) {
-              await saveActivityToBatch(activity, userDoc.id);
+              const result = await saveActivityToBatch(activity, userDoc.id);
+              if (result.wasCreated) anyImported = true;
+            }
+
+            if (anyImported) {
+              await sendImportNotifications(activity, usersSnapshot);
             }
             break;
           }
@@ -221,4 +206,41 @@ async function handleAthleteEvent(event) {
       logger.error("CLEANUP_FAILED_FOR_WEBHOOK_DEAUTH", error);
     }
   }
+}
+
+/**
+ * Sends notifications to all users who have an FCM token.
+ */
+async function sendImportNotifications(activity, usersSnapshot) {
+  const tokenToUserIds = new Map();
+  usersSnapshot.docs.forEach(userDoc => {
+    const userData = userDoc.data();
+    if (userData.fcm_token) {
+      const token = userData.fcm_token;
+      if (!tokenToUserIds.has(token)) tokenToUserIds.set(token, new Set());
+      tokenToUserIds.get(token).add(userDoc.id);
+    }
+  });
+
+  const notificationPromises = Array.from(tokenToUserIds.keys()).map(async (token) => {
+    try {
+      await admin.messaging().send({
+        token: token,
+        notification: {
+          title: "New Activity!",
+          body: `We imported your ride: ${activity.name}`,
+        },
+        data: { type: "strava_sync", activityId: String(activity.id) }
+      });
+    } catch (err) {
+      const isStale = err.code === "messaging/registration-token-not-registered" || err.code === "messaging/invalid-argument";
+      if (isStale) {
+        const affectedUserIds = Array.from(tokenToUserIds.get(token));
+        const cleanupBatch = db.batch();
+        affectedUserIds.forEach(uid => cleanupBatch.update(db.collection("users").doc(uid), { fcm_token: admin.firestore.FieldValue.delete() }));
+        await cleanupBatch.commit();
+      }
+    }
+  });
+  await Promise.all(notificationPromises);
 }

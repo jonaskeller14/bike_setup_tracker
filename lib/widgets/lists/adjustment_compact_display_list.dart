@@ -229,12 +229,26 @@ class _AdjustmentTableCell extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 4,
           children: [
-            Text(
-              adjustment.name,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSecondary,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: adjustment.name,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSecondary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (adjustment is StepAdjustment)
+                    TextSpan(
+                      text: "  [${Adjustment.formatValue((adjustment as StepAdjustment).min)}..${Adjustment.formatValue((adjustment as StepAdjustment).max)}]",
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSecondary.withValues(alpha: 0.7),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                ],
               ),
             ),
             Text.rich(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import 'package:reorderables/reorderables.dart';
+import '../../pages/details/component_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../models/app_settings.dart';
 import '../../models/component.dart';
@@ -299,6 +300,14 @@ class GarageBikeCard extends StatelessWidget{
                               children: bikeComponents.values.map((component) => GestureDetector(
                                 key: ValueKey(component),
                                 onTap: () => onPressedComponent(component),
+                                onDoubleTap: () async {
+                                  await Navigator.push<void>(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ComponentDetailsPage(componentId: component.id),
+                                    ),
+                                  );
+                                },
                                 child: GarageComponentIconCard(
                                   component: component,
                                   componentToShowDetails: componentToShowDetails

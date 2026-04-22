@@ -124,7 +124,7 @@ class ComponentListCard extends StatelessWidget{
                         ),
                       ],
                     ),
-                  if (appSettings.enableInstallationTimeline && appSettings.enableStrava)
+                  if (appSettings.enableStrava)
                     Wrap(
                       spacing: 8,
                       runSpacing: 2,
@@ -140,6 +140,10 @@ class ComponentListCard extends StatelessWidget{
                         _StatItem(
                           icon: Icons.timer,
                           label: '${NumberFormat.decimalPattern().format(component.totalMovingTime.inHours)}h ${component.totalMovingTime.inMinutes.remainder(60)}m',
+                        ),
+                        _StatItem(
+                          icon: Icons.repeat,
+                          label: '${component.totalActivityCount}',
                         ),
                       ],
                     ),

@@ -47,6 +47,7 @@ class AppRepository extends ChangeNotifier {
   Map<int, StravaActivity> _stravaActivities = {};
   Map<String, StravaGear> _stravaGears = {};
   Map<String, ComponentStats> _componentStats = {};
+  Map<String, ComponentStats> _bikeStats = {};
   Map<String, dynamic> _currentAdjustmentValues = {};
 
   int _stravaOffset = 0;
@@ -105,6 +106,8 @@ class AppRepository extends ChangeNotifier {
   Map<int, StravaAthlete> get stravaAthletes => _stravaAthletes;
   Map<int, StravaActivity> get stravaActivities => _stravaActivities;
   Map<String, StravaGear> get stravaGears => _stravaGears;
+  Map<String, ComponentStats> get componentStats => _componentStats;
+  Map<String, ComponentStats> get bikeStats => _bikeStats;
   Map<String, dynamic> get currentAdjustmentValues => _currentAdjustmentValues;
 
   DateTime get lastModified {
@@ -144,6 +147,27 @@ class AppRepository extends ChangeNotifier {
   Map<int, StravaActivity> _filteredStravaActivities = {};
   Map<String, TaskRule> _filteredOpenTaskRules = {};
   List<ComponentInstallation> _filteredInstallations = [];
+
+  List<TaskRuleWithStatus> get toDoTaskRules {
+    final statusRules = _filteredTaskRules.values.map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule))).toList();
+    final toDo = statusRules.where((tr) => tr.status.type != TaskStatusType.completed).toList();
+    
+    // Sort ToDo: Overdue > Due > Upcoming, then by progress
+    toDo.sort((a, b) {
+      if (a.status.type.index != b.status.type.index) {
+        return b.status.type.index.compareTo(a.status.type.index);
+      }
+      return b.status.progress.compareTo(a.status.progress);
+    });
+    return toDo;
+  }
+
+  List<TaskRuleWithStatus> get completedTaskRules {
+    final statusRules = _filteredTaskRules.values.map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule))).toList();
+    final completed = statusRules.where((tr) => tr.status.type == TaskStatusType.completed).toList();
+    completed.sort((a, b) => b.rule.lastModified.compareTo(a.rule.lastModified));
+    return completed;
+  }
 
   Map<String, Bike> get filteredBikes => _filteredBikes;
   Map<String, Person> get filteredPersons => _filteredPersons;
@@ -250,6 +274,11 @@ class AppRepository extends ChangeNotifier {
       _componentStats = map;
       _dataChanged();
     }));
+
+    _subscriptions.add(database.stravaDao.watchBikeStats().listen((map) {
+      _bikeStats = map;
+      _dataChanged();
+    }));
     
     _subscriptions.add(database.setupsDao.watchAllSetupsWithValues().listen((list) {
       _setups = {for (var s in list) s.setup.id: s.setup.toModel(values: s.values)};
@@ -326,6 +355,7 @@ class AppRepository extends ChangeNotifier {
           totalElevationGain: _componentStats[entry.key]?.elevationGain ?? entry.value.initialElevationGain,
           totalMovingTime: _componentStats[entry.key]?.movingTime ?? entry.value.initialMovingTime,
           totalElapsedTime: _componentStats[entry.key]?.elapsedTime ?? entry.value.initialElapsedTime,
+          totalActivityCount: _componentStats[entry.key]?.activityCount ?? entry.value.initialActivityCount,
         )
     };
 
@@ -394,9 +424,23 @@ class AppRepository extends ChangeNotifier {
 
   void _filterTaskRules() {
     _filteredTaskRules = Map.fromEntries(
-      taskRules.entries.where(
-        (entry) => _filteredComponents.containsKey(entry.value.componentId),
-      ),
+      taskRules.entries.where((entry) {
+        final rule = entry.value;
+        // 1. Global Tasks (no component, no bike)
+        if (rule.componentId == null && rule.bikeId == null) return true;
+        
+        // 2. Bike-linked Tasks
+        if (rule.bikeId != null) {
+          return _selectedBike == null || rule.bikeId == _selectedBike;
+        }
+        
+        // 3. Component-linked Tasks
+        if (rule.componentId != null) {
+          return _filteredComponents.containsKey(rule.componentId);
+        }
+        
+        return false;
+      }),
     );
 
     _filteredOpenTaskRules = Map.fromEntries(
@@ -551,6 +595,62 @@ class AppRepository extends ChangeNotifier {
     } catch (e) {
       return null;
     }
+  }
+
+  Future<ComponentStats> getStatsAt({String? componentId, String? bikeId, required DateTime date}) async {
+    if (componentId != null) {
+      return await database.stravaDao.getComponentStatsAt(componentId, date);
+    } else if (bikeId != null) {
+      return await database.stravaDao.getBikeStatsAt(bikeId, date);
+    }
+    return ComponentStats.zero();
+  }
+
+  Future<void>  refreshTaskEntrySnapshots() async {
+    final entries = _taskEntries.values.toList();
+    for (final entry in entries) {
+      final newSnapshot = await getStatsAt(
+        componentId: entry.componentId,
+        bikeId: entry.bikeId,
+        date: entry.dateTimeUTC,
+      );
+      
+      if (newSnapshot != entry.snapshot) {
+        await database.taskDao.upsertEntry(entry.copyWith(snapshot: newSnapshot).toCompanion());
+      }
+    }
+  }
+
+  TaskStatus getTaskRuleStatus(TaskRule rule) {
+    final entries = _taskEntries.values
+        .where((te) => te.taskRule == rule.id)
+        .toList()
+      ..sort((a, b) => b.dateTimeUTC.compareTo(a.dateTimeUTC));
+    final lastEntry = entries.isNotEmpty ? entries.first : null;
+
+    DateTime? installationDate;
+    if (rule.componentId != null) {
+      final component = _components[rule.componentId];
+      final bike = component?.bike != null ? _bikes[component!.bike] : null;
+      if (component != null && bike != null) {
+        final installation = component.installations.where((i) => i.parent == bike.id).toList()
+            ..sort((a, b) => b.dateTimeUTC.compareTo(a.dateTimeUTC));
+        if (installation.isNotEmpty) {
+          installationDate = installation.first.dateTimeUTC;
+        }
+      }
+    }
+
+    final stats = rule.componentId != null
+        ? (_componentStats[rule.componentId] ?? ComponentStats.zero())
+        : (rule.bikeId != null ? (_bikeStats[rule.bikeId] ?? ComponentStats.zero()) : ComponentStats.zero());
+
+    return rule.calculateStatus(
+      currentStats: stats,
+      now: DateTime.now().toUtc(),
+      lastEntry: lastEntry,
+      componentInstallationDate: installationDate,
+    );
   }
 
   Future<void> removeBike(Bike bike) async {
@@ -870,6 +970,8 @@ class AppRepository extends ChangeNotifier {
     if (versionAtStart != _stravaOperationVersion) {
       return;
     }
+
+    await refreshTaskEntrySnapshots();
 
     debugPrint("AppRepository finished syncing activities with database (v$versionAtStart).");
     // Refresh the first page if we are at the top, to show potentially new activities

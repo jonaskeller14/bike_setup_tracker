@@ -7,6 +7,7 @@ import '../models/task_entry.dart';
 import '../models/task_rule.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/task_rule_display_card.dart';
+import '../repositories/app_repository.dart';
 
 enum TaskEntryPageMode { add, edit, duplicate }
 
@@ -43,6 +44,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
 
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -143,27 +145,45 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     _changeListener();
   }
 
-  void _saveTaskEntry() {
+  Future<void> _saveTaskEntry() async {
+    if (_isSaving) return;
     if (!_formKey.currentState!.validate()) return;
     
-    final name = _nameController.text.trim();
-    final notes = _notesController.text.trim();
-    _formHasChanges = false;
-    
-    debugPrint("$_selectedDateTimeLocal");
-    debugPrint("$_selectedDateTimeUtc");
-    Navigator.pop(context, TaskEntry(
-      id: widget.mode == TaskEntryPageMode.edit 
-          ? widget.taskEntry!.id 
-          : const Uuid().v4(), 
-      name: name,
-      notes: notes.isEmpty ? null : notes,
-      taskRule: widget.taskRule.id,
-      dateTimeUTC: _selectedDateTimeUtc,
-      dateTimeLocal: _selectedDateTimeLocal,
-      isDeleted: false,
-      lastModified: DateTime.now().toUtc(),
-    ));
+    setState(() => _isSaving = true);
+    try {
+      final name = _nameController.text.trim();
+      final notes = _notesController.text.trim();
+      final appRepository = context.read<AppRepository>();
+      
+      final snapshot = widget.mode == TaskEntryPageMode.edit 
+          ? widget.taskEntry?.snapshot 
+          : await appRepository.getStatsAt(
+              componentId: widget.taskRule.componentId,
+              bikeId: widget.taskRule.bikeId,
+              date: _selectedDateTimeUtc,
+            );
+
+      if (!mounted) return;
+      _formHasChanges = false;
+      
+      Navigator.pop(context, TaskEntry(
+        id: widget.mode == TaskEntryPageMode.edit 
+            ? widget.taskEntry!.id 
+            : const Uuid().v4(), 
+        name: name,
+        notes: notes.isEmpty ? null : notes,
+        taskRule: widget.taskRule.id,
+        componentId: widget.taskRule.componentId,
+        bikeId: widget.taskRule.bikeId,
+        snapshot: snapshot,
+        dateTimeUTC: _selectedDateTimeUtc,
+        dateTimeLocal: _selectedDateTimeLocal,
+        isDeleted: false,
+        lastModified: DateTime.now().toUtc(),
+      ));
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {
@@ -193,7 +213,10 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
             TaskEntryPageMode.edit => const Text('Edit Task Entry'),
           },
           actions: [
-            IconButton(icon: const Icon(Icons.check), onPressed: _saveTaskEntry),
+            if (_isSaving)
+              const Center(child: Padding(padding: EdgeInsets.symmetric(horizontal: 16), child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))))
+            else
+              IconButton(icon: const Icon(Icons.check), onPressed: _saveTaskEntry),
           ],
         ),
         body: SafeArea(
@@ -205,7 +228,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TaskRuleDisplayCard(taskRule: widget.taskRule),
+                  TaskRuleDisplayCard(taskRule: widget.taskRule, showStatus: false),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _nameController,

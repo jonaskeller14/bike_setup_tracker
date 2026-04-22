@@ -30,29 +30,23 @@ class TaskList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
-    final taskRules = appRepository.filteredTaskRules.values.toList();
-    
-    if (taskRules.isEmpty) {
+    final openTaskRules = appRepository.toDoTaskRules;
+    final completedTaskRules = appRepository.completedTaskRules;
+
+    if (openTaskRules.isEmpty && completedTaskRules.isEmpty) {
       return _emptyPlaceholder(context);
     }
 
-    final openRules = taskRules.where((r) => !appRepository.taskEntries.values.any((te) => te.taskRule == r.id)).toList();
-    final completedRules = taskRules.where((r) => appRepository.taskEntries.values.any((te) => te.taskRule == r.id)).toList();
-
-    // Sort by lastModified descending to show newest/most recently changed first
-    openRules.sort((a, b) => b.lastModified.compareTo(a.lastModified));
-    completedRules.sort((a, b) => b.lastModified.compareTo(a.lastModified));
-
     return ListView.builder(
       padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16 + 100),
-      itemCount: (openRules.isEmpty ? 1 : openRules.length) + (completedRules.isNotEmpty ? completedRules.length + 2 : 1),
+      itemCount: (openTaskRules.isEmpty ? 1 : openTaskRules.length) + (completedTaskRules.isNotEmpty ? completedTaskRules.length + 2 : 1),
       itemBuilder: (context, index) {
         if (index == 0) {
           return TaskListFilterWidget();
         }
 
-        if (index <= (openRules.isEmpty ? 1 : openRules.length)) {
-          if (openRules.isEmpty) {
+        if (index <= (openTaskRules.isEmpty ? 1 : openTaskRules.length)) {
+          if (openTaskRules.isEmpty) {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 32.0),
@@ -63,15 +57,15 @@ class TaskList extends StatelessWidget {
               ),
             );
           }
-          return TaskRuleListCard(taskRuleId: openRules[index - 1].id);
+          return TaskRuleListCard(taskRuleId: openTaskRules[index - 1].rule.id);
         }
 
-        final completedIndex = index - (openRules.isEmpty ? 1 : openRules.length) - 1;
+        final completedIndex = index - (openTaskRules.isEmpty ? 1 : openTaskRules.length) - 1;
         if (completedIndex == 0) {
           return const Divider(height: 32);
         }
 
-        return TaskRuleListCard(taskRuleId: completedRules[completedIndex - 1].id);
+        return TaskRuleListCard(taskRuleId: completedTaskRules[completedIndex - 1].rule.id);
       },
     );
   }

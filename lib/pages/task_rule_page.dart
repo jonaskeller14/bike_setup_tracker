@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/task_rule.dart';
 import '../models/component.dart';
 import '../models/bike.dart';
+import '../models/task_threshold.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import 'package:uuid/uuid.dart';
@@ -32,11 +33,49 @@ class TaskRulePage extends StatefulWidget {
   State<TaskRulePage> createState() => _TaskRulePageState();
 }
 
+class _TaskAssociation {
+  final String? componentId;
+  final String? bikeId;
+
+  const _TaskAssociation({this.componentId, this.bikeId});
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is _TaskAssociation &&
+          componentId == other.componentId &&
+          bikeId == other.bikeId;
+
+  @override
+  int get hashCode => componentId.hashCode ^ bikeId.hashCode;
+}
+
+enum _ThresholdType {
+  none('None'),
+  distance('Distance'),
+  movingTime('Moving Time'),
+  duration('Duration'),
+  activityCount('Activity Count'),
+  dateTime('Date');
+
+  final String label;
+  const _ThresholdType(this.label);
+}
+
 class _TaskRulePageState extends State<TaskRulePage> {
   late TextEditingController _nameController;
   late TextEditingController _notesController;
+  late TextEditingController _intervalValueController;
+  late TextEditingController _delayValueController;
+  
   TaskPriority _priority = TaskPriority.medium;
-  String? _componentId;
+  late _TaskAssociation _association;
+  late _TaskAssociation _initialAssociation;
+  
+  _ThresholdType _intervalType = _ThresholdType.none;
+  _ThresholdType _delayType = _ThresholdType.none;
+  bool _repeat = true;
+  DateTime? _intervalDate;
 
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
@@ -50,9 +89,52 @@ class _TaskRulePageState extends State<TaskRulePage> {
     _notesController = TextEditingController(text: widget.taskRule?.notes);
     _notesController.addListener(_changeListener);
 
+    _association = _TaskAssociation(
+      componentId: widget.taskRule?.componentId,
+      bikeId: widget.taskRule?.bikeId,
+    );
+    _initialAssociation = _association;
+
     if (widget.mode != TaskRulePageMode.add && widget.taskRule != null) {
       _priority = widget.taskRule!.priority;
-      _componentId = widget.taskRule!.componentId;
+      _repeat = widget.taskRule!.repeat;
+      
+      _intervalType = _getThresholdType(widget.taskRule!.interval);
+      _intervalValueController = TextEditingController(text: _getThresholdValueString(widget.taskRule!.interval));
+      if (widget.taskRule!.interval is DateTimeThreshold) {
+        _intervalDate = (widget.taskRule!.interval as DateTimeThreshold).deadline;
+      }
+
+      _delayType = _getThresholdType(widget.taskRule!.delay);
+      _delayValueController = TextEditingController(text: _getThresholdValueString(widget.taskRule!.delay));
+    } else {
+      _intervalValueController = TextEditingController();
+      _delayValueController = TextEditingController();
+    }
+
+    _intervalValueController.addListener(_changeListener);
+    _delayValueController.addListener(_changeListener);
+  }
+
+  _ThresholdType _getThresholdType(TaskThreshold? threshold) {
+    switch (threshold) {
+      case null: return _ThresholdType.none;
+      case DistanceThreshold(): return _ThresholdType.distance;
+      case MovingTimeThreshold(): return _ThresholdType.movingTime;
+      case DurationThreshold(): return _ThresholdType.duration;
+      case ActivityCountThreshold(): return _ThresholdType.activityCount;
+      case DateTimeThreshold(): return _ThresholdType.dateTime;
+    }
+  }
+
+  String _getThresholdValueString(TaskThreshold? threshold) {
+    switch (threshold) {
+      case null: return "";
+      case DistanceThreshold(): return (threshold.meters / 1000).toStringAsFixed(1);
+      case ActivityCountThreshold(): return threshold.count.toString();
+      case MovingTimeThreshold(): return threshold.hours.inHours.toString();
+      case DurationThreshold(): return threshold.days.inDays.toString();
+      case DateTimeThreshold(): return ''; 
     }
   }
 
@@ -61,7 +143,14 @@ class _TaskRulePageState extends State<TaskRulePage> {
         _nameController.text.trim() != (widget.taskRule?.name ?? '') ||
         _notesController.text.trim() != (widget.taskRule?.notes ?? '') ||
         _priority != (widget.taskRule?.priority ?? TaskPriority.medium) ||
-        _componentId != widget.taskRule?.componentId;
+        _association != _initialAssociation ||
+        _repeat != (widget.taskRule?.repeat ?? true) ||
+        _intervalType != _getThresholdType(widget.taskRule?.interval) ||
+        _intervalValueController.text != _getThresholdValueString(widget.taskRule?.interval) ||
+        (_intervalType == _ThresholdType.dateTime && _intervalDate != (widget.taskRule?.interval is DateTimeThreshold ? (widget.taskRule!.interval as DateTimeThreshold).deadline : null)) ||
+        _delayType != _getThresholdType(widget.taskRule?.delay) ||
+        _delayValueController.text != _getThresholdValueString(widget.taskRule?.delay);
+
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -75,7 +164,33 @@ class _TaskRulePageState extends State<TaskRulePage> {
     _nameController.dispose();
     _notesController.removeListener(_changeListener);
     _notesController.dispose();
+    _intervalValueController.removeListener(_changeListener);
+    _intervalValueController.dispose();
+    _delayValueController.removeListener(_changeListener);
+    _delayValueController.dispose();
+
     super.dispose();
+  }
+
+  TaskThreshold? _createThreshold(_ThresholdType type, String value, DateTime? date) {
+    if (type == _ThresholdType.none) return null;
+    final doubleVal = double.tryParse(value) ?? 0;
+    final intVal = int.tryParse(value) ?? 0;
+
+    switch (type) {
+      case _ThresholdType.distance:
+        return DistanceThreshold(doubleVal * 1000);
+      case _ThresholdType.movingTime:
+        return MovingTimeThreshold(Duration(hours: intVal));
+      case _ThresholdType.duration:
+        return DurationThreshold(Duration(days: intVal));
+      case _ThresholdType.activityCount:
+        return ActivityCountThreshold(intVal);
+      case _ThresholdType.dateTime:
+        return date != null ? DateTimeThreshold(date) : null;
+      case _ThresholdType.none:
+        return null;
+    }
   }
 
   void _saveTaskRule() {
@@ -83,18 +198,39 @@ class _TaskRulePageState extends State<TaskRulePage> {
 
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
+    
+    final interval = _createThreshold(_intervalType, _intervalValueController.text, _intervalDate);
+    final delay = (_intervalType == _ThresholdType.dateTime)
+        ? null
+        : _createThreshold(_delayType, _delayValueController.text, null);
+
+    // Validation
+    final needsAsset = (interval is DistanceThreshold || interval is MovingTimeThreshold || interval is ActivityCountThreshold) ||
+                       (delay is DistanceThreshold || delay is MovingTimeThreshold || delay is ActivityCountThreshold);
+    
+    if (needsAsset && _association.componentId == null && _association.bikeId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Distance, Time, or Activity triggers require a linked Bike or Component.')),
+      );
+      return;
+    }
+
     _formHasChanges = false;
 
     Navigator.pop(
       context,
       TaskRule(
-        componentId: _componentId!,
         id: widget.mode == TaskRulePageMode.edit
             ? widget.taskRule!.id
             : const Uuid().v4(),
         name: name,
         notes: notes.isEmpty ? null : notes,
         priority: _priority,
+        componentId: _association.componentId,
+        bikeId: _association.bikeId,
+        interval: interval,
+        delay: delay,
+        repeat: _intervalType == _ThresholdType.dateTime ? false : _repeat,
         isDeleted: false,
         lastModified: DateTime.now().toUtc(),
       ),
@@ -110,23 +246,38 @@ class _TaskRulePageState extends State<TaskRulePage> {
     Navigator.of(context).pop(null);
   }
 
-  String? _validateName(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Name is required';
-    return null;
+  DropdownMenuItem<_TaskAssociation> _dropdownMenuItemNone() {
+    return const DropdownMenuItem<_TaskAssociation>(
+      value: _TaskAssociation(),
+      child: Row(
+        spacing: 8,
+        children: [
+          Icon(Icons.circle_outlined),
+          Text("General Task"),
+        ],
+      ),
+    );
   }
 
-  String? _validateComponent(String? value) {
-    if (value == null || value.isEmpty) return 'Component is required';
-    return null;
+  DropdownMenuItem<_TaskAssociation> _dropdownMenuItemBike(Bike bike) {
+    return DropdownMenuItem<_TaskAssociation>(
+      value: _TaskAssociation(bikeId: bike.id),
+      child: Row(
+        spacing: 8,
+        children: [
+          const Icon(Bike.iconData),
+          Expanded(child: Text(bike.name, overflow: TextOverflow.ellipsis)),
+        ],
+      ),
+    );
   }
 
-  DropdownMenuItem<String> _dropdownMenuItemComponent(Component component) {
-    //FIXME: WARNING: if (edit) => Existing entries refer the new selected component
+  DropdownMenuItem<_TaskAssociation> _dropdownMenuItemComponent(Component component) {
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
 
-    return DropdownMenuItem<String>(
-      value: component.id,
+    return DropdownMenuItem<_TaskAssociation>(
+      value: _TaskAssociation(componentId: component.id),
       child: Row(
         spacing: 8,
         children: [
@@ -149,9 +300,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
               children: [
                 Icon(
                   component.bike != null ? Bike.iconData : Icons.shelves,
-                  color:
-                      component.bike == null ||
-                          bikes.containsKey(component.bike)
+                  color: component.bike == null || bikes.containsKey(component.bike)
                       ? null
                       : Theme.of(context).colorScheme.error,
                 ),
@@ -160,9 +309,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                     component.bike == null
                         ? "Not installed"
                         : bikes[component.bike]?.name ?? "BIKE NOT FOUND",
-                    style:
-                        component.bike == null ||
-                            bikes.containsKey(component.bike)
+                    style: component.bike == null || bikes.containsKey(component.bike)
                         ? null
                         : TextStyle(color: Theme.of(context).colorScheme.error),
                     overflow: TextOverflow.ellipsis,
@@ -176,9 +323,20 @@ class _TaskRulePageState extends State<TaskRulePage> {
     );
   }
 
+  DropdownMenuItem<_TaskAssociation?> _dropdownMenuSection(String label) {
+    return DropdownMenuItem<_TaskAssociation?>(
+      enabled: false,
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
+    final bikes = appRepository.bikes;
     final components = appRepository.components;
 
     return PopScope(
@@ -188,8 +346,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
         appBar: AppBar(
           title: switch (widget.mode) {
             TaskRulePageMode.add ||
-            TaskRulePageMode.duplicate => const Text('Add Task'),
-            TaskRulePageMode.edit => const Text('Edit Task'),
+            TaskRulePageMode.duplicate => const Text('Add Task Rule'),
+            TaskRulePageMode.edit => const Text('Edit Task Rule'),
           },
           actions: [
             IconButton(icon: const Icon(Icons.check), onPressed: _saveTaskRule),
@@ -208,42 +366,16 @@ class _TaskRulePageState extends State<TaskRulePage> {
                     controller: _nameController,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     autofocus: widget.mode == TaskRulePageMode.add,
-                    onChanged: (value) => setState(() {}),
+                    onChanged: (value) => setState(() {}),  // trigger filled
                     decoration: InputDecoration(
-                      labelText: 'Task Name',
+                      labelText: 'Task Rule Name',
                       border: OutlineInputBorder(),
                       hintText: 'Enter task name',
                       fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled:
-                          widget.mode == TaskRulePageMode.edit &&
-                          _nameController.text.trim() != widget.taskRule?.name,
+                      filled: widget.mode == TaskRulePageMode.edit && _nameController.text.trim() != widget.taskRule?.name,
                     ),
-                    validator: _validateName,
+                    validator: (v) => v == null || v.trim().isEmpty ? 'Name required' : null,
                     onFieldSubmitted: (_) => _saveTaskRule(),
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<String>(
-                    initialValue: _componentId,
-                    isExpanded: true,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: 'Component',
-                      border: OutlineInputBorder(),
-                      hintText: "Choose a component",
-                      fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled:
-                          widget.mode == TaskRulePageMode.edit &&
-                          _componentId != widget.taskRule?.componentId,
-                    ),
-                    validator: _validateComponent,
-                    items: (components.values.toList()
-                          ..sort((a, b) => (a.bike ?? "").compareTo(b.bike ?? "")))
-                        .map((c) => _dropdownMenuItemComponent(c))
-                        .toList(),
-                    onChanged: (String? newValue) {
-                      setState(() => _componentId = newValue);
-                      _changeListener();
-                    },
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<TaskPriority>(
@@ -251,11 +383,9 @@ class _TaskRulePageState extends State<TaskRulePage> {
                     isExpanded: true,
                     decoration: InputDecoration(
                       labelText: 'Priority',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                       fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled:
-                          widget.mode == TaskRulePageMode.edit &&
-                          _priority != widget.taskRule?.priority,
+                      filled: widget.mode == TaskRulePageMode.edit && _priority != widget.taskRule?.priority,
                     ),
                     items: TaskPriority.values.map((priority) {
                       return DropdownMenuItem<TaskPriority>(
@@ -265,9 +395,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                     }).toList(),
                     onChanged: (TaskPriority? newValue) {
                       if (newValue != null) {
-                        setState(() {
-                          _priority = newValue;
-                        });
+                        setState(() => _priority = newValue);
                         _changeListener();
                       }
                     },
@@ -278,17 +406,210 @@ class _TaskRulePageState extends State<TaskRulePage> {
                     minLines: 2,
                     maxLines: null,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
+                    onChanged: (value) => setState(() {}),
                     decoration: InputDecoration(
                       labelText: 'Notes (optional)',
                       hintText: 'Add additional details or instructions...',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                       fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled:
-                          widget.mode == TaskRulePageMode.edit &&
-                          _notesController.text.trim() !=
-                              (widget.taskRule?.notes ?? ""),
+                      filled: widget.mode == TaskRulePageMode.edit && _notesController.text.trim() != (widget.taskRule?.notes ?? ""),
                     ),
                   ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<_TaskAssociation?>(
+                    initialValue: _association,
+                    isExpanded: true,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    decoration: InputDecoration(
+                      labelText: 'Linked To',
+                      border: const OutlineInputBorder(),
+                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      filled: widget.mode == TaskRulePageMode.edit && _association != _initialAssociation,
+                    ),
+                    items: [
+                      _dropdownMenuItemNone(),
+                      _dropdownMenuSection("BIKES"),
+                      ...bikes.values.map((b) => _dropdownMenuItemBike(b)),
+                      _dropdownMenuSection("COMPONENTS"),
+                      ...(() {
+                        final sorted = components.values.toList()
+                          ..sort((a, b) => (a.bike ?? "").compareTo(b.bike ?? ""));
+                        return sorted.map((c) => _dropdownMenuItemComponent(c));
+                      })(),
+                    ],
+                    onChanged: (v) {
+                      if (v != null) {
+                        setState(() => _association = v);
+                        _changeListener();
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 12),                  
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8, left: 4),
+                    child: Text("Task Trigger", style: Theme.of(context).textTheme.titleMedium),
+                  ),
+                  Row(
+                    spacing: 8,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: DropdownButtonFormField<_ThresholdType>(
+                          initialValue: _intervalType,
+                          isExpanded: true,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          decoration: InputDecoration(
+                            labelText: "Type",
+                            border: const OutlineInputBorder(),
+                            fillColor: Colors.orange.withValues(alpha: 0.08),
+                            filled: widget.mode == TaskRulePageMode.edit && _intervalType != _getThresholdType(widget.taskRule?.interval),
+                          ),
+                          items: _ThresholdType.values.map((t) => DropdownMenuItem(value: t, child: Text(t.label))).toList(),
+                          onChanged: (v) {
+                            if (v != null) {
+                              setState(() => _intervalType = v);
+                              _changeListener();
+                            }
+                          },
+                        ),
+                      ),
+                      switch (_intervalType) {
+                        _ThresholdType.none => const SizedBox.shrink(),
+                        _ThresholdType.dateTime => Expanded(
+                          flex: 3,
+                          child: InkWell(
+                            onTap: () async {
+                              final d = await showDatePicker(
+                                context: context,
+                                initialDate: _intervalDate ?? DateTime.now(),
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2100),
+                              );
+                              if (d != null) {
+                                setState(() => _intervalDate = d);
+                                _changeListener();
+                              }
+                            },
+                            child: InputDecorator(
+                              decoration: InputDecoration(
+                                labelText: "Date",
+                                border: const OutlineInputBorder(),
+                                suffixIcon: const Icon(Icons.calendar_today, size: 20),
+                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                filled: widget.mode == TaskRulePageMode.edit && _intervalDate != (widget.taskRule?.interval is DateTimeThreshold ? (widget.taskRule!.interval as DateTimeThreshold).deadline : null),
+                              ),
+                              child: Text(
+                                _intervalDate == null
+                                    ? "Select Date"
+                                    : _intervalDate!.toLocal().toString().split(' ')[0],
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
+                            ),
+                          ),
+                        ),
+                        _ThresholdType.activityCount || 
+                        _ThresholdType.distance || 
+                        _ThresholdType.movingTime || 
+                        _ThresholdType.duration => Expanded(
+                          flex: 3,
+                          child: TextFormField(
+                            controller: _intervalValueController,
+                            keyboardType: TextInputType.number,
+                            onChanged: (value) => setState(() {}),
+                            decoration: InputDecoration(
+                              labelText: "Value",
+                              suffixText: switch (_intervalType) {
+                                _ThresholdType.distance => 'km',
+                                _ThresholdType.movingTime => 'h',
+                                _ThresholdType.duration => 'days',
+                                _ThresholdType.activityCount => 'rides',
+                                _ => '',
+                              },
+                              border: const OutlineInputBorder(),
+                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              filled: widget.mode == TaskRulePageMode.edit && _intervalValueController.text != _getThresholdValueString(widget.taskRule?.interval),
+                              //TODO: Add validation for example > 0, double parsable, validate on user interaction
+                            ),
+                          ),
+                        ),
+                      },                      
+                    ],
+                  ),
+                  if (_intervalType != _ThresholdType.none && _intervalType != _ThresholdType.dateTime) ...[
+                    const SizedBox(height: 12),
+                    ListTile(
+                      tileColor: widget.mode == TaskRulePageMode.edit && _repeat != (widget.taskRule?.repeat ?? true) ? Colors.orange.withValues(alpha: 0.08) : null,
+                      contentPadding: const EdgeInsets.all(12),
+                      title: const Text("Repeat Interval"),
+                      subtitle: const Text("Restart interval after each entry"),
+                      trailing: Switch(
+                        value: _repeat,
+                        onChanged: (v) {
+                          setState(() => _repeat = v);
+                          _changeListener();
+                        },
+                      ),
+                    ),
+                    if (widget.mode == TaskRulePageMode.edit) ...[
+                      const SizedBox(height: 12),
+                      Row(
+                        spacing: 8,
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: DropdownButtonFormField<_ThresholdType>(
+                              initialValue: _delayType,
+                              isExpanded: true,
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                              decoration: InputDecoration(
+                                labelText: "Delay Type (Optional)",
+                                border: const OutlineInputBorder(),
+                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                filled: widget.mode == TaskRulePageMode.edit && _delayType != _getThresholdType(widget.taskRule?.delay),
+                              ),
+                              items: [_ThresholdType.none, _ThresholdType.distance, _ThresholdType.movingTime, _ThresholdType.duration, _ThresholdType.activityCount]
+                                  .map((t) => DropdownMenuItem(value: t, child: Text(t.label)))
+                                  .toList(),
+                              onChanged: (v) {
+                                if (v != null) {
+                                  setState(() => _delayType = v);
+                                  _changeListener();
+                                }
+                              },
+                              validator: (v) {
+                                if (v != null && v != _ThresholdType.none && v != _intervalType) {
+                                  return 'Must match trigger type';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                          if (_delayType != _ThresholdType.none)
+                            Expanded(
+                              flex: 3,
+                              child: TextFormField(
+                                controller: _delayValueController,
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  labelText: "Delay Value",
+                                  suffixText: switch (_delayType) {
+                                    _ThresholdType.distance => 'km',
+                                    _ThresholdType.movingTime => 'h',
+                                    _ThresholdType.duration => 'days',
+                                    _ThresholdType.activityCount => 'rides',
+                                    _ => '',
+                                  },
+                                  border: const OutlineInputBorder(),
+                                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                                  filled: widget.mode == TaskRulePageMode.edit && _delayValueController.text != _getThresholdValueString(widget.taskRule?.delay),
+                                ),
+                                onChanged: (value) => setState(() {}),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ],
                 ],
               ),
             ),

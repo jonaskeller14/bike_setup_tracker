@@ -104,6 +104,7 @@ void main() {
         dateTimeUTC: localTime,
         dateTimeLocal: localTime,
         taskRule: 'rule1',
+        componentId: 'comp1',
       );
 
       expect(taskEntry.dateTimeUTC.isUtc, isTrue);

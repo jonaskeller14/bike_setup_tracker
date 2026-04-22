@@ -1,9 +1,8 @@
-import 'dart:convert';
-import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 import '../models/selected_data.dart';
 import '../models/adjustment/adjustment.dart';
 import '../database/app_database.dart';
+import '../database/mappers.dart';
 
 class DatabaseMigrationService {
   final AppDatabase db;
@@ -18,64 +17,25 @@ class DatabaseMigrationService {
       // Persons
       batch.insertAllOnConflictUpdate(
         db.persons,
-        data.persons.values.map(
-          (p) => PersonsCompanion.insert(
-            id: p.id,
-            isDeleted: Value(p.isDeleted),
-            lastModified: p.lastModified,
-            name: p.name,
-            notes: Value(p.notes),
-            stravaAthlete: Value(p.stravaAthlete),
-          ),
-        ),
+        data.persons.values.map((p) => p.toCompanion()),
       );
 
       // Bikes
       batch.insertAllOnConflictUpdate(
         db.bikes,
-        data.bikes.values.map(
-          (b) => BikesCompanion.insert(
-            id: b.id,
-            isDeleted: Value(b.isDeleted),
-            lastModified: b.lastModified,
-            name: b.name,
-            person: Value(b.person),
-            stravaGear: Value(b.stravaGear),
-            notes: Value(b.notes),
-          ),
-        ),
+        data.bikes.values.map((b) => b.toCompanion()),
       );
 
       // Ratings
       batch.insertAllOnConflictUpdate(
         db.ratings,
-        data.ratings.values.map(
-          (r) => RatingsCompanion.insert(
-            id: r.id,
-            isDeleted: Value(r.isDeleted),
-            lastModified: r.lastModified,
-            name: r.name,
-            notes: Value(r.notes),
-            filter: Value(r.filter),
-            filterType: r.filterType,
-          ),
-        ),
+        data.ratings.values.map((r) => r.toCompanion()),
       );
 
       // Task Rules
       batch.insertAllOnConflictUpdate(
         db.taskRules,
-        data.taskRules.values.map(
-          (tr) => TaskRulesCompanion.insert(
-            id: tr.id,
-            componentId: tr.componentId,
-            isDeleted: Value(tr.isDeleted),
-            lastModified: tr.lastModified,
-            name: tr.name,
-            notes: Value(tr.notes),
-            priority: Value(tr.priority),
-          ),
-        ),
+        data.taskRules.values.map((tr) => tr.toCompanion()),
       );
 
       // -----------------------------------------------------------------------
@@ -85,16 +45,7 @@ class DatabaseMigrationService {
       // Components
       batch.insertAllOnConflictUpdate(
         db.components,
-        data.components.values.map(
-          (c) => ComponentsCompanion.insert(
-            id: c.id,
-            isDeleted: Value(c.isDeleted),
-            lastModified: c.lastModified,
-            name: c.name,
-            componentType: c.componentType,
-            notes: Value(c.notes),
-          ),
-        ),
+        data.components.values.map((c) => c.toCompanion()),
       );
 
       // -----------------------------------------------------------------------
@@ -104,18 +55,7 @@ class DatabaseMigrationService {
       // Task Entries
       batch.insertAllOnConflictUpdate(
         db.taskEntries,
-        data.taskEntries.values.map(
-          (te) => TaskEntriesCompanion.insert(
-            id: te.id,
-            isDeleted: Value(te.isDeleted),
-            lastModified: te.lastModified,
-            name: te.name,
-            notes: Value(te.notes),
-            dateTimeUTC: te.dateTimeUTC,
-            dateTimeLocal: te.dateTimeLocal,
-            taskRule: te.taskRule,
-          ),
-        ),
+        data.taskEntries.values.map((te) => te.toCompanion()),
       );
 
       // Installations (nested in components)
@@ -123,12 +63,9 @@ class DatabaseMigrationService {
       for (final component in data.components.values) {
         for (final installation in component.installations) {
           installationsToInsert.add(
-            InstallationsCompanion.insert(
+            installation.toCompanion(
               id: const Uuid().v4(), // generate an ID as legacy didn't have one
               componentId: component.id,
-              parent: Value(installation.parent),
-              dateTimeUTC: installation.dateTimeUTC,
-              dateTimeLocal: installation.dateTimeLocal,
             ),
           );
         }
@@ -146,38 +83,12 @@ class DatabaseMigrationService {
       }) {
         for (int i = 0; i < adjustments.length; i++) {
           final adj = adjustments[i];
-          final jsonMap = adj.toJson();
-          // Remove base fields, leaving only subclass specific payload
-          jsonMap.removeWhere(
-            (key, value) => [
-              'version',
-              'id',
-              'name',
-              'notes',
-              'type',
-              'unit',
-              'category',
-            ].contains(key),
-          );
-
-          final typeString = adj.toJson()['type'] as String;
-          final adjType = AdjustmentType.values.firstWhere(
-            (e) => e.name == typeString,
-          );
-
           adjustmentsToInsert.add(
-            AdjustmentsCompanion.insert(
-              id: adj.id,
-              componentId: Value(componentId),
-              personId: Value(personId),
-              ratingId: Value(ratingId),
+            adj.toCompanion(
+              componentId: componentId,
+              personId: personId,
+              ratingId: ratingId,
               orderIndex: i,
-              name: adj.name,
-              notes: Value(adj.notes),
-              unit: Value(adj.unit),
-              category: adj.category,
-              type: adjType,
-              jsonPayload: Value(jsonEncode(jsonMap)),
             ),
           );
         }
@@ -202,23 +113,7 @@ class DatabaseMigrationService {
       // Setups
       batch.insertAllOnConflictUpdate(
         db.setups,
-        data.setups.values.map(
-          (s) => SetupsCompanion.insert(
-            id: s.id,
-            bikeId: s.bike,
-            personId: Value(s.person),
-            isDeleted: Value(s.isDeleted),
-            lastModified: s.lastModified,
-            name: s.name,
-            datetime: s.datetime,
-            datetimeLocal: s.datetimeLocal,
-            notes: Value(s.notes),
-            tags: s.tags,
-            position: Value(s.position),
-            place: Value(s.place),
-            weather: Value(s.weather),
-          ),
-        ),
+        data.setups.values.map((s) => s.toCompanion()),
       );
 
       // -----------------------------------------------------------------------

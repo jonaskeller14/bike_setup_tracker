@@ -18,17 +18,18 @@ class Component {
   final String? notes;
   final int orderIndex;
 
+  final double initialDistance;
+  final double initialElevationGain;
+  final Duration initialMovingTime;
+  final Duration initialElapsedTime;
+  final int initialActivityCount;
+
   // Transient stats from Strava (not persisted)
   final double totalDistance;
   final double totalElevationGain;
   final Duration totalMovingTime;
   final Duration totalElapsedTime;
-
-  // Persistent initial stats (for used components)
-  final double initialDistance;
-  final double initialElevationGain;
-  final Duration initialMovingTime;
-  final Duration initialElapsedTime;
+  final int totalActivityCount;
 
   String? get bike => bikeAt(DateTime.now().toUtc());
 
@@ -65,10 +66,12 @@ class Component {
     this.totalElevationGain = 0.0,
     this.totalMovingTime = Duration.zero,
     this.totalElapsedTime = Duration.zero,
+    this.totalActivityCount = 0,
     this.initialDistance = 0.0,
     this.initialElevationGain = 0.0,
     this.initialMovingTime = Duration.zero,
     this.initialElapsedTime = Duration.zero,
+    this.initialActivityCount = 0,
   }) : adjustments = adjustments ?? [],
        id = id ?? const Uuid().v4(),
        isDeleted = isDeleted ?? false,
@@ -86,10 +89,12 @@ class Component {
       totalElevationGain: totalElevationGain,
       totalMovingTime: totalMovingTime,
       totalElapsedTime: totalElapsedTime,
+      totalActivityCount: totalActivityCount,
       initialDistance: initialDistance,
       initialElevationGain: initialElevationGain,
       initialMovingTime: initialMovingTime,
       initialElapsedTime: initialElapsedTime,
+      initialActivityCount: initialActivityCount,
     );
   }
 
@@ -115,10 +120,12 @@ class Component {
     Object? totalElevationGain = const _Sentinel(),
     Object? totalMovingTime = const _Sentinel(),
     Object? totalElapsedTime = const _Sentinel(),
+    Object? totalActivityCount = const _Sentinel(),
     Object? initialDistance = const _Sentinel(),
     Object? initialElevationGain = const _Sentinel(),
     Object? initialMovingTime = const _Sentinel(),
     Object? initialElapsedTime = const _Sentinel(),
+    Object? initialActivityCount = const _Sentinel(),
   }) {
     return Component(
       id: id is _Sentinel
@@ -160,6 +167,9 @@ class Component {
       totalElapsedTime: totalElapsedTime is _Sentinel
           ? this.totalElapsedTime
           : (totalElapsedTime as Duration),
+      totalActivityCount: totalActivityCount is _Sentinel
+          ? this.totalActivityCount
+          : (totalActivityCount as int),
       initialDistance: initialDistance is _Sentinel
           ? this.initialDistance
           : (initialDistance as num).toDouble(),
@@ -172,6 +182,9 @@ class Component {
       initialElapsedTime: initialElapsedTime is _Sentinel
           ? this.initialElapsedTime
           : (initialElapsedTime as Duration),
+      initialActivityCount: initialActivityCount is _Sentinel
+          ? this.initialActivityCount
+          : (initialActivityCount as int),
     );
   }
 
@@ -190,6 +203,7 @@ class Component {
     'initialElevationGain': initialElevationGain,
     'initialMovingTime': initialMovingTime.inSeconds,
     'initialElapsedTime': initialElapsedTime.inSeconds,
+    'initialActivityCount': initialActivityCount,
   };
 
   factory Component.fromJson({required Map<String, dynamic> json}) {
@@ -216,10 +230,12 @@ class Component {
           totalElevationGain: 0.0,
           totalMovingTime: Duration.zero,
           totalElapsedTime: Duration.zero,
+          totalActivityCount: 0,
           initialDistance: (json['initialDistance'] as num?)?.toDouble() ?? 0.0,
           initialElevationGain: (json['initialElevationGain'] as num?)?.toDouble() ?? 0.0,
           initialMovingTime: Duration(seconds: json['initialMovingTime'] as int? ?? 0),
           initialElapsedTime: Duration(seconds: json['initialElapsedTime'] as int? ?? 0),
+          initialActivityCount: json['initialActivityCount'] as int? ?? 0,
         );
       case 2 || 3 || 4:
         return Component(
@@ -241,10 +257,12 @@ class Component {
           totalElevationGain: 0.0,
           totalMovingTime: Duration.zero,
           totalElapsedTime: Duration.zero,
+          totalActivityCount: 0,
           initialDistance: (json['initialDistance'] as num?)?.toDouble() ?? 0.0,
           initialElevationGain: (json['initialElevationGain'] as num?)?.toDouble() ?? 0.0,
           initialMovingTime: Duration(seconds: json['initialMovingTime'] as int? ?? 0),
           initialElapsedTime: Duration(seconds: json['initialElapsedTime'] as int? ?? 0),
+          initialActivityCount: json['initialActivityCount'] as int? ?? 0,
         );
       default: throw Exception("Json Version $version of Component incompatible."); 
     }
@@ -263,14 +281,16 @@ class Component {
         listEquals(installations, other.installations) &&
         notes == other.notes &&
         listEquals(adjustments, other.adjustments) &&
+        initialDistance == other.initialDistance &&
+        initialElevationGain == other.initialElevationGain &&
+        initialMovingTime == other.initialMovingTime &&
+        initialElapsedTime == other.initialElapsedTime &&
+        initialActivityCount == other.initialActivityCount &&
         totalDistance == other.totalDistance &&
         totalElevationGain == other.totalElevationGain &&
         totalMovingTime == other.totalMovingTime &&
         totalElapsedTime == other.totalElapsedTime &&
-        initialDistance == other.initialDistance &&
-        initialElevationGain == other.initialElevationGain &&
-        initialMovingTime == other.initialMovingTime &&
-        initialElapsedTime == other.initialElapsedTime;
+        totalActivityCount == other.totalActivityCount;
   }
 
   @override
@@ -288,10 +308,12 @@ class Component {
       totalElevationGain,
       totalMovingTime,
       totalElapsedTime,
+      totalActivityCount,
       initialDistance,
       initialElevationGain,
       initialMovingTime,
       initialElapsedTime,
+      initialActivityCount,
     );
   }
 }

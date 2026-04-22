@@ -2,6 +2,8 @@ import 'package:drift/drift.dart';
 import '../converters/utc_datetime_converter.dart';
 import '../converters/local_floating_datetime_converter.dart';
 import 'task_rules.dart';
+import 'components.dart';
+import 'bikes.dart';
 
 @DataClassName('TaskEntryDb')
 class TaskEntries extends Table {
@@ -13,6 +15,9 @@ class TaskEntries extends Table {
   DateTimeColumn get dateTimeUTC => dateTime().map(const UtcDateTimeConverter())();
   DateTimeColumn get dateTimeLocal => dateTime().map(const LocalFloatingDateTimeConverter())();
   TextColumn get taskRule => text().references(TaskRules, #id, onDelete: KeyAction.cascade)();
+  TextColumn get componentId => text().nullable().references(Components, #id)();
+  TextColumn get bikeId => text().nullable().references(Bikes, #id)();
+  TextColumn get snapshot => text().nullable()(); // JSON serialized ComponentStats
 
   @override
   Set<Column> get primaryKey => {id};

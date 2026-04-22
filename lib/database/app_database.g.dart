@@ -125,6 +125,17 @@ class $ComponentsTable extends Components
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   ).withConverter<Duration>($ComponentsTable.$converterinitialElapsedTime);
+  static const VerificationMeta _initialActivityCountMeta =
+      const VerificationMeta('initialActivityCount');
+  @override
+  late final GeneratedColumn<int> initialActivityCount = GeneratedColumn<int>(
+    'initial_activity_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -138,6 +149,7 @@ class $ComponentsTable extends Components
     initialElevationGain,
     initialMovingTime,
     initialElapsedTime,
+    initialActivityCount,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -197,6 +209,15 @@ class $ComponentsTable extends Components
         initialElevationGain.isAcceptableOrUnknown(
           data['initial_elevation_gain']!,
           _initialElevationGainMeta,
+        ),
+      );
+    }
+    if (data.containsKey('initial_activity_count')) {
+      context.handle(
+        _initialActivityCountMeta,
+        initialActivityCount.isAcceptableOrUnknown(
+          data['initial_activity_count']!,
+          _initialActivityCountMeta,
         ),
       );
     }
@@ -261,6 +282,10 @@ class $ComponentsTable extends Components
           data['${effectivePrefix}initial_elapsed_time'],
         )!,
       ),
+      initialActivityCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}initial_activity_count'],
+      )!,
     );
   }
 
@@ -291,6 +316,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
   final double initialElevationGain;
   final Duration initialMovingTime;
   final Duration initialElapsedTime;
+  final int initialActivityCount;
   const ComponentDb({
     required this.id,
     required this.isDeleted,
@@ -303,6 +329,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     required this.initialElevationGain,
     required this.initialMovingTime,
     required this.initialElapsedTime,
+    required this.initialActivityCount,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -336,6 +363,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
         $ComponentsTable.$converterinitialElapsedTime.toSql(initialElapsedTime),
       );
     }
+    map['initial_activity_count'] = Variable<int>(initialActivityCount);
     return map;
   }
 
@@ -354,6 +382,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       initialElevationGain: Value(initialElevationGain),
       initialMovingTime: Value(initialMovingTime),
       initialElapsedTime: Value(initialElapsedTime),
+      initialActivityCount: Value(initialActivityCount),
     );
   }
 
@@ -382,6 +411,9 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       initialElapsedTime: serializer.fromJson<Duration>(
         json['initialElapsedTime'],
       ),
+      initialActivityCount: serializer.fromJson<int>(
+        json['initialActivityCount'],
+      ),
     );
   }
   @override
@@ -401,6 +433,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       'initialElevationGain': serializer.toJson<double>(initialElevationGain),
       'initialMovingTime': serializer.toJson<Duration>(initialMovingTime),
       'initialElapsedTime': serializer.toJson<Duration>(initialElapsedTime),
+      'initialActivityCount': serializer.toJson<int>(initialActivityCount),
     };
   }
 
@@ -416,6 +449,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     double? initialElevationGain,
     Duration? initialMovingTime,
     Duration? initialElapsedTime,
+    int? initialActivityCount,
   }) => ComponentDb(
     id: id ?? this.id,
     isDeleted: isDeleted ?? this.isDeleted,
@@ -428,6 +462,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     initialElevationGain: initialElevationGain ?? this.initialElevationGain,
     initialMovingTime: initialMovingTime ?? this.initialMovingTime,
     initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
+    initialActivityCount: initialActivityCount ?? this.initialActivityCount,
   );
   ComponentDb copyWithCompanion(ComponentsCompanion data) {
     return ComponentDb(
@@ -456,6 +491,9 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
       initialElapsedTime: data.initialElapsedTime.present
           ? data.initialElapsedTime.value
           : this.initialElapsedTime,
+      initialActivityCount: data.initialActivityCount.present
+          ? data.initialActivityCount.value
+          : this.initialActivityCount,
     );
   }
 
@@ -472,7 +510,8 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           ..write('initialDistance: $initialDistance, ')
           ..write('initialElevationGain: $initialElevationGain, ')
           ..write('initialMovingTime: $initialMovingTime, ')
-          ..write('initialElapsedTime: $initialElapsedTime')
+          ..write('initialElapsedTime: $initialElapsedTime, ')
+          ..write('initialActivityCount: $initialActivityCount')
           ..write(')'))
         .toString();
   }
@@ -490,6 +529,7 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
     initialElevationGain,
     initialMovingTime,
     initialElapsedTime,
+    initialActivityCount,
   );
   @override
   bool operator ==(Object other) =>
@@ -505,7 +545,8 @@ class ComponentDb extends DataClass implements Insertable<ComponentDb> {
           other.initialDistance == this.initialDistance &&
           other.initialElevationGain == this.initialElevationGain &&
           other.initialMovingTime == this.initialMovingTime &&
-          other.initialElapsedTime == this.initialElapsedTime);
+          other.initialElapsedTime == this.initialElapsedTime &&
+          other.initialActivityCount == this.initialActivityCount);
 }
 
 class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
@@ -520,6 +561,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
   final Value<double> initialElevationGain;
   final Value<Duration> initialMovingTime;
   final Value<Duration> initialElapsedTime;
+  final Value<int> initialActivityCount;
   final Value<int> rowid;
   const ComponentsCompanion({
     this.id = const Value.absent(),
@@ -533,6 +575,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     this.initialElevationGain = const Value.absent(),
     this.initialMovingTime = const Value.absent(),
     this.initialElapsedTime = const Value.absent(),
+    this.initialActivityCount = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ComponentsCompanion.insert({
@@ -547,6 +590,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     this.initialElevationGain = const Value.absent(),
     this.initialMovingTime = const Value.absent(),
     this.initialElapsedTime = const Value.absent(),
+    this.initialActivityCount = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        lastModified = Value(lastModified),
@@ -564,6 +608,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     Expression<double>? initialElevationGain,
     Expression<int>? initialMovingTime,
     Expression<int>? initialElapsedTime,
+    Expression<int>? initialActivityCount,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -580,6 +625,8 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
       if (initialMovingTime != null) 'initial_moving_time': initialMovingTime,
       if (initialElapsedTime != null)
         'initial_elapsed_time': initialElapsedTime,
+      if (initialActivityCount != null)
+        'initial_activity_count': initialActivityCount,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -596,6 +643,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
     Value<double>? initialElevationGain,
     Value<Duration>? initialMovingTime,
     Value<Duration>? initialElapsedTime,
+    Value<int>? initialActivityCount,
     Value<int>? rowid,
   }) {
     return ComponentsCompanion(
@@ -610,6 +658,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
       initialElevationGain: initialElevationGain ?? this.initialElevationGain,
       initialMovingTime: initialMovingTime ?? this.initialMovingTime,
       initialElapsedTime: initialElapsedTime ?? this.initialElapsedTime,
+      initialActivityCount: initialActivityCount ?? this.initialActivityCount,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -664,6 +713,9 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
         ),
       );
     }
+    if (initialActivityCount.present) {
+      map['initial_activity_count'] = Variable<int>(initialActivityCount.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -684,1003 +736,7 @@ class ComponentsCompanion extends UpdateCompanion<ComponentDb> {
           ..write('initialElevationGain: $initialElevationGain, ')
           ..write('initialMovingTime: $initialMovingTime, ')
           ..write('initialElapsedTime: $initialElapsedTime, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $TaskRulesTable extends TaskRules
-    with TableInfo<$TaskRulesTable, TaskRuleDb> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $TaskRulesTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
-    'isDeleted',
-  );
-  @override
-  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
-    'is_deleted',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_deleted" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  @override
-  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
-      GeneratedColumn<DateTime>(
-        'last_modified',
-        aliasedName,
-        false,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: true,
-      ).withConverter<DateTime>($TaskRulesTable.$converterlastModified);
-  static const VerificationMeta _componentIdMeta = const VerificationMeta(
-    'componentId',
-  );
-  @override
-  late final GeneratedColumn<String> componentId = GeneratedColumn<String>(
-    'component_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES components (id)',
-    ),
-  );
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
-  @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-    'name',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
-  @override
-  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
-    'notes',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  @override
-  late final GeneratedColumnWithTypeConverter<TaskPriority, String> priority =
-      GeneratedColumn<String>(
-        'priority',
-        aliasedName,
-        false,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-        defaultValue: const Constant('medium'),
-      ).withConverter<TaskPriority>($TaskRulesTable.$converterpriority);
-  @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    isDeleted,
-    lastModified,
-    componentId,
-    name,
-    notes,
-    priority,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'task_rules';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<TaskRuleDb> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('is_deleted')) {
-      context.handle(
-        _isDeletedMeta,
-        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
-      );
-    }
-    if (data.containsKey('component_id')) {
-      context.handle(
-        _componentIdMeta,
-        componentId.isAcceptableOrUnknown(
-          data['component_id']!,
-          _componentIdMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_componentIdMeta);
-    }
-    if (data.containsKey('name')) {
-      context.handle(
-        _nameMeta,
-        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_nameMeta);
-    }
-    if (data.containsKey('notes')) {
-      context.handle(
-        _notesMeta,
-        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  TaskRuleDb map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return TaskRuleDb(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}id'],
-      )!,
-      isDeleted: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_deleted'],
-      )!,
-      lastModified: $TaskRulesTable.$converterlastModified.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime,
-          data['${effectivePrefix}last_modified'],
-        )!,
-      ),
-      componentId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}component_id'],
-      )!,
-      name: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}name'],
-      )!,
-      notes: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}notes'],
-      ),
-      priority: $TaskRulesTable.$converterpriority.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}priority'],
-        )!,
-      ),
-    );
-  }
-
-  @override
-  $TaskRulesTable createAlias(String alias) {
-    return $TaskRulesTable(attachedDatabase, alias);
-  }
-
-  static TypeConverter<DateTime, DateTime> $converterlastModified =
-      const UtcDateTimeConverter();
-  static JsonTypeConverter2<TaskPriority, String, String> $converterpriority =
-      const EnumNameConverter<TaskPriority>(TaskPriority.values);
-}
-
-class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
-  final String id;
-  final bool isDeleted;
-  final DateTime lastModified;
-  final String componentId;
-  final String name;
-  final String? notes;
-  final TaskPriority priority;
-  const TaskRuleDb({
-    required this.id,
-    required this.isDeleted,
-    required this.lastModified,
-    required this.componentId,
-    required this.name,
-    this.notes,
-    required this.priority,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
-    map['is_deleted'] = Variable<bool>(isDeleted);
-    {
-      map['last_modified'] = Variable<DateTime>(
-        $TaskRulesTable.$converterlastModified.toSql(lastModified),
-      );
-    }
-    map['component_id'] = Variable<String>(componentId);
-    map['name'] = Variable<String>(name);
-    if (!nullToAbsent || notes != null) {
-      map['notes'] = Variable<String>(notes);
-    }
-    {
-      map['priority'] = Variable<String>(
-        $TaskRulesTable.$converterpriority.toSql(priority),
-      );
-    }
-    return map;
-  }
-
-  TaskRulesCompanion toCompanion(bool nullToAbsent) {
-    return TaskRulesCompanion(
-      id: Value(id),
-      isDeleted: Value(isDeleted),
-      lastModified: Value(lastModified),
-      componentId: Value(componentId),
-      name: Value(name),
-      notes: notes == null && nullToAbsent
-          ? const Value.absent()
-          : Value(notes),
-      priority: Value(priority),
-    );
-  }
-
-  factory TaskRuleDb.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return TaskRuleDb(
-      id: serializer.fromJson<String>(json['id']),
-      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
-      lastModified: serializer.fromJson<DateTime>(json['lastModified']),
-      componentId: serializer.fromJson<String>(json['componentId']),
-      name: serializer.fromJson<String>(json['name']),
-      notes: serializer.fromJson<String?>(json['notes']),
-      priority: $TaskRulesTable.$converterpriority.fromJson(
-        serializer.fromJson<String>(json['priority']),
-      ),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'isDeleted': serializer.toJson<bool>(isDeleted),
-      'lastModified': serializer.toJson<DateTime>(lastModified),
-      'componentId': serializer.toJson<String>(componentId),
-      'name': serializer.toJson<String>(name),
-      'notes': serializer.toJson<String?>(notes),
-      'priority': serializer.toJson<String>(
-        $TaskRulesTable.$converterpriority.toJson(priority),
-      ),
-    };
-  }
-
-  TaskRuleDb copyWith({
-    String? id,
-    bool? isDeleted,
-    DateTime? lastModified,
-    String? componentId,
-    String? name,
-    Value<String?> notes = const Value.absent(),
-    TaskPriority? priority,
-  }) => TaskRuleDb(
-    id: id ?? this.id,
-    isDeleted: isDeleted ?? this.isDeleted,
-    lastModified: lastModified ?? this.lastModified,
-    componentId: componentId ?? this.componentId,
-    name: name ?? this.name,
-    notes: notes.present ? notes.value : this.notes,
-    priority: priority ?? this.priority,
-  );
-  TaskRuleDb copyWithCompanion(TaskRulesCompanion data) {
-    return TaskRuleDb(
-      id: data.id.present ? data.id.value : this.id,
-      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
-      lastModified: data.lastModified.present
-          ? data.lastModified.value
-          : this.lastModified,
-      componentId: data.componentId.present
-          ? data.componentId.value
-          : this.componentId,
-      name: data.name.present ? data.name.value : this.name,
-      notes: data.notes.present ? data.notes.value : this.notes,
-      priority: data.priority.present ? data.priority.value : this.priority,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TaskRuleDb(')
-          ..write('id: $id, ')
-          ..write('isDeleted: $isDeleted, ')
-          ..write('lastModified: $lastModified, ')
-          ..write('componentId: $componentId, ')
-          ..write('name: $name, ')
-          ..write('notes: $notes, ')
-          ..write('priority: $priority')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    id,
-    isDeleted,
-    lastModified,
-    componentId,
-    name,
-    notes,
-    priority,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is TaskRuleDb &&
-          other.id == this.id &&
-          other.isDeleted == this.isDeleted &&
-          other.lastModified == this.lastModified &&
-          other.componentId == this.componentId &&
-          other.name == this.name &&
-          other.notes == this.notes &&
-          other.priority == this.priority);
-}
-
-class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
-  final Value<String> id;
-  final Value<bool> isDeleted;
-  final Value<DateTime> lastModified;
-  final Value<String> componentId;
-  final Value<String> name;
-  final Value<String?> notes;
-  final Value<TaskPriority> priority;
-  final Value<int> rowid;
-  const TaskRulesCompanion({
-    this.id = const Value.absent(),
-    this.isDeleted = const Value.absent(),
-    this.lastModified = const Value.absent(),
-    this.componentId = const Value.absent(),
-    this.name = const Value.absent(),
-    this.notes = const Value.absent(),
-    this.priority = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  TaskRulesCompanion.insert({
-    required String id,
-    this.isDeleted = const Value.absent(),
-    required DateTime lastModified,
-    required String componentId,
-    required String name,
-    this.notes = const Value.absent(),
-    this.priority = const Value.absent(),
-    this.rowid = const Value.absent(),
-  }) : id = Value(id),
-       lastModified = Value(lastModified),
-       componentId = Value(componentId),
-       name = Value(name);
-  static Insertable<TaskRuleDb> custom({
-    Expression<String>? id,
-    Expression<bool>? isDeleted,
-    Expression<DateTime>? lastModified,
-    Expression<String>? componentId,
-    Expression<String>? name,
-    Expression<String>? notes,
-    Expression<String>? priority,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (isDeleted != null) 'is_deleted': isDeleted,
-      if (lastModified != null) 'last_modified': lastModified,
-      if (componentId != null) 'component_id': componentId,
-      if (name != null) 'name': name,
-      if (notes != null) 'notes': notes,
-      if (priority != null) 'priority': priority,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  TaskRulesCompanion copyWith({
-    Value<String>? id,
-    Value<bool>? isDeleted,
-    Value<DateTime>? lastModified,
-    Value<String>? componentId,
-    Value<String>? name,
-    Value<String?>? notes,
-    Value<TaskPriority>? priority,
-    Value<int>? rowid,
-  }) {
-    return TaskRulesCompanion(
-      id: id ?? this.id,
-      isDeleted: isDeleted ?? this.isDeleted,
-      lastModified: lastModified ?? this.lastModified,
-      componentId: componentId ?? this.componentId,
-      name: name ?? this.name,
-      notes: notes ?? this.notes,
-      priority: priority ?? this.priority,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (isDeleted.present) {
-      map['is_deleted'] = Variable<bool>(isDeleted.value);
-    }
-    if (lastModified.present) {
-      map['last_modified'] = Variable<DateTime>(
-        $TaskRulesTable.$converterlastModified.toSql(lastModified.value),
-      );
-    }
-    if (componentId.present) {
-      map['component_id'] = Variable<String>(componentId.value);
-    }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
-    }
-    if (notes.present) {
-      map['notes'] = Variable<String>(notes.value);
-    }
-    if (priority.present) {
-      map['priority'] = Variable<String>(
-        $TaskRulesTable.$converterpriority.toSql(priority.value),
-      );
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TaskRulesCompanion(')
-          ..write('id: $id, ')
-          ..write('isDeleted: $isDeleted, ')
-          ..write('lastModified: $lastModified, ')
-          ..write('componentId: $componentId, ')
-          ..write('name: $name, ')
-          ..write('notes: $notes, ')
-          ..write('priority: $priority, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $TaskEntriesTable extends TaskEntries
-    with TableInfo<$TaskEntriesTable, TaskEntryDb> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $TaskEntriesTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
-    'isDeleted',
-  );
-  @override
-  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
-    'is_deleted',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_deleted" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  @override
-  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
-      GeneratedColumn<DateTime>(
-        'last_modified',
-        aliasedName,
-        false,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: true,
-      ).withConverter<DateTime>($TaskEntriesTable.$converterlastModified);
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
-  @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-    'name',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
-  @override
-  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
-    'notes',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  @override
-  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> dateTimeUTC =
-      GeneratedColumn<DateTime>(
-        'date_time_u_t_c',
-        aliasedName,
-        false,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: true,
-      ).withConverter<DateTime>($TaskEntriesTable.$converterdateTimeUTC);
-  @override
-  late final GeneratedColumnWithTypeConverter<DateTime, DateTime>
-  dateTimeLocal = GeneratedColumn<DateTime>(
-    'date_time_local',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  ).withConverter<DateTime>($TaskEntriesTable.$converterdateTimeLocal);
-  static const VerificationMeta _taskRuleMeta = const VerificationMeta(
-    'taskRule',
-  );
-  @override
-  late final GeneratedColumn<String> taskRule = GeneratedColumn<String>(
-    'task_rule',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES task_rules (id) ON DELETE CASCADE',
-    ),
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    isDeleted,
-    lastModified,
-    name,
-    notes,
-    dateTimeUTC,
-    dateTimeLocal,
-    taskRule,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'task_entries';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<TaskEntryDb> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('is_deleted')) {
-      context.handle(
-        _isDeletedMeta,
-        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
-      );
-    }
-    if (data.containsKey('name')) {
-      context.handle(
-        _nameMeta,
-        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_nameMeta);
-    }
-    if (data.containsKey('notes')) {
-      context.handle(
-        _notesMeta,
-        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
-      );
-    }
-    if (data.containsKey('task_rule')) {
-      context.handle(
-        _taskRuleMeta,
-        taskRule.isAcceptableOrUnknown(data['task_rule']!, _taskRuleMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_taskRuleMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  TaskEntryDb map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return TaskEntryDb(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}id'],
-      )!,
-      isDeleted: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_deleted'],
-      )!,
-      lastModified: $TaskEntriesTable.$converterlastModified.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime,
-          data['${effectivePrefix}last_modified'],
-        )!,
-      ),
-      name: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}name'],
-      )!,
-      notes: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}notes'],
-      ),
-      dateTimeUTC: $TaskEntriesTable.$converterdateTimeUTC.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime,
-          data['${effectivePrefix}date_time_u_t_c'],
-        )!,
-      ),
-      dateTimeLocal: $TaskEntriesTable.$converterdateTimeLocal.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime,
-          data['${effectivePrefix}date_time_local'],
-        )!,
-      ),
-      taskRule: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}task_rule'],
-      )!,
-    );
-  }
-
-  @override
-  $TaskEntriesTable createAlias(String alias) {
-    return $TaskEntriesTable(attachedDatabase, alias);
-  }
-
-  static TypeConverter<DateTime, DateTime> $converterlastModified =
-      const UtcDateTimeConverter();
-  static TypeConverter<DateTime, DateTime> $converterdateTimeUTC =
-      const UtcDateTimeConverter();
-  static TypeConverter<DateTime, DateTime> $converterdateTimeLocal =
-      const LocalFloatingDateTimeConverter();
-}
-
-class TaskEntryDb extends DataClass implements Insertable<TaskEntryDb> {
-  final String id;
-  final bool isDeleted;
-  final DateTime lastModified;
-  final String name;
-  final String? notes;
-  final DateTime dateTimeUTC;
-  final DateTime dateTimeLocal;
-  final String taskRule;
-  const TaskEntryDb({
-    required this.id,
-    required this.isDeleted,
-    required this.lastModified,
-    required this.name,
-    this.notes,
-    required this.dateTimeUTC,
-    required this.dateTimeLocal,
-    required this.taskRule,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
-    map['is_deleted'] = Variable<bool>(isDeleted);
-    {
-      map['last_modified'] = Variable<DateTime>(
-        $TaskEntriesTable.$converterlastModified.toSql(lastModified),
-      );
-    }
-    map['name'] = Variable<String>(name);
-    if (!nullToAbsent || notes != null) {
-      map['notes'] = Variable<String>(notes);
-    }
-    {
-      map['date_time_u_t_c'] = Variable<DateTime>(
-        $TaskEntriesTable.$converterdateTimeUTC.toSql(dateTimeUTC),
-      );
-    }
-    {
-      map['date_time_local'] = Variable<DateTime>(
-        $TaskEntriesTable.$converterdateTimeLocal.toSql(dateTimeLocal),
-      );
-    }
-    map['task_rule'] = Variable<String>(taskRule);
-    return map;
-  }
-
-  TaskEntriesCompanion toCompanion(bool nullToAbsent) {
-    return TaskEntriesCompanion(
-      id: Value(id),
-      isDeleted: Value(isDeleted),
-      lastModified: Value(lastModified),
-      name: Value(name),
-      notes: notes == null && nullToAbsent
-          ? const Value.absent()
-          : Value(notes),
-      dateTimeUTC: Value(dateTimeUTC),
-      dateTimeLocal: Value(dateTimeLocal),
-      taskRule: Value(taskRule),
-    );
-  }
-
-  factory TaskEntryDb.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return TaskEntryDb(
-      id: serializer.fromJson<String>(json['id']),
-      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
-      lastModified: serializer.fromJson<DateTime>(json['lastModified']),
-      name: serializer.fromJson<String>(json['name']),
-      notes: serializer.fromJson<String?>(json['notes']),
-      dateTimeUTC: serializer.fromJson<DateTime>(json['dateTimeUTC']),
-      dateTimeLocal: serializer.fromJson<DateTime>(json['dateTimeLocal']),
-      taskRule: serializer.fromJson<String>(json['taskRule']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'isDeleted': serializer.toJson<bool>(isDeleted),
-      'lastModified': serializer.toJson<DateTime>(lastModified),
-      'name': serializer.toJson<String>(name),
-      'notes': serializer.toJson<String?>(notes),
-      'dateTimeUTC': serializer.toJson<DateTime>(dateTimeUTC),
-      'dateTimeLocal': serializer.toJson<DateTime>(dateTimeLocal),
-      'taskRule': serializer.toJson<String>(taskRule),
-    };
-  }
-
-  TaskEntryDb copyWith({
-    String? id,
-    bool? isDeleted,
-    DateTime? lastModified,
-    String? name,
-    Value<String?> notes = const Value.absent(),
-    DateTime? dateTimeUTC,
-    DateTime? dateTimeLocal,
-    String? taskRule,
-  }) => TaskEntryDb(
-    id: id ?? this.id,
-    isDeleted: isDeleted ?? this.isDeleted,
-    lastModified: lastModified ?? this.lastModified,
-    name: name ?? this.name,
-    notes: notes.present ? notes.value : this.notes,
-    dateTimeUTC: dateTimeUTC ?? this.dateTimeUTC,
-    dateTimeLocal: dateTimeLocal ?? this.dateTimeLocal,
-    taskRule: taskRule ?? this.taskRule,
-  );
-  TaskEntryDb copyWithCompanion(TaskEntriesCompanion data) {
-    return TaskEntryDb(
-      id: data.id.present ? data.id.value : this.id,
-      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
-      lastModified: data.lastModified.present
-          ? data.lastModified.value
-          : this.lastModified,
-      name: data.name.present ? data.name.value : this.name,
-      notes: data.notes.present ? data.notes.value : this.notes,
-      dateTimeUTC: data.dateTimeUTC.present
-          ? data.dateTimeUTC.value
-          : this.dateTimeUTC,
-      dateTimeLocal: data.dateTimeLocal.present
-          ? data.dateTimeLocal.value
-          : this.dateTimeLocal,
-      taskRule: data.taskRule.present ? data.taskRule.value : this.taskRule,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TaskEntryDb(')
-          ..write('id: $id, ')
-          ..write('isDeleted: $isDeleted, ')
-          ..write('lastModified: $lastModified, ')
-          ..write('name: $name, ')
-          ..write('notes: $notes, ')
-          ..write('dateTimeUTC: $dateTimeUTC, ')
-          ..write('dateTimeLocal: $dateTimeLocal, ')
-          ..write('taskRule: $taskRule')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    id,
-    isDeleted,
-    lastModified,
-    name,
-    notes,
-    dateTimeUTC,
-    dateTimeLocal,
-    taskRule,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is TaskEntryDb &&
-          other.id == this.id &&
-          other.isDeleted == this.isDeleted &&
-          other.lastModified == this.lastModified &&
-          other.name == this.name &&
-          other.notes == this.notes &&
-          other.dateTimeUTC == this.dateTimeUTC &&
-          other.dateTimeLocal == this.dateTimeLocal &&
-          other.taskRule == this.taskRule);
-}
-
-class TaskEntriesCompanion extends UpdateCompanion<TaskEntryDb> {
-  final Value<String> id;
-  final Value<bool> isDeleted;
-  final Value<DateTime> lastModified;
-  final Value<String> name;
-  final Value<String?> notes;
-  final Value<DateTime> dateTimeUTC;
-  final Value<DateTime> dateTimeLocal;
-  final Value<String> taskRule;
-  final Value<int> rowid;
-  const TaskEntriesCompanion({
-    this.id = const Value.absent(),
-    this.isDeleted = const Value.absent(),
-    this.lastModified = const Value.absent(),
-    this.name = const Value.absent(),
-    this.notes = const Value.absent(),
-    this.dateTimeUTC = const Value.absent(),
-    this.dateTimeLocal = const Value.absent(),
-    this.taskRule = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  TaskEntriesCompanion.insert({
-    required String id,
-    this.isDeleted = const Value.absent(),
-    required DateTime lastModified,
-    required String name,
-    this.notes = const Value.absent(),
-    required DateTime dateTimeUTC,
-    required DateTime dateTimeLocal,
-    required String taskRule,
-    this.rowid = const Value.absent(),
-  }) : id = Value(id),
-       lastModified = Value(lastModified),
-       name = Value(name),
-       dateTimeUTC = Value(dateTimeUTC),
-       dateTimeLocal = Value(dateTimeLocal),
-       taskRule = Value(taskRule);
-  static Insertable<TaskEntryDb> custom({
-    Expression<String>? id,
-    Expression<bool>? isDeleted,
-    Expression<DateTime>? lastModified,
-    Expression<String>? name,
-    Expression<String>? notes,
-    Expression<DateTime>? dateTimeUTC,
-    Expression<DateTime>? dateTimeLocal,
-    Expression<String>? taskRule,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (isDeleted != null) 'is_deleted': isDeleted,
-      if (lastModified != null) 'last_modified': lastModified,
-      if (name != null) 'name': name,
-      if (notes != null) 'notes': notes,
-      if (dateTimeUTC != null) 'date_time_u_t_c': dateTimeUTC,
-      if (dateTimeLocal != null) 'date_time_local': dateTimeLocal,
-      if (taskRule != null) 'task_rule': taskRule,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  TaskEntriesCompanion copyWith({
-    Value<String>? id,
-    Value<bool>? isDeleted,
-    Value<DateTime>? lastModified,
-    Value<String>? name,
-    Value<String?>? notes,
-    Value<DateTime>? dateTimeUTC,
-    Value<DateTime>? dateTimeLocal,
-    Value<String>? taskRule,
-    Value<int>? rowid,
-  }) {
-    return TaskEntriesCompanion(
-      id: id ?? this.id,
-      isDeleted: isDeleted ?? this.isDeleted,
-      lastModified: lastModified ?? this.lastModified,
-      name: name ?? this.name,
-      notes: notes ?? this.notes,
-      dateTimeUTC: dateTimeUTC ?? this.dateTimeUTC,
-      dateTimeLocal: dateTimeLocal ?? this.dateTimeLocal,
-      taskRule: taskRule ?? this.taskRule,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (isDeleted.present) {
-      map['is_deleted'] = Variable<bool>(isDeleted.value);
-    }
-    if (lastModified.present) {
-      map['last_modified'] = Variable<DateTime>(
-        $TaskEntriesTable.$converterlastModified.toSql(lastModified.value),
-      );
-    }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
-    }
-    if (notes.present) {
-      map['notes'] = Variable<String>(notes.value);
-    }
-    if (dateTimeUTC.present) {
-      map['date_time_u_t_c'] = Variable<DateTime>(
-        $TaskEntriesTable.$converterdateTimeUTC.toSql(dateTimeUTC.value),
-      );
-    }
-    if (dateTimeLocal.present) {
-      map['date_time_local'] = Variable<DateTime>(
-        $TaskEntriesTable.$converterdateTimeLocal.toSql(dateTimeLocal.value),
-      );
-    }
-    if (taskRule.present) {
-      map['task_rule'] = Variable<String>(taskRule.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TaskEntriesCompanion(')
-          ..write('id: $id, ')
-          ..write('isDeleted: $isDeleted, ')
-          ..write('lastModified: $lastModified, ')
-          ..write('name: $name, ')
-          ..write('notes: $notes, ')
-          ..write('dateTimeUTC: $dateTimeUTC, ')
-          ..write('dateTimeLocal: $dateTimeLocal, ')
-          ..write('taskRule: $taskRule, ')
+          ..write('initialActivityCount: $initialActivityCount, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2195,6 +1251,1353 @@ class BikesCompanion extends UpdateCompanion<BikeDb> {
           ..write('person: $person, ')
           ..write('stravaGear: $stravaGear, ')
           ..write('orderIndex: $orderIndex, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TaskRulesTable extends TaskRules
+    with TableInfo<$TaskRulesTable, TaskRuleDb> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TaskRulesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
+      GeneratedColumn<DateTime>(
+        'last_modified',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($TaskRulesTable.$converterlastModified);
+  static const VerificationMeta _componentIdMeta = const VerificationMeta(
+    'componentId',
+  );
+  @override
+  late final GeneratedColumn<String> componentId = GeneratedColumn<String>(
+    'component_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES components (id)',
+    ),
+  );
+  static const VerificationMeta _bikeIdMeta = const VerificationMeta('bikeId');
+  @override
+  late final GeneratedColumn<String> bikeId = GeneratedColumn<String>(
+    'bike_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES bikes (id)',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<TaskPriority, String> priority =
+      GeneratedColumn<String>(
+        'priority',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('medium'),
+      ).withConverter<TaskPriority>($TaskRulesTable.$converterpriority);
+  static const VerificationMeta _intervalMeta = const VerificationMeta(
+    'interval',
+  );
+  @override
+  late final GeneratedColumn<String> interval = GeneratedColumn<String>(
+    'interval',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _delayMeta = const VerificationMeta('delay');
+  @override
+  late final GeneratedColumn<String> delay = GeneratedColumn<String>(
+    'delay',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _repeatMeta = const VerificationMeta('repeat');
+  @override
+  late final GeneratedColumn<bool> repeat = GeneratedColumn<bool>(
+    'repeat',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("repeat" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    isDeleted,
+    lastModified,
+    componentId,
+    bikeId,
+    name,
+    notes,
+    priority,
+    interval,
+    delay,
+    repeat,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'task_rules';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TaskRuleDb> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
+    if (data.containsKey('component_id')) {
+      context.handle(
+        _componentIdMeta,
+        componentId.isAcceptableOrUnknown(
+          data['component_id']!,
+          _componentIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('bike_id')) {
+      context.handle(
+        _bikeIdMeta,
+        bikeId.isAcceptableOrUnknown(data['bike_id']!, _bikeIdMeta),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('interval')) {
+      context.handle(
+        _intervalMeta,
+        interval.isAcceptableOrUnknown(data['interval']!, _intervalMeta),
+      );
+    }
+    if (data.containsKey('delay')) {
+      context.handle(
+        _delayMeta,
+        delay.isAcceptableOrUnknown(data['delay']!, _delayMeta),
+      );
+    }
+    if (data.containsKey('repeat')) {
+      context.handle(
+        _repeatMeta,
+        repeat.isAcceptableOrUnknown(data['repeat']!, _repeatMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TaskRuleDb map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TaskRuleDb(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
+      lastModified: $TaskRulesTable.$converterlastModified.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_modified'],
+        )!,
+      ),
+      componentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}component_id'],
+      ),
+      bikeId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bike_id'],
+      ),
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      priority: $TaskRulesTable.$converterpriority.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}priority'],
+        )!,
+      ),
+      interval: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}interval'],
+      ),
+      delay: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}delay'],
+      ),
+      repeat: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}repeat'],
+      )!,
+    );
+  }
+
+  @override
+  $TaskRulesTable createAlias(String alias) {
+    return $TaskRulesTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<DateTime, DateTime> $converterlastModified =
+      const UtcDateTimeConverter();
+  static JsonTypeConverter2<TaskPriority, String, String> $converterpriority =
+      const EnumNameConverter<TaskPriority>(TaskPriority.values);
+}
+
+class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
+  final String id;
+  final bool isDeleted;
+  final DateTime lastModified;
+  final String? componentId;
+  final String? bikeId;
+  final String name;
+  final String? notes;
+  final TaskPriority priority;
+  final String? interval;
+  final String? delay;
+  final bool repeat;
+  const TaskRuleDb({
+    required this.id,
+    required this.isDeleted,
+    required this.lastModified,
+    this.componentId,
+    this.bikeId,
+    required this.name,
+    this.notes,
+    required this.priority,
+    this.interval,
+    this.delay,
+    required this.repeat,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    {
+      map['last_modified'] = Variable<DateTime>(
+        $TaskRulesTable.$converterlastModified.toSql(lastModified),
+      );
+    }
+    if (!nullToAbsent || componentId != null) {
+      map['component_id'] = Variable<String>(componentId);
+    }
+    if (!nullToAbsent || bikeId != null) {
+      map['bike_id'] = Variable<String>(bikeId);
+    }
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    {
+      map['priority'] = Variable<String>(
+        $TaskRulesTable.$converterpriority.toSql(priority),
+      );
+    }
+    if (!nullToAbsent || interval != null) {
+      map['interval'] = Variable<String>(interval);
+    }
+    if (!nullToAbsent || delay != null) {
+      map['delay'] = Variable<String>(delay);
+    }
+    map['repeat'] = Variable<bool>(repeat);
+    return map;
+  }
+
+  TaskRulesCompanion toCompanion(bool nullToAbsent) {
+    return TaskRulesCompanion(
+      id: Value(id),
+      isDeleted: Value(isDeleted),
+      lastModified: Value(lastModified),
+      componentId: componentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(componentId),
+      bikeId: bikeId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bikeId),
+      name: Value(name),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      priority: Value(priority),
+      interval: interval == null && nullToAbsent
+          ? const Value.absent()
+          : Value(interval),
+      delay: delay == null && nullToAbsent
+          ? const Value.absent()
+          : Value(delay),
+      repeat: Value(repeat),
+    );
+  }
+
+  factory TaskRuleDb.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TaskRuleDb(
+      id: serializer.fromJson<String>(json['id']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      lastModified: serializer.fromJson<DateTime>(json['lastModified']),
+      componentId: serializer.fromJson<String?>(json['componentId']),
+      bikeId: serializer.fromJson<String?>(json['bikeId']),
+      name: serializer.fromJson<String>(json['name']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      priority: $TaskRulesTable.$converterpriority.fromJson(
+        serializer.fromJson<String>(json['priority']),
+      ),
+      interval: serializer.fromJson<String?>(json['interval']),
+      delay: serializer.fromJson<String?>(json['delay']),
+      repeat: serializer.fromJson<bool>(json['repeat']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'lastModified': serializer.toJson<DateTime>(lastModified),
+      'componentId': serializer.toJson<String?>(componentId),
+      'bikeId': serializer.toJson<String?>(bikeId),
+      'name': serializer.toJson<String>(name),
+      'notes': serializer.toJson<String?>(notes),
+      'priority': serializer.toJson<String>(
+        $TaskRulesTable.$converterpriority.toJson(priority),
+      ),
+      'interval': serializer.toJson<String?>(interval),
+      'delay': serializer.toJson<String?>(delay),
+      'repeat': serializer.toJson<bool>(repeat),
+    };
+  }
+
+  TaskRuleDb copyWith({
+    String? id,
+    bool? isDeleted,
+    DateTime? lastModified,
+    Value<String?> componentId = const Value.absent(),
+    Value<String?> bikeId = const Value.absent(),
+    String? name,
+    Value<String?> notes = const Value.absent(),
+    TaskPriority? priority,
+    Value<String?> interval = const Value.absent(),
+    Value<String?> delay = const Value.absent(),
+    bool? repeat,
+  }) => TaskRuleDb(
+    id: id ?? this.id,
+    isDeleted: isDeleted ?? this.isDeleted,
+    lastModified: lastModified ?? this.lastModified,
+    componentId: componentId.present ? componentId.value : this.componentId,
+    bikeId: bikeId.present ? bikeId.value : this.bikeId,
+    name: name ?? this.name,
+    notes: notes.present ? notes.value : this.notes,
+    priority: priority ?? this.priority,
+    interval: interval.present ? interval.value : this.interval,
+    delay: delay.present ? delay.value : this.delay,
+    repeat: repeat ?? this.repeat,
+  );
+  TaskRuleDb copyWithCompanion(TaskRulesCompanion data) {
+    return TaskRuleDb(
+      id: data.id.present ? data.id.value : this.id,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      lastModified: data.lastModified.present
+          ? data.lastModified.value
+          : this.lastModified,
+      componentId: data.componentId.present
+          ? data.componentId.value
+          : this.componentId,
+      bikeId: data.bikeId.present ? data.bikeId.value : this.bikeId,
+      name: data.name.present ? data.name.value : this.name,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      priority: data.priority.present ? data.priority.value : this.priority,
+      interval: data.interval.present ? data.interval.value : this.interval,
+      delay: data.delay.present ? data.delay.value : this.delay,
+      repeat: data.repeat.present ? data.repeat.value : this.repeat,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TaskRuleDb(')
+          ..write('id: $id, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('lastModified: $lastModified, ')
+          ..write('componentId: $componentId, ')
+          ..write('bikeId: $bikeId, ')
+          ..write('name: $name, ')
+          ..write('notes: $notes, ')
+          ..write('priority: $priority, ')
+          ..write('interval: $interval, ')
+          ..write('delay: $delay, ')
+          ..write('repeat: $repeat')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    isDeleted,
+    lastModified,
+    componentId,
+    bikeId,
+    name,
+    notes,
+    priority,
+    interval,
+    delay,
+    repeat,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TaskRuleDb &&
+          other.id == this.id &&
+          other.isDeleted == this.isDeleted &&
+          other.lastModified == this.lastModified &&
+          other.componentId == this.componentId &&
+          other.bikeId == this.bikeId &&
+          other.name == this.name &&
+          other.notes == this.notes &&
+          other.priority == this.priority &&
+          other.interval == this.interval &&
+          other.delay == this.delay &&
+          other.repeat == this.repeat);
+}
+
+class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
+  final Value<String> id;
+  final Value<bool> isDeleted;
+  final Value<DateTime> lastModified;
+  final Value<String?> componentId;
+  final Value<String?> bikeId;
+  final Value<String> name;
+  final Value<String?> notes;
+  final Value<TaskPriority> priority;
+  final Value<String?> interval;
+  final Value<String?> delay;
+  final Value<bool> repeat;
+  final Value<int> rowid;
+  const TaskRulesCompanion({
+    this.id = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.lastModified = const Value.absent(),
+    this.componentId = const Value.absent(),
+    this.bikeId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.priority = const Value.absent(),
+    this.interval = const Value.absent(),
+    this.delay = const Value.absent(),
+    this.repeat = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TaskRulesCompanion.insert({
+    required String id,
+    this.isDeleted = const Value.absent(),
+    required DateTime lastModified,
+    this.componentId = const Value.absent(),
+    this.bikeId = const Value.absent(),
+    required String name,
+    this.notes = const Value.absent(),
+    this.priority = const Value.absent(),
+    this.interval = const Value.absent(),
+    this.delay = const Value.absent(),
+    this.repeat = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       lastModified = Value(lastModified),
+       name = Value(name);
+  static Insertable<TaskRuleDb> custom({
+    Expression<String>? id,
+    Expression<bool>? isDeleted,
+    Expression<DateTime>? lastModified,
+    Expression<String>? componentId,
+    Expression<String>? bikeId,
+    Expression<String>? name,
+    Expression<String>? notes,
+    Expression<String>? priority,
+    Expression<String>? interval,
+    Expression<String>? delay,
+    Expression<bool>? repeat,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (lastModified != null) 'last_modified': lastModified,
+      if (componentId != null) 'component_id': componentId,
+      if (bikeId != null) 'bike_id': bikeId,
+      if (name != null) 'name': name,
+      if (notes != null) 'notes': notes,
+      if (priority != null) 'priority': priority,
+      if (interval != null) 'interval': interval,
+      if (delay != null) 'delay': delay,
+      if (repeat != null) 'repeat': repeat,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TaskRulesCompanion copyWith({
+    Value<String>? id,
+    Value<bool>? isDeleted,
+    Value<DateTime>? lastModified,
+    Value<String?>? componentId,
+    Value<String?>? bikeId,
+    Value<String>? name,
+    Value<String?>? notes,
+    Value<TaskPriority>? priority,
+    Value<String?>? interval,
+    Value<String?>? delay,
+    Value<bool>? repeat,
+    Value<int>? rowid,
+  }) {
+    return TaskRulesCompanion(
+      id: id ?? this.id,
+      isDeleted: isDeleted ?? this.isDeleted,
+      lastModified: lastModified ?? this.lastModified,
+      componentId: componentId ?? this.componentId,
+      bikeId: bikeId ?? this.bikeId,
+      name: name ?? this.name,
+      notes: notes ?? this.notes,
+      priority: priority ?? this.priority,
+      interval: interval ?? this.interval,
+      delay: delay ?? this.delay,
+      repeat: repeat ?? this.repeat,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (lastModified.present) {
+      map['last_modified'] = Variable<DateTime>(
+        $TaskRulesTable.$converterlastModified.toSql(lastModified.value),
+      );
+    }
+    if (componentId.present) {
+      map['component_id'] = Variable<String>(componentId.value);
+    }
+    if (bikeId.present) {
+      map['bike_id'] = Variable<String>(bikeId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (priority.present) {
+      map['priority'] = Variable<String>(
+        $TaskRulesTable.$converterpriority.toSql(priority.value),
+      );
+    }
+    if (interval.present) {
+      map['interval'] = Variable<String>(interval.value);
+    }
+    if (delay.present) {
+      map['delay'] = Variable<String>(delay.value);
+    }
+    if (repeat.present) {
+      map['repeat'] = Variable<bool>(repeat.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TaskRulesCompanion(')
+          ..write('id: $id, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('lastModified: $lastModified, ')
+          ..write('componentId: $componentId, ')
+          ..write('bikeId: $bikeId, ')
+          ..write('name: $name, ')
+          ..write('notes: $notes, ')
+          ..write('priority: $priority, ')
+          ..write('interval: $interval, ')
+          ..write('delay: $delay, ')
+          ..write('repeat: $repeat, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TaskEntriesTable extends TaskEntries
+    with TableInfo<$TaskEntriesTable, TaskEntryDb> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TaskEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
+      GeneratedColumn<DateTime>(
+        'last_modified',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($TaskEntriesTable.$converterlastModified);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> dateTimeUTC =
+      GeneratedColumn<DateTime>(
+        'date_time_u_t_c',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($TaskEntriesTable.$converterdateTimeUTC);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime>
+  dateTimeLocal = GeneratedColumn<DateTime>(
+    'date_time_local',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  ).withConverter<DateTime>($TaskEntriesTable.$converterdateTimeLocal);
+  static const VerificationMeta _taskRuleMeta = const VerificationMeta(
+    'taskRule',
+  );
+  @override
+  late final GeneratedColumn<String> taskRule = GeneratedColumn<String>(
+    'task_rule',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES task_rules (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _componentIdMeta = const VerificationMeta(
+    'componentId',
+  );
+  @override
+  late final GeneratedColumn<String> componentId = GeneratedColumn<String>(
+    'component_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES components (id)',
+    ),
+  );
+  static const VerificationMeta _bikeIdMeta = const VerificationMeta('bikeId');
+  @override
+  late final GeneratedColumn<String> bikeId = GeneratedColumn<String>(
+    'bike_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES bikes (id)',
+    ),
+  );
+  static const VerificationMeta _snapshotMeta = const VerificationMeta(
+    'snapshot',
+  );
+  @override
+  late final GeneratedColumn<String> snapshot = GeneratedColumn<String>(
+    'snapshot',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    isDeleted,
+    lastModified,
+    name,
+    notes,
+    dateTimeUTC,
+    dateTimeLocal,
+    taskRule,
+    componentId,
+    bikeId,
+    snapshot,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'task_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TaskEntryDb> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('task_rule')) {
+      context.handle(
+        _taskRuleMeta,
+        taskRule.isAcceptableOrUnknown(data['task_rule']!, _taskRuleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_taskRuleMeta);
+    }
+    if (data.containsKey('component_id')) {
+      context.handle(
+        _componentIdMeta,
+        componentId.isAcceptableOrUnknown(
+          data['component_id']!,
+          _componentIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('bike_id')) {
+      context.handle(
+        _bikeIdMeta,
+        bikeId.isAcceptableOrUnknown(data['bike_id']!, _bikeIdMeta),
+      );
+    }
+    if (data.containsKey('snapshot')) {
+      context.handle(
+        _snapshotMeta,
+        snapshot.isAcceptableOrUnknown(data['snapshot']!, _snapshotMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TaskEntryDb map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TaskEntryDb(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
+      lastModified: $TaskEntriesTable.$converterlastModified.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_modified'],
+        )!,
+      ),
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      dateTimeUTC: $TaskEntriesTable.$converterdateTimeUTC.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}date_time_u_t_c'],
+        )!,
+      ),
+      dateTimeLocal: $TaskEntriesTable.$converterdateTimeLocal.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}date_time_local'],
+        )!,
+      ),
+      taskRule: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}task_rule'],
+      )!,
+      componentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}component_id'],
+      ),
+      bikeId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bike_id'],
+      ),
+      snapshot: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}snapshot'],
+      ),
+    );
+  }
+
+  @override
+  $TaskEntriesTable createAlias(String alias) {
+    return $TaskEntriesTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<DateTime, DateTime> $converterlastModified =
+      const UtcDateTimeConverter();
+  static TypeConverter<DateTime, DateTime> $converterdateTimeUTC =
+      const UtcDateTimeConverter();
+  static TypeConverter<DateTime, DateTime> $converterdateTimeLocal =
+      const LocalFloatingDateTimeConverter();
+}
+
+class TaskEntryDb extends DataClass implements Insertable<TaskEntryDb> {
+  final String id;
+  final bool isDeleted;
+  final DateTime lastModified;
+  final String name;
+  final String? notes;
+  final DateTime dateTimeUTC;
+  final DateTime dateTimeLocal;
+  final String taskRule;
+  final String? componentId;
+  final String? bikeId;
+  final String? snapshot;
+  const TaskEntryDb({
+    required this.id,
+    required this.isDeleted,
+    required this.lastModified,
+    required this.name,
+    this.notes,
+    required this.dateTimeUTC,
+    required this.dateTimeLocal,
+    required this.taskRule,
+    this.componentId,
+    this.bikeId,
+    this.snapshot,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    {
+      map['last_modified'] = Variable<DateTime>(
+        $TaskEntriesTable.$converterlastModified.toSql(lastModified),
+      );
+    }
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    {
+      map['date_time_u_t_c'] = Variable<DateTime>(
+        $TaskEntriesTable.$converterdateTimeUTC.toSql(dateTimeUTC),
+      );
+    }
+    {
+      map['date_time_local'] = Variable<DateTime>(
+        $TaskEntriesTable.$converterdateTimeLocal.toSql(dateTimeLocal),
+      );
+    }
+    map['task_rule'] = Variable<String>(taskRule);
+    if (!nullToAbsent || componentId != null) {
+      map['component_id'] = Variable<String>(componentId);
+    }
+    if (!nullToAbsent || bikeId != null) {
+      map['bike_id'] = Variable<String>(bikeId);
+    }
+    if (!nullToAbsent || snapshot != null) {
+      map['snapshot'] = Variable<String>(snapshot);
+    }
+    return map;
+  }
+
+  TaskEntriesCompanion toCompanion(bool nullToAbsent) {
+    return TaskEntriesCompanion(
+      id: Value(id),
+      isDeleted: Value(isDeleted),
+      lastModified: Value(lastModified),
+      name: Value(name),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      dateTimeUTC: Value(dateTimeUTC),
+      dateTimeLocal: Value(dateTimeLocal),
+      taskRule: Value(taskRule),
+      componentId: componentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(componentId),
+      bikeId: bikeId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bikeId),
+      snapshot: snapshot == null && nullToAbsent
+          ? const Value.absent()
+          : Value(snapshot),
+    );
+  }
+
+  factory TaskEntryDb.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TaskEntryDb(
+      id: serializer.fromJson<String>(json['id']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      lastModified: serializer.fromJson<DateTime>(json['lastModified']),
+      name: serializer.fromJson<String>(json['name']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      dateTimeUTC: serializer.fromJson<DateTime>(json['dateTimeUTC']),
+      dateTimeLocal: serializer.fromJson<DateTime>(json['dateTimeLocal']),
+      taskRule: serializer.fromJson<String>(json['taskRule']),
+      componentId: serializer.fromJson<String?>(json['componentId']),
+      bikeId: serializer.fromJson<String?>(json['bikeId']),
+      snapshot: serializer.fromJson<String?>(json['snapshot']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'lastModified': serializer.toJson<DateTime>(lastModified),
+      'name': serializer.toJson<String>(name),
+      'notes': serializer.toJson<String?>(notes),
+      'dateTimeUTC': serializer.toJson<DateTime>(dateTimeUTC),
+      'dateTimeLocal': serializer.toJson<DateTime>(dateTimeLocal),
+      'taskRule': serializer.toJson<String>(taskRule),
+      'componentId': serializer.toJson<String?>(componentId),
+      'bikeId': serializer.toJson<String?>(bikeId),
+      'snapshot': serializer.toJson<String?>(snapshot),
+    };
+  }
+
+  TaskEntryDb copyWith({
+    String? id,
+    bool? isDeleted,
+    DateTime? lastModified,
+    String? name,
+    Value<String?> notes = const Value.absent(),
+    DateTime? dateTimeUTC,
+    DateTime? dateTimeLocal,
+    String? taskRule,
+    Value<String?> componentId = const Value.absent(),
+    Value<String?> bikeId = const Value.absent(),
+    Value<String?> snapshot = const Value.absent(),
+  }) => TaskEntryDb(
+    id: id ?? this.id,
+    isDeleted: isDeleted ?? this.isDeleted,
+    lastModified: lastModified ?? this.lastModified,
+    name: name ?? this.name,
+    notes: notes.present ? notes.value : this.notes,
+    dateTimeUTC: dateTimeUTC ?? this.dateTimeUTC,
+    dateTimeLocal: dateTimeLocal ?? this.dateTimeLocal,
+    taskRule: taskRule ?? this.taskRule,
+    componentId: componentId.present ? componentId.value : this.componentId,
+    bikeId: bikeId.present ? bikeId.value : this.bikeId,
+    snapshot: snapshot.present ? snapshot.value : this.snapshot,
+  );
+  TaskEntryDb copyWithCompanion(TaskEntriesCompanion data) {
+    return TaskEntryDb(
+      id: data.id.present ? data.id.value : this.id,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      lastModified: data.lastModified.present
+          ? data.lastModified.value
+          : this.lastModified,
+      name: data.name.present ? data.name.value : this.name,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      dateTimeUTC: data.dateTimeUTC.present
+          ? data.dateTimeUTC.value
+          : this.dateTimeUTC,
+      dateTimeLocal: data.dateTimeLocal.present
+          ? data.dateTimeLocal.value
+          : this.dateTimeLocal,
+      taskRule: data.taskRule.present ? data.taskRule.value : this.taskRule,
+      componentId: data.componentId.present
+          ? data.componentId.value
+          : this.componentId,
+      bikeId: data.bikeId.present ? data.bikeId.value : this.bikeId,
+      snapshot: data.snapshot.present ? data.snapshot.value : this.snapshot,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TaskEntryDb(')
+          ..write('id: $id, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('lastModified: $lastModified, ')
+          ..write('name: $name, ')
+          ..write('notes: $notes, ')
+          ..write('dateTimeUTC: $dateTimeUTC, ')
+          ..write('dateTimeLocal: $dateTimeLocal, ')
+          ..write('taskRule: $taskRule, ')
+          ..write('componentId: $componentId, ')
+          ..write('bikeId: $bikeId, ')
+          ..write('snapshot: $snapshot')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    isDeleted,
+    lastModified,
+    name,
+    notes,
+    dateTimeUTC,
+    dateTimeLocal,
+    taskRule,
+    componentId,
+    bikeId,
+    snapshot,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TaskEntryDb &&
+          other.id == this.id &&
+          other.isDeleted == this.isDeleted &&
+          other.lastModified == this.lastModified &&
+          other.name == this.name &&
+          other.notes == this.notes &&
+          other.dateTimeUTC == this.dateTimeUTC &&
+          other.dateTimeLocal == this.dateTimeLocal &&
+          other.taskRule == this.taskRule &&
+          other.componentId == this.componentId &&
+          other.bikeId == this.bikeId &&
+          other.snapshot == this.snapshot);
+}
+
+class TaskEntriesCompanion extends UpdateCompanion<TaskEntryDb> {
+  final Value<String> id;
+  final Value<bool> isDeleted;
+  final Value<DateTime> lastModified;
+  final Value<String> name;
+  final Value<String?> notes;
+  final Value<DateTime> dateTimeUTC;
+  final Value<DateTime> dateTimeLocal;
+  final Value<String> taskRule;
+  final Value<String?> componentId;
+  final Value<String?> bikeId;
+  final Value<String?> snapshot;
+  final Value<int> rowid;
+  const TaskEntriesCompanion({
+    this.id = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.lastModified = const Value.absent(),
+    this.name = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.dateTimeUTC = const Value.absent(),
+    this.dateTimeLocal = const Value.absent(),
+    this.taskRule = const Value.absent(),
+    this.componentId = const Value.absent(),
+    this.bikeId = const Value.absent(),
+    this.snapshot = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TaskEntriesCompanion.insert({
+    required String id,
+    this.isDeleted = const Value.absent(),
+    required DateTime lastModified,
+    required String name,
+    this.notes = const Value.absent(),
+    required DateTime dateTimeUTC,
+    required DateTime dateTimeLocal,
+    required String taskRule,
+    this.componentId = const Value.absent(),
+    this.bikeId = const Value.absent(),
+    this.snapshot = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       lastModified = Value(lastModified),
+       name = Value(name),
+       dateTimeUTC = Value(dateTimeUTC),
+       dateTimeLocal = Value(dateTimeLocal),
+       taskRule = Value(taskRule);
+  static Insertable<TaskEntryDb> custom({
+    Expression<String>? id,
+    Expression<bool>? isDeleted,
+    Expression<DateTime>? lastModified,
+    Expression<String>? name,
+    Expression<String>? notes,
+    Expression<DateTime>? dateTimeUTC,
+    Expression<DateTime>? dateTimeLocal,
+    Expression<String>? taskRule,
+    Expression<String>? componentId,
+    Expression<String>? bikeId,
+    Expression<String>? snapshot,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (lastModified != null) 'last_modified': lastModified,
+      if (name != null) 'name': name,
+      if (notes != null) 'notes': notes,
+      if (dateTimeUTC != null) 'date_time_u_t_c': dateTimeUTC,
+      if (dateTimeLocal != null) 'date_time_local': dateTimeLocal,
+      if (taskRule != null) 'task_rule': taskRule,
+      if (componentId != null) 'component_id': componentId,
+      if (bikeId != null) 'bike_id': bikeId,
+      if (snapshot != null) 'snapshot': snapshot,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TaskEntriesCompanion copyWith({
+    Value<String>? id,
+    Value<bool>? isDeleted,
+    Value<DateTime>? lastModified,
+    Value<String>? name,
+    Value<String?>? notes,
+    Value<DateTime>? dateTimeUTC,
+    Value<DateTime>? dateTimeLocal,
+    Value<String>? taskRule,
+    Value<String?>? componentId,
+    Value<String?>? bikeId,
+    Value<String?>? snapshot,
+    Value<int>? rowid,
+  }) {
+    return TaskEntriesCompanion(
+      id: id ?? this.id,
+      isDeleted: isDeleted ?? this.isDeleted,
+      lastModified: lastModified ?? this.lastModified,
+      name: name ?? this.name,
+      notes: notes ?? this.notes,
+      dateTimeUTC: dateTimeUTC ?? this.dateTimeUTC,
+      dateTimeLocal: dateTimeLocal ?? this.dateTimeLocal,
+      taskRule: taskRule ?? this.taskRule,
+      componentId: componentId ?? this.componentId,
+      bikeId: bikeId ?? this.bikeId,
+      snapshot: snapshot ?? this.snapshot,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (lastModified.present) {
+      map['last_modified'] = Variable<DateTime>(
+        $TaskEntriesTable.$converterlastModified.toSql(lastModified.value),
+      );
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (dateTimeUTC.present) {
+      map['date_time_u_t_c'] = Variable<DateTime>(
+        $TaskEntriesTable.$converterdateTimeUTC.toSql(dateTimeUTC.value),
+      );
+    }
+    if (dateTimeLocal.present) {
+      map['date_time_local'] = Variable<DateTime>(
+        $TaskEntriesTable.$converterdateTimeLocal.toSql(dateTimeLocal.value),
+      );
+    }
+    if (taskRule.present) {
+      map['task_rule'] = Variable<String>(taskRule.value);
+    }
+    if (componentId.present) {
+      map['component_id'] = Variable<String>(componentId.value);
+    }
+    if (bikeId.present) {
+      map['bike_id'] = Variable<String>(bikeId.value);
+    }
+    if (snapshot.present) {
+      map['snapshot'] = Variable<String>(snapshot.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TaskEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('lastModified: $lastModified, ')
+          ..write('name: $name, ')
+          ..write('notes: $notes, ')
+          ..write('dateTimeUTC: $dateTimeUTC, ')
+          ..write('dateTimeLocal: $dateTimeLocal, ')
+          ..write('taskRule: $taskRule, ')
+          ..write('componentId: $componentId, ')
+          ..write('bikeId: $bikeId, ')
+          ..write('snapshot: $snapshot, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -6781,9 +7184,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $ComponentsTable components = $ComponentsTable(this);
+  late final $BikesTable bikes = $BikesTable(this);
   late final $TaskRulesTable taskRules = $TaskRulesTable(this);
   late final $TaskEntriesTable taskEntries = $TaskEntriesTable(this);
-  late final $BikesTable bikes = $BikesTable(this);
   late final $PersonsTable persons = $PersonsTable(this);
   late final $RatingsTable ratings = $RatingsTable(this);
   late final $AdjustmentsTable adjustments = $AdjustmentsTable(this);
@@ -6809,9 +7212,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     components,
+    bikes,
     taskRules,
     taskEntries,
-    bikes,
     persons,
     ratings,
     adjustments,
@@ -6903,6 +7306,7 @@ typedef $$ComponentsTableCreateCompanionBuilder =
       Value<double> initialElevationGain,
       Value<Duration> initialMovingTime,
       Value<Duration> initialElapsedTime,
+      Value<int> initialActivityCount,
       Value<int> rowid,
     });
 typedef $$ComponentsTableUpdateCompanionBuilder =
@@ -6918,6 +7322,7 @@ typedef $$ComponentsTableUpdateCompanionBuilder =
       Value<double> initialElevationGain,
       Value<Duration> initialMovingTime,
       Value<Duration> initialElapsedTime,
+      Value<int> initialActivityCount,
       Value<int> rowid,
     });
 
@@ -6938,6 +7343,27 @@ final class $$ComponentsTableReferences
     ).filter((f) => f.componentId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_taskRulesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$TaskEntriesTable, List<TaskEntryDb>>
+  _taskEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.taskEntries,
+    aliasName: $_aliasNameGenerator(
+      db.components.id,
+      db.taskEntries.componentId,
+    ),
+  );
+
+  $$TaskEntriesTableProcessedTableManager get taskEntriesRefs {
+    final manager = $$TaskEntriesTableTableManager(
+      $_db,
+      $_db.taskEntries,
+    ).filter((f) => f.componentId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_taskEntriesRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -7054,6 +7480,11 @@ class $$ComponentsTableFilterComposer
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
+  ColumnFilters<int> get initialActivityCount => $composableBuilder(
+    column: $table.initialActivityCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> taskRulesRefs(
     Expression<bool> Function($$TaskRulesTableFilterComposer f) f,
   ) {
@@ -7070,6 +7501,31 @@ class $$ComponentsTableFilterComposer
           }) => $$TaskRulesTableFilterComposer(
             $db: $db,
             $table: $db.taskRules,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> taskEntriesRefs(
+    Expression<bool> Function($$TaskEntriesTableFilterComposer f) f,
+  ) {
+    final $$TaskEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskEntries,
+      getReferencedColumn: (t) => t.componentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskEntriesTableFilterComposer(
+            $db: $db,
+            $table: $db.taskEntries,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7193,6 +7649,11 @@ class $$ComponentsTableOrderingComposer
     column: $table.initialElapsedTime,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get initialActivityCount => $composableBuilder(
+    column: $table.initialActivityCount,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ComponentsTableAnnotationComposer
@@ -7255,6 +7716,11 @@ class $$ComponentsTableAnnotationComposer
         builder: (column) => column,
       );
 
+  GeneratedColumn<int> get initialActivityCount => $composableBuilder(
+    column: $table.initialActivityCount,
+    builder: (column) => column,
+  );
+
   Expression<T> taskRulesRefs<T extends Object>(
     Expression<T> Function($$TaskRulesTableAnnotationComposer a) f,
   ) {
@@ -7271,6 +7737,31 @@ class $$ComponentsTableAnnotationComposer
           }) => $$TaskRulesTableAnnotationComposer(
             $db: $db,
             $table: $db.taskRules,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> taskEntriesRefs<T extends Object>(
+    Expression<T> Function($$TaskEntriesTableAnnotationComposer a) f,
+  ) {
+    final $$TaskEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskEntries,
+      getReferencedColumn: (t) => t.componentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskEntriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.taskEntries,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7346,6 +7837,7 @@ class $$ComponentsTableTableManager
           ComponentDb,
           PrefetchHooks Function({
             bool taskRulesRefs,
+            bool taskEntriesRefs,
             bool adjustmentsRefs,
             bool installationsRefs,
           })
@@ -7374,6 +7866,7 @@ class $$ComponentsTableTableManager
                 Value<double> initialElevationGain = const Value.absent(),
                 Value<Duration> initialMovingTime = const Value.absent(),
                 Value<Duration> initialElapsedTime = const Value.absent(),
+                Value<int> initialActivityCount = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ComponentsCompanion(
                 id: id,
@@ -7387,6 +7880,7 @@ class $$ComponentsTableTableManager
                 initialElevationGain: initialElevationGain,
                 initialMovingTime: initialMovingTime,
                 initialElapsedTime: initialElapsedTime,
+                initialActivityCount: initialActivityCount,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -7402,6 +7896,7 @@ class $$ComponentsTableTableManager
                 Value<double> initialElevationGain = const Value.absent(),
                 Value<Duration> initialMovingTime = const Value.absent(),
                 Value<Duration> initialElapsedTime = const Value.absent(),
+                Value<int> initialActivityCount = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ComponentsCompanion.insert(
                 id: id,
@@ -7415,6 +7910,7 @@ class $$ComponentsTableTableManager
                 initialElevationGain: initialElevationGain,
                 initialMovingTime: initialMovingTime,
                 initialElapsedTime: initialElapsedTime,
+                initialActivityCount: initialActivityCount,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -7428,6 +7924,7 @@ class $$ComponentsTableTableManager
           prefetchHooksCallback:
               ({
                 taskRulesRefs = false,
+                taskEntriesRefs = false,
                 adjustmentsRefs = false,
                 installationsRefs = false,
               }) {
@@ -7435,6 +7932,7 @@ class $$ComponentsTableTableManager
                   db: db,
                   explicitlyWatchedTables: [
                     if (taskRulesRefs) db.taskRules,
+                    if (taskEntriesRefs) db.taskEntries,
                     if (adjustmentsRefs) db.adjustments,
                     if (installationsRefs) db.installations,
                   ],
@@ -7456,6 +7954,27 @@ class $$ComponentsTableTableManager
                                 table,
                                 p0,
                               ).taskRulesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.componentId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (taskEntriesRefs)
+                        await $_getPrefetchedData<
+                          ComponentDb,
+                          $ComponentsTable,
+                          TaskEntryDb
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ComponentsTableReferences
+                              ._taskEntriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ComponentsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).taskEntriesRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.componentId == item.id,
@@ -7526,852 +8045,10 @@ typedef $$ComponentsTableProcessedTableManager =
       ComponentDb,
       PrefetchHooks Function({
         bool taskRulesRefs,
+        bool taskEntriesRefs,
         bool adjustmentsRefs,
         bool installationsRefs,
       })
-    >;
-typedef $$TaskRulesTableCreateCompanionBuilder =
-    TaskRulesCompanion Function({
-      required String id,
-      Value<bool> isDeleted,
-      required DateTime lastModified,
-      required String componentId,
-      required String name,
-      Value<String?> notes,
-      Value<TaskPriority> priority,
-      Value<int> rowid,
-    });
-typedef $$TaskRulesTableUpdateCompanionBuilder =
-    TaskRulesCompanion Function({
-      Value<String> id,
-      Value<bool> isDeleted,
-      Value<DateTime> lastModified,
-      Value<String> componentId,
-      Value<String> name,
-      Value<String?> notes,
-      Value<TaskPriority> priority,
-      Value<int> rowid,
-    });
-
-final class $$TaskRulesTableReferences
-    extends BaseReferences<_$AppDatabase, $TaskRulesTable, TaskRuleDb> {
-  $$TaskRulesTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static $ComponentsTable _componentIdTable(_$AppDatabase db) =>
-      db.components.createAlias(
-        $_aliasNameGenerator(db.taskRules.componentId, db.components.id),
-      );
-
-  $$ComponentsTableProcessedTableManager get componentId {
-    final $_column = $_itemColumn<String>('component_id')!;
-
-    final manager = $$ComponentsTableTableManager(
-      $_db,
-      $_db.components,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_componentIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static MultiTypedResultKey<$TaskEntriesTable, List<TaskEntryDb>>
-  _taskEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.taskEntries,
-    aliasName: $_aliasNameGenerator(db.taskRules.id, db.taskEntries.taskRule),
-  );
-
-  $$TaskEntriesTableProcessedTableManager get taskEntriesRefs {
-    final manager = $$TaskEntriesTableTableManager(
-      $_db,
-      $_db.taskEntries,
-    ).filter((f) => f.taskRule.id.sqlEquals($_itemColumn<String>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_taskEntriesRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
-
-class $$TaskRulesTableFilterComposer
-    extends Composer<_$AppDatabase, $TaskRulesTable> {
-  $$TaskRulesTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isDeleted => $composableBuilder(
-    column: $table.isDeleted,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
-  get lastModified => $composableBuilder(
-    column: $table.lastModified,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  ColumnFilters<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<TaskPriority, TaskPriority, String>
-  get priority => $composableBuilder(
-    column: $table.priority,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  $$ComponentsTableFilterComposer get componentId {
-    final $$ComponentsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.componentId,
-      referencedTable: $db.components,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$ComponentsTableFilterComposer(
-            $db: $db,
-            $table: $db.components,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  Expression<bool> taskEntriesRefs(
-    Expression<bool> Function($$TaskEntriesTableFilterComposer f) f,
-  ) {
-    final $$TaskEntriesTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.taskEntries,
-      getReferencedColumn: (t) => t.taskRule,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$TaskEntriesTableFilterComposer(
-            $db: $db,
-            $table: $db.taskEntries,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$TaskRulesTableOrderingComposer
-    extends Composer<_$AppDatabase, $TaskRulesTable> {
-  $$TaskRulesTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get isDeleted => $composableBuilder(
-    column: $table.isDeleted,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get lastModified => $composableBuilder(
-    column: $table.lastModified,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get priority => $composableBuilder(
-    column: $table.priority,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  $$ComponentsTableOrderingComposer get componentId {
-    final $$ComponentsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.componentId,
-      referencedTable: $db.components,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$ComponentsTableOrderingComposer(
-            $db: $db,
-            $table: $db.components,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$TaskRulesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $TaskRulesTable> {
-  $$TaskRulesTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<bool> get isDeleted =>
-      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
-      $composableBuilder(
-        column: $table.lastModified,
-        builder: (column) => column,
-      );
-
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
-
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<TaskPriority, String> get priority =>
-      $composableBuilder(column: $table.priority, builder: (column) => column);
-
-  $$ComponentsTableAnnotationComposer get componentId {
-    final $$ComponentsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.componentId,
-      referencedTable: $db.components,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$ComponentsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.components,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  Expression<T> taskEntriesRefs<T extends Object>(
-    Expression<T> Function($$TaskEntriesTableAnnotationComposer a) f,
-  ) {
-    final $$TaskEntriesTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.taskEntries,
-      getReferencedColumn: (t) => t.taskRule,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$TaskEntriesTableAnnotationComposer(
-            $db: $db,
-            $table: $db.taskEntries,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$TaskRulesTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $TaskRulesTable,
-          TaskRuleDb,
-          $$TaskRulesTableFilterComposer,
-          $$TaskRulesTableOrderingComposer,
-          $$TaskRulesTableAnnotationComposer,
-          $$TaskRulesTableCreateCompanionBuilder,
-          $$TaskRulesTableUpdateCompanionBuilder,
-          (TaskRuleDb, $$TaskRulesTableReferences),
-          TaskRuleDb,
-          PrefetchHooks Function({bool componentId, bool taskEntriesRefs})
-        > {
-  $$TaskRulesTableTableManager(_$AppDatabase db, $TaskRulesTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$TaskRulesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$TaskRulesTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$TaskRulesTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<String> id = const Value.absent(),
-                Value<bool> isDeleted = const Value.absent(),
-                Value<DateTime> lastModified = const Value.absent(),
-                Value<String> componentId = const Value.absent(),
-                Value<String> name = const Value.absent(),
-                Value<String?> notes = const Value.absent(),
-                Value<TaskPriority> priority = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => TaskRulesCompanion(
-                id: id,
-                isDeleted: isDeleted,
-                lastModified: lastModified,
-                componentId: componentId,
-                name: name,
-                notes: notes,
-                priority: priority,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                required String id,
-                Value<bool> isDeleted = const Value.absent(),
-                required DateTime lastModified,
-                required String componentId,
-                required String name,
-                Value<String?> notes = const Value.absent(),
-                Value<TaskPriority> priority = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => TaskRulesCompanion.insert(
-                id: id,
-                isDeleted: isDeleted,
-                lastModified: lastModified,
-                componentId: componentId,
-                name: name,
-                notes: notes,
-                priority: priority,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$TaskRulesTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback:
-              ({componentId = false, taskEntriesRefs = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (taskEntriesRefs) db.taskEntries,
-                  ],
-                  addJoins:
-                      <
-                        T extends TableManagerState<
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic
-                        >
-                      >(state) {
-                        if (componentId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.componentId,
-                                    referencedTable: $$TaskRulesTableReferences
-                                        ._componentIdTable(db),
-                                    referencedColumn: $$TaskRulesTableReferences
-                                        ._componentIdTable(db)
-                                        .id,
-                                  )
-                                  as T;
-                        }
-
-                        return state;
-                      },
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (taskEntriesRefs)
-                        await $_getPrefetchedData<
-                          TaskRuleDb,
-                          $TaskRulesTable,
-                          TaskEntryDb
-                        >(
-                          currentTable: table,
-                          referencedTable: $$TaskRulesTableReferences
-                              ._taskEntriesRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$TaskRulesTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).taskEntriesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.taskRule == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
-              },
-        ),
-      );
-}
-
-typedef $$TaskRulesTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $TaskRulesTable,
-      TaskRuleDb,
-      $$TaskRulesTableFilterComposer,
-      $$TaskRulesTableOrderingComposer,
-      $$TaskRulesTableAnnotationComposer,
-      $$TaskRulesTableCreateCompanionBuilder,
-      $$TaskRulesTableUpdateCompanionBuilder,
-      (TaskRuleDb, $$TaskRulesTableReferences),
-      TaskRuleDb,
-      PrefetchHooks Function({bool componentId, bool taskEntriesRefs})
-    >;
-typedef $$TaskEntriesTableCreateCompanionBuilder =
-    TaskEntriesCompanion Function({
-      required String id,
-      Value<bool> isDeleted,
-      required DateTime lastModified,
-      required String name,
-      Value<String?> notes,
-      required DateTime dateTimeUTC,
-      required DateTime dateTimeLocal,
-      required String taskRule,
-      Value<int> rowid,
-    });
-typedef $$TaskEntriesTableUpdateCompanionBuilder =
-    TaskEntriesCompanion Function({
-      Value<String> id,
-      Value<bool> isDeleted,
-      Value<DateTime> lastModified,
-      Value<String> name,
-      Value<String?> notes,
-      Value<DateTime> dateTimeUTC,
-      Value<DateTime> dateTimeLocal,
-      Value<String> taskRule,
-      Value<int> rowid,
-    });
-
-final class $$TaskEntriesTableReferences
-    extends BaseReferences<_$AppDatabase, $TaskEntriesTable, TaskEntryDb> {
-  $$TaskEntriesTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static $TaskRulesTable _taskRuleTable(_$AppDatabase db) =>
-      db.taskRules.createAlias(
-        $_aliasNameGenerator(db.taskEntries.taskRule, db.taskRules.id),
-      );
-
-  $$TaskRulesTableProcessedTableManager get taskRule {
-    final $_column = $_itemColumn<String>('task_rule')!;
-
-    final manager = $$TaskRulesTableTableManager(
-      $_db,
-      $_db.taskRules,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_taskRuleTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-}
-
-class $$TaskEntriesTableFilterComposer
-    extends Composer<_$AppDatabase, $TaskEntriesTable> {
-  $$TaskEntriesTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isDeleted => $composableBuilder(
-    column: $table.isDeleted,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
-  get lastModified => $composableBuilder(
-    column: $table.lastModified,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  ColumnFilters<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
-  get dateTimeUTC => $composableBuilder(
-    column: $table.dateTimeUTC,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
-  get dateTimeLocal => $composableBuilder(
-    column: $table.dateTimeLocal,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  $$TaskRulesTableFilterComposer get taskRule {
-    final $$TaskRulesTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.taskRule,
-      referencedTable: $db.taskRules,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$TaskRulesTableFilterComposer(
-            $db: $db,
-            $table: $db.taskRules,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$TaskEntriesTableOrderingComposer
-    extends Composer<_$AppDatabase, $TaskEntriesTable> {
-  $$TaskEntriesTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get isDeleted => $composableBuilder(
-    column: $table.isDeleted,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get lastModified => $composableBuilder(
-    column: $table.lastModified,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get dateTimeUTC => $composableBuilder(
-    column: $table.dateTimeUTC,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get dateTimeLocal => $composableBuilder(
-    column: $table.dateTimeLocal,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  $$TaskRulesTableOrderingComposer get taskRule {
-    final $$TaskRulesTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.taskRule,
-      referencedTable: $db.taskRules,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$TaskRulesTableOrderingComposer(
-            $db: $db,
-            $table: $db.taskRules,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$TaskEntriesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $TaskEntriesTable> {
-  $$TaskEntriesTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<bool> get isDeleted =>
-      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
-      $composableBuilder(
-        column: $table.lastModified,
-        builder: (column) => column,
-      );
-
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
-
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<DateTime, DateTime> get dateTimeUTC =>
-      $composableBuilder(
-        column: $table.dateTimeUTC,
-        builder: (column) => column,
-      );
-
-  GeneratedColumnWithTypeConverter<DateTime, DateTime> get dateTimeLocal =>
-      $composableBuilder(
-        column: $table.dateTimeLocal,
-        builder: (column) => column,
-      );
-
-  $$TaskRulesTableAnnotationComposer get taskRule {
-    final $$TaskRulesTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.taskRule,
-      referencedTable: $db.taskRules,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$TaskRulesTableAnnotationComposer(
-            $db: $db,
-            $table: $db.taskRules,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$TaskEntriesTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $TaskEntriesTable,
-          TaskEntryDb,
-          $$TaskEntriesTableFilterComposer,
-          $$TaskEntriesTableOrderingComposer,
-          $$TaskEntriesTableAnnotationComposer,
-          $$TaskEntriesTableCreateCompanionBuilder,
-          $$TaskEntriesTableUpdateCompanionBuilder,
-          (TaskEntryDb, $$TaskEntriesTableReferences),
-          TaskEntryDb,
-          PrefetchHooks Function({bool taskRule})
-        > {
-  $$TaskEntriesTableTableManager(_$AppDatabase db, $TaskEntriesTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$TaskEntriesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$TaskEntriesTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$TaskEntriesTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<String> id = const Value.absent(),
-                Value<bool> isDeleted = const Value.absent(),
-                Value<DateTime> lastModified = const Value.absent(),
-                Value<String> name = const Value.absent(),
-                Value<String?> notes = const Value.absent(),
-                Value<DateTime> dateTimeUTC = const Value.absent(),
-                Value<DateTime> dateTimeLocal = const Value.absent(),
-                Value<String> taskRule = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => TaskEntriesCompanion(
-                id: id,
-                isDeleted: isDeleted,
-                lastModified: lastModified,
-                name: name,
-                notes: notes,
-                dateTimeUTC: dateTimeUTC,
-                dateTimeLocal: dateTimeLocal,
-                taskRule: taskRule,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                required String id,
-                Value<bool> isDeleted = const Value.absent(),
-                required DateTime lastModified,
-                required String name,
-                Value<String?> notes = const Value.absent(),
-                required DateTime dateTimeUTC,
-                required DateTime dateTimeLocal,
-                required String taskRule,
-                Value<int> rowid = const Value.absent(),
-              }) => TaskEntriesCompanion.insert(
-                id: id,
-                isDeleted: isDeleted,
-                lastModified: lastModified,
-                name: name,
-                notes: notes,
-                dateTimeUTC: dateTimeUTC,
-                dateTimeLocal: dateTimeLocal,
-                taskRule: taskRule,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$TaskEntriesTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback: ({taskRule = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (taskRule) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.taskRule,
-                                referencedTable: $$TaskEntriesTableReferences
-                                    ._taskRuleTable(db),
-                                referencedColumn: $$TaskEntriesTableReferences
-                                    ._taskRuleTable(db)
-                                    .id,
-                              )
-                              as T;
-                    }
-
-                    return state;
-                  },
-              getPrefetchedDataCallback: (items) async {
-                return [];
-              },
-            );
-          },
-        ),
-      );
-}
-
-typedef $$TaskEntriesTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $TaskEntriesTable,
-      TaskEntryDb,
-      $$TaskEntriesTableFilterComposer,
-      $$TaskEntriesTableOrderingComposer,
-      $$TaskEntriesTableAnnotationComposer,
-      $$TaskEntriesTableCreateCompanionBuilder,
-      $$TaskEntriesTableUpdateCompanionBuilder,
-      (TaskEntryDb, $$TaskEntriesTableReferences),
-      TaskEntryDb,
-      PrefetchHooks Function({bool taskRule})
     >;
 typedef $$BikesTableCreateCompanionBuilder =
     BikesCompanion Function({
@@ -8401,6 +8078,42 @@ typedef $$BikesTableUpdateCompanionBuilder =
 final class $$BikesTableReferences
     extends BaseReferences<_$AppDatabase, $BikesTable, BikeDb> {
   $$BikesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$TaskRulesTable, List<TaskRuleDb>>
+  _taskRulesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.taskRules,
+    aliasName: $_aliasNameGenerator(db.bikes.id, db.taskRules.bikeId),
+  );
+
+  $$TaskRulesTableProcessedTableManager get taskRulesRefs {
+    final manager = $$TaskRulesTableTableManager(
+      $_db,
+      $_db.taskRules,
+    ).filter((f) => f.bikeId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_taskRulesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$TaskEntriesTable, List<TaskEntryDb>>
+  _taskEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.taskEntries,
+    aliasName: $_aliasNameGenerator(db.bikes.id, db.taskEntries.bikeId),
+  );
+
+  $$TaskEntriesTableProcessedTableManager get taskEntriesRefs {
+    final manager = $$TaskEntriesTableTableManager(
+      $_db,
+      $_db.taskEntries,
+    ).filter((f) => f.bikeId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_taskEntriesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 
   static MultiTypedResultKey<$SetupsTable, List<SetupDb>> _setupsRefsTable(
     _$AppDatabase db,
@@ -8470,6 +8183,56 @@ class $$BikesTableFilterComposer extends Composer<_$AppDatabase, $BikesTable> {
     column: $table.orderIndex,
     builder: (column) => ColumnFilters(column),
   );
+
+  Expression<bool> taskRulesRefs(
+    Expression<bool> Function($$TaskRulesTableFilterComposer f) f,
+  ) {
+    final $$TaskRulesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskRules,
+      getReferencedColumn: (t) => t.bikeId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskRulesTableFilterComposer(
+            $db: $db,
+            $table: $db.taskRules,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> taskEntriesRefs(
+    Expression<bool> Function($$TaskEntriesTableFilterComposer f) f,
+  ) {
+    final $$TaskEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskEntries,
+      getReferencedColumn: (t) => t.bikeId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskEntriesTableFilterComposer(
+            $db: $db,
+            $table: $db.taskEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 
   Expression<bool> setupsRefs(
     Expression<bool> Function($$SetupsTableFilterComposer f) f,
@@ -8587,6 +8350,56 @@ class $$BikesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  Expression<T> taskRulesRefs<T extends Object>(
+    Expression<T> Function($$TaskRulesTableAnnotationComposer a) f,
+  ) {
+    final $$TaskRulesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskRules,
+      getReferencedColumn: (t) => t.bikeId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskRulesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.taskRules,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> taskEntriesRefs<T extends Object>(
+    Expression<T> Function($$TaskEntriesTableAnnotationComposer a) f,
+  ) {
+    final $$TaskEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskEntries,
+      getReferencedColumn: (t) => t.bikeId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskEntriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.taskEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> setupsRefs<T extends Object>(
     Expression<T> Function($$SetupsTableAnnotationComposer a) f,
   ) {
@@ -8626,7 +8439,11 @@ class $$BikesTableTableManager
           $$BikesTableUpdateCompanionBuilder,
           (BikeDb, $$BikesTableReferences),
           BikeDb,
-          PrefetchHooks Function({bool setupsRefs})
+          PrefetchHooks Function({
+            bool taskRulesRefs,
+            bool taskEntriesRefs,
+            bool setupsRefs,
+          })
         > {
   $$BikesTableTableManager(_$AppDatabase db, $BikesTable table)
     : super(
@@ -8689,29 +8506,81 @@ class $$BikesTableTableManager
                     (e.readTable(table), $$BikesTableReferences(db, table, e)),
               )
               .toList(),
-          prefetchHooksCallback: ({setupsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (setupsRefs) db.setups],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (setupsRefs)
-                    await $_getPrefetchedData<BikeDb, $BikesTable, SetupDb>(
-                      currentTable: table,
-                      referencedTable: $$BikesTableReferences._setupsRefsTable(
-                        db,
-                      ),
-                      managerFromTypedResult: (p0) =>
-                          $$BikesTableReferences(db, table, p0).setupsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.bikeId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({
+                taskRulesRefs = false,
+                taskEntriesRefs = false,
+                setupsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (taskRulesRefs) db.taskRules,
+                    if (taskEntriesRefs) db.taskEntries,
+                    if (setupsRefs) db.setups,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (taskRulesRefs)
+                        await $_getPrefetchedData<
+                          BikeDb,
+                          $BikesTable,
+                          TaskRuleDb
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BikesTableReferences
+                              ._taskRulesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BikesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).taskRulesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.bikeId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (taskEntriesRefs)
+                        await $_getPrefetchedData<
+                          BikeDb,
+                          $BikesTable,
+                          TaskEntryDb
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BikesTableReferences
+                              ._taskEntriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BikesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).taskEntriesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.bikeId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (setupsRefs)
+                        await $_getPrefetchedData<BikeDb, $BikesTable, SetupDb>(
+                          currentTable: table,
+                          referencedTable: $$BikesTableReferences
+                              ._setupsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BikesTableReferences(db, table, p0).setupsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.bikeId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -8728,7 +8597,1264 @@ typedef $$BikesTableProcessedTableManager =
       $$BikesTableUpdateCompanionBuilder,
       (BikeDb, $$BikesTableReferences),
       BikeDb,
-      PrefetchHooks Function({bool setupsRefs})
+      PrefetchHooks Function({
+        bool taskRulesRefs,
+        bool taskEntriesRefs,
+        bool setupsRefs,
+      })
+    >;
+typedef $$TaskRulesTableCreateCompanionBuilder =
+    TaskRulesCompanion Function({
+      required String id,
+      Value<bool> isDeleted,
+      required DateTime lastModified,
+      Value<String?> componentId,
+      Value<String?> bikeId,
+      required String name,
+      Value<String?> notes,
+      Value<TaskPriority> priority,
+      Value<String?> interval,
+      Value<String?> delay,
+      Value<bool> repeat,
+      Value<int> rowid,
+    });
+typedef $$TaskRulesTableUpdateCompanionBuilder =
+    TaskRulesCompanion Function({
+      Value<String> id,
+      Value<bool> isDeleted,
+      Value<DateTime> lastModified,
+      Value<String?> componentId,
+      Value<String?> bikeId,
+      Value<String> name,
+      Value<String?> notes,
+      Value<TaskPriority> priority,
+      Value<String?> interval,
+      Value<String?> delay,
+      Value<bool> repeat,
+      Value<int> rowid,
+    });
+
+final class $$TaskRulesTableReferences
+    extends BaseReferences<_$AppDatabase, $TaskRulesTable, TaskRuleDb> {
+  $$TaskRulesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ComponentsTable _componentIdTable(_$AppDatabase db) =>
+      db.components.createAlias(
+        $_aliasNameGenerator(db.taskRules.componentId, db.components.id),
+      );
+
+  $$ComponentsTableProcessedTableManager? get componentId {
+    final $_column = $_itemColumn<String>('component_id');
+    if ($_column == null) return null;
+    final manager = $$ComponentsTableTableManager(
+      $_db,
+      $_db.components,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_componentIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $BikesTable _bikeIdTable(_$AppDatabase db) => db.bikes.createAlias(
+    $_aliasNameGenerator(db.taskRules.bikeId, db.bikes.id),
+  );
+
+  $$BikesTableProcessedTableManager? get bikeId {
+    final $_column = $_itemColumn<String>('bike_id');
+    if ($_column == null) return null;
+    final manager = $$BikesTableTableManager(
+      $_db,
+      $_db.bikes,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_bikeIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$TaskEntriesTable, List<TaskEntryDb>>
+  _taskEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.taskEntries,
+    aliasName: $_aliasNameGenerator(db.taskRules.id, db.taskEntries.taskRule),
+  );
+
+  $$TaskEntriesTableProcessedTableManager get taskEntriesRefs {
+    final manager = $$TaskEntriesTableTableManager(
+      $_db,
+      $_db.taskEntries,
+    ).filter((f) => f.taskRule.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_taskEntriesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$TaskRulesTableFilterComposer
+    extends Composer<_$AppDatabase, $TaskRulesTable> {
+  $$TaskRulesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get lastModified => $composableBuilder(
+    column: $table.lastModified,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<TaskPriority, TaskPriority, String>
+  get priority => $composableBuilder(
+    column: $table.priority,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get interval => $composableBuilder(
+    column: $table.interval,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get delay => $composableBuilder(
+    column: $table.delay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get repeat => $composableBuilder(
+    column: $table.repeat,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$ComponentsTableFilterComposer get componentId {
+    final $$ComponentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.componentId,
+      referencedTable: $db.components,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ComponentsTableFilterComposer(
+            $db: $db,
+            $table: $db.components,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BikesTableFilterComposer get bikeId {
+    final $$BikesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bikeId,
+      referencedTable: $db.bikes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BikesTableFilterComposer(
+            $db: $db,
+            $table: $db.bikes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> taskEntriesRefs(
+    Expression<bool> Function($$TaskEntriesTableFilterComposer f) f,
+  ) {
+    final $$TaskEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskEntries,
+      getReferencedColumn: (t) => t.taskRule,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskEntriesTableFilterComposer(
+            $db: $db,
+            $table: $db.taskEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$TaskRulesTableOrderingComposer
+    extends Composer<_$AppDatabase, $TaskRulesTable> {
+  $$TaskRulesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastModified => $composableBuilder(
+    column: $table.lastModified,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get priority => $composableBuilder(
+    column: $table.priority,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get interval => $composableBuilder(
+    column: $table.interval,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get delay => $composableBuilder(
+    column: $table.delay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get repeat => $composableBuilder(
+    column: $table.repeat,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$ComponentsTableOrderingComposer get componentId {
+    final $$ComponentsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.componentId,
+      referencedTable: $db.components,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ComponentsTableOrderingComposer(
+            $db: $db,
+            $table: $db.components,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BikesTableOrderingComposer get bikeId {
+    final $$BikesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bikeId,
+      referencedTable: $db.bikes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BikesTableOrderingComposer(
+            $db: $db,
+            $table: $db.bikes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TaskRulesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TaskRulesTable> {
+  $$TaskRulesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
+      $composableBuilder(
+        column: $table.lastModified,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<TaskPriority, String> get priority =>
+      $composableBuilder(column: $table.priority, builder: (column) => column);
+
+  GeneratedColumn<String> get interval =>
+      $composableBuilder(column: $table.interval, builder: (column) => column);
+
+  GeneratedColumn<String> get delay =>
+      $composableBuilder(column: $table.delay, builder: (column) => column);
+
+  GeneratedColumn<bool> get repeat =>
+      $composableBuilder(column: $table.repeat, builder: (column) => column);
+
+  $$ComponentsTableAnnotationComposer get componentId {
+    final $$ComponentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.componentId,
+      referencedTable: $db.components,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ComponentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.components,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BikesTableAnnotationComposer get bikeId {
+    final $$BikesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bikeId,
+      referencedTable: $db.bikes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BikesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.bikes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> taskEntriesRefs<T extends Object>(
+    Expression<T> Function($$TaskEntriesTableAnnotationComposer a) f,
+  ) {
+    final $$TaskEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskEntries,
+      getReferencedColumn: (t) => t.taskRule,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskEntriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.taskEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$TaskRulesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TaskRulesTable,
+          TaskRuleDb,
+          $$TaskRulesTableFilterComposer,
+          $$TaskRulesTableOrderingComposer,
+          $$TaskRulesTableAnnotationComposer,
+          $$TaskRulesTableCreateCompanionBuilder,
+          $$TaskRulesTableUpdateCompanionBuilder,
+          (TaskRuleDb, $$TaskRulesTableReferences),
+          TaskRuleDb,
+          PrefetchHooks Function({
+            bool componentId,
+            bool bikeId,
+            bool taskEntriesRefs,
+          })
+        > {
+  $$TaskRulesTableTableManager(_$AppDatabase db, $TaskRulesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TaskRulesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TaskRulesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TaskRulesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<DateTime> lastModified = const Value.absent(),
+                Value<String?> componentId = const Value.absent(),
+                Value<String?> bikeId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<TaskPriority> priority = const Value.absent(),
+                Value<String?> interval = const Value.absent(),
+                Value<String?> delay = const Value.absent(),
+                Value<bool> repeat = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TaskRulesCompanion(
+                id: id,
+                isDeleted: isDeleted,
+                lastModified: lastModified,
+                componentId: componentId,
+                bikeId: bikeId,
+                name: name,
+                notes: notes,
+                priority: priority,
+                interval: interval,
+                delay: delay,
+                repeat: repeat,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                Value<bool> isDeleted = const Value.absent(),
+                required DateTime lastModified,
+                Value<String?> componentId = const Value.absent(),
+                Value<String?> bikeId = const Value.absent(),
+                required String name,
+                Value<String?> notes = const Value.absent(),
+                Value<TaskPriority> priority = const Value.absent(),
+                Value<String?> interval = const Value.absent(),
+                Value<String?> delay = const Value.absent(),
+                Value<bool> repeat = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TaskRulesCompanion.insert(
+                id: id,
+                isDeleted: isDeleted,
+                lastModified: lastModified,
+                componentId: componentId,
+                bikeId: bikeId,
+                name: name,
+                notes: notes,
+                priority: priority,
+                interval: interval,
+                delay: delay,
+                repeat: repeat,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$TaskRulesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({componentId = false, bikeId = false, taskEntriesRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (taskEntriesRefs) db.taskEntries,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (componentId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.componentId,
+                                    referencedTable: $$TaskRulesTableReferences
+                                        ._componentIdTable(db),
+                                    referencedColumn: $$TaskRulesTableReferences
+                                        ._componentIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+                        if (bikeId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.bikeId,
+                                    referencedTable: $$TaskRulesTableReferences
+                                        ._bikeIdTable(db),
+                                    referencedColumn: $$TaskRulesTableReferences
+                                        ._bikeIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (taskEntriesRefs)
+                        await $_getPrefetchedData<
+                          TaskRuleDb,
+                          $TaskRulesTable,
+                          TaskEntryDb
+                        >(
+                          currentTable: table,
+                          referencedTable: $$TaskRulesTableReferences
+                              ._taskEntriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$TaskRulesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).taskEntriesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.taskRule == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$TaskRulesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TaskRulesTable,
+      TaskRuleDb,
+      $$TaskRulesTableFilterComposer,
+      $$TaskRulesTableOrderingComposer,
+      $$TaskRulesTableAnnotationComposer,
+      $$TaskRulesTableCreateCompanionBuilder,
+      $$TaskRulesTableUpdateCompanionBuilder,
+      (TaskRuleDb, $$TaskRulesTableReferences),
+      TaskRuleDb,
+      PrefetchHooks Function({
+        bool componentId,
+        bool bikeId,
+        bool taskEntriesRefs,
+      })
+    >;
+typedef $$TaskEntriesTableCreateCompanionBuilder =
+    TaskEntriesCompanion Function({
+      required String id,
+      Value<bool> isDeleted,
+      required DateTime lastModified,
+      required String name,
+      Value<String?> notes,
+      required DateTime dateTimeUTC,
+      required DateTime dateTimeLocal,
+      required String taskRule,
+      Value<String?> componentId,
+      Value<String?> bikeId,
+      Value<String?> snapshot,
+      Value<int> rowid,
+    });
+typedef $$TaskEntriesTableUpdateCompanionBuilder =
+    TaskEntriesCompanion Function({
+      Value<String> id,
+      Value<bool> isDeleted,
+      Value<DateTime> lastModified,
+      Value<String> name,
+      Value<String?> notes,
+      Value<DateTime> dateTimeUTC,
+      Value<DateTime> dateTimeLocal,
+      Value<String> taskRule,
+      Value<String?> componentId,
+      Value<String?> bikeId,
+      Value<String?> snapshot,
+      Value<int> rowid,
+    });
+
+final class $$TaskEntriesTableReferences
+    extends BaseReferences<_$AppDatabase, $TaskEntriesTable, TaskEntryDb> {
+  $$TaskEntriesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $TaskRulesTable _taskRuleTable(_$AppDatabase db) =>
+      db.taskRules.createAlias(
+        $_aliasNameGenerator(db.taskEntries.taskRule, db.taskRules.id),
+      );
+
+  $$TaskRulesTableProcessedTableManager get taskRule {
+    final $_column = $_itemColumn<String>('task_rule')!;
+
+    final manager = $$TaskRulesTableTableManager(
+      $_db,
+      $_db.taskRules,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_taskRuleTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $ComponentsTable _componentIdTable(_$AppDatabase db) =>
+      db.components.createAlias(
+        $_aliasNameGenerator(db.taskEntries.componentId, db.components.id),
+      );
+
+  $$ComponentsTableProcessedTableManager? get componentId {
+    final $_column = $_itemColumn<String>('component_id');
+    if ($_column == null) return null;
+    final manager = $$ComponentsTableTableManager(
+      $_db,
+      $_db.components,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_componentIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $BikesTable _bikeIdTable(_$AppDatabase db) => db.bikes.createAlias(
+    $_aliasNameGenerator(db.taskEntries.bikeId, db.bikes.id),
+  );
+
+  $$BikesTableProcessedTableManager? get bikeId {
+    final $_column = $_itemColumn<String>('bike_id');
+    if ($_column == null) return null;
+    final manager = $$BikesTableTableManager(
+      $_db,
+      $_db.bikes,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_bikeIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$TaskEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $TaskEntriesTable> {
+  $$TaskEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get lastModified => $composableBuilder(
+    column: $table.lastModified,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get dateTimeUTC => $composableBuilder(
+    column: $table.dateTimeUTC,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get dateTimeLocal => $composableBuilder(
+    column: $table.dateTimeLocal,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get snapshot => $composableBuilder(
+    column: $table.snapshot,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$TaskRulesTableFilterComposer get taskRule {
+    final $$TaskRulesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskRule,
+      referencedTable: $db.taskRules,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskRulesTableFilterComposer(
+            $db: $db,
+            $table: $db.taskRules,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$ComponentsTableFilterComposer get componentId {
+    final $$ComponentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.componentId,
+      referencedTable: $db.components,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ComponentsTableFilterComposer(
+            $db: $db,
+            $table: $db.components,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BikesTableFilterComposer get bikeId {
+    final $$BikesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bikeId,
+      referencedTable: $db.bikes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BikesTableFilterComposer(
+            $db: $db,
+            $table: $db.bikes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TaskEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $TaskEntriesTable> {
+  $$TaskEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastModified => $composableBuilder(
+    column: $table.lastModified,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get dateTimeUTC => $composableBuilder(
+    column: $table.dateTimeUTC,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get dateTimeLocal => $composableBuilder(
+    column: $table.dateTimeLocal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get snapshot => $composableBuilder(
+    column: $table.snapshot,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$TaskRulesTableOrderingComposer get taskRule {
+    final $$TaskRulesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskRule,
+      referencedTable: $db.taskRules,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskRulesTableOrderingComposer(
+            $db: $db,
+            $table: $db.taskRules,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$ComponentsTableOrderingComposer get componentId {
+    final $$ComponentsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.componentId,
+      referencedTable: $db.components,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ComponentsTableOrderingComposer(
+            $db: $db,
+            $table: $db.components,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BikesTableOrderingComposer get bikeId {
+    final $$BikesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bikeId,
+      referencedTable: $db.bikes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BikesTableOrderingComposer(
+            $db: $db,
+            $table: $db.bikes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TaskEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TaskEntriesTable> {
+  $$TaskEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
+      $composableBuilder(
+        column: $table.lastModified,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get dateTimeUTC =>
+      $composableBuilder(
+        column: $table.dateTimeUTC,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get dateTimeLocal =>
+      $composableBuilder(
+        column: $table.dateTimeLocal,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<String> get snapshot =>
+      $composableBuilder(column: $table.snapshot, builder: (column) => column);
+
+  $$TaskRulesTableAnnotationComposer get taskRule {
+    final $$TaskRulesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskRule,
+      referencedTable: $db.taskRules,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskRulesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.taskRules,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$ComponentsTableAnnotationComposer get componentId {
+    final $$ComponentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.componentId,
+      referencedTable: $db.components,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ComponentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.components,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BikesTableAnnotationComposer get bikeId {
+    final $$BikesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bikeId,
+      referencedTable: $db.bikes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BikesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.bikes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TaskEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TaskEntriesTable,
+          TaskEntryDb,
+          $$TaskEntriesTableFilterComposer,
+          $$TaskEntriesTableOrderingComposer,
+          $$TaskEntriesTableAnnotationComposer,
+          $$TaskEntriesTableCreateCompanionBuilder,
+          $$TaskEntriesTableUpdateCompanionBuilder,
+          (TaskEntryDb, $$TaskEntriesTableReferences),
+          TaskEntryDb,
+          PrefetchHooks Function({bool taskRule, bool componentId, bool bikeId})
+        > {
+  $$TaskEntriesTableTableManager(_$AppDatabase db, $TaskEntriesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TaskEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TaskEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TaskEntriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<DateTime> lastModified = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<DateTime> dateTimeUTC = const Value.absent(),
+                Value<DateTime> dateTimeLocal = const Value.absent(),
+                Value<String> taskRule = const Value.absent(),
+                Value<String?> componentId = const Value.absent(),
+                Value<String?> bikeId = const Value.absent(),
+                Value<String?> snapshot = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TaskEntriesCompanion(
+                id: id,
+                isDeleted: isDeleted,
+                lastModified: lastModified,
+                name: name,
+                notes: notes,
+                dateTimeUTC: dateTimeUTC,
+                dateTimeLocal: dateTimeLocal,
+                taskRule: taskRule,
+                componentId: componentId,
+                bikeId: bikeId,
+                snapshot: snapshot,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                Value<bool> isDeleted = const Value.absent(),
+                required DateTime lastModified,
+                required String name,
+                Value<String?> notes = const Value.absent(),
+                required DateTime dateTimeUTC,
+                required DateTime dateTimeLocal,
+                required String taskRule,
+                Value<String?> componentId = const Value.absent(),
+                Value<String?> bikeId = const Value.absent(),
+                Value<String?> snapshot = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TaskEntriesCompanion.insert(
+                id: id,
+                isDeleted: isDeleted,
+                lastModified: lastModified,
+                name: name,
+                notes: notes,
+                dateTimeUTC: dateTimeUTC,
+                dateTimeLocal: dateTimeLocal,
+                taskRule: taskRule,
+                componentId: componentId,
+                bikeId: bikeId,
+                snapshot: snapshot,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$TaskEntriesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({taskRule = false, componentId = false, bikeId = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (taskRule) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.taskRule,
+                                    referencedTable:
+                                        $$TaskEntriesTableReferences
+                                            ._taskRuleTable(db),
+                                    referencedColumn:
+                                        $$TaskEntriesTableReferences
+                                            ._taskRuleTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (componentId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.componentId,
+                                    referencedTable:
+                                        $$TaskEntriesTableReferences
+                                            ._componentIdTable(db),
+                                    referencedColumn:
+                                        $$TaskEntriesTableReferences
+                                            ._componentIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (bikeId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.bikeId,
+                                    referencedTable:
+                                        $$TaskEntriesTableReferences
+                                            ._bikeIdTable(db),
+                                    referencedColumn:
+                                        $$TaskEntriesTableReferences
+                                            ._bikeIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$TaskEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TaskEntriesTable,
+      TaskEntryDb,
+      $$TaskEntriesTableFilterComposer,
+      $$TaskEntriesTableOrderingComposer,
+      $$TaskEntriesTableAnnotationComposer,
+      $$TaskEntriesTableCreateCompanionBuilder,
+      $$TaskEntriesTableUpdateCompanionBuilder,
+      (TaskEntryDb, $$TaskEntriesTableReferences),
+      TaskEntryDb,
+      PrefetchHooks Function({bool taskRule, bool componentId, bool bikeId})
     >;
 typedef $$PersonsTableCreateCompanionBuilder =
     PersonsCompanion Function({
@@ -12473,12 +13599,12 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$ComponentsTableTableManager get components =>
       $$ComponentsTableTableManager(_db, _db.components);
+  $$BikesTableTableManager get bikes =>
+      $$BikesTableTableManager(_db, _db.bikes);
   $$TaskRulesTableTableManager get taskRules =>
       $$TaskRulesTableTableManager(_db, _db.taskRules);
   $$TaskEntriesTableTableManager get taskEntries =>
       $$TaskEntriesTableTableManager(_db, _db.taskEntries);
-  $$BikesTableTableManager get bikes =>
-      $$BikesTableTableManager(_db, _db.bikes);
   $$PersonsTableTableManager get persons =>
       $$PersonsTableTableManager(_db, _db.persons);
   $$RatingsTableTableManager get ratings =>

@@ -493,6 +493,7 @@ void main() {
         dateTimeUTC: DateTime.now().toUtc(),
         dateTimeLocal: DateTime.now().toLocal(),
         taskRule: rule1.id,
+        componentId: component1.id,
       );
 
       await repository.addTaskEntry(entry1);

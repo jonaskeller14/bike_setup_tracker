@@ -107,6 +107,7 @@ void main() {
         initialElevationGain: 0.0,
         initialMovingTime: Duration.zero,
         initialElapsedTime: Duration.zero,
+        initialActivityCount: 0,
       );
       final model = data.toModel(
         adjustments: [

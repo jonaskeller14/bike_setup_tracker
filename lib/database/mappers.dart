@@ -18,6 +18,8 @@ import 'package:location/location.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
 import '../models/strava/strava_activity.dart';
+import '../models/task_threshold.dart';
+import '../models/component_stats.dart';
 
 extension BikeDbMapper on BikeDb {
   Bike toModel() {
@@ -53,6 +55,7 @@ extension ComponentDbMapper on ComponentDb {
       initialElevationGain: initialElevationGain,
       initialMovingTime: initialMovingTime,
       initialElapsedTime: initialElapsedTime,
+      initialActivityCount: initialActivityCount,
     );
   }
 }
@@ -118,12 +121,16 @@ extension TaskRuleDbMapper on TaskRuleDb {
   TaskRule toModel() {
     return TaskRule(
       componentId: componentId,
+      bikeId: bikeId,
       id: id,
       isDeleted: isDeleted,
       lastModified: _toUtcSafe(lastModified, 'TaskRule.lastModified'),
       name: name,
       notes: notes,
       priority: priority,
+      interval: interval != null ? TaskThreshold.fromJson(jsonDecode(interval!)) : null,
+      delay: delay != null ? TaskThreshold.fromJson(jsonDecode(delay!)) : null,
+      repeat: repeat,
     );
   }
 }
@@ -139,6 +146,9 @@ extension TaskEntryDbMapper on TaskEntryDb {
       dateTimeUTC: _toUtcSafe(dateTimeUTC, 'TaskEntry.dateTimeUTC'),
       dateTimeLocal: dateTimeLocal,
       notes: notes,
+      componentId: componentId,
+      bikeId: bikeId,
+      snapshot: snapshot != null ? ComponentStats.fromJson(jsonDecode(snapshot!)) : null,
     );
   }
 }
@@ -174,6 +184,7 @@ extension ComponentMapper on Component {
       initialElevationGain: Value<double>(initialElevationGain),
       initialMovingTime: Value<Duration>(initialMovingTime),
       initialElapsedTime: Value<Duration>(initialElapsedTime),
+      initialActivityCount: Value<int>(initialActivityCount),
     );
   }
 }
@@ -260,13 +271,17 @@ extension RatingMapper on Rating {
 extension TaskRuleMapper on TaskRule {
   TaskRulesCompanion toCompanion() {
     return TaskRulesCompanion(
-      componentId: Value<String>(componentId),
+      componentId: Value<String?>(componentId),
+      bikeId: Value<String?>(bikeId),
       id: Value<String>(id),
       isDeleted: Value<bool>(isDeleted),
       lastModified: Value<DateTime>(lastModified),
       name: Value<String>(name),
       notes: Value<String?>(notes),
       priority: Value<TaskPriority>(priority),
+      interval: Value<String?>(interval != null ? jsonEncode(interval!.toJson()) : null),
+      delay: Value<String?>(delay != null ? jsonEncode(delay!.toJson()) : null),
+      repeat: Value<bool>(repeat),
     );
   }
 }
@@ -282,6 +297,9 @@ extension TaskEntryMapper on TaskEntry {
       dateTimeUTC: Value<DateTime>(dateTimeUTC),
       dateTimeLocal: Value<DateTime>(dateTimeLocal),
       taskRule: Value<String>(taskRule),
+      componentId: Value<String?>(componentId),
+      bikeId: Value<String?>(bikeId),
+      snapshot: Value<String?>(snapshot != null ? jsonEncode(snapshot!.toJson()) : null),
     );
   }
 }

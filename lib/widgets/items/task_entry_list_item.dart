@@ -2,18 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
+import '../../models/component_stats.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/task_actions.dart';
 
 class TaskEntryListItem extends StatelessWidget {
   final String taskEntryId;
   final EdgeInsets contentPadding;
+  final ComponentStats? previousSnapshot;
 
   const TaskEntryListItem({
     super.key, 
     required this.taskEntryId, 
     this.contentPadding = const EdgeInsets.only(left: 16, right: 16),
+    this.previousSnapshot,
   });
+
+  Widget _buildStatItem(BuildContext context, IconData icon, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 2,
+      children: [
+        Icon(icon, size: 10, color: Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.7)),
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,6 +141,45 @@ class TaskEntryListItem extends StatelessWidget {
                 ),
               ],
             ),
+          if (appSettings.enableStrava && taskEntry.snapshot != null && taskRules.containsKey(taskEntry.taskRule)) ...[
+            const SizedBox(height: 4),
+            Builder(
+              builder: (context) {
+                final isInitial = previousSnapshot == null;
+                final effectivePrevious = previousSnapshot ?? ComponentStats.zero();
+                final delta = taskEntry.snapshot! - effectivePrevious;
+                
+                final label = isInitial ? "Σ" : "+";
+
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 2,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      _buildStatItem(context, Icons.route, '${(delta.distance / 1000).toStringAsFixed(1)} km'),
+                      _buildStatItem(context, Icons.terrain, '${delta.elevationGain.round()} m'),
+                      _buildStatItem(context, Icons.timer, '${delta.movingTime.inHours}h ${delta.movingTime.inMinutes % 60}m'),
+                      _buildStatItem(context, Icons.repeat, '${delta.activityCount}'),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
         ],
       ),
       contentPadding: contentPadding,

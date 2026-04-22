@@ -63,7 +63,8 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
         c.initial_distance + COALESCE(s.distance, 0) as distance,
         c.initial_elevation_gain + COALESCE(s.elevation, 0) as elevation,
         c.initial_moving_time + COALESCE(s.moving_time, 0) as moving_time,
-        c.initial_elapsed_time + COALESCE(s.elapsed_time, 0) as elapsed_time
+        c.initial_elapsed_time + COALESCE(s.elapsed_time, 0) as elapsed_time,
+        c.initial_activity_count + COALESCE(s.activity_count, 0) as activity_count
       FROM components c
       LEFT JOIN (
         SELECT 
@@ -71,7 +72,8 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
           SUM(a.distance) as distance,
           SUM(a.total_elevation_gain) as elevation,
           SUM(a.moving_time) as moving_time,
-          SUM(a.elapsed_time) as elapsed_time
+          SUM(a.elapsed_time) as elapsed_time,
+          COUNT(a.id) as activity_count
         FROM strava_activities a
         JOIN bikes b ON a.gear_id = b.strava_gear
         JOIN installations i ON b.id = i.parent
@@ -105,9 +107,135 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
           elevationGain: row.read<double>('elevation'),
           movingTime: Duration(seconds: row.read<int>('moving_time')),
           elapsedTime: Duration(seconds: row.read<int>('elapsed_time')),
+          activityCount: row.read<int>('activity_count'),
         );
       }
       return result;
     });
+  }
+
+  Stream<Map<String, ComponentStats>> watchBikeStats() {
+    final query = customSelect(
+      '''
+      SELECT 
+        b.id as bike_id,
+        COALESCE(SUM(a.distance), 0) as distance,
+        COALESCE(SUM(a.total_elevation_gain), 0) as elevation,
+        COALESCE(SUM(a.moving_time), 0) as moving_time,
+        COALESCE(SUM(a.elapsed_time), 0) as elapsed_time,
+        COALESCE(COUNT(a.id), 0) as activity_count
+      FROM bikes b
+      LEFT JOIN strava_activities a ON b.strava_gear = a.gear_id
+      WHERE b.is_deleted = 0
+      GROUP BY b.id
+      ''',
+      readsFrom: {stravaActivities, db.bikes},
+    );
+
+    return query.watch().map((rows) {
+      final Map<String, ComponentStats> result = {};
+      for (final row in rows) {
+        result[row.read<String>('bike_id')] = ComponentStats(
+          distance: row.read<double>('distance'),
+          elevationGain: row.read<double>('elevation'),
+          movingTime: Duration(seconds: row.read<int>('moving_time')),
+          elapsedTime: Duration(seconds: row.read<int>('elapsed_time')),
+          activityCount: row.read<int>('activity_count'),
+        );
+      }
+      return result;
+    });
+  }
+
+  Future<ComponentStats> getComponentStatsAt(String componentId, DateTime date) async {
+    final query = customSelect(
+      '''
+      SELECT 
+        c.initial_distance + COALESCE(s.distance, 0) as distance,
+        c.initial_elevation_gain + COALESCE(s.elevation, 0) as elevation,
+        c.initial_moving_time + COALESCE(s.moving_time, 0) as moving_time,
+        c.initial_elapsed_time + COALESCE(s.elapsed_time, 0) as elapsed_time,
+        c.initial_activity_count + COALESCE(s.activity_count, 0) as activity_count
+      FROM components c
+      LEFT JOIN (
+        SELECT 
+          i.component_id,
+          SUM(a.distance) as distance,
+          SUM(a.total_elevation_gain) as elevation,
+          SUM(a.moving_time) as moving_time,
+          SUM(a.elapsed_time) as elapsed_time,
+          COUNT(a.id) as activity_count
+        FROM strava_activities a
+        JOIN bikes b ON a.gear_id = b.strava_gear
+        JOIN installations i ON b.id = i.parent
+        WHERE a.start_date >= i.date_time_u_t_c
+        AND a.start_date <= :selectedDate
+        AND (
+          a.start_date < (
+            SELECT MIN(next_i.date_time_u_t_c) 
+            FROM installations next_i 
+            WHERE next_i.component_id = i.component_id 
+            AND next_i.date_time_u_t_c > i.date_time_u_t_c
+          )
+          OR NOT EXISTS (
+            SELECT 1 
+            FROM installations next_i 
+            WHERE next_i.component_id = i.component_id 
+            AND next_i.date_time_u_t_c > i.date_time_u_t_c
+          )
+        )
+        GROUP BY i.component_id
+      ) s ON s.component_id = c.id
+      WHERE c.id = :componentId
+      ''',
+      readsFrom: {stravaActivities, db.bikes, db.installations, db.components},
+      variables: [
+        Variable<DateTime>(date),
+        Variable<String>(componentId),
+      ],
+    );
+
+    final row = await query.getSingle();
+    return ComponentStats(
+      distance: row.read<double>('distance'),
+      elevationGain: row.read<double>('elevation'),
+      movingTime: Duration(seconds: row.read<int>('moving_time')),
+      elapsedTime: Duration(seconds: row.read<int>('elapsed_time')),
+      activityCount: row.read<int>('activity_count'),
+    );
+  }
+
+  Future<ComponentStats> getBikeStatsAt(String bikeId, DateTime date) async {
+    final query = customSelect(
+      '''
+      SELECT 
+        COALESCE(SUM(a.distance), 0) as distance,
+        COALESCE(SUM(a.total_elevation_gain), 0) as elevation,
+        COALESCE(SUM(a.moving_time), 0) as moving_time,
+        COALESCE(SUM(a.elapsed_time), 0) as elapsed_time,
+        COALESCE(COUNT(a.id), 0) as activity_count
+      FROM bikes b
+      LEFT JOIN strava_activities a ON b.strava_gear = a.gear_id
+      WHERE b.id = :bikeId
+      AND a.start_date <= :selectedDate
+      GROUP BY b.id
+      ''',
+      readsFrom: {stravaActivities, db.bikes},
+      variables: [
+        Variable<String>(bikeId),
+        Variable<DateTime>(date),
+      ],
+    );
+
+    final row = await query.getSingleOrNull();
+    if (row == null) return ComponentStats.zero();
+    
+    return ComponentStats(
+      distance: row.read<double>('distance'),
+      elevationGain: row.read<double>('elevation'),
+      movingTime: Duration(seconds: row.read<int>('moving_time')),
+      elapsedTime: Duration(seconds: row.read<int>('elapsed_time')),
+      activityCount: row.read<int>('activity_count'),
+    );
   }
 }

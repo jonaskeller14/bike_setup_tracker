@@ -1,4 +1,37 @@
 import 'package:uuid/uuid.dart';
+import 'task_threshold.dart';
+import 'component_stats.dart';
+import 'task_entry.dart';
+
+enum TaskStatusType {
+  upcoming,
+  due,
+  overdue,
+  completed,
+}
+
+class TaskStatus {
+  final TaskStatusType type;
+  final double progress;
+
+  const TaskStatus({
+    required this.type,
+    required this.progress,
+  });
+
+  bool get isDue => type == TaskStatusType.due || type == TaskStatusType.overdue;
+  bool get isOverdue => type == TaskStatusType.overdue;
+}
+
+class TaskRuleWithStatus {
+  final TaskRule rule;
+  final TaskStatus status;
+
+  const TaskRuleWithStatus({
+    required this.rule,
+    required this.status,
+  });
+}
 
 enum TaskPriority {
   low('Low'),
@@ -17,7 +50,11 @@ class TaskRule {
   final String name;
   final String? notes;
   final TaskPriority priority;
-  final String componentId;
+  final String? componentId;
+  final String? bikeId;
+  final TaskThreshold? interval;
+  final TaskThreshold? delay;
+  final bool repeat;
 
   TaskRule({
     String? id,
@@ -26,10 +63,62 @@ class TaskRule {
     required this.name,
     this.notes,
     this.priority = TaskPriority.medium,
-    required this.componentId,
+    this.componentId,
+    this.bikeId,
+    this.interval,
+    this.delay,
+    this.repeat = true,
   }) : id = id ?? const Uuid().v4(),
       isDeleted = isDeleted ?? false,
-      lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
+      lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc() {
+    // Distance/MovingTime thresholds require a component or bike.
+    if (interval is DistanceThreshold || interval is MovingTimeThreshold || interval is ActivityCountThreshold) {
+      assert(componentId != null || bikeId != null, 
+        'Distance/MovingTime/ActivityCount thresholds require at least a componentId or a bikeId');
+    }
+    assert(componentId == null || bikeId == null, 'Cannot link to both a component and a bike');
+  }
+
+  TaskStatus calculateStatus({
+    required ComponentStats currentStats,
+    required DateTime now,
+    TaskEntry? lastEntry,
+    DateTime? componentInstallationDate,
+  }) {
+    if (!repeat && lastEntry != null) {
+      return const TaskStatus(type: TaskStatusType.completed, progress: 1.0);
+    }
+
+    if (interval == null) {
+      // Simple todo with no threshold
+      if (lastEntry != null && !repeat) {
+        return const TaskStatus(type: TaskStatusType.completed, progress: 1.0);
+      }
+      return const TaskStatus(type: TaskStatusType.due, progress: 0.0);
+    }
+
+    final baselineStats = lastEntry?.snapshot ?? ComponentStats.zero();
+    final baselineDate = lastEntry?.dateTimeUTC ?? componentInstallationDate ?? DateTime.fromMillisecondsSinceEpoch(0);
+
+    final progress = interval!.getProgress(
+      currentStats,
+      baselineStats,
+      now,
+      baselineDate,
+      delay: delay,
+    );
+
+    TaskStatusType type;
+    if (progress >= 1.1) {
+      type = TaskStatusType.overdue;
+    } else if (progress >= 1.0) {
+      type = TaskStatusType.due;
+    } else {
+      type = TaskStatusType.upcoming;
+    }
+
+    return TaskStatus(type: type, progress: progress);
+  }
   
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -39,6 +128,10 @@ class TaskRule {
     'notes': notes,
     'priority': priority.toString(),
     'componentId': componentId,
+    'bikeId': bikeId,
+    'interval': interval?.toJson(),
+    'delay': delay?.toJson(),
+    'repeat': repeat,
   };
 
   factory TaskRule.fromJson(Map<String, dynamic> json) {
@@ -52,7 +145,15 @@ class TaskRule {
         (p) => p.toString() == json['priority'],
         orElse: () => TaskPriority.medium,
       ),
-      componentId: json["componentId"] as String,
+      componentId: json["componentId"] as String?,
+      bikeId: json["bikeId"] as String?,
+      interval: json["interval"] != null 
+          ? TaskThreshold.fromJson(json["interval"] as Map<String, dynamic>) 
+          : null,
+      delay: json["delay"] != null 
+          ? TaskThreshold.fromJson(json["delay"] as Map<String, dynamic>) 
+          : null,
+      repeat: json["repeat"] as bool? ?? true,
     );
   }
 
@@ -67,7 +168,11 @@ class TaskRule {
         name == other.name &&
         notes == other.notes &&
         priority == other.priority &&
-        componentId == other.componentId;
+        componentId == other.componentId &&
+        bikeId == other.bikeId &&
+        interval == other.interval &&
+        delay == other.delay &&
+        repeat == other.repeat;
   }
 
   @override
@@ -80,6 +185,10 @@ class TaskRule {
       notes,
       priority,
       componentId,
+      bikeId,
+      interval,
+      delay,
+      repeat,
     );
   }
 
@@ -89,6 +198,10 @@ class TaskRule {
       notes: notes,
       priority: priority,
       componentId: componentId,
+      bikeId: bikeId,
+      interval: interval,
+      delay: delay,
+      repeat: repeat,
     );
   }
 
@@ -100,6 +213,10 @@ class TaskRule {
     Object? notes = const _Sentinel(),
     Object? priority = const _Sentinel(),
     Object? componentId = const _Sentinel(),
+    Object? bikeId = const _Sentinel(),
+    Object? interval = const _Sentinel(),
+    Object? delay = const _Sentinel(),
+    Object? repeat = const _Sentinel(),
   }) {
     return TaskRule(
       id: id is _Sentinel 
@@ -122,7 +239,19 @@ class TaskRule {
           : (priority as TaskPriority),
       componentId: componentId is _Sentinel
           ? this.componentId
-          : (componentId as String),
+          : (componentId as String?),
+      bikeId: bikeId is _Sentinel
+          ? this.bikeId
+          : (bikeId as String?),
+      interval: interval is _Sentinel
+          ? this.interval
+          : (interval as TaskThreshold?),
+      delay: delay is _Sentinel
+          ? this.delay
+          : (delay as TaskThreshold?),
+      repeat: repeat is _Sentinel
+          ? this.repeat
+          : (repeat as bool),
     );
   }
 }

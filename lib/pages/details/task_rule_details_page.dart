@@ -51,7 +51,7 @@ class TaskRuleDetailsPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TaskRuleDisplayCard(taskRule: taskRule),
+              TaskRuleDisplayCard(taskRule: taskRule, showStatus: true),
 
               const SizedBox(height: 16),
               Text("Entries".toUpperCase(), style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -64,10 +64,20 @@ class TaskRuleDetailsPage extends StatelessWidget {
               if (taskEntries.isEmpty)
                 _noTaskEntriesPlaceholder(context)
               else
-                ...taskEntries.map((te) => TaskEntryListItem(
-                  taskEntryId: te.id,
-                  contentPadding: EdgeInsets.zero,
-                )),
+                ...taskEntries.reversed.mapIndexed((index, te) {
+                  // previousSnapshot is the snapshot of the entry that occurred BEFORE this one in time.
+                  // Since taskEntries is sorted ASC, the previous entry is at [index - 1] in taskEntries if we weren't reversing.
+                  // But we are reversed for display (latest first).
+                  // So for taskEntries.reversed[index], the 'previous' in time is actually taskEntries.reversed[index + 1].
+                  final reversedList = taskEntries.reversed.toList();
+                  final previousEntry = (index + 1 < reversedList.length) ? reversedList[index + 1] : null;
+                  
+                  return TaskEntryListItem(
+                    taskEntryId: te.id,
+                    contentPadding: EdgeInsets.zero,
+                    previousSnapshot: previousEntry?.snapshot,
+                  );
+                }),
             ],
           ),
         )

@@ -128,8 +128,7 @@ void main() {
       await appRepository
           .addBike(Bike(name: "TestBike #1", person: null, isDeleted: true));
     });
-    await tester.pump(const Duration(milliseconds: 200));
-    await tester.pumpAndSettle();
+    await _waitForRepositoryUpdate(tester);
 
     await tester.tap(find.widgetWithIcon(FloatingActionButton, Icons.add));
     await tester.pump();
@@ -143,8 +142,7 @@ void main() {
     await tester.runAsync(() async {
       await appRepository.addBike(Bike(name: "TestBike #2", person: null));
     });
-    await tester.pump(const Duration(milliseconds: 200));
-    await tester.pumpAndSettle();
+    await _waitForRepositoryUpdate(tester);
 
     await tester.tap(find.widgetWithIcon(FloatingActionButton, Icons.add));
     await tester.pump();

@@ -174,7 +174,7 @@ class TaskEntryListItem extends StatelessWidget {
                 ),
               ],
             ),
-          if (appSettings.enableStrava && taskEntry.snapshot != null && taskRules.containsKey(taskEntry.taskRule)) ...[
+          if (appSettings.enableStrava && taskEntry.snapshot != null && taskRules.containsKey(taskEntry.taskRule) && (taskEntry.componentId != null || taskEntry.bikeId != null)) ...[
             const SizedBox(height: 4),
             Builder(
               builder: (context) {

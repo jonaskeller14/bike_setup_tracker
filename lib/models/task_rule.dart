@@ -91,7 +91,7 @@ class TaskRule {
 
     if (interval == null) {
       // Simple todo with no threshold
-      if (lastEntry != null && !repeat) {
+      if (lastEntry != null) {
         return const TaskStatus(type: TaskStatusType.completed, progress: 1.0);
       }
       return const TaskStatus(type: TaskStatusType.due, progress: 0.0);

@@ -173,7 +173,7 @@ void main() {
         ), throwsA(isA<AssertionError>()));
       });
 
-      test('Distance threshold with bikeId is valid', () {
+      test('Bike Distance threshold with bikeId is valid', () {
         final rule = TaskRule(
           name: 'Bike Distance Task',
           bikeId: 'bike-1',
@@ -181,6 +181,36 @@ void main() {
         );
         expect(rule.bikeId, 'bike-1');
       });
+    });
+
+    test('Manual task without interval', () {
+      final rule = TaskRule(
+        name: 'Manual task',
+        repeat: true, // This is the bug: it defaults to true
+      );
+
+      // No entry -> due
+      var status = rule.calculateStatus(
+        currentStats: ComponentStats.zero(),
+        now: now,
+      );
+      expect(status.type, TaskStatusType.due);
+
+      // Entry exists -> should be completed
+      final entry = TaskEntry(
+        name: 'Completed',
+        taskRule: rule.id,
+        dateTimeUTC: now,
+        dateTimeLocal: now,
+        snapshot: ComponentStats.zero(),
+      );
+
+      status = rule.calculateStatus(
+        currentStats: ComponentStats.zero(),
+        now: now.add(const Duration(hours: 1)),
+        lastEntry: entry,
+      );
+      expect(status.type, TaskStatusType.completed);
     });
   });
 }

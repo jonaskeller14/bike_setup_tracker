@@ -230,7 +230,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
         bikeId: _association.bikeId,
         interval: interval,
         delay: delay,
-        repeat: _intervalType == _ThresholdType.dateTime ? false : _repeat,
+        repeat: (_intervalType == _ThresholdType.dateTime || _intervalType == _ThresholdType.none) ? false : _repeat,
         isDeleted: false,
         lastModified: DateTime.now().toUtc(),
       ),

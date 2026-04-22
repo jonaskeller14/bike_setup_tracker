@@ -272,10 +272,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     );
   }
 
-  DropdownMenuItem<_TaskAssociation> _dropdownMenuItemComponent(Component component) {
-    final appRepository = context.watch<AppRepository>();
-    final bikes = appRepository.bikes;
-
+  DropdownMenuItem<_TaskAssociation> _dropdownMenuItemComponent(Component component, Map<String, Bike> bikes) {
     return DropdownMenuItem<_TaskAssociation>(
       value: _TaskAssociation(componentId: component.id),
       child: Row(
@@ -317,6 +314,33 @@ class _TaskRulePageState extends State<TaskRulePage> {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  DropdownMenuItem<_TaskAssociation> _dropdownMenuItemMissing(_TaskAssociation association) {
+    String label = "ENTRY NOT FOUND";
+    IconData icon = Icons.help_outline_rounded;
+    
+    if (association.bikeId != null) {
+      label = "BIKE NOT FOUND";
+      icon = Bike.iconData;
+    } else if (association.componentId != null) {
+      label = "COMPONENT NOT FOUND";
+      icon = Icons.grid_view_sharp;
+    }
+
+    return DropdownMenuItem<_TaskAssociation>(
+      value: association,
+      child: Row(
+        spacing: 8,
+        children: [
+          Icon(icon, color: Theme.of(context).colorScheme.error),
+          Text(
+            label,
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
         ],
       ),
@@ -426,17 +450,25 @@ class _TaskRulePageState extends State<TaskRulePage> {
                       fillColor: Colors.orange.withValues(alpha: 0.08),
                       filled: widget.mode == TaskRulePageMode.edit && _association != _initialAssociation,
                     ),
-                    items: [
-                      _dropdownMenuItemNone(),
-                      _dropdownMenuSection("BIKES"),
-                      ...bikes.values.map((b) => _dropdownMenuItemBike(b)),
-                      _dropdownMenuSection("COMPONENTS"),
-                      ...(() {
-                        final sorted = components.values.toList()
-                          ..sort((a, b) => (a.bike ?? "").compareTo(b.bike ?? ""));
-                        return sorted.map((c) => _dropdownMenuItemComponent(c));
-                      })(),
-                    ],
+                      items: [
+                        _dropdownMenuItemNone(),
+                        _dropdownMenuSection("BIKES"),
+                        ...bikes.values.map((b) => _dropdownMenuItemBike(b)),
+                        ...[
+                          if (_association.bikeId != null && !bikes.containsKey(_association.bikeId))
+                            _dropdownMenuItemMissing(_association),
+                        ],
+                        _dropdownMenuSection("COMPONENTS"),
+                        ...(() {
+                          final sorted = components.values.toList()
+                            ..sort((a, b) => (a.bike ?? "").compareTo(b.bike ?? ""));
+                          return sorted.map((c) => _dropdownMenuItemComponent(c, bikes));
+                        })(),
+                        ...[
+                          if (_association.componentId != null && !components.containsKey(_association.componentId))
+                            _dropdownMenuItemMissing(_association),
+                        ],
+                      ],
                     onChanged: (v) {
                       if (v != null) {
                         setState(() => _association = v);

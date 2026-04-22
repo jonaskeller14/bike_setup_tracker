@@ -5,6 +5,8 @@ import 'package:uuid/uuid.dart';
 import '../models/app_settings.dart';
 import '../models/task_entry.dart';
 import '../models/task_rule.dart';
+import '../models/bike.dart';
+import '../models/component.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/task_rule_display_card.dart';
 import '../repositories/app_repository.dart';
@@ -31,6 +33,23 @@ class TaskEntryPage extends StatefulWidget {
   State<TaskEntryPage> createState() => _TaskEntryPageState();
 }
 
+class _TaskAssociation {
+  final String? componentId;
+  final String? bikeId;
+
+  const _TaskAssociation({this.componentId, this.bikeId});
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is _TaskAssociation &&
+          componentId == other.componentId &&
+          bikeId == other.bikeId;
+
+  @override
+  int get hashCode => componentId.hashCode ^ bikeId.hashCode;
+}
+
 class _TaskEntryPageState extends State<TaskEntryPage> {
   late String _initialName;
   late TextEditingController _nameController;
@@ -41,6 +60,9 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
   late DateTime _initialDateTimeUtc;
   late DateTime _selectedDateTimeLocal;
   late DateTime _initialDateTimeLocal;
+
+  late _TaskAssociation _association;
+  late _TaskAssociation _initialAssociation;
 
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
@@ -63,13 +85,20 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     
     _selectedDateTimeUtc = widget.taskEntry?.dateTimeUTC ?? _selectedDateTimeLocal.toUtc();
     _initialDateTimeUtc = _selectedDateTimeUtc;
+
+    _association = _TaskAssociation(
+      componentId: widget.taskEntry?.componentId ?? (widget.mode == TaskEntryPageMode.add ? widget.taskRule.componentId : null),
+      bikeId: widget.taskEntry?.bikeId ?? (widget.mode == TaskEntryPageMode.add ? widget.taskRule.bikeId : null),
+    );
+    _initialAssociation = _association;
   }
 
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != _initialName ||
         _notesController.text.trim() != (_initialNotes ?? '') || 
         _initialDateTimeUtc != _selectedDateTimeUtc || 
-        _initialDateTimeLocal != _selectedDateTimeLocal;
+        _initialDateTimeLocal != _selectedDateTimeLocal ||
+        _association != _initialAssociation;
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -155,11 +184,11 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
       final notes = _notesController.text.trim();
       final appRepository = context.read<AppRepository>();
       
-      final snapshot = widget.mode == TaskEntryPageMode.edit 
+      final snapshot = (widget.mode == TaskEntryPageMode.edit && _association == _initialAssociation && _initialDateTimeUtc == _selectedDateTimeUtc)
           ? widget.taskEntry?.snapshot 
           : await appRepository.getStatsAt(
-              componentId: widget.taskRule.componentId,
-              bikeId: widget.taskRule.bikeId,
+              componentId: _association.componentId,
+              bikeId: _association.bikeId,
               date: _selectedDateTimeUtc,
             );
 
@@ -173,8 +202,8 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
         name: name,
         notes: notes.isEmpty ? null : notes,
         taskRule: widget.taskRule.id,
-        componentId: widget.taskRule.componentId,
-        bikeId: widget.taskRule.bikeId,
+        componentId: _association.componentId,
+        bikeId: _association.bikeId,
         snapshot: snapshot,
         dateTimeUTC: _selectedDateTimeUtc,
         dateTimeLocal: _selectedDateTimeLocal,
@@ -200,9 +229,124 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     return null;
   }
 
+  DropdownMenuItem<_TaskAssociation> _dropdownMenuItemNone() {
+    return const DropdownMenuItem<_TaskAssociation>(
+      value: _TaskAssociation(),
+      child: Row(
+        spacing: 8,
+        children: [
+          Icon(Icons.circle_outlined),
+          Text("General Task"),
+        ],
+      ),
+    );
+  }
+
+  DropdownMenuItem<_TaskAssociation> _dropdownMenuItemBike(Bike bike) {
+    return DropdownMenuItem<_TaskAssociation>(
+      value: _TaskAssociation(bikeId: bike.id),
+      child: Row(
+        spacing: 8,
+        children: [
+          const Icon(Bike.iconData),
+          Expanded(child: Text(bike.name, overflow: TextOverflow.ellipsis)),
+        ],
+      ),
+    );
+  }
+
+  DropdownMenuItem<_TaskAssociation> _dropdownMenuItemComponent(Component component, Map<String, Bike> bikes) {
+    return DropdownMenuItem<_TaskAssociation>(
+      value: _TaskAssociation(componentId: component.id),
+      child: Row(
+        spacing: 8,
+        children: [
+          Flexible(
+            fit: FlexFit.tight,
+            child: Row(
+              spacing: 8,
+              children: [
+                Icon(component.componentType.getIconData()),
+                Expanded(
+                  child: Text(component.name, overflow: TextOverflow.ellipsis),
+                ),
+              ],
+            ),
+          ),
+          Flexible(
+            fit: FlexFit.tight,
+            child: Row(
+              spacing: 8,
+              children: [
+                Icon(
+                  component.bike != null ? Bike.iconData : Icons.shelves,
+                  color: component.bike == null || bikes.containsKey(component.bike)
+                      ? null
+                      : Theme.of(context).colorScheme.error,
+                ),
+                Expanded(
+                  child: Text(
+                    component.bike == null
+                        ? "Not installed"
+                        : bikes[component.bike]?.name ?? "BIKE NOT FOUND",
+                    style: component.bike == null || bikes.containsKey(component.bike)
+                        ? null
+                        : TextStyle(color: Theme.of(context).colorScheme.error),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  DropdownMenuItem<_TaskAssociation> _dropdownMenuItemMissing(_TaskAssociation association) {
+    String label = "ENTRY NOT FOUND";
+    IconData icon = Icons.help_outline_rounded;
+    
+    if (association.bikeId != null) {
+      label = "BIKE NOT FOUND";
+      icon = Bike.iconData;
+    } else if (association.componentId != null) {
+      label = "COMPONENT NOT FOUND";
+      icon = Icons.grid_view_sharp;
+    }
+
+    return DropdownMenuItem<_TaskAssociation>(
+      value: association,
+      child: Row(
+        spacing: 8,
+        children: [
+          Icon(icon, color: Theme.of(context).colorScheme.error),
+          Text(
+            label,
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          ),
+        ],
+      ),
+    );
+  }
+
+  DropdownMenuItem<_TaskAssociation?> _dropdownMenuSection(String label) {
+    return DropdownMenuItem<_TaskAssociation?>(
+      enabled: false,
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final appSettings = context.read<AppSettings>();
+    final appSettings = context.watch<AppSettings>();
+    final appRepository = context.watch<AppRepository>();
+    final bikes = appRepository.bikes;
+    final components = appRepository.components;
+
     return PopScope( 
       canPop: !_formHasChanges,
       onPopInvokedWithResult: _handlePopInvoked,
@@ -259,6 +403,45 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                       filled: widget.mode == TaskEntryPageMode.edit && _notesController.text.trim() != (widget.taskEntry?.notes ?? ""),
                     ),
                   ),
+                  if (widget.mode == TaskEntryPageMode.edit) ...[
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<_TaskAssociation?>(
+                      initialValue: _association,
+                      isExpanded: true,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                        labelText: 'Linked To',
+                        border: const OutlineInputBorder(),
+                        fillColor: Colors.orange.withValues(alpha: 0.08),
+                        filled: _association != _initialAssociation,
+                      ),
+                      items: [
+                        _dropdownMenuItemNone(),
+                        _dropdownMenuSection("BIKES"),
+                        ...bikes.values.map((b) => _dropdownMenuItemBike(b)),
+                        ...[
+                          if (_association.bikeId != null && !bikes.containsKey(_association.bikeId))
+                            _dropdownMenuItemMissing(_association),
+                        ],
+                        _dropdownMenuSection("COMPONENTS"),
+                        ...(() {
+                          final sorted = components.values.toList()
+                            ..sort((a, b) => (a.bike ?? "").compareTo(b.bike ?? ""));
+                          return sorted.map((c) => _dropdownMenuItemComponent(c, bikes));
+                        })(),
+                        ...[
+                          if (_association.componentId != null && !components.containsKey(_association.componentId))
+                            _dropdownMenuItemMissing(_association),
+                        ],
+                      ],
+                      onChanged: (v) {
+                        if (v != null) {
+                          setState(() => _association = v);
+                          _changeListener();
+                        }
+                      },
+                    ),
+                  ],
                   const SizedBox(height: 12),
                   Wrap(
                     spacing: 8.0,

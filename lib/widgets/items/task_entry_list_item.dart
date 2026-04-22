@@ -45,6 +45,15 @@ class TaskEntryListItem extends StatelessWidget {
 
     final taskRules = appRepository.taskRules;
 
+    final String entryContextName;
+    if (taskEntry.componentId != null) {
+      entryContextName = appRepository.components[taskEntry.componentId]?.name ?? "COMPONENT NOT FOUND";
+    } else if (taskEntry.bikeId != null) {
+      entryContextName = appRepository.bikes[taskEntry.bikeId]?.name ?? "BIKE NOT FOUND";
+    } else {
+      entryContextName = "General Task";
+    }
+
     return ListTile(
       titleAlignment: ListTileTitleAlignment.top,
       title: Text(taskEntry.name),
@@ -117,6 +126,30 @@ class TaskEntryListItem extends StatelessWidget {
               ),
             ],
           ),
+          if (taskRules.containsKey(taskEntry.taskRule) && (taskEntry.componentId != taskRules[taskEntry.taskRule]!.componentId || taskEntry.bikeId != taskRules[taskEntry.taskRule]!.bikeId))
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 2,
+              children: [
+                Icon(
+                  Icons.warning_amber_rounded,
+                  size: 12, 
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                Flexible(
+                  child: Text(
+                    "Linked to $entryContextName",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error, 
+                      fontSize: 12,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+              ],
+            ),
           if (taskEntry.notes != null && taskEntry.notes!.isNotEmpty)
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,

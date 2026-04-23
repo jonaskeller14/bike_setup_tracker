@@ -36,6 +36,7 @@ class BikeAndTagsFilterChip extends StatelessWidget {
         await showFilterSheet(
           context: context,
           enableSetupTagFilter: enableSetupTagFilter,
+          enableTaskPriorityFilter: false,
         );
       },
       onDeleted: enableSetupTagFilter

@@ -131,10 +131,12 @@ class AppRepository extends ChangeNotifier {
   // ---------------------------------------------------------------------------
   String? _selectedBike;
   final Set<String> _selectedSetupTags = {};
+  final Set<TaskPriority> _selectedTaskPriorities = TaskPriority.values.toSet();
   Set<String> _setupTags = {};
 
   String? get selectedBike => _selectedBike;
   Set<String> get selectedSetupTags => _selectedSetupTags;
+  Set<TaskPriority> get selectedTaskPriorities => _selectedTaskPriorities;
   Set<String> get setupTags => _setupTags;
 
   Map<String, Bike> _filteredBikes = {};
@@ -426,6 +428,8 @@ class AppRepository extends ChangeNotifier {
     _filteredTaskRules = Map.fromEntries(
       taskRules.entries.where((entry) {
         final rule = entry.value;
+        if (!_selectedTaskPriorities.contains(rule.priority)) return false;
+
         // 1. Global Tasks (no component, no bike)
         if (rule.componentId == null && rule.bikeId == null) return true;
         
@@ -579,6 +583,27 @@ class AppRepository extends ChangeNotifier {
   void deselectAllSetupTags() {
     _selectedSetupTags.clear();
     _filterSetups();
+    notifyListeners();
+  }
+
+  void selectTaskPriority(TaskPriority taskPriority) {
+    _selectedTaskPriorities.add(taskPriority);
+    _filterTaskRules();
+    _filterTaskEntries();
+    notifyListeners();
+  }
+
+  void deselectTaskPriority(TaskPriority taskPriority) {
+    _selectedTaskPriorities.remove(taskPriority);
+    _filterTaskRules();
+    _filterTaskEntries();
+    notifyListeners();
+  }
+
+  void selectAllTaskPriorities() {
+    _selectedTaskPriorities.addAll(TaskPriority.values.toSet());
+    _filterTaskRules();
+    _filterTaskEntries();
     notifyListeners();
   }
 

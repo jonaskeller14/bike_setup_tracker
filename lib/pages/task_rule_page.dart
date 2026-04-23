@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/app_settings.dart';
 import '../models/task_rule.dart';
 import '../models/component.dart';
 import '../models/bike.dart';
@@ -359,6 +360,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
 
   @override
   Widget build(BuildContext context) {
+    final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
     final components = appRepository.components;
@@ -476,170 +478,172 @@ class _TaskRulePageState extends State<TaskRulePage> {
                       }
                     },
                   ),
-                  const SizedBox(height: 12),                  
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8, left: 4),
-                    child: Text("Task Trigger", style: Theme.of(context).textTheme.titleMedium),
-                  ),
-                  Row(
-                    spacing: 8,
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: DropdownButtonFormField<_ThresholdType>(
-                          initialValue: _intervalType,
-                          isExpanded: true,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          decoration: InputDecoration(
-                            labelText: "Type",
-                            border: const OutlineInputBorder(),
-                            fillColor: Colors.orange.withValues(alpha: 0.08),
-                            filled: widget.mode == TaskRulePageMode.edit && _intervalType != _getThresholdType(widget.taskRule?.interval),
-                          ),
-                          items: _ThresholdType.values.map((t) => DropdownMenuItem(value: t, child: Text(t.label))).toList(),
-                          onChanged: (v) {
-                            if (v != null) {
-                              setState(() => _intervalType = v);
-                              _changeListener();
-                            }
-                          },
-                        ),
-                      ),
-                      switch (_intervalType) {
-                        _ThresholdType.none => const SizedBox.shrink(),
-                        _ThresholdType.dateTime => Expanded(
-                          flex: 3,
-                          child: InkWell(
-                            onTap: () async {
-                              final d = await showDatePicker(
-                                context: context,
-                                initialDate: _intervalDate ?? DateTime.now(),
-                                firstDate: DateTime(2000),
-                                lastDate: DateTime(2100),
-                              );
-                              if (d != null) {
-                                setState(() => _intervalDate = d);
+                  if (appSettings.enableTaskInterval) ... [
+                    const SizedBox(height: 12),                  
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8, left: 4),
+                      child: Text("Task Trigger", style: Theme.of(context).textTheme.titleMedium),
+                    ),
+                    Row(
+                      spacing: 8,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: DropdownButtonFormField<_ThresholdType>(
+                            initialValue: _intervalType,
+                            isExpanded: true,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            decoration: InputDecoration(
+                              labelText: "Type",
+                              border: const OutlineInputBorder(),
+                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              filled: widget.mode == TaskRulePageMode.edit && _intervalType != _getThresholdType(widget.taskRule?.interval),
+                            ),
+                            items: _ThresholdType.values.map((t) => DropdownMenuItem(value: t, child: Text(t.label))).toList(),
+                            onChanged: (v) {
+                              if (v != null) {
+                                setState(() => _intervalType = v);
                                 _changeListener();
                               }
                             },
-                            child: InputDecorator(
-                              decoration: InputDecoration(
-                                labelText: "Date",
-                                border: const OutlineInputBorder(),
-                                suffixIcon: const Icon(Icons.calendar_today, size: 20),
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
-                                filled: widget.mode == TaskRulePageMode.edit && _intervalDate != (widget.taskRule?.interval is DateTimeThreshold ? (widget.taskRule!.interval as DateTimeThreshold).deadline : null),
-                              ),
-                              child: Text(
-                                _intervalDate == null
-                                    ? "Select Date"
-                                    : _intervalDate!.toLocal().toString().split(' ')[0],
-                                style: Theme.of(context).textTheme.bodyLarge,
-                              ),
-                            ),
                           ),
                         ),
-                        _ThresholdType.activityCount || 
-                        _ThresholdType.distance || 
-                        _ThresholdType.movingTime || 
-                        _ThresholdType.duration => Expanded(
-                          flex: 3,
-                          child: TextFormField(
-                            controller: _intervalValueController,
-                            keyboardType: TextInputType.number,
-                            onChanged: (value) => setState(() {}),
-                            decoration: InputDecoration(
-                              labelText: "Value",
-                              suffixText: switch (_intervalType) {
-                                _ThresholdType.distance => 'km',
-                                _ThresholdType.movingTime => 'h',
-                                _ThresholdType.duration => 'days',
-                                _ThresholdType.activityCount => 'rides',
-                                _ => '',
-                              },
-                              border: const OutlineInputBorder(),
-                              fillColor: Colors.orange.withValues(alpha: 0.08),
-                              filled: widget.mode == TaskRulePageMode.edit && _intervalValueController.text != _getThresholdValueString(widget.taskRule?.interval),
-                              //TODO: Add validation for example > 0, double parsable, validate on user interaction
-                            ),
-                          ),
-                        ),
-                      },                      
-                    ],
-                  ),
-                  if (_intervalType != _ThresholdType.none && _intervalType != _ThresholdType.dateTime) ...[
-                    const SizedBox(height: 12),
-                    ListTile(
-                      tileColor: widget.mode == TaskRulePageMode.edit && _repeat != (widget.taskRule?.repeat ?? true) ? Colors.orange.withValues(alpha: 0.08) : null,
-                      contentPadding: const EdgeInsets.all(12),
-                      title: const Text("Repeat Interval"),
-                      subtitle: const Text("Restart interval after each entry"),
-                      trailing: Switch(
-                        value: _repeat,
-                        onChanged: (v) {
-                          setState(() => _repeat = v);
-                          _changeListener();
-                        },
-                      ),
-                    ),
-                    if (widget.mode == TaskRulePageMode.edit) ...[
-                      const SizedBox(height: 12),
-                      Row(
-                        spacing: 8,
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: DropdownButtonFormField<_ThresholdType>(
-                              initialValue: _delayType,
-                              isExpanded: true,
-                              autovalidateMode: AutovalidateMode.onUserInteraction,
-                              decoration: InputDecoration(
-                                labelText: "Delay Type (Optional)",
-                                border: const OutlineInputBorder(),
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
-                                filled: widget.mode == TaskRulePageMode.edit && _delayType != _getThresholdType(widget.taskRule?.delay),
-                              ),
-                              items: [_ThresholdType.none, _ThresholdType.distance, _ThresholdType.movingTime, _ThresholdType.duration, _ThresholdType.activityCount]
-                                  .map((t) => DropdownMenuItem(value: t, child: Text(t.label)))
-                                  .toList(),
-                              onChanged: (v) {
-                                if (v != null) {
-                                  setState(() => _delayType = v);
+                        switch (_intervalType) {
+                          _ThresholdType.none => const SizedBox.shrink(),
+                          _ThresholdType.dateTime => Expanded(
+                            flex: 3,
+                            child: InkWell(
+                              onTap: () async {
+                                final d = await showDatePicker(
+                                  context: context,
+                                  initialDate: _intervalDate ?? DateTime.now(),
+                                  firstDate: DateTime(2000),
+                                  lastDate: DateTime(2100),
+                                );
+                                if (d != null) {
+                                  setState(() => _intervalDate = d);
                                   _changeListener();
                                 }
                               },
-                              validator: (v) {
-                                if (v != null && v != _ThresholdType.none && v != _intervalType) {
-                                  return 'Must match trigger type';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                          if (_delayType != _ThresholdType.none)
-                            Expanded(
-                              flex: 3,
-                              child: TextFormField(
-                                controller: _delayValueController,
-                                keyboardType: TextInputType.number,
+                              child: InputDecorator(
                                 decoration: InputDecoration(
-                                  labelText: "Delay Value",
-                                  suffixText: switch (_delayType) {
-                                    _ThresholdType.distance => 'km',
-                                    _ThresholdType.movingTime => 'h',
-                                    _ThresholdType.duration => 'days',
-                                    _ThresholdType.activityCount => 'rides',
-                                    _ => '',
-                                  },
+                                  labelText: "Date",
                                   border: const OutlineInputBorder(),
+                                  suffixIcon: const Icon(Icons.calendar_today, size: 20),
                                   fillColor: Colors.orange.withValues(alpha: 0.08),
-                                  filled: widget.mode == TaskRulePageMode.edit && _delayValueController.text != _getThresholdValueString(widget.taskRule?.delay),
+                                  filled: widget.mode == TaskRulePageMode.edit && _intervalDate != (widget.taskRule?.interval is DateTimeThreshold ? (widget.taskRule!.interval as DateTimeThreshold).deadline : null),
                                 ),
-                                onChanged: (value) => setState(() {}),
+                                child: Text(
+                                  _intervalDate == null
+                                      ? "Select Date"
+                                      : _intervalDate!.toLocal().toString().split(' ')[0],
+                                  style: Theme.of(context).textTheme.bodyLarge,
+                                ),
                               ),
                             ),
-                        ],
+                          ),
+                          _ThresholdType.activityCount || 
+                          _ThresholdType.distance || 
+                          _ThresholdType.movingTime || 
+                          _ThresholdType.duration => Expanded(
+                            flex: 3,
+                            child: TextFormField(
+                              controller: _intervalValueController,
+                              keyboardType: TextInputType.number,
+                              onChanged: (value) => setState(() {}),
+                              decoration: InputDecoration(
+                                labelText: "Value",
+                                suffixText: switch (_intervalType) {
+                                  _ThresholdType.distance => 'km',
+                                  _ThresholdType.movingTime => 'h',
+                                  _ThresholdType.duration => 'days',
+                                  _ThresholdType.activityCount => 'rides',
+                                  _ => '',
+                                },
+                                border: const OutlineInputBorder(),
+                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                filled: widget.mode == TaskRulePageMode.edit && _intervalValueController.text != _getThresholdValueString(widget.taskRule?.interval),
+                                //TODO: Add validation for example > 0, double parsable, validate on user interaction
+                              ),
+                            ),
+                          ),
+                        },                      
+                      ],
+                    ),
+                    if (_intervalType != _ThresholdType.none && _intervalType != _ThresholdType.dateTime) ...[
+                      const SizedBox(height: 12),
+                      ListTile(
+                        tileColor: widget.mode == TaskRulePageMode.edit && _repeat != (widget.taskRule?.repeat ?? true) ? Colors.orange.withValues(alpha: 0.08) : null,
+                        contentPadding: const EdgeInsets.all(12),
+                        title: const Text("Repeat Interval"),
+                        subtitle: const Text("Restart interval after each entry"),
+                        trailing: Switch(
+                          value: _repeat,
+                          onChanged: (v) {
+                            setState(() => _repeat = v);
+                            _changeListener();
+                          },
+                        ),
                       ),
+                      if (widget.mode == TaskRulePageMode.edit) ...[
+                        const SizedBox(height: 12),
+                        Row(
+                          spacing: 8,
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: DropdownButtonFormField<_ThresholdType>(
+                                initialValue: _delayType,
+                                isExpanded: true,
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
+                                decoration: InputDecoration(
+                                  labelText: "Delay Type (Optional)",
+                                  border: const OutlineInputBorder(),
+                                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                                  filled: widget.mode == TaskRulePageMode.edit && _delayType != _getThresholdType(widget.taskRule?.delay),
+                                ),
+                                items: [_ThresholdType.none, _ThresholdType.distance, _ThresholdType.movingTime, _ThresholdType.duration, _ThresholdType.activityCount]
+                                    .map((t) => DropdownMenuItem(value: t, child: Text(t.label)))
+                                    .toList(),
+                                onChanged: (v) {
+                                  if (v != null) {
+                                    setState(() => _delayType = v);
+                                    _changeListener();
+                                  }
+                                },
+                                validator: (v) {
+                                  if (v != null && v != _ThresholdType.none && v != _intervalType) {
+                                    return 'Must match trigger type';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            if (_delayType != _ThresholdType.none)
+                              Expanded(
+                                flex: 3,
+                                child: TextFormField(
+                                  controller: _delayValueController,
+                                  keyboardType: TextInputType.number,
+                                  decoration: InputDecoration(
+                                    labelText: "Delay Value",
+                                    suffixText: switch (_delayType) {
+                                      _ThresholdType.distance => 'km',
+                                      _ThresholdType.movingTime => 'h',
+                                      _ThresholdType.duration => 'days',
+                                      _ThresholdType.activityCount => 'rides',
+                                      _ => '',
+                                    },
+                                    border: const OutlineInputBorder(),
+                                    fillColor: Colors.orange.withValues(alpha: 0.08),
+                                    filled: widget.mode == TaskRulePageMode.edit && _delayValueController.text != _getThresholdValueString(widget.taskRule?.delay),
+                                  ),
+                                  onChanged: (value) => setState(() {}),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
                     ],
                   ],
                 ],

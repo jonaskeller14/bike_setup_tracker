@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/bike.dart';
+import '../../models/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import 'sheet.dart';
 
-Future<void> showFilterSheet({required BuildContext context, required bool enableSetupTagFilter}) async {
+Future<void> showFilterSheet({required BuildContext context, required bool enableSetupTagFilter, required bool enableTaskPriorityFilter}) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
     showDragHandle: true,
@@ -93,7 +94,30 @@ Future<void> showFilterSheet({required BuildContext context, required bool enabl
                                 );
                               }).toList(),
                             ),
-                    ]
+                    ],
+                    if (enableTaskPriorityFilter) ...[
+                      Text("Task Priority", style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 6,
+                        children: TaskPriority.values.map((tp) {
+                          return FilterChip(
+                            label: Text(tp.label),
+                            selected: appRepository.selectedTaskPriorities.contains(tp),
+                            showCheckmark: false,
+                            onSelected: (bool newValue) {
+                              switch (newValue) {
+                                case true: appRepository.selectTaskPriority(tp);
+                                case false: appRepository.deselectTaskPriority(tp);
+                              }
+                            },
+                            onDeleted: appRepository.selectedTaskPriorities.contains(tp)
+                                ? () => appRepository.deselectTaskPriority(tp)
+                                : null
+                          );
+                        }).toList(),
+                      )
+                    ],
                   ],
                 ),
               )

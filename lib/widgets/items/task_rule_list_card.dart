@@ -151,6 +151,21 @@ class TaskRuleListCard extends StatelessWidget {
                     Icon(Icons.history, size: 13, color: Colors.orange.withValues(alpha: 0.8)),
                 ],
               ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                spacing: 2,
+                children: [
+                  Icon(Icons.traffic, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  Text(
+                    'Priority: ${taskRule.priority.label}',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
               if (taskRule.notes != null && taskRule.notes!.isNotEmpty)
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,

@@ -396,27 +396,27 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     infoText: 'Enable Strava Sync to import Strava Activities',
                   ),
                 ),
-                if (debugMode)
-                  ListTile(
-                    leading: Icon(
-                      Icons.checklist,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    title: const Text("Tasks"),
-                    subtitle: _offOnOptionWidgets[appSettingsReader.enableTask] ?? const Text("-"),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                    onTap: () => appSettingsRadioGroupSheet<bool>(
-                      context: context,
-                      title: "Tasks",
-                      value: appSettingsReader.enableTask,
-                      optionWidgets: _offOnOptionWidgets,
-                      onChanged: (bool? newValue) {
-                        if (newValue == null) return;
-                        appSettingsWriter.enableTask = newValue;
-                        Navigator.pop(context);
-                      },
-                    ),
+                ListTile(
+                  leading: Icon(
+                    Icons.checklist,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
+                  title: const Text("Tasks"),
+                  subtitle: _offOnOptionWidgets[appSettingsReader.enableTask] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Tasks",
+                    infoText: "Plan and track anything from recurring maintenance like fork services and chain cleaning to setup experiments like suspension testing or trying different handlebar widths. Keep a complete log of your goals and achievements in one place.",
+                    value: appSettingsReader.enableTask,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettingsWriter.enableTask = newValue;
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
                 if (debugMode)
                   ListTile(
                     leading: Icon(

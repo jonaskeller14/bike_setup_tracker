@@ -248,6 +248,7 @@ class AppSettings extends ChangeNotifier {
       _enableTextAdjustment = json['enableTextAdjustment'] ?? _enableTextAdjustment;
       _enableSetupTags = json['enableSetupTags'] ?? _enableSetupTags;
       _enableGarage = json['enableGarage'] ?? _enableGarage;
+      _enableTask = json['enableTask'] ?? _enableTask;
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
     }
@@ -269,6 +270,7 @@ class AppSettings extends ChangeNotifier {
       'enableTextAdjustment': _enableTextAdjustment,
       'enableSetupTags': _enableSetupTags,
       'enableGarage': _enableGarage,
+      'enableTask': _enableTask,
     });
     await prefs.setString('app_settings', jsonData);
   }

@@ -82,6 +82,16 @@ class FAQPage extends StatelessWidget {
       'How to add a Rating?':
           'Go to the "Rating" tab and tap the "+" button to add a new rating. You can define the rating name and the rating procedure items.',
     },
+    "Tasks": {
+      'What is a Task?':
+          'A Task is a piece of maintenance or an action you want to track for your bike or a specific component.',
+      'What is a "Task Rule"?':
+          'Think of a Task Rule as a "Plan" or "Template." It defines what needs to happen (e.g., "Bleed Brakes"), its priority, and which bike or component it applies to. It sets the foundation for tracking when something should be done.',
+      'What is a "Task Entry"?':
+          'A Task Entry is a "Log" or "Record" of work actually performed. When you complete a task defined by a Task Rule, you create a Task Entry to save exactly when it happened and any notes you want to keep.',
+      'How do they work together?':
+          'The Task Rule defines the goal, and Task Entries track your history. Every time you finish a task, a new Entry is added to that Rule. This allows the app to show you a complete timeline of when the task was performed in the past.',
+    }
   };
 
   @override
@@ -95,6 +105,7 @@ class FAQPage extends StatelessWidget {
         case "Components": return !appSettings.enableGarage;
         case "Person": return appSettings.enablePerson;
         case "Rating": return appSettings.enableRating;
+        case "Tasks": return appSettings.enableTask;
         default: return true;
       }
     }));

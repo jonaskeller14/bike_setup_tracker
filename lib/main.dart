@@ -6,6 +6,7 @@ import 'models/app_settings.dart';
 import 'repositories/app_repository.dart';
 import 'pages/onboarding_page.dart';
 import 'pages/home_page.dart';
+import 'pages/loading_error_page.dart';
 import 'services/google_drive_service.dart';
 import 'services/storage_service.dart';
 import 'services/strava_service.dart';
@@ -125,27 +126,7 @@ class LoadingGate extends StatelessWidget {
         if (snapshot.hasError) {
           return MaterialApp(
             theme: materialAppTheme,
-            home: Scaffold(
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  spacing: 12,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      color: Colors.red,
-                      size: 60,
-                    ),
-                    Text(
-                      "Failed to load data. \nClose and restart the app.",
-                      style: Theme.of(context).textTheme.headlineSmall,
-                      textAlign: TextAlign.center,
-                    ),
-                    //TODO: Add button to send support email with debug file
-                  ],
-                ),
-              ),
-            ),
+            home: const LoadingErrorPage(),
           );
         }
 

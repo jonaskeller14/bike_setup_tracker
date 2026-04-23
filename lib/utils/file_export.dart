@@ -28,8 +28,7 @@ class FileExport {
 
     _downloadJson(database: database, selectedData: selectedData).then((result) {
       // On iOS, result might not contain a path even if successful
-      final isSuccess =
-          result != null && (Platform.isIOS || result.path != null);
+      final isSuccess = result != null && (Platform.isIOS || result.path != null);
 
       if (!isSuccess) {
         scaffoldMessenger.showSnackBar(
@@ -46,7 +45,7 @@ class FileExport {
           SnackBar(
             persist: false,
             showCloseIcon: true,
-          content: Text("Saved to: ${result.path ?? 'Unknown location'}")
+            content: Text("Saved to: ${result.path ?? 'Unknown location'}")
           ),
         );
       }
@@ -62,6 +61,94 @@ class FileExport {
         ),
       );
     });
+  }
+
+  static Future<void> exportLatestBackup(BuildContext context) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
+    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
+
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final backupDir = Directory('${dir.path}/backup');
+      
+      if (!await backupDir.exists()) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            persist: false,
+            showCloseIcon: true,
+            closeIconColor: onErrorContainerColor,
+            content: Text('No backup found yet.', style: TextStyle(color: onErrorContainerColor)),
+            backgroundColor: errorContainerColor,
+          ),
+        );
+        return;
+      }
+
+      final files = backupDir.listSync()
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.json'))
+        .toList();
+        
+      if (files.isEmpty) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            persist: false,
+            showCloseIcon: true,
+            closeIconColor: onErrorContainerColor,
+            content: Text('No backup found yet.', style: TextStyle(color: onErrorContainerColor)),
+            backgroundColor: errorContainerColor,
+          ),
+        );
+        return;
+      }
+
+      files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+      final latestBackup = files.first;
+
+      final bytes = await latestBackup.readAsBytes();
+      final originalFileName = latestBackup.uri.pathSegments.last;
+
+      final result = await FileSaveDirectory.instance.saveFile(
+        fileName: 'recovered_$originalFileName',
+        fileBytes: bytes,
+        location: SaveLocation.downloads,
+        openAfterSave: false,
+      );
+
+      final isSuccess = Platform.isIOS || result.path != null;
+
+      if (!isSuccess) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            persist: false,
+            showCloseIcon: true,
+            closeIconColor: onErrorContainerColor,
+            content: Text('Export failed', style: TextStyle(color: onErrorContainerColor)), 
+            backgroundColor: errorContainerColor,
+          ),
+        );
+      } else {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(
+            persist: false,
+            showCloseIcon: true,
+            content: Text('Saved to: ${result.path ?? "Unknown location"}')
+          ),
+        );
+      }
+    } catch (e, st) {
+      debugPrint('Error exporting latest backup: $e\n$st');
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          closeIconColor: onErrorContainerColor,
+          content: Text('Export failed: $e', style: TextStyle(color: onErrorContainerColor)), 
+          backgroundColor: errorContainerColor,
+        ),
+      );
+    }
   }
 
   static Future<FileSaveResult?> _downloadJson({required AppDatabase database, SelectedData? selectedData}) async {

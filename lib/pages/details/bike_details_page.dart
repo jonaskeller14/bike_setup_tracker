@@ -7,6 +7,8 @@ import '../../models/person.dart';
 import '../../models/component_stats.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/bike_actions.dart';
+import '../../models/task_rule.dart';
+import '../../widgets/open_tasks_card.dart';
 
 class BikeDetailsPage extends StatelessWidget {
   final String bikeId;
@@ -97,6 +99,26 @@ class BikeDetailsPage extends StatelessWidget {
                     dense: true,
                   ),
                 ),
+              if (appSettings.enableTask) () {
+                final openTasks = appRepository.taskRules.values.where((rule) {
+                  if (rule.bikeId == bikeId) return true;
+                  if (rule.componentId != null) {
+                    final component = appRepository.components[rule.componentId];
+                    return component?.bike == bikeId;
+                  }
+                  return false;
+                }).map((rule) => TaskRuleWithStatus(rule: rule, status: appRepository.getTaskRuleStatus(rule)))
+                .where((t) => t.status.type != TaskStatusType.completed).toList();
+
+                openTasks.sort((a, b) {
+                  if (a.status.type != b.status.type) {
+                    return b.status.type.index.compareTo(a.status.type.index);
+                  }
+                  return b.status.progress.compareTo(a.status.progress);
+                });
+
+                return OpenTasksCard(openTasks: openTasks, repository: appRepository);
+              }(),
               Card.outlined(
                 margin: const EdgeInsets.symmetric(vertical: 4),
                 child: Column(

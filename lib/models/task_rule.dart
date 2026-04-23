@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'task_threshold.dart';
 import 'component_stats.dart';
@@ -7,7 +8,16 @@ enum TaskStatusType {
   upcoming,
   due,
   overdue,
-  completed,
+  completed;
+
+  Color getStatusColor() {
+    return switch (this) {
+      TaskStatusType.overdue => Colors.red,
+      TaskStatusType.due => Colors.orange,
+      TaskStatusType.upcoming => Colors.blue,
+      TaskStatusType.completed => Colors.green,
+    };
+  }
 }
 
 class TaskStatus {

@@ -16,6 +16,8 @@ import '../../widgets/sheets/column_filter.dart';
 import '../../widgets/initial_changed_value_legend.dart';
 import '../../utils/table_column.dart';
 import '../../models/component.dart';
+import '../../models/task_rule.dart';
+import '../../widgets/open_tasks_card.dart';
 
 class ComponentDetailsPage extends StatefulWidget{
   final String componentId;
@@ -360,6 +362,22 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                     ],
                   ),
                 ),
+              if (appSettings.enableTask) () {
+                final openTasks = appRepository.taskRules.values.where((rule) {
+                  if (rule.componentId != widget.componentId) return false;
+                  final status = appRepository.getTaskRuleStatus(rule);
+                  return status.type != TaskStatusType.completed;
+                }).map((rule) => TaskRuleWithStatus(rule: rule, status: appRepository.getTaskRuleStatus(rule))).toList();
+
+                openTasks.sort((a, b) {
+                  if (a.status.type != b.status.type) {
+                    return b.status.type.index.compareTo(a.status.type.index);
+                  }
+                  return b.status.progress.compareTo(a.status.progress);
+                });
+
+                return OpenTasksCard(openTasks: openTasks, repository: appRepository);
+              }(),
               
               const SizedBox(height: 16),
               Text("Adjustment History".toUpperCase(), style: Theme.of(context).textTheme.titleMedium?.copyWith(

@@ -246,6 +246,7 @@ class _ComponentPageState extends State<ComponentPage> {
       initialElevationGain: initialElevationGain,
       initialElapsedTime: Duration(hours: initialElapsedTime),
       initialMovingTime: Duration(hours: initialMovingTime),
+      orderIndex: widget.component?.orderIndex ?? 0,
     ));
   }
 

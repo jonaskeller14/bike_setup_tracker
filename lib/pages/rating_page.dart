@@ -236,6 +236,7 @@ class _RatingPageState extends State<RatingPage> {
       filter: _filterFilterType.filter, 
       filterType: _filterFilterType.filterType,
       adjustments: _adjustments,
+      orderIndex: widget.rating?.orderIndex ?? 0,
     ));
   }
 

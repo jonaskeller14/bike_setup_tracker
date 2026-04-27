@@ -197,7 +197,8 @@ class _PersonPageState extends State<PersonPage> {
       name: name, 
       notes: notes.isEmpty ? null : notes,
       stravaAthlete: _stravaAthlete,
-      adjustments: _adjustments
+      adjustments: _adjustments,
+      orderIndex: widget.person?.orderIndex ?? 0,
     ));
   }
 

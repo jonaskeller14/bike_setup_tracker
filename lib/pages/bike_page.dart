@@ -103,6 +103,7 @@ class _BikePageState extends State<BikePage> {
       notes: notes.isEmpty ? null : notes,
       person: _person,
       stravaGear: _stravaGear,
+      orderIndex: widget.bike?.orderIndex ?? 0,
     ));
   }
 

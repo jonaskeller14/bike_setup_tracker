@@ -50,6 +50,8 @@ void main() {
                 return ComponentPage.edit(component: component!);
               case ComponentPageMode.duplicate:
                 return ComponentPage.duplicate(component: component!);
+              case ComponentPageMode.replace:
+                return ComponentPage.replace(component: component!, replacementDate: DateTime.now());
             }
           },
         ),

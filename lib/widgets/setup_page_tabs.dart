@@ -126,6 +126,7 @@ class SetupBikeTab extends StatelessWidget {
                       other: '${bikeComponent.adjustments.length} adjustments',
                     )),
                     leading: Icon(bikeComponent.componentType.getIconData()),
+                    enabled: bikeComponent.adjustments.isNotEmpty,
                   ),
                   AdjustmentSetList(
                     key: ValueKey(Object.hash(bikeComponent.id, Object.hashAll(previousBikeAdjustmentValues.values), Object.hashAll(bikeAdjustmentValues.values))),
@@ -224,6 +225,7 @@ class SetupPersonTab extends StatelessWidget {
                     other: '${person.adjustments.length} attributes',
                   )),
                   leading: const Icon(Person.iconData),
+                  enabled: person.adjustments.isNotEmpty,
                 ),
                 AdjustmentSetList(
                   key: ValueKey(Object.hash(personId, Object.hashAll(previousPersonAdjustmentValues.values), Object.hashAll(personAdjustmentValues.values))),
@@ -335,6 +337,7 @@ class SetupRatingTab extends StatelessWidget {
                       ],
                     ),
                     leading: const Icon(Rating.iconData),
+                    enabled: rating.adjustments.isNotEmpty,
                   ),
                   AdjustmentSetList(
                     key: ValueKey(Object.hash(rating.id, Object.hashAll(previousBikeAdjustmentValues.values), Object.hashAll(ratingAdjustmentValues.values))),

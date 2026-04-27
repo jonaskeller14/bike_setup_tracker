@@ -39,7 +39,7 @@ Here are the current development goals and their status:
 - [ ] Add a **rating procedure** to systematically distinguish good from bad setups ➡️ **In testing phase**
 - [ ] **Strava** integration** to use activity data as context ➡️ **In Development**
 - [x] Publish for **iOS** ➡️ **Live on App Store**
-- [ ] Migration to **drift SQL Database** ➡️ **In Progress**
+- [x] Migration to **drift SQL Database**
 
 I am open for feedback, suggestions, and bug reports—please feel free to open a new issue for any of these.
 

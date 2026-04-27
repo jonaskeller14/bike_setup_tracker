@@ -34,9 +34,50 @@ sealed class TaskThreshold {
       'duration' => DurationThreshold.fromJson(json),
       'dateTime' => DateTimeThreshold.fromJson(json),
       'count' => ActivityCountThreshold.fromJson(json),
+      'elevation' => ElevationThreshold.fromJson(json),
       _ => throw ArgumentError('Unknown TaskThreshold type: $type'),
     };
   }
+}
+
+class ElevationThreshold extends TaskThreshold {
+  final double meters;
+  const ElevationThreshold(this.meters);
+
+  double _getDelayMeters(TaskThreshold? delay) {
+    if (delay is ElevationThreshold) return delay.meters;
+    return 0;
+  }
+
+  @override
+  bool isMet(ComponentStats current, ComponentStats baseline, DateTime currentDate, DateTime baselineDate, {TaskThreshold? delay}) {
+    return (current.elevationGain - baseline.elevationGain) >= (meters + _getDelayMeters(delay));
+  }
+
+  @override
+  double getProgress(ComponentStats current, ComponentStats baseline, DateTime currentDate, DateTime baselineDate, {TaskThreshold? delay}) {
+    final total = meters + _getDelayMeters(delay);
+    if (total <= 0) return 1.0;
+    return (current.elevationGain - baseline.elevationGain) / total;
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'type': 'elevation',
+        'meters': meters,
+      };
+
+  @override
+  IconData get iconData => Icons.terrain;
+
+  @override
+  String toDisplayValue() => '${meters.toStringAsFixed(0)} m';
+
+  @override
+  bool get isPositive => meters > 0;
+
+  factory ElevationThreshold.fromJson(Map<String, dynamic> json) =>
+      ElevationThreshold((json['meters'] as num).toDouble());
 }
 
 class DistanceThreshold extends TaskThreshold {

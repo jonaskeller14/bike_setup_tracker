@@ -54,6 +54,7 @@ class _TaskAssociation {
 enum _ThresholdType {
   none('None'),
   distance('Distance'),
+  elevation('Elevation'),
   movingTime('Moving Time'),
   duration('Duration'),
   activityCount('Activity Count'),
@@ -121,6 +122,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     switch (threshold) {
       case null: return _ThresholdType.none;
       case DistanceThreshold(): return _ThresholdType.distance;
+      case ElevationThreshold(): return _ThresholdType.elevation;
       case MovingTimeThreshold(): return _ThresholdType.movingTime;
       case DurationThreshold(): return _ThresholdType.duration;
       case ActivityCountThreshold(): return _ThresholdType.activityCount;
@@ -132,6 +134,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     switch (threshold) {
       case null: return "";
       case DistanceThreshold(): return (threshold.meters / 1000).toStringAsFixed(1);
+      case ElevationThreshold(): return threshold.meters.toStringAsFixed(0);
       case ActivityCountThreshold(): return threshold.count.toString();
       case MovingTimeThreshold(): return threshold.hours.inHours.toString();
       case DurationThreshold(): return threshold.days.inDays.toString();
@@ -181,6 +184,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
     switch (type) {
       case _ThresholdType.distance:
         return DistanceThreshold(doubleVal * 1000);
+      case _ThresholdType.elevation:
+        return ElevationThreshold(doubleVal);
       case _ThresholdType.movingTime:
         return MovingTimeThreshold(Duration(hours: intVal));
       case _ThresholdType.duration:
@@ -206,8 +211,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
         : _createThreshold(_delayType, _delayValueController.text, null);
 
     // Validation
-    final needsAsset = (interval is DistanceThreshold || interval is MovingTimeThreshold || interval is ActivityCountThreshold) ||
-                       (delay is DistanceThreshold || delay is MovingTimeThreshold || delay is ActivityCountThreshold);
+    final needsAsset = (interval is DistanceThreshold || interval is MovingTimeThreshold || interval is ActivityCountThreshold || interval is ElevationThreshold) ||
+                       (delay is DistanceThreshold || delay is MovingTimeThreshold || delay is ActivityCountThreshold || delay is ElevationThreshold);
     
     if (needsAsset && _association.componentId == null && _association.bikeId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -544,6 +549,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                           ),
                           _ThresholdType.activityCount || 
                           _ThresholdType.distance || 
+                          _ThresholdType.elevation || 
                           _ThresholdType.movingTime || 
                           _ThresholdType.duration => Expanded(
                             flex: 3,
@@ -555,6 +561,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                 labelText: "Value",
                                 suffixText: switch (_intervalType) {
                                   _ThresholdType.distance => 'km',
+                                  _ThresholdType.elevation => 'm',
                                   _ThresholdType.movingTime => 'h',
                                   _ThresholdType.duration => 'days',
                                   _ThresholdType.activityCount => 'rides',
@@ -602,7 +609,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                   fillColor: Colors.orange.withValues(alpha: 0.08),
                                   filled: widget.mode == TaskRulePageMode.edit && _delayType != _getThresholdType(widget.taskRule?.delay),
                                 ),
-                                items: [_ThresholdType.none, _ThresholdType.distance, _ThresholdType.movingTime, _ThresholdType.duration, _ThresholdType.activityCount]
+                                items: [_ThresholdType.none, _ThresholdType.distance, _ThresholdType.elevation, _ThresholdType.movingTime, _ThresholdType.duration, _ThresholdType.activityCount]
                                     .map((t) => DropdownMenuItem(value: t, child: Text(t.label)))
                                     .toList(),
                                 onChanged: (v) {
@@ -629,6 +636,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                     labelText: "Delay Value",
                                     suffixText: switch (_delayType) {
                                       _ThresholdType.distance => 'km',
+                                      _ThresholdType.elevation => 'm',
                                       _ThresholdType.movingTime => 'h',
                                       _ThresholdType.duration => 'days',
                                       _ThresholdType.activityCount => 'rides',

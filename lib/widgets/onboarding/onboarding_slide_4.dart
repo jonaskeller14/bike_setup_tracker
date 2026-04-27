@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
@@ -66,7 +67,10 @@ class _OnboardingSlide4State extends State<OnboardingSlide4> {
           ),
           initialValue: startVal,
           value: displayValue, 
-          onChanged: (double? newValue) => setState(() => _setStepAdjustmentWidgetValue = newValue),
+          onChanged: (double? newValue) {
+            HapticFeedback.lightImpact();
+            setState(() => _setStepAdjustmentWidgetValue = newValue);
+          },
           onChangedEnd: (_) {},
           highlighting: false,
         );

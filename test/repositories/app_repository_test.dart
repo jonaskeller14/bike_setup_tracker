@@ -532,5 +532,28 @@ void main() {
       expect(repository.filteredOpenTaskRules.containsKey(rule1.id), true);
       expect(repository.filteredOpenTaskRules.containsKey(rule2.id), false);
     });
+
+    test("toDoTaskRules sorts by status, then progress, then priority", () async {
+      final ruleLow = TaskRule(name: "Low", priority: TaskPriority.low);
+      final ruleHigh = TaskRule(name: "High", priority: TaskPriority.high);
+      final ruleMedium = TaskRule(name: "Medium", priority: TaskPriority.medium);
+      final ruleCritical = TaskRule(name: "Critical", priority: TaskPriority.critical);
+
+      await repository.addTaskRule(ruleLow);
+      await repository.addTaskRule(ruleHigh);
+      await repository.addTaskRule(ruleMedium);
+      await repository.addTaskRule(ruleCritical);
+      await pumpEventQueue();
+
+      final toDo = repository.toDoTaskRules;
+      expect(toDo.length, 4);
+      
+      // Since all have the same status (Due, because interval is null) and progress (0.0), 
+      // they should be sorted by priority (Critical > High > Medium > Low)
+      expect(toDo[0].rule.name, "Critical");
+      expect(toDo[1].rule.name, "High");
+      expect(toDo[2].rule.name, "Medium");
+      expect(toDo[3].rule.name, "Low");
+    });
   });
 }

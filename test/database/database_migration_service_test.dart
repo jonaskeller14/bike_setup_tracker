@@ -33,7 +33,15 @@ void main() {
       
       final legacyJson = {
         'persons': [
-          {'id': 'p1', 'name': 'Jonas', 'isDeleted': false, 'lastModified': '2023-01-01T00:00:00Z'}
+          {
+            'id': 'p1', 
+            'name': 'Jonas', 
+            'isDeleted': false, 
+            'lastModified': '2023-01-01T00:00:00Z',
+            'adjustments': [
+              {'type': 'numerical', 'id': 'adj_p1', 'name': 'Weight', 'unit': 'kg', 'min': 0.0, 'max': 150.0, 'category': 'AdjustmentCategory.body'}
+            ]
+          }
         ],
         'bikes': [
           {'id': 'b1', 'name': 'Strive', 'person': 'p1', 'isDeleted': false, 'lastModified': '2023-01-01T00:00:00Z'}
@@ -47,7 +55,23 @@ void main() {
             'lastModified': '2023-01-01T00:00:00Z',
             'bike': 'b1', // legacy field for installation
             'adjustments': [
-               {'version': 1, 'type': 'step', 'id': 'adj1', 'name': 'Rebound', 'category': 'AdjustmentCategory.component', 'min': 0.0, 'max': 10.0, 'step': 1.0, 'visualization': 'slider'}
+               {'type': 'step', 'id': 'adj1', 'name': 'Rebound', 'category': 'AdjustmentCategory.component', 'min': 0.0, 'max': 10.0, 'step': 1.0, 'visualization': 'slider'},
+               {'type': 'boolean', 'id': 'adj2', 'name': 'Lockout', 'category': 'AdjustmentCategory.component'},
+               {'type': 'categorical', 'id': 'adj3', 'name': 'Mode', 'category': 'AdjustmentCategory.component', 'options': ['Open', 'Firm', 'Locked']},
+               {'type': 'numerical', 'id': 'adj4', 'name': 'Pressure', 'unit': 'psi', 'category': 'AdjustmentCategory.component', 'min': 0.0, 'max': 200.0},
+               {'type': 'text', 'id': 'adj5', 'name': 'Note', 'category': 'AdjustmentCategory.component'},
+               {'type': 'duration', 'id': 'adj6', 'name': 'Service', 'category': 'AdjustmentCategory.component'}
+            ]
+          }
+        ],
+        'ratings': [
+          {
+            'id': 'r1',
+            'name': 'Overall Feel',
+            'filter': 'c1',
+            'filterType': 'FilterType.component',
+            'adjustments': [
+              {'type': 'numerical', 'id': 'adj_r1', 'name': 'Grip', 'min': 1.0, 'max': 10.0, 'category': 'AdjustmentCategory.rating'}
             ]
           }
         ],
@@ -60,7 +84,34 @@ void main() {
             'bike': 'b1',
             'person': 'p1',
             'tags': ['race'],
-            'bikeAdjustmentValues': {'adj1': 5.0},
+            'bikeAdjustmentValues': {
+              'adj1': 5.0,
+              'adj2': true,
+              'adj3': 'Open',
+              'adj4': 85.5,
+              'adj5': 'Some note',
+              'adj6': '01:30:00'
+            },
+            'personAdjustmentValues': {
+              'adj_p1': 75.0
+            },
+            'ratingAdjustmentValues': {
+              'adj_r1': 8.0
+            },
+            'weather': {
+              'currentDateTime': '2023-01-01T12:00:00Z',
+              'currentTemperature': 15.5,
+              'condition': 'Condition.dry'
+            },
+            'position': {
+              'latitude': 47.6,
+              'longitude': 9.4,
+              'altitude': 400.0
+            },
+            'place': {
+              'name': 'Leogang',
+              'country': 'Austria'
+            },
             'isDeleted': false,
             'lastModified': '2023-01-01T12:00:00Z'
           }
@@ -89,21 +140,44 @@ void main() {
 
       // Verify Adjustments
       final adjustments = await db.select(db.adjustments).get();
-      expect(adjustments, hasLength(1));
-      expect(adjustments.first.name, 'Rebound');
-      expect(adjustments.first.componentId, 'c1');
+      expect(adjustments, hasLength(8)); // 6 (component) + 1 (person) + 1 (rating)
+      expect(adjustments.any((a) => a.name == 'Rebound'), true);
+      expect(adjustments.any((a) => a.name == 'Lockout'), true);
+      expect(adjustments.any((a) => a.name == 'Mode'), true);
+      expect(adjustments.any((a) => a.name == 'Pressure'), true);
+      expect(adjustments.any((a) => a.name == 'Note'), true);
+      expect(adjustments.any((a) => a.name == 'Service'), true);
+      expect(adjustments.any((a) => a.name == 'Weight'), true);
+      expect(adjustments.any((a) => a.name == 'Grip'), true);
+
+      // Verify Ratings
+      final ratings = await db.ratingsDao.watchAllRatings().first;
+      expect(ratings, hasLength(1));
+      expect(ratings.first.name, 'Overall Feel');
 
       // Verify Setups
       final setups = await db.setupsDao.watchAllSetups().first;
       expect(setups, hasLength(1));
       expect(setups.first.name, 'Dry Trace');
+      expect(setups.first.datetime.toIso8601String(), '2023-01-01T12:00:00.000Z');
+      expect(setups.first.datetimeLocal.toIso8601String(), '2023-01-01T13:00:00.000');
+      expect(setups.first.weather?.currentTemperature, 15.5);
+      expect(setups.first.position?.latitude, 47.6);
+      expect(setups.first.place?.name, 'Leogang');
 
       // Verify Setup Values
       final values = await db.select(db.setupAdjustmentValues).get();
-      expect(values, hasLength(1));
-      expect(values.first.setupId, 's1');
-      expect(values.first.adjustmentId, 'adj1');
-      expect(values.first.value, '5.0');
+      expect(values, hasLength(8)); // 6 (bike) + 1 (person) + 1 (rating)
+      
+      final valueMap = {for (var v in values) v.adjustmentId: v.value};
+      expect(valueMap['adj1'], '5.0');
+      expect(valueMap['adj2'], 'true');
+      expect(valueMap['adj3'], 'Open');
+      expect(valueMap['adj4'], '85.5');
+      expect(valueMap['adj5'], 'Some note');
+      expect(valueMap['adj6'], '1:30:00.000000');
+      expect(valueMap['adj_p1'], '75.0');
+      expect(valueMap['adj_r1'], '8.0');
 
       sourceAppData.dispose();
     });

@@ -162,10 +162,14 @@ class ComponentListCard extends StatelessWidget{
                       switch (value) {
                         case _ComponentOptions.edit: ComponentActions.editComponent(context, component: component);
                         case _ComponentOptions.duplicate: ComponentActions.duplicateComponent(context, component: component);
+                        case _ComponentOptions.replace: ComponentActions.replaceComponent(context, component: component);
                         case _ComponentOptions.remove: ComponentActions.removeComponent(context, component: component);
                       }
                     },
-                    itemBuilder: (BuildContext context) => _ComponentOptions.values.map((option) {
+                    itemBuilder: (BuildContext context) => _ComponentOptions.values.where((option) {
+                      if (option == _ComponentOptions.replace) return appSettings.enableInstallationTimeline;
+                      return true;
+                    }).map((option) {
                       return PopupMenuItem<_ComponentOptions>(
                         value: option,
                         child: Row(
@@ -204,6 +208,7 @@ class ComponentListCard extends StatelessWidget{
 enum _ComponentOptions {
   edit("Edit", Icons.edit),
   duplicate("Duplicate", Icons.copy),
+  replace("Replace", Icons.swap_horiz),
   remove("Remove", Icons.delete);
   final String label;
   final IconData iconData;

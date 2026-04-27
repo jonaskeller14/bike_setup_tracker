@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/component.dart';
+import '../models/installation.dart';
 import '../pages/component_page.dart';
 import '../repositories/app_repository.dart';
+import '../widgets/sheets/replace_component.dart';
 import 'bike_actions.dart';
 
 class ComponentActions {
@@ -67,6 +69,31 @@ class ComponentActions {
 
     await appRepository.addComponent(newComponent);
   }
+
+  static Future<void> replaceComponent(BuildContext context, {required Component component}) async {
+    final appRepository = context.read<AppRepository>();
+
+    final replacementDate = await showReplaceComponentSheet(context, component: component);
+    if (replacementDate == null) return;
+    
+    if (!context.mounted) return;
+    final newComponent = await Navigator.push<Component>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ComponentPage.replace(
+          component: component.deepCopy(),
+          replacementDate: replacementDate,
+        ),
+      ),
+    );
+    if (newComponent == null) return;
+
+    await appRepository.addComponent(newComponent);
+    await appRepository.editComponent(component.copyWith(installations: [
+      ...component.installations, 
+      Installation(parent: null, dateTimeUTC: replacementDate.toUtc(), dateTimeLocal: replacementDate.toLocal())
+    ]));
+  } 
 
   static Future<void> removeComponent(BuildContext context, {required Component component}) async {
     final appRepository = context.read<AppRepository>();

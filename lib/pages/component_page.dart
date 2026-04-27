@@ -25,14 +25,16 @@ enum ComponentPageMode {
   add,
   edit,
   duplicate,
+  replace,
 }
 
 class ComponentPage extends StatefulWidget {
   final Component? component;
   final ComponentPageMode mode;
   final Object? initialBike;
+  final DateTime? replacementDate;
 
-  const ComponentPage._({super.key, this.component, required this.mode, this.initialBike});
+  const ComponentPage._({super.key, this.component, required this.mode, this.initialBike, this.replacementDate});
 
   factory ComponentPage.add({Key? key, Object? initialBike = const _Sentinel()}) => 
     ComponentPage._(key: key, mode: ComponentPageMode.add, initialBike: initialBike);
@@ -42,6 +44,9 @@ class ComponentPage extends StatefulWidget {
 
   factory ComponentPage.duplicate({Key? key, required Component component}) => 
     ComponentPage._(key: key, component: component, mode: ComponentPageMode.duplicate);
+  
+  factory ComponentPage.replace({Key? key, required Component component, required DateTime replacementDate}) => 
+    ComponentPage._(key: key, component: component, mode: ComponentPageMode.replace, replacementDate: replacementDate);
 
   @override
   State<ComponentPage> createState() => _ComponentPageState();
@@ -80,9 +85,13 @@ class _ComponentPageState extends State<ComponentPage> {
         ? widget.component!.bike 
         : widget.initialBike is _Sentinel
             ? appRepository.filteredBikes.keys.firstOrNull
-            : widget.initialBike as String?;    
+            : widget.initialBike as String?;
 
-    _installations = widget.component?.installations ?? [Installation.sinceBeginning(parent: initialBike)];
+    if (widget.mode == ComponentPageMode.replace) {
+      _installations = [Installation(parent: initialBike, dateTimeUTC: widget.replacementDate!.toUtc(), dateTimeLocal: widget.replacementDate!.toLocal())];
+    } else {
+      _installations = widget.component?.installations ?? [Installation.sinceBeginning(parent: initialBike)];
+    }
     _installations.sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
     _initialInstallations = List.from(_installations);
 
@@ -683,7 +692,7 @@ class _ComponentPageState extends State<ComponentPage> {
       child: Scaffold(
         appBar: AppBar(
           title: switch (widget.mode) {
-            ComponentPageMode.add || ComponentPageMode.duplicate => const Text('Add Component'),
+            ComponentPageMode.add || ComponentPageMode.duplicate || ComponentPageMode.replace => const Text('Add Component'),
             ComponentPageMode.edit => const Text('Edit Component'),
           },
           actions: [

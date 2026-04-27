@@ -10,7 +10,7 @@ class AboutPage extends StatelessWidget {
 
   static const String appVersion = '1.2.0';
   static const String buildNumber = '14';
-  static const String releaseDate = 'March 2026';
+  static const String releaseDate = 'April 2026';
 
   static const String supportEmail = 'jonaskeller14.app+support@gmail.com';
   static const String featuresEmail = 'jonaskeller14.app+features@gmail.com';

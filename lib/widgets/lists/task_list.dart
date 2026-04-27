@@ -4,8 +4,15 @@ import 'package:provider/provider.dart';
 import '../../repositories/app_repository.dart';
 import '../chips/task_list_filter_widget.dart';
 
-class TaskList extends StatelessWidget {
+class TaskList extends StatefulWidget {
   const TaskList({super.key});
+
+  @override
+  State<TaskList> createState() => _TaskListState();
+}
+
+class _TaskListState extends State<TaskList> {
+  bool _showAllCompleted = false;
 
   Widget _emptyPlaceholder(BuildContext context) {
     return Padding(
@@ -13,7 +20,7 @@ class TaskList extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TaskListFilterWidget(),
+          const TaskListFilterWidget(),
           Expanded(
             child: Center(
               child: Text(
@@ -37,15 +44,31 @@ class TaskList extends StatelessWidget {
       return _emptyPlaceholder(context);
     }
 
+    final int numOpen = openTaskRules.isEmpty ? 1 : openTaskRules.length;
+    final bool hasCompleted = completedTaskRules.isNotEmpty;
+    final int numCompleted = completedTaskRules.length;
+    final bool showToggle = numCompleted > 3;
+    final int visibleCompleted = _showAllCompleted ? numCompleted : (numCompleted > 3 ? 3 : numCompleted);
+
+    int totalItems = 1 + numOpen;
+    if (hasCompleted) {
+      totalItems += 1; // Divider
+      totalItems += visibleCompleted;
+      if (showToggle) {
+        totalItems += 1; // Button
+      }
+    }
+
     return ListView.builder(
       padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16 + 100),
-      itemCount: (openTaskRules.isEmpty ? 1 : openTaskRules.length) + (completedTaskRules.isNotEmpty ? completedTaskRules.length + 2 : 1),
+      itemCount: totalItems,
       itemBuilder: (context, index) {
         if (index == 0) {
-          return TaskListFilterWidget();
+          return const TaskListFilterWidget();
         }
 
-        if (index <= (openTaskRules.isEmpty ? 1 : openTaskRules.length)) {
+        // Open tasks section
+        if (index <= numOpen) {
           if (openTaskRules.isEmpty) {
             return Center(
               child: Padding(
@@ -60,12 +83,29 @@ class TaskList extends StatelessWidget {
           return TaskRuleListCard(taskRuleId: openTaskRules[index - 1].rule.id);
         }
 
-        final completedIndex = index - (openTaskRules.isEmpty ? 1 : openTaskRules.length) - 1;
-        if (completedIndex == 0) {
+        // Divider
+        final completedSectionStart = numOpen + 1;
+        if (index == completedSectionStart) {
           return const Divider(height: 32);
         }
 
-        return TaskRuleListCard(taskRuleId: completedTaskRules[completedIndex - 1].rule.id);
+        // Completed tasks
+        final completedItemIndex = index - completedSectionStart - 1;
+        if (completedItemIndex < visibleCompleted) {
+          return TaskRuleListCard(taskRuleId: completedTaskRules[completedItemIndex].rule.id);
+        }
+
+        // Show more/less button
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: TextButton.icon(
+              onPressed: () => setState(() => _showAllCompleted = !_showAllCompleted),
+              icon: Icon(_showAllCompleted ? Icons.expand_less : Icons.expand_more),
+              label: Text(_showAllCompleted ? 'Show less' : 'Show ${numCompleted - 3} more'),
+            ),
+          ),
+        );
       },
     );
   }

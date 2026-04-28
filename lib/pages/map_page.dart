@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
+import 'package:location/location.dart';
 import '../models/app_settings.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/chips/map_filter_widget.dart';
@@ -18,8 +19,63 @@ class MapPage extends StatefulWidget {
   State<MapPage> createState() => _MapPageState();
 }
 
-class _MapPageState extends State<MapPage> {
+class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
   final MapController _mapController = MapController();
+  LatLng? _userLocation;
+
+  void _animatedMapMove(LatLng destLocation, double destZoom) {
+    final camera = _mapController.camera;
+    final latTween = Tween<double>(begin: camera.center.latitude, end: destLocation.latitude);
+    final lngTween = Tween<double>(begin: camera.center.longitude, end: destLocation.longitude);
+    final zoomTween = Tween<double>(begin: camera.zoom, end: destZoom);
+
+    final controller = AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
+    final Animation<double> animation = CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
+
+    controller.addListener(() {
+      _mapController.move(
+        LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
+        zoomTween.evaluate(animation),
+      );
+    });
+
+    animation.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        controller.dispose();
+      } else if (status == AnimationStatus.dismissed) {
+        controller.dispose();
+      }
+    });
+
+    controller.forward();
+  }
+
+  Future<void> _locateMe() async {
+    final location = Location();
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+    LocationData locationData;
+
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) return;
+    }
+
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) return;
+    }
+
+    locationData = await location.getLocation();
+    if (locationData.latitude != null && locationData.longitude != null) {
+      setState(() {
+        _userLocation = LatLng(locationData.latitude!, locationData.longitude!);
+      });
+      _animatedMapMove(_userLocation!, 15);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +91,26 @@ class _MapPageState extends State<MapPage> {
         final stravaActivities = snapshot.data ?? [];
         
         final List<Marker> markers = [
+          if (_userLocation != null)
+            Marker(
+              point: _userLocation!,
+              width: 20,
+              height: 20,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                  boxShadow: const [
+                    BoxShadow(
+                      blurRadius: 6,
+                      color: Colors.black26,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           if (appSettings.displayShowSetups) ...setups.map(
             (setup) => Marker(
               point: LatLng(setup.position!.latitude!, setup.position!.longitude!),
@@ -98,6 +174,11 @@ class _MapPageState extends State<MapPage> {
                   initialRotation: 0,
                   initialCenter: const LatLng(44.1687, 8.3444), // Finale Ligure
                   initialZoom: 13,
+                  minZoom: 3,
+                  maxZoom: 18,
+                  interactionOptions: const InteractionOptions(
+                    flags: InteractiveFlag.all,
+                  ),
                   initialCameraFit: markers.isNotEmpty
                       ? CameraFit.bounds(
                           bounds: LatLngBounds.fromPoints(
@@ -114,6 +195,7 @@ class _MapPageState extends State<MapPage> {
                         'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
                     subdomains: const ['a', 'b', 'c'],
                     minZoom: 3,
+                    maxZoom: 18,
                     userAgentPackageName: 'com.jonaskeller14.bike_setup_tracker',
                     tileDisplay: const TileDisplay.fadeIn(),
                     tileBuilder: (context, tileWidget, tile) {
@@ -198,10 +280,8 @@ class _MapPageState extends State<MapPage> {
                 heroTag: 'map_zoom_in',
                 mini: true,
                 onPressed: () {
-                  _mapController.move(
-                    _mapController.camera.center,
-                    (_mapController.camera.zoom + 1),
-                  );
+                  final newZoom = (_mapController.camera.zoom + 1).clamp(3.0, 18.0);
+                  _animatedMapMove(_mapController.camera.center, newZoom);
                 },
                 child: const Icon(Icons.add),
               ),
@@ -209,12 +289,16 @@ class _MapPageState extends State<MapPage> {
                 heroTag: 'map_zoom_out',
                 mini: true,
                 onPressed: () {
-                  _mapController.move(
-                    _mapController.camera.center,
-                    (_mapController.camera.zoom - 1),
-                  );
+                  final newZoom = (_mapController.camera.zoom - 1).clamp(3.0, 18.0);
+                  _animatedMapMove(_mapController.camera.center, newZoom);
                 },
                 child: const Icon(Icons.remove),
+              ),
+              FloatingActionButton(
+                heroTag: 'map_locate_me',
+                mini: true,
+                onPressed: _locateMe,
+                child: const Icon(Icons.my_location),
               ),
               if (markers.isNotEmpty) ...[
                 FloatingActionButton(

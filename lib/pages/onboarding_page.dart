@@ -22,10 +22,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
   void initState() {
     super.initState();
     _pages = [
-      () => OnboardingSlide1(), 
-      () => OnboardingSlide2(), 
-      () => OnboardingSlide3(), 
-      () => OnboardingSlide4(), 
+      () => const OnboardingSlide1(),
+      () => const OnboardingSlide2(),
+      () => const OnboardingSlide3(),
+      () => const OnboardingSlide4(),
     ];
   }
 
@@ -91,8 +91,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
       height: 10,
       width: _currentPage == index ? 25 : 10,
       decoration: BoxDecoration(
-        color: _currentPage == index 
-            ? Theme.of(context).colorScheme.primary 
+        color: _currentPage == index
+            ? Theme.of(context).colorScheme.primary
             : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(5),
       ),
@@ -128,16 +128,13 @@ class _DelayedFadeState extends State<_DelayedFade> {
       duration: const Duration(milliseconds: 600),
       curve: Curves.easeOutBack,
       builder: (context, size, child) {
-        return Transform.scale(
-          scale: size,
-          child: child,
-        );
+        return Transform.scale(scale: size, child: child);
       },
       child: FutureBuilder(
         future: _delayFuture,
         builder: (context, snapshot) {
-          return snapshot.connectionState == ConnectionState.done 
-              ? widget.child 
+          return snapshot.connectionState == ConnectionState.done
+              ? widget.child
               : const Opacity(opacity: 0);
         },
       ),

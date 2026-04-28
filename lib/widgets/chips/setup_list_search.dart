@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../repositories/app_repository.dart';
-import '../../models/setup.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../items/setup_list_card.dart';
+import '../items/strava_list_tile.dart';
+import '../items/task_entry_list_item.dart';
+import '../items/installation_list_tile.dart';
+import '../sheets/installation_sheet.dart';
+import '../../models/timeline_entry.dart';
 
 class SetupListSearch extends StatelessWidget {
   const SetupListSearch({
@@ -41,28 +45,77 @@ class SetupListSearch extends StatelessWidget {
         final appRepository = context.read<AppRepository>();
 
         final controllerText = controller.text.trim().toLowerCase();
-        final Iterable<Setup> setups = appRepository.stravaSortAscending
-            ? appRepository.filteredSetups.values
-            : appRepository.filteredSetups.values.toList().reversed;
-        final Iterable<Setup> suggestedSetups = setups.where((s) {
-          return s.name.toLowerCase().contains(controllerText) || 
-              (s.notes ?? "").toLowerCase().contains(controllerText);
+        final sortAscending = appRepository.stravaSortAscending;
+        
+        final List<TimelineEntry> matchingEntries = [];
+
+        if (appSettings.displayShowSetups) {
+          final setups = appRepository.filteredSetups.values;
+          matchingEntries.addAll(setups.where((s) => 
+            s.name.toLowerCase().contains(controllerText) || 
+            (s.notes ?? "").toLowerCase().contains(controllerText)
+          ).map((s) => SetupEntry(s)));
+        }
+
+        if (appSettings.displayShowActivities) {
+          final activities = appRepository.filteredStravaActivities.values;
+          matchingEntries.addAll(activities.where((a) => 
+            a.name.toLowerCase().contains(controllerText)
+          ).map((a) => StravaEntry(a)));
+        }
+
+        if (appSettings.displayShowTasks) {
+          final tasks = appRepository.filteredTaskEntries.values;
+          matchingEntries.addAll(tasks.where((t) => 
+            t.name.toLowerCase().contains(controllerText) || 
+            (t.notes ?? "").toLowerCase().contains(controllerText)
+          ).map((t) => TaskTimeLineEntry(t)));
+        }
+
+        if (appSettings.displayShowInstallations) {
+          final installations = appRepository.filteredInstallations;
+          matchingEntries.addAll(installations.where((ci) => 
+            ci.component.name.toLowerCase().contains(controllerText) || 
+            ci.component.componentType.label.toLowerCase().contains(controllerText)
+          ).map((ci) => InstallationEntry(ci)));
+        }
+
+        matchingEntries.sort((a, b) {
+          return sortAscending ? a.date.compareTo(b.date) : b.date.compareTo(a.date);
         });
 
-        return suggestedSetups.map((setup) {
-          return SetupListCard(
-            setupId: setup.id, 
-            onTap: () async {
-              await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDetailsPage(
-                setupIds: suggestedSetups.map((s) => s.id).toList(),
-                initialSetup: setup,
-              )));
-            },
-            displayOnlyChanges: appSettings.setupListOnlyChanges, 
-            displayBikeAdjustmentValues:appSettings.setupListBikeAdjustmentValues, 
-            displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues, 
-            displayRatingAdjustmentValues: appSettings.setupListRatingAdjustmentValues,
-          );
+        return matchingEntries.map((entry) {
+          switch (entry) {
+            case SetupEntry():
+              return SetupListCard(
+                setupId: entry.setup.id, 
+                onTap: () async {
+                  await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => SetupDetailsPage(
+                    setupIds: matchingEntries.whereType<SetupEntry>().map((e) => e.setup.id).toList(),
+                    initialSetup: entry.setup,
+                  )));
+                },
+                displayOnlyChanges: appSettings.setupListOnlyChanges, 
+                displayBikeAdjustmentValues:appSettings.setupListBikeAdjustmentValues, 
+                displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues, 
+                displayRatingAdjustmentValues: appSettings.setupListRatingAdjustmentValues,
+              );
+            case StravaEntry():
+              return StravaListTile(stravaActivity: entry.activity);
+            case TaskTimeLineEntry():
+              return TaskEntryListItem(taskEntryId: entry.taskEntry.id);
+            case InstallationEntry():
+              return InstallationListTile(
+                componentInstallation: entry.componentInstallation,
+                onTap: () {
+                  showEditInstallationSheet(
+                    context,
+                    component: entry.componentInstallation.component,
+                    editEntry: entry.componentInstallation,
+                  );
+                },
+              );
+          }
         });
       },
     );

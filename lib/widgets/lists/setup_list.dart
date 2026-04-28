@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
-import '../../models/setup.dart';
-import '../../models/strava/strava_activity.dart';
-import '../../models/task_entry.dart';
 import '../../repositories/app_repository.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../chips/setup_list_filter_widget.dart';
@@ -12,6 +9,7 @@ import '../items/strava_list_tile.dart';
 import '../items/task_entry_list_item.dart';
 import '../items/installation_list_tile.dart';
 import '../sheets/installation_sheet.dart';
+import '../../models/timeline_entry.dart';
 
 class SetupList extends StatelessWidget {
   const SetupList({super.key});
@@ -54,7 +52,7 @@ class SetupList extends StatelessWidget {
             ? stravaActivities.map((a) => a.startDate).reduce((a, b) => a.isAfter(b) ? a : b)
             : stravaActivities.map((a) => a.startDate).reduce((a, b) => a.isBefore(b) ? a : b);
 
-    final List<_TimelineEntry> entries =  [
+    final List<TimelineEntry> entries =  [
       if (appSettings.displayShowSetups) ...setupsList
           .where((s) {
             if (horizonDate == null || !appRepository.hasMoreStrava) return true;
@@ -62,8 +60,8 @@ class SetupList extends StatelessWidget {
                 ? !s.datetime.isAfter(horizonDate) // ASC: hide newer than horizon
                 : !s.datetime.isBefore(horizonDate); // DESC: hide older than horizon
           })
-          .map((s) => _SetupEntry(s)), 
-      if (appSettings.displayShowActivities) ...stravaActivities.map((a) => _StravaEntry(a)),
+          .map((s) => SetupEntry(s)), 
+      if (appSettings.displayShowActivities) ...stravaActivities.map((a) => StravaEntry(a)),
       if (appSettings.displayShowTasks) ...taskEntries
           .where((t) {
             if (horizonDate == null || !appRepository.hasMoreStrava) return true;
@@ -71,7 +69,7 @@ class SetupList extends StatelessWidget {
                 ? !t.dateTimeUTC.isAfter(horizonDate) // ASC: hide newer than horizon
                 : !t.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
           })
-          .map((t) => _TaskTimeLineEntry(t)),
+          .map((t) => TaskTimeLineEntry(t)),
       if (appSettings.displayShowInstallations) ...installations
           .where((ci) {
             if (horizonDate == null || !appRepository.hasMoreStrava) return true;
@@ -79,7 +77,7 @@ class SetupList extends StatelessWidget {
                 ? !ci.installation.dateTimeUTC.isAfter(horizonDate) // ASC: hide newer than horizon
                 : !ci.installation.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
           })
-          .map((ci) => _InstallationEntry(ci)),
+          .map((ci) => InstallationEntry(ci)),
     ];
     entries.sort((a, b) => sortAscending 
         ? a.date.compareTo(b.date) 
@@ -107,7 +105,7 @@ class SetupList extends StatelessWidget {
               final entry = entries[index - 1];
 
               // Check for lazy loading trigger
-              if (entry is _StravaEntry && appRepository.hasMoreStrava && !appRepository.isLoadingMoreStrava) {
+              if (entry is StravaEntry && appRepository.hasMoreStrava && !appRepository.isLoadingMoreStrava) {
                 final activities = appRepository.filteredStravaActivities.values.toList();
                 activities.sort((a, b) => sortAscending 
                     ? a.startDate.compareTo(b.startDate) 
@@ -128,9 +126,9 @@ class SetupList extends StatelessWidget {
               }
 
               switch (entry) {
-                case _StravaEntry(): 
+                case StravaEntry(): 
                   return StravaListTile(stravaActivity: entry.activity);
-                case _SetupEntry():
+                case SetupEntry():
                   final setup = entry.setup;
                   return SetupListCard(
                     setupId: setup.id,
@@ -145,11 +143,11 @@ class SetupList extends StatelessWidget {
                     displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues,
                     displayRatingAdjustmentValues: appSettings.setupListRatingAdjustmentValues,
                   );
-                case _TaskTimeLineEntry():
+                case TaskTimeLineEntry():
                   return TaskEntryListItem(
                     taskEntryId: entry.taskEntry.id,
                   );
-                case _InstallationEntry():
+                case InstallationEntry():
                   return InstallationListTile(
                     componentInstallation: entry.componentInstallation,
                     onTap: () {
@@ -164,36 +162,4 @@ class SetupList extends StatelessWidget {
             },
           );
   }
-}
-
-sealed class _TimelineEntry {
-  DateTime get date;
-}
-
-class _SetupEntry extends _TimelineEntry {
-  final Setup setup;
-  _SetupEntry(this.setup);
-  @override
-  DateTime get date => setup.datetime;
-}
-
-class _StravaEntry extends _TimelineEntry {
-  final StravaActivity activity;
-  _StravaEntry(this.activity);
-  @override
-  DateTime get date => activity.startDate;
-}
-
-class _TaskTimeLineEntry extends _TimelineEntry {
-  final TaskEntry taskEntry;
-  _TaskTimeLineEntry(this.taskEntry);
-  @override
-  DateTime get date => taskEntry.dateTimeUTC;
-}
-
-class _InstallationEntry extends _TimelineEntry {
-  final ComponentInstallation componentInstallation;
-  _InstallationEntry(this.componentInstallation);
-  @override
-  DateTime get date => componentInstallation.installation.dateTimeUTC;
 }

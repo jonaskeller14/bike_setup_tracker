@@ -9,6 +9,7 @@ import '../items/task_entry_list_item.dart';
 import '../items/installation_list_tile.dart';
 import '../sheets/installation_sheet.dart';
 import '../../models/timeline_entry.dart';
+import '../../utils/task_actions.dart';
 
 class SetupListSearch extends StatelessWidget {
   const SetupListSearch({
@@ -103,7 +104,14 @@ class SetupListSearch extends StatelessWidget {
             case StravaEntry():
               return StravaListTile(stravaActivity: entry.activity);
             case TaskTimeLineEntry():
-              return TaskEntryListItem(taskEntryId: entry.taskEntry.id);
+              return TaskEntryListItem(
+                taskEntryId: entry.taskEntry.id,
+                onTap: () => TaskActions.showTaskRuleDetails(
+                  context, 
+                  taskRuleId: entry.taskEntry.taskRule, 
+                  highlightTaskEntryId: entry.taskEntry.id,
+                ),
+              );
             case InstallationEntry():
               return InstallationListTile(
                 componentInstallation: entry.componentInstallation,

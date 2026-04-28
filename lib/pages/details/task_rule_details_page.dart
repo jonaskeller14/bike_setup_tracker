@@ -8,8 +8,9 @@ import '../../widgets/items/task_entry_list_item.dart';
 
 class TaskRuleDetailsPage extends StatelessWidget {
   final String taskRuleId;
+  final String? highlightTaskEntryId;
 
-  const TaskRuleDetailsPage({super.key, required this.taskRuleId});
+  const TaskRuleDetailsPage({super.key, required this.taskRuleId, this.highlightTaskEntryId});
 
   Widget _noTaskEntriesPlaceholder(BuildContext context) {
     return SizedBox(
@@ -76,6 +77,8 @@ class TaskRuleDetailsPage extends StatelessWidget {
                     taskEntryId: te.id,
                     contentPadding: EdgeInsets.zero,
                     previousSnapshot: previousEntry?.snapshot,
+                    enabled: highlightTaskEntryId == null || te.id == highlightTaskEntryId,
+                    onTap: null, // disable infinite tap
                   );
                 }),
             ],

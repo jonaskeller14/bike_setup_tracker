@@ -10,12 +10,16 @@ class TaskEntryListItem extends StatelessWidget {
   final String taskEntryId;
   final EdgeInsets contentPadding;
   final ComponentStats? previousSnapshot;
+  final bool enabled;
+  final VoidCallback? onTap;
 
   const TaskEntryListItem({
     super.key, 
     required this.taskEntryId, 
     this.contentPadding = const EdgeInsets.only(left: 16, right: 16),
     this.previousSnapshot,
+    this.enabled = true,
+    this.onTap,
   });
 
   Widget _buildStatItem(BuildContext context, IconData icon, String text) {
@@ -250,6 +254,8 @@ class TaskEntryListItem extends StatelessWidget {
       ),
       dense: true,
       visualDensity: VisualDensity.compact,
+      enabled: enabled,
+      onTap: onTap,
     );
   }
 }

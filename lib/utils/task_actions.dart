@@ -5,6 +5,7 @@ import '../pages/task_entry_page.dart';
 import '../repositories/app_repository.dart';
 import '../models/task_rule.dart';
 import '../pages/task_rule_page.dart';
+import '../pages/details/task_rule_details_page.dart';
 
 class TaskActions {
   static Future<void> addTaskRule(BuildContext context) async {
@@ -145,5 +146,17 @@ class TaskActions {
         onPressed: () async => await appRepository.removeTaskEntries([taskEntry]),
       ),
     ));
+  }
+
+  static Future<void> showTaskRuleDetails(BuildContext context, {required String taskRuleId, String? highlightTaskEntryId}) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TaskRuleDetailsPage(
+          taskRuleId: taskRuleId,
+          highlightTaskEntryId: highlightTaskEntryId,
+        ),
+      ),
+    );
   }
 }

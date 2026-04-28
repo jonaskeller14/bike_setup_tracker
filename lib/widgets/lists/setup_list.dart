@@ -10,6 +10,7 @@ import '../items/task_entry_list_item.dart';
 import '../items/installation_list_tile.dart';
 import '../sheets/installation_sheet.dart';
 import '../../models/timeline_entry.dart';
+import '../../utils/task_actions.dart';
 
 class SetupList extends StatelessWidget {
   const SetupList({super.key});
@@ -146,6 +147,11 @@ class SetupList extends StatelessWidget {
                 case TaskTimeLineEntry():
                   return TaskEntryListItem(
                     taskEntryId: entry.taskEntry.id,
+                    onTap: () => TaskActions.showTaskRuleDetails(
+                      context, 
+                      taskRuleId: entry.taskEntry.taskRule, 
+                      highlightTaskEntryId: entry.taskEntry.id,
+                    ),
                   );
                 case InstallationEntry():
                   return InstallationListTile(

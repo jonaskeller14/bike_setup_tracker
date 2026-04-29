@@ -215,12 +215,14 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     );
   }
 
-  Widget _noSetupsPlaceholder() {
+  Widget _noSetupsPlaceholder({required bool hasAdjustments}) {
     return SizedBox(
       height: 100,
       child: Center(
         child: Text(
-          'No setups yet',
+          hasAdjustments
+              ? 'No setups yet'
+              : 'No adjustments defined for this component',
           textAlign: TextAlign.center,
           style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
         ),
@@ -524,7 +526,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               else
                 _noColumnsPlaceholder(),
               if (setups.isEmpty)
-                _noSetupsPlaceholder(),
+                _noSetupsPlaceholder(hasAdjustments: component.adjustments.isNotEmpty),
               const InitialChangedValueLegend(),
             ],
           ),

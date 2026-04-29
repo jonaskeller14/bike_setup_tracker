@@ -20,20 +20,6 @@ class AboutPage extends StatelessWidget {
   static const String eulaUrl = 'https://jonaskeller14.com/bike_setup_tracker/eula.html';
   static const String playStoreUrl = 'https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker';
   static const String appStoreUrl = 'https://apps.apple.com/app/id6759974325?action=write-review';
-  
-String _getEmailContext() {
-    final now = DateTime.now().toUtc().toIso8601String();
-    return '''
-------------------
-App Version: $appVersion
-Build Number: $buildNumber
-Current Time: $now
-------------------
-
-
-
-''';
-  }
 
   Future<void> _launchUrl(BuildContext context, {
     required String url, 
@@ -67,8 +53,7 @@ Current Time: $now
   }
 
   Future<void> _launchEmail(BuildContext context, String email, {String? subject, String? body}) async {
-    final bodyContext = _getEmailContext();
-    final encodedBody = Uri.encodeComponent((body ?? '') + bodyContext);
+    final encodedBody = Uri.encodeComponent(body ?? "");
     final uri = Uri.parse('mailto:$email?subject=${Uri.encodeComponent(subject ?? '')}&body=$encodedBody');
     
     if (await canLaunchUrl(uri)) { // Check if email client exists
@@ -199,21 +184,21 @@ Current Time: $now
                 title: 'General Support',
                 email: supportEmail,
                 icon: Icons.headset_mic_outlined,
-                subject: 'Bike Setup Tracker Support Request',
+                subject: 'Bike Setup Tracker: Support Request [v$appVersion+$buildNumber]',
               ),
               _buildContactTile(
                 context: context,
-                title: 'Suggestions & Features',
+                title: 'Suggest Features',
                 email: featuresEmail,
                 icon: Icons.lightbulb_outline,
-                subject: 'Bike Setup Tracker Feature Suggestion',
+                subject: 'Bike Setup Tracker: Feature Suggestion [v$appVersion+$buildNumber]',
               ),
               _buildContactTile(
                 context: context,
                 title: 'Report Bugs',
                 email: bugsEmail,
                 icon: Icons.bug_report_outlined,
-                subject: 'BUG Report: Bike Setup Tracker',
+                subject: 'Bike Setup Tracker: Bug Report [v$appVersion+$buildNumber]',
               ),
               
               const Divider(height: 32.0),

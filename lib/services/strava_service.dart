@@ -329,6 +329,22 @@ class StravaService extends ChangeNotifier {
     await launchUrl(url, mode: LaunchMode.externalApplication);
   }
 
+  /// Checks if there are open spots for the Strava integration.
+  Future<bool> checkAvailability() async {
+    try {
+      final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
+      final result = await functions.httpsCallable('checkStravaAvailability').call();
+      
+      final data = result.data as Map<String, dynamic>;
+      return data['available'] == true;
+    } catch (e) {
+      _handleError("checkAvailability", e);
+      // Fail safe: If the check fails (e.g. no internet), we probably want to return false 
+      // or true depending on preference. Usually better to return false so they don't buy and fail later.
+      return false;
+    }
+  }
+
   Future<void> launchStravaLogin() async {
     try {
       if (_userId == null) await _loadUserId();

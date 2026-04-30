@@ -120,3 +120,38 @@ exports.deauthorizeUser = onCall({ enforceAppCheck: true }, async (request) => {
     }
   }
 );
+
+/**
+ * STRATEGY: Global User Limits
+ * Checks if a user is allowed to sign up based on a global config and current user count.
+ */
+exports.checkStravaAvailability = onCall({ enforceAppCheck: true }, async (request) => {
+  try {
+    const configDoc = await db.collection("server_config").doc("strava_limits").get();
+    let config = { manualStop: false, maxUsers: 100, buffer: 10 }; // Defaults
+    
+    if (configDoc.exists) {
+      config = { ...config, ...configDoc.data() };
+    }
+
+    if (config.manualStop) {
+      return { available: false, reason: "manual_stop" };
+    }
+
+    const snapshot = await db.collection("users")
+      .where("strava_connected", "==", true)
+      .count()
+      .get();
+      
+    const activeCount = snapshot.data().count;
+
+    if (activeCount < (config.maxUsers + config.buffer)) {
+      return { available: true };
+    } else {
+      return { available: false, reason: "limit_reached" };
+    }
+  } catch (error) {
+    logger.error("CHECK_AVAILABILITY_ERROR", error);
+    throw new HttpsError("internal", "Failed to check availability");
+  }
+});

@@ -11,6 +11,7 @@ const scheduledSync = require("./scheduled_sync");
 // Auth
 exports.exchangeToken = auth.exchangeToken;
 exports.deauthorizeUser = auth.deauthorizeUser;
+exports.checkStravaAvailability = auth.checkStravaAvailability;
 
 // Webhook
 exports.stravaWebhook = webhook.stravaWebhook;

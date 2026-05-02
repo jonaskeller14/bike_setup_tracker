@@ -1,6 +1,6 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
-import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/models/selected_data.dart';
+import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/database_migration_service.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter_test/flutter_test.dart';

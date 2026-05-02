@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
-import '../../converters/utc_datetime_converter.dart';
 import '../../converters/string_list_converter.dart';
+import '../../converters/utc_datetime_converter.dart';
 
 @DataClassName('StravaAthleteDb')
 class StravaAthletes extends Table {

@@ -1,11 +1,11 @@
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import '../../repositories/app_repository.dart';
+import 'package:provider/provider.dart';
+import '../../models/adjustment/adjustment.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../models/person.dart';
 import '../../models/rating.dart';
-import '../../models/adjustment/adjustment.dart';
+import '../../repositories/app_repository.dart';
 
 class AdjustmentCompactDisplayList extends StatelessWidget {
   final Iterable<Component> components;

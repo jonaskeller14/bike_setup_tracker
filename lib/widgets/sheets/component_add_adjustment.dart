@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../models/app_settings.dart';
 import '../../models/adjustment/adjustment.dart';
+import '../../models/app_settings.dart';
 import '../../models/component.dart';
 import 'sheet.dart';
 
@@ -103,8 +103,8 @@ void showComponentAddAdjustmentBottomSheet({
   bool enableDurationAdjustment = false,
   required Future<void> Function(Adjustment adjustment) addAdjustmentFromPreset,
   required Future<void> Function<T extends Adjustment>() addAdjustment,
-}) {
-  showModalBottomSheet(
+}) async {
+  await showModalBottomSheet(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
@@ -150,9 +150,9 @@ void showComponentAddAdjustmentBottomSheet({
                           title: Text(adjustmentPreset.name),
                           subtitle: Text(adjustmentPreset.getProperties(), style: const TextStyle(fontSize: 12)),
                           trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                          onTap: () {
+                          onTap: () async {
                             Navigator.pop(context);
-                            addAdjustmentFromPreset(adjustmentPreset);
+                            await addAdjustmentFromPreset(adjustmentPreset);
                           },
                         ))
                       else 
@@ -183,9 +183,9 @@ void showComponentAddAdjustmentBottomSheet({
                       title: Text("Numerical Adjustment"),
                       subtitle: Text("Pressure (psi), Length, Weight", style: const TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: () {
+                      onTap: () async {
                         Navigator.pop(context); // Close sheet first
-                        addAdjustment<NumericalAdjustment>(); // Then execute logic
+                        await addAdjustment<NumericalAdjustment>(); // Then execute logic
                       },
                     ),
                     ListTile(
@@ -193,9 +193,9 @@ void showComponentAddAdjustmentBottomSheet({
                       title: Text("Step Adjustment"),
                       subtitle: Text("Rebound clicks, Spacers, Increments", style: const TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: () {
+                      onTap: () async {
                         Navigator.pop(context); // Close sheet first
-                        addAdjustment<StepAdjustment>(); // Then execute logic
+                        await addAdjustment<StepAdjustment>(); // Then execute logic
                       },
                     ),
                     ListTile(
@@ -203,9 +203,9 @@ void showComponentAddAdjustmentBottomSheet({
                       title: Text("Categorical Adjustment"),
                       subtitle: Text("Compound, Brand, Style, Mode", style: const TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: () {
+                      onTap: () async {
                         Navigator.pop(context); // Close sheet first
-                        addAdjustment<CategoricalAdjustment>(); // Then execute logic
+                        await addAdjustment<CategoricalAdjustment>(); // Then execute logic
                       },
                     ),
                     ListTile(
@@ -213,9 +213,9 @@ void showComponentAddAdjustmentBottomSheet({
                       title: Text("On/Off Adjustment"),
                       subtitle: Text("Lockout, Climb switch, Component installed? Yes/No", style: const TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: () {
+                      onTap: () async {
                         Navigator.pop(context); // Close sheet first
-                        addAdjustment<BooleanAdjustment>(); // Then execute logic
+                        await addAdjustment<BooleanAdjustment>(); // Then execute logic
                       },
                     ),
                     if (context.read<AppSettings>().enableTextAdjustment)
@@ -224,9 +224,9 @@ void showComponentAddAdjustmentBottomSheet({
                         title: Text("Text Adjustment"),
                         subtitle: Text("Notes, advanced settings details", style: const TextStyle(fontSize: 12)),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                        onTap: () {
+                        onTap: () async {
                           Navigator.pop(context); // Close sheet first
-                          addAdjustment<TextAdjustment>(); // Then execute logic
+                          await addAdjustment<TextAdjustment>(); // Then execute logic
                         },
                       ),
                     if (enableDurationAdjustment)
@@ -235,9 +235,9 @@ void showComponentAddAdjustmentBottomSheet({
                         title: Text("Duration Adjustment"),
                         subtitle: Text("", style: const TextStyle(fontSize: 12)),  //TODO
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                        onTap: () {
+                        onTap: () async {
                           Navigator.pop(context); // Close sheet first
-                          addAdjustment<DurationAdjustment>(); // Then execute logic
+                          await addAdjustment<DurationAdjustment>(); // Then execute logic
                         },
                       ),
                   ],

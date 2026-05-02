@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -75,7 +76,7 @@ void showSetDurationSheet({
                   mode: CupertinoTimerPickerMode.hms,
                   initialTimerDuration: currentValue,
                   onTimerDurationChanged: (Duration newValue) {
-                    HapticFeedback.lightImpact();
+                    unawaited(HapticFeedback.lightImpact());
                     setSheetState(() {
                       currentValue = newValue;
                     });

@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 import '../app_database.dart';
-import '../tables/persons.dart';
 import '../tables/adjustments.dart';
+import '../tables/persons.dart';
 import 'soft_delete_dao_mixin.dart';
 
 part 'persons_dao.g.dart';

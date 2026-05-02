@@ -1,8 +1,8 @@
 import 'package:drift/drift.dart';
-import 'components.dart';
-import 'bikes.dart';
-import '../converters/utc_datetime_converter.dart';
 import '../../models/task_rule.dart';
+import '../converters/utc_datetime_converter.dart';
+import 'bikes.dart';
+import 'components.dart';
 
 @DataClassName('TaskRuleDb')
 class TaskRules extends Table {

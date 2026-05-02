@@ -1,12 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../set_adjustment/set_boolean_adjustment.dart';
 import '../set_adjustment/set_categorical_adjustment.dart';
+import '../set_adjustment/set_duration_adjustment.dart';
 import '../set_adjustment/set_numerical_adjustment.dart';
 import '../set_adjustment/set_step_adjustment.dart';
 import '../set_adjustment/set_text_adjustment.dart';
-import '../set_adjustment/set_duration_adjustment.dart';
 
 class AdjustmentSetList extends StatefulWidget {
   final List<Adjustment> adjustments;
@@ -75,7 +76,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
               initialValue: widget.initialAdjustmentValues[adjustment.id],
               value: _adjustmentValues[adjustment.id],
               onChanged: (bool? newValue) {
-                HapticFeedback.lightImpact();
+                unawaited(HapticFeedback.lightImpact());
                 setState(() => _adjustmentValues[adjustment.id] = newValue);
                 if (newValue == null) {
                   widget.removeFromAdjustmentValues(adjustment: adjustment);
@@ -107,7 +108,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
               initialValue: widget.initialAdjustmentValues[adjustment.id]?.toDouble(),
               value: _adjustmentValues[adjustment.id]?.toDouble(), 
               onChanged: (double? newValue) {
-                HapticFeedback.lightImpact();
+                unawaited(HapticFeedback.lightImpact());
                 setState(() {
                   _adjustmentValues[adjustment.id] = newValue;
                 });

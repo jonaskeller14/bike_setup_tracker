@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'task_threshold.dart';
 import 'component_stats.dart';
 import 'task_entry.dart';
+import 'task_threshold.dart';
 
 enum TaskStatusType {
   upcoming,

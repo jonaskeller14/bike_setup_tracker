@@ -1,5 +1,5 @@
-import 'package:geocoding/geocoding.dart' as geo;
 import 'package:flutter/foundation.dart';
+import 'package:geocoding/geocoding.dart' as geo;
 
 enum AddressStatus {
   idle,

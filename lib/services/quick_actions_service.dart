@@ -1,5 +1,6 @@
-import 'package:quick_actions/quick_actions.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:quick_actions/quick_actions.dart';
 import '../utils/setup_actions.dart';
 import 'navigation_service.dart';
 
@@ -12,26 +13,28 @@ class QuickActionsService {
   final QuickActions _quickActions = const QuickActions();
   bool _isInitialized = false;
 
-  void init() {
+  Future<void> init() async {
     if (_isInitialized) return;
     _isInitialized = true;
 
-    _quickActions.initialize((String shortcutType) {
-      _handleShortcut(shortcutType);
+    await _quickActions.initialize((String shortcutType) {
+      unawaited(_handleShortcut(shortcutType));
     });
 
-    _quickActions.setShortcutItems(const <ShortcutItem>[
-      ShortcutItem(
-        type: 'add_setup',
-        localizedTitle: 'Add New Setup',
-        icon: 'ic_add',
-      ),
-    ]).catchError((e) {
+    try {
+      await _quickActions.setShortcutItems(const <ShortcutItem>[
+        ShortcutItem(
+          type: 'add_setup',
+          localizedTitle: 'Add New Setup',
+          icon: 'ic_add',
+        ),
+      ]);
+    } catch (e) {
       debugPrint('Failed to set shortcut items: $e');
-    });
+    }
   }
 
-  void _handleShortcut(String shortcutType) async {
+  Future<void> _handleShortcut(String shortcutType) async {
     debugPrint('Received quick action: $shortcutType');
 
     if (shortcutType == 'add_setup') {

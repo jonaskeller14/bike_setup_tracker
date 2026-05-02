@@ -3,13 +3,13 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../models/person.dart';
 import '../../models/component_stats.dart';
+import '../../models/person.dart';
+import '../../models/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/bike_actions.dart';
-import '../../models/task_rule.dart';
-import '../../widgets/open_tasks_card.dart';
 import '../../widgets/component_stats_card.dart';
+import '../../widgets/open_tasks_card.dart';
 
 class BikeDetailsPage extends StatelessWidget {
   final String bikeId;

@@ -1,13 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../repositories/app_repository.dart';
+import '../../models/app_settings.dart';
 import '../../models/component.dart';
+import '../../repositories/app_repository.dart';
 import '../../utils/bike_actions.dart';
+import '../chips/bike_list_filter_widget.dart';
 import '../items/garage_bike_card.dart';
 import '../items/garage_uninstalled_card.dart';
-import '../chips/bike_list_filter_widget.dart';
-import '../../models/app_settings.dart';
 import '../sheets/installation_sheet.dart';
 
 class GarageList extends StatefulWidget {
@@ -23,13 +23,13 @@ class _GarageListState extends State<GarageList> {
   String? _componentToShowDetails;
   final ValueNotifier<Component?> _draggedComponentNotifier = ValueNotifier<Component?>(null);
 
-  void _onAcceptWithDetails({String? newBike}) {
+  void _onAcceptWithDetails({String? newBike}) async {
     if (_draggedComponentNotifier.value == null) return;
     final component = _draggedComponentNotifier.value!;
     final appRepository = context.read<AppRepository>();
     final appSettings = context.read<AppSettings>();
 
-    Future.microtask(() {
+    await Future.microtask(() async {
       if (!mounted) return;
       if (appSettings.enableInstallationTimeline) {
         showAddInstallationSheet(context, component: component, targetBikeId: newBike);

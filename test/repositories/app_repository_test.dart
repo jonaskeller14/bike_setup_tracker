@@ -1,15 +1,15 @@
+import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/rating.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
-import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:bike_setup_tracker/database/app_database.dart';
-import 'package:bike_setup_tracker/repositories/app_repository.dart';
-import 'package:bike_setup_tracker/models/bike.dart';
-import 'package:bike_setup_tracker/models/installation.dart';
-import 'package:bike_setup_tracker/models/task_rule.dart';
 import 'package:bike_setup_tracker/models/task_entry.dart';
+import 'package:bike_setup_tracker/models/task_rule.dart';
+import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 /// Allow Drift streams to propagate through subscriptions.
 Future<void> pumpEventQueue() => Future.delayed(const Duration(milliseconds: 100));

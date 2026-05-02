@@ -3,8 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/strava/strava_activity.dart';
-import '../../services/strava_service.dart';
 import '../../pages/details/strava_activitiy_details_page.dart';
+import '../../services/strava_service.dart';
 
 class StravaListTile extends StatelessWidget {
   final StravaActivity stravaActivity;

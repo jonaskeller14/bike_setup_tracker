@@ -1,15 +1,15 @@
-import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../repositories/app_repository.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../models/strava/strava_athlete.dart';
+import '../../repositories/app_repository.dart';
 import '../../services/strava_service.dart';
-import 'sheet.dart';
 import '../items/strava_list_tile.dart';
+import 'sheet.dart';
 
 Future<void> showStravaSheet({required BuildContext context}) async {
   return await showModalBottomSheet<void>(
@@ -117,21 +117,21 @@ class _StravaSheetState extends State<StravaSheet> {
 
                           return PopupMenuButton<_StravaGearMenuOption>(
                             tooltip: "Bike Options",
-                            onSelected: (_StravaGearMenuOption option) {
+                            onSelected: (_StravaGearMenuOption option) async {
                               switch (option) {
                                 case _LinkToBike():
                                   final updatedBike = option.bike.copyWith(stravaGear: g.id);
-                                  context.read<AppRepository>().editBike(updatedBike);
+                                  await context.read<AppRepository>().editBike(updatedBike);
                                 case _AddNewBike():
                                   final newBike = Bike(
                                     name: g.name,
                                     person: null,
                                     stravaGear: g.id,
                                   );
-                                  context.read<AppRepository>().addBike(newBike);
+                                  await context.read<AppRepository>().addBike(newBike);
                                 case _UnlinkBike():
                                   final updatedBike = option.bike.copyWith(stravaGear: null);
-                                  context.read<AppRepository>().editBike(updatedBike);
+                                  await context.read<AppRepository>().editBike(updatedBike);
                               }
                             },
                             itemBuilder: (BuildContext context) {
@@ -297,8 +297,8 @@ class _StravaSheetState extends State<StravaSheet> {
     );
   }
 
-  void _showDisconnectConfirmation(BuildContext context, StravaService stravaService) {
-    showDialog(
+  void _showDisconnectConfirmation(BuildContext context, StravaService stravaService) async {
+    await showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Disconnect Strava?"),
@@ -312,9 +312,9 @@ class _StravaSheetState extends State<StravaSheet> {
             child: const Text("Cancel"),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              stravaService.disconnect();
+              await stravaService.disconnect();
             },
             style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
             child: const Text("Disconnect"),

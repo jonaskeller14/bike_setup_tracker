@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 import '../models/app_settings.dart';
-import '../models/task_rule.dart';
-import '../models/component.dart';
 import '../models/bike.dart';
+import '../models/component.dart';
+import '../models/task_rule.dart';
 import '../models/task_threshold.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/dialogs/discard_changes.dart';
-import 'package:uuid/uuid.dart';
 
 enum TaskRulePageMode { add, edit, duplicate }
 

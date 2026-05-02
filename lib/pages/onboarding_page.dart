@@ -1,5 +1,5 @@
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/app_settings.dart';
 import '../widgets/onboarding/onboarding_slide_1.dart';
 import '../widgets/onboarding/onboarding_slide_2.dart';
@@ -35,8 +35,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
       appBar: AppBar(
         leading: _currentPage > 0
             ? IconButton(
-                onPressed: () {
-                  _controller.previousPage(
+                onPressed: () async {
+                  await _controller.previousPage(
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
                   );
@@ -57,11 +57,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
         ],
       ),
       floatingActionButton: ElevatedButton.icon(
-        onPressed: () {
+        onPressed: () async {
           if (_currentPage == _pages.length - 1) {
             context.read<AppSettings>().showOnboarding = false;
           } else {
-            _controller.nextPage(
+            await _controller.nextPage(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
             );

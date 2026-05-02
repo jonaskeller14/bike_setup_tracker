@@ -1,10 +1,10 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
-import 'package:bike_setup_tracker/services/data_export_service.dart';
-import 'package:bike_setup_tracker/utils/file_import.dart';
 import 'package:bike_setup_tracker/models/selected_data.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:bike_setup_tracker/services/data_export_service.dart';
+import 'package:bike_setup_tracker/utils/file_import.dart';
 import 'package:drift/drift.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   late AppDatabase database;

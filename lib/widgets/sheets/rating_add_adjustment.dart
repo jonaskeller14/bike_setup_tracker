@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../models/app_settings.dart';
 import '../../models/adjustment/adjustment.dart';
+import '../../models/app_settings.dart';
 import 'sheet.dart';
 
 final List<Adjustment> _adjustmentPresets = [
@@ -28,8 +28,8 @@ void showRatingAddAdjustmentBottomSheet({
   required BuildContext context,
   required Future<void> Function(Adjustment adjustment) addAdjustmentFromPreset,
   required Future<void> Function<T extends Adjustment>() addAdjustment,
-}) {
-  showModalBottomSheet(
+}) async {
+  await showModalBottomSheet(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
@@ -67,9 +67,9 @@ void showRatingAddAdjustmentBottomSheet({
                         title: Text(adjustmentPreset.name),
                         subtitle: Text(adjustmentPreset.getProperties(), style: const TextStyle(fontSize: 12)),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                        onTap: () {
+                        onTap: () async {
                           Navigator.pop(context);
-                          addAdjustmentFromPreset(adjustmentPreset);
+                          await addAdjustmentFromPreset(adjustmentPreset);
                         },
                       )),
                       const Padding(
@@ -94,9 +94,9 @@ void showRatingAddAdjustmentBottomSheet({
                       title: Text("Numerical Metric"),
                       subtitle: Text("Body Weight, Height, Age", style: const TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: () {
+                      onTap: () async {
                         Navigator.pop(context); // Close sheet first
-                        addAdjustment<NumericalAdjustment>(); // Then execute logic
+                        await addAdjustment<NumericalAdjustment>(); // Then execute logic
                       },
                     ),
                     ListTile(
@@ -104,9 +104,9 @@ void showRatingAddAdjustmentBottomSheet({
                       title: Text("Step Metric"),
                       subtitle: Text("Increments", style: const TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: () {
+                      onTap: () async {
                         Navigator.pop(context); // Close sheet first
-                        addAdjustment<StepAdjustment>(); // Then execute logic
+                        await addAdjustment<StepAdjustment>(); // Then execute logic
                       },
                     ),
                     ListTile(
@@ -114,9 +114,9 @@ void showRatingAddAdjustmentBottomSheet({
                       title: Text("Categorical Metric"),
                       subtitle: Text("Training status, Riding Gear, Riding style", style: const TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: () {
+                      onTap: () async {
                         Navigator.pop(context); // Close sheet first
-                        addAdjustment<CategoricalAdjustment>(); // Then execute logic
+                        await addAdjustment<CategoricalAdjustment>(); // Then execute logic
                       },
                     ),
                     ListTile(
@@ -124,9 +124,9 @@ void showRatingAddAdjustmentBottomSheet({
                       title: Text("On/Off Metric"),
                       subtitle: Text("Wearing a backpack?", style: const TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: () {
+                      onTap: () async {
                         Navigator.pop(context); // Close sheet first
-                        addAdjustment<BooleanAdjustment>(); // Then execute logic
+                        await addAdjustment<BooleanAdjustment>(); // Then execute logic
                       },
                     ),
                     if (context.read<AppSettings>().enableTextAdjustment)
@@ -135,9 +135,9 @@ void showRatingAddAdjustmentBottomSheet({
                         title: Text("Text Metric"),
                         subtitle: Text("Flexible field for any other metric", style: const TextStyle(fontSize: 12)),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                        onTap: () {
+                        onTap: () async {
                           Navigator.pop(context); // Close sheet first
-                          addAdjustment<TextAdjustment>(); // Then execute logic
+                          await addAdjustment<TextAdjustment>(); // Then execute logic
                         },
                       ),
                     ListTile(
@@ -145,9 +145,9 @@ void showRatingAddAdjustmentBottomSheet({
                       title: Text("Duration Metric"),
                       subtitle: Text("Perfect for recording laptimes", style: const TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                      onTap: () {
+                      onTap: () async {
                         Navigator.pop(context); // Close sheet first
-                        addAdjustment<DurationAdjustment>(); // Then execute logic
+                        await addAdjustment<DurationAdjustment>(); // Then execute logic
                       },
                     ),
                   ],

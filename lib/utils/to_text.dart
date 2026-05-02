@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/adjustment/adjustment.dart';
-import '../repositories/app_repository.dart';
 import '../models/app_settings.dart';
-import '../models/setup.dart';
 import '../models/selected_data.dart';
+import '../models/setup.dart';
 import '../models/weather.dart';
+import '../repositories/app_repository.dart';
 
 String toText({
   required BuildContext context,

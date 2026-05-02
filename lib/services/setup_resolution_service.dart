@@ -1,10 +1,10 @@
+import 'package:collection/collection.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
-import '../models/person.dart';
-import '../models/setup.dart';
 import '../models/component.dart';
+import '../models/person.dart';
 import '../models/rating.dart';
-import 'package:collection/collection.dart';
+import '../models/setup.dart';
 import '../utils/file_import.dart';
 
 class SetupResolutionService {

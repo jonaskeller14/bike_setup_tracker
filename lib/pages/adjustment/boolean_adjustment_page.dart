@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
@@ -283,7 +284,7 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                             initialValue: false,
                             value: _previewValue,
                             onChanged: (bool? newValue) {
-                              HapticFeedback.lightImpact();
+                              unawaited(HapticFeedback.lightImpact());
                               setState(() {
                                 _previewValue = newValue ?? false;
                               });

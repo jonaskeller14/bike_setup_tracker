@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import '../../models/app_settings.dart';
-import '../../repositories/app_repository.dart';
 import '../../models/bike.dart';
 import '../../models/person.dart';
+import '../../pages/details/person_details_page.dart';
+import '../../repositories/app_repository.dart';
 import '../../utils/person_actions.dart';
 import '../lists/adjustment_compact_display_list.dart';
-import '../../pages/details/person_details_page.dart';
 
 class PersonListCard extends StatelessWidget {
   final Person person;
@@ -99,11 +99,14 @@ class PersonListCard extends StatelessWidget {
                     child: const Icon(Icons.drag_handle),
                   ),
                   PopupMenuButton<_PersonOptions>(
-                    onSelected: (_PersonOptions value) {
+                    onSelected: (_PersonOptions value) async {
                       switch (value) {
-                        case _PersonOptions.edit: PersonActions.editPerson(context, person: person);
-                        case _PersonOptions.duplicate: PersonActions.duplicatePerson(context, person: person);
-                        case _PersonOptions.remove: PersonActions.removePerson(context, person: person);
+                        case _PersonOptions.edit:
+                          await PersonActions.editPerson(context, person: person);
+                        case _PersonOptions.duplicate:
+                          await PersonActions.duplicatePerson(context, person: person);
+                        case _PersonOptions.remove:
+                          await PersonActions.removePerson(context, person: person);
                       }
                     },
                     itemBuilder: (BuildContext context) => _PersonOptions.values.map((option) {

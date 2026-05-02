@@ -1,32 +1,32 @@
 import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart' as geo;
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
-import 'package:geocoding/geocoding.dart' as geo;
 import 'package:provider/provider.dart';
-import '../repositories/app_repository.dart';
-import '../models/weather.dart';
-import '../models/person.dart';
-import '../models/rating.dart';
-import '../models/bike.dart';
-import '../models/setup.dart';
-import '../services/setup_resolution_service.dart';
-import '../models/component.dart';
-import '../models/strava/strava_activity.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
-import '../services/weather_service.dart';
+import '../models/bike.dart';
+import '../models/component.dart';
+import '../models/person.dart';
+import '../models/rating.dart';
+import '../models/setup.dart';
+import '../models/strava/strava_activity.dart';
+import '../models/weather.dart';
+import '../repositories/app_repository.dart';
 import '../services/address_service.dart';
 import '../services/location_service.dart';
-import '../widgets/setup_page_tabs.dart';
-import '../widgets/sheets/set_tags.dart';
-import '../widgets/soil_moisture_legend_table.dart';
+import '../services/setup_resolution_service.dart';
+import '../services/weather_service.dart';
 import '../widgets/dialogs/confirmation.dart';
 import '../widgets/dialogs/discard_changes.dart';
+import '../widgets/setup_page_tabs.dart';
 import '../widgets/sheets/app_settings_radio_group.dart';
-import '../widgets/sheets/set_weather.dart';
 import '../widgets/sheets/set_location_place.dart';
+import '../widgets/sheets/set_tags.dart';
+import '../widgets/sheets/set_weather.dart';
+import '../widgets/soil_moisture_legend_table.dart';
 
 enum SetupPageMode {
   add,
@@ -150,7 +150,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     _onBikeChange(_initialBike);
 
-    if (widget.setup == null) fetchLocationAddressWeather();
+    if (widget.setup == null) unawaited(fetchLocationAddressWeather());
   }
 
   @override
@@ -903,8 +903,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               ActionChip(
                 avatar: const Icon(Icons.add),
                 label: const Text("Tags"),
-                onPressed: () {
-                  showSetTagsSheet(
+                onPressed: () async {
+                  await showSetTagsSheet(
                     context: context, 
                     tags: _tags,
                     onChanged: (Set<String> newTags) => setState(() => _tags = newTags),

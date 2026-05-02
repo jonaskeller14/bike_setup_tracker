@@ -1,10 +1,10 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/database/mappers.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
-import 'package:bike_setup_tracker/models/task_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
+import 'package:bike_setup_tracker/models/task_entry.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('DateTime Consistency Tests', () {

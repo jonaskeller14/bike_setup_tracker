@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../../repositories/app_repository.dart';
-import '../../models/setup.dart';
-import '../../models/bike.dart';
-import '../../models/weather.dart';
 import '../../models/app_settings.dart';
-import '../lists/adjustment_compact_display_list.dart';
+import '../../models/bike.dart';
+import '../../models/setup.dart';
+import '../../models/weather.dart';
+import '../../repositories/app_repository.dart';
 import '../../utils/setup_actions.dart';
+import '../lists/adjustment_compact_display_list.dart';
 
 class SetupListCard extends StatelessWidget {
   final String setupId;
@@ -235,12 +235,16 @@ class SetupListCard extends StatelessWidget {
         ],
       ),
       trailing: PopupMenuButton<_SetupOptions>(
-        onSelected: (_SetupOptions value) {
+        onSelected: (_SetupOptions value) async {
           switch (value) {
-            case _SetupOptions.edit: SetupActions.editSetup(context, setup: setup);
-            case _SetupOptions.share: SetupActions.shareSetup(context, setup: setup);
-            case _SetupOptions.restore: SetupActions.duplicateSetup(context, setup: setup);
-            case _SetupOptions.remove: SetupActions.removeSetup(context, setup: setup);
+            case _SetupOptions.edit:
+              await SetupActions.editSetup(context, setup: setup);
+            case _SetupOptions.share:
+              await SetupActions.shareSetup(context, setup: setup);
+            case _SetupOptions.restore:
+              await SetupActions.duplicateSetup(context, setup: setup);
+            case _SetupOptions.remove:
+              await SetupActions.removeSetup(context, setup: setup);
           }
         },
         itemBuilder: (BuildContext context) => _SetupOptions.values.map((option) {

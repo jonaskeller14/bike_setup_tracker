@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
-import '../converters/utc_datetime_converter.dart';
-import '../converters/duration_converter.dart';
 import '../../models/component.dart';
+import '../converters/duration_converter.dart';
+import '../converters/utc_datetime_converter.dart';
 
 @DataClassName('ComponentDb')
 class Components extends Table {

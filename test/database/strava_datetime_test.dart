@@ -1,8 +1,8 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/database/converters/local_floating_datetime_converter.dart';
+import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('StravaActivity DateTime Logic', () {

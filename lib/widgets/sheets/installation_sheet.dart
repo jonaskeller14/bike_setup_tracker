@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../models/component.dart';
 import '../../models/bike.dart';
+import '../../models/component.dart';
 import '../../models/installation.dart';
 import '../../repositories/app_repository.dart';
 import '../set_installation_timeline.dart';
@@ -96,12 +96,13 @@ class _InstallationSheetState extends State<InstallationSheet> {
     }
   }
 
-  void _onConfirm() {
+  void _onConfirm() async {
     if (_formKey.currentState?.validate() ?? false) {
       final updatedComponent = widget.component.copyWith(
         installations: _installations,
       );
-      context.read<AppRepository>().editComponent(updatedComponent);
+      await context.read<AppRepository>().editComponent(updatedComponent);
+      if (!mounted) return;
       Navigator.pop(context);
     }
   }

@@ -1,10 +1,10 @@
+import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/rating.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
-import 'package:bike_setup_tracker/models/bike.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 Future<void> pumpEventQueue() => Future.delayed(const Duration(milliseconds: 100));
 

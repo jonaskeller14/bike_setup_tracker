@@ -1,14 +1,14 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:collection/collection.dart';
+import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
-import 'lists/adjustment_set_list.dart';
 import 'display_adjustment/display_dangling_adjustment.dart';
 import 'initial_changed_value_legend.dart';
-import '../models/adjustment/adjustment.dart';
+import 'lists/adjustment_set_list.dart';
 
 class TabContentWrapper extends StatefulWidget {
   final Widget child;

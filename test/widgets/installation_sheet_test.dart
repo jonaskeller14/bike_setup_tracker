@@ -3,12 +3,12 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
-import 'package:bike_setup_tracker/widgets/sheets/installation_sheet.dart';
 import 'package:bike_setup_tracker/widgets/set_installation_timeline.dart';
+import 'package:bike_setup_tracker/widgets/sheets/installation_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockAppRepository extends Mock implements AppRepository {}

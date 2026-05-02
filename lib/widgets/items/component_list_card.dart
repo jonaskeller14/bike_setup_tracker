@@ -1,13 +1,14 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../../repositories/app_repository.dart';
-import '../../models/component.dart';
+import '../../models/app_settings.dart';
 import '../../models/bike.dart';
+import '../../models/component.dart';
+import '../../pages/details/component_details_page.dart';
+import '../../repositories/app_repository.dart';
 import '../../utils/component_actions.dart';
 import '../lists/adjustment_compact_display_list.dart';
-import '../../pages/details/component_details_page.dart';
-import '../../models/app_settings.dart';
 
 class ComponentListCard extends StatelessWidget{
   final Component component;
@@ -38,6 +39,14 @@ class ComponentListCard extends StatelessWidget{
       color: color,
       child: InkWell(
         onTap: () async {
+          await Navigator.push<void>(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ComponentDetailsPage(componentId: component.id),
+            ),
+          );
+        },
+        onDoubleTap: () async {
           await Navigator.push<void>(
             context,
             MaterialPageRoute(
@@ -160,10 +169,14 @@ class ComponentListCard extends StatelessWidget{
                   PopupMenuButton<_ComponentOptions>(
                     onSelected: (value) {
                       switch (value) {
-                        case _ComponentOptions.edit: ComponentActions.editComponent(context, component: component);
-                        case _ComponentOptions.duplicate: ComponentActions.duplicateComponent(context, component: component);
-                        case _ComponentOptions.replace: ComponentActions.replaceComponent(context, component: component);
-                        case _ComponentOptions.remove: ComponentActions.removeComponent(context, component: component);
+                        case _ComponentOptions.edit:
+                          unawaited(ComponentActions.editComponent(context, component: component));
+                        case _ComponentOptions.duplicate:
+                          unawaited(ComponentActions.duplicateComponent(context, component: component));
+                        case _ComponentOptions.replace:
+                          unawaited(ComponentActions.replaceComponent(context, component: component));
+                        case _ComponentOptions.remove:
+                          unawaited(ComponentActions.removeComponent(context, component: component));
                       }
                     },
                     itemBuilder: (BuildContext context) => _ComponentOptions.values.where((option) {

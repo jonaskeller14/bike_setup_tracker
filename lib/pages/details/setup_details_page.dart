@@ -1,23 +1,23 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import 'package:weather_icons/weather_icons.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:weather_icons/weather_icons.dart';
 import '../../models/app_settings.dart';
-import '../../repositories/app_repository.dart';
-import '../../models/setup.dart';
-import '../../models/person.dart';
-import '../../models/component.dart';
-import '../../models/rating.dart';
 import '../../models/bike.dart';
+import '../../models/component.dart';
+import '../../models/person.dart';
+import '../../models/rating.dart';
+import '../../models/setup.dart';
 import '../../models/weather.dart';
+import '../../repositories/app_repository.dart';
+import '../../utils/setup_actions.dart';
 import '../../widgets/display_adjustment/display_adjustment_list.dart';
 import '../../widgets/display_adjustment/display_dangling_adjustment.dart';
 import '../../widgets/initial_changed_value_legend.dart';
-import '../../utils/setup_actions.dart';
 
 class SetupDetailsPage extends StatefulWidget {
   final List<String> setupIds;
@@ -263,9 +263,9 @@ class SetupDetailsPageContent extends StatelessWidget {
                               initialCenter: LatLng(setup.position!.latitude!, setup.position!.longitude!),
                               initialZoom: 13,
                               minZoom: 3,
-                              onTap: (_, _) {
+                              onTap: (_, _) async {
                                 final String scheme = Theme.of(context).platform == TargetPlatform.iOS ? 'maps' : 'geo';
-                                launchUrlString('$scheme:${setup.position!.latitude},${setup.position!.longitude}?q=${setup.position!.latitude},${setup.position!.longitude}(${Uri.encodeComponent(setup.name)})');
+                                await launchUrlString('$scheme:${setup.position!.latitude},${setup.position!.longitude}?q=${setup.position!.latitude},${setup.position!.longitude}(${Uri.encodeComponent(setup.name)})');
                               },
                               interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
                             ),

@@ -1,15 +1,15 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:cloud_functions/cloud_functions.dart';
-import '../repositories/app_repository.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
+import '../repositories/app_repository.dart';
 
 enum StravaServiceStatus {
   idle,
@@ -48,13 +48,13 @@ class StravaService extends ChangeNotifier {
   StravaService(this._appRepository);
 
   @override
-  void dispose() {
+  void dispose() async {
     _isDisposed = true;
-    _stopListening();
+    await _stopListening();
     super.dispose();
   }
 
-  void _stopListening() {
+  Future<void> _stopListening() async {
     _activitiesSubscription?.cancel();
     _userDocSubscription?.cancel();
     _athleteSubscription?.cancel();
@@ -102,10 +102,10 @@ class StravaService extends ChangeNotifier {
     }
   }
 
-  void _listenToUserDocument() {
+  Future<void> _listenToUserDocument() async {
     if (_userId == null) return;
     
-    _userDocSubscription?.cancel();
+    await _userDocSubscription?.cancel();
     _userDocSubscription = FirebaseFirestore.instance
         .collection('users')
         .doc(_userId)
@@ -140,20 +140,20 @@ class StravaService extends ChangeNotifier {
 
       // Reactive Lifecycle: Start/Stop data listeners based on connection state
       if (_isConnected && (_activitiesSubscription == null)) {
-        _startDataListeners();
-      } else if (!_isConnected && (wasConnected)) {
-        _stopDataListeners();
+        unawaited(_startDataListeners());
+      } else if (!_isConnected && wasConnected) {
+        unawaited(_stopDataListeners());
       }
     }, onError: (e) => _handleError("UserDoc", e, userMessage: "Connection verify failed"));
   }
 
-  void _startDataListeners() {
+  Future<void> _startDataListeners() async {
     _listenToActivities();
     _listenToAthlete();
     _listenToGear();
   }
 
-  void _stopDataListeners() {
+  Future<void> _stopDataListeners() async {
     _activitiesSubscription?.cancel();
     _athleteSubscription?.cancel();
     _gearSubscription?.cancel();
@@ -165,7 +165,7 @@ class StravaService extends ChangeNotifier {
   void _listenToActivities() {
     if (_userId == null) return;
 
-    _activitiesSubscription?.cancel();
+    unawaited(_activitiesSubscription?.cancel());
     _activitiesSubscription = FirebaseFirestore.instance
         .collection('users')
         .doc(_userId)
@@ -203,48 +203,48 @@ class StravaService extends ChangeNotifier {
       }
 
       if (toUpsert.isNotEmpty || toDelete.isNotEmpty) {
-        _appRepository.setStravaActivities(
+        unawaited(_appRepository.setStravaActivities(
           toUpsert,
           toDelete: toDelete,
-        );
+        ));
       }
     }, onError: (e) => _handleError("SyncStream", e, userMessage: "Background sync error"));
   }
 
-  void _listenToAthlete() {
+  Future<void> _listenToAthlete() async {
     if (_userId == null) return;
 
-    _athleteSubscription?.cancel();
+    await _athleteSubscription?.cancel();
     _athleteSubscription = FirebaseFirestore.instance
         .collection('users')
         .doc(_userId)
         .collection('athletes')
         .doc('athlete')
         .snapshots()
-        .listen((snapshot) {
+        .listen((snapshot) async {
       if (!_isConnected) return;
       if (snapshot.exists && snapshot.data() != null) {
         final athlete = StravaAthlete.fromFirestore(snapshot.data()!);
-        _appRepository.setStravaAthletes([athlete]);
+        await _appRepository.setStravaAthletes([athlete]);
       } else {
         _appRepository.setStravaAthletes([]);
       }
     }, onError: (e) => _handleError("AthleteSync", e));
   }
 
-  void _listenToGear() {
+  Future<void> _listenToGear() async {
     if (_userId == null) return;
 
-    _gearSubscription?.cancel();
+    await _gearSubscription?.cancel();
     _gearSubscription = FirebaseFirestore.instance
         .collection('users')
         .doc(_userId)
         .collection('gears')
         .snapshots()
-        .listen((snapshot) {
+        .listen((snapshot) async {
       if (!_isConnected) return;
       final gears = snapshot.docs.map((doc) => StravaGear.fromFirestore(doc.data())).toList();
-      _appRepository.setStravaGears(gears);
+      await _appRepository.setStravaGears(gears);
     }, onError: (e) => _handleError("GearSync", e));
   }
 

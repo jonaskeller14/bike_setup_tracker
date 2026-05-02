@@ -1,12 +1,10 @@
 import 'package:drift/drift.dart';
-import '../converters/utc_datetime_converter.dart';
 import '../converters/local_floating_datetime_converter.dart';
-
-import '../converters/string_list_converter.dart';
 import '../converters/location_data_converter.dart';
 import '../converters/placemark_converter.dart';
+import '../converters/string_list_converter.dart';
+import '../converters/utc_datetime_converter.dart';
 import '../converters/weather_converter.dart';
-
 import 'bikes.dart';
 import 'persons.dart';
 

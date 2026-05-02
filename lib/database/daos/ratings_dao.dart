@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 import '../app_database.dart';
-import '../tables/ratings.dart';
 import '../tables/adjustments.dart';
+import '../tables/ratings.dart';
 import 'soft_delete_dao_mixin.dart';
 
 part 'ratings_dao.g.dart';

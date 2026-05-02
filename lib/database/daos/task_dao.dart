@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 import '../app_database.dart';
-import '../tables/task_rules.dart';
 import '../tables/task_entries.dart';
+import '../tables/task_rules.dart';
 import 'soft_delete_dao_mixin.dart';
 
 part 'task_dao.g.dart';

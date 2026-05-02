@@ -1,6 +1,6 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Component Installation Logic', () {

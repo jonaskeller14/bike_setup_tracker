@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/task_entry.dart';
-import '../pages/task_entry_page.dart';
-import '../repositories/app_repository.dart';
 import '../models/task_rule.dart';
-import '../pages/task_rule_page.dart';
 import '../pages/details/task_rule_details_page.dart';
+import '../pages/task_entry_page.dart';
+import '../pages/task_rule_page.dart';
+import '../repositories/app_repository.dart';
 
 class TaskActions {
   static Future<void> addTaskRule(BuildContext context) async {

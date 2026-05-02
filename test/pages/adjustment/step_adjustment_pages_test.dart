@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/pages/adjustment/step_adjustment_page.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('StepAdjustmentPage edit returns equal adjustment when unchanged', (WidgetTester tester) async {

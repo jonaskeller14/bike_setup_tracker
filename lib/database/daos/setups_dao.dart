@@ -1,8 +1,8 @@
 import 'package:drift/drift.dart';
 import '../app_database.dart';
-import '../tables/setups.dart';
-import '../tables/setup_adjustment_values.dart';
 import '../tables/adjustments.dart';
+import '../tables/setup_adjustment_values.dart';
+import '../tables/setups.dart';
 import 'soft_delete_dao_mixin.dart';
 
 part 'setups_dao.g.dart';

@@ -1,7 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import '../repositories/app_repository.dart';
 import '../pages/details/strava_activitiy_details_page.dart';
+import '../repositories/app_repository.dart';
 import 'navigation_service.dart';
 
 class NotificationService {
@@ -13,7 +13,7 @@ class NotificationService {
   late AppRepository _appRepository;
   bool _isInitialized = false;
 
-  void init(AppRepository appRepository) {
+  void init(AppRepository appRepository) async {
     if (_isInitialized) return;
     _isInitialized = true;
     _appRepository = appRepository;
@@ -27,14 +27,13 @@ class NotificationService {
     FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
 
     // Handle message when app is launched from terminated state
-    FirebaseMessaging.instance.getInitialMessage().then((message) {
-      if (message != null) {
-        _handleMessage(message);
-      }
-    });
+    final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    if (initialMessage != null) {
+      _handleMessage(initialMessage);
+    }
   }
 
-  void _handleMessage(RemoteMessage message) {
+  void _handleMessage(RemoteMessage message) async {
     debugPrint('NotificationService: Received message data: ${message.data}');
     
     final data = message.data;
@@ -44,7 +43,7 @@ class NotificationService {
     if (type == 'strava_sync' && activityIdStr != null) {
       final activityId = int.tryParse(activityIdStr);
       if (activityId != null) {
-        _navigateToStravaActivity(activityId);
+        await _navigateToStravaActivity(activityId);
       } else {
         debugPrint('NotificationService: Failed to parse activityId: $activityIdStr');
       }

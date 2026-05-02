@@ -1,11 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../../repositories/app_repository.dart';
-import '../../utils/task_actions.dart';
-import '../../pages/details/task_rule_details_page.dart';
 import '../../models/bike.dart';
 import '../../models/task_rule.dart';
+import '../../pages/details/task_rule_details_page.dart';
+import '../../repositories/app_repository.dart';
+import '../../utils/task_actions.dart';
 
 class TaskRuleListCard extends StatelessWidget {
   final String taskRuleId;
@@ -36,9 +37,9 @@ class TaskRuleListCard extends StatelessWidget {
             value: isCompleted,
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             visualDensity: VisualDensity.compact,
-            onChanged: isCompleted ? null : (bool? value) {
-              HapticFeedback.lightImpact();
-              TaskActions.addTaskEntry(context, taskRule: taskRule);
+            onChanged: isCompleted ? null : (bool? value) async {
+              unawaited(HapticFeedback.lightImpact());
+              await TaskActions.addTaskEntry(context, taskRule: taskRule);
             },
           ),
           contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
@@ -200,16 +201,16 @@ class TaskRuleListCard extends StatelessWidget {
             ],
           ),
           trailing: PopupMenuButton<_TaskRuleOptions>(
-            onSelected: (_TaskRuleOptions value) {
+            onSelected: (_TaskRuleOptions value) async {
               switch (value) {
                 case _TaskRuleOptions.edit:
-                  TaskActions.editTaskRule(context, taskRule: taskRule);
+                  await TaskActions.editTaskRule(context, taskRule: taskRule);
                 case _TaskRuleOptions.remove:
-                  TaskActions.removeTaskRule(context, taskRule: taskRule);
+                  await TaskActions.removeTaskRule(context, taskRule: taskRule);
                 case _TaskRuleOptions.duplicate:
-                  TaskActions.duplicateTaskRule(context, taskRule: taskRule);
+                  await TaskActions.duplicateTaskRule(context, taskRule: taskRule);
                 case _TaskRuleOptions.addEntry:
-                  TaskActions.addTaskEntry(context, taskRule: taskRule);
+                  await TaskActions.addTaskEntry(context, taskRule: taskRule);
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<_TaskRuleOptions>>[

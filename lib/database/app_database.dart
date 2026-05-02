@@ -1,48 +1,41 @@
 import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:geocoding/geocoding.dart' as geo;
 import 'package:path/path.dart' as p;
-
-import 'tables/task_rules.dart';
-import 'tables/task_entries.dart';
+import 'package:path_provider/path_provider.dart';
+import '../models/adjustment/adjustment.dart';
+import '../models/component.dart';
+import '../models/rating.dart';
+import '../models/strava/strava_activity.dart';
+import '../models/task_rule.dart';
+import 'converters/duration_converter.dart';
+import 'converters/local_floating_datetime_converter.dart';
+import 'converters/location_data_converter.dart';
+import 'converters/placemark_converter.dart';
+import 'converters/string_list_converter.dart';
+import 'converters/utc_datetime_converter.dart';
+import 'converters/weather_converter.dart';
+import 'daos/bikes_dao.dart';
+import 'daos/components_dao.dart';
+import 'daos/persons_dao.dart';
+import 'daos/ratings_dao.dart';
+import 'daos/setups_dao.dart';
+import 'daos/strava_dao.dart';
+import 'daos/task_dao.dart';
+import 'tables/adjustments.dart';
 import 'tables/bikes.dart';
 import 'tables/components.dart';
 import 'tables/installations.dart';
-import 'tables/adjustments.dart';
-import 'tables/setups.dart';
-import 'tables/setup_adjustment_values.dart';
-
 import 'tables/persons.dart';
 import 'tables/ratings.dart';
+import 'tables/setup_adjustment_values.dart';
+import 'tables/setups.dart';
 import 'tables/strava/strava_activities.dart';
 import 'tables/strava/strava_athletes.dart';
 import 'tables/strava/strava_gears.dart';
-
-import 'daos/bikes_dao.dart';
-import 'daos/components_dao.dart';
-import 'daos/setups_dao.dart';
-import 'daos/persons_dao.dart';
-import 'daos/ratings_dao.dart';
-import 'daos/task_dao.dart';
-import 'daos/strava_dao.dart';
-
-// Import the App Models so that Drift generator can find the Enums
-import '../models/task_rule.dart';
-import '../models/component.dart';
-import '../models/adjustment/adjustment.dart';
-import '../models/rating.dart';
-import '../models/strava/strava_activity.dart';
-
-import 'package:geocoding/geocoding.dart' as geo;
-
-import 'converters/string_list_converter.dart';
-import 'converters/location_data_converter.dart';
-import 'converters/placemark_converter.dart';
-import 'converters/weather_converter.dart';
-import 'converters/utc_datetime_converter.dart';
-import 'converters/local_floating_datetime_converter.dart';
-import 'converters/duration_converter.dart';
+import 'tables/task_entries.dart';
+import 'tables/task_rules.dart';
 
 part 'app_database.g.dart';
 

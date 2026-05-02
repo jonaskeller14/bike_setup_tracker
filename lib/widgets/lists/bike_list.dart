@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/bike_actions.dart';
-import '../items/bike_list_card.dart';
 import '../chips/bike_list_filter_widget.dart';
+import '../items/bike_list_card.dart';
 
 class BikeList extends StatelessWidget {
   const BikeList({super.key});

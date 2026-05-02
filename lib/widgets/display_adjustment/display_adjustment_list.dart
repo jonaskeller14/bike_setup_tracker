@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import 'display_boolean_adjustment.dart';
 import 'display_categorical_adjustment.dart';
+import 'display_duration_adjustment.dart';
 import 'display_numerical_adjustment.dart';
 import 'display_step_adjustment.dart';
 import 'display_text_adjustment.dart';
-import 'display_duration_adjustment.dart';
 
 class AdjustmentDisplayList extends StatelessWidget {
   final List<Adjustment> adjustments;

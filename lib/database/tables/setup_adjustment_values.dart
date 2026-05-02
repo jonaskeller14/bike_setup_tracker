@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
-import 'setups.dart';
 import 'adjustments.dart';
+import 'setups.dart';
 
 @DataClassName('SetupAdjustmentValueDb')
 class SetupAdjustmentValues extends Table {

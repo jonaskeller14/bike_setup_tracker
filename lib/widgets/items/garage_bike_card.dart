@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:simple_icons/simple_icons.dart';
 import 'package:reorderables/reorderables.dart';
-import '../../pages/details/component_details_page.dart';
-import '../../repositories/app_repository.dart';
+import 'package:simple_icons/simple_icons.dart';
 import '../../models/app_settings.dart';
+import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../models/person.dart';
-import '../../models/bike.dart';
+import '../../pages/details/bike_details_page.dart';
+import '../../pages/details/component_details_page.dart';
+import '../../repositories/app_repository.dart';
 import '../../utils/bike_actions.dart';
 import '../../utils/component_actions.dart';
 import '../dashed_border_painter.dart';
-import '../../pages/details/bike_details_page.dart';
 import 'component_list_card.dart';
 import 'garage_component_icon_card.dart';
 
@@ -208,11 +208,14 @@ class GarageBikeCard extends StatelessWidget{
                       child: const Icon(Icons.drag_handle),
                     ),
                     PopupMenuButton<_BikeOptions>(
-                      onSelected: (value) {
+                      onSelected: (value) async {
                         switch (value) {
-                          case _BikeOptions.edit: BikeActions.editBike(context, bike: bike);
-                          case _BikeOptions.duplicate: BikeActions.duplicateBikeWithComponents(context, bike: bike);
-                          case _BikeOptions.remove: BikeActions.removeBike(context, bike: bike);
+                          case _BikeOptions.edit:
+                            await BikeActions.editBike(context, bike: bike);
+                          case _BikeOptions.duplicate:
+                            await BikeActions.duplicateBikeWithComponents(context, bike: bike);
+                          case _BikeOptions.remove:
+                            await BikeActions.removeBike(context, bike: bike);
                         }
                       },
                       itemBuilder: (BuildContext context) => _BikeOptions.values.map((option) {

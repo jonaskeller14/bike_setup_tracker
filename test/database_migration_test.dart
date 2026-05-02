@@ -1,12 +1,12 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:bike_setup_tracker/database/app_database.dart';
-import 'package:bike_setup_tracker/services/database_migration_service.dart';
-import 'package:bike_setup_tracker/services/data_export_service.dart';
-import 'package:bike_setup_tracker/models/selected_data.dart';
-import 'package:bike_setup_tracker/models/task_rule.dart';
-import 'package:bike_setup_tracker/models/task_entry.dart';
-import 'package:bike_setup_tracker/models/task_threshold.dart';
 import 'package:bike_setup_tracker/models/component_stats.dart';
+import 'package:bike_setup_tracker/models/selected_data.dart';
+import 'package:bike_setup_tracker/models/task_entry.dart';
+import 'package:bike_setup_tracker/models/task_rule.dart';
+import 'package:bike_setup_tracker/models/task_threshold.dart';
+import 'package:bike_setup_tracker/services/data_export_service.dart';
+import 'package:bike_setup_tracker/services/database_migration_service.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   late AppDatabase database;

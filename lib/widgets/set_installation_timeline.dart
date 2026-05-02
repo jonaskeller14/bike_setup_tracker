@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:timelines_plus/timelines_plus.dart';
-import '../models/installation.dart';
-import '../models/bike.dart';
-import '../repositories/app_repository.dart';
 import '../models/app_settings.dart';
+import '../models/bike.dart';
+import '../models/installation.dart';
+import '../repositories/app_repository.dart';
 
 class SetInstallationTimeline extends StatefulWidget {
   final List<Installation> initialInstallations;

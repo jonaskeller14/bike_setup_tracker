@@ -1,5 +1,5 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:bike_setup_tracker/services/weather_service.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('WeatherService rate limits after 12 requests', () async {

@@ -1,11 +1,11 @@
+import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/models/app_settings.dart';
+import 'package:bike_setup_tracker/models/bike.dart';
+import 'package:bike_setup_tracker/pages/bike_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:bike_setup_tracker/models/app_settings.dart';
-import 'package:bike_setup_tracker/database/app_database.dart';
-import 'package:bike_setup_tracker/models/bike.dart';
-import 'package:bike_setup_tracker/pages/bike_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

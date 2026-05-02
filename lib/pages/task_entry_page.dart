@@ -3,13 +3,13 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import '../models/app_settings.dart';
-import '../models/task_entry.dart';
-import '../models/task_rule.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
+import '../models/task_entry.dart';
+import '../models/task_rule.dart';
+import '../repositories/app_repository.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/task_rule_display_card.dart';
-import '../repositories/app_repository.dart';
 
 enum TaskEntryPageMode { add, edit, duplicate }
 

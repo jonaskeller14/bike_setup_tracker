@@ -1,20 +1,21 @@
 import 'dart:async';
-import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
-import 'package:bike_setup_tracker/repositories/app_repository.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:bike_setup_tracker/main.dart';
-import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/database/app_database.dart';
-import 'package:bike_setup_tracker/widgets/lists/garage_list.dart';
+import 'package:bike_setup_tracker/main.dart';
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
-import 'package:bike_setup_tracker/services/strava_service.dart';
-import 'package:bike_setup_tracker/services/storage_service.dart';
+import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/google_drive_service.dart';
-
+import 'package:bike_setup_tracker/services/storage_service.dart';
+import 'package:bike_setup_tracker/services/strava_service.dart';
+import 'package:bike_setup_tracker/widgets/items/adjustment_list_card.dart';
+import 'package:bike_setup_tracker/widgets/items/component_list_card.dart';
+import 'package:bike_setup_tracker/widgets/lists/garage_list.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -368,19 +369,27 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    debugPrint('TEST: Opening Component PopupMenu');
-    await tester.tap(
-      find.descendant(
-        of: find.byType(ListTile),
+    final popupFinder = find.descendant(
+        of: find.byType(ComponentListCard),
         matching: find.bySubtype<PopupMenuButton>(),
-      ),
     );
+    
+    await tester.tap(popupFinder.first);
+    await tester.pump(const Duration(milliseconds: 500));
     await tester.pumpAndSettle();
-    debugPrint('TEST: Tapping Edit');
-    await tester.tap(find.text("Edit").last);
-    await tester.pumpAndSettle();
-    debugPrint('TEST: Should be in Edit Component now');
 
+    final menuFinder = find.byType(PopupMenuItem);
+    if (menuFinder.evaluate().isEmpty) {
+       // Fallback: try by icon
+       await tester.tap(find.byIcon(Icons.edit).last);
+    } else {
+       await tester.tap(menuFinder.last);
+    }
+    await tester.pump();
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 3));
+    
+    
     expect(
       find.descendant(
         of: find.byType(AppBar).last,
@@ -389,13 +398,9 @@ void main() {
       findsOneWidget,
     );
 
-    debugPrint('TEST: Opening Adjustment PopupMenu');
-    // On ComponentPage, adjustments are in ListTiles.
-    // The first ListTile is the component info (if used, but here it's likely just the list).
-    // Let's use the one containing the text.
     Finder adjRow = find.ancestor(
       of: find.textContaining('BooleanAdjustment #1'),
-      matching: find.byType(ListTile),
+      matching: find.byType(AdjustmentListCard),
     );
     expect(adjRow, findsOneWidget);
     
@@ -407,10 +412,9 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    debugPrint('TEST: Tapping Edit (Adjustment)');
+    await tester.pump(const Duration(milliseconds: 500));
     await tester.tap(find.text("Edit").last);
     await tester.pumpAndSettle();
-    debugPrint('TEST: Should be in Edit Adjustment now');
 
     expect(
       find.descendant(
@@ -487,16 +491,27 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await tester.pumpAndSettle();
+    
     await tester.tap(
       find.descendant(
-        of: find.byType(Card),
+        of: find.byType(ComponentListCard).first,
         matching: find.bySubtype<PopupMenuButton>(),
       ),
     );
+    await tester.pump(const Duration(milliseconds: 500));
     await tester.pumpAndSettle();
-    await tester.tap(find.text("Edit"));
+    
+    final editMenuFinder = find.byType(PopupMenuItem);
+    if (editMenuFinder.evaluate().isEmpty) {
+      await tester.tap(find.text("Edit").last);
+    } else {
+      await tester.tap(editMenuFinder.last);
+    }
+    await tester.pump();
     await tester.pumpAndSettle();
-
+    await tester.pump(const Duration(seconds: 3));
+    
     expect(
       find.descendant(
         of: find.byType(AppBar).last,
@@ -506,13 +521,14 @@ void main() {
     );
 
     final adjMenu = find.descendant(
-      of: find.byType(Card),
+      of: find.byType(AdjustmentListCard),
       matching: find.bySubtype<PopupMenuButton>(),
     );
     await tester.ensureVisible(adjMenu);
     await tester.tap(adjMenu);
     await tester.pumpAndSettle();
-    await tester.tap(find.text("Edit"));
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.tap(find.text("Edit").last);
     await tester.pumpAndSettle();
 
     expect(

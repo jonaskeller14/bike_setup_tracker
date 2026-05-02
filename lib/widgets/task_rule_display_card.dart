@@ -1,10 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../utils/task_actions.dart';
 import '../models/bike.dart';
 import '../models/task_rule.dart';
 import '../repositories/app_repository.dart';
+import '../utils/task_actions.dart';
 
 class TaskRuleDisplayCard extends StatelessWidget {
   final TaskRule taskRule;
@@ -38,9 +39,9 @@ class TaskRuleDisplayCard extends StatelessWidget {
                   value: isCompleted,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   visualDensity: VisualDensity.compact,
-                  onChanged: isCompleted ? null : (bool? value) {
-                    HapticFeedback.lightImpact();
-                    TaskActions.addTaskEntry(context, taskRule: taskRule);
+                  onChanged: isCompleted ? null : (bool? value) async {
+                    unawaited(HapticFeedback.lightImpact());
+                    await TaskActions.addTaskEntry(context, taskRule: taskRule);
                   },
                 )
               : null,

@@ -1,8 +1,8 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:bike_setup_tracker/database/app_database.dart';
-import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
+import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 Future<void> pumpEventQueue() => Future.delayed(const Duration(milliseconds: 100));
 

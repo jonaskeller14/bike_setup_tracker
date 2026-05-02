@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -68,7 +69,7 @@ class _OnboardingSlide4State extends State<OnboardingSlide4> {
           initialValue: startVal,
           value: displayValue, 
           onChanged: (double? newValue) {
-            HapticFeedback.lightImpact();
+            unawaited(HapticFeedback.lightImpact());
             setState(() => _setStepAdjustmentWidgetValue = newValue);
           },
           onChangedEnd: (_) {},

@@ -1,8 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
-import 'sheet.dart';
 import '../../utils/table_column.dart';
+import 'sheet.dart';
 
 class SelectColumn {
   final String id;

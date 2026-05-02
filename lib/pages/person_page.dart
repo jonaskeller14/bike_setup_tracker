@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
-import '../models/app_settings.dart';
-import '../repositories/app_repository.dart';
-import '../models/person.dart';
 import '../models/adjustment/adjustment.dart';
+import '../models/app_settings.dart';
+import '../models/person.dart';
+import '../repositories/app_repository.dart';
+import '../widgets/dashed_border_painter.dart';
+import '../widgets/dialogs/discard_changes.dart';
+import '../widgets/lists/adjustment_edit_list.dart';
+import '../widgets/sheets/person_add_adjustment.dart';
 import 'adjustment/boolean_adjustment_page.dart';
+import 'adjustment/categorical_adjustment_page.dart';
+import 'adjustment/duration_adjustment_page.dart';
 import 'adjustment/numerical_adjustment_page.dart';
 import 'adjustment/step_adjustment_page.dart';
-import 'adjustment/categorical_adjustment_page.dart';
 import 'adjustment/text_adjustment_page.dart';
-import 'adjustment/duration_adjustment_page.dart';
-import '../widgets/lists/adjustment_edit_list.dart';
-import '../widgets/dialogs/discard_changes.dart';
-import '../widgets/sheets/person_add_adjustment.dart';
-import '../widgets/dashed_border_painter.dart';
 
 enum PersonPageMode {
   add,

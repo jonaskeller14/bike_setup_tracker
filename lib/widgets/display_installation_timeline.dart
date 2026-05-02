@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:timelines_plus/timelines_plus.dart';
-import 'package:intl/intl.dart';
+import '../models/app_settings.dart';
 import '../models/component.dart';
 import '../models/installation.dart';
 import '../repositories/app_repository.dart';
-import '../models/app_settings.dart';
 
 class DisplayInstallationTimeline extends StatelessWidget {
   final Component component;

@@ -1,13 +1,13 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../repositories/app_repository.dart';
-import '../../models/person.dart';
 import '../../models/bike.dart';
-import '../../models/rating.dart';
 import '../../models/component.dart';
-import '../../utils/rating_actions.dart';
+import '../../models/person.dart';
+import '../../models/rating.dart';
 import '../../pages/details/rating_details_page.dart';
+import '../../repositories/app_repository.dart';
+import '../../utils/rating_actions.dart';
 
 class RatingListCard extends StatelessWidget {
   final Rating rating;
@@ -182,11 +182,14 @@ class RatingListCard extends StatelessWidget {
                     child: const Icon(Icons.drag_handle),
                   ),
                   PopupMenuButton<_RatingOptions>(
-                    onSelected: (value) {
+                    onSelected: (value) async {
                       switch (value) {
-                        case _RatingOptions.edit: RatingActions.editRating(context, rating: rating);
-                        case _RatingOptions.duplicate: RatingActions.duplicateRating(context, rating: rating);
-                        case _RatingOptions.remove: RatingActions.removeRating(context, rating: rating);
+                        case _RatingOptions.edit:
+                          await RatingActions.editRating(context, rating: rating);
+                        case _RatingOptions.duplicate:
+                          await RatingActions.duplicateRating(context, rating: rating);
+                        case _RatingOptions.remove:
+                          await RatingActions.removeRating(context, rating: rating);
                       }
                     },
                     itemBuilder: (BuildContext context) => _RatingOptions.values.map((option) {

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import '../models/app_settings.dart';
+import '../models/strava/strava_activity.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/chips/map_filter_widget.dart';
-import '../widgets/sheets/strava_activity.dart';
 import '../widgets/sheets/setup_display.dart';
-import '../models/strava/strava_activity.dart';
+import '../widgets/sheets/strava_activity.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -23,7 +23,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
   final MapController _mapController = MapController();
   LatLng? _userLocation;
 
-  void _animatedMapMove(LatLng destLocation, double destZoom) {
+  Future<void> _animatedMapMove(LatLng destLocation, double destZoom) async {
     final camera = _mapController.camera;
     final latTween = Tween<double>(begin: camera.center.latitude, end: destLocation.latitude);
     final lngTween = Tween<double>(begin: camera.center.longitude, end: destLocation.longitude);
@@ -47,7 +47,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
       }
     });
 
-    controller.forward();
+    await controller.forward();
   }
 
   Future<void> _locateMe() async {
@@ -299,18 +299,18 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
               FloatingActionButton(
                 heroTag: 'map_zoom_in',
                 mini: true,
-                onPressed: () {
+                onPressed: () async {
                   final newZoom = (_mapController.camera.zoom + 1).clamp(3.0, 18.0);
-                  _animatedMapMove(_mapController.camera.center, newZoom);
+                  await _animatedMapMove(_mapController.camera.center, newZoom);
                 },
                 child: const Icon(Icons.add),
               ),
               FloatingActionButton(
                 heroTag: 'map_zoom_out',
                 mini: true,
-                onPressed: () {
+                onPressed: () async {
                   final newZoom = (_mapController.camera.zoom - 1).clamp(3.0, 18.0);
-                  _animatedMapMove(_mapController.camera.center, newZoom);
+                  await _animatedMapMove(_mapController.camera.center, newZoom);
                 },
                 child: const Icon(Icons.remove),
               ),

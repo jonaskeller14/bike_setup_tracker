@@ -1,14 +1,14 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../../icons/bike_icons.dart';
 
 part 'boolean_adjustment.dart';
 part 'categorical_adjustment.dart';
-part 'step_adjustment.dart';
-part 'numerical_adjustment.dart';
-part 'text_adjustment.dart';
 part 'duration_adjustment.dart';
+part 'numerical_adjustment.dart';
+part 'step_adjustment.dart';
+part 'text_adjustment.dart';
 
 enum AdjustmentCategory {
   component('Component'),

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
-import '../../repositories/app_repository.dart';
+import '../../models/timeline_entry.dart';
 import '../../pages/details/setup_details_page.dart';
+import '../../repositories/app_repository.dart';
+import '../../utils/task_actions.dart';
+import '../items/installation_list_tile.dart';
 import '../items/setup_list_card.dart';
 import '../items/strava_list_tile.dart';
 import '../items/task_entry_list_item.dart';
-import '../items/installation_list_tile.dart';
 import '../sheets/installation_sheet.dart';
-import '../../models/timeline_entry.dart';
-import '../../utils/task_actions.dart';
 
 class SetupListSearch extends StatelessWidget {
   const SetupListSearch({
@@ -115,8 +115,8 @@ class SetupListSearch extends StatelessWidget {
             case InstallationEntry():
               return InstallationListTile(
                 componentInstallation: entry.componentInstallation,
-                onTap: () {
-                  showEditInstallationSheet(
+                onTap: () async {
+                  await showEditInstallationSheet(
                     context,
                     component: entry.componentInstallation.component,
                     editEntry: entry.componentInstallation,

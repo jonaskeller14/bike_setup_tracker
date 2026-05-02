@@ -1,6 +1,7 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:bike_setup_tracker/models/task_threshold.dart';
 import 'dart:convert';
+
+import 'package:bike_setup_tracker/models/task_threshold.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('Serialize and deserialize DurationThreshold', () {

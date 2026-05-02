@@ -3,23 +3,23 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../../models/adjustment/adjustment.dart';
+import '../../models/app_settings.dart';
 import '../../models/bike.dart';
-import '../../repositories/app_repository.dart';
+import '../../models/component_stats.dart';
 import '../../models/rating.dart';
 import '../../models/setup.dart';
-import '../../models/adjustment/adjustment.dart';
-import '../../models/weather.dart';
-import '../../models/app_settings.dart';
-import '../../models/component_stats.dart';
 import '../../models/task_rule.dart';
+import '../../models/weather.dart';
+import '../../repositories/app_repository.dart';
 import '../../utils/component_actions.dart';
 import '../../utils/table_column.dart';
 import '../../widgets/chips/bike_and_tags_filter.dart';
+import '../../widgets/component_stats_card.dart';
 import '../../widgets/display_installation_timeline.dart';
-import '../../widgets/sheets/column_filter.dart';
 import '../../widgets/initial_changed_value_legend.dart';
 import '../../widgets/open_tasks_card.dart';
-import '../../widgets/component_stats_card.dart';
+import '../../widgets/sheets/column_filter.dart';
 
 class ComponentDetailsPage extends StatefulWidget{
   final String componentId;
@@ -77,8 +77,8 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               ? setups.sort((a, b) => (a.notes ?? '').compareTo(b.notes ?? '')) 
               : setups.sort((a, b) => (b.notes ?? '').compareTo(a.notes ?? ''));
           case "Tags": _sortAscending 
-              ? setups.sort((a, b) => (a.tags.join('; ')).compareTo(b.tags.join('; '))) 
-              : setups.sort((a, b) => (b.tags.join('; ')).compareTo(a.tags.join('; ')));
+              ? setups.sort((a, b) => a.tags.join('; ').compareTo(b.tags.join('; '))) 
+              : setups.sort((a, b) => b.tags.join('; ').compareTo(a.tags.join('; ')));
           case "Date": _sortAscending 
               ? setups.sort((a, b) => a.datetime.compareTo(b.datetime)) 
               : setups.sort((a, b) => b.datetime.compareTo(a.datetime));
@@ -451,6 +451,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
+                        spacing: 8,
                         children: [
                           Opacity(
                             opacity: isDimmed ? 0.3 : 1.0,
@@ -459,14 +460,16 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                               painter: _DashLinePainter(color: color, dashArray: dashArray),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Opacity(
-                            opacity: isDimmed ? 0.3 : 1.0,
-                            child: Text(
-                              columnName,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                color: isSelected ? color : null,
+                          Flexible(
+                            child: Opacity(
+                              opacity: isDimmed ? 0.3 : 1.0,
+                              child: Text(
+                                columnName,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  color: isSelected ? color : null,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ),
@@ -697,6 +700,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                                     ),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
+                                      spacing: 4,
                                       children: [
                                         Opacity(
                                           opacity: isDimmed ? 0.3 : 1.0,
@@ -709,14 +713,16 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(width: 4),
-                                        Opacity(
-                                          opacity: isDimmed ? 0.3 : 1.0,
-                                          child: Text(
-                                            setup.name,
-                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                              color: isSelected ? color : null,
+                                        Flexible(
+                                          child: Opacity(
+                                            opacity: isDimmed ? 0.3 : 1.0,
+                                            child: Text(
+                                              setup.name,
+                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                                color: isSelected ? color : null,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                         ),

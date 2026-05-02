@@ -1,9 +1,9 @@
 import 'package:drift/drift.dart';
-import '../converters/utc_datetime_converter.dart';
 import '../converters/local_floating_datetime_converter.dart';
-import 'task_rules.dart';
-import 'components.dart';
+import '../converters/utc_datetime_converter.dart';
 import 'bikes.dart';
+import 'components.dart';
+import 'task_rules.dart';
 
 @DataClassName('TaskEntryDb')
 class TaskEntries extends Table {

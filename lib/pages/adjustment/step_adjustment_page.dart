@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -94,7 +95,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
         _notesController.text.trim() != (widget.adjustment?.notes ?? '') ||
         int.tryParse(_stepController.text.trim()) != (widget.adjustment?.step ?? _defaultStep) ||
         int.tryParse(_minController.text.trim()) != (widget.adjustment?.min ?? _defaultMin) ||
-        int.tryParse(_maxController.text.trim()) != (widget.adjustment?.max) ||
+        int.tryParse(_maxController.text.trim()) != widget.adjustment?.max ||
         visualization != (widget.adjustment?.visualization ?? _defaultVisualization);
 
     if (_formHasChanges != hasChanges) {
@@ -527,7 +528,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             initialValue: 0.0,
                             value: _previewValue,
                             onChanged: (double? newValue) {
-                              HapticFeedback.lightImpact();
+                              unawaited(HapticFeedback.lightImpact());
                               setState(() {
                                 _previewValue = newValue ?? _previewAdjustment.min.toDouble();
                               });

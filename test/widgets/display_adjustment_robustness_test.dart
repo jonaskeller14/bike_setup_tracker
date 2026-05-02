@@ -1,8 +1,8 @@
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/widgets/display_adjustment/display_numerical_adjustment.dart';
+import 'package:bike_setup_tracker/widgets/display_adjustment/display_step_adjustment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bike_setup_tracker/widgets/display_adjustment/display_step_adjustment.dart';
-import 'package:bike_setup_tracker/widgets/display_adjustment/display_numerical_adjustment.dart';
-import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 
 void main() {
   group('Display Widgets Robustness Tests', () {
@@ -38,8 +38,8 @@ void main() {
           body: DisplayStepAdjustmentWidget(
             key: const ValueKey('double'),
             adjustment: adjustment,
-            initialValue: 5.0 as dynamic, // Force double
-            value: 6.0 as dynamic,
+            initialValue: 5.0,
+            value: 6.0,
           ),
         ),
       ));
@@ -76,8 +76,8 @@ void main() {
           body: DisplayNumericalAdjustmentWidget(
             key: const ValueKey('int'),
             adjustment: adjustment,
-            initialValue: 10 as dynamic,
-            value: 12 as dynamic,
+            initialValue: 10,
+            value: 12,
           ),
         ),
       ));

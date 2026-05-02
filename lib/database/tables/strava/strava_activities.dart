@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
-import '../../converters/utc_datetime_converter.dart';
+import '../../../models/strava/strava_activity.dart';
 import '../../converters/local_floating_datetime_converter.dart';
-import '../../../models/strava/strava_activity.dart'; 
+import '../../converters/utc_datetime_converter.dart'; 
 
 @DataClassName('StravaActivityDb')
 class StravaActivities extends Table {

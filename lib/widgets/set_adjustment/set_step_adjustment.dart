@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
+import 'package:syncfusion_flutter_sliders/sliders.dart';
 import '../../models/adjustment/adjustment.dart';
 import "set_adjustment.dart";
 
@@ -279,7 +279,7 @@ class RotaryKnob extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final normalizedValue = (value - min) / (max - min); // 0..1
-    final angleDeg = (normalizedValue * 270.0); // in degrees
+    final angleDeg = normalizedValue * 270.0; // in degrees
     final angleRad = angleDeg * (pi / 180.0);
 
     final int step = ((max - min) / (numberOfTicks - 1)).toInt();

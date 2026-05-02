@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:location/location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
+import 'package:location/location.dart';
 import '../models/setup.dart';
 
 enum LocationStatus {

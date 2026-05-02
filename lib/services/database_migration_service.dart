@@ -1,8 +1,8 @@
 import 'package:uuid/uuid.dart';
-import '../models/selected_data.dart';
-import '../models/adjustment/adjustment.dart';
 import '../database/app_database.dart';
 import '../database/mappers.dart';
+import '../models/adjustment/adjustment.dart';
+import '../models/selected_data.dart';
 
 class DatabaseMigrationService {
   final AppDatabase db;

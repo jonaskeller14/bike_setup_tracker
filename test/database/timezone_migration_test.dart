@@ -1,6 +1,6 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:drift/drift.dart' hide Column;
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:drift/drift.dart' hide Column;
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   late AppDatabase db;

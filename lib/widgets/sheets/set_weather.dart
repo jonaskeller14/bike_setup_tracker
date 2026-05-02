@@ -1,8 +1,8 @@
 import 'package:bike_setup_tracker/models/weather.dart';
 import 'package:bike_setup_tracker/services/location_service.dart';
-import 'package:location/location.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../services/weather_service.dart';

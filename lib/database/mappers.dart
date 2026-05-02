@@ -1,25 +1,25 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:drift/drift.dart' hide Component;
+import 'package:flutter/foundation.dart';
 import 'package:geocoding/geocoding.dart' as geo;
-import 'app_database.dart';
-import 'daos/setups_dao.dart';
+import 'package:location/location.dart';
+import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
-import '../models/adjustment/adjustment.dart';
+import '../models/component_stats.dart';
+import '../models/installation.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
 import '../models/setup.dart';
-import '../models/installation.dart';
-import '../models/task_rule.dart';
-import '../models/task_entry.dart';
-import '../models/weather.dart';
-import 'package:location/location.dart';
+import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
-import '../models/strava/strava_activity.dart';
+import '../models/task_entry.dart';
+import '../models/task_rule.dart';
 import '../models/task_threshold.dart';
-import '../models/component_stats.dart';
+import '../models/weather.dart';
+import 'app_database.dart';
+import 'daos/setups_dao.dart';
 
 extension BikeDbMapper on BikeDb {
   Bike toModel() {

@@ -1,9 +1,9 @@
-import 'package:bike_setup_tracker/models/installation.dart';
-import 'package:bike_setup_tracker/models/bike.dart';
-import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/database/app_database.dart';
-import 'package:bike_setup_tracker/widgets/set_installation_timeline.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
+import 'package:bike_setup_tracker/models/bike.dart';
+import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/widgets/set_installation_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';

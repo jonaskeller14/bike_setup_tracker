@@ -133,7 +133,7 @@ class ComponentActions {
 
   static Future<void> onReorderComponents(BuildContext context, {required int oldIndex, required int newIndex}) async {
     final appRepository = context.read<AppRepository>();
-    appRepository.reorderComponent(oldIndex: oldIndex, newIndex: newIndex, filteredComponentsList: appRepository.filteredComponents.values.toList());
+    await appRepository.reorderComponent(oldIndex: oldIndex, newIndex: newIndex, filteredComponentsList: appRepository.filteredComponents.values.toList());
   }
 }
 

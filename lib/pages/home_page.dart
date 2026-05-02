@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/person.dart';
+import '../models/app_settings.dart';
 import '../models/bike.dart';
+import '../models/component.dart';
+import '../models/person.dart';
 import '../models/rating.dart';
 import '../models/setup.dart';
-import '../models/component.dart';
-import '../models/app_settings.dart';
 import '../repositories/app_repository.dart';
 import '../utils/bike_actions.dart';
 import '../utils/component_actions.dart';
@@ -13,21 +13,21 @@ import '../utils/person_actions.dart';
 import '../utils/rating_actions.dart';
 import '../utils/setup_actions.dart';
 import '../utils/task_actions.dart';
-import '../widgets/lists/garage_list.dart';
-import '../widgets/strava_sync_button.dart';
-import 'trash_page.dart';
-import 'app_settings_page.dart';
-import 'about_page.dart';
-import '../widgets/lists/task_list.dart';
-import '../widgets/lists/person_list.dart';
-import '../widgets/lists/rating_list.dart';
+import '../widgets/google_drive_sync_button.dart';
 import '../widgets/lists/bike_list.dart';
 import '../widgets/lists/component_list.dart';
+import '../widgets/lists/garage_list.dart';
+import '../widgets/lists/person_list.dart';
+import '../widgets/lists/rating_list.dart';
 import '../widgets/lists/setup_list.dart';
-import '../widgets/sheets/import.dart';
+import '../widgets/lists/task_list.dart';
 import '../widgets/sheets/export.dart';
+import '../widgets/sheets/import.dart';
 import '../widgets/sheets/share.dart';
-import '../widgets/google_drive_sync_button.dart';
+import '../widgets/strava_sync_button.dart';
+import 'about_page.dart';
+import 'app_settings_page.dart';
+import 'trash_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -81,14 +81,14 @@ class _HomePageState extends State<HomePage> {
           if (appSettings.enableGoogleDrive)
             const GoogleDriveSyncButton(),
           PopupMenuButton<String>(
-            onSelected: (String result) {
+            onSelected: (String result) async {
               switch (result) {
-                case 'import': importData(context);
-                case 'export': exportData(context);
-                case 'share': shareData(context);
-                case "trash": Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const TrashPage()));
-                case "settings": Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()));
-                case "about": Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AboutPage()));
+                case 'import': await importData(context);
+                case 'export': await exportData(context);
+                case 'share': await shareData(context);
+                case "trash": await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const TrashPage()));
+                case "settings": await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()));
+                case "about": await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AboutPage()));
               }
             },
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[

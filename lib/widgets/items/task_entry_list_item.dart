@@ -221,12 +221,12 @@ class TaskEntryListItem extends StatelessWidget {
       ),
       contentPadding: contentPadding,
       trailing: PopupMenuButton<_TaskEntryListCardPopupMenuButtonOptions>(
-        onSelected: (_TaskEntryListCardPopupMenuButtonOptions value) {
+        onSelected: (_TaskEntryListCardPopupMenuButtonOptions value) async {
           switch (value) {
             case _TaskEntryListCardPopupMenuButtonOptions.edit:
-              TaskActions.editTaskEntry(context, taskEntry: taskEntry);
+              await TaskActions.editTaskEntry(context, taskEntry: taskEntry);
             case _TaskEntryListCardPopupMenuButtonOptions.remove:
-              TaskActions.removeTaskEntry(context, taskEntry: taskEntry);
+              await TaskActions.removeTaskEntry(context, taskEntry: taskEntry);
           }
         },
         itemBuilder: (BuildContext context) => <PopupMenuEntry<_TaskEntryListCardPopupMenuButtonOptions>>[

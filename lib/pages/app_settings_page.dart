@@ -2,9 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
-import '../models/bike.dart';
-import '../models/app_settings.dart';
 import '../models/adjustment/adjustment.dart';
+import '../models/app_settings.dart';
+import '../models/bike.dart';
 import '../models/weather.dart';
 import '../widgets/sheets/app_settings_radio_group.dart';
 

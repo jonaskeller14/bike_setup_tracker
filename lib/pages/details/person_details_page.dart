@@ -60,8 +60,8 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
               ? setups.sort((a, b) => (a.notes ?? '').compareTo(b.notes ?? '')) 
               : setups.sort((a, b) => (b.notes ?? '').compareTo(a.notes ?? ''));
           case "Tags": _sortAscending 
-              ? setups.sort((a, b) => (a.tags.join('; ')).compareTo(b.tags.join('; '))) 
-              : setups.sort((a, b) => (b.tags.join('; ')).compareTo(a.tags.join('; ')));
+              ? setups.sort((a, b) => a.tags.join('; ').compareTo(b.tags.join('; '))) 
+              : setups.sort((a, b) => b.tags.join('; ').compareTo(a.tags.join('; ')));
           case "Date": _sortAscending 
               ? setups.sort((a, b) => a.datetime.compareTo(b.datetime)) 
               : setups.sort((a, b) => b.datetime.compareTo(a.datetime));

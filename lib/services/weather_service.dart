@@ -1,7 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'dart:async';
 import 'package:open_meteo/open_meteo.dart';
 import '../models/weather.dart';
 

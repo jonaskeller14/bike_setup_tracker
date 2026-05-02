@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
-import '../../widgets/sheets/set_duration.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_duration_adjustment.dart';
+import '../../widgets/sheets/set_duration.dart';
 import 'adjustment_page.dart';
 
 class DurationAdjustmentPage extends StatefulWidget {

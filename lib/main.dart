@@ -1,28 +1,29 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter/services.dart';
-import 'models/app_settings.dart';
-import 'repositories/app_repository.dart';
-import 'pages/onboarding_page.dart';
-import 'pages/home_page.dart';
-import 'pages/loading_error_page.dart';
-import 'services/google_drive_service.dart';
-import 'services/storage_service.dart';
-import 'services/strava_service.dart';
-import 'services/navigation_service.dart';
-import 'services/deep_link_service.dart';
-import 'services/quick_actions_service.dart';
-import 'services/notification_service.dart';
-import 'utils/file_export.dart';
+import 'dart:async';
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import 'database/app_database.dart';
+import 'models/app_settings.dart';
+import 'pages/home_page.dart';
+import 'pages/loading_error_page.dart';
+import 'pages/onboarding_page.dart';
+import 'repositories/app_repository.dart';
 import 'services/database_migration_service.dart';
+import 'services/deep_link_service.dart';
+import 'services/google_drive_service.dart';
+import 'services/navigation_service.dart';
+import 'services/notification_service.dart';
+import 'services/quick_actions_service.dart';
+import 'services/storage_service.dart';
+import 'services/strava_service.dart';
+import 'utils/file_export.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -153,7 +154,7 @@ class LoadingGate extends StatelessWidget {
                 lazy: false,
                 create: (context) => StravaService(appRepository),
                 update: (context, settings, appRepo, stravaService) {
-                  if (settings.enableStrava) stravaService!.update(appRepository: appRepo);
+                  if (settings.enableStrava) unawaited(stravaService!.update(appRepository: appRepo));
                   return stravaService!;
                 },
               ),
@@ -161,8 +162,8 @@ class LoadingGate extends StatelessWidget {
             child: Builder(
               builder: (context) {
                 // Initialize Services after Snapshots are done and context is available
-                DeepLinkService().init();
-                QuickActionsService().init();
+                unawaited(DeepLinkService().init());
+                unawaited(QuickActionsService().init());
                 NotificationService().init(appRepository);
                 return const BikeSetupTrackerApp();
               },

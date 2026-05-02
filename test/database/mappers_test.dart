@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/database/daos/setups_dao.dart';
 import 'package:bike_setup_tracker/database/mappers.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
@@ -6,7 +7,6 @@ import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
-import 'package:bike_setup_tracker/database/daos/setups_dao.dart';
 import 'package:bike_setup_tracker/models/strava/strava_athlete.dart';
 import 'package:flutter_test/flutter_test.dart';
 

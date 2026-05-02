@@ -3,23 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/installation.dart';
-import '../models/adjustment/adjustment.dart';
 import '../repositories/app_repository.dart';
+import '../widgets/dashed_border_painter.dart';
+import '../widgets/dialogs/discard_changes.dart';
+import '../widgets/lists/adjustment_edit_list.dart';
 import '../widgets/set_installation_timeline.dart';
+import '../widgets/sheets/component_add_adjustment.dart';
 import 'adjustment/boolean_adjustment_page.dart';
+import 'adjustment/categorical_adjustment_page.dart';
+import 'adjustment/duration_adjustment_page.dart';
 import 'adjustment/numerical_adjustment_page.dart';
 import 'adjustment/step_adjustment_page.dart';
-import 'adjustment/categorical_adjustment_page.dart';
 import 'adjustment/text_adjustment_page.dart';
-import 'adjustment/duration_adjustment_page.dart';
-import '../widgets/lists/adjustment_edit_list.dart';
-import '../widgets/dialogs/discard_changes.dart';
-import '../widgets/sheets/component_add_adjustment.dart';
-import '../widgets/dashed_border_painter.dart';
 
 enum ComponentPageMode {
   add,

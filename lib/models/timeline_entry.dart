@@ -1,7 +1,7 @@
+import '../repositories/app_repository.dart' show ComponentInstallation;
 import 'setup.dart';
 import 'strava/strava_activity.dart';
 import 'task_entry.dart';
-import '../repositories/app_repository.dart' show ComponentInstallation;
 
 sealed class TimelineEntry {
   DateTime get date;

@@ -1,25 +1,25 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:drift/drift.dart' as drift;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/foundation.dart';
-import 'package:drift/drift.dart' as drift;
 import 'package:uuid/uuid.dart';
 import '../database/app_database.dart';
 import '../database/mappers.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
-import '../models/person.dart';
-import '../models/setup.dart';
+import '../models/component_stats.dart';
 import '../models/installation.dart';
+import '../models/person.dart';
 import '../models/rating.dart';
-import '../models/task_rule.dart';
-import '../models/task_entry.dart';
+import '../models/selected_data.dart';
+import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
-import '../models/selected_data.dart';
-import '../models/component_stats.dart';
+import '../models/task_entry.dart';
+import '../models/task_rule.dart';
 import '../services/setup_resolution_service.dart';
 import '../utils/file_export.dart';
 
@@ -223,7 +223,7 @@ class AppRepository extends ChangeNotifier {
   void dispose() {
     _isDisposed = true;
     for (final s in _subscriptions) {
-      s.cancel();
+      unawaited(s.cancel());
     }
     super.dispose();
   }

@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
-import '../converters/utc_datetime_converter.dart';
 import '../converters/local_floating_datetime_converter.dart';
+import '../converters/utc_datetime_converter.dart';
 import 'components.dart';
 
 @DataClassName('InstallationDb')

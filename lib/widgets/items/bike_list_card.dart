@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
+import '../../models/app_settings.dart';
+import '../../models/bike.dart';
+import '../../models/person.dart';
 import '../../pages/details/bike_details_page.dart';
 import '../../repositories/app_repository.dart';
-import '../../models/app_settings.dart';
-import '../../models/person.dart';
-import '../../models/bike.dart';
 import '../../utils/bike_actions.dart';
 
 class BikeListCard extends StatelessWidget{
@@ -146,11 +146,14 @@ class BikeListCard extends StatelessWidget{
                   child: const Icon(Icons.drag_handle),
                 ),
                 PopupMenuButton<_BikeOptions>(
-                  onSelected: (value) {
+                  onSelected: (value) async {
                     switch (value) {
-                      case _BikeOptions.edit: BikeActions.editBike(context, bike: bike);
-                      case _BikeOptions.duplicate: BikeActions.duplicateBikeWithoutComponents(context, bike: bike);
-                      case _BikeOptions.remove: BikeActions.removeBike(context, bike: bike);
+                      case _BikeOptions.edit:
+                        await BikeActions.editBike(context, bike: bike);
+                      case _BikeOptions.duplicate: 
+                        await BikeActions.duplicateBikeWithoutComponents(context, bike: bike);
+                      case _BikeOptions.remove:
+                        await BikeActions.removeBike(context, bike: bike);
                     }
                   },
                   itemBuilder: (BuildContext context) => _BikeOptions.values.map((option) {

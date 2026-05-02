@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
-import '../../repositories/app_repository.dart';
+import '../../models/timeline_entry.dart';
 import '../../pages/details/setup_details_page.dart';
+import '../../repositories/app_repository.dart';
+import '../../utils/task_actions.dart';
 import '../chips/setup_list_filter_widget.dart';
+import '../items/installation_list_tile.dart';
 import '../items/setup_list_card.dart';
 import '../items/strava_list_tile.dart';
 import '../items/task_entry_list_item.dart';
-import '../items/installation_list_tile.dart';
 import '../sheets/installation_sheet.dart';
-import '../../models/timeline_entry.dart';
-import '../../utils/task_actions.dart';
 
 class SetupList extends StatelessWidget {
   const SetupList({super.key});
@@ -115,12 +115,12 @@ class SetupList extends StatelessWidget {
                 if (activities.length >= 5) {
                    final tailActivities = activities.sublist(activities.length - 5);
                    if (tailActivities.contains(entry.activity)) {
-                     WidgetsBinding.instance.addPostFrameCallback((_) {
+                     WidgetsBinding.instance.addPostFrameCallback((_) async {
                        appRepository.loadMoreStravaActivities();
                      });
                    }
                 } else if (activities.isNotEmpty && activities.last == entry.activity) {
-                   WidgetsBinding.instance.addPostFrameCallback((_) {
+                   WidgetsBinding.instance.addPostFrameCallback((_) async {
                      appRepository.loadMoreStravaActivities();
                    });
                 }
@@ -156,8 +156,8 @@ class SetupList extends StatelessWidget {
                 case InstallationEntry():
                   return InstallationListTile(
                     componentInstallation: entry.componentInstallation,
-                    onTap: () {
-                      showEditInstallationSheet(
+                    onTap: () async {
+                      await showEditInstallationSheet(
                         context,
                         component: entry.componentInstallation.component,
                         editEntry: entry.componentInstallation,

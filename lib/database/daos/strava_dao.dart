@@ -1,11 +1,11 @@
 import 'package:drift/drift.dart';
+import '../../models/component_stats.dart';
 import '../app_database.dart';
-import '../tables/strava/strava_athletes.dart';
-import '../tables/strava/strava_gears.dart';
-import '../tables/strava/strava_activities.dart';
 import '../tables/bikes.dart';
 import '../tables/installations.dart';
-import '../../models/component_stats.dart';
+import '../tables/strava/strava_activities.dart';
+import '../tables/strava/strava_athletes.dart';
+import '../tables/strava/strava_gears.dart';
 
 part 'strava_dao.g.dart';
 

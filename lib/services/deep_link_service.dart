@@ -20,29 +20,29 @@ class DeepLinkService {
   Uri? _lastHandledUri;
   DateTime? _lastHandledTime;
 
-  void init() {
+  Future<void> init() async {
     if (_isInitialized) return;
     _isInitialized = true;
 
-    _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
-      _handleDeepLink(uri);
-    }, onError: (err) {
-      debugPrint('DeepLinkService error: $err');
-    });
+    _linkSubscription = _appLinks.uriLinkStream.listen(
+      _handleDeepLink,
+      onError: (err) {
+        debugPrint('DeepLinkService error: $err');
+      },
+    );
 
     // Check for initial link
-    _appLinks.getInitialLink().then((uri) {
-      if (uri != null) {
-        _handleDeepLink(uri);
-      }
-    });
+    final uri = await _appLinks.getInitialLink();
+    if (uri != null) {
+      await _handleDeepLink(uri);
+    }
   }
 
-  void dispose() {
-    _linkSubscription?.cancel();
+  void dispose() async {
+    await _linkSubscription?.cancel();
   }
 
-  void _handleDeepLink(Uri uri) async {
+  Future<void> _handleDeepLink(Uri uri) async {
     // Prevent duplicate handling (especially during startup when stream and initialLink might both fire)
     if (_lastHandledUri == uri && 
         _lastHandledTime != null && 

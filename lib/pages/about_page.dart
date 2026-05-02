@@ -1,7 +1,8 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/app_settings.dart';
 import 'faq_page.dart';
 
@@ -176,7 +177,7 @@ class AboutPage extends StatelessWidget {
                 trailing: const Icon(Icons.open_in_new, size: 16.0),
                 onTap: () {
                   final url = Theme.of(context).platform == TargetPlatform.iOS ? appStoreUrl : playStoreUrl;
-                  _launchUrl(context, url: url, launchMode: LaunchMode.externalApplication);
+                  unawaited(_launchUrl(context, url: url, launchMode: LaunchMode.externalApplication));
                 },
               ),
               _buildContactTile(

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/person_actions.dart';
-import '../items/person_list_card.dart';
 import '../chips/person_list_filter_widget.dart';
+import '../items/person_list_card.dart';
 
 class PersonList extends StatelessWidget {
   const PersonList({super.key});

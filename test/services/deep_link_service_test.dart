@@ -22,8 +22,8 @@ void main() {
     deepLinkService = DeepLinkService.test(mockAppLinks);
   });
 
-  tearDown(() {
-    uriController.close();
+  tearDown(() async {
+    await uriController.close();
   });
 
   test('DeepLinkService handles add-setup URI', () async {

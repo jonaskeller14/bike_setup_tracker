@@ -1,10 +1,10 @@
-import 'person.dart';
 import 'bike.dart';
 import 'component.dart';
-import 'setup.dart';
+import 'person.dart';
 import 'rating.dart';
-import 'task_rule.dart';
+import 'setup.dart';
 import 'task_entry.dart';
+import 'task_rule.dart';
 
 class SelectedData {
   final Map<String, Person> persons;

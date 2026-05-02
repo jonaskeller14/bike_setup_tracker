@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/component_actions.dart';
-import '../items/component_list_card.dart';
 import '../chips/component_list_filter_widget.dart';
+import '../items/component_list_card.dart';
 
 class ComponentList extends StatelessWidget {
   const ComponentList({super.key});

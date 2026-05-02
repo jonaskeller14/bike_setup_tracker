@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/rating_actions.dart';
-import '../items/rating_list_card.dart';
 import '../chips/rating_list_filter_widget.dart';
+import '../items/rating_list_card.dart';
 
 class RatingList extends StatelessWidget {
   const RatingList({super.key});

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../repositories/app_repository.dart';
 import '../models/setup.dart';
 import '../pages/setup_page.dart';
+import '../repositories/app_repository.dart';
 import '../services/share_service.dart';
-import 'to_text.dart';
 import 'bike_actions.dart';
 import 'component_actions.dart';
+import 'to_text.dart';
 
 class SetupActions {
   static Future<void> addSetup(BuildContext context) async {

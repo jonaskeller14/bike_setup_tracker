@@ -256,7 +256,7 @@ class AppSettings extends ChangeNotifier {
     }
   }
 
-  Future<void> saveAppSettings() async {
+  void saveAppSettings() async {
     final prefs = await SharedPreferences.getInstance();
 
     final jsonData = jsonEncode({

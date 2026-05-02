@@ -43,7 +43,7 @@ class DisplayInstallationTimeline extends StatelessWidget {
         contentsBuilder: (context, index) {
           final assignment = installations[index];
           final bikeName = assignment.parent != null
-              ? bikes[assignment.parent]?.name ?? 'Unknown Bike'
+              ? bikes[assignment.parent]?.name ?? 'BIKE NOT FOUND'
               : 'Deinstalled';
           final dateStr = assignment.dateTimeUTC.millisecondsSinceEpoch == 0
               ? 'From beginning'
@@ -62,7 +62,7 @@ class DisplayInstallationTimeline extends StatelessWidget {
                         ? FontWeight.bold
                         : FontWeight.normal,
                     color: assignment.parent != null
-                        ? colorScheme.onSurface
+                        ? bikes[assignment.parent]?.name == null ? colorScheme.error : colorScheme.onSurface
                         : colorScheme.onSurfaceVariant,
                   ),
                 ),

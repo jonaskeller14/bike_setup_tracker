@@ -14,9 +14,7 @@ class InitialChangedValueLegend extends StatelessWidget {
         ),
         Text(
           text,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+          style: Theme.of(context).textTheme.bodySmall,
         ),
       ],
     );
@@ -33,12 +31,12 @@ class InitialChangedValueLegend extends StatelessWidget {
           children: <Widget>[
             _buildLegendItem(
               context,
-              Colors.green.withValues(alpha: 0.20),
+              Colors.green.withValues(alpha: 1),
               'Initial Value',
             ),
             _buildLegendItem(
               context,
-              Colors.orange.withValues(alpha: 0.20),
+              Colors.orange.withValues(alpha: 1),
               'Changed Value',
             ),
           ],

@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -153,32 +154,290 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     return setups;
   }
 
-  Widget _noColumnsPlaceholder() {
-    return SizedBox(
-      height: 100,
-      child: Center(
-        child: Text(
-          'Select a column to display the table',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+  Widget _emptyStatePlaceholder({required IconData icon, required String message}) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 12,
+          children: [
+            Icon(
+              icon,
+              size: 64,
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40.0),
+              child: Text(
+                message,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                  height: 1.5,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _noSetupsPlaceholder({required bool hasAdjustments}) {
-    return SizedBox(
-      height: 100,
-      child: Center(
-        child: Text(
-          hasAdjustments
-              ? 'No setups yet'
-              : 'No adjustments defined for this component',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-        ),
-      ),
+  Widget _noColumnsPlaceholder() {
+    return _emptyStatePlaceholder(
+      icon: Icons.view_column_outlined,
+      message: 'Select a column to display the table',
     );
+  }
+
+  Widget _noSetupsPlaceholder({required bool hasAdjustments}) {
+    return _emptyStatePlaceholder(
+      icon: Icons.history_rounded,
+      message: hasAdjustments
+          ? 'No setups yet'
+          : 'No adjustments defined for this component',
+    );
+  }
+
+  Widget _chartPlaceholder({required String message}) {
+    return _emptyStatePlaceholder(
+      icon: Icons.insights_rounded,
+      message: message,
+    );
+  }
+
+  List<Widget> _buildChartSection({
+    required BuildContext context,
+    required AppSettings appSettings,
+    required List<TableColumn> activeColumns,
+    required List<Setup> setups,
+    required Iterable<Adjustment> componentAdjustments,
+    required Iterable<Adjustment> personAdjustments,
+    required Iterable<Adjustment> ratingAdjustments,
+  }) {
+    if (!appSettings.enableCharts) return [];
+
+    final activeChartColumns = activeColumns.where((column) {
+      Adjustment? adjustment = switch (column.section) {
+        TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label),
+        TableColumnSection.ratingMetrics => ratingAdjustments.firstWhereOrNull((a) => a.id == column.label),
+        TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == column.label),
+        _ => null,
+      };
+      return adjustment is StepAdjustment || adjustment is NumericalAdjustment;
+    }).toList();
+
+    return [
+      const SizedBox(height: 24),
+      Builder(
+        builder: (context) {
+          if (activeChartColumns.isEmpty) {
+            return _chartPlaceholder(message: "Select numerical or step adjustment columns to visualize trends");
+          }
+          if (setups.isEmpty) {
+            return _chartPlaceholder(message: "No setup data available for this component");
+          }
+
+          final validColumns = activeChartColumns.where((column) {
+            return setups.any((setup) {
+              final rawValue = switch (column.section) {
+                TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[column.label],
+                TableColumnSection.ratingMetrics => setup.ratingAdjustmentValues[column.label],
+                TableColumnSection.personAttributes => setup.personAdjustmentValues[column.label],
+                _ => null,
+              };
+              return rawValue is num;
+            });
+          }).toList();
+
+          if (validColumns.isEmpty) {
+            return _chartPlaceholder(message: "The selected columns do not contain numerical data to plot");
+          }
+
+          final chartSetups = setups.toList()..sort((a, b) => a.datetime.compareTo(b.datetime));
+
+          if (chartSetups.length < 2) {
+            return _chartPlaceholder(message: "At least two setups are required to visualize a trend chart");
+          }
+
+          final primaryHSL = HSLColor.fromColor(Theme.of(context).colorScheme.primary);
+
+          return Column(
+            children: [
+              SizedBox(
+                height: 300,
+                child: LineChart(
+                  LineChartData(
+                    lineBarsData: validColumns.mapIndexed((index, column) {
+                      final color = primaryHSL.withHue((primaryHSL.hue + (index * 45)) % 360).toColor();
+                      final dashPatterns = [
+                        null,           // Solid
+                        [6, 3],         // Dashed
+                        [2, 2],         // Dotted
+                        [10, 4, 2, 4],  // Dash-Dot
+                      ];
+                      final dashArray = dashPatterns[index % dashPatterns.length];
+
+                      final spots = chartSetups.asMap().entries.map((entry) {
+                        final setup = entry.value;
+                        final x = entry.key.toDouble();
+                        final rawValue = switch (column.section) {
+                          TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[column.label],
+                          TableColumnSection.ratingMetrics => setup.ratingAdjustmentValues[column.label],
+                          TableColumnSection.personAttributes => setup.personAdjustmentValues[column.label],
+                          _ => null,
+                        };
+                        if (rawValue is num) {
+                          return FlSpot(x, rawValue.toDouble());
+                        }
+                        return null;
+                      }).whereType<FlSpot>().toList();
+                      
+                      return LineChartBarData(
+                        spots: spots,
+                        isCurved: false,
+                        color: color,
+                        dashArray: dashArray,
+                        dotData: const FlDotData(show: true),
+                      );
+                    }).toList(),
+                    titlesData: FlTitlesData(
+                      bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true, 
+                          reservedSize: 40,
+                          getTitlesWidget: (value, meta) {
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: Text(
+                                value.truncateToDouble() == value ? value.toInt().toString() : value.toStringAsFixed(1),
+                                style: Theme.of(context).textTheme.bodySmall,
+                                textAlign: TextAlign.right,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    gridData: FlGridData(
+                      show: true,
+                      getDrawingHorizontalLine: (value) => FlLine(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5), strokeWidth: 1),
+                      getDrawingVerticalLine: (value) => FlLine(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5), strokeWidth: 1),
+                    ),
+                    borderData: FlBorderData(
+                      show: true,
+                      border: Border(
+                        left: BorderSide(color: Theme.of(context).colorScheme.outline),
+                        bottom: BorderSide(color: Theme.of(context).colorScheme.outline),
+                        top: BorderSide.none,
+                        right: BorderSide.none,
+                      ),
+                    ),
+                    lineTouchData: LineTouchData(
+                      enabled: true,
+                      touchTooltipData: LineTouchTooltipData(
+                        fitInsideHorizontally: true,
+                        getTooltipColor: (touchedSpot) => Theme.of(context).colorScheme.surfaceContainerHighest,
+                        getTooltipItems: (touchedSpots) {
+                          return touchedSpots.mapIndexed((index, spot) {
+                            final column = validColumns[spot.barIndex];
+                            final adjustment = switch (column.section) {
+                              TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label),
+                              TableColumnSection.ratingMetrics => ratingAdjustments.firstWhereOrNull((a) => a.id == column.label),
+                              TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == column.label),
+                              _ => null,
+                            };
+                            final columnName = adjustment?.name ?? column.label;
+                            final formattedY = spot.y.truncateToDouble() == spot.y ? spot.y.toInt().toString() : spot.y.toStringAsFixed(2);
+                            
+                            if (index == 0) {
+                              final setup = chartSetups[spot.x.toInt()];
+                              final dateStr = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
+                              return LineTooltipItem(
+                                '${setup.name}\n',
+                                TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface, 
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: '$dateStr\n',
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant, 
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: '$columnName: $formattedY',
+                                    style: TextStyle(
+                                      color: spot.bar.color ?? Theme.of(context).colorScheme.onSurface, 
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+
+                            return LineTooltipItem(
+                              '$columnName: $formattedY',
+                              TextStyle(color: spot.bar.color ?? Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
+                            );
+                          }).toList();
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 16,
+                runSpacing: 8,
+                alignment: WrapAlignment.center,
+                children: validColumns.mapIndexed((index, column) {
+                  final color = primaryHSL.withHue((primaryHSL.hue + (index * 45)) % 360).toColor();
+                  final dashPatterns = [
+                    null,           // Solid
+                    [6, 3],         // Dashed
+                    [2, 2],         // Dotted
+                    [10, 4, 2, 4],  // Dash-Dot
+                  ];
+                  final dashArray = dashPatterns[index % dashPatterns.length];
+
+                  final adjustment = switch (column.section) {
+                    TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label),
+                    TableColumnSection.ratingMetrics => ratingAdjustments.firstWhereOrNull((a) => a.id == column.label),
+                    TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == column.label),
+                    _ => null,
+                  };
+                  final columnName = adjustment?.name ?? column.label;
+
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CustomPaint(
+                        size: const Size(24, 12),
+                        painter: DashLinePainter(color: color, dashArray: dashArray),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        columnName,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ],
+          );
+        },
+      ),
+    ];
   }
 
   @override
@@ -484,11 +743,56 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 _noColumnsPlaceholder(),
               if (setups.isEmpty)
                 _noSetupsPlaceholder(hasAdjustments: component.adjustments.isNotEmpty),
-              const InitialChangedValueLegend(),
+              if (activeColumns.isNotEmpty && setups.isNotEmpty)
+                const InitialChangedValueLegend(),
+              ..._buildChartSection(
+                context: context,
+                appSettings: appSettings,
+                activeColumns: activeColumns,
+                setups: setups,
+                componentAdjustments: componentAdjustments,
+                personAdjustments: personAdjustments,
+                ratingAdjustments: ratingAdjustments,
+              ),
             ],
           ),
         ),
       ),
     );
   }
+}
+
+class DashLinePainter extends CustomPainter {
+  final Color color;
+  final List<int>? dashArray;
+
+  DashLinePainter({required this.color, this.dashArray});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round;
+
+    if (dashArray == null) {
+      canvas.drawLine(Offset(0, size.height / 2), Offset(size.width, size.height / 2), paint);
+    } else {
+      double currentX = 0;
+      int i = 0;
+      while (currentX < size.width) {
+        double dashLen = dashArray![i % dashArray!.length].toDouble();
+        double spaceLen = dashArray![(i + 1) % dashArray!.length].toDouble();
+        
+        double endX = (currentX + dashLen).clamp(0, size.width);
+        canvas.drawLine(Offset(currentX, size.height / 2), Offset(endX, size.height / 2), paint);
+        
+        currentX += dashLen + spaceLen;
+        i += 2;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

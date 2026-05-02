@@ -105,33 +105,40 @@ class SetupListCard extends StatelessWidget {
                   ),
                 ],
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 2,
-                children: [
-                  Icon(
-                    Bike.iconData,
-                    size: 13, 
-                    color: bikes.containsKey(setup.bike) 
-                        ? Theme.of(context).colorScheme.onSurfaceVariant
-                        : Theme.of(context).colorScheme.error,
-                  ),
-                  Flexible(
-                    child: Text(
-                      bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
-                      style: TextStyle(
-                        color: bikes.containsKey(setup.bike)
-                            ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                            : Theme.of(context).colorScheme.error, 
-                        fontSize: 13,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                  ),
-                ],
+            ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            spacing: 2,
+            children: [
+              Icon(
+                Bike.iconData,
+                size: 13, 
+                color: bikes.containsKey(setup.bike) 
+                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                    : Theme.of(context).colorScheme.error,
               ),
+              Flexible(
+                child: Text(
+                  bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
+                  style: TextStyle(
+                    color: bikes.containsKey(setup.bike)
+                        ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                        : Theme.of(context).colorScheme.error, 
+                    fontSize: 13,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
+            ],
+          ),
+          Wrap(
+            alignment: WrapAlignment.start,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 4,
+            children: [
               if (setup.place != null) ... [
                 Row(
                   mainAxisSize: MainAxisSize.min,

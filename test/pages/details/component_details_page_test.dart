@@ -54,7 +54,19 @@ void main() {
       name: 'Test Fork',
       installations: [Installation.sinceBeginning(parent: 'bike1')],
       componentType: ComponentType.fork,
-      adjustments: [],
+      adjustments: [
+        StepAdjustment(
+          id: 'adj1',
+          name: 'Rebound',
+          notes: '',
+          unit: 'clicks',
+          category: AdjustmentCategory.component,
+          min: 0,
+          max: 10,
+          step: 1,
+          visualization: StepAdjustmentVisualization.slider,
+        ),
+      ],
     );
     await tester.runAsync(() async {
       await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
@@ -77,6 +89,36 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('No setups yet'), findsOneWidget);
+  });
+
+  testWidgets('show placeholder when component has no adjustments', (WidgetTester tester) async {
+    final component = Component(
+      id: 'comp1',
+      name: 'Test Fork',
+      installations: [Installation.sinceBeginning(parent: 'bike1')],
+      componentType: ComponentType.fork,
+      adjustments: [],
+    );
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+      await appRepository.addComponent(component);
+    });
+
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await tester.runAsync(() async {
+      int attempts = 0;
+      while (appRepository.components['comp1'] == null && attempts < 10) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        attempts++;
+      }
+    });
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('No adjustments defined for this component'), findsOneWidget);
   });
 
   testWidgets('show placeholder when no columns are selected', (WidgetTester tester) async {

@@ -33,6 +33,9 @@ class ComponentDetailsPage extends StatefulWidget{
 class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   bool _sortAscending = true;
   TableColumn? _sortColumn;
+  RadarTouchedSpot? _touchedRadarSpot;
+  int? _selectedRadarDataSetIndex;
+  int? _selectedLineChartColumnIndex;
 
   static const bool _highlighting = true;
 
@@ -270,6 +273,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 child: LineChart(
                   LineChartData(
                     lineBarsData: validColumns.mapIndexed((index, column) {
+                      final isSelected = _selectedLineChartColumnIndex == null || _selectedLineChartColumnIndex == index;
                       final color = primaryHSL.withHue((primaryHSL.hue + (index * 45)) % 360).toColor();
                       final dashPatterns = [
                         null,           // Solid
@@ -277,29 +281,22 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                         [2, 2],         // Dotted
                         [10, 4, 2, 4],  // Dash-Dot
                       ];
-                      final dashArray = dashPatterns[index % dashPatterns.length];
-
-                      final spots = chartSetups.asMap().entries.map((entry) {
-                        final setup = entry.value;
-                        final x = entry.key.toDouble();
-                        final rawValue = switch (column.section) {
-                          TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[column.label],
-                          TableColumnSection.ratingMetrics => setup.ratingAdjustmentValues[column.label],
-                          TableColumnSection.personAttributes => setup.personAdjustmentValues[column.label],
-                          _ => null,
-                        };
-                        if (rawValue is num) {
-                          return FlSpot(x, rawValue.toDouble());
-                        }
-                        return null;
-                      }).whereType<FlSpot>().toList();
-                      
                       return LineChartBarData(
-                        spots: spots,
+                        spots: chartSetups.asMap().entries.map((entry) {
+                          final setup = entry.value;
+                          final val = switch (column.section) {
+                            TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[column.label],
+                            TableColumnSection.ratingMetrics => setup.ratingAdjustmentValues[column.label],
+                            TableColumnSection.personAttributes => setup.personAdjustmentValues[column.label],
+                            _ => null,
+                          };
+                          return FlSpot(entry.key.toDouble(), (val as num?)?.toDouble() ?? 0.0);
+                        }).toList(),
                         isCurved: false,
-                        color: color,
-                        dashArray: dashArray,
-                        dotData: const FlDotData(show: true),
+                        color: isSelected ? color : color.withValues(alpha: 0.15),
+                        barWidth: isSelected ? 3 : 1.5,
+                        dotData: FlDotData(show: isSelected),
+                        dashArray: dashPatterns[index % dashPatterns.length],
                       );
                     }).toList(),
                     titlesData: FlTitlesData(
@@ -339,12 +336,28 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                     ),
                     lineTouchData: LineTouchData(
                       enabled: true,
+                      getTouchedSpotIndicator: (LineChartBarData barData, List<int> spotIndexes) {
+                        return spotIndexes.map((index) {
+                          return TouchedSpotIndicatorData(
+                            FlLine(color: barData.color?.withValues(alpha: 0.5), strokeWidth: 2),
+                            FlDotData(
+                              show: true,
+                              getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
+                                radius: 6,
+                                color: barData.color ?? Theme.of(context).colorScheme.primary,
+                                strokeWidth: 2,
+                                strokeColor: Theme.of(context).colorScheme.surface,
+                              ),
+                            ),
+                          );
+                        }).toList();
+                      },
                       touchTooltipData: LineTouchTooltipData(
                         fitInsideHorizontally: true,
                         getTooltipColor: (touchedSpot) => Theme.of(context).colorScheme.surfaceContainerHighest,
                         getTooltipItems: (touchedSpots) {
-                          return touchedSpots.mapIndexed((index, spot) {
-                            final column = validColumns[spot.barIndex];
+                          return touchedSpots.map((barSpot) {
+                            final column = validColumns[barSpot.barIndex];
                             final adjustment = switch (column.section) {
                               TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label),
                               TableColumnSection.ratingMetrics => ratingAdjustments.firstWhereOrNull((a) => a.id == column.label),
@@ -352,40 +365,40 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                               _ => null,
                             };
                             final columnName = adjustment?.name ?? column.label;
-                            final formattedY = spot.y.truncateToDouble() == spot.y ? spot.y.toInt().toString() : spot.y.toStringAsFixed(2);
+                            final unit = adjustment?.unit ?? "";
+                            final formattedY = barSpot.y.truncateToDouble() == barSpot.y ? barSpot.y.toInt().toString() : barSpot.y.toStringAsFixed(2);
                             
-                            if (index == 0) {
-                              final setup = chartSetups[spot.x.toInt()];
+                            final tooltipStyle = Theme.of(context).textTheme.bodySmall!.copyWith(
+                              color: barSpot.bar.color ?? Theme.of(context).colorScheme.onSurface,
+                              fontWeight: FontWeight.bold,
+                            );
+
+                            if (barSpot.barIndex == 0) {
+                              final setup = chartSetups[barSpot.x.toInt()];
                               final dateStr = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
                               return LineTooltipItem(
                                 '${setup.name}\n',
-                                TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurface, 
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                tooltipStyle.copyWith(color: Theme.of(context).colorScheme.onSurface),
                                 children: [
                                   TextSpan(
                                     text: '$dateStr\n',
-                                    style: TextStyle(
+                                    style: tooltipStyle.copyWith(
                                       color: Theme.of(context).colorScheme.onSurfaceVariant, 
                                       fontWeight: FontWeight.normal,
-                                      fontSize: 12,
+                                      fontSize: 10,
                                     ),
                                   ),
                                   TextSpan(
-                                    text: '$columnName: $formattedY',
-                                    style: TextStyle(
-                                      color: spot.bar.color ?? Theme.of(context).colorScheme.onSurface, 
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    text: '$columnName: $formattedY${unit.isNotEmpty ? " $unit" : ""}',
+                                    style: tooltipStyle,
                                   ),
                                 ],
                               );
                             }
 
                             return LineTooltipItem(
-                              '$columnName: $formattedY',
-                              TextStyle(color: spot.bar.color ?? Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
+                              '$columnName: $formattedY${unit.isNotEmpty ? " $unit" : ""}',
+                              tooltipStyle,
                             );
                           }).toList();
                         },
@@ -400,6 +413,8 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 runSpacing: 8,
                 alignment: WrapAlignment.center,
                 children: validColumns.mapIndexed((index, column) {
+                  final isSelected = _selectedLineChartColumnIndex == index;
+                  final isDimmed = _selectedLineChartColumnIndex != null && !isSelected;
                   final color = primaryHSL.withHue((primaryHSL.hue + (index * 45)) % 360).toColor();
                   final dashPatterns = [
                     null,           // Solid
@@ -417,26 +432,312 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   };
                   final columnName = adjustment?.name ?? column.label;
 
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CustomPaint(
-                        size: const Size(24, 12),
-                        painter: DashLinePainter(color: color, dashArray: dashArray),
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (_selectedLineChartColumnIndex == index) {
+                          _selectedLineChartColumnIndex = null;
+                        } else {
+                          _selectedLineChartColumnIndex = index;
+                        }
+                      });
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: isSelected ? color.withValues(alpha: 0.1) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        columnName,
-                        style: Theme.of(context).textTheme.bodySmall,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Opacity(
+                            opacity: isDimmed ? 0.3 : 1.0,
+                            child: CustomPaint(
+                              size: const Size(24, 12),
+                              painter: DashLinePainter(color: color, dashArray: dashArray),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Opacity(
+                            opacity: isDimmed ? 0.3 : 1.0,
+                            child: Text(
+                              columnName,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                color: isSelected ? color : null,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   );
                 }).toList(),
               ),
-            ],
-          );
-        },
-      ),
+              const SizedBox(height: 16),
+              if (validColumns.length < 3)
+                _chartPlaceholder(message: "At least 3 numerical columns are required to generate a radar chart")
+              else
+                Builder(
+                  builder: (context) {
+                    final radarSetups = chartSetups.reversed.take(5).toList();
+                    final featureDefs = validColumns.map((column) {
+                      final adjustment = switch (column.section) {
+                        TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label),
+                        TableColumnSection.ratingMetrics => ratingAdjustments.firstWhereOrNull((a) => a.id == column.label),
+                        TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == column.label),
+                        _ => null,
+                      };
+
+                      double dataMin = double.infinity;
+                      double dataMax = double.negativeInfinity;
+                      for (var setup in chartSetups) {
+                        final rawValue = switch (column.section) {
+                          TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[column.label],
+                          TableColumnSection.ratingMetrics => setup.ratingAdjustmentValues[column.label],
+                          TableColumnSection.personAttributes => setup.personAdjustmentValues[column.label],
+                          _ => null,
+                        };
+                        if (rawValue is num) {
+                          if (rawValue < dataMin) dataMin = rawValue.toDouble();
+                          if (rawValue > dataMax) dataMax = rawValue.toDouble();
+                        }
+                      }
+
+                      if (dataMin == double.infinity) dataMin = 0.0;
+                      if (dataMax == double.negativeInfinity) dataMax = 1.0;
+                      
+                      // Add a small buffer to keep points off the extreme edges
+                      if (dataMin == dataMax) {
+                        dataMin -= 1;
+                        dataMax += 1;
+                      } else {
+                        final range = dataMax - dataMin;
+                        dataMin -= range * 0.05;
+                        dataMax += range * 0.05;
+                      }
+
+                      return (
+                        column: column,
+                        name: adjustment?.name ?? column.label,
+                        unit: adjustment?.unit ?? "",
+                        min: dataMin,
+                        max: dataMax,
+                      );
+                    }).toList();
+
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Tooltip(
+                                  message: "Only the 5 latest setups of the currently selected setups are shown here. You can tap on legend entries to highlight specific graphs.",
+                                  triggerMode: TooltipTriggerMode.tap,
+                                  padding: const EdgeInsets.all(12),
+                                  margin: const EdgeInsets.symmetric(horizontal: 24),
+                                  showDuration: const Duration(seconds: 5),
+                                  child: Icon(
+                                    Icons.info_outline_rounded,
+                                    size: 16,
+                                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.7),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                              ],
+                            ),
+                            Stack(
+                              children: [
+                                SizedBox(
+                                  height: 350,
+                                  child: RadarChart(
+                                    RadarChartData(
+                                      radarShape: RadarShape.polygon,
+                                      tickCount: 5,
+                                      ticksTextStyle: const TextStyle(color: Colors.transparent),
+                                      gridBorderData: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5), width: 1),
+                                      radarBorderData: const BorderSide(color: Colors.transparent),
+                                      tickBorderData: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3), width: 1),
+                                      titleTextStyle: Theme.of(context).textTheme.bodySmall,
+                                      getTitle: (index, angle) {
+                                        final name = featureDefs[index].name;
+                                        final displayedName = name.length > 15 ? "${name.substring(0, 12)}..." : name;
+                                        return RadarChartTitle(
+                                          text: displayedName,
+                                          angle: 0,
+                                        );
+                                      },
+                                      radarTouchData: RadarTouchData(
+                                        touchCallback: (event, response) {
+                                          if (event.isInterestedForInteractions && response?.touchedSpot != null) {
+                                            setState(() {
+                                              _touchedRadarSpot = response?.touchedSpot;
+                                            });
+                                          } else if (event is FlPointerExitEvent || event is FlTapUpEvent || event is FlPanEndEvent) {
+                                            setState(() {
+                                              _touchedRadarSpot = null;
+                                            });
+                                          }
+                                        },
+                                      ),
+                                      dataSets: radarSetups.mapIndexed((index, setup) {
+                                        final isSelected = _selectedRadarDataSetIndex == null || _selectedRadarDataSetIndex == index;
+                                        final color = primaryHSL.withHue((primaryHSL.hue + (index * 60)) % 360).toColor();
+
+                                        final entries = featureDefs.map((def) {
+                                          final rawValue = switch (def.column.section) {
+                                            TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[def.column.label],
+                                            TableColumnSection.ratingMetrics => setup.ratingAdjustmentValues[def.column.label],
+                                            TableColumnSection.personAttributes => setup.personAdjustmentValues[def.column.label],
+                                            _ => null,
+                                          };
+
+                                          double normalized = 0.0;
+                                          if (rawValue is num) {
+                                            final v = rawValue.toDouble();
+                                            if (def.max > def.min) {
+                                              normalized = ((v - def.min) / (def.max - def.min)) * 100;
+                                            }
+                                          }
+                                          return RadarEntry(value: normalized.clamp(0.0, 100.0));
+                                        }).toList();
+
+                                        return RadarDataSet(
+                                          dataEntries: entries,
+                                          fillColor: isSelected ? color.withValues(alpha: 0.2) : color.withValues(alpha: 0.05),
+                                          borderColor: isSelected ? color : color.withValues(alpha: 0.25),
+                                          entryRadius: isSelected ? 3 : 2,
+                                          borderWidth: isSelected ? 2 : 1.5,
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                ),
+                                if (_touchedRadarSpot != null)
+                                  Positioned(
+                                    left: _touchedRadarSpot!.offset.dx > constraints.maxWidth / 2 ? null : _touchedRadarSpot!.offset.dx,
+                                    right: _touchedRadarSpot!.offset.dx > constraints.maxWidth / 2 ? constraints.maxWidth - _touchedRadarSpot!.offset.dx : null,
+                                    top: _touchedRadarSpot!.offset.dy,
+                                    child: Material(
+                                      elevation: 4,
+                                      borderRadius: BorderRadius.circular(8),
+                                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        child: Builder(builder: (context) {
+                                          final setup = radarSetups[_touchedRadarSpot!.touchedDataSetIndex];
+                                          final def = featureDefs[_touchedRadarSpot!.touchedRadarEntryIndex];
+                                          final rawValue = switch (def.column.section) {
+                                            TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[def.column.label],
+                                            TableColumnSection.ratingMetrics => setup.ratingAdjustmentValues[def.column.label],
+                                            TableColumnSection.personAttributes => setup.personAdjustmentValues[def.column.label],
+                                            _ => null,
+                                          };
+                                          final formattedVal = rawValue is num
+                                              ? (rawValue.truncateToDouble() == rawValue ? rawValue.toInt().toString() : rawValue.toStringAsFixed(2))
+                                              : '-';
+                                          final dateStr = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
+
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                setup.name,
+                                                style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                                              ),
+                                              Text(
+                                                dateStr,
+                                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                                  fontSize: 10,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                "${def.name}: $formattedVal${def.unit.isNotEmpty ? " ${def.unit}" : ""}",
+                                                style: Theme.of(context).textTheme.bodySmall,
+                                              ),
+                                            ],
+                                          );
+                                        }),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Wrap(
+                              spacing: 12,
+                              runSpacing: 8,
+                              alignment: WrapAlignment.center,
+                              children: radarSetups.mapIndexed((index, setup) {
+                                final isSelected = _selectedRadarDataSetIndex == index;
+                                final isDimmed = _selectedRadarDataSetIndex != null && !isSelected;
+                                final color = primaryHSL.withHue((primaryHSL.hue + (index * 60)) % 360).toColor();
+                                return GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      if (_selectedRadarDataSetIndex == index) {
+                                        _selectedRadarDataSetIndex = null;
+                                      } else {
+                                        _selectedRadarDataSetIndex = index;
+                                      }
+                                    });
+                                  },
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: isSelected ? color.withValues(alpha: 0.1) : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Opacity(
+                                          opacity: isDimmed ? 0.3 : 1.0,
+                                          child: Container(
+                                            width: 12,
+                                            height: 12,
+                                            decoration: BoxDecoration(
+                                              color: color,
+                                              shape: BoxShape.circle,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Opacity(
+                                          opacity: isDimmed ? 0.3 : 1.0,
+                                          child: Text(
+                                            setup.name,
+                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                              color: isSelected ? color : null,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            );
+          },
+        ),
     ];
   }
 

@@ -96,60 +96,74 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
             Flexible(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: FormField<DateTime>(
-                  initialValue: _replaceDate,
-                  validator: (value) {
-                    if (value == null) return null;
-                    final lastInstall = widget.component.installations.map((i) => i.dateTimeUTC).maxOrNull;
-                    if (lastInstall != null && !value.toUtc().isAfter(lastInstall)) {
-                      final formatted = DateFormat("${appSettings.dateFormat} ${appSettings.timeFormat}")
-                          .format(lastInstall.toLocal());
-                      return "Must be after last installation ($formatted)";
-                    }
-                    return null;
-                  },
-                  builder: (state) {
-                    return InkWell(
-                      onTap: () async {
-                        final picked = await _showDateTimePicker(state.value ?? DateTime.now());
-                        if (picked != null) {
-                          state.didChange(picked);
-                          setState(() => _replaceDate = picked);
-                        }
-                      },
-                      child: InputDecorator(
-                        decoration: InputDecoration(
-                          labelText: "Replacement Date",
-                          border: const OutlineInputBorder(),
-                          isDense: true,
-                          errorText: state.errorText,
-                          suffixIcon: Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              DateFormat(appSettings.dateFormat).format(state.value ?? _replaceDate),
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                height: 1.1,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text(
-                              DateFormat(appSettings.timeFormat).format(state.value ?? _replaceDate),
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).hintColor,
-                                height: 1.1,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Text(
+                        "Set the replacement date. This is when the current component will be retired and a new one installed. In the next step, you can configure the new component, which will be pre-filled with details from this one.",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
-                    );
-                  },
+                    ),
+                    FormField<DateTime>(
+                      initialValue: _replaceDate,
+                      validator: (value) {
+                        if (value == null) return null;
+                        final lastInstall = widget.component.installations.map((i) => i.dateTimeUTC).maxOrNull;
+                        if (lastInstall != null && !value.toUtc().isAfter(lastInstall)) {
+                          final formatted = DateFormat("${appSettings.dateFormat} ${appSettings.timeFormat}")
+                              .format(lastInstall.toLocal());
+                          return "Must be after last installation ($formatted)";
+                        }
+                        return null;
+                      },
+                      builder: (state) {
+                        return InkWell(
+                          onTap: () async {
+                            final picked = await _showDateTimePicker(state.value ?? DateTime.now());
+                            if (picked != null) {
+                              state.didChange(picked);
+                              setState(() => _replaceDate = picked);
+                            }
+                          },
+                          child: InputDecorator(
+                            decoration: InputDecoration(
+                              labelText: "Replacement Date",
+                              border: const OutlineInputBorder(),
+                              isDense: true,
+                              errorText: state.errorText,
+                              suffixIcon: Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  DateFormat(appSettings.dateFormat).format(state.value ?? _replaceDate),
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    height: 1.1,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Text(
+                                  DateFormat(appSettings.timeFormat).format(state.value ?? _replaceDate),
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).hintColor,
+                                    height: 1.1,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               )
             ),

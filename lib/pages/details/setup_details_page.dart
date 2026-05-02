@@ -277,13 +277,21 @@ class SetupDetailsPageContent extends StatelessWidget {
                                 userAgentPackageName: 'com.jonaskeller14.bike_setup_tracker',
                                 tileDisplay: const TileDisplay.fadeIn(),
                                 tileBuilder: (context, tileWidget, tile) {
+                                  final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
                                   return ColorFiltered(
-                                    colorFilter: const ColorFilter.matrix(<double>[
-                                      0.6, 0.3, 0.1, 0, 0,  // Muted Red
-                                      0.1, 0.8, 0.1, 0, 0,  // Muted Green
-                                      0.1, 0.3, 0.6, 0, 0,  // Muted Blue
-                                      0,   0,   0,   1, 0,  // Alpha (no change)
-                                    ]),
+                                    colorFilter: isDarkMode
+                                        ? const ColorFilter.matrix(<double>[
+                                            -0.2126, -0.7152, -0.0722, 0, 255,
+                                            -0.2126, -0.7152, -0.0722, 0, 255,
+                                            -0.2126, -0.7152, -0.0722, 0, 255,
+                                            0, 0, 0, 1, 0,
+                                          ])
+                                        : const ColorFilter.matrix(<double>[
+                                            0.6, 0.3, 0.1, 0, 0,  // Muted Red
+                                            0.1, 0.8, 0.1, 0, 0,  // Muted Green
+                                            0.1, 0.3, 0.6, 0, 0,  // Muted Blue
+                                            0,   0,   0,   1, 0,  // Alpha (no change)
+                                          ]),
                                     child: tileWidget,
                                   );
                                 },
@@ -297,8 +305,14 @@ class SetupDetailsPageContent extends StatelessWidget {
                                     child: Icon(
                                       Icons.location_pin,
                                       size: 40,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                      shadows: [Shadow(blurRadius: 12, color: Colors.black26, offset: Offset(0, 2))],
+                                      color: Theme.of(context).colorScheme.primary,
+                                      shadows: [
+                                        Shadow(
+                                          blurRadius: 8,
+                                          color: Colors.black.withValues(alpha: 0.5),
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],

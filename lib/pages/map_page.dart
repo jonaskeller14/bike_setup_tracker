@@ -90,78 +90,88 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
       builder: (context, snapshot) {
         final stravaActivities = snapshot.data ?? [];
         
+        final Marker? userLocationMarker = _userLocation == null
+            ? null
+            : Marker(
+                point: _userLocation!,
+                width: 20,
+                height: 20,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                    boxShadow: const [
+                      BoxShadow(
+                        blurRadius: 6,
+                        color: Colors.black26,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+
+        final List<Marker> clusterMarkers = [
+          if (appSettings.displayShowSetups)
+            ...setups.map(
+              (setup) => Marker(
+                point:
+                    LatLng(setup.position!.latitude!, setup.position!.longitude!),
+                width: 40,
+                height: 40,
+                child: GestureDetector(
+                  onTap: () async {
+                    await showSetupDetailsSheet(context: context, setup: setup);
+                  },
+                  child: Icon(
+                    Icons.location_pin,
+                    size: 40,
+                    color: Theme.of(context).colorScheme.primary,
+                    shadows: const [
+                      Shadow(
+                        blurRadius: 12,
+                        color: Colors.black26,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          if (appSettings.enableStrava && appSettings.displayShowActivities)
+            ...stravaActivities.map(
+              (activity) => Marker(
+                point: LatLng(activity.startLat!, activity.startLon!),
+                width: 40,
+                height: 40,
+                child: GestureDetector(
+                  onTap: () async {
+                    await showStravaActivitySheet(
+                      context: context,
+                      stravaActivity: activity,
+                    );
+                  },
+                  child: const Icon(
+                    Icons.location_pin,
+                    size: 40,
+                    color: Color(0xFFFC5200), // Strava Orange
+                    shadows: [
+                      Shadow(
+                        blurRadius: 12,
+                        color: Colors.black26,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ];
+
         final List<Marker> markers = [
-          if (_userLocation != null)
-            Marker(
-              point: _userLocation!,
-              width: 20,
-              height: 20,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
-                  boxShadow: const [
-                    BoxShadow(
-                      blurRadius: 6,
-                      color: Colors.black26,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          if (appSettings.displayShowSetups) ...setups.map(
-            (setup) => Marker(
-              point: LatLng(setup.position!.latitude!, setup.position!.longitude!),
-              width: 40,
-              height: 40,
-              child: GestureDetector(
-                onTap: () async {
-                  await showSetupDetailsSheet(context: context, setup: setup);
-                },
-                child: Icon(
-                  Icons.location_pin,
-                  size: 40,
-                  color: Theme.of(context).colorScheme.primary,
-                  shadows: const [
-                    Shadow(
-                      blurRadius: 12,
-                      color: Colors.black26,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          if (appSettings.enableStrava && appSettings.displayShowActivities) ...stravaActivities.map(
-            (activity) => Marker(
-              point: LatLng(activity.startLat!, activity.startLon!),
-              width: 40,
-              height: 40,
-              child: GestureDetector(
-                onTap: () async {
-                  await showStravaActivitySheet(
-                    context: context,
-                    stravaActivity: activity,
-                  );
-                },
-                child: const Icon(
-                  Icons.location_pin,
-                  size: 40,
-                  color: Color(0xFFFC5200), // Strava Orange
-                  shadows: [
-                    Shadow(
-                      blurRadius: 12,
-                      color: Colors.black26,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          ?userLocationMarker,
+          ...clusterMarkers,
         ];
 
         return Scaffold(
@@ -199,13 +209,21 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                     userAgentPackageName: 'com.jonaskeller14.bike_setup_tracker',
                     tileDisplay: const TileDisplay.fadeIn(),
                     tileBuilder: (context, tileWidget, tile) {
+                      final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
                       return ColorFiltered(
-                        colorFilter: const ColorFilter.matrix(<double>[
-                          0.6, 0.3, 0.1, 0, 0, // Muted Red
-                          0.1, 0.8, 0.1, 0, 0, // Muted Green
-                          0.1, 0.3, 0.6, 0, 0, // Muted Blue
-                          0, 0, 0, 1, 0, // Alpha (no change)
-                        ]),
+                        colorFilter: isDarkMode
+                            ? const ColorFilter.matrix(<double>[
+                                -0.2126, -0.7152, -0.0722, 0, 255,
+                                -0.2126, -0.7152, -0.0722, 0, 255,
+                                -0.2126, -0.7152, -0.0722, 0, 255,
+                                0, 0, 0, 1, 0,
+                              ])
+                            : const ColorFilter.matrix(<double>[
+                                0.6, 0.3, 0.1, 0, 0,  // Muted Red
+                                0.1, 0.8, 0.1, 0, 0,  // Muted Green
+                                0.1, 0.3, 0.6, 0, 0,  // Muted Blue
+                                0,   0,   0,   1, 0,  // Alpha (no change)
+                              ]),
                         child: tileWidget,
                       );
                     },
@@ -217,7 +235,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                       alignment: Alignment.center,
                       padding: const EdgeInsets.all(50),
                       maxZoom: 15,
-                      markers: markers,
+                      markers: clusterMarkers,
                       builder: (context, markers) {
                         return Container(
                           decoration: BoxDecoration(
@@ -244,6 +262,8 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                       },
                     ),
                   ),
+                  if (userLocationMarker != null)
+                    MarkerLayer(markers: [userLocationMarker]),
                   RichAttributionWidget(
                     alignment: AttributionAlignment.bottomLeft,
                     showFlutterMapAttribution: false,

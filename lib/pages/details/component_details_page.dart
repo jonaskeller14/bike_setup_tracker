@@ -232,7 +232,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     }).toList();
 
     return [
-      const SizedBox(height: 24),
+      const SizedBox(height: 32),
       Builder(
         builder: (context) {
           if (activeChartColumns.isEmpty) {
@@ -366,7 +366,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                             };
                             final columnName = adjustment?.name ?? column.label;
                             final unit = adjustment?.unit ?? "";
-                            final formattedY = barSpot.y.truncateToDouble() == barSpot.y ? barSpot.y.toInt().toString() : barSpot.y.toStringAsFixed(2);
+                            final formattedY = Adjustment.formatValue(barSpot.y);
                             
                             final tooltipStyle = Theme.of(context).textTheme.bodySmall!.copyWith(
                               color: barSpot.bar.color ?? Theme.of(context).colorScheme.onSurface,
@@ -456,7 +456,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                             opacity: isDimmed ? 0.3 : 1.0,
                             child: CustomPaint(
                               size: const Size(24, 12),
-                              painter: DashLinePainter(color: color, dashArray: dashArray),
+                              painter: _DashLinePainter(color: color, dashArray: dashArray),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -476,7 +476,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   );
                 }).toList(),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 32),
               if (validColumns.length < 3)
                 _chartPlaceholder(message: "At least 3 numerical columns are required to generate a radar chart")
               else
@@ -638,9 +638,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                                             TableColumnSection.personAttributes => setup.personAdjustmentValues[def.column.label],
                                             _ => null,
                                           };
-                                          final formattedVal = rawValue is num
-                                              ? (rawValue.truncateToDouble() == rawValue ? rawValue.toInt().toString() : rawValue.toStringAsFixed(2))
-                                              : '-';
+                                          final formattedVal = Adjustment.formatValue(rawValue);
                                           final dateStr = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
 
                                           return Column(
@@ -1063,11 +1061,11 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   }
 }
 
-class DashLinePainter extends CustomPainter {
+class _DashLinePainter extends CustomPainter {
   final Color color;
   final List<int>? dashArray;
 
-  DashLinePainter({required this.color, this.dashArray});
+  _DashLinePainter({required this.color, this.dashArray});
 
   @override
   void paint(Canvas canvas, Size size) {

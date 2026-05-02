@@ -138,7 +138,7 @@ class ComponentListCard extends StatelessWidget{
                           label: '${NumberFormat.decimalPattern().format(component.totalElevationGain.round())} m',
                         ),
                         _StatItem(
-                          icon: Icons.timer,
+                          icon: Icons.timer_outlined,
                           label: '${NumberFormat.decimalPattern().format(component.totalMovingTime.inHours)}h ${component.totalMovingTime.inMinutes.remainder(60)}m',
                         ),
                         _StatItem(

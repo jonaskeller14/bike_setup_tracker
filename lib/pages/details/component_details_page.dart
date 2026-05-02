@@ -9,15 +9,16 @@ import '../../models/setup.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/weather.dart';
 import '../../models/app_settings.dart';
+import '../../models/component_stats.dart';
+import '../../models/task_rule.dart';
 import '../../utils/component_actions.dart';
+import '../../utils/table_column.dart';
 import '../../widgets/chips/bike_and_tags_filter.dart';
 import '../../widgets/display_installation_timeline.dart';
 import '../../widgets/sheets/column_filter.dart';
 import '../../widgets/initial_changed_value_legend.dart';
-import '../../utils/table_column.dart';
-import '../../models/component.dart';
-import '../../models/task_rule.dart';
 import '../../widgets/open_tasks_card.dart';
+import '../../widgets/component_stats_card.dart';
 
 class ComponentDetailsPage extends StatefulWidget{
   final String componentId;
@@ -165,56 +166,6 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     );
   }
 
-  Widget _buildStatCard(Component component, AppRepository appRepository) {
-    final totalDistance = component.totalDistance;
-    final totalElevation = component.totalElevationGain;
-    final totalMovingTime = component.totalMovingTime;
-
-    return Card.outlined(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildStatItem(
-                  icon: Icons.route,
-                  label: "Distance",
-                  value: '${NumberFormat.decimalPattern().format((totalDistance / 1000).round())} km',
-                ),
-                _buildStatItem(
-                  icon: Icons.terrain_outlined,
-                  label: "Elevation",
-                  value: '${NumberFormat.decimalPattern().format(totalElevation.round())} m',
-                ),
-                _buildStatItem(
-                  icon: Icons.timer_outlined,
-                  label: "Moving Time",
-                  value: '${NumberFormat.decimalPattern().format(totalMovingTime.inHours)}h ${totalMovingTime.inMinutes.remainder(60)}m',
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatItem({required IconData icon, required String label, required String value}) {
-    final theme = Theme.of(context);
-    return Column(
-      children: [
-        Icon(icon, size: 20, color: theme.colorScheme.secondary),
-        const SizedBox(height: 4),
-        Text(value, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-        Text(label, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-      ],
-    );
-  }
-
   Widget _noSetupsPlaceholder({required bool hasAdjustments}) {
     return SizedBox(
       height: 100,
@@ -339,7 +290,13 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (appSettings.enableStrava && appSettings.enableInstallationTimeline)
-                _buildStatCard(component, appRepository),
+                ComponentStatsCard(componentStats: ComponentStats(
+                  distance: component.totalDistance,
+                  elevationGain: component.totalElevationGain,
+                  movingTime: component.totalMovingTime,
+                  elapsedTime: component.totalElapsedTime,
+                  activityCount: component.totalActivityCount,
+                )),
               if (component.notes != null)
                 Card.outlined(
                   margin: const EdgeInsets.symmetric(vertical: 4),

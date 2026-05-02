@@ -9,6 +9,7 @@ import '../../repositories/app_repository.dart';
 import '../../utils/bike_actions.dart';
 import '../../models/task_rule.dart';
 import '../../widgets/open_tasks_card.dart';
+import '../../widgets/component_stats_card.dart';
 
 class BikeDetailsPage extends StatelessWidget {
   final String bikeId;
@@ -52,7 +53,7 @@ class BikeDetailsPage extends StatelessWidget {
           child: Column(
             children: [
               if (appSettings.enableStrava && appSettings.enableInstallationTimeline)
-                _buildStatCard(context, stats),
+                ComponentStatsCard(componentStats: stats),
               if (bike.notes != null)
                 Card.outlined(
                   margin: const EdgeInsets.symmetric(vertical: 4),
@@ -146,59 +147,6 @@ class BikeDetailsPage extends StatelessWidget {
           ),
         )
       ),
-    );
-  }
-
-  Widget _buildStatCard(BuildContext context, ComponentStats stats) {
-    final totalDistance = stats.distance;
-    final totalElevation = stats.elevationGain;
-    final totalMovingTime = stats.movingTime;
-
-    return Card.outlined(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildStatItem(
-                  context,
-                  icon: Icons.route,
-                  label: "Distance",
-                  value: '${NumberFormat.decimalPattern().format((totalDistance / 1000).round())} km',
-                ),
-                _buildStatItem(
-                  context,
-                  icon: Icons.terrain_outlined,
-                  label: "Elevation",
-                  value: '${NumberFormat.decimalPattern().format(totalElevation.round())} m',
-                ),
-                _buildStatItem(
-                  context,
-                  icon: Icons.timer_outlined,
-                  label: "Moving Time",
-                  value: '${NumberFormat.decimalPattern().format(totalMovingTime.inHours)}h ${totalMovingTime.inMinutes.remainder(60)}m',
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatItem(BuildContext context, {required IconData icon, required String label, required String value}) {
-    final theme = Theme.of(context);
-    return Column(
-      children: [
-        Icon(icon, size: 20, color: theme.colorScheme.secondary),
-        const SizedBox(height: 4),
-        Text(value, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-        Text(label, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-      ],
     );
   }
 }

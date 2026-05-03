@@ -34,8 +34,9 @@ void main() {
       // Verify the "Broken" baseline (Diagnostic: check if it reads the old epoch correctly)
       await db.customSelect('SELECT datetime_local FROM setups WHERE id = ?', variables: [Variable.withString(id)]).get();
       // ACT: Run the migration helper
-      // We trigger the migration through the formal onUpgrade path
-      await db.migration.onUpgrade(db.createMigrator(), 1, 2);
+      // We test the individual migration step since running onUpgrade would trigger all migrations
+      // await db.migration.onUpgrade(db.createMigrator(), 1, 2);
+      await AppDatabase.migrateFloatingDates(db);
 
       // ASSERT: Read back via the DataClass (which uses the new TypeConverter)
       final correctedSetup = await (db.select(db.setups)..where((t) => t.id.equals(id))).getSingle();

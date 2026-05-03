@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/foundation.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -82,7 +83,7 @@ class AppDatabase extends _$AppDatabase {
         if (from < 2) {
           // Fix legacy local timestamps that were stored as absolute UTC epochs 
           // instead of floating face-values.
-          await _migrateFloatingDates(this);
+          await migrateFloatingDates(this);
         }
         if (from < 3) {
           await m.addColumn(taskRules, taskRules.tags);
@@ -91,7 +92,8 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
-  static Future<void> _migrateFloatingDates(AppDatabase db) async {
+  @visibleForTesting
+  static Future<void> migrateFloatingDates(AppDatabase db) async {
     final Map<String, String> tableToColumn = {
       'setups': 'datetime_local',
       'installations': 'date_time_local',

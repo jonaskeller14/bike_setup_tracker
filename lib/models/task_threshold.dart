@@ -270,7 +270,7 @@ class ActivityCountThreshold extends TaskThreshold {
       };
 
   @override
-  IconData get iconData => Icons.tag;
+  IconData get iconData => Icons.repeat;
 
   @override
   String toDisplayValue() => '$count rides';

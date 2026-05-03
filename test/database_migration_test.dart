@@ -33,6 +33,7 @@ void main() {
       interval: const DurationThreshold(Duration(days: 45)),
       delay: const DistanceThreshold(500),
       repeat: true,
+      tags: const {},
     );
 
     final entry = TaskEntry(

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:intl/intl.dart';
@@ -24,7 +25,7 @@ import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/setup_page_tabs.dart';
 import '../widgets/sheets/app_settings_radio_group.dart';
 import '../widgets/sheets/set_location_place.dart';
-import '../widgets/sheets/set_tags.dart';
+import '../widgets/sheets/set_setup_tags.dart';
 import '../widgets/sheets/set_weather.dart';
 import '../widgets/soil_moisture_legend_table.dart';
 
@@ -88,6 +89,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   late TabController _tabController;
   int? _tabControllerLength;
   Set<String> _tags = {};
+  Set<String> _initialTags = {};
   late String _bike;
   late String _initialBike;
   late String? _person;
@@ -135,13 +137,14 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     _selectedDateTimeUtc = widget.setup?.datetime.copyWith(isUtc: true) ?? widget.initialDateTimeUtc?.copyWith(isUtc: true) ?? _selectedDateTimeLocal.toUtc();
     _initialDateTimeUtc = _selectedDateTimeUtc;
-    
-    final appRepository = context.read<AppRepository>();
 
     _currentLocation.value = widget.setup?.position;
     _currentPlace.value = widget.setup?.place;
     _currentWeather.value = widget.setup?.weather;
+
+    final appRepository = context.read<AppRepository>();
     _tags.addAll(widget.setup?.tags ?? appRepository.selectedSetupTags);
+    _initialTags = _tags;
 
     final bikes = appRepository.bikes;
     _initialBike = widget.setup?.bike ?? widget.initialBike?.id ?? appRepository.filteredBikes.keys.firstOrNull ?? '';
@@ -389,6 +392,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         !Setup.locationEqual(_currentLocation.value, widget.setup?.position) ||
         !Setup.placeEqual(_currentPlace.value, widget.setup?.place) ||
         _currentWeather.value != widget.setup?.weather || 
+        !setEquals(_tags, _initialTags) ||
         
         _bike != _initialBike || 
         _person != _initialPerson ||
@@ -882,12 +886,15 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                           ),
                         );
                       })),
-                onChanged: (Condition? newValue) {
-                  if (newValue == null) return;
-                  _currentWeather.value ??= Weather(currentDateTime: _selectedDateTimeLocal);
-                  _currentWeather.value = _currentWeather.value?.copyWith(condition: newValue);
-                  Navigator.pop(context);
-                }
+                      onChanged: (Condition? newValue) {
+                        if (newValue == null) return;
+                        setState(() {
+                          _currentWeather.value ??= Weather(currentDateTime: _selectedDateTimeLocal);
+                          _currentWeather.value = _currentWeather.value?.copyWith(condition: newValue);
+                        });
+                        Navigator.pop(context);
+                        _changeListener();
+                      },
               ),
             ),
             if (appSettings.enableSetupTags) ... [
@@ -904,7 +911,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 avatar: const Icon(Icons.add),
                 label: const Text("Tags"),
                 onPressed: () async {
-                  await showSetTagsSheet(
+                  await showSetSetupTagsSheet(
                     context: context, 
                     tags: _tags,
                     onChanged: (Set<String> newTags) => setState(() => _tags = newTags),

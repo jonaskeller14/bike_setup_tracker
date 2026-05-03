@@ -471,7 +471,7 @@ void main() {
         componentType: ComponentType.fork, 
         adjustments: []
       );
-      rule1 = TaskRule(name: "Rule 1", componentId: component1.id);
+      rule1 = TaskRule(name: "Rule 1", componentId: component1.id, tags: const {});
     });
 
     tearDown(() async {
@@ -512,7 +512,7 @@ void main() {
         componentType: ComponentType.fork, 
         adjustments: []
       );
-      final rule2 = TaskRule(name: "Rule 2", componentId: component2.id);
+      final rule2 = TaskRule(name: "Rule 2", componentId: component2.id, tags: const {});
 
       await repository.addBike(bike1);
       await repository.addBike(bike2);
@@ -534,10 +534,10 @@ void main() {
     });
 
     test("toDoTaskRules sorts by status, then progress, then priority", () async {
-      final ruleLow = TaskRule(name: "Low", priority: TaskPriority.low);
-      final ruleHigh = TaskRule(name: "High", priority: TaskPriority.high);
-      final ruleMedium = TaskRule(name: "Medium", priority: TaskPriority.medium);
-      final ruleCritical = TaskRule(name: "Critical", priority: TaskPriority.critical);
+      final ruleLow = TaskRule(name: "Low", priority: TaskPriority.low, tags: const {});
+      final ruleHigh = TaskRule(name: "High", priority: TaskPriority.high, tags: const {});
+      final ruleMedium = TaskRule(name: "Medium", priority: TaskPriority.medium, tags: const {});
+      final ruleCritical = TaskRule(name: "Critical", priority: TaskPriority.critical, tags: const {});
 
       await repository.addTaskRule(ruleLow);
       await repository.addTaskRule(ruleHigh);

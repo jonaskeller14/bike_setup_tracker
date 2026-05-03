@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
@@ -8,6 +9,8 @@ import '../models/task_rule.dart';
 import '../models/task_threshold.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/dialogs/discard_changes.dart';
+import '../widgets/sheets/app_settings_radio_group.dart';
+import '../widgets/sheets/set_task_rule_tags.dart';
 
 enum TaskRulePageMode { add, edit, duplicate }
 
@@ -71,6 +74,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
   late TextEditingController _delayValueController;
   
   TaskPriority _priority = TaskPriority.medium;
+  Set<String> _tags = {};
+  Set<String> _initialTags = {};
   late _TaskAssociation _association;
   late _TaskAssociation _initialAssociation;
   
@@ -97,6 +102,10 @@ class _TaskRulePageState extends State<TaskRulePage> {
     );
     _initialAssociation = _association;
 
+    final appRepository = context.read<AppRepository>();
+    _tags.addAll(widget.taskRule?.tags ?? appRepository.selectedTaskRuleTags);
+    _initialTags = _tags;
+    
     if (widget.mode != TaskRulePageMode.add && widget.taskRule != null) {
       _priority = widget.taskRule!.priority;
       _repeat = widget.taskRule!.repeat;
@@ -147,6 +156,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
         _nameController.text.trim() != (widget.taskRule?.name ?? '') ||
         _notesController.text.trim() != (widget.taskRule?.notes ?? '') ||
         _priority != (widget.taskRule?.priority ?? TaskPriority.medium) ||
+        !setEquals(_tags, _initialTags) ||
         _association != _initialAssociation ||
         _repeat != (widget.taskRule?.repeat ?? true) ||
         _intervalType != _getThresholdType(widget.taskRule?.interval) ||
@@ -232,6 +242,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
         name: name,
         notes: notes.isEmpty ? null : notes,
         priority: _priority,
+        tags: _tags,
         componentId: _association.componentId,
         bikeId: _association.bikeId,
         interval: interval,
@@ -363,6 +374,92 @@ class _TaskRulePageState extends State<TaskRulePage> {
     );
   }
 
+  TextFormField _nameTextFormField() {
+    return TextFormField(
+      controller: _nameController,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autofocus: widget.mode == TaskRulePageMode.add,
+      onChanged: (value) => setState(() {}),  // trigger filled
+      decoration: InputDecoration(
+        labelText: 'Task Rule Name',
+        border: const OutlineInputBorder(),
+        hintText: 'Enter task name',
+        fillColor: Colors.orange.withValues(alpha: 0.08),
+        filled: widget.mode == TaskRulePageMode.edit && _nameController.text.trim() != widget.taskRule?.name,
+      ),
+      validator: (v) => v == null || v.trim().isEmpty ? 'Name required' : null,
+      onFieldSubmitted: (_) => _saveTaskRule(),
+    );
+  }
+
+  TextFormField _notesTextFormField() {
+    return TextFormField(
+      controller: _notesController,
+      minLines: 2,
+      maxLines: null,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      onChanged: (value) => setState(() {}),
+      decoration: InputDecoration(
+        labelText: 'Notes (optional)',
+        hintText: 'Add additional details or instructions...',
+        border: const OutlineInputBorder(),
+        fillColor: Colors.orange.withValues(alpha: 0.08),
+        filled: widget.mode == TaskRulePageMode.edit && _notesController.text.trim() != (widget.taskRule?.notes ?? ""),
+      ),
+    );
+  }
+
+  Wrap _wrap() {
+    return Wrap(
+      spacing: 8.0,
+      runSpacing: 4.0,
+      children: [
+        ActionChip(
+          avatar: const Icon(Icons.priority_high),
+          label: Text(_priority.label),
+          backgroundColor: widget.mode == TaskRulePageMode.edit && _priority != widget.taskRule?.priority ? Colors.orange.withValues(alpha: 0.08) : null,
+          onPressed: () => appSettingsRadioGroupSheet<TaskPriority>(
+            context: context,
+            title: "Task Priority",
+            value: _priority,
+            onChanged: (TaskPriority? newValue) {
+              if (newValue == null) return;
+              setState(() => _priority = newValue);
+              Navigator.pop(context);
+              _changeListener();
+            },
+            optionWidgets: Map.fromEntries(TaskPriority.values.map((priority) {
+              return MapEntry(
+                priority,
+                Text(priority.label),
+              );
+            })),
+          ),
+        ),
+        ..._tags.map((tag) => FilterChip(
+          avatar: const Icon(Icons.tag),
+          showCheckmark: false,
+          selected: widget.mode != TaskRulePageMode.edit,
+          label: Text(tag), 
+          onSelected: (_) => setState(() => _tags.remove(tag)),
+          onDeleted: () => setState(() => _tags.remove(tag)),
+          backgroundColor: widget.mode == TaskRulePageMode.edit && !widget.taskRule!.tags.contains(tag) ? Colors.orange.withValues(alpha: 0.08) : null,
+        )),
+        ActionChip(
+          avatar: const Icon(Icons.add),
+          label: const Text("Tags"),
+          onPressed: () async {
+            await showSetTaskRuleTagsSheet(
+              context: context, 
+              tags: _tags,
+              onChanged: (Set<String> newTags) => setState(() => _tags = newTags),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
@@ -393,59 +490,11 @@ class _TaskRulePageState extends State<TaskRulePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextFormField(
-                    controller: _nameController,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    autofocus: widget.mode == TaskRulePageMode.add,
-                    onChanged: (value) => setState(() {}),  // trigger filled
-                    decoration: InputDecoration(
-                      labelText: 'Task Rule Name',
-                      border: const OutlineInputBorder(),
-                      hintText: 'Enter task name',
-                      fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.mode == TaskRulePageMode.edit && _nameController.text.trim() != widget.taskRule?.name,
-                    ),
-                    validator: (v) => v == null || v.trim().isEmpty ? 'Name required' : null,
-                    onFieldSubmitted: (_) => _saveTaskRule(),
-                  ),
+                  _nameTextFormField(),
                   const SizedBox(height: 12),
-                  DropdownButtonFormField<TaskPriority>(
-                    initialValue: _priority,
-                    isExpanded: true,
-                    decoration: InputDecoration(
-                      labelText: 'Priority',
-                      border: const OutlineInputBorder(),
-                      fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.mode == TaskRulePageMode.edit && _priority != widget.taskRule?.priority,
-                    ),
-                    items: TaskPriority.values.map((priority) {
-                      return DropdownMenuItem<TaskPriority>(
-                        value: priority,
-                        child: Text(priority.label),
-                      );
-                    }).toList(),
-                    onChanged: (TaskPriority? newValue) {
-                      if (newValue != null) {
-                        setState(() => _priority = newValue);
-                        _changeListener();
-                      }
-                    },
-                  ),
+                  _notesTextFormField(),
                   const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _notesController,
-                    minLines: 2,
-                    maxLines: null,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    onChanged: (value) => setState(() {}),
-                    decoration: InputDecoration(
-                      labelText: 'Notes (optional)',
-                      hintText: 'Add additional details or instructions...',
-                      border: const OutlineInputBorder(),
-                      fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.mode == TaskRulePageMode.edit && _notesController.text.trim() != (widget.taskRule?.notes ?? ""),
-                    ),
-                  ),
+                  _wrap(),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<_TaskAssociation?>(
                     initialValue: _association,

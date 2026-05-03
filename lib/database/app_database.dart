@@ -70,7 +70,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.memory() : super(NativeDatabase.memory());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -83,6 +83,9 @@ class AppDatabase extends _$AppDatabase {
           // Fix legacy local timestamps that were stored as absolute UTC epochs 
           // instead of floating face-values.
           await _migrateFloatingDates(this);
+        }
+        if (from < 3) {
+          await m.addColumn(taskRules, taskRules.tags);
         }
       },
     );

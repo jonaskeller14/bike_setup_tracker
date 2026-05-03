@@ -17,6 +17,7 @@ void main() {
       interval: const DurationThreshold(Duration(days: 30)),
       delay: const DistanceThreshold(500),
       repeat: true,
+      tags: const {},
     );
 
     final selectedData = SelectedData(taskRules: {rule.id: rule});

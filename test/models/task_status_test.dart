@@ -15,6 +15,7 @@ void main() {
         componentId: componentId,
         interval: const DistanceThreshold(300000), // 300km
         repeat: true,
+        tags: const {},
       );
 
       // No entries, 0m -> upcoming (0%)
@@ -57,6 +58,7 @@ void main() {
         interval: const DistanceThreshold(300000),
         delay: const DistanceThreshold(50000),
         repeat: true,
+        tags: const {},
       );
 
       // 300km -> upcoming (because of 50km delay, total is 350km)
@@ -82,6 +84,7 @@ void main() {
         componentId: componentId,
         interval: const DistanceThreshold(100000),
         repeat: false,
+        tags: const {},
       );
 
       // No entries, 50km -> upcoming
@@ -115,6 +118,7 @@ void main() {
         componentId: componentId,
         interval: const DurationThreshold(Duration(days: 30)),
         repeat: true,
+        tags: const {},
       );
 
       final installationDate = now.subtract(const Duration(days: 45));
@@ -153,6 +157,7 @@ void main() {
         bikeId: 'bike-1',
         interval: const DurationThreshold(Duration(days: 7)),
         repeat: true,
+        tags: const {},
       );
 
       // 8 days passed -> overdue
@@ -170,6 +175,7 @@ void main() {
         expect(() => TaskRule(
           name: 'Invalid Task',
           interval: const DistanceThreshold(100),
+          tags: const {},
         ), throwsA(isA<AssertionError>()));
       });
 
@@ -178,6 +184,7 @@ void main() {
           name: 'Bike Distance Task',
           bikeId: 'bike-1',
           interval: const DistanceThreshold(100),
+          tags: const {},
         );
         expect(rule.bikeId, 'bike-1');
       });
@@ -187,6 +194,7 @@ void main() {
       final rule = TaskRule(
         name: 'Manual task',
         repeat: true, // This is the bug: it defaults to true
+        tags: const {},
       );
 
       // No entry -> due

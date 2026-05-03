@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import '../../models/task_rule.dart';
+import '../converters/string_list_converter.dart';
 import '../converters/utc_datetime_converter.dart';
 import 'bikes.dart';
 import 'components.dart';
@@ -14,6 +15,7 @@ class TaskRules extends Table {
   TextColumn get name => text()();
   TextColumn get notes => text().nullable()();
   TextColumn get priority => textEnum<TaskPriority>().withDefault(const Constant('medium'))();
+  TextColumn get tags => text().map(const StringListConverter()).withDefault(const Constant('[]'))();
   TextColumn get interval => text().nullable()(); // JSON serialized TaskThreshold
   TextColumn get delay => text().nullable()();    // JSON serialized TaskThreshold
   BoolColumn get repeat => boolean().withDefault(const Constant(true))();

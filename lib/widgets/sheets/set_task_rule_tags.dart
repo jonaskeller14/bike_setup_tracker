@@ -1,9 +1,9 @@
-import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../repositories/app_repository.dart';
 import 'sheet.dart';
 
-Future<void> showSetTagsSheet({
+Future<void> showSetTaskRuleTagsSheet({
   required BuildContext context, 
   required Set<String> tags,
   required ValueChanged<Set<String>> onChanged,
@@ -14,29 +14,29 @@ Future<void> showSetTagsSheet({
     isScrollControlled: true,
     context: context, 
     builder: (context) {
-      return SetTagsSheetContent(
-        setupTags: tags.toSet(),
+      return SetTaskRuleTagsSheetContent(
+        taskRuleTags: tags.toSet(),
         onChanged: onChanged,
       );
     },
   );
 }
 
-class SetTagsSheetContent extends StatefulWidget {
-  final Set<String> setupTags;
+class SetTaskRuleTagsSheetContent extends StatefulWidget {
+  final Set<String> taskRuleTags;
   final ValueChanged<Set<String>> onChanged;
 
-  const SetTagsSheetContent({
+  const SetTaskRuleTagsSheetContent({
     super.key, 
-    required this.setupTags,
+    required this.taskRuleTags,
     required this.onChanged,
   });
 
   @override
-  State<StatefulWidget> createState() => _SetTagsSheetContentState();
+  State<StatefulWidget> createState() => _SetTaskRuleTagsSheetContentState();
 }
 
-class _SetTagsSheetContentState extends State<SetTagsSheetContent> {
+class _SetTaskRuleTagsSheetContentState extends State<SetTaskRuleTagsSheetContent> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _controller = TextEditingController();
   late Set<String> _selectedTags;
@@ -46,8 +46,8 @@ class _SetTagsSheetContentState extends State<SetTagsSheetContent> {
   @override 
   void initState() {
     super.initState();
-    _selectedTags = widget.setupTags;
-    _availableTags = {..._selectedTags, ...context.read<AppRepository>().setupTags};
+    _selectedTags = widget.taskRuleTags;
+    _availableTags = {..._selectedTags, ...context.read<AppRepository>().taskRuleTags};
   }
 
   @override
@@ -93,7 +93,7 @@ class _SetTagsSheetContentState extends State<SetTagsSheetContent> {
           ),
           const ListTile(
             leading: Icon(Icons.info_outline),
-            title: Text("Use tags to group and organize your setups. For example, to categorize by specific test sessions, tracks, or terrains."),
+            title: Text("Use tags to group and organize your tasks (e.g. maintenance, order list, setup test, ...)"),
             dense: true,
           ),
           const SizedBox(height: 12),

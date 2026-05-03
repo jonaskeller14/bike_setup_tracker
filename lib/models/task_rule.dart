@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'component_stats.dart';
@@ -60,6 +61,7 @@ class TaskRule {
   final String name;
   final String? notes;
   final TaskPriority priority;
+  final Set<String> tags;
   final String? componentId;
   final String? bikeId;
   final TaskThreshold? interval;
@@ -73,6 +75,7 @@ class TaskRule {
     required this.name,
     this.notes,
     this.priority = TaskPriority.medium,
+    required this.tags,
     this.componentId,
     this.bikeId,
     this.interval,
@@ -131,12 +134,14 @@ class TaskRule {
   }
   
   Map<String, dynamic> toJson() => {
+    'version': 1,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
     'name': name,
     'notes': notes,
     'priority': priority.toString(),
+    'tags': tags.toList(),
     'componentId': componentId,
     'bikeId': bikeId,
     'interval': interval?.toJson(),
@@ -145,26 +150,32 @@ class TaskRule {
   };
 
   factory TaskRule.fromJson(Map<String, dynamic> json) {
-    return TaskRule(
-      id: json["id"] as String,
-      isDeleted: json["isDeleted"] as bool,
-      lastModified: DateTime.parse(json["lastModified"]),
-      name: json["name"] as String,
-      notes: json["notes"] as String?,
-      priority: TaskPriority.values.firstWhere(
-        (p) => p.toString() == json['priority'],
-        orElse: () => TaskPriority.medium,
-      ),
-      componentId: json["componentId"] as String?,
-      bikeId: json["bikeId"] as String?,
-      interval: json["interval"] != null 
-          ? TaskThreshold.fromJson(json["interval"] as Map<String, dynamic>) 
-          : null,
-      delay: json["delay"] != null 
-          ? TaskThreshold.fromJson(json["delay"] as Map<String, dynamic>) 
-          : null,
-      repeat: json["repeat"] as bool? ?? true,
-    );
+    final int? version = json["version"];
+    switch (version) {
+      case null || 1:
+        return TaskRule(
+          id: json["id"] as String,
+          isDeleted: json["isDeleted"] as bool,
+          lastModified: DateTime.parse(json["lastModified"]),
+          name: json["name"] as String,
+          notes: json["notes"] as String?,
+          priority: TaskPriority.values.firstWhere(
+            (p) => p.toString() == json['priority'],
+            orElse: () => TaskPriority.medium,
+          ),
+          tags: (json['tags'] as List?)?.map((item) => item as String).toSet() ?? <String>{},
+          componentId: json["componentId"] as String?,
+          bikeId: json["bikeId"] as String?,
+          interval: json["interval"] != null 
+              ? TaskThreshold.fromJson(json["interval"] as Map<String, dynamic>) 
+              : null,
+          delay: json["delay"] != null 
+              ? TaskThreshold.fromJson(json["delay"] as Map<String, dynamic>) 
+              : null,
+          repeat: json["repeat"] as bool? ?? true,
+        );
+      default: throw Exception("Json Version $version of TaskRule incompatible.");
+    }
   }
 
   @override
@@ -178,6 +189,7 @@ class TaskRule {
         name == other.name &&
         notes == other.notes &&
         priority == other.priority &&
+        setEquals(tags, other.tags) &&
         componentId == other.componentId &&
         bikeId == other.bikeId &&
         interval == other.interval &&
@@ -194,6 +206,7 @@ class TaskRule {
       name,
       notes,
       priority,
+      tags,
       componentId,
       bikeId,
       interval,
@@ -207,6 +220,7 @@ class TaskRule {
       name: name, 
       notes: notes,
       priority: priority,
+      tags: tags,
       componentId: componentId,
       bikeId: bikeId,
       interval: interval,
@@ -222,6 +236,7 @@ class TaskRule {
     Object? name = const _Sentinel(),
     Object? notes = const _Sentinel(),
     Object? priority = const _Sentinel(),
+    Object? tags = const _Sentinel(),
     Object? componentId = const _Sentinel(),
     Object? bikeId = const _Sentinel(),
     Object? interval = const _Sentinel(),
@@ -247,6 +262,9 @@ class TaskRule {
       priority: priority is _Sentinel 
           ? this.priority 
           : (priority as TaskPriority),
+      tags: tags is _Sentinel
+          ? this.tags
+          : (tags as Set<String>),
       componentId: componentId is _Sentinel
           ? this.componentId
           : (componentId as String?),

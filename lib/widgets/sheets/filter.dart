@@ -5,7 +5,12 @@ import '../../models/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import 'sheet.dart';
 
-Future<void> showFilterSheet({required BuildContext context, required bool enableSetupTagFilter, required bool enableTaskPriorityFilter}) async {
+Future<void> showFilterSheet({
+  required BuildContext context, 
+  required bool enableSetupTagFilter, 
+  bool enableTaskRuleTagFilter = false,
+  required bool enableTaskPriorityFilter,
+}) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
     showDragHandle: true,
@@ -117,6 +122,37 @@ Future<void> showFilterSheet({required BuildContext context, required bool enabl
                           );
                         }).toList(),
                       )
+                    ],
+                    if (enableTaskRuleTagFilter) ...[
+                      Text("Task Tags", style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 6),
+                      appRepository.taskRuleTags.isEmpty
+                          ? Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 32),
+                              child: Center(
+                                child: Text("No tags yet. Add/Edit a Task Rule to add a tag.", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5))),
+                              ),
+                            )
+                          : Wrap(
+                              spacing: 6,
+                              children: appRepository.taskRuleTags.map((tag) {
+                                return FilterChip(
+                                  avatar: const Icon(Icons.tag),
+                                  label: Text(tag),
+                                  selected: appRepository.selectedTaskRuleTags.contains(tag),
+                                  showCheckmark: false,
+                                  onSelected: (bool newValue) {
+                                    switch (newValue) {
+                                      case true: appRepository.selectTaskRuleTag(tag);
+                                      case false: appRepository.deselectTaskRuleTag(tag);
+                                    }
+                                  },
+                                  onDeleted: appRepository.selectedTaskRuleTags.contains(tag)
+                                      ? () => appRepository.deselectTaskRuleTag(tag)
+                                      : null,
+                                );
+                              }).toList(),
+                            ),
                     ],
                   ],
                 ),

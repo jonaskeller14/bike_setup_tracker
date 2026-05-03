@@ -199,6 +199,8 @@ class SetupListCard extends StatelessWidget {
                         child: Text(
                           tag,
                           style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],

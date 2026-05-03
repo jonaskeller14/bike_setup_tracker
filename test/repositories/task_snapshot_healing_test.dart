@@ -41,6 +41,7 @@ void main() {
       final rule = TaskRule(
         name: "Chain Wax",
         componentId: component.id,
+        tags: const {},
       );
       await repository.addTaskRule(rule);
       await pumpEventQueue();

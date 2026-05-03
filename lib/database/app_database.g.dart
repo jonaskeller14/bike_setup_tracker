@@ -1350,6 +1350,16 @@ class $TaskRulesTable extends TaskRules
         requiredDuringInsert: false,
         defaultValue: const Constant('medium'),
       ).withConverter<TaskPriority>($TaskRulesTable.$converterpriority);
+  @override
+  late final GeneratedColumnWithTypeConverter<Set<String>, String> tags =
+      GeneratedColumn<String>(
+        'tags',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('[]'),
+      ).withConverter<Set<String>>($TaskRulesTable.$convertertags);
   static const VerificationMeta _intervalMeta = const VerificationMeta(
     'interval',
   );
@@ -1393,6 +1403,7 @@ class $TaskRulesTable extends TaskRules
     name,
     notes,
     priority,
+    tags,
     interval,
     delay,
     repeat,
@@ -1512,6 +1523,12 @@ class $TaskRulesTable extends TaskRules
           data['${effectivePrefix}priority'],
         )!,
       ),
+      tags: $TaskRulesTable.$convertertags.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}tags'],
+        )!,
+      ),
       interval: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}interval'],
@@ -1536,6 +1553,8 @@ class $TaskRulesTable extends TaskRules
       const UtcDateTimeConverter();
   static JsonTypeConverter2<TaskPriority, String, String> $converterpriority =
       const EnumNameConverter<TaskPriority>(TaskPriority.values);
+  static TypeConverter<Set<String>, String> $convertertags =
+      const StringListConverter();
 }
 
 class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
@@ -1547,6 +1566,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
   final String name;
   final String? notes;
   final TaskPriority priority;
+  final Set<String> tags;
   final String? interval;
   final String? delay;
   final bool repeat;
@@ -1559,6 +1579,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
     required this.name,
     this.notes,
     required this.priority,
+    required this.tags,
     this.interval,
     this.delay,
     required this.repeat,
@@ -1588,6 +1609,11 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
         $TaskRulesTable.$converterpriority.toSql(priority),
       );
     }
+    {
+      map['tags'] = Variable<String>(
+        $TaskRulesTable.$convertertags.toSql(tags),
+      );
+    }
     if (!nullToAbsent || interval != null) {
       map['interval'] = Variable<String>(interval);
     }
@@ -1614,6 +1640,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
           ? const Value.absent()
           : Value(notes),
       priority: Value(priority),
+      tags: Value(tags),
       interval: interval == null && nullToAbsent
           ? const Value.absent()
           : Value(interval),
@@ -1640,6 +1667,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
       priority: $TaskRulesTable.$converterpriority.fromJson(
         serializer.fromJson<String>(json['priority']),
       ),
+      tags: serializer.fromJson<Set<String>>(json['tags']),
       interval: serializer.fromJson<String?>(json['interval']),
       delay: serializer.fromJson<String?>(json['delay']),
       repeat: serializer.fromJson<bool>(json['repeat']),
@@ -1659,6 +1687,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
       'priority': serializer.toJson<String>(
         $TaskRulesTable.$converterpriority.toJson(priority),
       ),
+      'tags': serializer.toJson<Set<String>>(tags),
       'interval': serializer.toJson<String?>(interval),
       'delay': serializer.toJson<String?>(delay),
       'repeat': serializer.toJson<bool>(repeat),
@@ -1674,6 +1703,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
     String? name,
     Value<String?> notes = const Value.absent(),
     TaskPriority? priority,
+    Set<String>? tags,
     Value<String?> interval = const Value.absent(),
     Value<String?> delay = const Value.absent(),
     bool? repeat,
@@ -1686,6 +1716,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
     name: name ?? this.name,
     notes: notes.present ? notes.value : this.notes,
     priority: priority ?? this.priority,
+    tags: tags ?? this.tags,
     interval: interval.present ? interval.value : this.interval,
     delay: delay.present ? delay.value : this.delay,
     repeat: repeat ?? this.repeat,
@@ -1704,6 +1735,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
       name: data.name.present ? data.name.value : this.name,
       notes: data.notes.present ? data.notes.value : this.notes,
       priority: data.priority.present ? data.priority.value : this.priority,
+      tags: data.tags.present ? data.tags.value : this.tags,
       interval: data.interval.present ? data.interval.value : this.interval,
       delay: data.delay.present ? data.delay.value : this.delay,
       repeat: data.repeat.present ? data.repeat.value : this.repeat,
@@ -1721,6 +1753,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
           ..write('name: $name, ')
           ..write('notes: $notes, ')
           ..write('priority: $priority, ')
+          ..write('tags: $tags, ')
           ..write('interval: $interval, ')
           ..write('delay: $delay, ')
           ..write('repeat: $repeat')
@@ -1738,6 +1771,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
     name,
     notes,
     priority,
+    tags,
     interval,
     delay,
     repeat,
@@ -1754,6 +1788,7 @@ class TaskRuleDb extends DataClass implements Insertable<TaskRuleDb> {
           other.name == this.name &&
           other.notes == this.notes &&
           other.priority == this.priority &&
+          other.tags == this.tags &&
           other.interval == this.interval &&
           other.delay == this.delay &&
           other.repeat == this.repeat);
@@ -1768,6 +1803,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
   final Value<String> name;
   final Value<String?> notes;
   final Value<TaskPriority> priority;
+  final Value<Set<String>> tags;
   final Value<String?> interval;
   final Value<String?> delay;
   final Value<bool> repeat;
@@ -1781,6 +1817,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
     this.name = const Value.absent(),
     this.notes = const Value.absent(),
     this.priority = const Value.absent(),
+    this.tags = const Value.absent(),
     this.interval = const Value.absent(),
     this.delay = const Value.absent(),
     this.repeat = const Value.absent(),
@@ -1795,6 +1832,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
     required String name,
     this.notes = const Value.absent(),
     this.priority = const Value.absent(),
+    this.tags = const Value.absent(),
     this.interval = const Value.absent(),
     this.delay = const Value.absent(),
     this.repeat = const Value.absent(),
@@ -1811,6 +1849,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
     Expression<String>? name,
     Expression<String>? notes,
     Expression<String>? priority,
+    Expression<String>? tags,
     Expression<String>? interval,
     Expression<String>? delay,
     Expression<bool>? repeat,
@@ -1825,6 +1864,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
       if (name != null) 'name': name,
       if (notes != null) 'notes': notes,
       if (priority != null) 'priority': priority,
+      if (tags != null) 'tags': tags,
       if (interval != null) 'interval': interval,
       if (delay != null) 'delay': delay,
       if (repeat != null) 'repeat': repeat,
@@ -1841,6 +1881,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
     Value<String>? name,
     Value<String?>? notes,
     Value<TaskPriority>? priority,
+    Value<Set<String>>? tags,
     Value<String?>? interval,
     Value<String?>? delay,
     Value<bool>? repeat,
@@ -1855,6 +1896,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
       name: name ?? this.name,
       notes: notes ?? this.notes,
       priority: priority ?? this.priority,
+      tags: tags ?? this.tags,
       interval: interval ?? this.interval,
       delay: delay ?? this.delay,
       repeat: repeat ?? this.repeat,
@@ -1893,6 +1935,11 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
         $TaskRulesTable.$converterpriority.toSql(priority.value),
       );
     }
+    if (tags.present) {
+      map['tags'] = Variable<String>(
+        $TaskRulesTable.$convertertags.toSql(tags.value),
+      );
+    }
     if (interval.present) {
       map['interval'] = Variable<String>(interval.value);
     }
@@ -1919,6 +1966,7 @@ class TaskRulesCompanion extends UpdateCompanion<TaskRuleDb> {
           ..write('name: $name, ')
           ..write('notes: $notes, ')
           ..write('priority: $priority, ')
+          ..write('tags: $tags, ')
           ..write('interval: $interval, ')
           ..write('delay: $delay, ')
           ..write('repeat: $repeat, ')
@@ -8613,6 +8661,7 @@ typedef $$TaskRulesTableCreateCompanionBuilder =
       required String name,
       Value<String?> notes,
       Value<TaskPriority> priority,
+      Value<Set<String>> tags,
       Value<String?> interval,
       Value<String?> delay,
       Value<bool> repeat,
@@ -8628,6 +8677,7 @@ typedef $$TaskRulesTableUpdateCompanionBuilder =
       Value<String> name,
       Value<String?> notes,
       Value<TaskPriority> priority,
+      Value<Set<String>> tags,
       Value<String?> interval,
       Value<String?> delay,
       Value<bool> repeat,
@@ -8734,6 +8784,12 @@ class $$TaskRulesTableFilterComposer
     column: $table.priority,
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
+
+  ColumnWithTypeConverterFilters<Set<String>, Set<String>, String> get tags =>
+      $composableBuilder(
+        column: $table.tags,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
 
   ColumnFilters<String> get interval => $composableBuilder(
     column: $table.interval,
@@ -8861,6 +8917,11 @@ class $$TaskRulesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get tags => $composableBuilder(
+    column: $table.tags,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get interval => $composableBuilder(
     column: $table.interval,
     builder: (column) => ColumnOrderings(column),
@@ -8952,6 +9013,9 @@ class $$TaskRulesTableAnnotationComposer
 
   GeneratedColumnWithTypeConverter<TaskPriority, String> get priority =>
       $composableBuilder(column: $table.priority, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<Set<String>, String> get tags =>
+      $composableBuilder(column: $table.tags, builder: (column) => column);
 
   GeneratedColumn<String> get interval =>
       $composableBuilder(column: $table.interval, builder: (column) => column);
@@ -9074,6 +9138,7 @@ class $$TaskRulesTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<TaskPriority> priority = const Value.absent(),
+                Value<Set<String>> tags = const Value.absent(),
                 Value<String?> interval = const Value.absent(),
                 Value<String?> delay = const Value.absent(),
                 Value<bool> repeat = const Value.absent(),
@@ -9087,6 +9152,7 @@ class $$TaskRulesTableTableManager
                 name: name,
                 notes: notes,
                 priority: priority,
+                tags: tags,
                 interval: interval,
                 delay: delay,
                 repeat: repeat,
@@ -9102,6 +9168,7 @@ class $$TaskRulesTableTableManager
                 required String name,
                 Value<String?> notes = const Value.absent(),
                 Value<TaskPriority> priority = const Value.absent(),
+                Value<Set<String>> tags = const Value.absent(),
                 Value<String?> interval = const Value.absent(),
                 Value<String?> delay = const Value.absent(),
                 Value<bool> repeat = const Value.absent(),
@@ -9115,6 +9182,7 @@ class $$TaskRulesTableTableManager
                 name: name,
                 notes: notes,
                 priority: priority,
+                tags: tags,
                 interval: interval,
                 delay: delay,
                 repeat: repeat,

@@ -132,12 +132,16 @@ class AppRepository extends ChangeNotifier {
   String? _selectedBike;
   final Set<String> _selectedSetupTags = {};
   final Set<TaskPriority> _selectedTaskPriorities = TaskPriority.values.toSet();
+  final Set<String> _selectedTaskRuleTags = {};
   Set<String> _setupTags = {};
+  Set<String> _taskRuleTags = {};
 
   String? get selectedBike => _selectedBike;
   Set<String> get selectedSetupTags => _selectedSetupTags;
   Set<TaskPriority> get selectedTaskPriorities => _selectedTaskPriorities;
+  Set<String> get selectedTaskRuleTags => _selectedTaskRuleTags;
   Set<String> get setupTags => _setupTags;
+  Set<String> get taskRuleTags => _taskRuleTags;
 
   Map<String, Bike> _filteredBikes = {};
   Map<String, Person> _filteredPersons = {};
@@ -366,6 +370,7 @@ class AppRepository extends ChangeNotifier {
     };
 
     _setupTags = SetupResolutionService.extractAllTags(_setups.values);
+    _taskRuleTags = _taskRules.values.map((tr) => tr.tags).expand((tags) => tags).toSet();
   }
 
   void filter() {
@@ -378,6 +383,7 @@ class AppRepository extends ChangeNotifier {
       _selectedBike = null;
     }
     _selectedSetupTags.removeWhere((tag) => !setupTags.contains(tag));
+    _selectedTaskRuleTags.removeWhere((tag) => !taskRuleTags.contains(tag));
 
     _filterBikes();
     _filterComponents();
@@ -433,6 +439,8 @@ class AppRepository extends ChangeNotifier {
       taskRules.entries.where((entry) {
         final rule = entry.value;
         if (!_selectedTaskPriorities.contains(rule.priority)) return false;
+
+        if (selectedTaskRuleTags.isNotEmpty && !entry.value.tags.containsAll(selectedTaskRuleTags)) return false;
 
         // 1. Global Tasks (no component, no bike)
         if (rule.componentId == null && rule.bikeId == null) return true;
@@ -587,6 +595,25 @@ class AppRepository extends ChangeNotifier {
   void deselectAllSetupTags() {
     _selectedSetupTags.clear();
     _filterSetups();
+    notifyListeners();
+  }
+
+    void selectTaskRuleTag(String newTag) {
+    if (!taskRuleTags.contains(newTag)) return;
+    _selectedTaskRuleTags.add(newTag);
+    _filterTaskRules();
+    notifyListeners();
+  }
+
+  void deselectTaskRuleTag(String tag) {
+    _selectedTaskRuleTags.remove(tag);
+    _filterTaskRules();
+    notifyListeners();
+  }
+
+  void deselectAllTaskRuleTags() {
+    _selectedTaskRuleTags.clear();
+    _filterTaskRules();
     notifyListeners();
   }
 

@@ -50,3 +50,6 @@ ios/Runner/GoogleService-Info.plist
 
 # Google Cloud Console
 ios/Runner/client_*.plist
+
+# Mapbox Secret Access Token
+.env

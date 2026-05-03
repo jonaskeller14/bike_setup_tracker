@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:weather_icons/weather_icons.dart';
+import '../../env/env.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';
@@ -270,32 +271,43 @@ class SetupDetailsPageContent extends StatelessWidget {
                               interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
                             ),
                             children: [
-                              TileLayer(
-                                urlTemplate: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
-                                subdomains: const ['a', 'b', 'c'], // Cyclosm uses subdomains for faster loading
-                                minZoom: 3,
-                                userAgentPackageName: 'com.jonaskeller14.bike_setup_tracker',
-                                tileDisplay: const TileDisplay.fadeIn(),
-                                tileBuilder: (context, tileWidget, tile) {
-                                  final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-                                  return ColorFiltered(
-                                    colorFilter: isDarkMode
-                                        ? const ColorFilter.matrix(<double>[
-                                            -0.2126, -0.7152, -0.0722, 0, 255,
-                                            -0.2126, -0.7152, -0.0722, 0, 255,
-                                            -0.2126, -0.7152, -0.0722, 0, 255,
-                                            0, 0, 0, 1, 0,
-                                          ])
-                                        : const ColorFilter.matrix(<double>[
-                                            0.6, 0.3, 0.1, 0, 0,  // Muted Red
-                                            0.1, 0.8, 0.1, 0, 0,  // Muted Green
-                                            0.1, 0.3, 0.6, 0, 0,  // Muted Blue
-                                            0,   0,   0,   1, 0,  // Alpha (no change)
-                                          ]),
-                                    child: tileWidget,
-                                  );
-                                },
-                              ),
+                              if (appSettings.useMapBoxTiles && Env.mapboxToken.isNotEmpty)
+                                TileLayer(
+                                  urlTemplate: 'https://api.mapbox.com/styles/v1/mapbox/{style_id}/tiles/256/{z}/{x}/{y}@2x?access_token={access_token}',
+                                  additionalOptions: {
+                                    'access_token': Env.mapboxToken,
+                                    'style_id': Theme.of(context).brightness == Brightness.dark ? 'dark-v11' : 'outdoors-v12',
+                                  },
+                                  userAgentPackageName: 'com.jonaskeller14.bike_setup_tracker',
+                                  tileDisplay: const TileDisplay.fadeIn(),
+                                )
+                              else
+                                TileLayer(
+                                  urlTemplate: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
+                                  subdomains: const ['a', 'b', 'c'], // Cyclosm uses subdomains for faster loading
+                                  minZoom: 3,
+                                  userAgentPackageName: 'com.jonaskeller14.bike_setup_tracker',
+                                  tileDisplay: const TileDisplay.fadeIn(),
+                                  tileBuilder: (context, tileWidget, tile) {
+                                    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                                    return ColorFiltered(
+                                      colorFilter: isDarkMode
+                                          ? const ColorFilter.matrix(<double>[
+                                              -0.2126, -0.7152, -0.0722, 0, 255,
+                                              -0.2126, -0.7152, -0.0722, 0, 255,
+                                              -0.2126, -0.7152, -0.0722, 0, 255,
+                                              0, 0, 0, 1, 0,
+                                            ])
+                                          : const ColorFilter.matrix(<double>[
+                                              0.6, 0.3, 0.1, 0, 0,  // Muted Red
+                                              0.1, 0.8, 0.1, 0, 0,  // Muted Green
+                                              0.1, 0.3, 0.6, 0, 0,  // Muted Blue
+                                              0,   0,   0,   1, 0,  // Alpha (no change)
+                                            ]),
+                                      child: tileWidget,
+                                    );
+                                  },
+                                ),
                               MarkerLayer(
                                 markers: [
                                   Marker(
@@ -320,10 +332,31 @@ class SetupDetailsPageContent extends StatelessWidget {
                               RichAttributionWidget(
                                 showFlutterMapAttribution: false,
                                 attributions: [
-                                  TextSourceAttribution(
-                                    'OpenStreetMap | Cyclosm',
-                                    onTap: () => launchUrlString('https://openstreetmap.org/copyright'),
-                                  ),
+                                  if (appSettings.useMapBoxTiles && Env.mapboxToken.isNotEmpty) ...[
+                                    LogoSourceAttribution(
+                                      Image.asset(
+                                        'assets/mapbox/mapbox-logo.png',
+                                        height: 24,
+                                      ),
+                                    ),
+                                    TextSourceAttribution(
+                                      '© Mapbox',
+                                      onTap: () => launchUrlString('https://www.mapbox.com/about/maps/'),
+                                    ),
+                                    TextSourceAttribution(
+                                      '© OpenStreetMap',
+                                      onTap: () => launchUrlString('https://www.openstreetmap.org/copyright'),
+                                    ),
+                                    TextSourceAttribution(
+                                      'Improve this map',
+                                      onTap: () => launchUrlString('https://www.mapbox.com/map-feedback/'),
+                                    ),
+                                  ] else ...[
+                                    TextSourceAttribution(
+                                      'OpenStreetMap | Cyclosm',
+                                      onTap: () => launchUrlString('https://openstreetmap.org/copyright'),
+                                    ),
+                                  ]
                                 ],
                               ),
                             ],

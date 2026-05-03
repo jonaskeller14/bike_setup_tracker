@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
 import '../../models/component.dart';
+import '../../pages/details/component_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/component_actions.dart';
 import '../dashed_border_painter.dart';
@@ -191,8 +192,15 @@ class GarageUninstalledCard extends StatelessWidget{
                                     children: deinstalledComponents.values
                                         .map(
                                           (component) => GestureDetector(
-                                            onTap: () =>
-                                                onPressedComponent(component),
+                                            onTap: () => onPressedComponent(component),
+                                            onDoubleTap: () async {
+                                              await Navigator.push<void>(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => ComponentDetailsPage(componentId: component.id),
+                                                ),
+                                              );
+                                            },
                                             child: GarageComponentIconCard(
                                               component: component,
                                               componentToShowDetails:

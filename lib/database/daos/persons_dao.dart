@@ -59,7 +59,7 @@ class PersonsDao extends DatabaseAccessor<AppDatabase> with _$PersonsDaoMixin, S
   }
 
   Future<int> insertPerson(PersonsCompanion entry) => into(persons).insert(entry);
-  Future updatePerson(PersonsCompanion entry) => update(persons).replace(entry);
+  Future<bool> updatePerson(PersonsCompanion entry) => update(persons).replace(entry);
   Future<int> deletePerson(String id) => softDelete(id);
 
   Future<void> insertPersonWithData({

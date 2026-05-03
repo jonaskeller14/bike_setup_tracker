@@ -205,7 +205,7 @@ void main() {
       ));
       await tester.pumpAndSettle();
 
-      final popups = find.bySubtype<PopupMenuButton>();
+      final popups = find.bySubtype<PopupMenuButton<dynamic>>();
       await tester.tap(popups.at(1));
       await tester.pumpAndSettle();
 
@@ -216,7 +216,7 @@ void main() {
         (widget.child as Text).data == 'From beginning'
       );
       
-      final menuItem = tester.widget<PopupMenuItem>(popupMenuItemFinder);
+      final menuItem = tester.widget<PopupMenuItem<dynamic>>(popupMenuItemFinder);
       expect(menuItem.enabled, isFalse);
     });
   });

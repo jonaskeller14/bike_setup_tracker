@@ -83,13 +83,13 @@ class ComponentsDao extends DatabaseAccessor<AppDatabase> with _$ComponentsDaoMi
   }
 
   Future<int> insertComponent(ComponentsCompanion entry) => into(components).insert(entry);
-  Future updateComponent(ComponentsCompanion entry) => update(components).replace(entry);
+  Future<bool> updateComponent(ComponentsCompanion entry) => update(components).replace(entry);
   Future<int> deleteComponent(String id) => softDelete(id);
 
   // Adjustment operations
   Future<int> insertAdjustment(AdjustmentsCompanion entry) => into(adjustments).insert(entry);
-  Future updateAdjustment(AdjustmentsCompanion entry) => update(adjustments).replace(entry);
-  Future deleteAdjustment(String id) => (delete(adjustments)..where((t) => t.id.equals(id))).go();
+  Future<bool> updateAdjustment(AdjustmentsCompanion entry) => update(adjustments).replace(entry);
+  Future<int> deleteAdjustment(String id) => (delete(adjustments)..where((t) => t.id.equals(id))).go();
 
   Future<void> insertComponentWithData({
     required ComponentsCompanion component,

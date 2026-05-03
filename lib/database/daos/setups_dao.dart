@@ -74,7 +74,7 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin, Sof
   }
 
   Future<int> insertSetup(SetupsCompanion entry) => into(setups).insert(entry);
-  Future updateSetup(SetupsCompanion entry) => update(setups).replace(entry);
+  Future<bool> updateSetup(SetupsCompanion entry) => update(setups).replace(entry);
   Future<int> deleteSetup(String id) => softDelete(id);
 
   // Value operations

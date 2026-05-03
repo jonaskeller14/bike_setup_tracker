@@ -25,7 +25,7 @@ import '../utils/file_export.dart';
 
 class AppRepository extends ChangeNotifier {
   final AppDatabase database;
-  final List<StreamSubscription> _subscriptions = [];
+  final List<StreamSubscription<dynamic>> _subscriptions = [];
   
   /// Track if the repository has been disposed. 
   /// This is used as a safety guard for asynchronous operations that might 

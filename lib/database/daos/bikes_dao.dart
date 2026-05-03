@@ -43,7 +43,7 @@ class BikesDao extends DatabaseAccessor<AppDatabase>
   }
 
   Future<int> insertBike(BikesCompanion entry) => into(bikes).insert(entry);
-  Future updateBike(BikesCompanion entry) => update(bikes).replace(entry);
+  Future<bool> updateBike(BikesCompanion entry) => update(bikes).replace(entry);
   Future<int> deleteBike(String id) => softDelete(id);
 
   Future<void> reorder(List<String> ids) async {

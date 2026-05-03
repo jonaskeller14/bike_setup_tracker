@@ -33,10 +33,10 @@ class StravaService extends ChangeNotifier {
   bool _isConnected = false;
   bool get isConnected => _isConnected;
 
-  StreamSubscription? _activitiesSubscription;
-  StreamSubscription? _userDocSubscription;
-  StreamSubscription? _athleteSubscription;
-  StreamSubscription? _gearSubscription;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _activitiesSubscription;
+  StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _userDocSubscription;
+  StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _athleteSubscription;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _gearSubscription;
   bool _isDisposed = false;
   
   DateTime? _lastRecentSync;

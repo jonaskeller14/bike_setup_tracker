@@ -48,9 +48,9 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
     return (select(stravaActivities)..where((t) => t.id.equals(id))).getSingleOrNull();
   }
 
-  Future upsertAthlete(StravaAthletesCompanion entry) => into(stravaAthletes).insertOnConflictUpdate(entry);
-  Future upsertGear(StravaGearsCompanion entry) => into(stravaGears).insertOnConflictUpdate(entry);
-  Future upsertActivity(StravaActivitiesCompanion entry) => into(stravaActivities).insertOnConflictUpdate(entry);
+  Future<int> upsertAthlete(StravaAthletesCompanion entry) => into(stravaAthletes).insertOnConflictUpdate(entry);
+  Future<int> upsertGear(StravaGearsCompanion entry) => into(stravaGears).insertOnConflictUpdate(entry);
+  Future<int> upsertActivity(StravaActivitiesCompanion entry) => into(stravaActivities).insertOnConflictUpdate(entry);
   Future<int> deleteActivities(Iterable<int> ids) => (delete(stravaActivities)..where((t) => t.id.isIn(ids))).go();
 
   Stream<Map<String, ComponentStats>> watchComponentStats() {

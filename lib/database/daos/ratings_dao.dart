@@ -30,7 +30,7 @@ class RatingsDao extends DatabaseAccessor<AppDatabase> with _$RatingsDaoMixin, S
   }
 
   Future<int> insertRating(RatingsCompanion entry) => into(ratings).insert(entry);
-  Future updateRating(RatingsCompanion entry) => update(ratings).replace(entry);
+  Future<bool> updateRating(RatingsCompanion entry) => update(ratings).replace(entry);
   Future<int> deleteRating(String id) => softDelete(id);
 
   Stream<List<RatingWithData>> watchAllRatingsWithData() {

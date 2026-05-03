@@ -371,7 +371,7 @@ void main() {
 
     final popupFinder = find.descendant(
         of: find.byType(ComponentListCard),
-        matching: find.bySubtype<PopupMenuButton>(),
+        matching: find.bySubtype<PopupMenuButton<dynamic>>(),
     );
     
     await tester.tap(popupFinder.first);
@@ -408,7 +408,7 @@ void main() {
     await tester.tap(
       find.descendant(
         of: adjRow,
-        matching: find.bySubtype<PopupMenuButton>(),
+        matching: find.bySubtype<PopupMenuButton<dynamic>>(),
       ),
     );
     await tester.pumpAndSettle();
@@ -496,7 +496,7 @@ void main() {
     await tester.tap(
       find.descendant(
         of: find.byType(ComponentListCard).first,
-        matching: find.bySubtype<PopupMenuButton>(),
+        matching: find.bySubtype<PopupMenuButton<dynamic>>(),
       ),
     );
     await tester.pump(const Duration(milliseconds: 500));
@@ -522,7 +522,7 @@ void main() {
 
     final adjMenu = find.descendant(
       of: find.byType(AdjustmentListCard),
-      matching: find.bySubtype<PopupMenuButton>(),
+      matching: find.bySubtype<PopupMenuButton<dynamic>>(),
     );
     await tester.ensureVisible(adjMenu);
     await tester.tap(adjMenu);

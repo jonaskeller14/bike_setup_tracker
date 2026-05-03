@@ -11,10 +11,10 @@ include: package:flutter_lints/flutter.yaml
 
 analyzer:
   # Enable strict analysis for more robust code
-  # language:
+  language:
   #   strict-casts: true
   #   strict-inference: true
-  #   strict-raw-types: true
+    strict-raw-types: true
 
   # Exclude generated files from analysis
   exclude:

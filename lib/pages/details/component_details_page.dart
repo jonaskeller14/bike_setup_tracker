@@ -222,7 +222,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     if (!appSettings.enableCharts) return [];
 
     final activeChartColumns = activeColumns.where((column) {
-      Adjustment? adjustment = switch (column.section) {
+      final Adjustment? adjustment = switch (column.section) {
         TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label),
         TableColumnSection.ratingMetrics => ratingAdjustments.firstWhereOrNull((a) => a.id == column.label),
         TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == column.label),
@@ -1005,7 +1005,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                                 "Humidity" => DataCell(Center(child: Text(setup.weather?.currentHumidity == null ? '-' : "${setup.weather!.currentHumidity!.round()} %"))),
                                 "Windspeed" => DataCell(Center(child: Text(setup.weather?.currentWindSpeed == null ? '-' : "${Weather.convertWindSpeedFromKmh(setup.weather!.currentWindSpeed!, appSettings.windSpeedUnit)?.round()} ${appSettings.windSpeedUnit}"))),
                                 "Soil Moisture" => DataCell(Center(child: Text(setup.weather?.currentSoilMoisture0to7cm == null ? '-' : setup.weather!.currentSoilMoisture0to7cm!.toStringAsFixed(2)))),
-                                "Condition" => DataCell(Center(child: Text(setup.weather?.condition == null ? '-' : setup.weather!.condition!.value))),
+                                "Condition" => DataCell(Center(child: Text(setup.weather?.condition == null ? '-' : setup.weather?.condition!.value ?? "-"))),
                                 _ => const DataCell(Text("ERROR")),
                               };
                             case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes || TableColumnSection.ratingMetrics:
@@ -1086,10 +1086,10 @@ class _DashLinePainter extends CustomPainter {
       double currentX = 0;
       int i = 0;
       while (currentX < size.width) {
-        double dashLen = dashArray![i % dashArray!.length].toDouble();
-        double spaceLen = dashArray![(i + 1) % dashArray!.length].toDouble();
+        final double dashLen = dashArray![i % dashArray!.length].toDouble();
+        final double spaceLen = dashArray![(i + 1) % dashArray!.length].toDouble();
         
-        double endX = (currentX + dashLen).clamp(0, size.width);
+        final double endX = (currentX + dashLen).clamp(0, size.width);
         canvas.drawLine(Offset(currentX, size.height / 2), Offset(endX, size.height / 2), paint);
         
         currentX += dashLen + spaceLen;

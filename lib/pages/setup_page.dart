@@ -476,7 +476,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final tmpPreviousBikeAdjustmentValues = Map<String, dynamic>.from(_previousBikeAdjustmentValues);
     final tmpPreviousPersonAdjustmentValues = Map<String, dynamic>.from(_previousPersonAdjustmentValues);
 
-    TimeOfDay? pickedTime = await showTimePicker(
+    final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       helpText: "Select Setup Time",
       initialTime: TimeOfDay.fromDateTime(_selectedDateTimeLocal),

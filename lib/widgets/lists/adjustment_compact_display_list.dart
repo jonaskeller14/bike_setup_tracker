@@ -48,7 +48,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
         ...ratings.map((r) => _RatingItem(r)),
     ];
 
-    List<Widget> columnChildren = [];
+    final List<Widget> columnChildren = [];
     for (final item in items) {
       final itemAdjustments = item.adjustments;
       final Map<Adjustment, dynamic> itemAdjustmentValues = missingValuesPlaceholder

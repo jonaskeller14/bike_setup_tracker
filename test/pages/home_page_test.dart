@@ -398,7 +398,7 @@ void main() {
       findsOneWidget,
     );
 
-    Finder adjRow = find.ancestor(
+    final Finder adjRow = find.ancestor(
       of: find.textContaining('BooleanAdjustment #1'),
       matching: find.byType(AdjustmentListCard),
     );
@@ -423,7 +423,7 @@ void main() {
       ),
       findsOneWidget,
     );
-    Finder nameField = find.byType(TextFormField).first;
+    final Finder nameField = find.byType(TextFormField).first;
     expect(nameField, findsOneWidget);
     await tester.enterText(nameField, 'BooleanAdjustment #1 edit #1');
 
@@ -538,7 +538,7 @@ void main() {
       ),
       findsOneWidget,
     );
-    Finder nameField = find.byType(TextFormField).first;
+    final Finder nameField = find.byType(TextFormField).first;
     expect(nameField, findsOneWidget);
     await tester.enterText(nameField, 'BooleanAdjustment #1 edit #1');
 
@@ -572,8 +572,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 200));
 
     // Verify Title is "Bikes"
-    AppBar appBar = tester.widget(find.byType(AppBar).last);
-    Text titleText = appBar.title as Text;
+    final AppBar appBar = tester.widget(find.byType(AppBar).last);
+    final Text titleText = appBar.title as Text;
     expect(titleText.data, contains('Bikes'));
 
     // Verify NavigationBar has "Bikes" and "Setups" but NOT "Components"

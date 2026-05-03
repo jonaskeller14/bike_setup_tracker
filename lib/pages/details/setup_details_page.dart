@@ -704,7 +704,7 @@ class SetupDetailsPageContent extends StatelessWidget {
     final components = appRepository.components;
 
     final Bike? bike = bikes[setup.bike];
-    Iterable<Component> bikeComponents = components.values.where((c) => c.bikeAt(setup.datetimeLocal.toUtc()) == setup.bike);
+    final Iterable<Component> bikeComponents = components.values.where((c) => c.bikeAt(setup.datetimeLocal.toUtc()) == setup.bike);
     final Person? person = persons[setup.person];
 
     final Map<String, dynamic> danglingBikeAdjustmentValues = Map.from(setup.bikeAdjustmentValues);

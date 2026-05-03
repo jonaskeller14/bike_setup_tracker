@@ -25,8 +25,8 @@ class AdjustmentDisplayList extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: List.generate(adjustments.length, (index) {
         final adjustment = adjustments[index];
-        dynamic initialValue = initialAdjustmentValues[adjustment.id];
-        dynamic value = adjustmentValues[adjustment.id];
+        final dynamic initialValue = initialAdjustmentValues[adjustment.id];
+        final dynamic value = adjustmentValues[adjustment.id];
         switch (adjustment) {
           case BooleanAdjustment(): 
             return DisplayBooleanAdjustmentWidget(

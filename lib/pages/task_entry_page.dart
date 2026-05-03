@@ -146,7 +146,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
   }
 
   Future<void> _pickTime() async {
-    TimeOfDay? pickedTime = await showTimePicker(
+    final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       helpText: "Select Task Entry Time",
       initialTime: TimeOfDay.fromDateTime(_selectedDateTimeLocal),

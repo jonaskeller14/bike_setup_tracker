@@ -11,7 +11,7 @@ class MapDisplayFilterChip extends StatelessWidget {
     final appSettings = context.watch<AppSettings>();
     
     // Check if any visible display setting is not in its default state
-    bool isFilterActive = !appSettings.displayShowSetups || 
+    final bool isFilterActive = !appSettings.displayShowSetups || 
         (appSettings.enableStrava && !appSettings.displayShowActivities);
 
     return FilterChip(

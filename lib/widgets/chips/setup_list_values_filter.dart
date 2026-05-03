@@ -11,7 +11,7 @@ class SetupListDisplayFilterChip extends StatelessWidget {
     final appSettings = context.watch<AppSettings>();
     
     // Check if any visible display setting is not in its default state
-    bool isFilterActive = appSettings.setupListOnlyChanges || 
+    final bool isFilterActive = appSettings.setupListOnlyChanges || 
         !appSettings.setupListBikeAdjustmentValues || 
         !appSettings.setupListPersonAdjustmentValues || 
         !appSettings.setupListRatingAdjustmentValues ||

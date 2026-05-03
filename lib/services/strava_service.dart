@@ -252,10 +252,10 @@ class StravaService extends ChangeNotifier {
     if (_userId == null) return;
     try {
       final messaging = FirebaseMessaging.instance;
-      NotificationSettings settings = await messaging.requestPermission();
+      final NotificationSettings settings = await messaging.requestPermission();
       
       if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-        String? token = await messaging.getToken();
+        final String? token = await messaging.getToken();
         if (token != null) {
           final Map<String, dynamic> data = {'fcm_token': token};
           

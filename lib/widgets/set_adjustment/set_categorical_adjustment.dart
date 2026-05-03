@@ -49,7 +49,7 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               children: [
                 Icon(CategoricalAdjustment.iconData, color: highlightColor),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 nameNotesSetAdjustmentWidget(context: context, adjustment: adjustment, highlightColor: highlightColor),
               ],
             )

@@ -3,7 +3,7 @@ import '../../models/setup.dart';
 import '../../pages/details/setup_details_page.dart';
 
 Future<void> showSetupDetailsSheet({required BuildContext context, required Setup setup}) async {
-  return await showModalBottomSheet<void>(
+  return showModalBottomSheet<void>(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,

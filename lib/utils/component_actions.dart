@@ -108,7 +108,7 @@ class ComponentActions {
       showCloseIcon: true,
       action: SnackBarAction(
         label: 'UNDO',
-        onPressed: () async => await appRepository.restoreComponents([component]),
+        onPressed: () async => appRepository.restoreComponents([component]),
       ),
     ));
   }
@@ -126,7 +126,7 @@ class ComponentActions {
       showCloseIcon: true,
       action: SnackBarAction(
         label: 'UNDO',
-        onPressed: () async => await appRepository.removeComponents([component]),
+        onPressed: () async => appRepository.removeComponents([component]),
       ),
     ));
   }

@@ -13,7 +13,7 @@ enum WeatherStatus {
 }
 
 class WeatherService extends ChangeNotifier {
-  final historicalAPI = HistoricalApi(
+  final historicalAPI = const HistoricalApi(
     userAgent: "Bike Setup Tracker App v1.0",
     temperatureUnit: TemperatureUnit.celsius,
     windspeedUnit: WindspeedUnit.kmh,

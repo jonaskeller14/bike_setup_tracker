@@ -284,9 +284,9 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                   ),
                 ],
               ),
-              SafeArea(
+              const SafeArea(
                 child: Padding(
-                  padding: const EdgeInsetsGeometry.all(8),
+                  padding: EdgeInsetsGeometry.all(8),
                   child: MapFilterWidget(),
                 ),
               ),

@@ -433,7 +433,7 @@ class _PersonItem extends _Item {
   final Person _person;
   @override List<Adjustment> get adjustments => _person.adjustments;
   @override String get name => _person.name;
-  @override Icon buildIcon(BuildContext _) => Icon(Person.iconData);
+  @override Icon buildIcon(BuildContext _) => const Icon(Person.iconData);
   _PersonItem(this._person);
 }
 

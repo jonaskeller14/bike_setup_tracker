@@ -58,7 +58,7 @@ class OnboardingSlide3 extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(BikeIcons.fork, size: 40),
+                            const Icon(BikeIcons.fork, size: 40),
                             const SizedBox(width: 12),
                             Text("Suspension Fork", style: Theme.of(context).textTheme.titleLarge),
                           ],

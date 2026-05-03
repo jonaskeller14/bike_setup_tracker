@@ -171,7 +171,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
               padding: const EdgeInsets.all(16),
               width: double.infinity,
               child: FilledButton.icon(
-                icon: Icon(Icons.arrow_forward),
+                icon: const Icon(Icons.arrow_forward),
                 onPressed: _onContinue,
                 label: const Text('Continue'),
               ),

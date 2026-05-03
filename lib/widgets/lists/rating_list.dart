@@ -15,7 +15,7 @@ class RatingList extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          RatingListFilterWidget(),
+          const RatingListFilterWidget(),
           Expanded(
             child: Center(
               child: Text(
@@ -59,7 +59,7 @@ class RatingList extends StatelessWidget {
         : ReorderableListView.builder(
             itemCount: ratingsList.length,
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
-            header: RatingListFilterWidget(),
+            header: const RatingListFilterWidget(),
             proxyDecorator: proxyDecorator,
             onReorder: (int oldIndex, int newIndex) => RatingActions.onReorderRating(context, oldIndex: oldIndex, newIndex: newIndex),
             itemBuilder: (context, index) {

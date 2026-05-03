@@ -91,8 +91,8 @@ void showRatingAddAdjustmentBottomSheet({
                     ],
                     ListTile(
                       leading: Icon(NumericalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: Text("Numerical Metric"),
-                      subtitle: Text("Body Weight, Height, Age", style: const TextStyle(fontSize: 12)),
+                      title: const Text("Numerical Metric"),
+                      subtitle: const Text("Body Weight, Height, Age", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
@@ -101,8 +101,8 @@ void showRatingAddAdjustmentBottomSheet({
                     ),
                     ListTile(
                       leading: Icon(StepAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: Text("Step Metric"),
-                      subtitle: Text("Increments", style: const TextStyle(fontSize: 12)),
+                      title: const Text("Step Metric"),
+                      subtitle: const Text("Increments", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
@@ -111,8 +111,8 @@ void showRatingAddAdjustmentBottomSheet({
                     ),
                     ListTile(
                       leading: Icon(CategoricalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: Text("Categorical Metric"),
-                      subtitle: Text("Training status, Riding Gear, Riding style", style: const TextStyle(fontSize: 12)),
+                      title: const Text("Categorical Metric"),
+                      subtitle: const Text("Training status, Riding Gear, Riding style", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
@@ -121,8 +121,8 @@ void showRatingAddAdjustmentBottomSheet({
                     ),
                     ListTile(
                       leading: Icon(BooleanAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: Text("On/Off Metric"),
-                      subtitle: Text("Wearing a backpack?", style: const TextStyle(fontSize: 12)),
+                      title: const Text("On/Off Metric"),
+                      subtitle: const Text("Wearing a backpack?", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
@@ -132,8 +132,8 @@ void showRatingAddAdjustmentBottomSheet({
                     if (context.read<AppSettings>().enableTextAdjustment)
                       ListTile(
                         leading: Icon(TextAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                        title: Text("Text Metric"),
-                        subtitle: Text("Flexible field for any other metric", style: const TextStyle(fontSize: 12)),
+                        title: const Text("Text Metric"),
+                        subtitle: const Text("Flexible field for any other metric", style: TextStyle(fontSize: 12)),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                         onTap: () async {
                           Navigator.pop(context); // Close sheet first
@@ -142,8 +142,8 @@ void showRatingAddAdjustmentBottomSheet({
                       ),
                     ListTile(
                       leading: Icon(DurationAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: Text("Duration Metric"),
-                      subtitle: Text("Perfect for recording laptimes", style: const TextStyle(fontSize: 12)),
+                      title: const Text("Duration Metric"),
+                      subtitle: const Text("Perfect for recording laptimes", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first

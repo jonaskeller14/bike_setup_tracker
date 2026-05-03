@@ -46,7 +46,7 @@ class _GarageListState extends State<GarageList> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          BikeListFilterWidget(),
+          const BikeListFilterWidget(),
           Expanded(
             child: Center(
               child: Text(
@@ -103,11 +103,11 @@ class _GarageListState extends State<GarageList> {
         : ReorderableListView.builder(
             itemCount: bikesList.length,
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
-            header: BikeListFilterWidget(),
+            header: const BikeListFilterWidget(),
             footer: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Divider(height: 50),
+                const Divider(height: 50),
                 GarageUninstalledCard(
                   componentToShowDetails: _componentToShowDetails, 
                   onPressedComponent: _onPressedComponent,

@@ -89,7 +89,7 @@ class SetupActions {
       showCloseIcon: true,
       action: SnackBarAction(
         label: 'UNDO',
-        onPressed: () async => await appRepository.restoreSetups([setup]),
+        onPressed: () async => appRepository.restoreSetups([setup]),
       ),
     ));
   }
@@ -107,7 +107,7 @@ class SetupActions {
       showCloseIcon: true,
       action: SnackBarAction(
         label: 'UNDO',
-        onPressed: () async => await appRepository.removeSetups([setup]),
+        onPressed: () async => appRepository.removeSetups([setup]),
       ),
     ));
   }

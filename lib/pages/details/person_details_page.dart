@@ -320,7 +320,7 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
                         ? activeColumns.indexOf(_sortColumn!)
                         : null,
                     columnSpacing: 20,
-                    headingTextStyle: TextStyle(fontWeight: FontWeight.bold),
+                    headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
                     dataRowMaxHeight: double.infinity,
                     columns: activeColumns.map((column) {
                       switch (column.section) {
@@ -361,14 +361,14 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
                           switch (column.section) {
                             case TableColumnSection.generalContext:
                               return switch (column.label) {
-                                "Name" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.name, overflow: TextOverflow.ellipsis)))),
-                                "Notes" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.notes ?? '-', overflow: TextOverflow.ellipsis)))),
-                                "Tags" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.tags.isEmpty ? '-' : setup.tags.join('; '), overflow: TextOverflow.ellipsis)))),
+                                "Name" => DataCell(ConstrainedBox(constraints: const BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.name, overflow: TextOverflow.ellipsis)))),
+                                "Notes" => DataCell(ConstrainedBox(constraints: const BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.notes ?? '-', overflow: TextOverflow.ellipsis)))),
+                                "Tags" => DataCell(ConstrainedBox(constraints: const BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.tags.isEmpty ? '-' : setup.tags.join('; '), overflow: TextOverflow.ellipsis)))),
                                 "Date" => DataCell(Text(DateFormat(appSettings.dateFormat).format(setup.datetimeLocal))),
                                 "Time" => DataCell(Text(DateFormat(appSettings.timeFormat).format(setup.datetimeLocal))),
-                                "Place" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.place?.locality ?? '-', overflow: TextOverflow.ellipsis)))),
+                                "Place" => DataCell(ConstrainedBox(constraints: const BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.place?.locality ?? '-', overflow: TextOverflow.ellipsis)))),
                                 "Altitude" => DataCell(Center(child: Text(setup.position?.altitude == null ? '-' : "${setup.position!.altitude!.round()} ${appSettings.altitudeUnit}"))),
-                                "Bike" => DataCell(ConstrainedBox(constraints: BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(bikes[setup.bike]?.name ?? '-', overflow: TextOverflow.ellipsis)))),
+                                "Bike" => DataCell(ConstrainedBox(constraints: const BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(bikes[setup.bike]?.name ?? '-', overflow: TextOverflow.ellipsis)))),
                                 _ => const DataCell(Text("ERROR")),
                               };
                             case TableColumnSection.weatherContext:

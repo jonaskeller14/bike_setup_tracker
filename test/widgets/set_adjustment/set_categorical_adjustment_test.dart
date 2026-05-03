@@ -15,7 +15,7 @@ void main() {
         body: Form(
           key: formKey,
           child: SetCategoricalAdjustmentWidget(
-            key: ValueKey("CategoricalAdjustment #1"),
+            key: const ValueKey("CategoricalAdjustment #1"),
             initialValue: initialValue,
             value: value,
             onChanged: (_) {},

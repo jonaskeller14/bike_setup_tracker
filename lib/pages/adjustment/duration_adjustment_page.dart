@@ -185,7 +185,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                             decoration: InputDecoration(
                               labelText: 'Adjustment Name',
                               hintText: 'Enter Adjustment Name',
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                               fillColor: Colors.orange.withValues(alpha: 0.08),
                               filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                             ),
@@ -199,7 +199,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
                                 labelText: 'Category',
-                                border: OutlineInputBorder(),
+                                border: const OutlineInputBorder(),
                                 hintText: "Choose a category for this adjustment",
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
                                 filled: widget.mode == AdjustmentPageMode.edit && _category != widget.adjustment!.category
@@ -288,7 +288,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                   decoration: InputDecoration(
                                     labelText: 'Min Duration (optional)',
                                     hintText: 'Select minimum duration',
-                                    border: OutlineInputBorder(),
+                                    border: const OutlineInputBorder(),
                                     prefixIcon: const Icon(Icons.vertical_align_bottom),
                                     suffixIcon: _minController.text.isNotEmpty
                                         ? IconButton(
@@ -336,7 +336,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                   decoration: InputDecoration(
                                     labelText: 'Max Duration (optional)',
                                     hintText: 'Select maximum duration',
-                                    border: OutlineInputBorder(),
+                                    border: const OutlineInputBorder(),
                                     prefixIcon: const Icon(Icons.vertical_align_top),
                                     suffixIcon: _maxController.text.isNotEmpty
                                         ? IconButton(
@@ -375,7 +375,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                     labelText: 'Notes (optional)',
                                     hintText: 'Enter measuring procedure/instrument/...',
                                     helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
-                                    border: OutlineInputBorder(),
+                                    border: const OutlineInputBorder(),
                                     fillColor: Colors.orange.withValues(alpha: 0.08),
                                     filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
                                   ),

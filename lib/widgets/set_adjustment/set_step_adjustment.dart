@@ -63,7 +63,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               children: [
                 Icon(StepAdjustment.iconData, color: highlightColor),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 nameNotesSetAdjustmentWidget(context: context, adjustment: adjustment, highlightColor: highlightColor),
               ],
             )
@@ -91,7 +91,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                 children: [
                   Expanded(
                     child: SfSliderTheme(
-                      data: SfSliderThemeData(
+                      data: const SfSliderThemeData(
                         thumbRadius: 15,
                         overlayRadius: 0,
                         tooltipTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,)
@@ -110,7 +110,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                         stepSize: adjustment.step.toDouble(),
                         minorTicksPerInterval: sliderDivisions - 1,
                         enableTooltip: true,
-                        tooltipShape: SfPaddleTooltipShape(),
+                        tooltipShape: const SfPaddleTooltipShape(),
                         onChanged: (dynamic newValue) {
                           onChanged(newValue);
                         },
@@ -159,7 +159,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                       child: Text("- ${adjustment.step}"),
                     ),
                     const SizedBox(width: 6),
-                    Text(value!.toInt().toString(), style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace')),
+                    Text(value!.toInt().toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace')),
                     const SizedBox(width: 6),
                     FilledButton(
                       onPressed: value! + adjustment.step <= adjustment.max ? onPressedPlusButton : null,

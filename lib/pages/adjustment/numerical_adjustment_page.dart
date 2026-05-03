@@ -209,7 +209,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             decoration: InputDecoration(
                               labelText: 'Adjustment Name',
                               hintText: 'Enter Adjustment Name',
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                               fillColor: Colors.orange.withValues(alpha: 0.08),
                               filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                             ),
@@ -223,7 +223,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
                                 labelText: 'Category',
-                                border: OutlineInputBorder(),
+                                border: const OutlineInputBorder(),
                                 hintText: "Choose a category for this adjustment",
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
                                 filled: widget.mode == AdjustmentPageMode.edit && _category != widget.adjustment!.category
@@ -264,9 +264,9 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                           ],
                           const SizedBox(height: 12),
                           if (widget.mode == AdjustmentPageMode.edit) ...[
-                            ListTile(
-                              leading: const Icon(Icons.warning),
-                              title: const Text('WARNING: Editing Unit will not update existing setup values!'),
+                            const ListTile(
+                              leading: Icon(Icons.warning),
+                              title: Text('WARNING: Editing Unit will not update existing setup values!'),
                               dense: true,
                               contentPadding: EdgeInsets.zero,
                             ),
@@ -280,7 +280,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             decoration: InputDecoration(
                               labelText: 'Unit (optional)',
                               hintText: 'Enter unit (e.g., mm, psi)',
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                               fillColor: Colors.orange.withValues(alpha: 0.08),
                               filled: widget.mode == AdjustmentPageMode.edit && _unitController.text.trim() != (widget.adjustment?.unit ?? ""),
                             ),
@@ -328,7 +328,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                   decoration: InputDecoration(
                                     labelText: 'Min Value (optional)',
                                     hintText: 'Enter minimum value',
-                                    border: OutlineInputBorder(),
+                                    border: const OutlineInputBorder(),
                                     prefixIcon: const Icon(Icons.vertical_align_bottom),
                                     suffixIcon: _minController.text.isNotEmpty
                                         ? IconButton(
@@ -371,7 +371,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                   decoration: InputDecoration(
                                     labelText: 'Max Value (optional)',
                                     hintText: 'Enter maximum value',
-                                    border: OutlineInputBorder(),
+                                    border: const OutlineInputBorder(),
                                     prefixIcon: const Icon(Icons.vertical_align_top),
                                     suffixIcon: _maxController.text.isNotEmpty
                                         ? IconButton(
@@ -424,7 +424,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                     labelText: 'Notes (optional)',
                                     hintText: 'Enter measuring procedure/instrument/...',
                                     helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
-                                    border: OutlineInputBorder(),
+                                    border: const OutlineInputBorder(),
                                     fillColor: Colors.orange.withValues(alpha: 0.08),
                                     filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
                                   ),

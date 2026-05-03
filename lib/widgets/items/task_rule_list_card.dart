@@ -248,7 +248,7 @@ class TaskRuleListCard extends StatelessWidget {
               PopupMenuItem(
                 enabled: !isCompleted,
                 value: _TaskRuleOptions.addEntry,
-                child: Row(
+                child: const Row(
                   spacing: 10,
                   children: [
                     Icon(Icons.check, size: 20),

@@ -330,7 +330,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         persist: false,
         showCloseIcon: true,
         closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
         content: Text('Error fetching location.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
         backgroundColor: Theme.of(context).colorScheme.errorContainer,
       ));
@@ -366,7 +366,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         persist: false,
         showCloseIcon: true,
         closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
         content: Text('Error fetching address.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
         backgroundColor: Theme.of(context).colorScheme.errorContainer
       ));
@@ -545,7 +545,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         persist: false,
         showCloseIcon: true,
         closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
         content: Text('Cannot update weather without location.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
         backgroundColor: Theme.of(context).colorScheme.errorContainer
       ));
@@ -565,7 +565,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         persist: false,
         showCloseIcon: true,
         closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
         content: Text('Error fetching weather.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
         backgroundColor: Theme.of(context).colorScheme.errorContainer
       ));
@@ -585,7 +585,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         SnackBar(
           showCloseIcon: true,
           closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
           content: Text(
             'Please check all fields for missing or invalid input.', 
             style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)
@@ -688,7 +688,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       },
       decoration: InputDecoration(
         labelText: 'Setup Name',
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
         hintText: 'Enter setup name',
         fillColor: Colors.orange.withValues(alpha: 0.08),
         filled: widget.mode == SetupPageMode.edit && _nameController.text.trim() != widget.setup?.name,
@@ -711,7 +711,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       maxLines: null,
       decoration: InputDecoration(
         labelText: 'Notes (optional)',
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
         hintText: 'Add notes (optional)',
         fillColor: Colors.orange.withValues(alpha: 0.08),
         filled: widget.mode == SetupPageMode.edit && (_notesController.text.trim() != (widget.setup?.notes ?? '')),
@@ -828,7 +828,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
             ActionChip(
               avatar: switch (_weatherService.status) {
                 WeatherStatus.idle => Icon(_currentWeather.value?.getIconData() ?? Icons.cloudy_snowing),
-                WeatherStatus.searching => Icon(Icons.cloudy_snowing),
+                WeatherStatus.searching => const Icon(Icons.cloudy_snowing),
                 WeatherStatus.success => Icon(_currentWeather.value?.getIconData() ?? Icons.cloudy_snowing),
                 WeatherStatus.error => Icon(Icons.error, color: Theme.of(context).colorScheme.error),
               },
@@ -925,7 +925,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
         labelText: 'Bike',
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
         hintText: "Choose a bike for this component",
         fillColor: Colors.orange.withValues(alpha: 0.08),
         filled: widget.mode == SetupPageMode.edit && _bike != widget.setup?.bike,

@@ -56,7 +56,7 @@ class OpenTasksCard extends StatelessWidget {
           backgroundColor: aggregatedStatus.getStatusColor(),
           child: const Icon(Icons.checklist),
         ),
-        title: Text("Open Tasks"),
+        title: const Text("Open Tasks"),
         childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
         children: openTasks.map((t) => TaskRuleListCard(taskRuleId: t.rule.id)).toList(),
       ),

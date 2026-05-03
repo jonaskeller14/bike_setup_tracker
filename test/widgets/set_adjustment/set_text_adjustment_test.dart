@@ -13,7 +13,7 @@ void main() {
         body: Form(
           key: formKey,
           child: SetTextAdjustmentWidget(
-            key: ValueKey("TextAdjustment #1"),
+            key: const ValueKey("TextAdjustment #1"),
             initialValue: initialValue,
             value: value,
             onChanged: (_) {},

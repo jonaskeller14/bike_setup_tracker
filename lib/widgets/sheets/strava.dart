@@ -12,12 +12,12 @@ import '../items/strava_list_tile.dart';
 import 'sheet.dart';
 
 Future<void> showStravaSheet({required BuildContext context}) async {
-  return await showModalBottomSheet<void>(
+  return showModalBottomSheet<void>(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
     context: context, 
-    builder: (BuildContext context) => StravaSheet(),
+    builder: (BuildContext context) => const StravaSheet(),
   );
 }
 
@@ -53,7 +53,7 @@ class _StravaSheetState extends State<StravaSheet> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   spacing: 6,
                   children: [
-                    Icon(SimpleIcons.strava, color: const Color(0xFFFC4C02)), // Strava Brand Orange
+                    const Icon(SimpleIcons.strava, color: Color(0xFFFC4C02)), // Strava Brand Orange
                     sheetTitle(context, 'Strava Sync'),
                   ],
                 ),
@@ -166,13 +166,13 @@ class _StravaSheetState extends State<StravaSheet> {
                                     }),
                                     const PopupMenuDivider(),
                                   ],
-                                  PopupMenuItem<_StravaGearMenuOption>(
-                                    value: const _AddNewBike(),
+                                  const PopupMenuItem<_StravaGearMenuOption>(
+                                    value: _AddNewBike(),
                                     child: Row(
                                       spacing: 8,
                                       children: [
-                                        const Icon(Icons.add),
-                                        const Text("Add as new Bike"),
+                                        Icon(Icons.add),
+                                        Text("Add as new Bike"),
                                       ],
                                     ),
                                   ),
@@ -330,7 +330,7 @@ class _StravaSheetState extends State<StravaSheet> {
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         child: Icon(Icons.person_off, color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
-      title: Text("Not connected", style: const TextStyle(fontWeight: FontWeight.bold)),
+      title: const Text("Not connected", style: TextStyle(fontWeight: FontWeight.bold)),
       subtitle: const Text("Connect to sync your rides"),
       trailing: ConstrainedBox(
         constraints: const BoxConstraints(

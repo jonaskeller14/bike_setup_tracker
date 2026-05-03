@@ -14,8 +14,8 @@ void main() {
       priority: TaskPriority.medium,
       componentId: "c1",
       bikeId: null,
-      interval: DurationThreshold(Duration(days: 30)),
-      delay: DistanceThreshold(500),
+      interval: const DurationThreshold(Duration(days: 30)),
+      delay: const DistanceThreshold(500),
       repeat: true,
     );
 

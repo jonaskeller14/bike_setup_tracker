@@ -628,9 +628,9 @@ class AppRepository extends ChangeNotifier {
 
   Future<ComponentStats> getStatsAt({String? componentId, String? bikeId, required DateTime date}) async {
     if (componentId != null) {
-      return await database.stravaDao.getComponentStatsAt(componentId, date);
+      return database.stravaDao.getComponentStatsAt(componentId, date);
     } else if (bikeId != null) {
-      return await database.stravaDao.getBikeStatsAt(bikeId, date);
+      return database.stravaDao.getBikeStatsAt(bikeId, date);
     }
     return ComponentStats.zero();
   }

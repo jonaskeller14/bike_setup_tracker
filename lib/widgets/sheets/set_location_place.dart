@@ -24,7 +24,7 @@ Future<LocationAndPlace?> showSetLocationPlaceSheet({
   required AddressService addressService,
   required geo.Placemark? currentPlace,
 }) async {
-  return await showModalBottomSheet(
+  return showModalBottomSheet(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
@@ -272,7 +272,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
                                 labelText: "Latitude",
-                                border: OutlineInputBorder(),
+                                border: const OutlineInputBorder(),
                                 isDense: true,
                                 hintText: 'Latitude',
                                 suffixText: "°",
@@ -305,7 +305,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
                                 labelText: "Longitude",
-                                border: OutlineInputBorder(),
+                                border: const OutlineInputBorder(),
                                 isDense: true,
                                 hintText: 'Longitude',
                                 suffixText: "°",
@@ -338,7 +338,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
                                 labelText: "Altitude in ${appSettings.altitudeUnit}",
-                                border: OutlineInputBorder(),
+                                border: const OutlineInputBorder(),
                                 isDense: true,
                                 hintText: 'Altitude',
                                 suffixText: appSettings.altitudeUnit,
@@ -384,7 +384,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               maxLines: null,
                               decoration: InputDecoration(
-                                border: OutlineInputBorder(),
+                                border: const OutlineInputBorder(),
                                 isDense: true,
                                 labelText: "Enter street, city, or landmark and press Search Icon",
                                 hintText: 'Address',

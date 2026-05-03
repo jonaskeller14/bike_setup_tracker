@@ -173,7 +173,7 @@ void main() {
         tags: {},
       );
 
-      final stepAdj = AdjustmentDb(
+      final stepAdj = const AdjustmentDb(
         id: 'adj_step',
         name: 'Step Adj',
         category: AdjustmentCategory.component,
@@ -182,7 +182,7 @@ void main() {
         componentId: 'c1',
       );
 
-      final numericalAdj = AdjustmentDb(
+      final numericalAdj = const AdjustmentDb(
         id: 'adj_num',
         name: 'Num Adj',
         category: AdjustmentCategory.component,
@@ -194,11 +194,11 @@ void main() {
       final values = [
         TypedSetupValue(
           adjustment: stepAdj,
-          value: SetupAdjustmentValueDb(setupId: 's1', adjustmentId: 'adj_step', value: '10'),
+          value: const SetupAdjustmentValueDb(setupId: 's1', adjustmentId: 'adj_step', value: '10'),
         ),
         TypedSetupValue(
           adjustment: numericalAdj,
-          value: SetupAdjustmentValueDb(setupId: 's1', adjustmentId: 'adj_num', value: '10.5'),
+          value: const SetupAdjustmentValueDb(setupId: 's1', adjustmentId: 'adj_num', value: '10.5'),
         ),
       ];
 
@@ -212,7 +212,7 @@ void main() {
 
     group('Detailed Adjustment Mapping', () {
       test('Adjustment Table -> Model', () {
-        final data = AdjustmentDb(
+        final data = const AdjustmentDb(
           id: 'adj1',
           name: 'Pressure',
           category: AdjustmentCategory.component,

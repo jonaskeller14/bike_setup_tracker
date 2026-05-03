@@ -232,7 +232,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             decoration: InputDecoration(
                               labelText: 'Adjustment Name',
                               hintText: 'Enter Adjustment Name',
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                               fillColor: Colors.orange.withValues(alpha: 0.08),
                               filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                             ),
@@ -246,7 +246,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
                                 labelText: 'Category',
-                                border: OutlineInputBorder(),
+                                border: const OutlineInputBorder(),
                                 hintText: "Choose a category for this adjustment",
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
                                 filled: widget.mode == AdjustmentPageMode.edit && _category != widget.adjustment!.category
@@ -297,7 +297,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             decoration: InputDecoration(
                               labelText: 'Step',
                               hintText: 'Enter step value',
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                               fillColor: Colors.orange.withValues(alpha: 0.08),
                               filled: widget.mode == AdjustmentPageMode.edit && int.tryParse(_stepController.text.trim()) != widget.adjustment?.step,
                             ),
@@ -329,7 +329,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             decoration: InputDecoration(
                               labelText: 'Min Value',
                               hintText: 'Enter minimum value',
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                               prefixIcon: const Icon(Icons.vertical_align_bottom),
                               fillColor: Colors.orange.withValues(alpha: 0.08),
                               filled: widget.mode == AdjustmentPageMode.edit && int.tryParse(_minController.text.trim()) != widget.adjustment?.min,
@@ -362,7 +362,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             decoration: InputDecoration(
                               labelText: 'Max Value',
                               hintText: 'Enter maximum value',
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                               prefixIcon: const Icon(Icons.vertical_align_top),
                               fillColor: Colors.orange.withValues(alpha: 0.08),
                               filled: widget.mode == AdjustmentPageMode.edit && int.tryParse(_maxController.text.trim()) != widget.adjustment?.max,
@@ -411,7 +411,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                   hint: const Text("Please select visualization"),
                                   decoration: InputDecoration(
                                     labelText: 'Visualization',
-                                    border: OutlineInputBorder(),
+                                    border: const OutlineInputBorder(),
                                     hintText: "Choose a visualization for this adjustment",
                                     fillColor: Colors.orange.withValues(alpha: 0.08),
                                     filled: widget.mode == AdjustmentPageMode.edit && visualization != widget.adjustment?.visualization,
@@ -443,7 +443,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                             const Icon(Icons.exposure_plus_1),
                                             const Icon(Icons.rotate_left),
                                           ],
-                                          SizedBox(width: 8),
+                                          const SizedBox(width: 8),
                                           Expanded(child: Text(v.value)),
                                         ],
                                       ),
@@ -497,7 +497,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                     labelText: 'Notes (optional)',
                                     hintText: 'Enter measuring procedure/instrument/...',
                                     helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
-                                    border: OutlineInputBorder(),
+                                    border: const OutlineInputBorder(),
                                     fillColor: Colors.orange.withValues(alpha: 0.08),
                                     filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
                                   ),

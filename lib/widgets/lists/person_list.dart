@@ -15,7 +15,7 @@ class PersonList extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          PersonListFilterWidget(),
+          const PersonListFilterWidget(),
           Expanded(
             child: Center(
               child: Text(
@@ -59,7 +59,7 @@ class PersonList extends StatelessWidget {
         : ReorderableListView.builder(
             itemCount: personsList.length,
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
-            header: PersonListFilterWidget(),
+            header: const PersonListFilterWidget(),
             proxyDecorator: proxyDecorator,
             onReorder: (int oldIndex, int newIndex) => PersonActions.onReorderPerson(context, oldIndex: oldIndex, newIndex: newIndex),
             itemBuilder: (context, index) {

@@ -53,7 +53,7 @@ Future<void> showColumnFilterSheet({
                       children: [
                         ...TableColumnSection.values.map((tcs) {
                           final columns = sortedColumnsCopy.where((c) => c.section == tcs);
-                          if (columns.isEmpty) return SizedBox.shrink();
+                          if (columns.isEmpty) return const SizedBox.shrink();
 
                           return Column(
                             mainAxisSize: MainAxisSize.min,

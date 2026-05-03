@@ -27,10 +27,10 @@ class OnboardingSlide2 extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                DelayedFade(
+                const DelayedFade(
                   delay: 0,
                   keyId: "onboarding_icon_bike_main",
-                  child: const Icon(Bike.iconData, size: 120),
+                  child: Icon(Bike.iconData, size: 120),
                 ),
                 const SizedBox(height: 24),
                 Row(

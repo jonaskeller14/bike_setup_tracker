@@ -3,7 +3,7 @@ import '../../models/strava/strava_activity.dart';
 import '../../pages/details/strava_activitiy_details_page.dart';
 
 Future<void> showStravaActivitySheet({required BuildContext context, required StravaActivity stravaActivity}) async {
-  return await showModalBottomSheet<void>(
+  return showModalBottomSheet<void>(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,

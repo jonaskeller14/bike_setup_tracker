@@ -449,7 +449,7 @@ class GoogleDriveService extends ChangeNotifier {
       if (context != null && context.mounted) {
         final scaffoldMessenger = ScaffoldMessenger.of(context);
         scaffoldMessenger.showSnackBar(
-          SnackBar(
+          const SnackBar(
             persist: false,
             showCloseIcon: true,
             content: Text('Successfully created Google Drive Backup'),

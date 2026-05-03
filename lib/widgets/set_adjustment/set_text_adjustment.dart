@@ -83,7 +83,7 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
               mainAxisSize: MainAxisSize.max,
               children: [
                 Icon(TextAdjustment.iconData, color: highlightColor),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 nameNotesSetAdjustmentWidget(context: context, adjustment: widget.adjustment, highlightColor: highlightColor),
               ],
             )
@@ -98,7 +98,7 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
               onFieldSubmitted: widget.onChanged,
               maxLines: null,
               decoration: InputDecoration(
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
                 isDense: true,
                 hintText: 'Enter Text',
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),

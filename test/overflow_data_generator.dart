@@ -106,7 +106,7 @@ void main() async {
   }
   
   final exportData = await DataExportService.backupDatabaseToJson(data.database);
-  final encoder = JsonEncoder.withIndent('  ');
+  final encoder = const JsonEncoder.withIndent('  ');
   final jsonString = encoder.convert(exportData);
 
   final file = File('test/overflow_test.json');

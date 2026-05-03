@@ -48,7 +48,7 @@ class LocationService extends ChangeNotifier {
     try {
       location = await Future.any([
         _location.getLocation(),
-        Future.delayed(Duration(seconds: 5), () => null),
+        Future.delayed(const Duration(seconds: 5), () => null),
       ]);
 
       location ??= await _location.getLocation().timeout(

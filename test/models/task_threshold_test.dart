@@ -8,19 +8,19 @@ void main() {
     final baselineDate = DateTime(2023, 1, 1);
     final currentDate = DateTime(2023, 1, 10);
     
-    final baselineStats = ComponentStats(
+    final baselineStats = const ComponentStats(
       distance: 1000,
       elevationGain: 100,
-      movingTime: const Duration(hours: 1),
-      elapsedTime: const Duration(hours: 2),
+      movingTime: Duration(hours: 1),
+      elapsedTime: Duration(hours: 2),
       activityCount: 1,
     );
 
-    final currentStats = ComponentStats(
+    final currentStats = const ComponentStats(
       distance: 5000,
       elevationGain: 350, // Diff: 250m
-      movingTime: const Duration(hours: 5),
-      elapsedTime: const Duration(hours: 6),
+      movingTime: Duration(hours: 5),
+      elapsedTime: Duration(hours: 6),
       activityCount: 5,
     );
 

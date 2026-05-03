@@ -21,7 +21,7 @@ class SetupList extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SetupListFilterWidget(),
+          const SetupListFilterWidget(),
           Expanded(
             child: Center(
               child: Text(
@@ -91,7 +91,7 @@ class SetupList extends StatelessWidget {
             itemCount: entries.length + 1 + (appRepository.isLoadingMoreStrava ? 1 : 0), // 1 header + optional loader
             itemBuilder: (context, index) {
               if (index == 0) {
-                return SetupListFilterWidget();
+                return const SetupListFilterWidget();
               }
 
               if (index > entries.length) {

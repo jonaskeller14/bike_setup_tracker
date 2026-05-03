@@ -77,8 +77,8 @@ void showPersonAddAdjustmentBottomSheet({
                     ],
                     ListTile(
                       leading: Icon(NumericalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: Text("Numerical Attribute"),
-                      subtitle: Text("Body Weight, Height, Age", style: const TextStyle(fontSize: 12)),
+                      title: const Text("Numerical Attribute"),
+                      subtitle: const Text("Body Weight, Height, Age", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
@@ -87,8 +87,8 @@ void showPersonAddAdjustmentBottomSheet({
                     ),
                     ListTile(
                       leading: Icon(StepAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: Text("Step Attribute"),
-                      subtitle: Text("Increments", style: const TextStyle(fontSize: 12)),
+                      title: const Text("Step Attribute"),
+                      subtitle: const Text("Increments", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
@@ -97,8 +97,8 @@ void showPersonAddAdjustmentBottomSheet({
                     ),
                     ListTile(
                       leading: Icon(CategoricalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: Text("Categorical Attribute"),
-                      subtitle: Text("Training status, Riding Gear, Riding style", style: const TextStyle(fontSize: 12)),
+                      title: const Text("Categorical Attribute"),
+                      subtitle: const Text("Training status, Riding Gear, Riding style", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
@@ -107,8 +107,8 @@ void showPersonAddAdjustmentBottomSheet({
                     ),
                     ListTile(
                       leading: Icon(BooleanAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: Text("On/Off Attribute"),
-                      subtitle: Text("Wearing a backpack?", style: const TextStyle(fontSize: 12)),
+                      title: const Text("On/Off Attribute"),
+                      subtitle: const Text("Wearing a backpack?", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
@@ -118,8 +118,8 @@ void showPersonAddAdjustmentBottomSheet({
                     if (context.read<AppSettings>().enableTextAdjustment)
                       ListTile(
                         leading: Icon(TextAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                        title: Text("Text Attribute"),
-                        subtitle: Text("Flexible field for any other attribute", style: const TextStyle(fontSize: 12)),
+                        title: const Text("Text Attribute"),
+                        subtitle: const Text("Flexible field for any other attribute", style: TextStyle(fontSize: 12)),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                         onTap: () async {
                           Navigator.pop(context); // Close sheet first

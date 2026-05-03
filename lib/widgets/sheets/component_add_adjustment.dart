@@ -180,8 +180,8 @@ void showComponentAddAdjustmentBottomSheet({
                     ),
                     ListTile(
                       leading: Icon(NumericalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: Text("Numerical Adjustment"),
-                      subtitle: Text("Pressure (psi), Length, Weight", style: const TextStyle(fontSize: 12)),
+                      title: const Text("Numerical Adjustment"),
+                      subtitle: const Text("Pressure (psi), Length, Weight", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
@@ -190,8 +190,8 @@ void showComponentAddAdjustmentBottomSheet({
                     ),
                     ListTile(
                       leading: Icon(StepAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: Text("Step Adjustment"),
-                      subtitle: Text("Rebound clicks, Spacers, Increments", style: const TextStyle(fontSize: 12)),
+                      title: const Text("Step Adjustment"),
+                      subtitle: const Text("Rebound clicks, Spacers, Increments", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
@@ -200,8 +200,8 @@ void showComponentAddAdjustmentBottomSheet({
                     ),
                     ListTile(
                       leading: Icon(CategoricalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: Text("Categorical Adjustment"),
-                      subtitle: Text("Compound, Brand, Style, Mode", style: const TextStyle(fontSize: 12)),
+                      title: const Text("Categorical Adjustment"),
+                      subtitle: const Text("Compound, Brand, Style, Mode", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
@@ -210,8 +210,8 @@ void showComponentAddAdjustmentBottomSheet({
                     ),
                     ListTile(
                       leading: Icon(BooleanAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                      title: Text("On/Off Adjustment"),
-                      subtitle: Text("Lockout, Climb switch, Component installed? Yes/No", style: const TextStyle(fontSize: 12)),
+                      title: const Text("On/Off Adjustment"),
+                      subtitle: const Text("Lockout, Climb switch, Component installed? Yes/No", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
@@ -221,8 +221,8 @@ void showComponentAddAdjustmentBottomSheet({
                     if (context.read<AppSettings>().enableTextAdjustment)
                       ListTile(
                         leading: Icon(TextAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                        title: Text("Text Adjustment"),
-                        subtitle: Text("Notes, advanced settings details", style: const TextStyle(fontSize: 12)),
+                        title: const Text("Text Adjustment"),
+                        subtitle: const Text("Notes, advanced settings details", style: TextStyle(fontSize: 12)),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                         onTap: () async {
                           Navigator.pop(context); // Close sheet first
@@ -232,8 +232,8 @@ void showComponentAddAdjustmentBottomSheet({
                     if (enableDurationAdjustment)
                       ListTile(
                         leading: Icon(DurationAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
-                        title: Text("Duration Adjustment"),
-                        subtitle: Text("", style: const TextStyle(fontSize: 12)),  //TODO
+                        title: const Text("Duration Adjustment"),
+                        subtitle: const Text("", style: TextStyle(fontSize: 12)),  //TODO
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                         onTap: () async {
                           Navigator.pop(context); // Close sheet first

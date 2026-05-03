@@ -381,7 +381,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                     onChanged: (value) => setState(() {}),
                     decoration: InputDecoration(
                       labelText: 'Task Entry Name',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                       hintText: 'Enter task entry name',
                       fillColor: Colors.orange.withValues(alpha: 0.08),
                       filled: widget.mode == TaskEntryPageMode.edit && _nameController.text.trim() != widget.taskEntry?.name,
@@ -398,7 +398,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                     decoration: InputDecoration(
                       labelText: 'Notes (optional)',
                       hintText: 'Add additional details...',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                       fillColor: Colors.orange.withValues(alpha: 0.08),
                       filled: widget.mode == TaskEntryPageMode.edit && _notesController.text.trim() != (widget.taskEntry?.notes ?? ""),
                     ),

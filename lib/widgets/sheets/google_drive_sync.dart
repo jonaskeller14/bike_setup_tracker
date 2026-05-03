@@ -7,12 +7,12 @@ import '../../services/google_drive_service.dart';
 import 'sheet.dart';
 
 Future<void> showGoogleDriveSheet({required BuildContext context}) async {
-  return await showModalBottomSheet<void>(
+  return showModalBottomSheet<void>(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
     context: context, 
-    builder: (BuildContext context) => GoogleDriveSheet(),
+    builder: (BuildContext context) => const GoogleDriveSheet(),
   );
 }
 
@@ -75,7 +75,7 @@ class GoogleDriveSheet extends StatelessWidget {
               children: [
                 if (isSignedIn) ...[
                   OutlinedButton.icon(
-                    icon: Icon(Icons.logout),
+                    icon: const Icon(Icons.logout),
                     onPressed: !isSyncing ? () async {
                       await googleDriveService.signOut();
                     } : null,

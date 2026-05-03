@@ -174,7 +174,7 @@ class LoadingGate extends StatelessWidget {
             theme: materialAppTheme,
 
             themeMode: ThemeMode.system,
-            home: Scaffold(body: Center(child: CircularProgressIndicator())),
+            home: const Scaffold(body: Center(child: CircularProgressIndicator())),
             debugShowCheckedModeBanner: false,
           );
         }

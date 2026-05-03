@@ -124,7 +124,7 @@ class _BikePageState extends State<BikePage> {
       autofocus: widget.mode == BikePageMode.add,
       decoration: InputDecoration(
         labelText: 'Bike Name',
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
         hintText: 'Enter bike name',
         fillColor: Colors.orange.withValues(alpha: 0.08),
         filled: widget.mode == BikePageMode.edit && _nameController.text.trim() != widget.bike?.name,
@@ -145,7 +145,7 @@ class _BikePageState extends State<BikePage> {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
         labelText: 'Bike Owner',
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
         hintText: "Choose an owner for this bike",
         fillColor: Colors.orange.withValues(alpha: 0.08),
         filled: widget.mode == BikePageMode.edit && _person != _initialPerson,
@@ -195,7 +195,7 @@ class _BikePageState extends State<BikePage> {
       decoration: InputDecoration(
         labelText: 'Notes (optional)',
         hintText: 'Enter Bike brand, model, size, year, costs, ...',
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
         fillColor: Colors.orange.withValues(alpha: 0.08),
         filled: widget.mode == BikePageMode.edit && _notesController.text.trim() != (widget.bike?.notes ?? ""),
       ),
@@ -209,7 +209,7 @@ class _BikePageState extends State<BikePage> {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
         labelText: 'Strava Gear',
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
         hintText: "Link Strava Gear",
         helperText: existingBikes.values.any((b) => b.id != widget.bike?.id && b.stravaGear != null && b.stravaGear == _stravaGear)
             ? "WARNING: Strava Gear already assigned to another Bike"
@@ -223,13 +223,13 @@ class _BikePageState extends State<BikePage> {
         return null;
       },
       items: [
-        DropdownMenuItem<String?>(
+        const DropdownMenuItem<String?>(
           value: null,
           child: Row(
             spacing: 8,
             children: [
-              const Icon(Icons.link_off),
-              const Expanded(child: Text("NOT LINKED", overflow: TextOverflow.ellipsis))
+              Icon(Icons.link_off),
+              Expanded(child: Text("NOT LINKED", overflow: TextOverflow.ellipsis))
             ],
           ),
         ),

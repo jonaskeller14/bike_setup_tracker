@@ -21,11 +21,11 @@ class SetupListFilterWidget extends StatelessWidget {
       child: Row(
         spacing: 6,
         children: [
-          SetupListSort(),
-          SetupListSearch(),
-          SetupListMap(),
+          const SetupListSort(),
+          const SetupListSearch(),
+          const SetupListMap(),
           BikeAndTagsFilterChip(enableSetupTagFilter: appSettings.enableSetupTags),
-          SetupListDisplayFilterChip(),
+          const SetupListDisplayFilterChip(),
         ],
       ),
     );

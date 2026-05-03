@@ -212,8 +212,8 @@ class AboutPage extends StatelessWidget {
               ),
               ListTile(
                 leading: Icon(Icons.help_outline, color: Theme.of(context).colorScheme.primary),
-                title: Text("Show Onboarding"),
-                subtitle: Text("Show onboarding slides to get started."),
+                title: const Text("Show Onboarding"),
+                subtitle: const Text("Show onboarding slides to get started."),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () {
                   context.read<AppSettings>().showOnboarding = true;
@@ -222,15 +222,15 @@ class AboutPage extends StatelessWidget {
               ),
               ListTile(
                 leading: Icon(Icons.question_answer_outlined, color: Theme.of(context).colorScheme.primary),
-                title: Text("FAQ"),
-                subtitle: Text("Show frequently asked questions."),
+                title: const Text("FAQ"),
+                subtitle: const Text("Show frequently asked questions."),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const FAQPage())),
               ),
               ListTile(
                 leading: Icon(SimpleIcons.strava, color: Theme.of(context).colorScheme.primary),
-                title: Text("Strava Club Forum"),
-                subtitle: Text("Get help and discuss the app with other users."),
+                title: const Text("Strava Club Forum"),
+                subtitle: const Text("Get help and discuss the app with other users."),
                 trailing: const Icon(Icons.open_in_new, size: 16.0),
                 onTap: () => _launchUrl(context, url: 'https://www.strava.com/clubs/bike_setup_tracker'),
               ),

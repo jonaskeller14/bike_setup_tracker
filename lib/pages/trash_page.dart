@@ -27,10 +27,10 @@ class TrashPage extends StatelessWidget{
 
     return ListTile(
       leading: Icon(deletedItem.iconData),
-      title: Text(deletedItem.name, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.bold)),
+      title: Text(deletedItem.name, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Text("Deleted at: ${dateFormat.format(deletedItem.lastModified.toLocal())} ${timeFormat.format(deletedItem.lastModified.toLocal())}"),
       trailing: IconButton(
-        icon: Icon(Icons.restore_from_trash),
+        icon: const Icon(Icons.restore_from_trash),
         onPressed: () => deletedItem.restore(context),
       ),
     );
@@ -68,9 +68,9 @@ class TrashPage extends StatelessWidget{
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            ListTile(
-              leading: const Icon(Icons.info_outline),
-              title: const Text('Items in the Trash are permanently deleted after 30 days. The Trash is emptied automatically.'),
+            const ListTile(
+              leading: Icon(Icons.info_outline),
+              title: Text('Items in the Trash are permanently deleted after 30 days. The Trash is emptied automatically.'),
               dense: true,
             ),
             Expanded(

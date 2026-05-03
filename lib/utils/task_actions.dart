@@ -126,7 +126,7 @@ class TaskActions {
       showCloseIcon: true,
       action: SnackBarAction(
         label: 'UNDO',
-        onPressed: () async => await appRepository.restoreTaskEntries([taskEntry]),
+        onPressed: () async => appRepository.restoreTaskEntries([taskEntry]),
       ),
     ));
   }
@@ -143,7 +143,7 @@ class TaskActions {
       showCloseIcon: true,
       action: SnackBarAction(
         label: 'UNDO',
-        onPressed: () async => await appRepository.removeTaskEntries([taskEntry]),
+        onPressed: () async => appRepository.removeTaskEntries([taskEntry]),
       ),
     ));
   }

@@ -68,7 +68,7 @@ class PersonActions {
       showCloseIcon: true,
       action: SnackBarAction(
         label: 'UNDO',
-        onPressed: () async => await appRepository.restorePerson(person),
+        onPressed: () async => appRepository.restorePerson(person),
       ),
     ));
   }
@@ -86,7 +86,7 @@ class PersonActions {
       showCloseIcon: true,
       action: SnackBarAction(
         label: 'UNDO',
-        onPressed: () async => await appRepository.removePerson(person),
+        onPressed: () async => appRepository.removePerson(person),
       ),
     ));
   }

@@ -17,7 +17,7 @@ Future<Weather?> showSetWeatherSheet({
   required LocationData? currentLocation,
   required DateTime selectedDateTime,
   }) async {
-  return await showModalBottomSheet<Weather?>(
+  return showModalBottomSheet<Weather?>(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
@@ -176,7 +176,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
                                 labelText: 'Weather Code',
-                                border: OutlineInputBorder(),
+                                border: const OutlineInputBorder(),
                                 hintText: "Choose Weather Code",
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
                                 filled: widget.currentWeather?.currentWeatherCode != _currentWeather?.currentWeatherCode,
@@ -219,13 +219,13 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
                                 labelText: "Current Air Temperature in ${appSettings.temperatureUnit}.",
-                                border: OutlineInputBorder(),
+                                border: const OutlineInputBorder(),
                                 isDense: true,
                                 hintText: 'Temperature',
                                 suffixText: appSettings.temperatureUnit,
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
                                 filled: _currentWeather?.currentTemperature != widget.currentWeather?.currentTemperature,
-                                icon: Icon(Weather.currentTemperatureIconData),
+                                icon: const Icon(Weather.currentTemperatureIconData),
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
@@ -250,13 +250,13 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
                                 labelText: 'Accumulated Precipitation since midnight in ${appSettings.precipitationUnit}',
-                                border: OutlineInputBorder(),
+                                border: const OutlineInputBorder(),
                                 isDense: true,
                                 hintText: 'Precipitation',
                                 suffixText: appSettings.precipitationUnit,
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
                                 filled: widget.currentWeather?.dayAccumulatedPrecipitation != _currentWeather?.dayAccumulatedPrecipitation,
-                                icon: Icon(Weather.dayAccumulatedPrecipitationIconData),
+                                icon: const Icon(Weather.dayAccumulatedPrecipitationIconData),
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
@@ -282,7 +282,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
                                 labelText: "Current Relative Air Humidity as percentage value",
-                                border: OutlineInputBorder(),
+                                border: const OutlineInputBorder(),
                                 isDense: true,
                                 hintText: 'Humidity',
                                 suffixText: '%',
@@ -314,7 +314,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
                                 labelText: "Current Wind Speed in ${appSettings.windSpeedUnit}",
-                                border: OutlineInputBorder(),
+                                border: const OutlineInputBorder(),
                                 isDense: true,
                                 hintText: 'Wind Speed',
                                 suffixText: appSettings.windSpeedUnit,
@@ -346,7 +346,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
                                 labelText: "Average Soil Moisture 0-7cm",
-                                border: OutlineInputBorder(),
+                                border: const OutlineInputBorder(),
                                 isDense: true,
                                 hintText: 'Soil Moisture',
                                 suffixText: 'm³/m³',

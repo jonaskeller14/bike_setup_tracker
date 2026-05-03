@@ -10,7 +10,7 @@ class SetupListSort extends StatelessWidget {
     final appRepository = context.watch<AppRepository>();
     return FilterChip(
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, // Removes the 48px constraint
-      labelPadding: EdgeInsets.symmetric(vertical: 2),
+      labelPadding: const EdgeInsets.symmetric(vertical: 2),
       avatar: appRepository.stravaSortAscending 
           ? const Icon(Icons.arrow_upward) 
           : const Icon(Icons.arrow_downward),

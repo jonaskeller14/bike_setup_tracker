@@ -132,7 +132,7 @@ class _SetupDetailsPageState extends State<SetupDetailsPage> {
         itemCount: setups.length,
         itemBuilder: (context, index) {
           final Setup? setup = setups[index];
-          if (setup == null) return Expanded(child: Center(child: const Text("Setup not found.")));
+          if (setup == null) return const Expanded(child: Center(child: Text("Setup not found.")));
 
           return SetupDetailsPageContent(setup: setup);
         },
@@ -173,8 +173,8 @@ class SetupDetailsPageContent extends StatelessWidget {
           ),
         ],
       ),
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(1.0),
+      bottom: const PreferredSize(
+        preferredSize: Size.fromHeight(1.0),
         child: Divider(
           height: 1,
           thickness: 1,
@@ -375,7 +375,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                       dense: true,
                       enabled: setup.weather?.currentSoilMoisture0to7cm != null,
                     ),
-                    Divider(height: 1),
+                    const Divider(height: 1),
                     ListTile(
                       leading: Icon(setup.weather?.condition?.getIconData() ?? Icons.question_mark_sharp, color: setup.weather?.condition?.getColor()),
                       title: SelectableText('Condition: ${setup.weather?.condition?.value ?? "-"}'),
@@ -435,10 +435,10 @@ class SetupDetailsPageContent extends StatelessWidget {
   }
 
   SliverToBoxAdapter _legend(BuildContext context) {
-    return SliverToBoxAdapter(
+    return const SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-        child: const InitialChangedValueLegend(),
+        padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+        child: InitialChangedValueLegend(),
       ),
     );
   }
@@ -477,7 +477,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ListTile(
-                        title: SelectableText(rating.name, style: TextStyle(fontWeight: FontWeight.bold)),
+                        title: SelectableText(rating.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -487,7 +487,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                               one: "1 adjustment",
                               other: '${rating.adjustments.length} adjustments',
                             )),
-                            Spacer(),
+                            const Spacer(),
                             switch (rating.filterType) {
                               FilterType.bike => const Icon(Bike.iconData),
                               FilterType.person => const Icon(Person.iconData),
@@ -537,7 +537,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                           one: "1 rating value found that is not associated with this bike/person/components.",
                           other: "${danglingRatingAdjustmentValues.length} rating values found that are not associated with this bike/person/components.",
                         )),
-                        leading: Icon(Icons.question_mark),
+                        leading: const Icon(Icons.question_mark),
                       ),
                       ...danglingRatingAdjustmentValues.entries.map((danglingAdjustmentValue) {
                         return DisplayDanglingAdjustmentWidget(
@@ -588,7 +588,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ListTile(
-                        title: SelectableText(bikeComponent.name, style: TextStyle(fontWeight: FontWeight.bold)),
+                        title: SelectableText(bikeComponent.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: Text(Intl.plural(
                           bikeComponent.adjustments.length,
                           zero: "No adjustments yet.",
@@ -621,7 +621,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                           one: "1 adjustment value found that is not associated with this bike.",
                           other: "${danglingBikeAdjustmentValues.length} adjustment values found that are not associated with this bike.",
                         )),
-                        leading: Icon(Icons.question_mark),
+                        leading: const Icon(Icons.question_mark),
                       ),
                       ...danglingBikeAdjustmentValues.entries.map((danglingAdjustmentValue) {
                         return DisplayDanglingAdjustmentWidget(
@@ -642,7 +642,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ListTile(
-                        title: SelectableText(person.name, style: TextStyle(fontWeight: FontWeight.bold)),
+                        title: SelectableText(person.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: Text(Intl.plural(
                           person.adjustments.length,
                           zero: "No attributes yet.",
@@ -674,7 +674,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                             one: "1 attribute value found that is not associated with this person.",
                             other: "${danglingPersonAdjustmentValues.length} attribute values found that are not associated with this person.",
                           )),
-                          leading: Icon(Icons.question_mark),
+                          leading: const Icon(Icons.question_mark),
                         ),
                         ...danglingPersonAdjustmentValues.entries.map((danglingAdjustmentValue) {
                           return DisplayDanglingAdjustmentWidget(

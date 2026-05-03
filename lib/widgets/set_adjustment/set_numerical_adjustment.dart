@@ -84,7 +84,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
               mainAxisSize: MainAxisSize.max,
               children: [
                 Icon(NumericalAdjustment.iconData, color: highlightColor),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 nameNotesSetAdjustmentWidget(context: context, adjustment: widget.adjustment, highlightColor: highlightColor),
               ],
             )
@@ -100,7 +100,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
               onChanged: widget.onChanged,
               onFieldSubmitted: widget.onChanged,
               decoration: InputDecoration(
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
                 isDense: true,
                 hintText: 'Please enter',
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),

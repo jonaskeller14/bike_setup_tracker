@@ -42,8 +42,8 @@ void main() {
         startLon: 0,
         distance: 0,
         totalElevationGain: 0,
-        movingTime: Duration(seconds: 100),
-        elapsedTime: Duration(seconds: 120),
+        movingTime: const Duration(seconds: 100),
+        elapsedTime: const Duration(seconds: 120),
       );
 
       expect(activity.startDate.isUtc, isTrue);

@@ -6,8 +6,8 @@ class RatingListFilterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 8),
+    return const SingleChildScrollView(
+      padding: EdgeInsets.only(bottom: 8),
       scrollDirection: Axis.horizontal,
       child: Row(
         spacing: 6,

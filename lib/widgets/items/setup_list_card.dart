@@ -34,8 +34,8 @@ class SetupListCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.primary,
-          borderRadius: BorderRadius.only(
-            topRight: const Radius.circular(12),
+          borderRadius: const BorderRadius.only(
+            topRight: Radius.circular(12),
             bottomLeft: Radius.circular(12 / 2),
           ),
         ),

@@ -30,8 +30,8 @@ void main() {
       priority: TaskPriority.high,
       notes: "Some notes about the rule",
       componentId: "comp_1",
-      interval: DurationThreshold(Duration(days: 45)),
-      delay: DistanceThreshold(500),
+      interval: const DurationThreshold(Duration(days: 45)),
+      delay: const DistanceThreshold(500),
       repeat: true,
     );
 
@@ -45,7 +45,7 @@ void main() {
       dateTimeLocal: now.toLocal(),
       taskRule: "rule_1",
       componentId: "comp_1",
-      snapshot: ComponentStats(
+      snapshot: const ComponentStats(
         distance: 12000,
         elevationGain: 400,
         movingTime: Duration(hours: 10),

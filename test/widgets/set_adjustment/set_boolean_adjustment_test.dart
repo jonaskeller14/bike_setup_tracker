@@ -10,7 +10,7 @@ void main() {
         body: Form(
           key: formKey,
           child: SetBooleanAdjustmentWidget(
-            key: ValueKey("BooleanAdjustment #1"),
+            key: const ValueKey("BooleanAdjustment #1"),
             initialValue: initialValue,
             value: value,
             onChanged: (_) {},

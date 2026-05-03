@@ -12,7 +12,7 @@ Future<void> showSetupListDisplayFilterSheet({required BuildContext context}) as
     showDragHandle: true,
     isScrollControlled: true,
     context: context, 
-    builder: (context) => SetupListDisplayFilterSheetContent(),
+    builder: (context) => const SetupListDisplayFilterSheetContent(),
   );
 }
 

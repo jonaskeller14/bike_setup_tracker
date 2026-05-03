@@ -400,7 +400,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                     onChanged: (value) => setState(() {}),  // trigger filled
                     decoration: InputDecoration(
                       labelText: 'Task Rule Name',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                       hintText: 'Enter task name',
                       fillColor: Colors.orange.withValues(alpha: 0.08),
                       filled: widget.mode == TaskRulePageMode.edit && _nameController.text.trim() != widget.taskRule?.name,

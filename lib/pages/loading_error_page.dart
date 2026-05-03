@@ -31,7 +31,7 @@ class LoadingErrorPage extends StatelessWidget {
                 child: Column(
                   children: [
                     ListTile(
-                      leading: Icon(Icons.headset_mic_outlined),
+                      leading: const Icon(Icons.headset_mic_outlined),
                       title: const Text('Contact Support'),
                       subtitle: const Text(AboutPage.supportEmail),
                       trailing: const Icon(Icons.open_in_new, size: 16.0),
@@ -52,7 +52,7 @@ class LoadingErrorPage extends StatelessWidget {
                     ),
                     const Divider(height: 1),
                     ListTile(
-                      leading: Icon(Icons.download_outlined),
+                      leading: const Icon(Icons.download_outlined),
                       title: const Text('Download latest Backup'),
                       subtitle: const Text('Download app data as JSON file'),
                       onTap: () async {

@@ -9,7 +9,7 @@ enum ElevationStatus {
 }
 
 class ElevationService extends ChangeNotifier {
-  final elevationAPI = ElevationApi(userAgent: "Bike Setup Tracker App v1.0");
+  final elevationAPI = const ElevationApi(userAgent: "Bike Setup Tracker App v1.0");
   ElevationStatus _status = ElevationStatus.idle;
 
   ElevationStatus get status => _status;

@@ -13,7 +13,7 @@ import "../../repositories/app_repository.dart";
 import 'sheet.dart';
 
 Future<SelectedData?> showDataSelectSheet({required BuildContext context, required AppRepository data}) async {
-  return await showModalBottomSheet<SelectedData?>(
+  return showModalBottomSheet<SelectedData?>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

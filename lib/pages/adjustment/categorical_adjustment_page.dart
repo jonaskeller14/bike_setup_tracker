@@ -246,7 +246,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                             decoration: InputDecoration(
                               labelText: 'Adjustment Name',
                               hintText: 'Enter Adjustment Name',
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                               fillColor: Colors.orange.withValues(alpha: 0.08),
                               filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                             ),
@@ -260,7 +260,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
                                 labelText: 'Category',
-                                border: OutlineInputBorder(),
+                                border: const OutlineInputBorder(),
                                 hintText: "Choose a category for this adjustment",
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
                                 filled: widget.mode == AdjustmentPageMode.edit && _category != widget.adjustment!.category
@@ -312,11 +312,11 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                             ],
                           ),
                           if (widget.mode == AdjustmentPageMode.edit) ...[
-                            ListTile(
-                              leading: const Icon(Icons.warning),
-                              title: const Text('WARNING: Renaming an option will not update existing setup values!'),
+                            const ListTile(
+                              leading: Icon(Icons.warning),
+                              title: Text('WARNING: Renaming an option will not update existing setup values!'),
                               dense: true,
-                              contentPadding: const EdgeInsets.all(0),
+                              contentPadding: EdgeInsets.all(0),
                             ),
                             const SizedBox(height: 8),
                           ],
@@ -407,7 +407,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                     labelText: 'Notes (optional)',
                                     hintText: 'Enter measuring procedure/instrument/...',
                                     helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
-                                    border: OutlineInputBorder(),
+                                    border: const OutlineInputBorder(),
                                     fillColor: Colors.orange.withValues(alpha: 0.08),
                                     filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
                                   ),

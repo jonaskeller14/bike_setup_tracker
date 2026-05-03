@@ -13,7 +13,7 @@ void main() {
         body: Form(
           key: formKey,
           child: SetNumericalAdjustmentWidget(
-            key: ValueKey("NumericalAdjustment #1"),
+            key: const ValueKey("NumericalAdjustment #1"),
             initialValue: initialValue,
             value: value,
             onChanged: (_) {},

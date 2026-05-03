@@ -137,14 +137,14 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  ListTile(
-                    leading: const Icon(Icons.info_outline),
-                    title: const Text('Backups are created once per day. To restore a backup, you can choose to overwrite current data or merge backup data into existing data.'),
+                  const ListTile(
+                    leading: Icon(Icons.info_outline),
+                    title: Text('Backups are created once per day. To restore a backup, you can choose to overwrite current data or merge backup data into existing data.'),
                     dense: true,
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.info_outline),
-                    title: const Text('Backups older than 30 days are permanently deleted and cannot be restored.'),
+                  const ListTile(
+                    leading: Icon(Icons.info_outline),
+                    title: Text('Backups older than 30 days are permanently deleted and cannot be restored.'),
                     dense: true,
                   ),
                   if (_localBackupError != null)

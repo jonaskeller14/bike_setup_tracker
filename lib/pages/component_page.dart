@@ -398,7 +398,7 @@ class _ComponentPageState extends State<ComponentPage> {
       onChanged: (value) => setState(() {}), // see filled/fillColor
       decoration: InputDecoration(
         labelText: 'Component Name',
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
         hintText: 'Enter component name',
         fillColor: Colors.orange.withValues(alpha: 0.08),
         filled: widget.mode == ComponentPageMode.edit && _nameController.text.trim() != widget.component?.name,
@@ -418,7 +418,7 @@ class _ComponentPageState extends State<ComponentPage> {
       hint: const Text("Please select type"),
       decoration: InputDecoration(
         labelText: 'Type',
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
         hintText: "Choose a type for this component",
         helperText: existingComponentsCount > 0
             ? Intl.plural(
@@ -490,7 +490,7 @@ class _ComponentPageState extends State<ComponentPage> {
       decoration: InputDecoration(
         labelText: 'Notes (optional)',
         hintText: 'Enter brand, model, serial number, costs, ...',
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
         fillColor: Colors.orange.withValues(alpha: 0.08),
         filled: widget.mode == ComponentPageMode.edit && _notesController.text.trim() != (widget.component?.notes ?? ""),
       ),
@@ -517,7 +517,7 @@ class _ComponentPageState extends State<ComponentPage> {
                 decoration: InputDecoration(
                   labelText: 'Initial Distance (optional)',
                   hintText: 'Enter Initial Distance',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                   visualDensity: VisualDensity.compact,
                   suffixText: "m", //FIXME: also change in init and save
                   fillColor: Colors.orange.withValues(alpha: 0.08),
@@ -542,7 +542,7 @@ class _ComponentPageState extends State<ComponentPage> {
                 decoration: InputDecoration(
                   labelText: 'Initial Elevation Gain (optional)',
                   hintText: 'Enter Initial Elevation Gain',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                   visualDensity: VisualDensity.compact,
                   suffixText: "m",
                   fillColor: Colors.orange.withValues(alpha: 0.08),
@@ -572,7 +572,7 @@ class _ComponentPageState extends State<ComponentPage> {
                 decoration: InputDecoration(
                   labelText: 'Initial Moving Time (optional)',
                   hintText: 'Enter Initial Moving Time',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                   visualDensity: VisualDensity.compact,
                   suffixText: "h",
                   fillColor: Colors.orange.withValues(alpha: 0.08),
@@ -597,7 +597,7 @@ class _ComponentPageState extends State<ComponentPage> {
                 decoration: InputDecoration(
                   labelText: 'Initial Elapsed Time (optional)',
                   hintText: 'Enter Initial Elapsed Time',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                   visualDensity: VisualDensity.compact,
                   suffixText: "h",
                   fillColor: Colors.orange.withValues(alpha: 0.08),
@@ -624,7 +624,7 @@ class _ComponentPageState extends State<ComponentPage> {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
         labelText: 'Bike',
-        border: OutlineInputBorder(),
+        border: const OutlineInputBorder(),
         hintText: "Choose a bike for this component",
         helperText: _installations.lastOrNull?.parent == null ? "WARNING: Select Bike to install Component." : null,
         fillColor: Colors.orange.withValues(alpha: 0.08),
@@ -646,12 +646,12 @@ class _ComponentPageState extends State<ComponentPage> {
           ),
         );
       }).toList() + [
-        DropdownMenuItem<String?>(
+        const DropdownMenuItem<String?>(
           value: null,
           child: Row(
             spacing: 8,
             children: [
-              const Icon(Icons.shelves),
+              Icon(Icons.shelves),
               Expanded(child: Text("NOT INSTALLED", overflow: TextOverflow.ellipsis))
             ],
           ),

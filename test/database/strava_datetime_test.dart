@@ -67,8 +67,8 @@ void main() {
         startLon: null,
         distance: 10.0,
         totalElevationGain: 100.0,
-        movingTime: Duration(minutes: 60),
-        elapsedTime: Duration(minutes: 65),
+        movingTime: const Duration(minutes: 60),
+        elapsedTime: const Duration(minutes: 65),
       );
 
       final json = activity.toJson();

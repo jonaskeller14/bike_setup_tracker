@@ -379,7 +379,7 @@ class _PersonPageState extends State<PersonPage> {
                     onChanged: (value) => setState(() {}), // see filled/fillColor
                     decoration: InputDecoration(
                       labelText: 'Person Name',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                       hintText: 'Enter Person name',
                       fillColor: Colors.orange.withValues(alpha: 0.08),
                       filled: widget.mode == PersonPageMode.edit && _nameController.text.trim() != widget.person?.name,
@@ -418,7 +418,7 @@ class _PersonPageState extends State<PersonPage> {
                           decoration: InputDecoration(
                             labelText: 'Notes (optional)',
                             hintText: 'Enter notes about the person...',
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
                             fillColor: Colors.orange.withValues(alpha: 0.08),
                             filled: widget.mode == PersonPageMode.edit && _notesController.text.trim() != (widget.person?.notes ?? ""),
                           ),
@@ -431,7 +431,7 @@ class _PersonPageState extends State<PersonPage> {
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             decoration: InputDecoration(
                               labelText: 'Strava Athlete',
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                               hintText: "Link Strava Athlete",
                               helperText: existingPersons.values.any((p) => p.id != widget.person?.id && p.stravaAthlete != null && p.stravaAthlete == _stravaAthlete)
                                 ? "WARNING: Strava Athlete already assigned to another Person"
@@ -445,13 +445,13 @@ class _PersonPageState extends State<PersonPage> {
                               return null;
                             },
                             items: [
-                              DropdownMenuItem<int?>(
+                              const DropdownMenuItem<int?>(
                                 value: null,
                                 child: Row(
                                   spacing: 8,
                                   children: [
-                                    const Icon(Icons.link_off),
-                                    const Expanded(child: Text("NOT LINKED", overflow: TextOverflow.ellipsis))
+                                    Icon(Icons.link_off),
+                                    Expanded(child: Text("NOT LINKED", overflow: TextOverflow.ellipsis))
                                   ],
                                 ),
                               ),

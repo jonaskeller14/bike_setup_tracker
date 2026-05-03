@@ -13,7 +13,7 @@ void main() {
         body: Form(
           key: formKey,
           child: SetStepAdjustmentWidget(
-            key: ValueKey("StepAdjustment #1"),
+            key: const ValueKey("StepAdjustment #1"),
             initialValue: initialValue,
             value: value,
             onChanged: (_) {},

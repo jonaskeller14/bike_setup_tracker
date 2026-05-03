@@ -419,10 +419,10 @@ class _RatingPageState extends State<RatingPage> {
   DropdownMenuItem<_FilterFilterType> _dropdownMenuItemGlobal(_FilterFilterType fft) {
     return DropdownMenuItem<_FilterFilterType>(
       value: fft,
-      child: Row(
+      child: const Row(
         spacing: 8,
         children: [
-          const Icon(Icons.circle_outlined),
+          Icon(Icons.circle_outlined),
           Expanded(child: Text("Apply everywhere", overflow: TextOverflow.ellipsis))
         ],
       ),
@@ -523,7 +523,7 @@ class _RatingPageState extends State<RatingPage> {
     final components = appRepository.components;
 
     final List<_FilterFilterType> filterOptions = [
-      _FilterFilterType(null, FilterType.global),
+      const _FilterFilterType(null, FilterType.global),
       ...bikes.values.map((b) => _FilterFilterTypeBike(b.id, FilterType.bike, b)),
       ...ComponentType.values.map((ct) => _FilterFilterTypeComponentType(ct.toString(), FilterType.componentType, ct)),
       ...(() {
@@ -564,7 +564,7 @@ class _RatingPageState extends State<RatingPage> {
                     onChanged: (value) => setState(() {}), // see filled/fillColor
                     decoration: InputDecoration(
                       labelText: 'Rating Name',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                       hintText: 'Enter rating name',
                       fillColor: Colors.orange.withValues(alpha: 0.08),
                       filled: widget.mode == RatingPageMode.edit && _nameController.text.trim() != widget.rating?.name,
@@ -578,7 +578,7 @@ class _RatingPageState extends State<RatingPage> {
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     decoration: InputDecoration(
                       labelText: 'Filter',
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                       hintText: "Choose an object which the filter should be applied for",
                       fillColor: Colors.orange.withValues(alpha: 0.08),
                       filled: widget.mode == RatingPageMode.edit && _filterFilterType.filter != widget.rating?.filter,
@@ -613,7 +613,7 @@ class _RatingPageState extends State<RatingPage> {
                       ...filterOptions.whereType<_FilterFilterTypePerson>().map((fftp) => _dropdownMenuItemPerson(fftp)),
                     ],
                     onChanged: (_FilterFilterType? newValue) {
-                      setState(() => _filterFilterType = newValue ?? _FilterFilterType(null, FilterType.global));
+                      setState(() => _filterFilterType = newValue ?? const _FilterFilterType(null, FilterType.global));
                       _changeListener();
                     },
                   ),
@@ -644,7 +644,7 @@ class _RatingPageState extends State<RatingPage> {
                           decoration: InputDecoration(
                             labelText: 'Notes (optional)',
                             hintText: 'Describe the rating procedure, guidelines, instructions, ...',
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
                             fillColor: Colors.orange.withValues(alpha: 0.08),
                             filled: widget.mode == RatingPageMode.edit && _notesController.text.trim() != (widget.rating?.notes ?? ""),
                           ),

@@ -113,7 +113,7 @@ class _SetTagsSheetContentState extends State<SetTagsSheetContent> {
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       maxLines: 1,
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(),
+                        border: const OutlineInputBorder(),
                         isDense: true,
                         labelText: "Add new tag",
                         hintText: 'New Tag',

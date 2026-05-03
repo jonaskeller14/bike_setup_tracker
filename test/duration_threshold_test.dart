@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('Serialize and deserialize DurationThreshold', () {
-    final threshold = DurationThreshold(Duration(days: 30));
+    final threshold = const DurationThreshold(Duration(days: 30));
     final jsonString = jsonEncode(threshold.toJson());
     final decodedJson = jsonDecode(jsonString);
     final newThreshold = TaskThreshold.fromJson(decodedJson) as DurationThreshold;

@@ -242,9 +242,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
-              ListTile(
-                leading: const Icon(Icons.info_outline),
-                title: const Text('Enable these to add specific functionality to your workflow. Keep them disabled to maintain a simpler interface.'),
+              const ListTile(
+                leading: Icon(Icons.info_outline),
+                title: Text('Enable these to add specific functionality to your workflow. Keep them disabled to maintain a simpler interface.'),
                 dense: true,
               ),
               if (Platform.isAndroid)

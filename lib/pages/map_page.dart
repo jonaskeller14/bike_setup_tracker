@@ -203,7 +203,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                 children: [
                   if (appSettings.useMapBoxTiles && Env.mapboxToken.isNotEmpty)
                     TileLayer(
-                      urlTemplate: 'https://api.mapbox.com/styles/v1/mapbox/{style_id}/tiles/256/{z}/{x}/{y}@2x?access_token={access_token}',
+                      urlTemplate: 'https://api.mapbox.com/styles/v1/mapbox/{style_id}/tiles/256/{z}/{x}/{y}?access_token={access_token}',
                       additionalOptions: {
                         'access_token': Env.mapboxToken,
                         'style_id': Theme.of(context).brightness == Brightness.dark ? 'dark-v11' : 'outdoors-v12',

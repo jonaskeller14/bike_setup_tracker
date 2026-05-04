@@ -176,10 +176,7 @@ class SetupDetailsPageContent extends StatelessWidget {
       ),
       bottom: const PreferredSize(
         preferredSize: Size.fromHeight(1.0),
-        child: Divider(
-          height: 1,
-          thickness: 1,
-        ),
+        child: Divider(height: 1),
       ),
     );
   }
@@ -188,19 +185,12 @@ class SetupDetailsPageContent extends StatelessWidget {
     return PinnedHeaderSliver(
       child: Container(
         color: Theme.of(context).colorScheme.surface,
-        // color: Colors.red,
         padding: const EdgeInsets.only(top: 12, left: 16, right: 16, bottom: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title.toUpperCase(), style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold, 
-              letterSpacing: 1.2, 
-              color: Theme.of(context).colorScheme.primary
-            )),
-            
-          ],
-        )
+        child: Text(title.toUpperCase(), style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.bold, 
+          letterSpacing: 1.2, 
+          color: Theme.of(context).colorScheme.primary
+        )),
       ),
     );
   }

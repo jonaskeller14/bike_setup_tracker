@@ -39,6 +39,32 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
 
   static const bool _highlighting = true;
 
+  static const List<List<int>?> _dashPatterns = [
+    null,
+    [6, 3],
+    [2, 2],
+    [10, 4, 2, 4],
+  ];
+
+  static dynamic _rawValue(Setup setup, TableColumn column) => switch (column.section) {
+    TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[column.label],
+    TableColumnSection.ratingMetrics => setup.ratingAdjustmentValues[column.label],
+    TableColumnSection.personAttributes => setup.personAdjustmentValues[column.label],
+    _ => null,
+  };
+
+  static Adjustment? _findAdjustment(
+    TableColumn column,
+    Iterable<Adjustment> componentAdjustments,
+    Iterable<Adjustment> ratingAdjustments,
+    Iterable<Adjustment> personAdjustments,
+  ) => switch (column.section) {
+    TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label),
+    TableColumnSection.ratingMetrics => ratingAdjustments.firstWhereOrNull((a) => a.id == column.label),
+    TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == column.label),
+    _ => null,
+  };
+
   final Set<TableColumn> _columns = {
     TableColumn(section: TableColumnSection.generalContext, label: "Name", active: true),
     TableColumn(section: TableColumnSection.generalContext, label: "Notes", active: false),
@@ -117,41 +143,30 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               : setups.sort((a, b) => (b.weather?.condition?.value ?? '').compareTo(a.weather?.condition?.value ?? ''));
         }
       case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes || TableColumnSection.ratingMetrics:
-        final column2value = switch (_sortColumn!.section) {
-          TableColumnSection.componentAdjustments => (Setup s) => s.bikeAdjustmentValues[_sortColumn!.label],
-          TableColumnSection.personAttributes => (Setup s) => s.personAdjustmentValues[_sortColumn!.label],
-          TableColumnSection.ratingMetrics => (Setup s) => s.ratingAdjustmentValues[_sortColumn!.label],
-          _ => null, 
-        };
-        if (column2value == null) return setups;
-
-        final Adjustment? adjustment = switch (_sortColumn!.section) {
-          TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == _sortColumn!.label),
-          TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == _sortColumn!.label),
-          TableColumnSection.ratingMetrics => ratingAdjustments.firstWhereOrNull((a) => a.id == _sortColumn!.label),
-          _ => null,
-        };
+        final Adjustment? adjustment = _findAdjustment(_sortColumn!, componentAdjustments, ratingAdjustments, personAdjustments);
         if (adjustment == null) return setups;
 
+        dynamic v(Setup s) => _rawValue(s, _sortColumn!);
+
         switch (adjustment) {
-          case BooleanAdjustment(): _sortAscending 
-              ? setups.sort((a, b) => ((column2value(a) ?? false) ? 1 : 0).compareTo((column2value(b) ?? false) ? 1 : 0)) 
-              : setups.sort((a, b) => ((column2value(b) ?? false) ? 1 : 0).compareTo((column2value(a) ?? false) ? 1 : 0));
-          case StepAdjustment(): _sortAscending 
-              ? setups.sort((a, b) => ((column2value(a) ?? 0) as int).compareTo((column2value(b) ?? 0) as int)) 
-              : setups.sort((a, b) => ((column2value(b) ?? 0) as int).compareTo((column2value(a) ?? 0) as int));
-          case NumericalAdjustment(): _sortAscending 
-              ? setups.sort((a, b) => ((column2value(a) ?? double.negativeInfinity) as double).compareTo((column2value(b) ?? double.negativeInfinity) as double)) 
-              : setups.sort((a, b) => ((column2value(b) ?? double.negativeInfinity) as double).compareTo((column2value(a) ?? double.negativeInfinity) as double));
-          case CategoricalAdjustment(): _sortAscending 
-              ? setups.sort((a, b) => ((column2value(a) ?? '') as String).compareTo((column2value(b) ?? '') as String)) 
-              : setups.sort((a, b) => ((column2value(b) ?? '') as String).compareTo((column2value(a) ?? '') as String));
-          case TextAdjustment(): _sortAscending 
-              ? setups.sort((a, b) => ((column2value(a) ?? '') as String).compareTo((column2value(b) ?? '') as String)) 
-              : setups.sort((a, b) => ((column2value(b) ?? '') as String).compareTo((column2value(a) ?? '') as String));
-          case DurationAdjustment(): _sortAscending 
-              ? setups.sort((a, b) => ((column2value(a) ?? Duration.zero) as Duration).compareTo((column2value(b) ?? Duration.zero) as Duration)) 
-              : setups.sort((a, b) => ((column2value(b) ?? Duration.zero) as Duration).compareTo((column2value(a) ?? Duration.zero) as Duration));
+          case BooleanAdjustment(): _sortAscending
+              ? setups.sort((a, b) => ((v(a) ?? false) ? 1 : 0).compareTo((v(b) ?? false) ? 1 : 0))
+              : setups.sort((a, b) => ((v(b) ?? false) ? 1 : 0).compareTo((v(a) ?? false) ? 1 : 0));
+          case StepAdjustment(): _sortAscending
+              ? setups.sort((a, b) => ((v(a) ?? 0) as int).compareTo((v(b) ?? 0) as int))
+              : setups.sort((a, b) => ((v(b) ?? 0) as int).compareTo((v(a) ?? 0) as int));
+          case NumericalAdjustment(): _sortAscending
+              ? setups.sort((a, b) => ((v(a) ?? double.negativeInfinity) as double).compareTo((v(b) ?? double.negativeInfinity) as double))
+              : setups.sort((a, b) => ((v(b) ?? double.negativeInfinity) as double).compareTo((v(a) ?? double.negativeInfinity) as double));
+          case CategoricalAdjustment(): _sortAscending
+              ? setups.sort((a, b) => ((v(a) ?? '') as String).compareTo((v(b) ?? '') as String))
+              : setups.sort((a, b) => ((v(b) ?? '') as String).compareTo((v(a) ?? '') as String));
+          case TextAdjustment(): _sortAscending
+              ? setups.sort((a, b) => ((v(a) ?? '') as String).compareTo((v(b) ?? '') as String))
+              : setups.sort((a, b) => ((v(b) ?? '') as String).compareTo((v(a) ?? '') as String));
+          case DurationAdjustment(): _sortAscending
+              ? setups.sort((a, b) => ((v(a) ?? Duration.zero) as Duration).compareTo((v(b) ?? Duration.zero) as Duration))
+              : setups.sort((a, b) => ((v(b) ?? Duration.zero) as Duration).compareTo((v(a) ?? Duration.zero) as Duration));
         }
     }
     return setups;
@@ -210,7 +225,38 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     );
   }
 
-  List<Widget> _buildChartSection({
+  Widget _sectionTitle(String title, {String? infoText}) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, left: 16, right: 16, bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Text(title.toUpperCase(), style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold, 
+              letterSpacing: 1.2, 
+              color: Theme.of(context).colorScheme.primary
+            )),
+          ),
+          if (infoText != null)
+            Tooltip(
+              message: infoText,
+              triggerMode: TooltipTriggerMode.tap,
+              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.symmetric(horizontal: 24),
+              showDuration: const Duration(seconds: 5),
+              child: Icon(
+                Icons.info_outline_rounded,
+                size: 16,
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.7),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLineChartSection({
     required BuildContext context,
     required AppSettings appSettings,
     required List<TableColumn> activeColumns,
@@ -219,196 +265,166 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     required Iterable<Adjustment> personAdjustments,
     required Iterable<Adjustment> ratingAdjustments,
   }) {
-    if (!appSettings.enableCharts) return [];
+    if (!appSettings.enableCharts) return const SizedBox.shrink();
 
     final activeChartColumns = activeColumns.where((column) {
-      final Adjustment? adjustment = switch (column.section) {
-        TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label),
-        TableColumnSection.ratingMetrics => ratingAdjustments.firstWhereOrNull((a) => a.id == column.label),
-        TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == column.label),
-        _ => null,
-      };
+      final adjustment = _findAdjustment(column, componentAdjustments, ratingAdjustments, personAdjustments);
       return adjustment is StepAdjustment || adjustment is NumericalAdjustment;
     }).toList();
 
-    return [
-      const SizedBox(height: 32),
-      Builder(
-        builder: (context) {
-          if (activeChartColumns.isEmpty) {
-            return _chartPlaceholder(message: "Select numerical or step adjustment columns to visualize trends");
-          }
-          if (setups.isEmpty) {
-            return _chartPlaceholder(message: "No setup data available for this component");
-          }
+    if (activeChartColumns.isEmpty) {
+      return _chartPlaceholder(message: "Select numerical or step adjustment columns to visualize trends");
+    }
+    if (setups.isEmpty) {
+      return _chartPlaceholder(message: "No setup data available for this component");
+    }
 
-          final validColumns = activeChartColumns.where((column) {
-            return setups.any((setup) {
-              final rawValue = switch (column.section) {
-                TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[column.label],
-                TableColumnSection.ratingMetrics => setup.ratingAdjustmentValues[column.label],
-                TableColumnSection.personAttributes => setup.personAdjustmentValues[column.label],
-                _ => null,
-              };
-              return rawValue is num;
-            });
-          }).toList();
+    final validColumns = activeChartColumns.where((column) {
+      return setups.any((setup) => _rawValue(setup, column) is num);
+    }).toList();
 
-          if (validColumns.isEmpty) {
-            return _chartPlaceholder(message: "The selected columns do not contain numerical data to plot");
-          }
+    if (validColumns.isEmpty) {
+      return _chartPlaceholder(message: "The selected columns do not contain numerical data to plot");
+    }
 
-          final chartSetups = setups.toList()..sort((a, b) => a.datetime.compareTo(b.datetime));
+    final chartSetups = setups.toList()..sort((a, b) => a.datetime.compareTo(b.datetime));
 
-          if (chartSetups.length < 2) {
-            return _chartPlaceholder(message: "At least two setups are required to visualize a trend chart");
-          }
+    if (chartSetups.length < 2) {
+      return _chartPlaceholder(message: "At least two setups are required to visualize a trend chart");
+    }
 
-          final primaryHSL = HSLColor.fromColor(Theme.of(context).colorScheme.primary);
+    final primaryHSL = HSLColor.fromColor(Theme.of(context).colorScheme.primary);
 
-          return Column(
-            children: [
-              SizedBox(
-                height: 300,
-                child: LineChart(
-                  LineChartData(
-                    lineBarsData: validColumns.mapIndexed((index, column) {
-                      final isSelected = _selectedLineChartColumnIndex == null || _selectedLineChartColumnIndex == index;
-                      final color = primaryHSL.withHue((primaryHSL.hue + (index * 45)) % 360).toColor();
-                      final dashPatterns = [
-                        null,           // Solid
-                        [6, 3],         // Dashed
-                        [2, 2],         // Dotted
-                        [10, 4, 2, 4],  // Dash-Dot
-                      ];
-                      return LineChartBarData(
-                        spots: chartSetups.asMap().entries.map((entry) {
-                          final setup = entry.value;
-                          final val = switch (column.section) {
-                            TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[column.label],
-                            TableColumnSection.ratingMetrics => setup.ratingAdjustmentValues[column.label],
-                            TableColumnSection.personAttributes => setup.personAdjustmentValues[column.label],
-                            _ => null,
-                          };
-                          return FlSpot(entry.key.toDouble(), (val as num?)?.toDouble() ?? 0.0);
-                        }).toList(),
-                        isCurved: false,
-                        color: isSelected ? color : color.withValues(alpha: 0.15),
-                        barWidth: isSelected ? 3 : 1.5,
-                        dotData: FlDotData(show: isSelected),
-                        dashArray: dashPatterns[index % dashPatterns.length],
-                      );
-                    }).toList(),
-                    titlesData: FlTitlesData(
-                      bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      leftTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true, 
-                          reservedSize: 40,
-                          getTitlesWidget: (value, meta) {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: Text(
-                                value.truncateToDouble() == value ? value.toInt().toString() : value.toStringAsFixed(1),
-                                style: Theme.of(context).textTheme.bodySmall,
-                                textAlign: TextAlign.right,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    gridData: FlGridData(
-                      show: true,
-                      getDrawingHorizontalLine: (value) => FlLine(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5), strokeWidth: 1),
-                      getDrawingVerticalLine: (value) => FlLine(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5), strokeWidth: 1),
-                    ),
-                    borderData: FlBorderData(
-                      show: true,
-                      border: Border(
-                        left: BorderSide(color: Theme.of(context).colorScheme.outline),
-                        bottom: BorderSide(color: Theme.of(context).colorScheme.outline),
-                        top: BorderSide.none,
-                        right: BorderSide.none,
-                      ),
-                    ),
-                    lineTouchData: LineTouchData(
-                      enabled: true,
-                      getTouchedSpotIndicator: (LineChartBarData barData, List<int> spotIndexes) {
-                        return spotIndexes.map((index) {
-                          return TouchedSpotIndicatorData(
-                            FlLine(color: barData.color?.withValues(alpha: 0.5), strokeWidth: 2),
-                            FlDotData(
-                              show: true,
-                              getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
-                                radius: 6,
-                                color: barData.color ?? Theme.of(context).colorScheme.primary,
-                                strokeWidth: 2,
-                                strokeColor: Theme.of(context).colorScheme.surface,
-                              ),
+    return Column(
+      children: [
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          height: 300,
+          child: LineChart(
+            LineChartData(
+              lineBarsData: validColumns.mapIndexed((index, column) {
+                final isSelected = _selectedLineChartColumnIndex == null || _selectedLineChartColumnIndex == index;
+                final color = primaryHSL.withHue((primaryHSL.hue + (index * 45)) % 360).toColor();
+                return LineChartBarData(
+                  spots: chartSetups.asMap().entries.map((entry) {
+                    final val = _rawValue(entry.value, column);
+                    return FlSpot(entry.key.toDouble(), (val as num?)?.toDouble() ?? 0.0);
+                  }).toList(),
+                  isCurved: false,
+                  color: isSelected ? color : color.withValues(alpha: 0.15),
+                  barWidth: isSelected ? 3 : 1.5,
+                  dotData: FlDotData(show: isSelected),
+                  dashArray: _dashPatterns[index % _dashPatterns.length],
+                );
+              }).toList(),
+                  titlesData: FlTitlesData(
+                    bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true, 
+                        reservedSize: 40,
+                        getTitlesWidget: (value, meta) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Text(
+                              value.truncateToDouble() == value ? value.toInt().toString() : value.toStringAsFixed(1),
+                              style: Theme.of(context).textTheme.bodySmall,
+                              textAlign: TextAlign.right,
                             ),
                           );
-                        }).toList();
-                      },
-                      touchTooltipData: LineTouchTooltipData(
-                        fitInsideHorizontally: true,
-                        getTooltipColor: (touchedSpot) => Theme.of(context).colorScheme.surfaceContainerHighest,
-                        getTooltipItems: (touchedSpots) {
-                          return touchedSpots.map((barSpot) {
-                            final column = validColumns[barSpot.barIndex];
-                            final adjustment = switch (column.section) {
-                              TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label),
-                              TableColumnSection.ratingMetrics => ratingAdjustments.firstWhereOrNull((a) => a.id == column.label),
-                              TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == column.label),
-                              _ => null,
-                            };
-                            final columnName = adjustment?.name ?? column.label;
-                            final unit = adjustment?.unit ?? "";
-                            final formattedY = Adjustment.formatValue(barSpot.y);
-                            
-                            final tooltipStyle = Theme.of(context).textTheme.bodySmall!.copyWith(
-                              color: barSpot.bar.color ?? Theme.of(context).colorScheme.onSurface,
-                              fontWeight: FontWeight.bold,
-                            );
-
-                            if (barSpot.barIndex == 0) {
-                              final setup = chartSetups[barSpot.x.toInt()];
-                              final dateStr = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
-                              return LineTooltipItem(
-                                '${setup.name}\n',
-                                tooltipStyle.copyWith(color: Theme.of(context).colorScheme.onSurface),
-                                children: [
-                                  TextSpan(
-                                    text: '$dateStr\n',
-                                    style: tooltipStyle.copyWith(
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant, 
-                                      fontWeight: FontWeight.normal,
-                                      fontSize: 10,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: '$columnName: $formattedY${unit.isNotEmpty ? " $unit" : ""}',
-                                    style: tooltipStyle,
-                                  ),
-                                ],
-                              );
-                            }
-
-                            return LineTooltipItem(
-                              '$columnName: $formattedY${unit.isNotEmpty ? " $unit" : ""}',
-                              tooltipStyle,
-                            );
-                          }).toList();
                         },
                       ),
                     ),
                   ),
+                  gridData: FlGridData(
+                    show: true,
+                    getDrawingHorizontalLine: (value) => FlLine(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5), strokeWidth: 1),
+                    getDrawingVerticalLine: (value) => FlLine(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5), strokeWidth: 1),
+                  ),
+                  borderData: FlBorderData(
+                    show: true,
+                    border: Border(
+                      left: BorderSide(color: Theme.of(context).colorScheme.outline),
+                      bottom: BorderSide(color: Theme.of(context).colorScheme.outline),
+                      top: BorderSide.none,
+                      right: BorderSide.none,
+                    ),
+                  ),
+                  lineTouchData: LineTouchData(
+                    enabled: true,
+                    getTouchedSpotIndicator: (LineChartBarData barData, List<int> spotIndexes) {
+                      return spotIndexes.map((index) {
+                        return TouchedSpotIndicatorData(
+                          FlLine(color: barData.color?.withValues(alpha: 0.5), strokeWidth: 2),
+                          FlDotData(
+                            show: true,
+                            getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
+                              radius: 6,
+                              color: barData.color ?? Theme.of(context).colorScheme.primary,
+                              strokeWidth: 2,
+                              strokeColor: Theme.of(context).colorScheme.surface,
+                            ),
+                          ),
+                        );
+                      }).toList();
+                    },
+                    touchTooltipData: LineTouchTooltipData(
+                      fitInsideHorizontally: true,
+                      getTooltipColor: (touchedSpot) => Theme.of(context).colorScheme.surfaceContainerHighest,
+                      getTooltipItems: (touchedSpots) {
+                        return touchedSpots.map((barSpot) {
+                          final column = validColumns[barSpot.barIndex];
+                          final adjustment = _findAdjustment(column, componentAdjustments, ratingAdjustments, personAdjustments);
+                          final columnName = adjustment?.name ?? column.label;
+                          final unit = adjustment?.unit ?? "";
+                          final formattedY = Adjustment.formatValue(barSpot.y);
+                          
+                          final tooltipStyle = Theme.of(context).textTheme.bodySmall!.copyWith(
+                            color: barSpot.bar.color ?? Theme.of(context).colorScheme.onSurface,
+                            fontWeight: FontWeight.bold,
+                          );
+
+                          if (barSpot.barIndex == 0) {
+                            final setup = chartSetups[barSpot.x.toInt()];
+                            final dateStr = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
+                            return LineTooltipItem(
+                              '${setup.name}\n',
+                              tooltipStyle.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                              children: [
+                                TextSpan(
+                                  text: '$dateStr\n',
+                                  style: tooltipStyle.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant, 
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: '$columnName: $formattedY${unit.isNotEmpty ? " $unit" : ""}',
+                                  style: tooltipStyle,
+                                ),
+                              ],
+                            );
+                          }
+
+                          return LineTooltipItem(
+                            '$columnName: $formattedY${unit.isNotEmpty ? " $unit" : ""}',
+                            tooltipStyle,
+                          );
+                        }).toList();
+                      },
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
-              Wrap(
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Wrap(
                 spacing: 16,
                 runSpacing: 8,
                 alignment: WrapAlignment.center,
@@ -416,22 +432,10 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   final isSelected = _selectedLineChartColumnIndex == index;
                   final isDimmed = _selectedLineChartColumnIndex != null && !isSelected;
                   final color = primaryHSL.withHue((primaryHSL.hue + (index * 45)) % 360).toColor();
-                  final dashPatterns = [
-                    null,           // Solid
-                    [6, 3],         // Dashed
-                    [2, 2],         // Dotted
-                    [10, 4, 2, 4],  // Dash-Dot
-                  ];
-                  final dashArray = dashPatterns[index % dashPatterns.length];
-
-                  final adjustment = switch (column.section) {
-                    TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label),
-                    TableColumnSection.ratingMetrics => ratingAdjustments.firstWhereOrNull((a) => a.id == column.label),
-                    TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == column.label),
-                    _ => null,
-                  };
+                  final dashArray = _dashPatterns[index % _dashPatterns.length];
+                  final adjustment = _findAdjustment(column, componentAdjustments, ratingAdjustments, personAdjustments);
                   final columnName = adjustment?.name ?? column.label;
-
+              
                   return GestureDetector(
                     onTap: () {
                       setState(() {
@@ -479,270 +483,278 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   );
                 }).toList(),
               ),
-              const SizedBox(height: 32),
-              if (validColumns.length < 3)
-                _chartPlaceholder(message: "At least 3 numerical columns are required to generate a radar chart")
-              else
-                Builder(
-                  builder: (context) {
-                    final radarSetups = chartSetups.reversed.take(5).toList();
-                    final featureDefs = validColumns.map((column) {
-                      final adjustment = switch (column.section) {
-                        TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label),
-                        TableColumnSection.ratingMetrics => ratingAdjustments.firstWhereOrNull((a) => a.id == column.label),
-                        TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == column.label),
-                        _ => null,
-                      };
+            ),
+            const SizedBox(height: 16),
+          ],
+        );
+  }
 
-                      double dataMin = double.infinity;
-                      double dataMax = double.negativeInfinity;
-                      for (var setup in chartSetups) {
-                        final rawValue = switch (column.section) {
-                          TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[column.label],
-                          TableColumnSection.ratingMetrics => setup.ratingAdjustmentValues[column.label],
-                          TableColumnSection.personAttributes => setup.personAdjustmentValues[column.label],
-                          _ => null,
-                        };
-                        if (rawValue is num) {
-                          if (rawValue < dataMin) dataMin = rawValue.toDouble();
-                          if (rawValue > dataMax) dataMax = rawValue.toDouble();
-                        }
-                      }
+  Widget _buildRadialChartSection({
+    required BuildContext context,
+    required AppSettings appSettings,
+    required List<TableColumn> activeColumns,
+    required List<Setup> setups,
+    required Iterable<Adjustment> componentAdjustments,
+    required Iterable<Adjustment> personAdjustments,
+    required Iterable<Adjustment> ratingAdjustments,
+  }) {
+    if (!appSettings.enableCharts) return const SizedBox.shrink();
 
-                      if (dataMin == double.infinity) dataMin = 0.0;
-                      if (dataMax == double.negativeInfinity) dataMax = 1.0;
-                      
-                      // Add a small buffer to keep points off the extreme edges
-                      if (dataMin == dataMax) {
-                        dataMin -= 1;
-                        dataMax += 1;
-                      } else {
-                        final range = dataMax - dataMin;
-                        dataMin -= range * 0.05;
-                        dataMax += range * 0.05;
-                      }
+    final activeChartColumns = activeColumns.where((column) {
+      final adjustment = _findAdjustment(column, componentAdjustments, ratingAdjustments, personAdjustments);
+      return adjustment is StepAdjustment || adjustment is NumericalAdjustment;
+    }).toList();
 
-                      return (
-                        column: column,
-                        name: adjustment?.name ?? column.label,
-                        unit: adjustment?.unit ?? "",
-                        min: dataMin,
-                        max: dataMax,
-                      );
-                    }).toList();
+    if (activeChartColumns.isEmpty) {
+      return _chartPlaceholder(message: "Select numerical or step adjustment columns to visualize trends");
+    }
+    if (setups.isEmpty) {
+      return _chartPlaceholder(message: "No setup data available for this component");
+    }
 
-                    return LayoutBuilder(
-                      builder: (context, constraints) {
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Tooltip(
-                                  message: "Only the 5 latest setups of the currently selected setups are shown here. You can tap on legend entries to highlight specific graphs.",
-                                  triggerMode: TooltipTriggerMode.tap,
-                                  padding: const EdgeInsets.all(12),
-                                  margin: const EdgeInsets.symmetric(horizontal: 24),
-                                  showDuration: const Duration(seconds: 5),
-                                  child: Icon(
-                                    Icons.info_outline_rounded,
-                                    size: 16,
-                                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.7),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                              ],
-                            ),
-                            Stack(
-                              children: [
-                                SizedBox(
-                                  height: 350,
-                                  child: RadarChart(
-                                    RadarChartData(
-                                      radarShape: RadarShape.polygon,
-                                      tickCount: 5,
-                                      ticksTextStyle: const TextStyle(color: Colors.transparent),
-                                      gridBorderData: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5), width: 1),
-                                      radarBorderData: const BorderSide(color: Colors.transparent),
-                                      tickBorderData: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3), width: 1),
-                                      titleTextStyle: Theme.of(context).textTheme.bodySmall,
-                                      getTitle: (index, angle) {
-                                        final name = featureDefs[index].name;
-                                        final displayedName = name.length > 15 ? "${name.substring(0, 12)}..." : name;
-                                        return RadarChartTitle(
-                                          text: displayedName,
-                                          angle: 0,
-                                        );
-                                      },
-                                      radarTouchData: RadarTouchData(
-                                        touchCallback: (event, response) {
-                                          if (event.isInterestedForInteractions && response?.touchedSpot != null) {
-                                            setState(() {
-                                              _touchedRadarSpot = response?.touchedSpot;
-                                            });
-                                          } else if (event is FlPointerExitEvent || event is FlTapUpEvent || event is FlPanEndEvent) {
-                                            setState(() {
-                                              _touchedRadarSpot = null;
-                                            });
-                                          }
-                                        },
-                                      ),
-                                      dataSets: radarSetups.mapIndexed((index, setup) {
-                                        final isSelected = _selectedRadarDataSetIndex == null || _selectedRadarDataSetIndex == index;
-                                        final color = primaryHSL.withHue((primaryHSL.hue + (index * 60)) % 360).toColor();
+    final validColumns = activeChartColumns.where((column) {
+      return setups.any((setup) => _rawValue(setup, column) is num);
+    }).toList();
 
-                                        final entries = featureDefs.map((def) {
-                                          final rawValue = switch (def.column.section) {
-                                            TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[def.column.label],
-                                            TableColumnSection.ratingMetrics => setup.ratingAdjustmentValues[def.column.label],
-                                            TableColumnSection.personAttributes => setup.personAdjustmentValues[def.column.label],
-                                            _ => null,
-                                          };
+    if (validColumns.isEmpty) {
+      return _chartPlaceholder(message: "The selected columns do not contain numerical data to plot");
+    }
 
-                                          double normalized = 0.0;
-                                          if (rawValue is num) {
-                                            final v = rawValue.toDouble();
-                                            if (def.max > def.min) {
-                                              normalized = ((v - def.min) / (def.max - def.min)) * 100;
-                                            }
-                                          }
-                                          return RadarEntry(value: normalized.clamp(0.0, 100.0));
-                                        }).toList();
+    final chartSetups = setups.toList()..sort((a, b) => a.datetime.compareTo(b.datetime));
 
-                                        return RadarDataSet(
-                                          dataEntries: entries,
-                                          fillColor: isSelected ? color.withValues(alpha: 0.2) : color.withValues(alpha: 0.05),
-                                          borderColor: isSelected ? color : color.withValues(alpha: 0.25),
-                                          entryRadius: isSelected ? 3 : 2,
-                                          borderWidth: isSelected ? 2 : 1.5,
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ),
-                                ),
-                                if (_touchedRadarSpot != null)
-                                  Positioned(
-                                    left: _touchedRadarSpot!.offset.dx > constraints.maxWidth / 2 ? null : _touchedRadarSpot!.offset.dx,
-                                    right: _touchedRadarSpot!.offset.dx > constraints.maxWidth / 2 ? constraints.maxWidth - _touchedRadarSpot!.offset.dx : null,
-                                    top: _touchedRadarSpot!.offset.dy,
-                                    child: Material(
-                                      elevation: 4,
-                                      borderRadius: BorderRadius.circular(8),
-                                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                        child: Builder(builder: (context) {
-                                          final setup = radarSetups[_touchedRadarSpot!.touchedDataSetIndex];
-                                          final def = featureDefs[_touchedRadarSpot!.touchedRadarEntryIndex];
-                                          final rawValue = switch (def.column.section) {
-                                            TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[def.column.label],
-                                            TableColumnSection.ratingMetrics => setup.ratingAdjustmentValues[def.column.label],
-                                            TableColumnSection.personAttributes => setup.personAdjustmentValues[def.column.label],
-                                            _ => null,
-                                          };
-                                          final formattedVal = Adjustment.formatValue(rawValue);
-                                          final dateStr = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
+    if (chartSetups.length < 2) {
+      return _chartPlaceholder(message: "At least two setups are required to visualize a trend chart");
+    }
 
-                                          return Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                setup.name,
-                                                style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
-                                              ),
-                                              Text(
-                                                dateStr,
-                                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                                  fontSize: 10,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                "${def.name}: $formattedVal${def.unit.isNotEmpty ? " ${def.unit}" : ""}",
-                                                style: Theme.of(context).textTheme.bodySmall,
-                                              ),
-                                            ],
-                                          );
-                                        }),
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            Wrap(
-                              spacing: 12,
-                              runSpacing: 8,
-                              alignment: WrapAlignment.center,
-                              children: radarSetups.mapIndexed((index, setup) {
-                                final isSelected = _selectedRadarDataSetIndex == index;
-                                final isDimmed = _selectedRadarDataSetIndex != null && !isSelected;
-                                final color = primaryHSL.withHue((primaryHSL.hue + (index * 60)) % 360).toColor();
-                                return GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      if (_selectedRadarDataSetIndex == index) {
-                                        _selectedRadarDataSetIndex = null;
-                                      } else {
-                                        _selectedRadarDataSetIndex = index;
-                                      }
-                                    });
+    final primaryHSL = HSLColor.fromColor(Theme.of(context).colorScheme.primary);
+
+    return Column(
+      children: [
+        const SizedBox(height: 16),
+        if (validColumns.length < 3)
+          _chartPlaceholder(message: "At least 3 numerical columns are required to generate a radar chart")
+        else
+          Builder(
+            builder: (context) {
+              final radarSetups = chartSetups.reversed.take(5).toList();
+              final featureDefs = validColumns.map((column) {
+                final adjustment = _findAdjustment(column, componentAdjustments, ratingAdjustments, personAdjustments);
+
+                double dataMin = double.infinity;
+                double dataMax = double.negativeInfinity;
+                for (var setup in chartSetups) {
+                  final rawValue = _rawValue(setup, column);
+                  if (rawValue is num) {
+                    if (rawValue < dataMin) dataMin = rawValue.toDouble();
+                    if (rawValue > dataMax) dataMax = rawValue.toDouble();
+                  }
+                }
+
+                if (dataMin == double.infinity) dataMin = 0.0;
+                if (dataMax == double.negativeInfinity) dataMax = 1.0;
+
+                // Add a small buffer to keep points off the extreme edges
+                if (dataMin == dataMax) {
+                  dataMin -= 1;
+                  dataMax += 1;
+                } else {
+                  final range = dataMax - dataMin;
+                  dataMin -= range * 0.05;
+                  dataMax += range * 0.05;
+                }
+
+                return (
+                  column: column,
+                  name: adjustment?.name ?? column.label,
+                  unit: adjustment?.unit ?? "",
+                  min: dataMin,
+                  max: dataMax,
+                );
+              }).toList();
+
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          SizedBox(
+                            height: 350,
+                            child: RadarChart(
+                              RadarChartData(
+                                radarShape: RadarShape.polygon,
+                                tickCount: 5,
+                                ticksTextStyle: const TextStyle(color: Colors.transparent),
+                                gridBorderData: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5), width: 1),
+                                radarBorderData: const BorderSide(color: Colors.transparent),
+                                tickBorderData: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3), width: 1),
+                                titleTextStyle: Theme.of(context).textTheme.bodySmall,
+                                getTitle: (index, angle) {
+                                  final name = featureDefs[index].name;
+                                  final displayedName = name.length > 15 ? "${name.substring(0, 12)}..." : name;
+                                  return RadarChartTitle(text: displayedName, angle: 0);
+                                },
+                                radarTouchData: RadarTouchData(
+                                  touchCallback: (event, response) {
+                                    if (event.isInterestedForInteractions && response?.touchedSpot != null) {
+                                      setState(() {
+                                        _touchedRadarSpot = response?.touchedSpot;
+                                      });
+                                    } else if (event is FlPointerExitEvent || event is FlTapUpEvent || event is FlPanEndEvent) {
+                                      setState(() {
+                                        _touchedRadarSpot = null;
+                                      });
+                                    }
                                   },
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: isSelected ? color.withValues(alpha: 0.1) : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
+                                ),
+                                dataSets: radarSetups.mapIndexed((index, setup) {
+                                  final isSelected = _selectedRadarDataSetIndex == null || _selectedRadarDataSetIndex == index;
+                                  final color = primaryHSL.withHue((primaryHSL.hue + (index * 60)) % 360).toColor();
+
+                                  final entries = featureDefs.map((def) {
+                                    final rawValue = _rawValue(setup, def.column);
+                                    double normalized = 0.0;
+                                    if (rawValue is num) {
+                                      final v = rawValue.toDouble();
+                                      if (def.max > def.min) {
+                                        normalized = ((v - def.min) / (def.max - def.min)) * 100;
+                                      }
+                                    }
+                                    return RadarEntry(value: normalized.clamp(0.0, 100.0));
+                                  }).toList();
+
+                                  return RadarDataSet(
+                                    dataEntries: entries,
+                                    fillColor: isSelected ? color.withValues(alpha: 0.2) : color.withValues(alpha: 0.05),
+                                    borderColor: isSelected ? color : color.withValues(alpha: 0.25),
+                                    entryRadius: isSelected ? 3 : 2,
+                                    borderWidth: isSelected ? 2 : 1.5,
+                                  );
+                                }).toList(),
+                              ),
+                              duration: Duration.zero,
+                            ),
+                          ),
+                          if (_touchedRadarSpot != null)
+                            Positioned(
+                              left: _touchedRadarSpot!.offset.dx > constraints.maxWidth / 2 ? null : _touchedRadarSpot!.offset.dx,
+                              right: _touchedRadarSpot!.offset.dx > constraints.maxWidth / 2 ? constraints.maxWidth - _touchedRadarSpot!.offset.dx : null,
+                              top: _touchedRadarSpot!.offset.dy,
+                              child: Material(
+                                elevation: 4,
+                                borderRadius: BorderRadius.circular(8),
+                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  child: Builder(builder: (context) {
+                                    final setup = radarSetups[_touchedRadarSpot!.touchedDataSetIndex];
+                                    final def = featureDefs[_touchedRadarSpot!.touchedRadarEntryIndex];
+                                    final rawValue = _rawValue(setup, def.column);
+                                    final formattedVal = Adjustment.formatValue(rawValue);
+                                    final dateStr = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
+
+                                    return Column(
                                       mainAxisSize: MainAxisSize.min,
-                                      spacing: 4,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Opacity(
-                                          opacity: isDimmed ? 0.3 : 1.0,
-                                          child: Container(
-                                            width: 12,
-                                            height: 12,
-                                            decoration: BoxDecoration(
-                                              color: color,
-                                              shape: BoxShape.circle,
-                                            ),
+                                        Text(
+                                          setup.name,
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                          dateStr,
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                            fontSize: 10,
                                           ),
                                         ),
-                                        Flexible(
-                                          child: Opacity(
-                                            opacity: isDimmed ? 0.3 : 1.0,
-                                            child: Text(
-                                              setup.name,
-                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                                color: isSelected ? color : null,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          "${def.name}: $formattedVal${def.unit.isNotEmpty ? " ${def.unit}" : ""}",
+                                          style: Theme.of(context).textTheme.bodySmall,
                                         ),
                                       ],
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
+                                    );
+                                  }),
+                                ),
+                              ),
                             ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                ),
-              ],
-            );
-          },
-        ),
-    ];
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Wrap(
+                          spacing: 12,
+                          runSpacing: 8,
+                          alignment: WrapAlignment.center,
+                          children: radarSetups.mapIndexed((index, setup) {
+                            final isSelected = _selectedRadarDataSetIndex == index;
+                            final isDimmed = _selectedRadarDataSetIndex != null && !isSelected;
+                            final color = primaryHSL.withHue((primaryHSL.hue + (index * 60)) % 360).toColor();
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  if (_selectedRadarDataSetIndex == index) {
+                                    _selectedRadarDataSetIndex = null;
+                                  } else {
+                                    _selectedRadarDataSetIndex = index;
+                                  }
+                                });
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: isSelected ? color.withValues(alpha: 0.1) : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  spacing: 4,
+                                  children: [
+                                    Opacity(
+                                      opacity: isDimmed ? 0.3 : 1.0,
+                                      child: Container(
+                                        width: 12,
+                                        height: 12,
+                                        decoration: BoxDecoration(
+                                          color: color,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                    Flexible(
+                                      child: Opacity(
+                                        opacity: isDimmed ? 0.3 : 1.0,
+                                        child: Text(
+                                          setup.name,
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                            color: isSelected ? color : null,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        const SizedBox(height: 16),
+      ],
+    );
   }
 
   @override
@@ -849,69 +861,70 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (appSettings.enableStrava && appSettings.enableInstallationTimeline)
-                ComponentStatsCard(componentStats: ComponentStats(
-                  distance: component.totalDistance,
-                  elevationGain: component.totalElevationGain,
-                  movingTime: component.totalMovingTime,
-                  elapsedTime: component.totalElapsedTime,
-                  activityCount: component.totalActivityCount,
-                )),
-              if (component.notes != null)
-                Card.outlined(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  child: ListTile(
-                    leading: const Icon(Icons.notes),
-                    titleAlignment: ListTileTitleAlignment.top,
-                    title: SelectableText(component.notes!),
-                    dense: true,
-                  ),
-                ),
-              if (appSettings.enableInstallationTimeline)
-                Card.outlined(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  child: ExpansionTile(
-                    shape: const Border(),
-                    collapsedShape: const Border(),
-                    title: const Text("Installation History"),
-                    leading: const Icon(Icons.history),
-                    childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    children: [
-                      DisplayInstallationTimeline(component: component),
-                    ],
-                  ),
-                ),
-              if (appSettings.enableTask) () {
-                final openTasks = appRepository.taskRules.values.where((rule) {
-                  if (rule.componentId != widget.componentId) return false;
-                  final status = appRepository.getTaskRuleStatus(rule);
-                  return status.type != TaskStatusType.completed;
-                }).map((rule) => TaskRuleWithStatus(rule: rule, status: appRepository.getTaskRuleStatus(rule))).toList();
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    if (appSettings.enableStrava && appSettings.enableInstallationTimeline)
+                      ComponentStatsCard(componentStats: ComponentStats(
+                        distance: component.totalDistance,
+                        elevationGain: component.totalElevationGain,
+                        movingTime: component.totalMovingTime,
+                        elapsedTime: component.totalElapsedTime,
+                        activityCount: component.totalActivityCount,
+                      )),
+                    if (component.notes != null)
+                      Card.outlined(
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        child: ListTile(
+                          leading: const Icon(Icons.notes),
+                          titleAlignment: ListTileTitleAlignment.top,
+                          title: SelectableText(component.notes!),
+                          dense: true,
+                        ),
+                      ),
+                    if (appSettings.enableInstallationTimeline)
+                      Card.outlined(
+                        margin: const EdgeInsets.symmetric(vertical: 4),
+                        child: ExpansionTile(
+                          shape: const Border(),
+                          collapsedShape: const Border(),
+                          title: const Text("Installation History"),
+                          leading: const Icon(Icons.history),
+                          childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
+                          children: [
+                            DisplayInstallationTimeline(component: component),
+                          ],
+                        ),
+                      ),
+                    if (appSettings.enableTask) () {
+                      final openTasks = appRepository.taskRules.values.where((rule) {
+                        if (rule.componentId != widget.componentId) return false;
+                        final status = appRepository.getTaskRuleStatus(rule);
+                        return status.type != TaskStatusType.completed;
+                      }).map((rule) => TaskRuleWithStatus(rule: rule, status: appRepository.getTaskRuleStatus(rule))).toList();
 
-                openTasks.sort((a, b) {
-                  if (a.status.type != b.status.type) {
-                    return b.status.type.index.compareTo(a.status.type.index);
-                  }
-                  return b.status.progress.compareTo(a.status.progress);
-                });
+                      openTasks.sort((a, b) {
+                        if (a.status.type != b.status.type) {
+                          return b.status.type.index.compareTo(a.status.type.index);
+                        }
+                        return b.status.progress.compareTo(a.status.progress);
+                      });
 
-                return OpenTasksCard(openTasks: openTasks, repository: appRepository);
-              }(),
-              
-              const SizedBox(height: 16),
-              Text("Adjustment History".toUpperCase(), style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold, 
-                letterSpacing: 1.2, 
-                color: Theme.of(context).colorScheme.primary
-              )),
-              const SizedBox(height: 8),
+                      return OpenTasksCard(openTasks: openTasks, repository: appRepository);
+                    }(),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              _sectionTitle("Adjustment History"),
 
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   spacing: 6,
                   children: [
@@ -935,10 +948,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 8),
-
               if (activeColumns.isNotEmpty)
                 SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   scrollDirection: Axis.horizontal,
                   child: DataTable(
                     sortAscending: _sortAscending,
@@ -961,12 +973,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                             },
                           );
                         case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes || TableColumnSection.ratingMetrics:
-                          final Adjustment? adjustment = switch (column.section) {
-                            TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label),
-                            TableColumnSection.ratingMetrics => ratingAdjustments.firstWhereOrNull((a) => a.id == column.label),
-                            TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == column.label),
-                            _ => null,
-                          };
+                          final adjustment = _findAdjustment(column, componentAdjustments, ratingAdjustments, personAdjustments);
                           return DataColumn(
                             label: Text(
                               (adjustment?.name ?? "-") + (adjustment?.unit != null ? " [${adjustment!.unit}]" : ""),
@@ -1009,12 +1016,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                                 _ => const DataCell(Text("ERROR")),
                               };
                             case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes || TableColumnSection.ratingMetrics:
-                              final value = switch (column.section) {
-                                TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[column.label],
-                                TableColumnSection.ratingMetrics => setup.ratingAdjustmentValues[column.label],
-                                TableColumnSection.personAttributes => setup.personAdjustmentValues[column.label],
-                                _ => null,
-                              };
+                              final value = _rawValue(setup, column);
                               final initialValue = switch (column.section) {
                                 TableColumnSection.componentAdjustments => setup.previousBikeAdjustmentValues[column.label],
                                 TableColumnSection.ratingMetrics => setup.previousRatingAdjustmentValues[column.label],
@@ -1050,7 +1052,23 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 _noSetupsPlaceholder(hasAdjustments: component.adjustments.isNotEmpty),
               if (activeColumns.isNotEmpty && setups.isNotEmpty)
                 const InitialChangedValueLegend(),
-              ..._buildChartSection(
+              const SizedBox(height: 16),
+
+              const Divider(height: 1),
+              _sectionTitle("Line Chart"),
+              _buildLineChartSection(
+                context: context,
+                appSettings: appSettings,
+                activeColumns: activeColumns,
+                setups: setups,
+                componentAdjustments: componentAdjustments,
+                personAdjustments: personAdjustments,
+                ratingAdjustments: ratingAdjustments,
+              ),
+
+              const Divider(height: 1),
+              _sectionTitle("Radial Chart", infoText: "Only the 5 latest setups of the currently selected setups are shown here. You can tap on legend entries to highlight specific graphs."),
+              _buildRadialChartSection(
                 context: context,
                 appSettings: appSettings,
                 activeColumns: activeColumns,

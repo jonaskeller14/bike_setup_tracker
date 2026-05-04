@@ -290,14 +290,15 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                           onTap: () => launchUrlString('https://www.mapbox.com/about/maps/'),
                         ),
                         TextSourceAttribution(
-                          '© Mapbox',
+                          'Mapbox',
                           onTap: () => launchUrlString('https://www.mapbox.com/about/maps/'),
                         ),
                         TextSourceAttribution(
-                          '© OpenStreetMap',
+                          'OpenStreetMap',
                           onTap: () => launchUrlString('https://www.openstreetmap.org/copyright'),
                         ),
                         TextSourceAttribution(
+                          prependCopyright: false,
                           'Improve this map',
                           onTap: () => launchUrlString('https://www.mapbox.com/map-feedback/'),
                         ),

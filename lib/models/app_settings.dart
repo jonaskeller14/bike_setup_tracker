@@ -21,7 +21,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableTask = false;
   static const bool _enableTaskInterval = false;
   bool _enableInstallationTimeline = false;
-  static const bool _enableCharts = false;
+  static const bool _enableCharts = true;
   static const bool _useMapBoxTiles = false;
 
   // Temporary Settings

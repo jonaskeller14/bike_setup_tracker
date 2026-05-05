@@ -385,6 +385,257 @@ void main() {
     expect(find.text('Rebound'), findsNothing);
     expect(find.text('New Volume Spacers'), findsOneWidget);
   });
+
+  // ── Row selection ──────────────────────────────────────────────────────────
+
+  testWidgets('initially selects the 5 most recent setups', (WidgetTester tester) async {
+    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+      await appRepository.addComponent(Component(
+        id: 'comp1', name: 'Test Fork',
+        installations: [Installation.sinceBeginning(parent: 'bike1')],
+        componentType: ComponentType.fork,
+        adjustments: [adjustment],
+      ));
+      for (int i = 1; i <= 7; i++) {
+        await appRepository.addSetup(Setup(
+          id: 's$i', name: 'Setup $i',
+          datetime: DateTime(2024, 1, i).toUtc(), datetimeLocal: DateTime(2024, 1, i),
+          tags: {}, bike: 'bike1', person: null,
+          bikeAdjustmentValues: {'adj1': i},
+          personAdjustmentValues: {}, ratingAdjustmentValues: {},
+        ));
+      }
+    });
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await tester.runAsync(() async {
+      int attempts = 0;
+      while (appRepository.components['comp1'] == null && attempts < 10) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        attempts++;
+      }
+    });
+    await tester.pumpAndSettle();
+
+    // Header checkbox is null/tristate when only some rows are selected, so
+    // only the 5 selected row checkboxes register as true.
+    expect(find.byWidgetPredicate((w) => w is Checkbox && w.value == true), findsNWidgets(5));
+    expect(find.byWidgetPredicate((w) => w is Checkbox && w.value == false), findsNWidgets(2));
+  });
+
+  testWidgets('tapping a selected row deselects it', (WidgetTester tester) async {
+    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+      await appRepository.addComponent(Component(
+        id: 'comp1', name: 'Test Fork',
+        installations: [Installation.sinceBeginning(parent: 'bike1')],
+        componentType: ComponentType.fork,
+        adjustments: [adjustment],
+      ));
+      await appRepository.addSetup(Setup(id: 's1', name: 'Setup Old', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's2', name: 'Setup New', datetime: DateTime(2024, 2, 1).toUtc(), datetimeLocal: DateTime(2024, 2, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 7}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+    });
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await tester.runAsync(() async {
+      int attempts = 0;
+      while (appRepository.components['comp1'] == null && attempts < 10) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        attempts++;
+      }
+    });
+    await tester.pumpAndSettle();
+
+    // Both rows selected: header (true) + 2 rows (true) = 3 true checkboxes
+    expect(find.byWidgetPredicate((w) => w is Checkbox && w.value == true), findsNWidgets(3));
+
+    // With 1 StepAdjustment (<3 required for radar), setup names only appear in the
+    // DataTable — not in chart legends — so the finder is unambiguous.
+    await tester.tap(find.text('Setup Old'));
+    await tester.pumpAndSettle();
+
+    // 1 row selected (true), 1 deselected (false); header becomes null (tristate)
+    expect(find.byWidgetPredicate((w) => w is Checkbox && w.value == true), findsNWidgets(1));
+    expect(find.byWidgetPredicate((w) => w is Checkbox && w.value == false), findsNWidgets(1));
+    // Line chart requires at least 2 selected setups
+    expect(find.text('Select at least two setups in the table to visualize a trend'), findsOneWidget);
+  });
+
+  testWidgets('tapping an unselected row selects it', (WidgetTester tester) async {
+    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+      await appRepository.addComponent(Component(
+        id: 'comp1', name: 'Test Fork',
+        installations: [Installation.sinceBeginning(parent: 'bike1')],
+        componentType: ComponentType.fork,
+        adjustments: [adjustment],
+      ));
+      await appRepository.addSetup(Setup(id: 's1', name: 'Setup Old', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's2', name: 'Setup New', datetime: DateTime(2024, 2, 1).toUtc(), datetimeLocal: DateTime(2024, 2, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 7}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+    });
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await tester.runAsync(() async {
+      int attempts = 0;
+      while (appRepository.components['comp1'] == null && attempts < 10) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        attempts++;
+      }
+    });
+    await tester.pumpAndSettle();
+
+    // Both rows are initially selected: header (true) + 2 rows (true) = 3 true checkboxes
+    expect(find.byWidgetPredicate((w) => w is Checkbox && w.value == true), findsNWidgets(3));
+
+    // Deselect one row
+    await tester.tap(find.text('Setup Old'));
+    await tester.pumpAndSettle();
+
+    // 1 selected (true), 1 deselected (false); header becomes null (tristate)
+    expect(find.byWidgetPredicate((w) => w is Checkbox && w.value == false), findsNWidgets(1));
+
+    // Reselect it by tapping its (now unchecked) leading checkbox — the checkbox column
+    // is the leftmost column and always on-screen, so this avoids any scroll-position issues.
+    await tester.tap(find.byWidgetPredicate((w) => w is Checkbox && w.value == false));
+    await tester.pumpAndSettle();
+
+    // Both rows selected again: header (true) + 2 rows (true) = 3 true checkboxes
+    expect(find.byWidgetPredicate((w) => w is Checkbox && w.value == true), findsNWidgets(3));
+    expect(find.byWidgetPredicate((w) => w is Checkbox && w.value == false), findsNothing);
+  });
+
+  // ── Chart placeholders ─────────────────────────────────────────────────────
+
+  testWidgets('line and radar charts show placeholder when no numerical columns are active', (WidgetTester tester) async {
+    final adjustment = CategoricalAdjustment(id: 'adj1', name: 'Tire Brand', notes: '', unit: null, category: AdjustmentCategory.component, options: {'Brand A', 'Brand B'});
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+      await appRepository.addComponent(Component(
+        id: 'comp1', name: 'Test Fork',
+        installations: [Installation.sinceBeginning(parent: 'bike1')],
+        componentType: ComponentType.fork,
+        adjustments: [adjustment],
+      ));
+      await appRepository.addSetup(Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 'Brand A'}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+    });
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await tester.runAsync(() async {
+      int attempts = 0;
+      while (appRepository.components['comp1'] == null && attempts < 10) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        attempts++;
+      }
+    });
+    await tester.pumpAndSettle();
+
+    // Both chart sections show this placeholder since categorical values cannot be plotted
+    expect(find.text('Select numerical or step adjustment columns to visualize trends'), findsNWidgets(2));
+  });
+
+  testWidgets('line and radar charts show placeholder when no setups are selected', (WidgetTester tester) async {
+    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+      await appRepository.addComponent(Component(
+        id: 'comp1', name: 'Test Fork',
+        installations: [Installation.sinceBeginning(parent: 'bike1')],
+        componentType: ComponentType.fork,
+        adjustments: [adjustment],
+      ));
+      await appRepository.addSetup(Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+    });
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await tester.runAsync(() async {
+      int attempts = 0;
+      while (appRepository.components['comp1'] == null && attempts < 10) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        attempts++;
+      }
+    });
+    await tester.pumpAndSettle();
+
+    // Deselect both rows; setup names only appear in DataTable (radar shows placeholder)
+    await tester.tap(find.text('Setup 1'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Setup 2'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Select setups in the table above to visualize the chart'), findsNWidgets(2));
+  });
+
+  testWidgets('line chart shows placeholder when fewer than 2 setups are selected', (WidgetTester tester) async {
+    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+      await appRepository.addComponent(Component(
+        id: 'comp1', name: 'Test Fork',
+        installations: [Installation.sinceBeginning(parent: 'bike1')],
+        componentType: ComponentType.fork,
+        adjustments: [adjustment],
+      ));
+      await appRepository.addSetup(Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+    });
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await tester.runAsync(() async {
+      int attempts = 0;
+      while (appRepository.components['comp1'] == null && attempts < 10) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        attempts++;
+      }
+    });
+    await tester.pumpAndSettle();
+
+    // Deselect one row, leaving only 1 selected
+    await tester.tap(find.text('Setup 1'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Select at least two setups in the table to visualize a trend'), findsOneWidget);
+  });
+
+  testWidgets('radar chart shows placeholder when fewer than 3 numerical columns are active', (WidgetTester tester) async {
+    // 2 numerical columns < 3 required for a radar chart
+    final adj1 = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
+    final adj2 = StepAdjustment(id: 'adj2', name: 'Compression', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
+      await appRepository.addComponent(Component(
+        id: 'comp1', name: 'Test Fork',
+        installations: [Installation.sinceBeginning(parent: 'bike1')],
+        componentType: ComponentType.fork,
+        adjustments: [adj1, adj2],
+      ));
+      await appRepository.addSetup(Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3, 'adj2': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 4, 'adj2': 7}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+    });
+    appRepository.dispose();
+    appRepository = AppRepository(database);
+    await tester.pumpWidget(createWidgetUnderTest('comp1'));
+    await tester.runAsync(() async {
+      int attempts = 0;
+      while (appRepository.components['comp1'] == null && attempts < 10) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        attempts++;
+      }
+    });
+    await tester.pumpAndSettle();
+
+    expect(find.text('At least 3 numerical columns are required to generate a radar chart'), findsOneWidget);
+  });
 }
 
 Future<void> _waitForRepositoryUpdate(WidgetTester tester) async {

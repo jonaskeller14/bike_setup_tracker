@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__dart_flutter__analyze_files"
+    ]
+  }
+}

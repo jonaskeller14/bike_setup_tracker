@@ -34,8 +34,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   bool _sortAscending = true;
   TableColumn? _sortColumn;
   RadarTouchedSpot? _touchedRadarSpot;
-  int? _selectedRadarDataSetIndex;
-  int? _selectedLineChartColumnIndex;
+  String? _selectedRadarSetupId;
+  TableColumn? _selectedLineChartColumn;
+  Set<String>? _selectedSetupIds;
 
   static const bool _highlighting = true;
 
@@ -175,7 +176,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   Widget _emptyStatePlaceholder({required IconData icon, required String message}) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 40),
+        padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 12,
@@ -185,15 +186,12 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               size: 64,
               color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40.0),
-              child: Text(
-                message,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-                  height: 1.5,
-                ),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                height: 1.5,
               ),
             ),
           ],
@@ -261,6 +259,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     required AppSettings appSettings,
     required List<TableColumn> activeColumns,
     required List<Setup> setups,
+    required List<Setup> selectedSetups,
     required Iterable<Adjustment> componentAdjustments,
     required Iterable<Adjustment> personAdjustments,
     required Iterable<Adjustment> ratingAdjustments,
@@ -278,19 +277,22 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     if (setups.isEmpty) {
       return _chartPlaceholder(message: "No setup data available for this component");
     }
+    if (selectedSetups.isEmpty) {
+      return _chartPlaceholder(message: "Select setups in the table above to visualize the chart");
+    }
 
     final validColumns = activeChartColumns.where((column) {
-      return setups.any((setup) => _rawValue(setup, column) is num);
+      return selectedSetups.any((setup) => _rawValue(setup, column) is num);
     }).toList();
 
     if (validColumns.isEmpty) {
       return _chartPlaceholder(message: "The selected columns do not contain numerical data to plot");
     }
 
-    final chartSetups = setups.toList()..sort((a, b) => a.datetime.compareTo(b.datetime));
+    final chartSetups = selectedSetups;
 
     if (chartSetups.length < 2) {
-      return _chartPlaceholder(message: "At least two setups are required to visualize a trend chart");
+      return _chartPlaceholder(message: "Select at least two setups in the table to visualize a trend");
     }
 
     final primaryHSL = HSLColor.fromColor(Theme.of(context).colorScheme.primary);
@@ -304,7 +306,8 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
           child: LineChart(
             LineChartData(
               lineBarsData: validColumns.mapIndexed((index, column) {
-                final isSelected = _selectedLineChartColumnIndex == null || _selectedLineChartColumnIndex == index;
+                final effectiveSelectedColumn = validColumns.contains(_selectedLineChartColumn) ? _selectedLineChartColumn : null;
+                final isSelected = effectiveSelectedColumn == null || effectiveSelectedColumn == column;
                 final color = primaryHSL.withHue((primaryHSL.hue + (index * 45)) % 360).toColor();
                 return LineChartBarData(
                   spots: chartSetups.asMap().entries.map((entry) {
@@ -429,8 +432,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 runSpacing: 8,
                 alignment: WrapAlignment.center,
                 children: validColumns.mapIndexed((index, column) {
-                  final isSelected = _selectedLineChartColumnIndex == index;
-                  final isDimmed = _selectedLineChartColumnIndex != null && !isSelected;
+                  final effectiveSelectedColumn = validColumns.contains(_selectedLineChartColumn) ? _selectedLineChartColumn : null;
+                  final isSelected = effectiveSelectedColumn == column;
+                  final isDimmed = effectiveSelectedColumn != null && !isSelected;
                   final color = primaryHSL.withHue((primaryHSL.hue + (index * 45)) % 360).toColor();
                   final dashArray = _dashPatterns[index % _dashPatterns.length];
                   final adjustment = _findAdjustment(column, componentAdjustments, ratingAdjustments, personAdjustments);
@@ -439,10 +443,10 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   return GestureDetector(
                     onTap: () {
                       setState(() {
-                        if (_selectedLineChartColumnIndex == index) {
-                          _selectedLineChartColumnIndex = null;
+                        if (_selectedLineChartColumn == column) {
+                          _selectedLineChartColumn = null;
                         } else {
-                          _selectedLineChartColumnIndex = index;
+                          _selectedLineChartColumn = column;
                         }
                       });
                     },
@@ -494,6 +498,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     required AppSettings appSettings,
     required List<TableColumn> activeColumns,
     required List<Setup> setups,
+    required List<Setup> selectedSetups,
     required Iterable<Adjustment> componentAdjustments,
     required Iterable<Adjustment> personAdjustments,
     required Iterable<Adjustment> ratingAdjustments,
@@ -511,20 +516,20 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     if (setups.isEmpty) {
       return _chartPlaceholder(message: "No setup data available for this component");
     }
+    if (selectedSetups.isEmpty) {
+      return _chartPlaceholder(message: "Select setups in the table above to visualize the chart");
+    }
 
     final validColumns = activeChartColumns.where((column) {
-      return setups.any((setup) => _rawValue(setup, column) is num);
+      return selectedSetups.any((setup) => _rawValue(setup, column) is num);
     }).toList();
 
     if (validColumns.isEmpty) {
       return _chartPlaceholder(message: "The selected columns do not contain numerical data to plot");
     }
 
+    // chartSetups covers all data for stable axis normalization
     final chartSetups = setups.toList()..sort((a, b) => a.datetime.compareTo(b.datetime));
-
-    if (chartSetups.length < 2) {
-      return _chartPlaceholder(message: "At least two setups are required to visualize a trend chart");
-    }
 
     final primaryHSL = HSLColor.fromColor(Theme.of(context).colorScheme.primary);
 
@@ -536,7 +541,8 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
         else
           Builder(
             builder: (context) {
-              final radarSetups = chartSetups.reversed.take(5).toList();
+              final radarSetups = selectedSetups;
+              final effectiveSelectedSetupId = radarSetups.any((s) => s.id == _selectedRadarSetupId) ? _selectedRadarSetupId : null;
               final featureDefs = validColumns.map((column) {
                 final adjustment = _findAdjustment(column, componentAdjustments, ratingAdjustments, personAdjustments);
 
@@ -602,7 +608,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                                       setState(() {
                                         _touchedRadarSpot = response?.touchedSpot;
                                       });
-                                    } else if (event is FlPointerExitEvent || event is FlTapUpEvent || event is FlPanEndEvent) {
+                                    } else if (event is FlPointerExitEvent || event is FlPanEndEvent) {
                                       setState(() {
                                         _touchedRadarSpot = null;
                                       });
@@ -610,7 +616,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                                   },
                                 ),
                                 dataSets: radarSetups.mapIndexed((index, setup) {
-                                  final isSelected = _selectedRadarDataSetIndex == null || _selectedRadarDataSetIndex == index;
+                                  final isSelected = effectiveSelectedSetupId == null || effectiveSelectedSetupId == setup.id;
                                   final color = primaryHSL.withHue((primaryHSL.hue + (index * 60)) % 360).toColor();
 
                                   final entries = featureDefs.map((def) {
@@ -691,16 +697,16 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                           runSpacing: 8,
                           alignment: WrapAlignment.center,
                           children: radarSetups.mapIndexed((index, setup) {
-                            final isSelected = _selectedRadarDataSetIndex == index;
-                            final isDimmed = _selectedRadarDataSetIndex != null && !isSelected;
+                            final isSelected = effectiveSelectedSetupId == setup.id;
+                            final isDimmed = effectiveSelectedSetupId != null && !isSelected;
                             final color = primaryHSL.withHue((primaryHSL.hue + (index * 60)) % 360).toColor();
                             return GestureDetector(
                               onTap: () {
                                 setState(() {
-                                  if (_selectedRadarDataSetIndex == index) {
-                                    _selectedRadarDataSetIndex = null;
+                                  if (_selectedRadarSetupId == setup.id) {
+                                    _selectedRadarSetupId = null;
                                   } else {
-                                    _selectedRadarDataSetIndex = index;
+                                    _selectedRadarSetupId = setup.id;
                                   }
                                 });
                               },
@@ -841,6 +847,11 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       bikes: bikes,
     );
 
+    _selectedSetupIds ??= (setups.toList()..sort((a, b) => b.datetime.compareTo(a.datetime)))
+        .take(5).map((s) => s.id).toSet();
+    _selectedSetupIds!.removeWhere((id) => !setups.any((s) => s.id == id));
+    final selectedSetups = setups.where((s) => _selectedSetupIds!.contains(s.id)).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -920,7 +931,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 ),
               ),
               const Divider(height: 1),
-              _sectionTitle("Adjustment History"),
+              _sectionTitle("Adjustment History", infoText: "Add or remove columns via the Columns button. Use the filter button to narrow down by bike or tags. Select rows to compare specific setups in the charts below. Green values are new (no prior value), orange values have changed from the previous setup."),
 
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -990,6 +1001,16 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                     }).toList(),
                     rows: setups.map((setup) {
                       return DataRow(
+                        selected: _selectedSetupIds!.contains(setup.id),
+                        onSelectChanged: (bool? selected) {
+                          setState(() {
+                            if (selected == true) {
+                              _selectedSetupIds!.add(setup.id);
+                            } else {
+                              _selectedSetupIds!.remove(setup.id);
+                            }
+                          });
+                        },
                         cells: activeColumns.map((column) {
                           switch (column.section) {
                             case TableColumnSection.generalContext:
@@ -1055,24 +1076,26 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               const SizedBox(height: 16),
 
               const Divider(height: 1),
-              _sectionTitle("Line Chart"),
+              _sectionTitle("Line Chart", infoText: "Shows the setups selected in the table above in their current sort order. The y-axis represents adjustment values. Select at least two setups to display a trend. Tap legend entries to highlight a specific line."),
               _buildLineChartSection(
                 context: context,
                 appSettings: appSettings,
                 activeColumns: activeColumns,
                 setups: setups,
+                selectedSetups: selectedSetups,
                 componentAdjustments: componentAdjustments,
                 personAdjustments: personAdjustments,
                 ratingAdjustments: ratingAdjustments,
               ),
 
               const Divider(height: 1),
-              _sectionTitle("Radial Chart", infoText: "Only the 5 latest setups of the currently selected setups are shown here. You can tap on legend entries to highlight specific graphs."),
+              _sectionTitle("Radial Chart", infoText: "Shows the setups selected in the table above. Axes are normalized across all data for stable comparison. Tap legend entries to highlight specific graphs."),
               _buildRadialChartSection(
                 context: context,
                 appSettings: appSettings,
                 activeColumns: activeColumns,
                 setups: setups,
+                selectedSetups: selectedSetups,
                 componentAdjustments: componentAdjustments,
                 personAdjustments: personAdjustments,
                 ratingAdjustments: ratingAdjustments,

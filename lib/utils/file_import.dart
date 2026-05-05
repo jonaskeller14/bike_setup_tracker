@@ -51,7 +51,7 @@ class FileImport {
   static Future<ReadJsonFileResult> pickAndReadJsonFile({required AppDatabase appDatabase}) async {
     try {
       // Step 1 — pick a file
-      final picked = await FilePicker.platform.pickFiles(
+      final picked = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );

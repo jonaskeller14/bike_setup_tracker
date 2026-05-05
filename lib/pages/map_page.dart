@@ -242,11 +242,12 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                     ),
                   MarkerClusterLayerWidget(
                     options: MarkerClusterLayerOptions(
+                      showPolygon: false,
                       maxClusterRadius: 45,
                       size: const Size(40, 40),
                       alignment: Alignment.center,
                       padding: const EdgeInsets.all(50),
-                      maxZoom: 15,
+                      maxZoom: 18,
                       markers: clusterMarkers,
                       builder: (context, markers) {
                         return Container(

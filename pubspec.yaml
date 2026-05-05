@@ -106,6 +106,7 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
+    - assets/icons/logo_256.png
     - assets/icons/logo_1024.png
     - assets/icons/logo_1024_white.png
     - assets/strava/1.2-Strava-API-Logos/1.2-Strava-API-Logos/Powered by Strava/pwrdBy_strava_orange/api_logo_pwrdBy_strava_stack_orange.png

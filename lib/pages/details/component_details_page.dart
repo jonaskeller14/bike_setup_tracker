@@ -588,8 +588,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                       Stack(
                         clipBehavior: Clip.none,
                         children: [
-                          SizedBox(
+                          Container(
                             height: 350,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: RadarChart(
                               RadarChartData(
                                 radarShape: RadarShape.polygon,

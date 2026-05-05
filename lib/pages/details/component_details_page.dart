@@ -33,7 +33,9 @@ class ComponentDetailsPage extends StatefulWidget{
 class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   bool _sortAscending = true;
   TableColumn? _sortColumn;
-  RadarTouchedSpot? _touchedRadarSpot;
+  Offset? _touchedRadarOffset;
+  String? _touchedRadarSetupId;
+  TableColumn? _touchedRadarColumn;
   String? _selectedRadarSetupId;
   TableColumn? _selectedLineChartColumn;
   Set<String>? _selectedSetupIds;
@@ -604,13 +606,22 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                                 },
                                 radarTouchData: RadarTouchData(
                                   touchCallback: (event, response) {
-                                    if (event.isInterestedForInteractions && response?.touchedSpot != null) {
-                                      setState(() {
-                                        _touchedRadarSpot = response?.touchedSpot;
-                                      });
+                                    final spot = response?.touchedSpot;
+                                    if (event.isInterestedForInteractions && spot != null) {
+                                      final dataSetIndex = spot.touchedDataSetIndex;
+                                      final entryIndex = spot.touchedRadarEntryIndex;
+                                      if (dataSetIndex < radarSetups.length && entryIndex < featureDefs.length) {
+                                        setState(() {
+                                          _touchedRadarOffset = spot.offset;
+                                          _touchedRadarSetupId = radarSetups[dataSetIndex].id;
+                                          _touchedRadarColumn = featureDefs[entryIndex].column;
+                                        });
+                                      }
                                     } else if (event is FlPointerExitEvent || event is FlPanEndEvent) {
                                       setState(() {
-                                        _touchedRadarSpot = null;
+                                        _touchedRadarOffset = null;
+                                        _touchedRadarSetupId = null;
+                                        _touchedRadarColumn = null;
                                       });
                                     }
                                   },
@@ -643,25 +654,25 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                               duration: Duration.zero,
                             ),
                           ),
-                          if (_touchedRadarSpot != null)
-                            Positioned(
-                              left: _touchedRadarSpot!.offset.dx > constraints.maxWidth / 2 ? null : _touchedRadarSpot!.offset.dx,
-                              right: _touchedRadarSpot!.offset.dx > constraints.maxWidth / 2 ? constraints.maxWidth - _touchedRadarSpot!.offset.dx : null,
-                              top: _touchedRadarSpot!.offset.dy,
-                              child: Material(
-                                elevation: 4,
-                                borderRadius: BorderRadius.circular(8),
-                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  child: Builder(builder: (context) {
-                                    final setup = radarSetups[_touchedRadarSpot!.touchedDataSetIndex];
-                                    final def = featureDefs[_touchedRadarSpot!.touchedRadarEntryIndex];
-                                    final rawValue = _rawValue(setup, def.column);
-                                    final formattedVal = Adjustment.formatValue(rawValue);
-                                    final dateStr = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
-
-                                    return Column(
+                          if (_touchedRadarOffset != null && _touchedRadarSetupId != null && _touchedRadarColumn != null)
+                            Builder(builder: (context) {
+                              final setup = radarSetups.firstWhereOrNull((s) => s.id == _touchedRadarSetupId);
+                              final def = featureDefs.firstWhereOrNull((d) => d.column == _touchedRadarColumn);
+                              if (setup == null || def == null) return const SizedBox.shrink();
+                              final rawValue = _rawValue(setup, def.column);
+                              final formattedVal = Adjustment.formatValue(rawValue);
+                              final dateStr = DateFormat(appSettings.dateFormat).format(setup.datetimeLocal);
+                              return Positioned(
+                                left: _touchedRadarOffset!.dx > constraints.maxWidth / 2 ? null : _touchedRadarOffset!.dx,
+                                right: _touchedRadarOffset!.dx > constraints.maxWidth / 2 ? constraints.maxWidth - _touchedRadarOffset!.dx : null,
+                                top: _touchedRadarOffset!.dy,
+                                child: Material(
+                                  elevation: 4,
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
@@ -682,11 +693,11 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                                           style: Theme.of(context).textTheme.bodySmall,
                                         ),
                                       ],
-                                    );
-                                  }),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
+                              );
+                            }),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -1008,6 +1019,11 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                               _selectedSetupIds!.add(setup.id);
                             } else {
                               _selectedSetupIds!.remove(setup.id);
+                              if (_touchedRadarSetupId == setup.id) {
+                                _touchedRadarOffset = null;
+                                _touchedRadarSetupId = null;
+                                _touchedRadarColumn = null;
+                              }
                             }
                           });
                         },

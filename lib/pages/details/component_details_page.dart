@@ -266,8 +266,6 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     required Iterable<Adjustment> personAdjustments,
     required Iterable<Adjustment> ratingAdjustments,
   }) {
-    if (!appSettings.enableCharts) return const SizedBox.shrink();
-
     final activeChartColumns = activeColumns.where((column) {
       final adjustment = _findAdjustment(column, componentAdjustments, ratingAdjustments, personAdjustments);
       return adjustment is StepAdjustment || adjustment is NumericalAdjustment;
@@ -505,8 +503,6 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     required Iterable<Adjustment> personAdjustments,
     required Iterable<Adjustment> ratingAdjustments,
   }) {
-    if (!appSettings.enableCharts) return const SizedBox.shrink();
-
     final activeChartColumns = activeColumns.where((column) {
       final adjustment = _findAdjustment(column, componentAdjustments, ratingAdjustments, personAdjustments);
       return adjustment is StepAdjustment || adjustment is NumericalAdjustment;

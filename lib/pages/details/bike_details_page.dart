@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_icons/simple_icons.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component_stats.dart';
@@ -89,13 +90,20 @@ class BikeDetailsPage extends StatelessWidget {
                     leading: bike.stravaGear != null
                         ? const Icon(Icons.link)
                         : const Icon(Icons.link_off),                  
-                    title: Text(
-                      stravaGear?.name ?? (bike.stravaGear == null ? "No Strava Gear linked to this bike." : "STRAVA GEAR NOT FOUND"),
-                      style: TextStyle(
-                        color: bike.stravaGear == null || stravaGear != null
-                            ? null
-                            : Theme.of(context).colorScheme.error,
-                      ),
+                    title: Row(
+                      spacing: 8,
+                      children: [
+                        if (bike.stravaGear != null)
+                          const Icon(SimpleIcons.strava),
+                        Text(
+                          stravaGear?.name ?? (bike.stravaGear == null ? "No Strava Gear linked to this bike." : "STRAVA GEAR NOT FOUND"),
+                          style: TextStyle(
+                            color: bike.stravaGear == null || stravaGear != null
+                                ? null
+                                : Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      ],
                     ),
                     dense: true,
                   ),

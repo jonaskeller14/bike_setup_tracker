@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:simple_icons/simple_icons.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
@@ -262,15 +263,22 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
                     leading: person.stravaAthlete != null
                         ? const Icon(Icons.link)
                         : const Icon(Icons.link_off),                  
-                    title: Text(
-                      stravaAthlete != null
-                          ? "${stravaAthlete.firstname} ${stravaAthlete.lastname}"
-                          : (person.stravaAthlete == null ? "No Strava Athlete linked to this person." : "STRAVA ATHLETE NOT FOUND"),
-                      style: TextStyle(
-                        color: person.stravaAthlete == null || stravaAthlete != null
-                            ? null
-                            : Theme.of(context).colorScheme.error,
-                      ),
+                    title: Row(
+                      spacing: 8,
+                      children: [
+                        if (stravaAthlete != null)
+                          const Icon(SimpleIcons.strava),
+                        Text(
+                          stravaAthlete != null
+                              ? "${stravaAthlete.firstname} ${stravaAthlete.lastname}"
+                              : (person.stravaAthlete == null ? "No Strava Athlete linked to this person." : "STRAVA ATHLETE NOT FOUND"),
+                          style: TextStyle(
+                            color: person.stravaAthlete == null || stravaAthlete != null
+                                ? null
+                                : Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      ],
                     ),
                     dense: true,
                   ),

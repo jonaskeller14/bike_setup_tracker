@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
@@ -39,6 +41,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   String? _selectedRadarSetupId;
   TableColumn? _selectedLineChartColumn;
   Set<String>? _selectedSetupIds;
+  int? _touchedLineChartSpotX;
 
   static const bool _highlighting = true;
 
@@ -358,6 +361,20 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   ),
                   lineTouchData: LineTouchData(
                     enabled: true,
+                    touchCallback: (FlTouchEvent event, LineTouchResponse? response) {
+                      final spots = response?.lineBarSpots;
+                      if (event is FlTapDownEvent && spots != null && spots.isNotEmpty) {
+                        unawaited(HapticFeedback.selectionClick());
+                      } else if (event is FlPanUpdateEvent && spots != null && spots.isNotEmpty) {
+                        final xIndex = spots.first.x.toInt();
+                        if (_touchedLineChartSpotX != xIndex) {
+                          _touchedLineChartSpotX = xIndex;
+                          unawaited(HapticFeedback.selectionClick());
+                        }
+                      } else if (event is FlPanEndEvent || event is FlTapUpEvent) {
+                        _touchedLineChartSpotX = null;
+                      }
+                    },
                     getTouchedSpotIndicator: (LineChartBarData barData, List<int> spotIndexes) {
                       return spotIndexes.map((index) {
                         return TouchedSpotIndicatorData(
@@ -442,6 +459,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               
                   return GestureDetector(
                     onTap: () {
+                      unawaited(HapticFeedback.selectionClick());
                       setState(() {
                         if (_selectedLineChartColumn == column) {
                           _selectedLineChartColumn = null;
@@ -608,13 +626,19 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                                       final dataSetIndex = spot.touchedDataSetIndex;
                                       final entryIndex = spot.touchedRadarEntryIndex;
                                       if (dataSetIndex < radarSetups.length && entryIndex < featureDefs.length) {
+                                        final newSetupId = radarSetups[dataSetIndex].id;
+                                        final newColumn = featureDefs[entryIndex].column;
+                                        if (newSetupId != _touchedRadarSetupId || newColumn != _touchedRadarColumn) {
+                                          unawaited(HapticFeedback.selectionClick());
+                                        }
                                         setState(() {
                                           _touchedRadarOffset = spot.offset;
-                                          _touchedRadarSetupId = radarSetups[dataSetIndex].id;
-                                          _touchedRadarColumn = featureDefs[entryIndex].column;
+                                          _touchedRadarSetupId = newSetupId;
+                                          _touchedRadarColumn = newColumn;
                                         });
                                       }
-                                    } else if (event is FlPointerExitEvent || event is FlPanEndEvent) {
+                                    } else if (event is FlPointerExitEvent || event is FlPanEndEvent ||
+                                               (event is FlTapUpEvent && spot == null)) {
                                       setState(() {
                                         _touchedRadarOffset = null;
                                         _touchedRadarSetupId = null;
@@ -710,6 +734,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                             final color = primaryHSL.withHue((primaryHSL.hue + (index * 60)) % 360).toColor();
                             return GestureDetector(
                               onTap: () {
+                                unawaited(HapticFeedback.selectionClick());
                                 setState(() {
                                   if (_selectedRadarSetupId == setup.id) {
                                     _selectedRadarSetupId = null;
@@ -972,6 +997,16 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   scrollDirection: Axis.horizontal,
                   child: DataTable(
+                    onSelectAll: (selectAll) {
+                      unawaited(HapticFeedback.selectionClick());
+                      setState(() {
+                        if (selectAll == true) {
+                          _selectedSetupIds!.addAll(setups.map((s) => s.id));
+                        } else {
+                          _selectedSetupIds!.clear();
+                        }
+                      });
+                    },
                     sortAscending: _sortAscending,
                     sortColumnIndex: activeColumns.contains(_sortColumn) 
                         ? activeColumns.indexOf(_sortColumn!)
@@ -1011,6 +1046,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                       return DataRow(
                         selected: _selectedSetupIds!.contains(setup.id),
                         onSelectChanged: (bool? selected) {
+                          unawaited(HapticFeedback.selectionClick());
                           setState(() {
                             if (selected == true) {
                               _selectedSetupIds!.add(setup.id);

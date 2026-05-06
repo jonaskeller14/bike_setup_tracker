@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../models/component_stats.dart';
 
@@ -47,7 +49,10 @@ class _ComponentStatsCardState extends State<ComponentStatsCard> {
               height: 64,
               child: PageView(
                 controller: _pageController,
-                onPageChanged: (index) => setState(() => _currentPage = index),
+                onPageChanged: (index) => setState(() {
+                  unawaited(HapticFeedback.selectionClick());
+                  _currentPage = index;
+                }),
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,

@@ -177,11 +177,11 @@ class _HomePageState extends State<HomePage> {
             const NavigationDestination(icon: Icon(Rating.iconData), label: "Ratings"),
           if (appSettings.enableTask)
             NavigationDestination(
-              icon: Badge(
-                label: Text(appRepository.filteredOpenTaskRulesCount.toString()),
-                isLabelVisible: appRepository.filteredOpenTaskRulesCount > 0,
+              icon: Badge.count(
+                count: appRepository.filteredOpenTaskRulesCount,
+                maxCount: 99,
                 child: const Icon(Icons.checklist),
-              ), 
+              ),
               label: "Tasks",
             ),
         ],

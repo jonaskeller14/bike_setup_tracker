@@ -536,6 +536,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                           ],
                         ),
                         leading: const Icon(Rating.iconData),
+                        enabled: rating.adjustments.isNotEmpty,
                       ),
                       AdjustmentDisplayList(
                         adjustments: rating.adjustments,
@@ -620,6 +621,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                           other: '${bikeComponent.adjustments.length} adjustments',
                         )),
                         leading: Icon(bikeComponent.componentType.getIconData()),
+                        enabled: bikeComponent.adjustments.isNotEmpty,
                       ),
                       AdjustmentDisplayList(
                         adjustments: bikeComponent.adjustments,
@@ -674,6 +676,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                           other: '${person.adjustments.length} attributes',
                         )),
                         leading: const Icon(Person.iconData),
+                        enabled: person.adjustments.isNotEmpty,
                       ),
                       AdjustmentDisplayList(
                         adjustments: person.adjustments,

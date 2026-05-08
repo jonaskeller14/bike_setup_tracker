@@ -6,6 +6,7 @@ import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/strava_service.dart';
+import '../../widgets/items/component_list_card.dart';
 import '../../widgets/items/setup_list_card.dart';
 import '../setup_page.dart';
 
@@ -198,23 +199,48 @@ class StravaActivitiyPageContent extends StatelessWidget {
             ),
           ),
           
-          Divider(height: 1, thickness: 0.5, color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
+          const Divider(height: 1),
           if (stravaGear != null) ...[
-            const SizedBox(height: 2),
-            ListTile(
-              leading: const Icon(Icons.pedal_bike),
-              title: Text(
-                stravaGear.name,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(
-                "Gear used",
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
-              ),
-              dense: true,
-            ),
-            const SizedBox(height: 2),
-            Divider(height: 1, thickness: 0.5, color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
+            Builder(builder: (context) {
+              final linkedBike = appRepository.bikes.values
+                  .where((b) => b.stravaGear == stravaGear.id)
+                  .firstOrNull;
+              final activityTimeUtc = stravaActivity.startDateLocal.toUtc();
+              final installedComponents = appRepository.components.values
+                  .where((c) => linkedBike != null && c.bikeAt(activityTimeUtc) == linkedBike.id)
+                  .toList();
+              final bool enabled = installedComponents.isNotEmpty;
+              final Color disabledColor = Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38);
+              return ExpansionTile(
+                shape: const Border(),
+                collapsedShape: const Border(),
+                leading: Icon(Icons.pedal_bike, color: enabled ? null : disabledColor),
+                title: Text(
+                  linkedBike?.name ?? "No bike linked to this Strava gear",
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: enabled ? null : disabledColor,
+                  ),
+                ),
+                subtitle: Text(
+                  stravaGear.name,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: enabled
+                        ? Theme.of(context).colorScheme.onSurfaceVariant
+                        : disabledColor,
+                  ),
+                ),
+                childrenPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                enabled: enabled,
+                children: installedComponents
+                    .map((c) => ComponentListCard(
+                          component: c,
+                          showCurrentAdjustmentValues: false,
+                        ))
+                    .toList(),
+              );
+            }),
+            const Divider(height: 1),
             
             // Add Setups related to this activity
             Builder(
@@ -248,6 +274,7 @@ class StravaActivitiyPageContent extends StatelessWidget {
                 uniqueSetups.sort((a, b) => b.datetimeLocal.compareTo(a.datetimeLocal));
 
                 return ExpansionTile(
+                  leading: const Icon(Setup.iconData),
                   shape: const Border(),
                   collapsedShape: const Border(),
                   initiallyExpanded: false,
@@ -292,7 +319,7 @@ class StravaActivitiyPageContent extends StatelessWidget {
                 );
               }
             ),
-            Divider(height: 1, thickness: 0.5, color: Theme.of(context).dividerColor.withValues(alpha: 0.5)),
+            const Divider(height: 1),
           ],
           
           const SizedBox(height: 48),

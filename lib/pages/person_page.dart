@@ -103,12 +103,12 @@ class _PersonPageState extends State<PersonPage> {
     final adjustment = await Navigator.push<T>(
       context,
       MaterialPageRoute(builder: (context) => switch(T) {
-        const (BooleanAdjustment)       => BooleanAdjustmentPage.add(categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        const (CategoricalAdjustment)   => CategoricalAdjustmentPage.add(categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        const (StepAdjustment)          => StepAdjustmentPage.add(categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        const (NumericalAdjustment)     => NumericalAdjustmentPage.add(categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        const (TextAdjustment)          => TextAdjustmentPage.add(categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        const (DurationAdjustment)      => DurationAdjustmentPage.add(categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        const (BooleanAdjustment)       => BooleanAdjustmentPage.add(categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        const (CategoricalAdjustment)   => CategoricalAdjustmentPage.add(categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        const (StepAdjustment)          => StepAdjustmentPage.add(categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        const (NumericalAdjustment)     => NumericalAdjustmentPage.add(categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        const (TextAdjustment)          => TextAdjustmentPage.add(categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        const (DurationAdjustment)      => DurationAdjustmentPage.add(categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
         Type() => throw UnimplementedError(),
       }),
     );
@@ -122,12 +122,12 @@ class _PersonPageState extends State<PersonPage> {
     final newAdjustment = await Navigator.push<Adjustment>(
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment.deepCopy()) {
-        final BooleanAdjustment a     => BooleanAdjustmentPage.template(adjustment: a, categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        final CategoricalAdjustment a => CategoricalAdjustmentPage.template(adjustment: a, categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        final StepAdjustment a        => StepAdjustmentPage.template(adjustment: a, categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        final NumericalAdjustment a   => NumericalAdjustmentPage.template(adjustment: a, categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        final TextAdjustment a        => TextAdjustmentPage.template(adjustment: a, categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        final DurationAdjustment a    => DurationAdjustmentPage.template(adjustment: a, categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        final BooleanAdjustment a     => BooleanAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        final CategoricalAdjustment a => CategoricalAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        final StepAdjustment a        => StepAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        final NumericalAdjustment a   => NumericalAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        final TextAdjustment a        => TextAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        final DurationAdjustment a    => DurationAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
       }),
     );
     if (newAdjustment == null) return;
@@ -140,12 +140,12 @@ class _PersonPageState extends State<PersonPage> {
     final editedAdjustment = await Navigator.push<Adjustment>(
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment) {
-        final BooleanAdjustment a     => BooleanAdjustmentPage.edit(adjustment: a, categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a, categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a, categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a, categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        final TextAdjustment a        => TextAdjustmentPage.edit(adjustment: a, categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a, categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        final BooleanAdjustment a     => BooleanAdjustmentPage.edit(adjustment: a, categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a, categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a, categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a, categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        final TextAdjustment a        => TextAdjustmentPage.edit(adjustment: a, categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a, categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
       }),
     );
     if (editedAdjustment == null) return;
@@ -163,12 +163,12 @@ class _PersonPageState extends State<PersonPage> {
     final newAdjustment = await Navigator.push<Adjustment>(
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment.deepCopy()) {
-        final BooleanAdjustment a     => BooleanAdjustmentPage.duplicate(adjustment: a, categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        final CategoricalAdjustment a => CategoricalAdjustmentPage.duplicate(adjustment: a, categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        final StepAdjustment a        => StepAdjustmentPage.duplicate(adjustment: a, categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        final NumericalAdjustment a   => NumericalAdjustmentPage.duplicate(adjustment: a, categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        final TextAdjustment a        => TextAdjustmentPage.duplicate(adjustment: a, categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
-        final DurationAdjustment a    => DurationAdjustmentPage.duplicate(adjustment: a, categories: {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        final BooleanAdjustment a     => BooleanAdjustmentPage.duplicate(adjustment: a, categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        final CategoricalAdjustment a => CategoricalAdjustmentPage.duplicate(adjustment: a, categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        final StepAdjustment a        => StepAdjustmentPage.duplicate(adjustment: a, categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        final NumericalAdjustment a   => NumericalAdjustmentPage.duplicate(adjustment: a, categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        final TextAdjustment a        => TextAdjustmentPage.duplicate(adjustment: a, categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
+        final DurationAdjustment a    => DurationAdjustmentPage.duplicate(adjustment: a, categories: const {AdjustmentCategory.body, AdjustmentCategory.nutrition, AdjustmentCategory.equipment}, showCategorySelection: true),
       }),
     );
     if (newAdjustment == null) return;

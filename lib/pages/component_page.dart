@@ -150,12 +150,12 @@ class _ComponentPageState extends State<ComponentPage> {
     final adjustment = await Navigator.push<T>(
       context,
       MaterialPageRoute(builder: (context) => switch(T) {
-        const (BooleanAdjustment)       => BooleanAdjustmentPage.add(categories: {AdjustmentCategory.component}),
-        const (CategoricalAdjustment)   => CategoricalAdjustmentPage.add(categories: {AdjustmentCategory.component}),
-        const (StepAdjustment)          => StepAdjustmentPage.add(categories: {AdjustmentCategory.component}),
-        const (NumericalAdjustment)     => NumericalAdjustmentPage.add(categories: {AdjustmentCategory.component}),
-        const (TextAdjustment)          => TextAdjustmentPage.add(categories: {AdjustmentCategory.component}),
-        const (DurationAdjustment)      => DurationAdjustmentPage.add(categories: {AdjustmentCategory.component}),
+        const (BooleanAdjustment)       => BooleanAdjustmentPage.add(categories: const {AdjustmentCategory.component}),
+        const (CategoricalAdjustment)   => CategoricalAdjustmentPage.add(categories: const {AdjustmentCategory.component}),
+        const (StepAdjustment)          => StepAdjustmentPage.add(categories: const {AdjustmentCategory.component}),
+        const (NumericalAdjustment)     => NumericalAdjustmentPage.add(categories: const {AdjustmentCategory.component}),
+        const (TextAdjustment)          => TextAdjustmentPage.add(categories: const {AdjustmentCategory.component}),
+        const (DurationAdjustment)      => DurationAdjustmentPage.add(categories: const {AdjustmentCategory.component}),
         Type() => throw UnimplementedError(),
       }),
     );
@@ -169,12 +169,12 @@ class _ComponentPageState extends State<ComponentPage> {
     final newAdjustment = await Navigator.push<Adjustment>(
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment.deepCopy()) {
-        final BooleanAdjustment a     => BooleanAdjustmentPage.template(adjustment: a, categories: {AdjustmentCategory.component}),
-        final CategoricalAdjustment a => CategoricalAdjustmentPage.template(adjustment: a, categories: {AdjustmentCategory.component}),
-        final StepAdjustment a        => StepAdjustmentPage.template(adjustment: a, categories: {AdjustmentCategory.component}),
-        final NumericalAdjustment a   => NumericalAdjustmentPage.template(adjustment: a, categories: {AdjustmentCategory.component}),
-        final TextAdjustment a        => TextAdjustmentPage.template(adjustment: a, categories: {AdjustmentCategory.component}),
-        final DurationAdjustment a    => DurationAdjustmentPage.template(adjustment: a, categories: {AdjustmentCategory.component}),
+        final BooleanAdjustment a     => BooleanAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.component}),
+        final CategoricalAdjustment a => CategoricalAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.component}),
+        final StepAdjustment a        => StepAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.component}),
+        final NumericalAdjustment a   => NumericalAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.component}),
+        final TextAdjustment a        => TextAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.component}),
+        final DurationAdjustment a    => DurationAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.component}),
       }),
     );
     if (newAdjustment == null) return;
@@ -187,12 +187,12 @@ class _ComponentPageState extends State<ComponentPage> {
     final editedAdjustment = await Navigator.push<Adjustment>(
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment) {
-        final BooleanAdjustment a     => BooleanAdjustmentPage.edit(adjustment: a, categories: {AdjustmentCategory.component}),
-        final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a, categories: {AdjustmentCategory.component}),
-        final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a, categories: {AdjustmentCategory.component}),
-        final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a, categories: {AdjustmentCategory.component}),
-        final TextAdjustment a        => TextAdjustmentPage.edit(adjustment: a, categories: {AdjustmentCategory.component}),
-        final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a, categories: {AdjustmentCategory.component}),
+        final BooleanAdjustment a     => BooleanAdjustmentPage.edit(adjustment: a, categories: const {AdjustmentCategory.component}),
+        final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a, categories: const {AdjustmentCategory.component}),
+        final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a, categories: const {AdjustmentCategory.component}),
+        final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a, categories: const {AdjustmentCategory.component}),
+        final TextAdjustment a        => TextAdjustmentPage.edit(adjustment: a, categories: const {AdjustmentCategory.component}),
+        final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a, categories: const {AdjustmentCategory.component}),
       }),
     );
     if (editedAdjustment == null) return;
@@ -210,12 +210,12 @@ class _ComponentPageState extends State<ComponentPage> {
     final newAdjustment = await Navigator.push<Adjustment>(
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment.deepCopy()) {
-        final BooleanAdjustment a     => BooleanAdjustmentPage.duplicate(adjustment: a, categories: {AdjustmentCategory.component}),
-        final CategoricalAdjustment a => CategoricalAdjustmentPage.duplicate(adjustment: a, categories: {AdjustmentCategory.component}),
-        final StepAdjustment a        => StepAdjustmentPage.duplicate(adjustment: a, categories: {AdjustmentCategory.component}),
-        final NumericalAdjustment a   => NumericalAdjustmentPage.duplicate(adjustment: a, categories: {AdjustmentCategory.component}),
-        final TextAdjustment a        => TextAdjustmentPage.duplicate(adjustment: a, categories: {AdjustmentCategory.component}),
-        final DurationAdjustment a    => DurationAdjustmentPage.duplicate(adjustment: a, categories: {AdjustmentCategory.component}),
+        final BooleanAdjustment a     => BooleanAdjustmentPage.duplicate(adjustment: a, categories: const {AdjustmentCategory.component}),
+        final CategoricalAdjustment a => CategoricalAdjustmentPage.duplicate(adjustment: a, categories: const {AdjustmentCategory.component}),
+        final StepAdjustment a        => StepAdjustmentPage.duplicate(adjustment: a, categories: const {AdjustmentCategory.component}),
+        final NumericalAdjustment a   => NumericalAdjustmentPage.duplicate(adjustment: a, categories: const {AdjustmentCategory.component}),
+        final TextAdjustment a        => TextAdjustmentPage.duplicate(adjustment: a, categories: const {AdjustmentCategory.component}),
+        final DurationAdjustment a    => DurationAdjustmentPage.duplicate(adjustment: a, categories: const {AdjustmentCategory.component}),
       }),
     );
     if (newAdjustment == null) return;

@@ -50,7 +50,7 @@ linter:
     # # Clean Code / Maintainability
     prefer_final_locals: true
     prefer_const_constructors: true
-    # prefer_const_literals_to_create_immutables: true
+    prefer_const_literals_to_create_immutables: true
     avoid_print: true # Re-enabled to ensure it stays active
     unnecessary_await_in_return: true
     unnecessary_parenthesis: true

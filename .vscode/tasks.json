@@ -1,0 +1,37 @@
+{
+    // Keyboard Shortcut: Strg + Shift + B
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build & Install APK (Debug) [R3CX50CQWVA]",
+            "type": "shell",
+            "command": "flutter build apk --debug; adb -s R3CX50CQWVA install build\\app\\outputs\\flutter-apk\\app-debug.apk",
+            "problemMatcher": [],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Firebase: Deploy Functions (Strava Backend)",
+            "type": "shell",
+            "command": "firebase deploy --only functions",
+            "options": {
+                "cwd": "${workspaceFolder}/backend_strava"
+            },
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Firebase: Deploy All (Rules & Functions)",
+            "type": "shell",
+            "command": "firebase deploy",
+            "options": {
+                "cwd": "${workspaceFolder}/backend_strava"
+            },
+            "group": "build",
+            "problemMatcher": []
+        }
+    ]
+}

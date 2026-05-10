@@ -14,12 +14,12 @@ service cloud.firestore {
       
       // Allow initial creation (anonymous auth) with only specific fields
       allow create: if isOwner(userId)
-                    && request.resource.data.keys().hasOnly(['fcm_token', 'expiresAt']);
+                    && request.resource.data.keys().hasOnly(['fcm_token', 'expiresAt', 'enable_strava_notifications']);
       
       // Allow specific updates from the client (FCM tokens and TTL)
       // This prevents the client from accidentally or maliciously overwriting sensitive 'strava_auth' tokens
       allow update: if isOwner(userId) 
-                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fcm_token', 'expiresAt']);
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fcm_token', 'expiresAt', 'enable_strava_notifications']);
 
       // Subcollections (activity_batches, athletes, gears)
       // Users can ONLY read these. They are populated by Backend Cloud Functions using the Admin SDK.

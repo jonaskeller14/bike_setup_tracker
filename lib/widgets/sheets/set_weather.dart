@@ -203,12 +203,12 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                                   ),
                                 );
                               }).toList(),
-                              onChanged: (int? newValue) {
+                              onChanged: enableFields ? (int? newValue) {
                                 setState(() {
                                   _currentWeather ??= Weather(currentDateTime: widget.selectedDateTime);
                                   _currentWeather = _currentWeather!.copyWith(currentWeatherCode: newValue);
                                 });
-                              },
+                              } : null,
                             ),
                             const SizedBox(height: 12),
                             TextFormField(

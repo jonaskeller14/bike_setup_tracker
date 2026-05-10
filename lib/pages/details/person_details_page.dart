@@ -14,6 +14,7 @@ import '../../utils/person_actions.dart';
 import '../../utils/table_column.dart';
 import '../../widgets/chips/bike_and_tags_filter.dart';
 import '../../widgets/initial_changed_value_legend.dart';
+import '../../widgets/section_title.dart';
 import '../../widgets/sheets/column_filter.dart';
 
 class PersonDetailsPage extends StatefulWidget {
@@ -242,58 +243,49 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (person.notes != null)
-                Card.outlined(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  child: ListTile(
-                    leading: const Icon(Icons.notes),
-                    titleAlignment: ListTileTitleAlignment.top,
-                    title: SelectableText(person.notes!),
-                    dense: true,
-                  ),
-                ),
-              if (appSettings.enableStrava)
-                Card.outlined(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  child: ListTile(
-                    leading: person.stravaAthlete != null
-                        ? const Icon(Icons.link)
-                        : const Icon(Icons.link_off),                  
-                    title: Row(
-                      spacing: 8,
-                      children: [
-                        if (stravaAthlete != null)
-                          const Icon(SimpleIcons.strava),
-                        Text(
-                          stravaAthlete != null
-                              ? "${stravaAthlete.firstname} ${stravaAthlete.lastname}"
-                              : (person.stravaAthlete == null ? "No Strava Athlete linked to this person." : "STRAVA ATHLETE NOT FOUND"),
-                          style: TextStyle(
-                            color: person.stravaAthlete == null || stravaAthlete != null
-                                ? null
-                                : Theme.of(context).colorScheme.error,
-                          ),
-                        ),
-                      ],
-                    ),
-                    dense: true,
-                  ),
+                ListTile(
+                  leading: const Icon(Icons.notes),
+                  titleAlignment: ListTileTitleAlignment.top,
+                  title: SelectableText(person.notes!),
+                  dense: true,
                 ),
 
-              const SizedBox(height: 16),
-              Text("Attribute History".toUpperCase(), style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold, 
-                letterSpacing: 1.2, 
-                color: Theme.of(context).colorScheme.primary
-              )),
-              const SizedBox(height: 8),
+              if (appSettings.enableStrava)
+                ListTile(
+                  leading: Badge(
+                    label: const Icon(SimpleIcons.strava, size: 11),
+                    backgroundColor: Colors.transparent,
+                    child: person.stravaAthlete != null
+                        ? Icon(Icons.link, color: appRepository.stravaAthletes.containsKey(person.stravaAthlete) ? null : Theme.of(context).colorScheme.error)
+                        : const Icon(Icons.link_off),
+                  ),                
+                  title: Text(
+                    stravaAthlete != null
+                        ? "${stravaAthlete.firstname} ${stravaAthlete.lastname}" 
+                        : (person.stravaAthlete == null 
+                            ? "No Strava Athlete linked to this person." 
+                            : "STRAVA ATHLETE NOT FOUND"),
+                    style: TextStyle(
+                      color: person.stravaAthlete == null || stravaAthlete != null
+                          ? null
+                          : Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                  dense: true,
+                ),
+
+              if (appSettings.enableStrava || person.notes != null)
+                const Divider(height: 1),
+
+              const SectionTitle(title: "Attribute History"),
 
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   spacing: 6,
                   children: [
@@ -317,11 +309,11 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 8),
 
               if (activeColumns.isNotEmpty)
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: DataTable(
                     sortAscending: _sortAscending,
                     sortColumnIndex: activeColumns.contains(_sortColumn) 
@@ -430,7 +422,8 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
                 _noColumnsPlaceholder(),
               if (setups.isEmpty)
                 _noSetupsPlaceholder(hasAdjustments: person.adjustments.isNotEmpty),
-              const InitialChangedValueLegend(),
+              if (activeColumns.isNotEmpty && setups.isNotEmpty)
+                const InitialChangedValueLegend(),
             ],
           ),
         )

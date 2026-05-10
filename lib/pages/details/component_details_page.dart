@@ -20,7 +20,8 @@ import '../../widgets/chips/bike_and_tags_filter.dart';
 import '../../widgets/component_stats_card.dart';
 import '../../widgets/display_installation_timeline.dart';
 import '../../widgets/initial_changed_value_legend.dart';
-import '../../widgets/open_tasks_card.dart';
+import '../../widgets/open_tasks_tile.dart';
+import '../../widgets/section_title.dart';
 import '../../widgets/sheets/column_filter.dart';
 
 class ComponentDetailsPage extends StatefulWidget{
@@ -225,37 +226,6 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     return _emptyStatePlaceholder(
       icon: Icons.insights_rounded,
       message: message,
-    );
-  }
-
-  Widget _sectionTitle(String title, {String? infoText}) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 12, left: 16, right: 16, bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Text(title.toUpperCase(), style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold, 
-              letterSpacing: 1.2, 
-              color: Theme.of(context).colorScheme.primary
-            )),
-          ),
-          if (infoText != null)
-            Tooltip(
-              message: infoText,
-              triggerMode: TooltipTriggerMode.tap,
-              padding: const EdgeInsets.all(12),
-              margin: const EdgeInsets.symmetric(horizontal: 24),
-              showDuration: const Duration(seconds: 5),
-              child: Icon(
-                Icons.info_outline_rounded,
-                size: 16,
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.7),
-              ),
-            ),
-        ],
-      ),
     );
   }
 
@@ -907,64 +877,68 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
+            children: [                            
+              if (appSettings.enableStrava && appSettings.enableInstallationTimeline) ...[
+                ComponentStatsCard(componentStats: ComponentStats(
+                  distance: component.totalDistance,
+                  elevationGain: component.totalElevationGain,
+                  movingTime: component.totalMovingTime,
+                  elapsedTime: component.totalElapsedTime,
+                  activityCount: component.totalActivityCount,
+                )),
+                const Divider(height: 1),
+              ],
+
+              if (component.notes != null) ...[
+                ListTile(
+                  leading: const Icon(Icons.notes),
+                  titleAlignment: ListTileTitleAlignment.top,
+                  title: SelectableText(component.notes!),
+                  dense: true,
+                ),
+                const Divider(height: 1),
+              ],
+
+              if (appSettings.enableInstallationTimeline) ...[
+                ExpansionTile(
+                  shape: const Border(),
+                  collapsedShape: const Border(),
+                  title: Text(
+                    "Installation History",
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  leading: const Icon(Icons.history),
+                  childrenPadding: const EdgeInsets.only(left: 20, right: 16),
                   children: [
-                    if (appSettings.enableStrava && appSettings.enableInstallationTimeline)
-                      ComponentStatsCard(componentStats: ComponentStats(
-                        distance: component.totalDistance,
-                        elevationGain: component.totalElevationGain,
-                        movingTime: component.totalMovingTime,
-                        elapsedTime: component.totalElapsedTime,
-                        activityCount: component.totalActivityCount,
-                      )),
-                    if (component.notes != null)
-                      Card.outlined(
-                        margin: const EdgeInsets.symmetric(vertical: 4),
-                        child: ListTile(
-                          leading: const Icon(Icons.notes),
-                          titleAlignment: ListTileTitleAlignment.top,
-                          title: SelectableText(component.notes!),
-                          dense: true,
-                        ),
-                      ),
-                    if (appSettings.enableInstallationTimeline)
-                      Card.outlined(
-                        margin: const EdgeInsets.symmetric(vertical: 4),
-                        child: ExpansionTile(
-                          shape: const Border(),
-                          collapsedShape: const Border(),
-                          title: const Text("Installation History"),
-                          leading: const Icon(Icons.history),
-                          childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
-                          children: [
-                            DisplayInstallationTimeline(component: component),
-                          ],
-                        ),
-                      ),
-                    if (appSettings.enableTask) () {
-                      final openTasks = appRepository.taskRules.values.where((rule) {
-                        if (rule.componentId != widget.componentId) return false;
-                        final status = appRepository.getTaskRuleStatus(rule);
-                        return status.type != TaskStatusType.completed;
-                      }).map((rule) => TaskRuleWithStatus(rule: rule, status: appRepository.getTaskRuleStatus(rule))).toList();
-
-                      openTasks.sort((a, b) {
-                        if (a.status.type != b.status.type) {
-                          return b.status.type.index.compareTo(a.status.type.index);
-                        }
-                        return b.status.progress.compareTo(a.status.progress);
-                      });
-
-                      return OpenTasksCard(openTasks: openTasks, repository: appRepository);
-                    }(),
+                    DisplayInstallationTimeline(component: component),
                   ],
                 ),
-              ),
-              const Divider(height: 1),
-              _sectionTitle("Adjustment History", infoText: "Add or remove columns via the Columns button. Use the filter button to narrow down by bike or tags. Select rows to compare specific setups in the charts below. Green values are new (no prior value), orange values have changed from the previous setup."),
+                const Divider(height: 1),
+              ],
+
+              if (appSettings.enableTask) ...[
+                () {
+                  final openTasks = appRepository.taskRules.values.where((rule) {
+                    if (rule.componentId != widget.componentId) return false;
+                    final status = appRepository.getTaskRuleStatus(rule);
+                    return status.type != TaskStatusType.completed;
+                  }).map((rule) => TaskRuleWithStatus(rule: rule, status: appRepository.getTaskRuleStatus(rule))).toList();
+
+                  openTasks.sort((a, b) {
+                    if (a.status.type != b.status.type) {
+                      return b.status.type.index.compareTo(a.status.type.index);
+                    }
+                    return b.status.progress.compareTo(a.status.progress);
+                  });
+
+                  return OpenTasksTile(openTasks: openTasks, repository: appRepository);
+                }(),
+                const Divider(height: 1),
+              ],
+
+              const SectionTitle(title: "Adjustment History", infoText: "Add or remove columns via the Columns button. Use the filter button to narrow down by bike or tags. Select rows to compare specific setups in the charts below. Green values are new (no prior value), orange values have changed from the previous setup."),
 
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -1125,7 +1099,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               const SizedBox(height: 16),
 
               const Divider(height: 1),
-              _sectionTitle("Line Chart", infoText: "Shows the setups selected in the table above in their current sort order. The y-axis represents adjustment values. Select at least two setups to display a trend. Tap legend entries to highlight a specific line."),
+              const SectionTitle(title: "Line Chart", infoText: "Shows the setups selected in the table above in their current sort order. The y-axis represents adjustment values. Select at least two setups to display a trend. Tap legend entries to highlight a specific line."),
               _buildLineChartSection(
                 context: context,
                 appSettings: appSettings,
@@ -1138,7 +1112,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               ),
 
               const Divider(height: 1),
-              _sectionTitle("Radial Chart", infoText: "Shows the setups selected in the table above. Axes are normalized across all data for stable comparison. Tap legend entries to highlight specific graphs."),
+              const SectionTitle(title: "Radial Chart", infoText: "Shows the setups selected in the table above. Axes are normalized across all data for stable comparison. Tap legend entries to highlight specific graphs."),
               _buildRadialChartSection(
                 context: context,
                 appSettings: appSettings,

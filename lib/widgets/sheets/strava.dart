@@ -45,21 +45,7 @@ class _StravaSheetState extends State<StravaSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  spacing: 6,
-                  children: [
-                    const Icon(SimpleIcons.strava, color: Color(0xFFFC4C02)), // Strava Brand Orange
-                    sheetTitle(context, 'Strava Sync'),
-                  ],
-                ),
-                sheetCloseButton(context),
-              ],
-            ),
+            const StravaSheetHeader(),
             const SizedBox(height: 16),
             Flexible(
               child: SingleChildScrollView(
@@ -461,4 +447,27 @@ class _AddNewBike extends _StravaGearMenuOption {
 class _UnlinkBike extends _StravaGearMenuOption {
   final Bike bike;
   const _UnlinkBike(this.bike);
+}
+
+class StravaSheetHeader extends StatelessWidget {
+  const StravaSheetHeader({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          spacing: 6,
+          children: [
+            const Icon(SimpleIcons.strava, color: Color(0xFFFC4C02)), // Strava Brand Orange
+            sheetTitle(context, 'Strava Sync'),
+          ],
+        ),
+        sheetCloseButton(context),
+      ],
+    );
+  }
 }

@@ -42,66 +42,57 @@ class RatingDetailsPage extends StatelessWidget {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (rating.notes != null)
-                Card.outlined(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  child: ListTile(
-                    leading: const Icon(Icons.notes),
-                    titleAlignment: ListTileTitleAlignment.top,
-                    title: SelectableText(rating.notes!),
-                    dense: true,
-                  ),
+              ListTile(
+                leading: Badge(
+                  label: switch (rating.filterType) {
+                    FilterType.global => const Icon(Icons.circle_outlined, size: 11),
+                    FilterType.bike => Icon(Bike.iconData, color: bikes[rating.filter] == null ? Theme.of(context).colorScheme.error : null, size: 11),
+                    FilterType.person => Icon(Person.iconData, color: persons[rating.filter] == null ? Theme.of(context).colorScheme.error : null, size: 11),
+                    FilterType.component => Icon(
+                      components[rating.filter]?.componentType.getIconData() ?? Icons.error,
+                      color: components[rating.filter] == null ? Theme.of(context).colorScheme.error : null,
+                      size: 11
+                    ),
+                    FilterType.componentType => Icon(ComponentType.fromString(rating.filter).getIconData(), size: 11),
+                  },
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                  child: const Icon(Icons.filter_alt_outlined),
                 ),
-              Card.outlined(
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                child: ListTile(
-                  leading: const Icon(Icons.filter_alt_outlined),
-                  title: Row(
-                    spacing: 8,
-                    children: switch (rating.filterType) {
-                      FilterType.global => [
-                          const Icon(Icons.circle_outlined),
-                          const Expanded(child: Text("Apply everywhere", overflow: TextOverflow.ellipsis)),
-                        ],
-                      FilterType.bike => [
-                          Icon(Bike.iconData, color: bikes[rating.filter] == null ? Theme.of(context).colorScheme.error : null),
-                          Expanded(child: Text(
-                            bikes[rating.filter]?.name ?? "BIKE NOT FOUND", 
-                            overflow: TextOverflow.ellipsis,
-                            style: bikes[rating.filter] == null ? TextStyle(color: Theme.of(context).colorScheme.error) : null,
-                          )),
-                        ],
-                      FilterType.person => [
-                          Icon(Person.iconData, color: persons[rating.filter] == null ? Theme.of(context).colorScheme.error : null),
-                          Expanded(child: Text(
-                            persons[rating.filter]?.name ?? "PERSON NOT FOUND", 
-                            overflow: TextOverflow.ellipsis,
-                            style: persons[rating.filter] == null ? TextStyle(color: Theme.of(context).colorScheme.error) : null,
-                          )),
-                        ],
-                      FilterType.component => [
-                          Icon(
-                            components[rating.filter]?.componentType.getIconData() ?? Icons.error,
-                            color: components[rating.filter] == null ? Theme.of(context).colorScheme.error : null,
-                          ),
-                          Expanded(child: Text(
-                            components[rating.filter]?.name ?? "COMPONENT NOT FOUND", 
-                            overflow: TextOverflow.ellipsis,
-                            style: components[rating.filter] == null ? TextStyle(color: Theme.of(context).colorScheme.error) : null,
-                          )),
-                        ],
-                      FilterType.componentType => [
-                          Icon(ComponentType.fromString(rating.filter).getIconData()),
-                          Expanded(child: Text(ComponentType.fromString(rating.filter).label, overflow: TextOverflow.ellipsis)),
-                        ],
-                    },
+                title: switch (rating.filterType) {
+                  FilterType.global => const Text("Apply everywhere", overflow: TextOverflow.ellipsis),
+                  FilterType.bike => Text(
+                    bikes[rating.filter]?.name ?? "BIKE NOT FOUND", 
+                    overflow: TextOverflow.ellipsis,
+                    style: bikes[rating.filter] == null ? TextStyle(color: Theme.of(context).colorScheme.error) : null,
                   ),
+                  FilterType.person => Text(
+                    persons[rating.filter]?.name ?? "PERSON NOT FOUND", 
+                    overflow: TextOverflow.ellipsis,
+                    style: persons[rating.filter] == null ? TextStyle(color: Theme.of(context).colorScheme.error) : null,
+                  ),
+                  FilterType.component => Text(
+                    components[rating.filter]?.name ?? "COMPONENT NOT FOUND", 
+                    overflow: TextOverflow.ellipsis,
+                    style: components[rating.filter] == null ? TextStyle(color: Theme.of(context).colorScheme.error) : null,
+                  ),
+                  FilterType.componentType => Text(ComponentType.fromString(rating.filter).label, overflow: TextOverflow.ellipsis),
+                },
+                dense: true,
+              ),
+
+              if (rating.notes != null)
+                ListTile(
+                  leading: const Icon(Icons.notes),
+                  titleAlignment: ListTileTitleAlignment.top,
+                  title: SelectableText(rating.notes!),
                   dense: true,
                 ),
-              ),
+
+              const Divider(height: 1),
+
               //TODO: Table view setup rating adjustment vlaues (analogue to ComponetDetailsPage)
             ],
           ),

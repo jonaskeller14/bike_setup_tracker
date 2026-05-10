@@ -303,6 +303,10 @@ class _BikePageState extends State<BikePage> {
                     const SizedBox(height: 12),
                     _personField(persons: persons),
                   ],
+                  if (appSettings.enableStrava) ...[
+                    const SizedBox(height: 12),
+                    _stravaGearField(existingBikes: existingBikes, stravaGears: stravaGears),
+                  ],
                   Center(
                     child: TextButton.icon(
                       onPressed: () => setState(() => _expanded = !_expanded),
@@ -323,10 +327,6 @@ class _BikePageState extends State<BikePage> {
                       children: [
                         const SizedBox(height: 12),
                         _notesField(),
-                        if (appSettings.enableStrava) ...[
-                          const SizedBox(height: 12),
-                          _stravaGearField(existingBikes: existingBikes, stravaGears: stravaGears),
-                        ]
                       ],
                     ),
                   ),

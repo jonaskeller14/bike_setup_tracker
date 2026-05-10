@@ -19,6 +19,7 @@ import '../../utils/setup_actions.dart';
 import '../../widgets/display_adjustment/display_adjustment_list.dart';
 import '../../widgets/display_adjustment/display_dangling_adjustment.dart';
 import '../../widgets/initial_changed_value_legend.dart';
+import '../../widgets/section_title.dart';
 
 class SetupDetailsPage extends StatefulWidget {
   final List<String> setupIds;
@@ -185,12 +186,7 @@ class SetupDetailsPageContent extends StatelessWidget {
     return PinnedHeaderSliver(
       child: Container(
         color: Theme.of(context).colorScheme.surface,
-        padding: const EdgeInsets.only(top: 12, left: 16, right: 16, bottom: 12),
-        child: Text(title.toUpperCase(), style: Theme.of(context).textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.bold, 
-          letterSpacing: 1.2, 
-          color: Theme.of(context).colorScheme.primary
-        )),
+        child: SectionTitle(title: title),
       ),
     );
   }

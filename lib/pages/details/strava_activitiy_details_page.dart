@@ -230,7 +230,7 @@ class StravaActivitiyPageContent extends StatelessWidget {
                         : disabledColor,
                   ),
                 ),
-                childrenPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
                 enabled: enabled,
                 children: installedComponents
                     .map((c) => ComponentListCard(

@@ -3,11 +3,11 @@ import '../models/task_rule.dart';
 import '../repositories/app_repository.dart';
 import 'items/task_rule_list_card.dart';
 
-class OpenTasksCard extends StatelessWidget {
+class OpenTasksTile extends StatelessWidget {
   final List<TaskRuleWithStatus> openTasks;
   final AppRepository repository;
 
-  const OpenTasksCard({
+  const OpenTasksTile({
     super.key,
     required this.openTasks,
     required this.repository,
@@ -40,26 +40,27 @@ class OpenTasksCard extends StatelessWidget {
       openTasks.map((t) => t.rule).toList(),
       repository,
     );
-    final theme = Theme.of(context);
     final isEnabled = count > 0;
 
-    return Card.outlined(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      color: isEnabled ? null : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-      child: ExpansionTile(
-        enabled: isEnabled,
-        shape: const Border(),
-        collapsedShape: const Border(),
-        leading: Badge(
-          label: count > 0 ? Text(count.toString()) : null,
-          isLabelVisible: count > 0,
-          backgroundColor: aggregatedStatus.getStatusColor(),
-          child: const Icon(Icons.checklist),
-        ),
-        title: const Text("Open Tasks"),
-        childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-        children: openTasks.map((t) => TaskRuleListCard(taskRuleId: t.rule.id)).toList(),
+    return ExpansionTile(
+      enabled: isEnabled,
+      shape: const Border(),
+      collapsedShape: const Border(),
+      leading: Badge.count(
+        count: count,
+        isLabelVisible: count > 0,
+        backgroundColor: aggregatedStatus.getStatusColor(),
+        child: const Icon(Icons.checklist),
       ),
+      title: Text(
+        "Open Tasks",
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+          fontWeight: FontWeight.bold,
+          color: isEnabled ? null : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
+        ),
+      ),
+      childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+      children: openTasks.map((t) => TaskRuleListCard(taskRuleId: t.rule.id)).toList(),
     );
   }
 }

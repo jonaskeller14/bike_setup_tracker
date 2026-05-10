@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../models/app_settings.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
@@ -72,7 +73,7 @@ class StravaService extends ChangeNotifier {
     }
   }
 
-  Future<void> update({required AppRepository appRepository}) async {
+  Future<void> update({required AppRepository appRepository, required AppSettings appSettings}) async {
     _appRepository = appRepository;
 
     if (_isInitialized || _isDisconnecting) return;
@@ -82,6 +83,7 @@ class StravaService extends ChangeNotifier {
       await _loadUserId();
       _listenToUserDocument();
       _registerFcmToken();
+      await _syncSettingsToFirestore(appSettings);
     } catch (e) {
       _isInitialized = false;
     }
@@ -277,6 +279,21 @@ class StravaService extends ChangeNotifier {
     final userCredential = await FirebaseAuth.instance.signInAnonymously();
     _userId = userCredential.user?.uid;
     notifyListeners();
+  }
+
+  Future<void> _syncSettingsToFirestore(AppSettings settings) async {
+    await setStravaNotificationsEnabled(settings.enableStravaNotifications);
+  }
+
+  Future<void> setStravaNotificationsEnabled(bool enabled) async {
+    if (_userId == null) return;
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(_userId).set({
+        'enable_strava_notifications': enabled,
+      }, SetOptions(merge: true));
+    } catch (e) {
+      _handleError("SyncSettingsUp", e);
+    }
   }
 
   set errorMessage(String message) {

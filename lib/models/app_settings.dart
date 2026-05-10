@@ -17,6 +17,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableRating = false;
   bool _enableSetupTags = false;
   bool _enableStrava = false;
+  bool _enableStravaNotifications = true;
   bool _enableGarage = true;
   bool _enableTask = false;
   static const bool _enableTaskInterval = false;
@@ -47,6 +48,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableRating => _enableRating;
   bool get enableSetupTags => _enableSetupTags;
   bool get enableStrava => _enableStrava;
+  bool get enableStravaNotifications => _enableStravaNotifications;
   bool get enableGarage => _enableGarage;
   bool get enableTask => _enableTask;
   bool get enableTaskInterval => _enableTaskInterval;
@@ -161,6 +163,13 @@ class AppSettings extends ChangeNotifier {
     saveAppSettings();
   }
 
+  set enableStravaNotifications(bool newValue) {
+    if (newValue == _enableStravaNotifications) return;
+    _enableStravaNotifications = newValue;
+    notifyListeners();
+    saveAppSettings();
+  }
+
   set enableGarage(bool newValue) {
     if (newValue == _enableGarage) return;
     _enableGarage = newValue;
@@ -249,6 +258,7 @@ class AppSettings extends ChangeNotifier {
       _enableGoogleDrive = json['enableGoogleDrive'] ?? _enableGoogleDrive;
       _enableTextAdjustment = json['enableTextAdjustment'] ?? _enableTextAdjustment;
       _enableSetupTags = json['enableSetupTags'] ?? _enableSetupTags;
+      _enableStravaNotifications = json['enableStravaNotifications'] ?? _enableStravaNotifications;
       _enableGarage = json['enableGarage'] ?? _enableGarage;
       _enableTask = json['enableTask'] ?? _enableTask;
     } catch (e, st) {
@@ -271,6 +281,7 @@ class AppSettings extends ChangeNotifier {
       'enableGoogleDrive': _enableGoogleDrive,
       'enableTextAdjustment': _enableTextAdjustment,
       'enableSetupTags': _enableSetupTags,
+      'enableStravaNotifications': _enableStravaNotifications,
       'enableGarage': _enableGarage,
       'enableTask': _enableTask,
     });

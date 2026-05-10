@@ -215,7 +215,7 @@ async function sendImportNotifications(activity, usersSnapshot) {
   const tokenToUserIds = new Map();
   usersSnapshot.docs.forEach(userDoc => {
     const userData = userDoc.data();
-    if (userData.fcm_token) {
+    if (userData.fcm_token && userData.enable_strava_notifications !== false) {
       const token = userData.fcm_token;
       if (!tokenToUserIds.has(token)) tokenToUserIds.set(token, new Set());
       tokenToUserIds.get(token).add(userDoc.id);

@@ -154,7 +154,7 @@ class LoadingGate extends StatelessWidget {
                 lazy: false,
                 create: (context) => StravaService(appRepository),
                 update: (context, settings, appRepo, stravaService) {
-                  if (settings.enableStrava) unawaited(stravaService!.update(appRepository: appRepo));
+                  if (settings.enableStrava) unawaited(stravaService!.update(appRepository: appRepo, appSettings: settings));
                   return stravaService!;
                 },
               ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +7,7 @@ import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/weather.dart';
+import '../services/strava_service.dart';
 import '../widgets/sheets/app_settings_radio_group.dart';
 
 class AppSettingsPage extends StatefulWidget {
@@ -73,6 +75,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     true: Text('On'),
   };
 
+  Widget _sectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
+      child: Text(
+        title,
+        style: Theme.of(context).textTheme.titleLarge,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appSettingsWriter = context.read<AppSettings>();
@@ -82,17 +94,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       appBar: AppBar(title: const Text('App Settings')),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
-                child: Text(
-                  'Appearance',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
+              _sectionTitle('Appearance'),
               ListTile(
                 leading: Icon(Icons.color_lens, color: Theme.of(context).colorScheme.primary),
                 title: const Text("App Theme Mode"),
@@ -111,13 +116,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               ),
               const Divider(),
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
-                child: Text(
-                  'Default Formats',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
+              _sectionTitle('Default Formats'),
               ListTile(
                 leading: Icon(Icons.calendar_month, color: Theme.of(context).colorScheme.primary),
                 title: const Text("Date Format"),
@@ -153,13 +152,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               ),
               const Divider(),
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
-                child: Text(
-                  'Default Units',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
+              _sectionTitle('Default Units'),
               ListTile(
                 leading: Icon(Icons.arrow_upward, color: Theme.of(context).colorScheme.primary),
                 title: const Text("Altitude Unit"),
@@ -235,13 +228,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               ),
               const Divider(),
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
-                child: Text(
-                  'Advanced Features',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
+              _sectionTitle('Advanced Features'),
               const ListTile(
                 leading: Icon(Icons.info_outline),
                 title: Text('Enable these to add specific functionality to your workflow. Keep them disabled to maintain a simpler interface.'),
@@ -374,70 +361,97 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     },
                   ),
                 ),
-              if (debugMode)
-                ListTile(
-                  leading: const Icon(
-                    SimpleIcons.strava,
-                    color: Color(0xFFFC4C02),
-                  ), // Strava Brand Orange
-                  title: const Text("Strava Sync"),
-                  subtitle: _offOnOptionWidgets[appSettingsReader.enableStrava] ?? const Text("-"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
-                    context: context,
-                    title: "Strava Sync",
-                    value: appSettingsReader.enableStrava,
-                    optionWidgets: _offOnOptionWidgets,
-                    onChanged: (bool? newValue) {
-                      if (newValue == null) return;
-                      appSettingsWriter.enableStrava = newValue;
-                      Navigator.pop(context);
-                    },
-                    infoText: 'Enable Strava Sync to import Strava Activities',
-                  ),
+              ListTile(
+                leading: Icon(
+                  Icons.checklist,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
+                title: const Text("Tasks"),
+                subtitle: _offOnOptionWidgets[appSettingsReader.enableTask] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<bool>(
+                  context: context,
+                  title: "Tasks",
+                  infoText: "Plan and track anything from recurring maintenance like fork services and chain cleaning to setup experiments like suspension testing or trying different handlebar widths. Keep a complete log of your goals and achievements in one place.",
+                  value: appSettingsReader.enableTask,
+                  optionWidgets: _offOnOptionWidgets,
+                  onChanged: (bool? newValue) {
+                    if (newValue == null) return;
+                    appSettingsWriter.enableTask = newValue;
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+              if (debugMode)
                 ListTile(
                   leading: Icon(
                     Icons.checklist,
                     color: Theme.of(context).colorScheme.primary,
                   ),
-                  title: const Text("Tasks"),
-                  subtitle: _offOnOptionWidgets[appSettingsReader.enableTask] ?? const Text("-"),
+                  title: const Text("Installation Timeline"),
+                  subtitle: _offOnOptionWidgets[appSettingsReader.enableInstallationTimeline] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                   onTap: () => appSettingsRadioGroupSheet<bool>(
                     context: context,
-                    title: "Tasks",
-                    infoText: "Plan and track anything from recurring maintenance like fork services and chain cleaning to setup experiments like suspension testing or trying different handlebar widths. Keep a complete log of your goals and achievements in one place.",
-                    value: appSettingsReader.enableTask,
+                    title: "Installation Timeline",
+                    value: appSettingsReader.enableInstallationTimeline,
                     optionWidgets: _offOnOptionWidgets,
                     onChanged: (bool? newValue) {
                       if (newValue == null) return;
-                      appSettingsWriter.enableTask = newValue;
+                      appSettingsWriter.enableInstallationTimeline = newValue;
                       Navigator.pop(context);
                     },
                   ),
                 ),
+              if (appSettingsReader.enableStrava) ...[
+                const Divider(),
+                _sectionTitle('Strava Sync'),
                 if (debugMode)
                   ListTile(
-                    leading: Icon(
-                      Icons.checklist,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    title: const Text("Installation Timeline"),
-                    subtitle: _offOnOptionWidgets[appSettingsReader.enableInstallationTimeline] ?? const Text("-"),
+                    leading: const Icon(
+                      SimpleIcons.strava,
+                      color: Color(0xFFFC4C02),
+                    ), // Strava Brand Orange
+                    title: const Text("Strava Sync"),
+                    subtitle: _offOnOptionWidgets[appSettingsReader.enableStrava] ?? const Text("-"),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: () => appSettingsRadioGroupSheet<bool>(
                       context: context,
-                      title: "Installation Timeline",
-                      value: appSettingsReader.enableInstallationTimeline,
+                      title: "Strava Sync",
+                      value: appSettingsReader.enableStrava,
                       optionWidgets: _offOnOptionWidgets,
                       onChanged: (bool? newValue) {
                         if (newValue == null) return;
-                        appSettingsWriter.enableInstallationTimeline = newValue;
+                        appSettingsWriter.enableStrava = newValue;
                         Navigator.pop(context);
                       },
+                      infoText: 'Enable Strava Sync to import Strava Activities',
                     ),
                   ),
+                if (appSettingsReader.enableStrava)
+                  ListTile(
+                    leading: const Icon(
+                      Icons.notifications_active,
+                      color: Color(0xFFFC4C02),
+                    ),
+                    title: const Text("Strava Notifications"),
+                    subtitle: _offOnOptionWidgets[appSettingsReader.enableStravaNotifications] ?? const Text("-"),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                    onTap: () => appSettingsRadioGroupSheet<bool>(
+                      context: context,
+                      title: "Strava Notifications",
+                      value: appSettingsReader.enableStravaNotifications,
+                      optionWidgets: _offOnOptionWidgets,
+                      onChanged: (bool? newValue) {
+                        if (newValue == null) return;
+                        appSettingsWriter.enableStravaNotifications = newValue;
+                        unawaited(context.read<StravaService>().setStravaNotificationsEnabled(newValue));
+                        Navigator.pop(context);
+                      },
+                      infoText: 'Receive push notifications when Strava activities are imported.',
+                    ),
+                  ),
+              ],
             ],
           ),
         ),

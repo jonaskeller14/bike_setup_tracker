@@ -8,7 +8,6 @@ import '../../utils/task_actions.dart';
 
 class TaskEntryListItem extends StatelessWidget {
   final String taskEntryId;
-  final EdgeInsets contentPadding;
   final ComponentStats? previousSnapshot;
   final bool enabled;
   final VoidCallback? onTap;
@@ -16,7 +15,6 @@ class TaskEntryListItem extends StatelessWidget {
   const TaskEntryListItem({
     super.key, 
     required this.taskEntryId, 
-    this.contentPadding = const EdgeInsets.only(left: 16, right: 16),
     this.previousSnapshot,
     this.enabled = true,
     this.onTap,
@@ -219,7 +217,7 @@ class TaskEntryListItem extends StatelessWidget {
           ],
         ],
       ),
-      contentPadding: contentPadding,
+      contentPadding: const EdgeInsets.only(left: 16, right: 16),
       trailing: PopupMenuButton<_TaskEntryListCardPopupMenuButtonOptions>(
         onSelected: (_TaskEntryListCardPopupMenuButtonOptions value) async {
           switch (value) {

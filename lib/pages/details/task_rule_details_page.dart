@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/task_actions.dart';
 import '../../widgets/items/task_entry_list_item.dart';
+import '../../widgets/section_title.dart';
 import '../../widgets/task_rule_display_card.dart';
 
 class TaskRuleDetailsPage extends StatelessWidget {
@@ -13,8 +14,9 @@ class TaskRuleDetailsPage extends StatelessWidget {
   const TaskRuleDetailsPage({super.key, required this.taskRuleId, this.highlightTaskEntryId});
 
   Widget _noTaskEntriesPlaceholder(BuildContext context) {
-    return SizedBox(
+    return Container(
       height: 100,
+      padding: const EdgeInsets.all(16),
       child: Center(
         child: Text(
           'No entries yet',
@@ -48,19 +50,15 @@ class TaskRuleDetailsPage extends StatelessWidget {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TaskRuleDisplayCard(taskRule: taskRule, showStatus: true),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: TaskRuleDisplayCard(taskRule: taskRule, showStatus: true),
+              ),
 
-              const SizedBox(height: 16),
-              Text("Entries".toUpperCase(), style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold, 
-                letterSpacing: 1.2, 
-                color: Theme.of(context).colorScheme.primary
-              )),
-              const SizedBox(height: 8),
+              const SectionTitle(title: "Entries"),
 
               if (taskEntries.isEmpty)
                 _noTaskEntriesPlaceholder(context)
@@ -75,7 +73,6 @@ class TaskRuleDetailsPage extends StatelessWidget {
                   
                   return TaskEntryListItem(
                     taskEntryId: te.id,
-                    contentPadding: EdgeInsets.zero,
                     previousSnapshot: previousEntry?.snapshot,
                     enabled: highlightTaskEntryId == null || te.id == highlightTaskEntryId,
                     onTap: null, // disable infinite tap

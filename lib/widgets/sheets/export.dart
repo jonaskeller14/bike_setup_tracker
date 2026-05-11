@@ -25,17 +25,17 @@ Future<void> exportData(BuildContext context) async {
   if (!context.mounted) return;
 
   switch (exportResult.exportDestination) {
-    case ExportDestination.file: await FileExport.downloadJson(
+    case ExportDestination.file: FileExport.downloadJson(
       context: context,
       database: context.read<AppDatabase>(),
       selectedData: exportResult.selectedData,
     );
-    case ExportDestination.backup: await FileExport.saveBackup(
+    case ExportDestination.backup: FileExport.saveBackup(
       context: context, 
       database: context.read<AppDatabase>(), 
       force: true
     );
-    case ExportDestination.googleDriveBackup: await context.read<GoogleDriveService>().saveBackup(
+    case ExportDestination.googleDriveBackup: context.read<GoogleDriveService>().saveBackup(
       context: context, 
       force: true
     );

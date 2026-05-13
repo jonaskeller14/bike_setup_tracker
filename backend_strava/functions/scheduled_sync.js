@@ -3,11 +3,15 @@ const { onTaskDispatched } = require("firebase-functions/v2/tasks");
 const { getFunctions } = require("firebase-admin/functions");
 const { db, logger, admin } = require("./firebase");
 const { syncFullHistory } = require("./sync");
-const { StravaRateLimitError } = require("./common");
+const { StravaRateLimitError, athleteHasActiveEntitlement } = require("./common");
 
 /**
- * STRATEGY: Hourly Task Enqueuer
- * Runs every hour. Puts users into a Task Queue instead of waiting locally.
+ * STRATEGY: Hourly task enqueuer for the weekly full sync.
+ * Runs every hour. Picks athletes whose sync_day == today and haven't been
+ * synced in the last 20h. Each gets staggered into the Cloud Tasks queue so
+ * we don't burn through Strava's 15-minute rate limit.
+ *
+ * Entitlement gate: skip athletes whose linked devices are all unsubscribed.
  */
 exports.enqueueWeeklySyncs = onSchedule(
   {
@@ -17,52 +21,61 @@ exports.enqueueWeeklySyncs = onSchedule(
   async () => {
     const now = new Date();
     const todayDow = now.getDay();
-    // We want users who haven't synced in the last 20 hours
     const cutoffDate = new Date(now.getTime() - 20 * 60 * 60 * 1000);
 
     logger.info("ENQUEUE_SYNC_START", { dayOfWeek: todayDow, cutoff: cutoffDate.toISOString() });
 
     try {
-      // Find a batch of users scheduled for today who haven't synced yet
-      const usersSnapshot = await db.collection("users")
+      const athletesSnapshot = await db
+        .collection("athletes")
         .where("sync_day", "==", todayDow)
-        .where("strava_connected", "==", true)
         .where("strava_sync_last_full", "<", cutoffDate)
-        .limit(4) 
+        .limit(4)
         .get();
 
-      if (usersSnapshot.empty) {
-        logger.info("ENQUEUE_SYNC_NO_PENDING_USERS", { dayOfWeek: todayDow });
+      if (athletesSnapshot.empty) {
+        logger.info("ENQUEUE_SYNC_NO_PENDING_ATHLETES", { dayOfWeek: todayDow });
         return;
       }
 
-      logger.info("ENQUEUE_SYNC_BATCH_FOUND", { count: usersSnapshot.size });
+      logger.info("ENQUEUE_SYNC_BATCH_FOUND", {
+        count: athletesSnapshot.size,
+      });
 
-      const queue = getFunctions().taskQueue("projects/bike-setup-tracker-strava/locations/europe-west3/functions/scheduledSyncWorker");
+      const queue = getFunctions().taskQueue(
+        "projects/bike-setup-tracker-strava/locations/europe-west3/functions/scheduledSyncWorker"
+      );
 
-      // 2. Queue the tasks
-      for (const userDoc of usersSnapshot.docs) {
-        const userId = userDoc.id;
+      let delaySeconds = 0;
+      for (const doc of athletesSnapshot.docs) {
+        const athleteId = doc.id;
+
+        // Skip athletes whose linked devices are all unsubscribed.
+        const isPaid = await athleteHasActiveEntitlement(athleteId);
+        if (!isPaid) {
+          logger.info("ENQUEUE_SYNC_SKIPPED_NO_ENTITLEMENT", { athleteId });
+          // Stamp the last_full so we don't re-evaluate this athlete every
+          // hour — they re-enter the queue once someone subscribes.
+          await doc.ref.update({
+            strava_sync_last_full: admin.firestore.FieldValue.serverTimestamp(),
+          });
+          continue;
+        }
 
         await queue.enqueue(
-          { userId },
+          { athleteId },
           { scheduleDelaySeconds: delaySeconds }
         );
 
-        logger.info("ENQUEUED_TASK_FOR_USER", { userId, delaySeconds });
-        delaySeconds += 90; // Next sync runs 90s later
+        logger.info("ENQUEUED_TASK_FOR_ATHLETE", { athleteId, delaySeconds });
+        delaySeconds += 90;
       }
-
     } catch (error) {
       logger.error("ENQUEUE_SYNC_FATAL", error);
     }
   }
 );
 
-/**
- * STRATEGY: Cloud Task Worker for Sync
- * Executes when a task is dispatched from the queue.
- */
 exports.scheduledSyncWorker = onTaskDispatched(
   {
     retryConfig: {
@@ -78,35 +91,37 @@ exports.scheduledSyncWorker = onTaskDispatched(
     memory: "512MiB",
   },
   async (req) => {
-    const userId = req.data.userId;
-
-    if (!userId) {
-      logger.error("TASK_MISSING_USERID");
+    const athleteId = req.data.athleteId;
+    if (!athleteId) {
+      logger.error("TASK_MISSING_ATHLETEID");
       return;
     }
 
     try {
-      logger.info("WORKER_START_USER", { userId });
-      await syncFullHistory(userId);
-      logger.info("WORKER_SUCCESS_USER", { userId });
+      logger.info("WORKER_START_ATHLETE", { athleteId });
+      await syncFullHistory(athleteId);
+      logger.info("WORKER_SUCCESS_ATHLETE", { athleteId });
     } catch (error) {
       if (error instanceof StravaRateLimitError) {
         logger.warn("WORKER_RATE_LIMITED", {
-          userId,
+          athleteId,
           isDailyLimit: error.isDailyLimitHit,
           usage: `${error.usage15min}/${error.limit15min} (15min), ${error.usageDaily}/${error.limitDaily} (daily)`,
         });
-
-        // Let the Task Queue backoff and retry later
-        throw error;
-      } else {
-        logger.error("WORKER_FAILED_USER", { userId, error: error.message });
-        
-        // Mark as synced even if failed so we don't retry a broken user every hour forever
-        await db.collection("users").doc(userId).update({
-          strava_sync_last_full: admin.firestore.FieldValue.serverTimestamp()
-        });
+        throw error; // let task queue back off and retry
       }
+      logger.error("WORKER_FAILED_ATHLETE", {
+        athleteId,
+        error: error.message,
+      });
+      // Stamp last_full so this athlete doesn't get re-tried every hour
+      // forever — they'll re-enter the queue at the next weekly slot.
+      await db
+        .collection("athletes")
+        .doc(athleteId)
+        .update({
+          strava_sync_last_full: admin.firestore.FieldValue.serverTimestamp(),
+        });
     }
   }
 );

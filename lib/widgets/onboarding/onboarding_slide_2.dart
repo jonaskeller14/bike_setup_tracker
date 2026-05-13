@@ -44,32 +44,28 @@ class OnboardingSlide2 extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 60),
-                Column(
-                  children: [
-                    stepWidget(context: context, step: 1),
-                    const SizedBox(height: 12),
-                    Text('Build Your Digital Garage', 
-                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 12),
-                    Text.rich(
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                      const TextSpan(
-                        children: [
-                          TextSpan(text: "Add your "),
-                          TextSpan(text: "bikes", style: TextStyle(fontWeight: FontWeight.bold)),
-                          TextSpan(text: " and their "),
-                          TextSpan(text: "components", style: TextStyle(fontWeight: FontWeight.bold)),
-                          TextSpan(text: " that you want to track. Create a perfect digital twin of your real-world garage."),
-                        ]
-                      ),
-                    ),
-                  ],
+                stepWidget(context: context, step: 1),
+                const SizedBox(height: 12),
+                Text('Build Your Digital Garage', 
+                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text.rich(
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                  const TextSpan(
+                    children: [
+                      TextSpan(text: "Add your "),
+                      TextSpan(text: "bikes", style: TextStyle(fontWeight: FontWeight.bold)),
+                      TextSpan(text: " and their "),
+                      TextSpan(text: "components", style: TextStyle(fontWeight: FontWeight.bold)),
+                      TextSpan(text: " that you want to track. Create a perfect digital twin of your real-world garage."),
+                    ]
+                  ),
                 ),
               ],
             ),

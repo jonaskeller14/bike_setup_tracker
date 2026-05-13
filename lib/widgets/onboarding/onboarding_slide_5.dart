@@ -1,5 +1,9 @@
+import 'dart:async';
+import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/widgets/items/garage_component_icon_card.dart';
 import 'package:flutter/material.dart';
-import '../../icons/bike_icons.dart';
+import '../../models/bike.dart';
+import '../../models/component.dart';
 import 'onboarding_slide_utils.dart';
 
 class OnboardingSlide5 extends StatefulWidget {
@@ -21,16 +25,21 @@ class _OnboardingSlide5State extends State<OnboardingSlide5> {
   String _hintText = "Watch the gestures below...";
 
   // Mock data
-  final List<Map<String, dynamic>> _mockComponents = [
-    {"id": "c1", "name": "Suspension Fork", "icon": BikeIcons.fork},
-    {"id": "c2", "name": "Rear Shock", "icon": BikeIcons.shock},
-    {"id": "c3", "name": "Brakes", "icon": BikeIcons.brakeCalliper},
+  final List<Bike> _mockBikes = [
+    Bike(name: "Santa Cruz V10", person: null),
+    Bike(name: "Specialized Tarmac SL8", person: null),
+  ];
+
+  final List<Component> _mockComponents = [
+    Component(name: "Suspension Fork", installations: [Installation.sinceBeginning(parent: null)], componentType: ComponentType.fork),
+    Component(name: "Rear Shock", installations: [Installation.sinceBeginning(parent: null)], componentType: ComponentType.shock),
+    Component(name: "Brake", installations: [Installation.sinceBeginning(parent: null)], componentType: ComponentType.brakeCalliper),
   ];
 
   @override
-  Future<void> initState() async {
+  void initState() {
     super.initState();
-    await _runAnimationSequence();
+    unawaited(_runAnimationSequence());
   }
 
   Future<void> _runAnimationSequence() async {
@@ -161,6 +170,66 @@ class _OnboardingSlide5State extends State<OnboardingSlide5> {
     setState(() => _hintText = "Double tapped bike to filter");
   }
 
+  Widget _handCursor() {
+    return IgnorePointer(
+      child: AnimatedAlign(
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOut,
+        alignment: _cursorAlignment,
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 300),
+          opacity: _cursorOpacity,
+          child: AnimatedScale(
+            duration: const Duration(milliseconds: 150),
+            scale: _cursorScale,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.touch_app,
+                  size: 40,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _hintTextWidget() {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      child: Text(
+        _hintText,
+        key: ValueKey(_hintText),
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: _isInteractive
+              ? Theme.of(context).colorScheme.secondary
+              : Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -172,6 +241,134 @@ class _OnboardingSlide5State extends State<OnboardingSlide5> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                _hintTextWidget(),
+                const SizedBox(height: 24),
+
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Column(
+                      children: [
+                        Card(
+                          elevation: 4,
+                          clipBehavior: Clip.antiAlias,
+                          child: InkWell(
+                            onDoubleTap: _onBikeDoubleTap,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                ListTile(
+                                  dense: true,
+                                  leading: const Icon(Icons.pedal_bike),
+                                  title: Text(
+                                    "My Enduro Bike",
+                                    style: Theme.of(context).textTheme.titleMedium,
+                                  ),
+                                  trailing: const Icon(Icons.drag_handle),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                                  child: Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: _mockComponents.map((c) {
+                                      return GestureDetector(
+                                        onTap: () => _onComponentTap(c.id),
+                                        onDoubleTap: () => _onComponentDoubleTap(c.id),
+                                        child: GarageComponentIconCard(
+                                          component: c, 
+                                          componentToShowDetails: null
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                                // Expanded card mock
+                                if (_expandedId != null)
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      12,
+                                      0,
+                                      12,
+                                      12,
+                                    ),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.tertiaryContainer,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            _mockComponents.firstWhere(
+                                              (c) => c.id == _expandedId,
+                                            ).componentType.getIconData(),
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onTertiaryContainer,
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Text(
+                                            _mockComponents.firstWhere(
+                                              (c) => c.id == _expandedId,
+                                            ).name,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onTertiaryContainer,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        
+                        ..._mockBikes.map((b) {
+                          return Card(
+                            child: ListTile(
+                              title: Text(b.name),
+                            ),
+                          );
+                        }),
+                        const Divider(),
+                        Card(
+                          child: Column(
+                            children: [
+                              ListTile(
+                                dense: true,
+                                leading: const Icon(Icons.shelves),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                title: Text(
+                                  "Archive - Deinstalled components",
+                                  style: Theme.of(context).textTheme.titleMedium,
+                                ),
+                                subtitle: null,
+                                trailing: null,
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                    
+
+                    Positioned.fill(
+                      child: _handCursor(),
+                    ),
+                  ],
+                ),
+              
+                const SizedBox(height: 60),
                 stepWidget(context: context, step: 5),
                 const SizedBox(height: 12),
                 Text(
@@ -181,172 +378,6 @@ class _OnboardingSlide5State extends State<OnboardingSlide5> {
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: Text(
-                    _hintText,
-                    key: ValueKey(_hintText),
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: _isInteractive
-                          ? Theme.of(context).colorScheme.secondary
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 40),
-
-                // Interactive Mock Garage
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Card(
-                      elevation: 4,
-                      clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        onDoubleTap: _onBikeDoubleTap,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            ListTile(
-                              dense: true,
-                              leading: const Icon(Icons.pedal_bike),
-                              title: Text(
-                                "My Enduro Bike",
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              trailing: const Icon(Icons.drag_handle),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                              child: Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: _mockComponents.map((comp) {
-                                  return GestureDetector(
-                                    onTap: () => _onComponentTap(comp["id"]),
-                                    onDoubleTap: () =>
-                                        _onComponentDoubleTap(comp["id"]),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.primaryContainer,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Icon(
-                                        comp["icon"],
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onPrimaryContainer,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                            // Expanded card mock
-                            if (_expandedId != null)
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  12,
-                                  0,
-                                  12,
-                                  12,
-                                ),
-                                child: Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.tertiaryContainer,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        _mockComponents.firstWhere(
-                                          (c) => c["id"] == _expandedId,
-                                        )["icon"],
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onTertiaryContainer,
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Text(
-                                        _mockComponents.firstWhere(
-                                          (c) => c["id"] == _expandedId,
-                                        )["name"],
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onTertiaryContainer,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    // The animated hand cursor
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: AnimatedAlign(
-                          duration: const Duration(milliseconds: 600),
-                          curve: Curves.easeInOut,
-                          alignment: _cursorAlignment,
-                          child: AnimatedOpacity(
-                            duration: const Duration(milliseconds: 300),
-                            opacity: _cursorOpacity,
-                            child: AnimatedScale(
-                              duration: const Duration(milliseconds: 150),
-                              scale: _cursorScale,
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  // Add a subtle shadow/glow to cursor to make it visible over elements
-                                  Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.white.withValues(
-                                            alpha: 0.8,
-                                          ),
-                                          blurRadius: 10,
-                                          spreadRadius: 2,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.touch_app,
-                                    size: 40,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),

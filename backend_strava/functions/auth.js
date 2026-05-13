@@ -1,18 +1,22 @@
 const { onRequest, onCall, HttpsError } = require("firebase-functions/v2/https");
 const { db, logger, admin } = require("./firebase");
 const { syncFullHistory } = require("./sync");
-const { getTTLTimestamp } = require("./common");
 
 /**
  * STRATEGY: OAuth Token Exchange
  * Strava redirects the user here after they click 'Authorize' in the app.
- * We get a 'code' and a 'state' (which is our app-specific userId).
+ * We receive a 'code' and a 'state' (= the app's anonymous Firebase userId
+ * passed through the OAuth flow).
+ *
+ * Writes:
+ *   athletes/{athleteId}  - profile + oauth + initial sync state
+ *   users/{userId}        - arrayUnion this athleteId into linked_athletes
  */
 exports.exchangeToken = onRequest(
   { secrets: ["STRAVA_CLIENT_ID", "STRAVA_CLIENT_SECRET"] },
   async (req, res) => {
     const code = req.query.code;
-    const userId = req.query.state; // We passed the app's internal userId in 'state'
+    const userId = req.query.state;
 
     if (!code || !userId) {
       logger.error("MISSING_CODE_OR_USERID", { code, userId });
@@ -20,7 +24,7 @@ exports.exchangeToken = onRequest(
     }
 
     try {
-      // 1. Exchange the temporary 'code' for a permanent 'access_token'
+      // 1. Exchange the temporary code for a permanent access token.
       const response = await fetch("https://www.strava.com/api/v3/oauth/token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -33,125 +37,108 @@ exports.exchangeToken = onRequest(
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(`Strava Token Exchange failed: ${JSON.stringify(data)}`);
       }
 
-      // 2. Store tokens securely in Firestore
-      // We index by app-specific userId so the app can easily find its tokens
-      await db.collection("users").doc(userId).set({
-        strava_auth: {
-          access_token: data.access_token,
-          refresh_token: data.refresh_token,
-          expires_at: data.expires_at,
-          athlete_id: data.athlete.id,
-          updated_at: admin.firestore.FieldValue.serverTimestamp(),
+      const athleteId = String(data.athlete.id);
+      const athleteRef = db.collection("athletes").doc(athleteId);
+      const oauthRef = db.collection("athlete_oauth").doc(athleteId);
+      const userRef = db.collection("users").doc(userId);
+
+      // 2a. Write the client-readable athlete doc — profile + sync seed. No
+      //     OAuth here (server-only, see below). `merge: true` so a second
+      //     device re-linking the same athlete preserves existing sync state.
+      await athleteRef.set(
+        {
+          id: data.athlete.id,
+          firstname: data.athlete.firstname,
+          lastname: data.athlete.lastname,
+          profile: data.athlete.profile,
+          sync_day: new Date().getDay(), // 0=Sun..6=Sat — used by weekly sync
+          lastModified: admin.firestore.FieldValue.serverTimestamp(),
         },
-        strava_connected: true,
-        expiresAt: admin.firestore.FieldValue.delete(), // Remove TTL expiration if it exists
-        sync_day: new Date().getDay(), // 0=Sun, 1=Mon, ..., 6=Sat — used by scheduledWeeklySync
-      }, { merge: true });
+        { merge: true }
+      );
 
-      logger.info("STRAVA_AUTH_SUCCESSFUL", { userId });
+      // 2b. Write the OAuth tokens to the server-only collection.
+      await oauthRef.set({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        expires_at: data.expires_at,
+        updated_at: admin.firestore.FieldValue.serverTimestamp(),
+      });
 
-      // 3. Trigger Full Sync in background (non-blocking)
-      syncFullHistory(userId).catch(err => logger.error("BACKGROUND_FULL_SYNC_FAILED", { userId, error: err.message }));
+      // 3. Link the calling device to this athlete. Also drop the TTL — this
+      //    user doc now belongs to a paying-or-paying-in-the-future user.
+      await userRef.set(
+        {
+          linked_athletes: admin.firestore.FieldValue.arrayUnion(athleteId),
+          expiresAt: admin.firestore.FieldValue.delete(),
+        },
+        { merge: true }
+      );
 
-      // 4. Redirect back to the App using Deep Linking
-      const redirectUrl = `bike-setup-tracker://strava-auth?success=true`;
-      return res.redirect(redirectUrl);
+      logger.info("STRAVA_AUTH_SUCCESSFUL", { userId, athleteId });
 
+      // 4. Kick off a full sync in the background. Non-blocking.
+      syncFullHistory(athleteId).catch((err) =>
+        logger.error("BACKGROUND_FULL_SYNC_FAILED", {
+          athleteId,
+          error: err.message,
+        })
+      );
+
+      // 5. Deep-link back to the app.
+      return res.redirect("bike-setup-tracker://strava-auth?success=true");
     } catch (error) {
       logger.error("AUTH_ERROR", error);
-      return res.redirect(`bike-setup-tracker://strava-auth?success=false&error=auth_failed`);
+      return res.redirect(
+        "bike-setup-tracker://strava-auth?success=false&error=auth_failed"
+      );
     }
   }
 );
 
 /**
- * STRATEGY: Deauthorization
- * Wipes user's Strava data from Firestore and tells Strava to revoke access.
+ * STRATEGY: Availability check
+ * Counts how many athletes currently have an active Strava OAuth (i.e. are
+ * linked to at least one device). Compares against a configurable cap so we
+ * stay under Strava's per-application rate limit.
+ *
+ * Configurable via Firestore doc `server_config/strava_limits`:
+ *   { manualStop: bool, maxUsers: number, buffer: number }
  */
-exports.deauthorizeUser = onCall({ enforceAppCheck: true }, async (request) => {
-    const userId = request.auth ? request.auth.uid : null;
-    if (!userId) {
-      throw new HttpsError("unauthenticated", "User must be logged in.");
-    }
-
+exports.checkStravaAvailability = onCall(
+  { enforceAppCheck: true },
+  async (request) => {
     try {
-      const userRef = db.collection("users").doc(userId);
-      const doc = await userRef.get();
-      
-      if (!doc.exists || !doc.data().strava_auth) {
-        return "Already disconnected";
+      const configDoc = await db
+        .collection("server_config")
+        .doc("strava_limits")
+        .get();
+      let config = { manualStop: false, maxUsers: 100, buffer: 10 };
+      if (configDoc.exists) {
+        config = { ...config, ...configDoc.data() };
       }
 
-      const accessToken = doc.data().strava_auth.access_token;
-
-      // 1. Tell Strava to revoke access
-      await fetch("https://www.strava.com/oauth/deauthorize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ access_token: accessToken }),
-      });
-
-      // 2. Clean up Firestore (Delete Strava-specific subcollections)
-      // We use recursiveDelete to automatically handle pagination and the 500-operation limit
-      const subcollections = ["activity_batches", "activities", "athletes", "gears"];
-      for (const collName of subcollections) {
-        await db.recursiveDelete(userRef.collection(collName));
+      if (config.manualStop) {
+        return { available: false, reason: "manual_stop" };
       }
-      
-      // 3. Update main user document to remove Strava fields
-      await userRef.update({
-        strava_auth: admin.firestore.FieldValue.delete(),
-        strava_connected: false,
-        strava_deauthorized_on_strava_at: admin.firestore.FieldValue.serverTimestamp(),
-        expiresAt: getTTLTimestamp()
-      });
 
-      logger.info("USER_DEAUTHORIZED", { userId });
-      return "DEAUTHORIZED_SUCCESSFUL";
+      // Count athletes that currently have OAuth tokens (i.e. someone is
+      // linked). `athlete_oauth` only exists for currently-linked athletes —
+      // orphan cleanup deletes it.
+      const snapshot = await db.collection("athlete_oauth").count().get();
 
+      const activeCount = snapshot.data().count;
+      const cap = config.maxUsers + config.buffer;
+      return activeCount < cap
+        ? { available: true }
+        : { available: false, reason: "limit_reached" };
     } catch (error) {
-      logger.error("DEAUTHORIZE_ERROR", error);
-      throw new HttpsError("internal", "Deauthorization failed");
+      logger.error("CHECK_AVAILABILITY_ERROR", error);
+      throw new HttpsError("internal", "Failed to check availability");
     }
   }
 );
-
-/**
- * STRATEGY: Global User Limits
- * Checks if a user is allowed to sign up based on a global config and current user count.
- */
-exports.checkStravaAvailability = onCall({ enforceAppCheck: true }, async (request) => {
-  try {
-    const configDoc = await db.collection("server_config").doc("strava_limits").get();
-    let config = { manualStop: false, maxUsers: 100, buffer: 10 }; // Defaults
-    
-    if (configDoc.exists) {
-      config = { ...config, ...configDoc.data() };
-    }
-
-    if (config.manualStop) {
-      return { available: false, reason: "manual_stop" };
-    }
-
-    const snapshot = await db.collection("users")
-      .where("strava_connected", "==", true)
-      .count()
-      .get();
-      
-    const activeCount = snapshot.data().count;
-
-    if (activeCount < (config.maxUsers + config.buffer)) {
-      return { available: true };
-    } else {
-      return { available: false, reason: "limit_reached" };
-    }
-  } catch (error) {
-    logger.error("CHECK_AVAILABILITY_ERROR", error);
-    throw new HttpsError("internal", "Failed to check availability");
-  }
-});

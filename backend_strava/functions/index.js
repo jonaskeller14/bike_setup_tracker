@@ -7,10 +7,11 @@ const auth = require("./auth");
 const webhook = require("./webhook");
 const sync = require("./sync");
 const scheduledSync = require("./scheduled_sync");
+const orphanCleanup = require("./orphan_cleanup");
+const subscription = require("./subscription");
 
-// Auth
+// Auth + availability
 exports.exchangeToken = auth.exchangeToken;
-exports.deauthorizeUser = auth.deauthorizeUser;
 exports.checkStravaAvailability = auth.checkStravaAvailability;
 
 // Webhook
@@ -22,3 +23,9 @@ exports.syncActivities = sync.syncActivities;
 exports.syncFullHistory = sync.syncFullHistoryCloud;
 exports.enqueueWeeklySyncs = scheduledSync.enqueueWeeklySyncs;
 exports.scheduledSyncWorker = scheduledSync.scheduledSyncWorker;
+
+// Orphan cleanup (Firestore trigger on users/{uid})
+exports.cleanupOrphanedAthletes = orphanCleanup.cleanupOrphanedAthletes;
+
+// Subscriptions
+exports.verifySubscription = subscription.verifySubscription;

@@ -2,17 +2,21 @@ const { onRequest } = require("firebase-functions/v2/https");
 const { onTaskDispatched } = require("firebase-functions/v2/tasks");
 const { getFunctions } = require("firebase-admin/functions");
 const { db, logger, admin } = require("./firebase");
-const { getValidAccessToken, saveActivityToBatch, checkStravaResponse, isBikeActivity, getTTLTimestamp } = require("./common");
+const {
+  getValidAccessToken,
+  saveActivityToBatch,
+  checkStravaResponse,
+  athleteHasActiveEntitlement,
+} = require("./common");
 
 /**
  * STRATEGY: Webhook Listener
- * Receives the event, checks for duplicates, and enqueues a background task.
- * This keeps the response time < 100ms and prevents Strava from retrying.
+ * Receives the event, dedupes via Cloud Tasks taskName, and enqueues a
+ * background worker. Keeps response time < 100ms so Strava doesn't retry.
  */
 exports.stravaWebhook = onRequest(
-  { secrets: ["STRAVA_VERIFY_TOKEN"] }, 
+  { secrets: ["STRAVA_VERIFY_TOKEN"] },
   async (req, res) => {
-    
     // 1. HANDSHAKE (GET): Strava verifies this endpoint is alive.
     if (req.method === "GET") {
       const mode = req.query["hub.mode"];
@@ -26,7 +30,7 @@ exports.stravaWebhook = onRequest(
       return res.status(403).send("Verification failed");
     }
 
-    // 2. EVENT HANDLING (POST): Enqueue to background worker
+    // 2. EVENT (POST): Enqueue to background worker.
     if (req.method === "POST") {
       const event = req.body;
       const activityId = event.object_id;
@@ -34,13 +38,11 @@ exports.stravaWebhook = onRequest(
       const aspectType = event.aspect_type;
       const eventTime = event.event_time;
 
-      // NATIVE IDEMPOTENCY: Cloud Tasks avoids duplicates automatically if we provide a taskName.
-      // Task names expire after ~1 hour, which is perfect for catching webhook retries.
+      // Cloud Tasks dedupes by taskName for ~1 hour — handles Strava retries.
       const taskName = `${athleteId}_${activityId}_${aspectType}_${eventTime || 'notime'}`;
-      
-      // Use the fully qualified resource name to ensure the SDK finds the 2nd gen queue in europe-west3
+
       const queue = getFunctions().taskQueue("projects/bike-setup-tracker-strava/locations/europe-west3/functions/webhookWorker");
-      
+
       try {
         await queue.enqueue({ event }, { taskName });
         logger.info("EVENT_ENQUEUED", { taskName, queue: "stravaSyncWorker" });
@@ -62,8 +64,10 @@ exports.stravaWebhook = onRequest(
 );
 
 /**
- * STRATEGY: Background Worker for Webhook Events
- * Handles fetching, syncing, and notifications.
+ * STRATEGY: Background worker for webhook events.
+ * Enforces the entitlement gate: if no device linked to this athlete has an
+ * active subscription, we drop the event — we don't store data we're not
+ * being paid to sync.
  */
 exports.webhookWorker = onTaskDispatched(
   {
@@ -81,166 +85,181 @@ exports.webhookWorker = onTaskDispatched(
   },
   async (req) => {
     const { event } = req.data;
-    const objectType = event.object_type; 
+    const objectType = event.object_type;
     const aspectType = event.aspect_type;
     const activityId = event.object_id;
-    const athleteId = event.owner_id;
+    const athleteId = String(event.owner_id);
 
-    logger.info("WORKER_PROCESSING_EVENT", { activityId, aspectType });
+    logger.info("WORKER_PROCESSING_EVENT", {
+      objectType,
+      activityId,
+      aspectType,
+      athleteId,
+    });
 
     try {
-      if (objectType === 'activity') {
-        // 1. Find ALL users linked to this athlete
-        const usersSnapshot = await db.collection("users")
-          .where("strava_auth.athlete_id", "==", athleteId)
-          .get();
-
-        if (usersSnapshot.empty) {
-          logger.info("WORKER_NO_USER_FOUND", { athleteId });
-          return;
-        }
-
-        switch (aspectType) {
-          case 'create': {
-            // Fetch activity details
-            const firstUserId = usersSnapshot.docs[0].id;
-            const userToken = await getValidAccessToken(firstUserId);
-            const response = await fetch(`https://www.strava.com/api/v3/activities/${activityId}`, {
-              headers: { "Authorization": `Bearer ${userToken}` }
-            });
-            checkStravaResponse(response, "Strava Activity API");
-            const activity = await response.json();
-
-            // Sync for every user and collect FCM tokens
-            // Import for every user
-            let anyImported = false;
-            const syncPromises = usersSnapshot.docs.map(async (userDoc) => {
-              const result = await saveActivityToBatch(activity, userDoc.id);
-              if (result.wasCreated) anyImported = true;
-            });
-            await Promise.all(syncPromises);
-
-            // Send notifications if newly imported
-            if (anyImported) {
-              await sendImportNotifications(activity, usersSnapshot);
-            }
-            break;
-          }
-
-          case 'update': {
-            const firstUserId = usersSnapshot.docs[0].id;
-            const userToken = await getValidAccessToken(firstUserId);
-            const response = await fetch(`https://www.strava.com/api/v3/activities/${activityId}`, {
-              headers: { "Authorization": `Bearer ${userToken}` }
-            });
-            checkStravaResponse(response, "Strava Activity API");
-            const activity = await response.json();
-            
-            let anyImported = false;
-            for (const userDoc of usersSnapshot.docs) {
-              const result = await saveActivityToBatch(activity, userDoc.id);
-              if (result.wasCreated) anyImported = true;
-            }
-
-            if (anyImported) {
-              await sendImportNotifications(activity, usersSnapshot);
-            }
-            break;
-          }
-
-          case 'delete': {
-            for (const userDoc of usersSnapshot.docs) {
-              await saveActivityToBatch({ id: activityId, isDeleted: true }, userDoc.id);
-            }
-            break;
-          }
-        }
-      } else if (objectType === 'athlete') {
+      if (objectType === "athlete") {
         await handleAthleteEvent(event);
-      } else {
+        return;
+      }
+
+      if (objectType !== "activity") {
         logger.info("WORKER_SKIPPED_TYPE", { objectType });
+        return;
+      }
+
+      // ENTITLEMENT GATE — drop activities for athletes whose linked devices
+      // are all unsubscribed. Saves Firestore writes + Strava API calls.
+      const isPaid = await athleteHasActiveEntitlement(athleteId);
+      if (!isPaid) {
+        logger.info("WORKER_DROPPED_NO_ENTITLEMENT", { athleteId, activityId });
+        return;
+      }
+
+      // ATHLETE EXISTS CHECK — needed to call Strava (OAuth lives here).
+      const athleteSnap = await db
+        .collection("athletes")
+        .doc(athleteId)
+        .get();
+      if (!athleteSnap.exists) {
+        logger.warn("WORKER_ATHLETE_NOT_FOUND", { athleteId });
+        return;
+      }
+
+      switch (aspectType) {
+        case "create":
+        case "update": {
+          const token = await getValidAccessToken(athleteId);
+          const response = await fetch(
+            `https://www.strava.com/api/v3/activities/${activityId}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          checkStravaResponse(response, "Strava Activity API");
+          const activity = await response.json();
+
+          const result = await saveActivityToBatch(activity, athleteId);
+
+          if (result.wasCreated) {
+            await sendImportNotifications(activity, athleteId);
+          }
+          break;
+        }
+
+        case "delete": {
+          await saveActivityToBatch(
+            { id: activityId, isDeleted: true },
+            athleteId
+          );
+          break;
+        }
       }
 
       logger.info("WORKER_SUCCESS", { activityId, aspectType });
     } catch (error) {
-      logger.error("WEBHOOK_WORKER_FAILED", { activityId, error: error.message });
-      throw error; // Let Cloud Task retry based on config
+      logger.error("WEBHOOK_WORKER_FAILED", {
+        activityId,
+        error: error.message,
+      });
+      throw error; // let Cloud Tasks retry per its config
     }
   }
 );
 
 /**
- * Handle athlete events (like deauthorization)
+ * Strava-side deauthorization event. The user revoked our app in their
+ * Strava settings. We delete the athlete subtree and remove this athleteId
+ * from every linked user — the user-doc trigger picks up the change for
+ * each device and tears down listeners.
  */
 async function handleAthleteEvent(event) {
-  const athleteId = event.owner_id;
+  const athleteId = String(event.owner_id);
   const aspectType = event.aspect_type;
+  const updates = event.updates || {};
 
-  if (aspectType === 'update' && event.updates && event.updates.authorized === "false") {
-    logger.info(`ATHLETE_DEAUTHORIZED_ON_STRAVA: ${athleteId}`);
-    try {
-      const usersSnapshot = await db.collection("users")
-        .where("strava_auth.athlete_id", "==", athleteId)
-        .get();
+  if (aspectType !== "update" || updates.authorized !== "false") {
+    return;
+  }
 
-      for (const userDoc of usersSnapshot.docs) {
-        const userId = userDoc.id;
-        const userRef = userDoc.ref;
-        
-        // Clean up activities (Batches)
-        const batchesSnapshot = await userRef.collection("activity_batches").get();
-        const batch = db.batch();
-        batchesSnapshot.forEach(doc => batch.delete(doc.ref));
-        
-        batch.update(userRef, {
-          strava_auth: admin.firestore.FieldValue.delete(),
-          strava_connected: false,
-          strava_deauthorized_on_strava_at: admin.firestore.FieldValue.serverTimestamp(),
-          expiresAt: getTTLTimestamp()
-        });
+  logger.info("ATHLETE_DEAUTHORIZED_ON_STRAVA", { athleteId });
 
-        await batch.commit();
-        logger.info(`CLEANUP_SUCCESS_FOR_WEBHOOK_DEAUTH: ${userId}`);
-      }
-    } catch (error) {
-      logger.error("CLEANUP_FAILED_FOR_WEBHOOK_DEAUTH", error);
+  try {
+    // 1. Remove this athleteId from every user that links to it.
+    const usersSnap = await db
+      .collection("users")
+      .where("linked_athletes", "array-contains", athleteId)
+      .get();
+    const batch = db.batch();
+    for (const userDoc of usersSnap.docs) {
+      batch.update(userDoc.ref, {
+        linked_athletes: admin.firestore.FieldValue.arrayRemove(athleteId),
+      });
     }
+    await batch.commit();
+
+    // 2. Recursively delete the athlete subtree + the server-only OAuth doc.
+    const athleteRef = db.collection("athletes").doc(athleteId);
+    await Promise.all([
+      db.recursiveDelete(athleteRef),
+      db.collection("athlete_oauth").doc(athleteId).delete().catch(() => {}),
+    ]);
+
+    logger.info("ATHLETE_FULLY_PURGED", { athleteId, devices: usersSnap.size });
+  } catch (error) {
+    logger.error("ATHLETE_DEAUTH_CLEANUP_FAILED", {
+      athleteId,
+      error: error.message,
+    });
   }
 }
 
 /**
- * Sends notifications to all users who have an FCM token.
+ * Sends FCM notifications to every device linked to this athlete that has
+ * notifications enabled.
  */
-async function sendImportNotifications(activity, usersSnapshot) {
+async function sendImportNotifications(activity, athleteId) {
+  const usersSnap = await db
+    .collection("users")
+    .where("linked_athletes", "array-contains", String(athleteId))
+    .get();
+
   const tokenToUserIds = new Map();
-  usersSnapshot.docs.forEach(userDoc => {
-    const userData = userDoc.data();
-    if (userData.fcm_token && userData.enable_strava_notifications !== false) {
-      const token = userData.fcm_token;
+  for (const userDoc of usersSnap.docs) {
+    const data = userDoc.data();
+    if (data.fcm_token && data.enable_strava_notifications !== false) {
+      const token = data.fcm_token;
       if (!tokenToUserIds.has(token)) tokenToUserIds.set(token, new Set());
       tokenToUserIds.get(token).add(userDoc.id);
     }
-  });
+  }
 
-  const notificationPromises = Array.from(tokenToUserIds.keys()).map(async (token) => {
-    try {
-      await admin.messaging().send({
-        token: token,
-        notification: {
-          title: "New Activity!",
-          body: `We imported your ride: ${activity.name}`,
-        },
-        data: { type: "strava_sync", activityId: String(activity.id) }
-      });
-    } catch (err) {
-      const isStale = err.code === "messaging/registration-token-not-registered" || err.code === "messaging/invalid-argument";
-      if (isStale) {
-        const affectedUserIds = Array.from(tokenToUserIds.get(token));
-        const cleanupBatch = db.batch();
-        affectedUserIds.forEach(uid => cleanupBatch.update(db.collection("users").doc(uid), { fcm_token: admin.firestore.FieldValue.delete() }));
-        await cleanupBatch.commit();
+  await Promise.all(
+    Array.from(tokenToUserIds.keys()).map(async (token) => {
+      try {
+        await admin.messaging().send({
+          token,
+          notification: {
+            title: "New Activity!",
+            body: `We imported your ride: ${activity.name}`,
+          },
+          data: {
+            type: "strava_sync",
+            activityId: String(activity.id),
+          },
+        });
+      } catch (err) {
+        const isStale =
+          err.code === "messaging/registration-token-not-registered" ||
+          err.code === "messaging/invalid-argument";
+        if (isStale) {
+          const cleanup = db.batch();
+          for (const uid of tokenToUserIds.get(token)) {
+            cleanup.update(db.collection("users").doc(uid), {
+              fcm_token: admin.firestore.FieldValue.delete(),
+            });
+          }
+          await cleanup.commit();
+        }
       }
-    }
-  });
-  await Promise.all(notificationPromises);
+    })
+  );
 }

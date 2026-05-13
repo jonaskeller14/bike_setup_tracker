@@ -1,123 +1,143 @@
-const { onRequest, onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { db, logger, admin } = require("./firebase");
-const { getValidAccessToken, saveAthleteAndGear, saveActivityToBatch, checkStravaResponse, isBikeActivity, getTTLTimestamp } = require("./common");
+const {
+  getValidAccessToken,
+  saveAthleteAndGear,
+  saveActivityToBatch,
+  checkStravaResponse,
+  isBikeActivity,
+  getTTLTimestamp,
+  getAthleteIdForCaller,
+} = require("./common");
 
 /**
- * STRATEGY: Manual Sync (Recent)
- * Allows the app to request a manual fetch of the last 50 activities.
- * Useful if webhooks fail or user wants an immediate refresh.
+ * STRATEGY: Manual Recent Sync
+ * Fetches the last 50 activities for the caller's active athlete. Used as
+ * "force refresh" if webhooks miss something.
+ *
+ * Optional request param: `athleteId` — for the future trainer view, where
+ * the user explicitly picks which of their linked athletes to sync. Defaults
+ * to the first linked athlete.
  */
 exports.syncActivities = onCall(
   { secrets: ["STRAVA_CLIENT_ID", "STRAVA_CLIENT_SECRET"], enforceAppCheck: true },
   async (request) => {
     const userId = request.auth ? request.auth.uid : null;
-
     if (!userId) {
       throw new HttpsError("unauthenticated", "User must be logged in.");
     }
 
+    const athleteId = await getAthleteIdForCaller(
+      userId,
+      request.data?.athleteId
+    );
+
     try {
-      const userToken = await getValidAccessToken(userId);
+      const token = await getValidAccessToken(athleteId);
 
-      // 1. Fetch Athlete Profile (includes gear summary)
-      const athleteResponse = await fetch("https://www.strava.com/api/v3/athlete", {
-        headers: { "Authorization": `Bearer ${userToken}` }
-      });
-
+      // 1. Fetch athlete profile + gear summary.
+      const athleteResponse = await fetch(
+        "https://www.strava.com/api/v3/athlete",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       checkStravaResponse(athleteResponse, "Strava Athlete API");
-
       const athlete = await athleteResponse.json();
-      
-      const batch = db.batch();
-      
-      // 1.1 Save Athlete Profile & Gear
-      const gearCount = await saveAthleteAndGear(athlete, userId, batch);
 
-      // 2. Fetch last 50 activities
-      const response = await fetch("https://www.strava.com/api/v3/athlete/activities?per_page=50", {
-        headers: { "Authorization": `Bearer ${userToken}` }
-      });
-      
+      const profileBatch = db.batch();
+      const gearCount = await saveAthleteAndGear(athlete, profileBatch);
+      await profileBatch.commit();
+
+      // 2. Fetch last 50 activities.
+      const response = await fetch(
+        "https://www.strava.com/api/v3/athlete/activities?per_page=50",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       checkStravaResponse(response, "Strava Activities API");
-
       const activities = await response.json();
-      
-      // 2.1 Save Activities to Batches
+
       for (const activity of activities) {
-        await saveActivityToBatch(activity, userId); // Individual processing for manual recent sync
+        await saveActivityToBatch(activity, athleteId);
       }
 
-      await batch.commit();
+      // 3. Mark last recent sync time on the athlete doc.
+      await db
+        .collection("athletes")
+        .doc(athleteId)
+        .update({
+          strava_sync_last_recent: admin.firestore.FieldValue.serverTimestamp(),
+        });
 
-      // 3. Mark last recent sync time
-      await db.collection("users").doc(userId).update({
-        strava_sync_last_recent: admin.firestore.FieldValue.serverTimestamp()
+      logger.info("MANUAL_SYNC_SUCCESSFUL", {
+        userId,
+        athleteId,
+        count: activities.length,
+        gearCount,
       });
-
-      logger.info("MANUAL_SYNC_SUCCESSFUL", { userId, count: activities.length, gearCount });
       return `SYNC_SUCCESSFUL: ${activities.length} activities, ${gearCount} gear items processed.`;
-
     } catch (error) {
-      logger.error("MANUAL_SYNC_FAILED", error);
+      logger.error("MANUAL_SYNC_FAILED", {
+        userId,
+        athleteId,
+        error: error.message,
+      });
       throw new HttpsError("internal", `Sync failed: ${error.message}`);
     }
   }
 );
 
 /**
- * Core logic for full history sync.
- * Can be called internally or via request.
+ * Core logic for full history sync — called from `exchangeToken` (after
+ * first OAuth) and from the scheduled weekly sync worker, and exposed as a
+ * callable for an explicit "Full Sync" button.
+ *
+ * Now keyed by athleteId rather than userId.
  */
-async function syncFullHistory(userId) {
-  const userRef = db.collection("users").doc(userId);
-  
+async function syncFullHistory(athleteId) {
+  athleteId = String(athleteId);
+  const athleteRef = db.collection("athletes").doc(athleteId);
+
   try {
-    // 1. Set status to syncing
-    await userRef.update({ 
+    await athleteRef.update({
       strava_sync_status: "syncing",
-      strava_sync_error: "" 
+      strava_sync_error: "",
     });
 
-    const userToken = await getValidAccessToken(userId);
+    const token = await getValidAccessToken(athleteId);
 
-    // 2. Fetch Athlete Profile First
-    const athleteResponse = await fetch("https://www.strava.com/api/v3/athlete", {
-      headers: { "Authorization": `Bearer ${userToken}` }
-    });
-
+    // Athlete profile + gear.
+    const athleteResponse = await fetch(
+      "https://www.strava.com/api/v3/athlete",
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
     checkStravaResponse(athleteResponse, "Strava Athlete API");
-
     const athlete = await athleteResponse.json();
-    
-    // Save Athlete & Gear immediately in a small batch
+
     let batch = db.batch();
-    const gearCount = await saveAthleteAndGear(athlete, userId, batch);
+    const gearCount = await saveAthleteAndGear(athlete, batch);
     await batch.commit();
 
-    // 3. Paginated Fetch of ALL Activities
+    // Wipe old batches before repopulating.
+    const oldBatches = await athleteRef.collection("activity_batches").get();
+    if (!oldBatches.empty) {
+      const deleteBatch = db.batch();
+      oldBatches.forEach((doc) => deleteBatch.delete(doc.ref));
+      await deleteBatch.commit();
+    }
+
+    // Paginated fetch of every activity.
     let page = 1;
-    const perPage = 100; 
+    const perPage = 100;
     let allActivitiesSaved = 0;
     let keepFetching = true;
     let currentBatchActivities = [];
 
-    // Clear old batches for clean migration (as requested: overwrite/repopulate)
-    const oldBatches = await userRef.collection("activity_batches").get();
-    if (!oldBatches.empty) {
-      const deleteBatch = db.batch();
-      oldBatches.forEach(doc => deleteBatch.delete(doc.ref));
-      await deleteBatch.commit();
-    }
-
     while (keepFetching) {
-      const response = await fetch(`https://www.strava.com/api/v3/athlete/activities?page=${page}&per_page=${perPage}`, {
-        headers: { "Authorization": `Bearer ${userToken}` }
-      });
-
+      const response = await fetch(
+        `https://www.strava.com/api/v3/athlete/activities?page=${page}&per_page=${perPage}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       checkStravaResponse(response, `Strava Activities API (page ${page})`);
-
       const activities = await response.json();
-
       if (activities.length === 0) {
         keepFetching = false;
         break;
@@ -129,7 +149,11 @@ async function syncFullHistory(userId) {
         // Transform to local format
         let startLat = null;
         let startLon = null;
-        if (activity.start_latlng && Array.isArray(activity.start_latlng) && activity.start_latlng.length === 2) {
+        if (
+          activity.start_latlng &&
+          Array.isArray(activity.start_latlng) &&
+          activity.start_latlng.length === 2
+        ) {
           startLat = activity.start_latlng[0];
           startLon = activity.start_latlng[1];
         }
@@ -155,93 +179,102 @@ async function syncFullHistory(userId) {
 
         // When we have 500, write a batch doc
         if (currentBatchActivities.length >= 500) {
-          await writeBatchDoc(userId, currentBatchActivities, allActivitiesSaved);
+          await writeBatchDoc(athleteId, currentBatchActivities, allActivitiesSaved);
           currentBatchActivities = [];
         }
       }
 
-      logger.info(`SYNC_FULL_PAGE_DONE`, { userId, page, count: activities.length });
+      logger.info("SYNC_FULL_PAGE_DONE", {
+        athleteId,
+        page,
+        count: activities.length,
+      });
       page++;
     }
 
     // Commit any remaining operations
     if (currentBatchActivities.length > 0) {
-      await writeBatchDoc(userId, currentBatchActivities, allActivitiesSaved);
+      await writeBatchDoc(athleteId, currentBatchActivities, allActivitiesSaved);
     }
 
-    // 4. Success -> Reset status
-    await userRef.update({ 
+    await athleteRef.update({
       strava_sync_status: "idle",
-      strava_sync_last_full: admin.firestore.FieldValue.serverTimestamp()
+      strava_sync_last_full: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    logger.info("FULL_SYNC_SUCCESSFUL", { userId, totalActivities: allActivitiesSaved });
+    logger.info("FULL_SYNC_SUCCESSFUL", {
+      athleteId,
+      totalActivities: allActivitiesSaved,
+      gearCount,
+    });
     return allActivitiesSaved;
-
   } catch (error) {
-    logger.error("FULL_SYNC_FAILED", { userId, error: error.message });
-    
-    // 5. Error -> Update status
-    await userRef.update({ 
+    logger.error("FULL_SYNC_FAILED", { athleteId, error: error.message });
+    await athleteRef.update({
       strava_sync_status: "error",
-      strava_sync_error: error.message 
+      strava_sync_error: error.message,
     });
-    
     throw error;
   }
 }
 
-/**
- * Internal Helper: Writes a single chunk of activities to Firestore as a batch.
- */
-async function writeBatchDoc(userId, activitiesRaw, totalCountSoFar) {
+async function writeBatchDoc(athleteId, activitiesRaw, totalCountSoFar) {
   const batchNum = Math.ceil(totalCountSoFar / 500);
-  const batchId = `batch_${String(batchNum).padStart(3, '0')}`;
-  
-  const activityIds = activitiesRaw.map(a => a.id);
+  const batchId = `batch_${String(batchNum).padStart(3, "0")}`;
+
+  const activityIds = activitiesRaw.map((a) => a.id);
   const activitiesMap = {};
-  activitiesRaw.forEach(a => {
+  activitiesRaw.forEach((a) => {
     activitiesMap[String(a.id)] = a;
   });
 
   const batchData = {
     id: batchId,
-    userId,
+    athleteId,
     lastModified: admin.firestore.FieldValue.serverTimestamp(),
     activityIds,
     activities: activitiesMap,
-    expiresAt: getTTLTimestamp()
+    expiresAt: getTTLTimestamp(),
   };
 
-  await db.collection("users").doc(userId)
-    .collection("activity_batches").doc(batchId)
+  await db
+    .collection("athletes")
+    .doc(athleteId)
+    .collection("activity_batches")
+    .doc(batchId)
     .set(batchData);
-  
-  logger.info("BATCH_WRITE_SUCCESS", { userId, batchId, count: activitiesRaw.length });
+
+  logger.info("BATCH_WRITE_SUCCESS", {
+    athleteId,
+    batchId,
+    count: activitiesRaw.length,
+  });
 }
 
 /**
- * STRATEGY: Full History Sync
- * Fetches ALL activities from Strava for the user.
- * Uses pagination to retrieve everything.
- * WARNING: heavy operation. 
+ * STRATEGY: Full History Sync (callable)
+ * Heavyweight — fetches every activity from Strava. Used when the user hits
+ * the "Full Sync" button (not currently wired in the UI but kept for parity).
  */
 exports.syncFullHistoryCloud = onCall(
-  { 
+  {
     secrets: ["STRAVA_CLIENT_ID", "STRAVA_CLIENT_SECRET"],
-    timeoutSeconds: 540, 
+    timeoutSeconds: 540,
     memory: "512MiB",
-    enforceAppCheck: true 
+    enforceAppCheck: true,
   },
   async (request) => {
     const userId = request.auth ? request.auth.uid : null;
-
     if (!userId) {
       throw new HttpsError("unauthenticated", "User must be logged in.");
     }
+    const athleteId = await getAthleteIdForCaller(
+      userId,
+      request.data?.athleteId
+    );
 
     try {
-      const count = await syncFullHistory(userId);
+      const count = await syncFullHistory(athleteId);
       return `FULL_SYNC_SUCCESSFUL: ${count} activities processed.`;
     } catch (error) {
       throw new HttpsError("internal", `Full Sync failed: ${error.message}`);

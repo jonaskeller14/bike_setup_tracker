@@ -51,85 +51,97 @@ function checkStravaResponse(response, context = "Strava API") {
 }
 
 /**
- * Helper: Refreshes Strava access token if expired.
+ * Helper: Returns a valid Strava access token for the given athlete, refreshing
+ * if expired. Tokens live on athletes/{athleteId}.oauth. Refresh is wrapped in
+ * a Firestore transaction so concurrent callers from different devices don't
+ * race to refresh and invalidate each other.
  */
-async function getValidAccessToken(userId) {
-  const userRef = db.collection("users").doc(userId);
-  const doc = await userRef.get();
-  if (!doc.exists) throw new Error("User not found");
+async function getValidAccessToken(athleteId) {
+  // OAuth lives in `athlete_oauth/{athleteId}` (server-only, never readable
+  // by the client) so we keep it out of the user-readable athlete doc.
+  const oauthRef = db.collection("athlete_oauth").doc(String(athleteId));
 
-  const auth = doc.data().strava_auth;
+  const initialSnap = await oauthRef.get();
+  if (!initialSnap.exists) {
+    throw new Error(`OAuth for athlete ${athleteId} not found`);
+  }
+  const initialOauth = initialSnap.data();
+
   const now = Math.floor(Date.now() / 1000);
+  if (initialOauth.expires_at >= now + 60) {
+    return initialOauth.access_token;
+  }
 
-  if (auth.expires_at < now + 60) {
-    logger.info("REFRESHING_TOKEN", { userId });
+  return await db.runTransaction(async (tx) => {
+    const snap = await tx.get(oauthRef);
+    const oauth = snap.data();
+
+    // Another caller may have refreshed in the meantime.
+    if (oauth.expires_at >= now + 60) return oauth.access_token;
+
+    logger.info("REFRESHING_TOKEN", { athleteId });
     const response = await fetch("https://www.strava.com/api/v3/oauth/token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         client_id: process.env.STRAVA_CLIENT_ID,
         client_secret: process.env.STRAVA_CLIENT_SECRET,
-        refresh_token: auth.refresh_token,
+        refresh_token: oauth.refresh_token,
         grant_type: "refresh_token",
       }),
     });
     const data = await response.json();
     if (!response.ok) throw new Error("Refresh failed");
 
-    const newAuth = {
-      ...auth,
+    const newOauth = {
       access_token: data.access_token,
       refresh_token: data.refresh_token,
       expires_at: data.expires_at,
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
     };
-    await userRef.update({ strava_auth: newAuth });
+    tx.update(oauthRef, newOauth);
     return data.access_token;
-  }
-  return auth.access_token;
+  });
 }
 
 /**
- * Helper: Saves Athlete and Gear (Bikes) to Firestore.
- * Used by both syncActivities (recent) and syncFullHistory.
+ * Helper: Saves athlete profile and gear to Firestore.
+ * Profile goes on the athlete root doc, gear goes in the gears subcollection.
  */
-async function saveAthleteAndGear(athlete, userId, batch) {
-  const userRef = db.collection("users").doc(userId);
+async function saveAthleteAndGear(athlete, batch) {
+  const athleteId = String(athlete.id);
+  const athleteRef = db.collection("athletes").doc(athleteId);
 
-  // 1. Save Athlete Profile
-  // Path: users/{userId}/athletes/athlete
-  const athleteRef = userRef.collection("athletes").doc("athlete");
-
-  const cleanAthlete = {
-    id: athlete.id,
-    lastModified: admin.firestore.FieldValue.serverTimestamp(),
-    firstname: athlete.firstname,
-    lastname: athlete.lastname,
-    profile: athlete.profile,
-    gears: [
-      ...(athlete.bikes || []).map(b => b.id),
-    ],
-    expiresAt: getTTLTimestamp()
-  };
-
-  batch.set(athleteRef, cleanAthlete, { merge: true });
-
-  // 2. Save Gear (Bikes only)
-  // Path: users/{userId}/gears/{gearId}
-  const allGear = [...(athlete.bikes || [])];
-  
-  for (const gear of allGear) {
-    const gearRef = userRef.collection("gears").doc(String(gear.id));
-    const cleanGear = {
-      id: gear.id,
+  // 1. Update athlete profile fields (without disturbing oauth / sync state).
+  batch.set(
+    athleteRef,
+    {
+      id: athlete.id,
+      firstname: athlete.firstname,
+      lastname: athlete.lastname,
+      profile: athlete.profile,
+      gears: [...(athlete.bikes || []).map((b) => b.id)],
       lastModified: admin.firestore.FieldValue.serverTimestamp(),
-      name: gear.name,
-      expiresAt: getTTLTimestamp()
-    };
-    batch.set(gearRef, cleanGear, { merge: true });
+    },
+    { merge: true }
+  );
+
+  // 2. Gears subcollection (bikes only).
+  const allGear = [...(athlete.bikes || [])];
+  for (const gear of allGear) {
+    const gearRef = athleteRef.collection("gears").doc(String(gear.id));
+    batch.set(
+      gearRef,
+      {
+        id: gear.id,
+        lastModified: admin.firestore.FieldValue.serverTimestamp(),
+        name: gear.name,
+      },
+      { merge: true }
+    );
   }
 
-  return allGear.length; // Return count of gear items processed
+  return allGear.length;
 }
 
 /**
@@ -146,7 +158,7 @@ function isBikeActivity(activity) {
     "GravelRide",
     "Velomobile",
     "Handcycle",
-    "VirtualRide"
+    "VirtualRide",
   ];
   return bikeTypes.includes(sportType);
 }
@@ -155,25 +167,32 @@ function isBikeActivity(activity) {
  * Helper: Transforms and Saves a single Activity to a Batch document.
  * Standardizes how we save activities from both Webhook and Manual Sync.
  * Uses Hybrid Batching (Map for data, Array for indexing).
+ *
+ * Path: athletes/{athleteId}/activity_batches/{batchId}
  */
-async function saveActivityToBatch(activity, userId, batch = null) {
+async function saveActivityToBatch(activity, athleteId, batch = null) {
   const isDeleteRequest = activity.isDeleted === true;
   const isBike = isBikeActivity(activity);
-  
-  // If it's a real activity (not a delete) and it's NOT a bike, treat it as a delete.
-  // This handles the case where a user changes an activity type from "Ride" to "Run" on Strava.
+
+  // If it's a real activity (not a delete) and it's NOT a bike, treat as a
+  // delete. Handles the case where a user changes activity type from "Ride"
+  // to "Run" on Strava.
   const effectiveDelete = isDeleteRequest || (!isDeleteRequest && !isBike);
 
   const activityId = activity.id;
-  const userRef = db.collection("users").doc(userId);
-  const batchesRef = userRef.collection("activity_batches");
+  const athleteRef = db.collection("athletes").doc(String(athleteId));
+  const batchesRef = athleteRef.collection("activity_batches");
 
   // 1. Transform activity to clean format
   let cleanActivity = null;
   if (!effectiveDelete) {
     let startLat = null;
     let startLon = null;
-    if (activity.start_latlng && Array.isArray(activity.start_latlng) && activity.start_latlng.length === 2) {
+    if (
+      activity.start_latlng &&
+      Array.isArray(activity.start_latlng) &&
+      activity.start_latlng.length === 2
+    ) {
       startLat = activity.start_latlng[0];
       startLon = activity.start_latlng[1];
     }
@@ -209,14 +228,12 @@ async function saveActivityToBatch(activity, userId, batch = null) {
     };
 
     if (effectiveDelete) {
-      // DELETE Case (or converted-to-delete case)
-      updateData[`activities.${activityId}`] = { 
-        id: activityId, 
+      updateData[`activities.${activityId}`] = {
+        id: activityId,
         isDeleted: true,
-        lastModified: admin.firestore.FieldValue.serverTimestamp()
+        lastModified: admin.firestore.FieldValue.serverTimestamp(),
       };
     } else {
-      // UPDATE Case
       updateData[`activities.${activityId}`] = cleanActivity;
       updateData.expiresAt = getTTLTimestamp();
     }
@@ -226,7 +243,11 @@ async function saveActivityToBatch(activity, userId, batch = null) {
     } else {
       await batchDoc.ref.update(updateData);
     }
-    return { wasCreated: false, wasUpdated: !effectiveDelete, wasDeleted: effectiveDelete };
+    return {
+      wasCreated: false,
+      wasUpdated: !effectiveDelete,
+      wasDeleted: effectiveDelete,
+    };
   }
 
   if (effectiveDelete) return { wasCreated: false, ignored: true }; // Activity to delete not found, or new non-bike activity.
@@ -237,14 +258,16 @@ async function saveActivityToBatch(activity, userId, batch = null) {
     .limit(1)
     .get();
 
-  let targetBatchDoc = !latestBatchQuery.empty ? latestBatchQuery.docs[0] : null;
-  
+  let targetBatchDoc = !latestBatchQuery.empty
+    ? latestBatchQuery.docs[0]
+    : null;
+
   if (targetBatchDoc && targetBatchDoc.data().activityIds.length < 500) {
     const updateData = {
       lastModified: admin.firestore.FieldValue.serverTimestamp(),
       [`activities.${activityId}`]: cleanActivity,
       activityIds: admin.firestore.FieldValue.arrayUnion(activityId),
-      expiresAt: getTTLTimestamp()
+      expiresAt: getTTLTimestamp(),
     };
 
     if (batch) {
@@ -253,20 +276,19 @@ async function saveActivityToBatch(activity, userId, batch = null) {
       await targetBatchDoc.ref.update(updateData);
     }
   } else {
-    // 4. Create New Batch
-    const newBatchId = targetBatchDoc 
-      ? `batch_${String(parseInt(targetBatchDoc.id.split('_')[1]) + 1).padStart(3, '0')}`
+    const newBatchId = targetBatchDoc
+      ? `batch_${String(parseInt(targetBatchDoc.id.split("_")[1]) + 1).padStart(3, "0")}`
       : "batch_001";
-    
+
     const newBatchData = {
       id: newBatchId,
-      userId,
+      athleteId,
       lastModified: admin.firestore.FieldValue.serverTimestamp(),
       activityIds: [activityId],
       activities: {
-        [`${activityId}`]: cleanActivity
+        [`${activityId}`]: cleanActivity,
       },
-      expiresAt: getTTLTimestamp()
+      expiresAt: getTTLTimestamp(),
     };
 
     const newBatchRef = batchesRef.doc(newBatchId);
@@ -279,6 +301,48 @@ async function saveActivityToBatch(activity, userId, batch = null) {
   return { wasCreated: true };
 }
 
+/**
+ * Helper: Resolve the active athleteId for a caller. Used by callable
+ * functions (manual sync, etc.). Accepts an optional override (future
+ * trainer view, where the user picks which athlete to sync).
+ */
+async function getAthleteIdForCaller(userId, explicitAthleteId = null) {
+  const userSnap = await db.collection("users").doc(userId).get();
+  if (!userSnap.exists) {
+    throw new Error(`User ${userId} not found`);
+  }
+  const linked = userSnap.data().linked_athletes || [];
+  if (linked.length === 0) {
+    throw new Error(`User ${userId} has no linked athlete`);
+  }
+  if (explicitAthleteId) {
+    if (!linked.includes(String(explicitAthleteId))) {
+      throw new Error(
+        `User ${userId} is not linked to athlete ${explicitAthleteId}`
+      );
+    }
+    return String(explicitAthleteId);
+  }
+  return String(linked[0]);
+}
+
+/**
+ * Helper: Returns true if at least one device linked to this athlete has an
+ * active subscription entitlement covering the Strava sync feature. Used as
+ * the gate on the Strava webhook so we don't process activities for users
+ * who aren't paying.
+ */
+async function athleteHasActiveEntitlement(athleteId) {
+  const now = admin.firestore.Timestamp.now();
+  const snap = await db
+    .collection("users")
+    .where("linked_athletes", "array-contains", String(athleteId))
+    .where("entitlement.strava.expiresAt", ">", now)
+    .limit(1)
+    .get();
+  return !snap.empty;
+}
+
 module.exports = {
   StravaRateLimitError,
   checkStravaResponse,
@@ -287,4 +351,6 @@ module.exports = {
   saveActivityToBatch,
   isBikeActivity,
   getTTLTimestamp,
+  getAthleteIdForCaller,
+  athleteHasActiveEntitlement,
 };

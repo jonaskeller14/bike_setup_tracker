@@ -23,6 +23,7 @@ import 'services/notification_service.dart';
 import 'services/quick_actions_service.dart';
 import 'services/storage_service.dart';
 import 'services/strava_service.dart';
+import 'services/subscription_service.dart';
 import 'utils/file_export.dart';
 
 @pragma('vm:entry-point')
@@ -156,6 +157,14 @@ class LoadingGate extends StatelessWidget {
                 update: (context, settings, appRepo, stravaService) {
                   if (settings.enableStrava) unawaited(stravaService!.update(appRepository: appRepo, appSettings: settings));
                   return stravaService!;
+                },
+              ),
+              ChangeNotifierProxyProvider<AppSettings, SubscriptionService>(
+                lazy: false,
+                create: (context) => SubscriptionService(),
+                update: (context, settings, subscriptionService) {
+                  unawaited(subscriptionService!.initialize(enableStrava: settings.enableStrava));
+                  return subscriptionService;
                 },
               ),
             ],

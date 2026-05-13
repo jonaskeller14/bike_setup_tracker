@@ -1,6 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
+import '../../models/app_settings.dart';
 import '../../models/strava/strava_plan.dart';
+import '../../services/strava_service.dart';
+import '../../services/subscription_service.dart';
 
 class StravaSuccess extends StatelessWidget {
   static const _successFgColor = Color(0xFF1F8A5B);
@@ -10,9 +16,18 @@ class StravaSuccess extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final stravaPlan = StravaPlan.monthly;  //FIXME
-    final renewalDate = "01.01.2026";  //FIXME
-    final billing = "Google Play Store";  //FIXME
+    final subscription = context.watch<SubscriptionService>();
+    final stravaService = context.watch<StravaService>();
+    final appSettings = context.watch<AppSettings>();
+    final entitlement = subscription.entitlement;
+
+    final stravaPlan = entitlement?.plan ?? StravaPlan.monthly;
+    final renewalDate = entitlement != null
+        ? DateFormat(appSettings.dateFormat).format(entitlement.expiresAt)
+        : '—';
+    final billing = entitlement?.billingSource ?? '—';
+    final localizedPrice =
+        subscription.localizedPrice(stravaPlan) ?? stravaPlan.price;
 
     return SafeArea(
       child: Padding(
@@ -99,7 +114,7 @@ class StravaSuccess extends StatelessWidget {
                             textBaseline: TextBaseline.alphabetic,
                             children: [
                               Text(
-                                stravaPlan.price,
+                                localizedPrice,
                                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -161,7 +176,7 @@ class StravaSuccess extends StatelessWidget {
                 label: const Text('Sign in to Strava'),
                 onPressed: () {
                   Navigator.pop(context);
-                  // onSignInToStrava.call();
+                  unawaited(stravaService.launchStravaLogin());
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFC4C02),

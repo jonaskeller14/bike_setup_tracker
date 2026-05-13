@@ -1,52 +1,13 @@
 import 'package:bike_setup_tracker/models/strava/strava_plan.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../services/subscription_service.dart';
 import 'strava_dashboard.dart';
 
-Future<void> showStravaPaywall({
-  required BuildContext context,
-  bool isSubscribed = false,
-  Future<void> Function(StravaPlan plan)? onSubscribe,
-  Future<void> Function()? onRestore,
-  VoidCallback? onSignInToStrava,
-  VoidCallback? onManageSubscription,
-  VoidCallback? onCancelSubscription,
-}) {
-  return showModalBottomSheet<void>(
-    context: context,
-    useSafeArea: true,
-    showDragHandle: true,
-    isScrollControlled: true,
-    builder: (_) => StravaPaywall(
-      isSubscribed: isSubscribed,
-      onSubscribe: onSubscribe,
-      onRestore: onRestore,
-      onSignInToStrava: onSignInToStrava,
-      onManageSubscription: onManageSubscription,
-      onCancelSubscription: onCancelSubscription,
-    ),
-  );
-}
-
 class StravaPaywall extends StatefulWidget {
-  //FIXME: make all required
-  final bool isSubscribed;
-  final Future<void> Function(StravaPlan stravaPlan)? onSubscribe;
-  final Future<void> Function()? onRestore;
-  final VoidCallback? onSignInToStrava;
-  final VoidCallback? onManageSubscription;
-  final VoidCallback? onCancelSubscription;
-
-  const StravaPaywall({
-    super.key,
-    this.isSubscribed = false,
-    this.onSubscribe,
-    this.onRestore,
-    this.onSignInToStrava,
-    this.onManageSubscription,
-    this.onCancelSubscription,
-  });
+  const StravaPaywall({super.key});
 
   @override
   State<StravaPaywall> createState() => _StravaPaywallState();
@@ -57,6 +18,11 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    final subscription = context.watch<SubscriptionService>();
+    final isBusy = subscription.status == SubscriptionPurchaseStatus.purchasing ||
+        subscription.status == SubscriptionPurchaseStatus.verifying ||
+        subscription.status == SubscriptionPurchaseStatus.restoring;
+
     final tosRecognizer = TapGestureRecognizer()
       ..onTap = () => launchUrl(Uri.parse('https://jonaskeller14.app/tos'));  //FIXME
     final privacyRecognizer = TapGestureRecognizer()
@@ -238,7 +204,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                                           textBaseline: TextBaseline.alphabetic,
                                           children: [
                                             Text(
-                                              plan.price,
+                                              subscription.localizedPrice(plan) ?? plan.price,
                                               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                                 fontWeight: FontWeight.bold,
                                                 letterSpacing: -0.3,
@@ -414,13 +380,36 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
+            if (subscription.status == SubscriptionPurchaseStatus.error &&
+                subscription.errorMessage.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  subscription.errorMessage,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+              ),
             SizedBox(
               height: 56,
               width: double.infinity,
               child: FilledButton.icon(
-                icon: const Icon(Icons.auto_awesome),
-                label: Text('Subscribe — ${_selectedPlan.price}${_selectedPlan.period.replaceAll('/ ', '/')}'),
-                onPressed: () {},  //FIXME
+                icon: isBusy
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.auto_awesome),
+                label: Text(
+                  'Subscribe — ${subscription.localizedPrice(_selectedPlan) ?? _selectedPlan.price}${_selectedPlan.period.replaceAll('/ ', '/')}',
+                ),
+                onPressed: isBusy ? null : () => subscription.buy(_selectedPlan),
                 style: FilledButton.styleFrom(
                   iconSize: 18,
                   textStyle: const TextStyle(
@@ -431,7 +420,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
               ),
             ),
             TextButton.icon(
-              onPressed: () {},  //FIXME
+              onPressed: isBusy ? null : () => subscription.restorePurchases(),
               icon: const Icon(Icons.history_rounded),
               label: const Text('Restore previous purchase'),
             ),

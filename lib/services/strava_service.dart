@@ -27,12 +27,33 @@ class StravaService extends ChangeNotifier {
   bool _isInitialized = false;
   bool _isDisconnecting = false;
 
+  /// Cached result of [checkAvailability] — null until the first check
+  /// completes. Refreshed lazily when stale.
+  bool? _isStravaAvailable;
+  DateTime? _availabilityCheckedAt;
+  static const Duration _availabilityCacheTtl = Duration(minutes: 5);
+  Future<void>? _inFlightAvailabilityCheck;
+
+  bool? get isStravaAvailable => _isStravaAvailable;
+
   StravaServiceStatus get status => _status;
   String get errorMessage => _errorMessage;
   String? _userId;
   String? get userId => _userId;
-  bool _isConnected = false;
-  bool get isConnected => _isConnected;
+
+  /// Strava athlete IDs linked to this device. Populated by the OAuth
+  /// exchange Cloud Function via `users/{uid}.linked_athletes`. For now we
+  /// only ever look at the first entry; the array shape leaves room for a
+  /// future trainer view that watches multiple athletes.
+  List<String> _linkedAthletes = const [];
+  List<String> get linkedAthletes => _linkedAthletes;
+
+  /// Athlete ID currently being tracked by the data listeners — first entry
+  /// of [_linkedAthletes] (or null when no Strava is linked).
+  String? _activeAthleteId;
+  String? get activeAthleteId => _activeAthleteId;
+
+  bool get isConnected => _activeAthleteId != null;
 
   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _activitiesSubscription;
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _userDocSubscription;
@@ -84,6 +105,7 @@ class StravaService extends ChangeNotifier {
       _listenToUserDocument();
       _registerFcmToken();
       await _syncSettingsToFirestore(appSettings);
+      unawaited(checkAvailability());
     } catch (e) {
       _isInitialized = false;
     }
@@ -106,7 +128,7 @@ class StravaService extends ChangeNotifier {
 
   Future<void> _listenToUserDocument() async {
     if (_userId == null) return;
-    
+
     await _userDocSubscription?.cancel();
     _userDocSubscription = FirebaseFirestore.instance
         .collection('users')
@@ -117,64 +139,98 @@ class StravaService extends ChangeNotifier {
       final data = snapshot.data();
       if (data == null) return;
 
-      final bool wasConnected = _isConnected;
-      _isConnected = data['strava_connected'] ?? false;
-
-      // Update Sync Status
-      final String remoteStatus = data['strava_sync_status'] ?? 'idle';
-      final String remoteError = data['strava_sync_error'] ?? '';
-
-      if (remoteStatus == 'syncing') {
-        _status = StravaServiceStatus.syncing;
-        _errorMessage = ''; 
-      } else if (remoteStatus == 'error') {
-        _status = StravaServiceStatus.idle;
-        _errorMessage = remoteError.isNotEmpty ? remoteError : 'Sync failed';
-      } else {
-        _status = StravaServiceStatus.idle;
-      }
-      
-      _lastRecentSync = _parseDateTime(data['strava_sync_last_recent']);
-      _lastFullSync = _parseDateTime(data['strava_sync_last_full']);
-      _syncDay = data['sync_day'] as int?;
+      final previousAthleteId = _activeAthleteId;
+      final rawLinked = data['linked_athletes'];
+      _linkedAthletes = rawLinked is List
+          ? rawLinked.map((e) => e.toString()).toList()
+          : const [];
+      _activeAthleteId = _linkedAthletes.firstOrNull;
 
       notifyListeners();
 
-      // Reactive Lifecycle: Start/Stop data listeners based on connection state
-      if (_isConnected && (_activitiesSubscription == null)) {
-        unawaited(_startDataListeners());
-      } else if (!_isConnected && wasConnected) {
+      // Reactive lifecycle: when the active athlete changes (link, unlink, or
+      // switch to a different athlete), rebind the athlete-scoped listeners.
+      if (_activeAthleteId != previousAthleteId) {
         unawaited(_stopDataListeners());
+        if (_activeAthleteId != null) {
+          unawaited(_startDataListeners());
+        } else {
+          unawaited(_appRepository.clearStravaData());
+        }
       }
     }, onError: (e) => _handleError("UserDoc", e, userMessage: "Connection verify failed"));
   }
 
   Future<void> _startDataListeners() async {
+    _listenToAthleteDocument();
     _listenToActivities();
-    _listenToAthlete();
     _listenToGear();
   }
 
   Future<void> _stopDataListeners() async {
-    _activitiesSubscription?.cancel();
-    _athleteSubscription?.cancel();
-    _gearSubscription?.cancel();
+    await _activitiesSubscription?.cancel();
+    await _athleteSubscription?.cancel();
+    await _gearSubscription?.cancel();
     _activitiesSubscription = null;
     _athleteSubscription = null;
     _gearSubscription = null;
   }
 
+  /// Listens to the athlete root doc — combines profile fields with the
+  /// shared sync state (status, last syncs, sync_day). All devices linked to
+  /// the same athlete see the same sync state, which is the desired behavior.
+  Future<void> _listenToAthleteDocument() async {
+    final athleteId = _activeAthleteId;
+    if (athleteId == null) return;
+
+    await _athleteSubscription?.cancel();
+    _athleteSubscription = FirebaseFirestore.instance
+        .collection('athletes')
+        .doc(athleteId)
+        .snapshots()
+        .listen((snapshot) async {
+      if (_activeAthleteId != athleteId) return; // listener stale
+      final data = snapshot.data();
+      if (snapshot.exists && data != null) {
+        // Profile
+        final athlete = StravaAthlete.fromFirestore(data);
+        await _appRepository.setStravaAthletes([athlete]);
+
+        // Sync state (formerly on the user doc)
+        final String remoteStatus = data['strava_sync_status'] ?? 'idle';
+        final String remoteError = data['strava_sync_error'] ?? '';
+        if (remoteStatus == 'syncing') {
+          _status = StravaServiceStatus.syncing;
+          _errorMessage = '';
+        } else if (remoteStatus == 'error') {
+          _status = StravaServiceStatus.idle;
+          _errorMessage =
+              remoteError.isNotEmpty ? remoteError : 'Sync failed';
+        } else {
+          _status = StravaServiceStatus.idle;
+        }
+        _lastRecentSync = _parseDateTime(data['strava_sync_last_recent']);
+        _lastFullSync = _parseDateTime(data['strava_sync_last_full']);
+        _syncDay = data['sync_day'] as int?;
+        notifyListeners();
+      } else {
+        await _appRepository.setStravaAthletes([]);
+      }
+    }, onError: (e) => _handleError("AthleteSync", e));
+  }
+
   void _listenToActivities() {
-    if (_userId == null) return;
+    final athleteId = _activeAthleteId;
+    if (athleteId == null) return;
 
     unawaited(_activitiesSubscription?.cancel());
     _activitiesSubscription = FirebaseFirestore.instance
-        .collection('users')
-        .doc(_userId)
+        .collection('athletes')
+        .doc(athleteId)
         .collection('activity_batches')
         .snapshots()
         .listen((snapshot) {
-      if (!_isConnected) return;
+      if (_activeAthleteId != athleteId) return;
 
       final List<StravaActivity> toUpsert = [];
       final List<int> toDelete = [];
@@ -182,7 +238,7 @@ class StravaService extends ChangeNotifier {
       for (var change in snapshot.docChanges) {
         final data = change.doc.data();
         if (data == null || !data.containsKey('activities')) continue;
-        
+
         final Map<String, dynamic> activitiesMap = data['activities'];
 
         if (change.type == DocumentChangeType.removed) {
@@ -193,7 +249,6 @@ class StravaService extends ChangeNotifier {
           continue;
         }
 
-        // For added or modified batches: process tombstones and valid activities
         for (var entry in activitiesMap.entries) {
           final activityData = entry.value as Map<String, dynamic>;
           if (activityData['isDeleted'] == true) {
@@ -210,42 +265,25 @@ class StravaService extends ChangeNotifier {
           toDelete: toDelete,
         ));
       }
-    }, onError: (e) => _handleError("SyncStream", e, userMessage: "Background sync error"));
-  }
-
-  Future<void> _listenToAthlete() async {
-    if (_userId == null) return;
-
-    await _athleteSubscription?.cancel();
-    _athleteSubscription = FirebaseFirestore.instance
-        .collection('users')
-        .doc(_userId)
-        .collection('athletes')
-        .doc('athlete')
-        .snapshots()
-        .listen((snapshot) async {
-      if (!_isConnected) return;
-      if (snapshot.exists && snapshot.data() != null) {
-        final athlete = StravaAthlete.fromFirestore(snapshot.data()!);
-        await _appRepository.setStravaAthletes([athlete]);
-      } else {
-        _appRepository.setStravaAthletes([]);
-      }
-    }, onError: (e) => _handleError("AthleteSync", e));
+    }, onError: (e) =>
+            _handleError("SyncStream", e, userMessage: "Background sync error"));
   }
 
   Future<void> _listenToGear() async {
-    if (_userId == null) return;
+    final athleteId = _activeAthleteId;
+    if (athleteId == null) return;
 
     await _gearSubscription?.cancel();
     _gearSubscription = FirebaseFirestore.instance
-        .collection('users')
-        .doc(_userId)
+        .collection('athletes')
+        .doc(athleteId)
         .collection('gears')
         .snapshots()
         .listen((snapshot) async {
-      if (!_isConnected) return;
-      final gears = snapshot.docs.map((doc) => StravaGear.fromFirestore(doc.data())).toList();
+      if (_activeAthleteId != athleteId) return;
+      final gears = snapshot.docs
+          .map((doc) => StravaGear.fromFirestore(doc.data()))
+          .toList();
       await _appRepository.setStravaGears(gears);
     }, onError: (e) => _handleError("GearSync", e));
   }
@@ -261,9 +299,10 @@ class StravaService extends ChangeNotifier {
         if (token != null) {
           final Map<String, dynamic> data = {'fcm_token': token};
           
-          // TTL: Cleanup anonymous users who never link Strava.
-          // If not connected, set expiration to 1 year (365 days) from now.
-          if (!_isConnected) {
+          // TTL: cleanup anonymous user docs that never link Strava. Once a
+          // user links any athlete, this device "counts" — drop the TTL so
+          // the doc survives indefinitely.
+          if (!isConnected) {
             data['expiresAt'] = Timestamp.fromDate(DateTime.now().add(const Duration(days: 365)));
           }
 
@@ -327,7 +366,7 @@ class StravaService extends ChangeNotifier {
   /// Manual sync can be triggered if it's been more than 7 days
   /// since the last manual sync, or if it has never been synced.
   bool get canSyncRecent {
-    if (!_isConnected) return false;
+    if (!isConnected) return false;
     if (_status == StravaServiceStatus.syncing) return false;
     if (_lastRecentSync == null) return true;
     final difference = DateTime.now().difference(_lastRecentSync!);
@@ -346,19 +385,46 @@ class StravaService extends ChangeNotifier {
     await launchUrl(url, mode: LaunchMode.externalApplication);
   }
 
-  /// Checks if there are open spots for the Strava integration.
-  Future<bool> checkAvailability() async {
+  /// Checks if there are open spots for the Strava integration. The result is
+  /// cached for [_availabilityCacheTtl]; pass `force: true` to bypass the
+  /// cache. Concurrent callers share a single in-flight request.
+  Future<bool> checkAvailability({bool force = false}) async {
+    final cachedAt = _availabilityCheckedAt;
+    final cached = _isStravaAvailable;
+    final fresh = cachedAt != null &&
+        DateTime.now().difference(cachedAt) < _availabilityCacheTtl;
+    if (!force && cached != null && fresh) return cached;
+
+    final existing = _inFlightAvailabilityCheck;
+    if (existing != null) {
+      await existing;
+      return _isStravaAvailable ?? false;
+    }
+
+    final completer = _refreshAvailability();
+    _inFlightAvailabilityCheck = completer;
+    try {
+      await completer;
+    } finally {
+      _inFlightAvailabilityCheck = null;
+    }
+    return _isStravaAvailable ?? false;
+  }
+
+  Future<void> _refreshAvailability() async {
     try {
       final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
       final result = await functions.httpsCallable('checkStravaAvailability').call();
-      
       final data = result.data as Map<String, dynamic>;
-      return data['available'] == true;
+      _isStravaAvailable = data['available'] == true;
     } catch (e) {
       _handleError("checkAvailability", e);
-      // Fail safe: If the check fails (e.g. no internet), we probably want to return false 
-      // or true depending on preference. Usually better to return false so they don't buy and fail later.
-      return false;
+      // Fail safe: closed if the check failed (e.g. no internet) — don't let
+      // users buy and then fail to connect.
+      _isStravaAvailable = false;
+    } finally {
+      _availabilityCheckedAt = DateTime.now();
+      notifyListeners();
     }
   }
 
@@ -392,21 +458,28 @@ class StravaService extends ChangeNotifier {
   }
 
   Future<void> disconnect() async {
-    if (_userId == null) return;
+    final uid = _userId;
+    final athleteId = _activeAthleteId;
+    if (uid == null) return;
     _isDisconnecting = true;
     status = StravaServiceStatus.syncing;
     errorMessage = "Disconnecting...";
-    
+
     try {
-      final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
-      await functions.httpsCallable('deauthorizeUser').call();
-      _stopListening();
+      if (athleteId != null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .update({
+          'linked_athletes': FieldValue.arrayRemove([athleteId]),
+        });
+      }
+
+      await _stopDataListeners();
       await _appRepository.clearStravaData();
 
-      _isConnected = false;
       errorMessage = "";
       status = StravaServiceStatus.idle;
-      _isInitialized = false; 
       notifyListeners();
     } catch (e) {
       errorMessage = "Disconnection failed: $e";

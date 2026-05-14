@@ -10,6 +10,7 @@ import '../../models/person.dart';
 import '../../models/setup.dart';
 import '../../models/weather.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/subscription_service.dart';
 import '../../utils/person_actions.dart';
 import '../../utils/table_column.dart';
 import '../../widgets/chips/bike_and_tags_filter.dart';
@@ -174,6 +175,7 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
+    final subscriptionService = context.watch<SubscriptionService>();
 
     final bikes = appRepository.bikes;
 
@@ -254,7 +256,7 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
                   dense: true,
                 ),
 
-              if (appSettings.enableStrava)
+              if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement)
                 ListTile(
                   leading: Badge(
                     label: const Icon(SimpleIcons.strava, size: 11),
@@ -278,7 +280,7 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
                   dense: true,
                 ),
 
-              if (appSettings.enableStrava || person.notes != null)
+              if ((appSettings.enableStrava && subscriptionService.hasStravaEntitlement) || person.notes != null)
                 const Divider(height: 1),
 
               const SectionTitle(title: "Attribute History"),

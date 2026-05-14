@@ -7,6 +7,7 @@ import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../pages/details/component_details_page.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/subscription_service.dart';
 import '../../utils/component_actions.dart';
 import '../lists/adjustment_compact_display_list.dart';
 
@@ -30,6 +31,7 @@ class ComponentListCard extends StatelessWidget{
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
+    final subscriptionService = context.watch<SubscriptionService>();
     final bikes = appRepository.bikes;
     return Card(
       key: ValueKey(component.id),
@@ -133,7 +135,7 @@ class ComponentListCard extends StatelessWidget{
                         ),
                       ],
                     ),
-                  if (appSettings.enableStrava)
+                  if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement)
                     Wrap(
                       spacing: 8,
                       runSpacing: 2,

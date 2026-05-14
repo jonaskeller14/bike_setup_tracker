@@ -5,6 +5,7 @@ import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/person.dart';
 import '../repositories/app_repository.dart';
+import '../services/subscription_service.dart';
 import '../widgets/dashed_border_painter.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/lists/adjustment_edit_list.dart';
@@ -346,6 +347,7 @@ class _PersonPageState extends State<PersonPage> {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
+    final subscriptionService = context.watch<SubscriptionService>();
     final existingPersons = appRepository.persons;
     final stravaAthletes = appRepository.stravaAthletes;
 
@@ -423,7 +425,7 @@ class _PersonPageState extends State<PersonPage> {
                             filled: widget.mode == PersonPageMode.edit && _notesController.text.trim() != (widget.person?.notes ?? ""),
                           ),
                         ),
-                        if (context.read<AppSettings>().enableStrava) ...[
+                        if (context.read<AppSettings>().enableStrava && subscriptionService.hasStravaEntitlement) ...[
                           const SizedBox(height: 12),
                           DropdownButtonFormField<int?>(
                             initialValue: _stravaAthlete,

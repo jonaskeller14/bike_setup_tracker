@@ -157,6 +157,9 @@ class StravaService extends ChangeNotifier {
         } else {
           unawaited(_appRepository.clearStravaData());
         }
+      } else if (_activeAthleteId != null) {
+        // Athlete unchanged but doc updated — check if subscription lapsed.
+        _checkEntitlementExpiry(data);
       }
     }, onError: (e) => _handleError("UserDoc", e, userMessage: "Connection verify failed"));
   }
@@ -286,6 +289,28 @@ class StravaService extends ChangeNotifier {
           .toList();
       await _appRepository.setStravaGears(gears);
     }, onError: (e) => _handleError("GearSync", e));
+  }
+
+  /// Called whenever the user doc updates while the athlete is still linked.
+  /// If the subscription has lapsed, stops data listeners and wipes local
+  /// Strava data. Keeps [linked_athletes] in Firestore and Bike/Person Strava
+  /// links in SQLite so reconnecting after resubscribing needs no manual setup.
+  void _checkEntitlementExpiry(Map<String, dynamic> data) {
+    final entitlementData =
+        data['entitlement']?['strava'] as Map<String, dynamic>?;
+
+    DateTime? expiresAt;
+    if (entitlementData != null) {
+      final raw = entitlementData['expiresAt'];
+      if (raw is Timestamp) expiresAt = raw.toDate();
+    }
+
+    final isEntitled = expiresAt != null && DateTime.now().isBefore(expiresAt);
+    if (!isEntitled) {
+      debugPrint('StravaService: subscription lapsed — clearing local Strava data');
+      unawaited(_stopDataListeners());
+      unawaited(_appRepository.clearStravaData());
+    }
   }
 
   Future<void> _registerFcmToken() async {

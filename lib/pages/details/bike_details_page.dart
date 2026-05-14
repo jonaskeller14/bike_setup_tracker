@@ -8,6 +8,7 @@ import '../../models/component_stats.dart';
 import '../../models/person.dart';
 import '../../models/task_rule.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/subscription_service.dart';
 import '../../utils/bike_actions.dart';
 import '../../widgets/component_stats_card.dart';
 import '../../widgets/items/component_list_card.dart';
@@ -22,6 +23,7 @@ class BikeDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
+    final subscriptionService = context.watch<SubscriptionService>();
 
     final bike = appRepository.bikes[bikeId];
     if (bike == null) return const SizedBox.shrink();
@@ -54,7 +56,7 @@ class BikeDetailsPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (appSettings.enableStrava && appSettings.enableInstallationTimeline) ...[
+              if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement) ...[
                 ComponentStatsCard(componentStats: stats),
                 const Divider(height: 1),
               ],
@@ -75,7 +77,7 @@ class BikeDetailsPage extends StatelessWidget {
                   dense: true,
                 ),
               
-              if (appSettings.enableStrava)
+              if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement)
                 ListTile(
                   leading: Badge(
                     label: const Icon(SimpleIcons.strava, size: 11),
@@ -103,7 +105,7 @@ class BikeDetailsPage extends StatelessWidget {
                   dense: true,
                 ),
 
-              if (appSettings.enableStrava || appSettings.enablePerson || bike.notes != null)
+              if ((appSettings.enableStrava && subscriptionService.hasStravaEntitlement) || appSettings.enablePerson || bike.notes != null)
                 const Divider(height: 1),
 
               if (appSettings.enableTask) ...[

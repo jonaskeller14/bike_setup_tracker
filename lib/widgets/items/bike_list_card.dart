@@ -6,6 +6,7 @@ import '../../models/bike.dart';
 import '../../models/person.dart';
 import '../../pages/details/bike_details_page.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/subscription_service.dart';
 import '../../utils/bike_actions.dart';
 
 class BikeListCard extends StatelessWidget{
@@ -24,6 +25,7 @@ class BikeListCard extends StatelessWidget{
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
+    final subscriptionService = context.watch<SubscriptionService>();
     final persons = appRepository.persons;
     
     return Card(
@@ -46,7 +48,7 @@ class BikeListCard extends StatelessWidget{
           opacity: bike.id == appRepository.selectedBike || appRepository.selectedBike == null ? 1 : 0.3,
           child: ListTile(
             dense: true,
-            leading: appSettings.enableStrava 
+            leading: appSettings.enableStrava && subscriptionService.hasStravaEntitlement
                 ? Badge(
                     label: bike.stravaGear == null
                         ? Icon(

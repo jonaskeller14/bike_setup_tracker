@@ -9,6 +9,7 @@ import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/installation.dart';
 import '../repositories/app_repository.dart';
+import '../services/subscription_service.dart';
 import '../widgets/dashed_border_painter.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/lists/adjustment_edit_list.dart';
@@ -682,6 +683,7 @@ class _ComponentPageState extends State<ComponentPage> {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
+    final subscriptionService = context.watch<SubscriptionService>();
     final bikes = appRepository.bikes;
     final currentBike = _installations.lastOrNull?.parent;  // _installations are sorted in init() 
     final existingComponentsCount = appRepository.components.values.where((c) => c.bike == currentBike && c.componentType == _componentType && widget.component?.id != c.id).length;
@@ -732,7 +734,7 @@ class _ComponentPageState extends State<ComponentPage> {
                       children: [
                         const SizedBox(height: 12),
                         _notesField(),
-                        if (appSettings.enableInstallationTimeline && appSettings.enableStrava) ...[
+                        if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement) ...[
                           const SizedBox(height: 24),
                           _initialStatsFields(),
                     ]

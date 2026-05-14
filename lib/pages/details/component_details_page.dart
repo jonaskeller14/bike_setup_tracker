@@ -14,6 +14,7 @@ import '../../models/setup.dart';
 import '../../models/task_rule.dart';
 import '../../models/weather.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/subscription_service.dart';
 import '../../utils/component_actions.dart';
 import '../../utils/table_column.dart';
 import '../../widgets/chips/bike_and_tags_filter.dart';
@@ -770,6 +771,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
+    final subscriptionService = context.watch<SubscriptionService>();
 
     final component = appRepository.components[widget.componentId];
     if (component == null) return const SizedBox.shrink();
@@ -878,7 +880,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [                            
-              if (appSettings.enableStrava && appSettings.enableInstallationTimeline) ...[
+              if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement) ...[
                 ComponentStatsCard(componentStats: ComponentStats(
                   distance: component.totalDistance,
                   elevationGain: component.totalElevationGain,

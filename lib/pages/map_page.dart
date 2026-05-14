@@ -9,6 +9,7 @@ import '../env/env.dart';
 import '../models/app_settings.dart';
 import '../models/strava/strava_activity.dart';
 import '../repositories/app_repository.dart';
+import '../services/subscription_service.dart';
 import '../widgets/chips/map_filter_widget.dart';
 import '../widgets/sheets/setup_display.dart';
 import '../widgets/sheets/strava_activity.dart';
@@ -82,6 +83,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
+    final subscriptionService = context.watch<SubscriptionService>();
     final setups = appRepository.filteredSetups.values.where(
       (s) => s.position?.latitude != null && s.position?.longitude != null,
     );
@@ -140,7 +142,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                 ),
               ),
             ),
-          if (appSettings.enableStrava && appSettings.displayShowActivities)
+          if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement && appSettings.displayShowActivities)
             ...stravaActivities.map(
               (activity) => Marker(
                 point: LatLng(activity.startLat!, activity.startLon!),

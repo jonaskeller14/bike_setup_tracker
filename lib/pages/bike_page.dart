@@ -6,6 +6,7 @@ import '../models/bike.dart';
 import '../models/person.dart';
 import '../models/strava/strava_gear.dart';
 import '../repositories/app_repository.dart';
+import '../services/subscription_service.dart';
 import '../widgets/dialogs/discard_changes.dart';
 
 enum BikePageMode {
@@ -268,6 +269,7 @@ class _BikePageState extends State<BikePage> {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
+    final subscriptionService = context.watch<SubscriptionService>();
     final existingBikes = appRepository.bikes;
     final persons = appRepository.persons;
     final stravaGears = appRepository.stravaGears;
@@ -303,7 +305,7 @@ class _BikePageState extends State<BikePage> {
                     const SizedBox(height: 12),
                     _personField(persons: persons),
                   ],
-                  if (appSettings.enableStrava) ...[
+                  if (appSettings.enableStrava && (subscriptionService.hasStravaEntitlement)) ...[
                     const SizedBox(height: 12),
                     _stravaGearField(existingBikes: existingBikes, stravaGears: stravaGears),
                   ],

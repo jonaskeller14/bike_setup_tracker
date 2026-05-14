@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/component_stats.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/subscription_service.dart';
 import '../../utils/task_actions.dart';
 
 class TaskEntryListItem extends StatelessWidget {
@@ -42,6 +43,7 @@ class TaskEntryListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
+    final subscriptionService = context.watch<SubscriptionService>();
     final taskEntry = appRepository.taskEntries[taskEntryId];
     if (taskEntry == null) return const SizedBox.shrink();
 
@@ -176,7 +178,7 @@ class TaskEntryListItem extends StatelessWidget {
                 ),
               ],
             ),
-          if (appSettings.enableStrava && taskEntry.snapshot != null && taskRules.containsKey(taskEntry.taskRule) && (taskEntry.componentId != null || taskEntry.bikeId != null)) ...[
+          if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement && taskEntry.snapshot != null && taskRules.containsKey(taskEntry.taskRule) && (taskEntry.componentId != null || taskEntry.bikeId != null)) ...[
             const SizedBox(height: 4),
             Builder(
               builder: (context) {

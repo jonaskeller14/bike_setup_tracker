@@ -9,6 +9,7 @@ import '../../models/person.dart';
 import '../../pages/details/bike_details_page.dart';
 import '../../pages/details/component_details_page.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/subscription_service.dart';
 import '../../utils/bike_actions.dart';
 import '../../utils/component_actions.dart';
 import '../dashed_border_painter.dart';
@@ -84,6 +85,7 @@ class GarageBikeCard extends StatelessWidget{
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
+    final subscriptionService = context.watch<SubscriptionService>();
     final persons = appRepository.persons;
     final bikeComponents = Map.fromEntries(appRepository.components.entries.where((ce) => ce.value.bike == bike.id));
 
@@ -110,7 +112,7 @@ class GarageBikeCard extends StatelessWidget{
             children: [
               ListTile(
                 dense: true,
-                leading: appSettings.enableStrava
+                leading: appSettings.enableStrava && subscriptionService.hasStravaEntitlement
                     ? Badge(
                         label: bike.stravaGear == null
                             ? Icon(

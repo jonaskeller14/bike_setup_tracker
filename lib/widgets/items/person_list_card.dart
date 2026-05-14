@@ -6,6 +6,7 @@ import '../../models/bike.dart';
 import '../../models/person.dart';
 import '../../pages/details/person_details_page.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/subscription_service.dart';
 import '../../utils/person_actions.dart';
 import '../lists/adjustment_compact_display_list.dart';
 
@@ -46,6 +47,7 @@ class PersonListCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
+    final subscriptionService = context.watch<SubscriptionService>();
     final bikes = appRepository.bikes;
     
     return Card(
@@ -66,7 +68,7 @@ class PersonListCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
-              leading: context.watch<AppSettings>().enableStrava 
+              leading: context.watch<AppSettings>().enableStrava && subscriptionService.hasStravaEntitlement
                   ? Badge(
                       label: person.stravaAthlete == null
                           ? Icon(

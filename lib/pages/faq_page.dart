@@ -82,6 +82,25 @@ class FAQPage extends StatelessWidget {
       'How to add a Rating?':
           'Go to the "Rating" tab and tap the "+" button to add a new rating. You can define the rating name and the rating procedure items.',
     },
+    "Strava Sync": {
+      'What is Strava Sync?':
+          'Strava Sync is a paid subscription that automatically imports your Strava activities into the app. New, updated, and deleted activities are synced in real time so you can see which setup you ran on every ride.',
+      'How do I cancel my subscription?':
+          'You can cancel at any time directly through the App Store or Google Play — not through the app itself.\n\n'
+          'On iPhone: Settings → [your name] → Subscriptions → Bike Setup Tracker → Cancel.\n\n'
+          'On Android: Google Play → Profile icon → Payments & subscriptions → Subscriptions → Bike Setup Tracker → Cancel.\n\n'
+          'Your access remains active until the end of the current billing period.',
+      'How do I request a refund?':
+          'Refunds are handled by Apple or Google, not by us.\n\n'
+          'On iPhone: Visit reportaproblem.apple.com, find the charge, and request a refund.\n\n'
+          'On Android: Open Google Play → Profile icon → Payments & subscriptions → Subscriptions or Order history → tap the purchase → Request a refund.',
+      'How do I restore a previous subscription?':
+          'Open the Strava Sync sheet (tap the Strava icon in the top bar) and tap "Restore previous purchase." The app will contact the store and restore your active subscription automatically.',
+      'I resubscribed but the app still shows the paywall. What do I do?':
+          'Tap "Restore previous purchase" on the paywall screen. The app will check your current subscription status with the store and unlock access.',
+      'What happens to my data when my subscription expires?':
+          'Your synced activities are removed from the app to respect your privacy. Your bike and component configurations are unaffected. If you resubscribe and reconnect Strava, a fresh sync will restore your activity history.',
+    },
     "Tasks": {
       'What is a Task?':
           'A Task is a piece of maintenance or an action you want to track for your bike or a specific component.',
@@ -106,6 +125,7 @@ class FAQPage extends StatelessWidget {
         case "Person": return appSettings.enablePerson;
         case "Rating": return appSettings.enableRating;
         case "Tasks": return appSettings.enableTask;
+        case "Strava Sync": return appSettings.enableStrava;
         default: return true;
       }
     }));

@@ -58,8 +58,8 @@ class StravaService extends ChangeNotifier {
   StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _activitiesSubscription;
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _userDocSubscription;
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _athleteSubscription;
-  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _gearSubscription;
   bool _isDisposed = false;
+  bool _wasEntitled = false;
   
   DateTime? _lastRecentSync;
   DateTime? _lastFullSync;
@@ -80,11 +80,9 @@ class StravaService extends ChangeNotifier {
     _activitiesSubscription?.cancel();
     _userDocSubscription?.cancel();
     _athleteSubscription?.cancel();
-    _gearSubscription?.cancel();
     _activitiesSubscription = null;
     _userDocSubscription = null;
     _athleteSubscription = null;
-    _gearSubscription = null;
   }
 
   @override
@@ -167,16 +165,13 @@ class StravaService extends ChangeNotifier {
   Future<void> _startDataListeners() async {
     _listenToAthleteDocument();
     _listenToActivities();
-    _listenToGear();
   }
 
   Future<void> _stopDataListeners() async {
     await _activitiesSubscription?.cancel();
     await _athleteSubscription?.cancel();
-    await _gearSubscription?.cancel();
     _activitiesSubscription = null;
     _athleteSubscription = null;
-    _gearSubscription = null;
   }
 
   /// Listens to the athlete root doc — combines profile fields with the
@@ -198,6 +193,22 @@ class StravaService extends ChangeNotifier {
         // Profile
         final athlete = StravaAthlete.fromFirestore(data);
         await _appRepository.setStravaAthletes([athlete]);
+
+        // Gears are embedded as an array on the athlete doc — no separate listener needed.
+        final rawGears = data['gears'];
+        if (rawGears is List) {
+          try {
+            final gears = rawGears
+                .whereType<Map<String, dynamic>>()
+                .map((g) => StravaGear.fromFirestore(g))
+                .toList();
+            unawaited(_appRepository.setStravaGears(gears));
+          } catch (e) {
+            _handleError("GearSync", e);
+          }
+        } else {
+          unawaited(_appRepository.setStravaGears([]));
+        }
 
         // Sync state (formerly on the user doc)
         final String remoteStatus = data['strava_sync_status'] ?? 'idle';
@@ -272,29 +283,6 @@ class StravaService extends ChangeNotifier {
             _handleError("SyncStream", e, userMessage: "Background sync error"));
   }
 
-  Future<void> _listenToGear() async {
-    final athleteId = _activeAthleteId;
-    if (athleteId == null) return;
-
-    await _gearSubscription?.cancel();
-    _gearSubscription = FirebaseFirestore.instance
-        .collection('athletes')
-        .doc(athleteId)
-        .collection('gears')
-        .snapshots()
-        .listen((snapshot) {
-      if (_activeAthleteId != athleteId) return;
-      try {
-        final gears = snapshot.docs
-            .map((doc) => StravaGear.fromFirestore(doc.data()))
-            .toList();
-        unawaited(_appRepository.setStravaGears(gears));
-      } catch (e, st) {
-        debugPrint('StravaService GearSync parse error: $e\n$st');
-        _handleError("GearSync", e);
-      }
-    }, onError: (e) => _handleError("GearSync", e));
-  }
 
   /// Called whenever the user doc updates while the athlete is still linked.
   /// If the subscription has lapsed, stops data listeners and wipes local
@@ -311,11 +299,16 @@ class StravaService extends ChangeNotifier {
     }
 
     final isEntitled = expiresAt != null && DateTime.now().isBefore(expiresAt);
-    if (!isEntitled) {
+
+    // Only clear local data when entitlement transitions from active → inactive.
+    // Treating absence of entitlement as a lapse would incorrectly wipe data on
+    // fresh installs or re-auth flows before verifySubscription has written.
+    if (_wasEntitled && !isEntitled) {
       debugPrint('StravaService: subscription lapsed — clearing local Strava data');
       unawaited(_stopDataListeners());
       unawaited(_appRepository.clearStravaData());
     }
+    _wasEntitled = isEntitled;
   }
 
   Future<void> _registerFcmToken() async {

@@ -106,13 +106,17 @@ async function getValidAccessToken(athleteId) {
 
 /**
  * Helper: Saves athlete profile and gear to Firestore.
- * Profile goes on the athlete root doc, gear goes in the gears subcollection.
+ * Gears are embedded as an array on the athlete doc — no subcollection needed.
+ * This means gears arrive for free inside the athlete doc snapshot the client
+ * already listens to, eliminating a separate Firestore listener.
  */
 async function saveAthleteAndGear(athlete, batch) {
   const athleteId = String(athlete.id);
   const athleteRef = db.collection("athletes").doc(athleteId);
 
-  // 1. Update athlete profile fields (without disturbing oauth / sync state).
+  const allGear = [...(athlete.bikes || [])];
+  const now = admin.firestore.Timestamp.now();
+
   batch.set(
     athleteRef,
     {
@@ -120,26 +124,15 @@ async function saveAthleteAndGear(athlete, batch) {
       firstname: athlete.firstname,
       lastname: athlete.lastname,
       profile: athlete.profile,
-      gears: [...(athlete.bikes || []).map((b) => b.id)],
+      gears: allGear.map((b) => ({
+        id: b.id,
+        name: b.name,
+        lastModified: now,
+      })),
       lastModified: admin.firestore.FieldValue.serverTimestamp(),
     },
     { merge: true }
   );
-
-  // 2. Gears subcollection (bikes only).
-  const allGear = [...(athlete.bikes || [])];
-  for (const gear of allGear) {
-    const gearRef = athleteRef.collection("gears").doc(String(gear.id));
-    batch.set(
-      gearRef,
-      {
-        id: gear.id,
-        lastModified: admin.firestore.FieldValue.serverTimestamp(),
-        name: gear.name,
-      },
-      { merge: true }
-    );
-  }
 
   return allGear.length;
 }

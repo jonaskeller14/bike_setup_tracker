@@ -170,9 +170,8 @@ class SubscriptionService extends ChangeNotifier {
   /// start streaming the entitlement field. Called once on first init and on
   /// every auth change.
   Future<void> _bindUser() async {
-    final auth = FirebaseAuth.instance;
-    User? user = auth.currentUser;
-    user ??= (await auth.signInAnonymously()).user;
+    User? user = await FirebaseAuth.instance.authStateChanges().first;
+    user ??= (await FirebaseAuth.instance.signInAnonymously()).user;
     _userId = user?.uid;
     if (_userId == null) return;
 

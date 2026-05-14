@@ -340,8 +340,14 @@ class StravaService extends ChangeNotifier {
   }
 
   Future<void> _loadUserId() async {
-    final userCredential = await FirebaseAuth.instance.signInAnonymously();
-    _userId = userCredential.user?.uid;
+    // Wait for the first auth-state event so Firebase Auth has time to
+    // restore a previously-persisted anonymous user from disk. Calling
+    // signInAnonymously() before that restoration completes creates a
+    // second anonymous user, whose UID would mismatch the token used in
+    // subsequent Firestore requests → PERMISSION_DENIED.
+    User? user = await FirebaseAuth.instance.authStateChanges().first;
+    user ??= (await FirebaseAuth.instance.signInAnonymously()).user;
+    _userId = user?.uid;
     notifyListeners();
   }
 

@@ -41,42 +41,40 @@ class SetupListSearch extends StatelessWidget {
           itemBuilder: (context, index) => suggestions.elementAt(index),
         );
       },
-      suggestionsBuilder: (context, controller) {
+      suggestionsBuilder: (context, controller) async {
         final appSettings = context.read<AppSettings>();
         final appRepository = context.read<AppRepository>();
 
         final controllerText = controller.text.trim().toLowerCase();
         final sortAscending = appRepository.stravaSortAscending;
-        
+
         final List<TimelineEntry> matchingEntries = [];
 
         if (appSettings.displayShowSetups) {
           final setups = appRepository.filteredSetups.values;
-          matchingEntries.addAll(setups.where((s) => 
-            s.name.toLowerCase().contains(controllerText) || 
+          matchingEntries.addAll(setups.where((s) =>
+            s.name.toLowerCase().contains(controllerText) ||
             (s.notes ?? "").toLowerCase().contains(controllerText)
           ).map((s) => SetupEntry(s)));
         }
 
         if (appSettings.displayShowActivities) {
-          final activities = appRepository.filteredStravaActivities.values;
-          matchingEntries.addAll(activities.where((a) => 
-            a.name.toLowerCase().contains(controllerText)
-          ).map((a) => StravaEntry(a)));
+          final activities = await appRepository.searchStravaActivities(controllerText);
+          matchingEntries.addAll(activities.map((a) => StravaEntry(a)));
         }
 
         if (appSettings.displayShowTasks) {
           final tasks = appRepository.filteredTaskEntries.values;
-          matchingEntries.addAll(tasks.where((t) => 
-            t.name.toLowerCase().contains(controllerText) || 
+          matchingEntries.addAll(tasks.where((t) =>
+            t.name.toLowerCase().contains(controllerText) ||
             (t.notes ?? "").toLowerCase().contains(controllerText)
           ).map((t) => TaskTimeLineEntry(t)));
         }
 
         if (appSettings.displayShowInstallations) {
           final installations = appRepository.filteredInstallations;
-          matchingEntries.addAll(installations.where((ci) => 
-            ci.component.name.toLowerCase().contains(controllerText) || 
+          matchingEntries.addAll(installations.where((ci) =>
+            ci.component.name.toLowerCase().contains(controllerText) ||
             ci.component.componentType.label.toLowerCase().contains(controllerText)
           ).map((ci) => InstallationEntry(ci)));
         }

@@ -90,6 +90,23 @@ class AppRepository extends ChangeNotifier {
     return activities.where((a) => a.gearId == selectedStravaGear).toList();
   }
 
+  Future<List<StravaActivity>> searchStravaActivities(String query) async {
+    final results = await database.stravaDao.searchActivitiesByName(query);
+    final activities = results.map((a) => a.toModel()).toList();
+
+    if (_selectedBike == null) return activities;
+
+    final selectedStravaGear = bikes[_selectedBike]?.stravaGear;
+    if (selectedStravaGear == null) {
+      return activities.where((a) {
+        final g = a.gearId;
+        return g == null || !bikes.values.any((b) => b.stravaGear == g);
+      }).toList();
+    }
+
+    return activities.where((a) => a.gearId == selectedStravaGear).toList();
+  }
+
   Future<StravaActivity?> getStravaActivity(int id) async {
     if (_stravaActivities.containsKey(id)) return _stravaActivities[id];
     final dbActivity = await database.stravaDao.getActivityById(id);

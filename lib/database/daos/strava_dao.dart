@@ -44,6 +44,12 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
         .watch();
   }
 
+  Future<List<StravaActivityDb>> searchActivitiesByName(String query) {
+    return (select(stravaActivities)
+          ..where((t) => t.name.lower().like('%${query.toLowerCase()}%')))
+        .get();
+  }
+
   Future<StravaActivityDb?> getActivityById(int id) {
     return (select(stravaActivities)..where((t) => t.id.equals(id))).getSingleOrNull();
   }

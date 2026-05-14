@@ -384,7 +384,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                 subscription.errorMessage.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
+                child: SelectableText(
                   subscription.errorMessage,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(

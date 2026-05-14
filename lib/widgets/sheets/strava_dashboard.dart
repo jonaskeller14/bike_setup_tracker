@@ -50,7 +50,7 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                           height: 16,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         ),
-                        title: Text(stravaService.errorMessage.isEmpty ? "Syncing..." : stravaService.errorMessage),
+                        title: SelectableText(stravaService.errorMessage.isEmpty ? "Syncing..." : stravaService.errorMessage),
                         dense: true,
                         contentPadding: EdgeInsets.zero,
                       )

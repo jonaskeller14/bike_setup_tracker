@@ -29,3 +29,5 @@ exports.cleanupOrphanedAthletes = orphanCleanup.cleanupOrphanedAthletes;
 
 // Subscriptions
 exports.verifySubscription = subscription.verifySubscription;
+exports.playSubscriptionWebhook = subscription.playSubscriptionWebhook;
+exports.appStoreServerNotifications = subscription.appStoreServerNotifications;

@@ -7,14 +7,15 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == userId;
     }
 
-    // `users/{userId}` is per-device, anonymous. Holds the link to one or
-    // more athletes, the subscription entitlement, FCM token, and per-device
-    // notification prefs.
+    function isLinkedToAthlete(athleteId) {
+      return request.auth != null
+        && athleteId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.linked_athletes;
+    }
+
+    // `users/{userId}` — per-device, anonymous.
     match /users/{userId} {
       allow read: if isOwner(userId);
 
-      // Client can create with the per-device fields it owns. Entitlement
-      // and linked_athletes are server-managed.
       allow create: if isOwner(userId)
                     && request.resource.data.keys().hasOnly([
                       'fcm_token',
@@ -22,9 +23,8 @@ service cloud.firestore {
                       'enable_strava_notifications'
                     ]);
 
-      // Client can update its own per-device fields and remove an athlete
-      // from its own link list (disconnect flow). Entitlement and adding a
-      // new athlete are server-only — those go through Cloud Functions.
+      // Client may update device fields and remove athletes (disconnect).
+      // Entitlement and adding a new athlete are server-only.
       allow update: if isOwner(userId)
                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
                       'fcm_token',
@@ -33,45 +33,49 @@ service cloud.firestore {
                       'linked_athletes'
                     ])
                     && (
-                      // Allow only removals from linked_athletes from the
-                      // client. Additions only happen via the OAuth callback
-                      // (Cloud Function, bypasses these rules).
                       !('linked_athletes' in request.resource.data.diff(resource.data).affectedKeys())
                       || request.resource.data.linked_athletes.size() < resource.data.linked_athletes.size()
                     );
 
-      // No nested subcollections on users anymore.
       match /{document=**} {
         allow read, write: if false;
       }
     }
 
-    // `athletes/{athleteId}` is the canonical Strava-side data. Profile,
-    // sync state, OAuth tokens, plus subcollections for activity batches and
-    // gear. Client-reachable for read only, and only if this device has
-    // linked the athlete.
+    // `athletes/{athleteId}` — canonical Strava-side data.
+    //
+    // Root doc (profile: firstname, lastname, photo, sync state):
+    //   Strict — requires a get() to verify the device is linked. One read
+    //   per session open, infrequent.
+    //
+    // Subcollections (activity_batches, gears):
+    //   Relaxed to auth-only — no extra get() per document. Activity stats
+    //   and gear IDs are the same data Strava exposes publicly on any
+    //   athlete's profile page; the sensitive OAuth tokens live in
+    //   `athlete_oauth` (server-only). This halves subcollection read costs.
     match /athletes/{athleteId} {
-      allow read: if request.auth != null
-                  && athleteId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.linked_athletes;
-      allow write: if false; // server-only
+      allow read:  if isLinkedToAthlete(athleteId);
+      allow write: if false;
 
-      match /{subcollection=**} {
-        allow read: if request.auth != null
-                    && athleteId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.linked_athletes;
+      match /activity_batches/{batchId} {
+        allow read:  if request.auth != null;
+        allow write: if false;
+      }
+
+      match /gears/{gearId} {
+        allow read:  if request.auth != null;
         allow write: if false;
       }
     }
 
-    // `athlete_oauth/{athleteId}` — Strava OAuth tokens. Server-only, never
-    // reachable from a client.
+    // `athlete_oauth/{athleteId}` — Strava tokens. Server-only.
     match /athlete_oauth/{athleteId} {
       allow read, write: if false;
     }
 
-    // `server_config/strava_limits` — read-only public config doc used by
-    // availability check. Written manually in Firebase Console.
+    // `server_config/strava_limits` — read-only availability config.
     match /server_config/{doc} {
-      allow read: if true;
+      allow read:  if true;
       allow write: if false;
     }
   }

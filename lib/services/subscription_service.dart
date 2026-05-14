@@ -151,6 +151,12 @@ class SubscriptionService extends ChangeNotifier {
 
       if (_storeAvailable) {
         await _loadProducts();
+        // Silently restore active subscriptions on every launch. Without
+        // store webhooks this is the only mechanism that picks up renewals
+        // while the app was closed. The purchaseStream delivers any active
+        // subscription → _verifyAndAcknowledge → refreshes expiresAt in
+        // Firestore. Fire-and-forget: the Firestore listener handles the UI.
+        unawaited(_iap.restorePurchases());
       }
 
       await _bindUser();

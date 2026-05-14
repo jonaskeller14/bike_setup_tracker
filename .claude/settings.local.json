@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "mcp__dart_flutter__analyze_files"
+      "mcp__dart_flutter__analyze_files",
+      "mcp__dart_flutter__pub_dev_search",
+      "mcp__dart_flutter__pub"
     ]
   }
 }

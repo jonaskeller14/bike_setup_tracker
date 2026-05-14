@@ -23,6 +23,16 @@ exports.exchangeToken = onRequest(
       return res.status(400).send("Missing code or user identification");
     }
 
+    // Verify the userId in `state` is a real Firebase anonymous user before
+    // exchanging any tokens. Prevents an attacker who discovers this URL from
+    // linking a Strava account to an arbitrary or non-existent UID.
+    try {
+      await admin.auth().getUser(userId);
+    } catch (e) {
+      logger.warn("INVALID_USER_ID_IN_STATE", { userId });
+      return res.redirect("bike-setup-tracker://strava-auth?success=false&error=invalid_state");
+    }
+
     try {
       // 1. Exchange the temporary code for a permanent access token.
       const response = await fetch("https://www.strava.com/api/v3/oauth/token", {
@@ -69,11 +79,14 @@ exports.exchangeToken = onRequest(
         updated_at: admin.firestore.FieldValue.serverTimestamp(),
       });
 
-      // 3. Link the calling device to this athlete. Also drop the TTL — this
-      //    user doc now belongs to a paying-or-paying-in-the-future user.
+      // 3. Set this device's linked athlete to exactly [athleteId]. Using a
+      //    direct assignment (not arrayUnion) means reconnecting with a
+      //    different Strava account cleanly replaces the old link — the orphan
+      //    trigger will detect the removed athleteId and purge it. Also drop
+      //    the TTL so the doc survives indefinitely now that Strava is linked.
       await userRef.set(
         {
-          linked_athletes: admin.firestore.FieldValue.arrayUnion(athleteId),
+          linked_athletes: [athleteId],
           expiresAt: admin.firestore.FieldValue.delete(),
         },
         { merge: true }

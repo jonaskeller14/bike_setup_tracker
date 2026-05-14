@@ -3,11 +3,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/weather.dart';
 import '../services/strava_service.dart';
+import '../widgets/items/strava_subscription_card.dart';
 import '../widgets/sheets/app_settings_radio_group.dart';
 
 class AppSettingsPage extends StatefulWidget {
@@ -406,51 +408,48 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               if (appSettingsReader.enableStrava) ...[
                 const Divider(),
                 _sectionTitle('Strava Sync'),
-                if (debugMode)
-                  ListTile(
-                    leading: const Icon(
-                      SimpleIcons.strava,
-                      color: Color(0xFFFC4C02),
-                    ), // Strava Brand Orange
-                    title: const Text("Strava Sync"),
-                    subtitle: _offOnOptionWidgets[appSettingsReader.enableStrava] ?? const Text("-"),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                    onTap: () => appSettingsRadioGroupSheet<bool>(
-                      context: context,
-                      title: "Strava Sync",
-                      value: appSettingsReader.enableStrava,
-                      optionWidgets: _offOnOptionWidgets,
-                      onChanged: (bool? newValue) {
-                        if (newValue == null) return;
-                        appSettingsWriter.enableStrava = newValue;
-                        Navigator.pop(context);
-                      },
-                      infoText: 'Enable Strava Sync to import Strava Activities',
-                    ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: StravaSubscriptionCard(),
+                ),
+                ListTile(
+                  leading: Icon(Icons.manage_accounts, color: Theme.of(context).colorScheme.primary),
+                  title: const Text("Manage Subscription"),
+                  subtitle: const Text("Cancel or change your plan in the store"),
+                  trailing: const Icon(Icons.open_in_new, size: 16.0),
+                  onTap: () {
+                    final uri = Platform.isIOS
+                        ? Uri.parse('https://apps.apple.com/account/subscriptions')
+                        : Uri.parse(
+                            'https://play.google.com/store/account/subscriptions'
+                            '?sku=strava_sync'
+                            '&package=com.jonaskeller14.bike_setup_tracker',
+                          );
+                    unawaited(launchUrl(uri, mode: LaunchMode.externalApplication));
+                  },
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.notifications_active,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
-                if (appSettingsReader.enableStrava)
-                  ListTile(
-                    leading: const Icon(
-                      Icons.notifications_active,
-                      color: Color(0xFFFC4C02),
-                    ),
-                    title: const Text("Strava Notifications"),
-                    subtitle: _offOnOptionWidgets[appSettingsReader.enableStravaNotifications] ?? const Text("-"),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                    onTap: () => appSettingsRadioGroupSheet<bool>(
-                      context: context,
-                      title: "Strava Notifications",
-                      value: appSettingsReader.enableStravaNotifications,
-                      optionWidgets: _offOnOptionWidgets,
-                      onChanged: (bool? newValue) {
-                        if (newValue == null) return;
-                        appSettingsWriter.enableStravaNotifications = newValue;
-                        unawaited(context.read<StravaService>().setStravaNotificationsEnabled(newValue));
-                        Navigator.pop(context);
-                      },
-                      infoText: 'Receive push notifications when Strava activities are imported.',
-                    ),
+                  title: const Text("Strava Notifications"),
+                  subtitle: _offOnOptionWidgets[appSettingsReader.enableStravaNotifications] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Strava Notifications",
+                    value: appSettingsReader.enableStravaNotifications,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettingsWriter.enableStravaNotifications = newValue;
+                      unawaited(context.read<StravaService>().setStravaNotificationsEnabled(newValue));
+                      Navigator.pop(context);
+                    },
+                    infoText: 'Receive push notifications when Strava activities are imported.',
                   ),
+                ),
               ],
             ],
           ),

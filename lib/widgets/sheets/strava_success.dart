@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
-import '../../models/app_settings.dart';
-import '../../models/strava/strava_plan.dart';
 import '../../services/strava_service.dart';
-import '../../services/subscription_service.dart';
+import '../items/strava_subscription_card.dart';
 
 class StravaSuccess extends StatelessWidget {
   static const _successFgColor = Color(0xFF1F8A5B);
@@ -16,18 +13,7 @@ class StravaSuccess extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final subscription = context.watch<SubscriptionService>();
     final stravaService = context.watch<StravaService>();
-    final appSettings = context.watch<AppSettings>();
-    final entitlement = subscription.entitlement;
-
-    final stravaPlan = entitlement?.plan ?? StravaPlan.monthly;
-    final renewalDate = entitlement != null
-        ? DateFormat(appSettings.dateFormat).format(entitlement.expiresAt)
-        : '—';
-    final billing = entitlement?.billingSource ?? '—';
-    final localizedPrice =
-        subscription.localizedPrice(stravaPlan) ?? stravaPlan.price;
 
     return SafeArea(
       child: Padding(
@@ -70,99 +56,7 @@ class StravaSuccess extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'STRAVA SYNC',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: _successBgColor,
-                                  borderRadius: BorderRadius.circular(100),
-                                ),
-                                child: Text(
-                                  'ACTIVE',
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: _successFgColor,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.baseline,
-                            textBaseline: TextBaseline.alphabetic,
-                            children: [
-                              Text(
-                                localizedPrice,
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                stravaPlan.period,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Divider(height: 24, color: Theme.of(context).colorScheme.outlineVariant),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Renews',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                              Text(
-                                renewalDate,
-                                style: Theme.of(context).textTheme.labelMedium,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Billing',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                              Text(
-                                billing,
-                                style: Theme.of(context).textTheme.labelMedium,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                    const StravaSubscriptionCard(backgroundColor: Colors.white),
                   ],
                 ),
               )

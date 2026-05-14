@@ -282,12 +282,17 @@ class StravaService extends ChangeNotifier {
         .doc(athleteId)
         .collection('gears')
         .snapshots()
-        .listen((snapshot) async {
+        .listen((snapshot) {
       if (_activeAthleteId != athleteId) return;
-      final gears = snapshot.docs
-          .map((doc) => StravaGear.fromFirestore(doc.data()))
-          .toList();
-      await _appRepository.setStravaGears(gears);
+      try {
+        final gears = snapshot.docs
+            .map((doc) => StravaGear.fromFirestore(doc.data()))
+            .toList();
+        unawaited(_appRepository.setStravaGears(gears));
+      } catch (e, st) {
+        debugPrint('StravaService GearSync parse error: $e\n$st');
+        _handleError("GearSync", e);
+      }
     }, onError: (e) => _handleError("GearSync", e));
   }
 

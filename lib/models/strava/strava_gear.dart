@@ -35,9 +35,9 @@ class StravaGear {
     switch (version) {
       case null:
         return StravaGear(
-          id: json["id"] as String,
+          id: json["id"].toString(),
           lastModified: (json["lastModified"] as Timestamp?)?.toDate().toUtc(),
-          name: json['name'] as String,
+          name: json['name'].toString(),
         );
       default: throw Exception("Json Version $version of StravaGear incompatible.");
     }

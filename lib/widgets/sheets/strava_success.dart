@@ -175,7 +175,9 @@ class StravaSuccess extends StatelessWidget {
                 icon: const Icon(SimpleIcons.strava),
                 label: const Text('Sign in to Strava'),
                 onPressed: () {
-                  Navigator.pop(context);
+                  // Keep the sheet open — the Consumer in strava.dart watches
+                  // StravaService.isConnected and automatically animates to
+                  // StravaDashboardSheet once exchangeToken completes.
                   unawaited(stravaService.launchStravaLogin());
                 },
                 style: ElevatedButton.styleFrom(

@@ -285,7 +285,12 @@ class SubscriptionService extends ChangeNotifier {
     _setStatus(SubscriptionPurchaseStatus.restoring);
     try {
       await _iap.restorePurchases(applicationUserName: _userId);
-      // Status flips back to idle once stream events finish.
+      // If nothing was restored the stream emits no events, so status would
+      // stay stuck at restoring forever. Reset it here; stream events that
+      // arrive after this point will override the status as needed.
+      if (_status == SubscriptionPurchaseStatus.restoring) {
+        _setStatus(SubscriptionPurchaseStatus.idle);
+      }
     } catch (e) {
       _setError('Restore failed: $e');
     }

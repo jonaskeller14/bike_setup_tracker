@@ -70,7 +70,16 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                     if (stravaService.isConnected)
                       _buildSyncInfoSection(context, stravaService),
                     
-                    if (gears.isNotEmpty) ...[
+                    if (gears.isEmpty && stravaService.isConnected) ...[
+                      const Divider(),
+                      const ListTile(
+                        leading: Icon(Bike.iconData),
+                        title: Text("No Strava Gear found"),
+                        subtitle: Text("Add a bike to your Strava profile and log a ride with it — it will appear here automatically."),
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ] else if (gears.isNotEmpty) ...[
                       const Divider(),
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 8),

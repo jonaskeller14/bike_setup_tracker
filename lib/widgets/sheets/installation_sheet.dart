@@ -129,8 +129,13 @@ class _InstallationSheetState extends State<InstallationSheet> {
         ? widget.editEntry!.installation.parent
         : widget.targetBikeId;
         
-    final originBikeName = originBikeId == null ? "Archive" : (bikes[originBikeId]?.name ?? "Unknown Bike");
-    final targetBikeName = targetBikeId == null ? "Archive" : (bikes[targetBikeId]?.name ?? "Unknown Bike");
+    final originBikeNotFound = originBikeId != null && bikes[originBikeId] == null;
+    final targetBikeNotFound = targetBikeId != null && bikes[targetBikeId] == null;
+    final originBikeName = originBikeId == null ? "Archive" : (bikes[originBikeId]?.name ?? "BIKE NOT FOUND");
+    final targetBikeName = targetBikeId == null ? "Archive" : (bikes[targetBikeId]?.name ?? "BIKE NOT FOUND");
+    final isInitialInstallation = widget.editEntry != null
+        ? widget.editEntry!.isInitial
+        : widget.component.installations.isEmpty;
 
     return SafeArea(
       child: Form(
@@ -176,12 +181,14 @@ class _InstallationSheetState extends State<InstallationSheet> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Expanded(
-                            child: _BikePreview(
-                              name: originBikeName,
-                              isDeinstalled: originBikeId == null,
+                          if (!isInitialInstallation)
+                            Expanded(
+                              child: _BikePreview(
+                                name: originBikeName,
+                                isDeinstalled: originBikeId == null,
+                                isError: originBikeNotFound,
+                              ),
                             ),
-                          ),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Icon(Icons.arrow_forward, color: theme.colorScheme.primary),
@@ -189,7 +196,8 @@ class _InstallationSheetState extends State<InstallationSheet> {
                           Expanded(
                             child: _BikePreview(
                               name: targetBikeName,
-                              isDeinstalled: widget.targetBikeId == null,
+                              isDeinstalled: targetBikeId == null,
+                              isError: targetBikeNotFound,
                             ),
                           ),
                         ],
@@ -232,21 +240,24 @@ class _InstallationSheetState extends State<InstallationSheet> {
 class _BikePreview extends StatelessWidget {
   final String name;
   final bool isDeinstalled;
+  final bool isError;
 
   const _BikePreview({
     required this.name,
     required this.isDeinstalled,
+    this.isError = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final color = isError ? theme.colorScheme.error : theme.colorScheme.onSurfaceVariant;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
           isDeinstalled ? Icons.shelves : Bike.iconData,
-          color: theme.colorScheme.onSurfaceVariant,
+          color: color,
         ),
         const SizedBox(height: 4),
         Text(
@@ -256,6 +267,7 @@ class _BikePreview extends StatelessWidget {
           maxLines: 2,
           style: theme.textTheme.labelMedium?.copyWith(
             fontWeight: FontWeight.bold,
+            color: color,
           ),
         ),
       ],

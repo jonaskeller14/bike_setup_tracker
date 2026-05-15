@@ -96,6 +96,206 @@ void main() {
     });
   });
 
+  group('InstallationSheet preview panel', () {
+    group('add mode', () {
+      testWidgets('bike to bike: shows origin, arrow and target', (WidgetTester tester) async {
+        // component.bike = 'b1', targeting b2
+        await tester.pumpWidget(createWidgetUnderTest(
+          InstallationSheet.add(component: component, targetBikeId: 'b2'),
+        ));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Bike 1'), findsAtLeast(1));
+        expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
+        expect(find.text('Bike 2'), findsAtLeast(1));
+      });
+
+      testWidgets('initial installation: shows arrow and target only, no origin', (WidgetTester tester) async {
+        final freshComponent = Component(
+          id: 'c_new',
+          name: 'Fork',
+          componentType: ComponentType.fork,
+          installations: [],
+          adjustments: [],
+        );
+
+        await tester.pumpWidget(createWidgetUnderTest(
+          InstallationSheet.add(component: freshComponent, targetBikeId: 'b1'),
+        ));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Bike 1'), findsAtLeast(1));
+        expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
+        // No origin _BikePreview — 'Archive' must not appear (target is a valid bike)
+        expect(find.text('Archive'), findsNothing);
+      });
+
+      testWidgets('archive origin: shows Archive label for origin', (WidgetTester tester) async {
+        // Component whose latest installation has parent=null (archived/deinstalled)
+        final now = DateTime.now();
+        final archivedComponent = Component(
+          id: 'c_arch',
+          name: 'Fork',
+          componentType: ComponentType.fork,
+          installations: [
+            Installation.sinceBeginning(parent: 'b1'),
+            Installation(parent: null, dateTimeUTC: now.toUtc(), dateTimeLocal: now),
+          ],
+          adjustments: [],
+        );
+
+        await tester.pumpWidget(createWidgetUnderTest(
+          InstallationSheet.add(component: archivedComponent, targetBikeId: 'b2'),
+        ));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Archive'), findsAtLeast(1));
+        expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
+        expect(find.text('Bike 2'), findsAtLeast(1));
+      });
+
+      testWidgets('bike to archive: shows Archive label for target', (WidgetTester tester) async {
+        // component.bike = 'b1', targetBikeId = null → archive
+        await tester.pumpWidget(createWidgetUnderTest(
+          InstallationSheet.add(component: component, targetBikeId: null),
+        ));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Bike 1'), findsAtLeast(1));
+        expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
+        expect(find.text('Archive'), findsAtLeast(1));
+      });
+
+      testWidgets('invalid target bike: shows BIKE NOT FOUND for target', (WidgetTester tester) async {
+        // component.bike = 'b1', targeting a bike ID absent from the bikes map
+        await tester.pumpWidget(createWidgetUnderTest(
+          InstallationSheet.add(component: component, targetBikeId: 'b_missing'),
+        ));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Bike 1'), findsAtLeast(1));
+        expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
+        expect(find.text('BIKE NOT FOUND'), findsAtLeast(1));
+      });
+
+      testWidgets('invalid origin bike: shows BIKE NOT FOUND for origin', (WidgetTester tester) async {
+        // Component whose latest installation references a deleted/missing bike
+        final componentOnMissing = Component(
+          id: 'c_miss',
+          name: 'Fork',
+          componentType: ComponentType.fork,
+          installations: [
+            Installation.sinceBeginning(parent: 'b_missing'),
+          ],
+          adjustments: [],
+        );
+
+        await tester.pumpWidget(createWidgetUnderTest(
+          InstallationSheet.add(component: componentOnMissing, targetBikeId: 'b1'),
+        ));
+        await tester.pumpAndSettle();
+
+        expect(find.text('BIKE NOT FOUND'), findsAtLeast(1));
+        expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
+        expect(find.text('Bike 1'), findsAtLeast(1));
+      });
+    });
+
+    group('edit mode', () {
+      testWidgets('non-initial: shows origin, arrow and target', (WidgetTester tester) async {
+        final now = DateTime.now();
+        final installation = Installation(
+          parent: 'b2',
+          dateTimeUTC: now.toUtc(),
+          dateTimeLocal: now,
+        );
+        final editEntry = ComponentInstallation(
+          component: component,
+          installation: installation,
+          originParent: 'b1',
+          isInitial: false,
+        );
+
+        await tester.pumpWidget(createWidgetUnderTest(
+          InstallationSheet.edit(component: component, editEntry: editEntry),
+        ));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Bike 1'), findsAtLeast(1));
+        expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
+        expect(find.text('Bike 2'), findsAtLeast(1));
+      });
+
+      testWidgets('initial: shows arrow and target only, no origin', (WidgetTester tester) async {
+        final installation = Installation.sinceBeginning(parent: 'b1');
+        final editEntry = ComponentInstallation(
+          component: component,
+          installation: installation,
+          originParent: null,
+          isInitial: true,
+        );
+
+        await tester.pumpWidget(createWidgetUnderTest(
+          InstallationSheet.edit(component: component, editEntry: editEntry),
+        ));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Bike 1'), findsAtLeast(1));
+        expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
+        // No origin _BikePreview — 'Archive' must not appear
+        expect(find.text('Archive'), findsNothing);
+      });
+
+      testWidgets('invalid target bike: shows BIKE NOT FOUND for target', (WidgetTester tester) async {
+        final now = DateTime.now();
+        final installation = Installation(
+          parent: 'b_missing',
+          dateTimeUTC: now.toUtc(),
+          dateTimeLocal: now,
+        );
+        final editEntry = ComponentInstallation(
+          component: component,
+          installation: installation,
+          originParent: 'b1',
+          isInitial: false,
+        );
+
+        await tester.pumpWidget(createWidgetUnderTest(
+          InstallationSheet.edit(component: component, editEntry: editEntry),
+        ));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Bike 1'), findsAtLeast(1));
+        expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
+        expect(find.text('BIKE NOT FOUND'), findsAtLeast(1));
+      });
+
+      testWidgets('invalid origin bike: shows BIKE NOT FOUND for origin', (WidgetTester tester) async {
+        final now = DateTime.now();
+        final installation = Installation(
+          parent: 'b2',
+          dateTimeUTC: now.toUtc(),
+          dateTimeLocal: now,
+        );
+        final editEntry = ComponentInstallation(
+          component: component,
+          installation: installation,
+          originParent: 'b_missing',
+          isInitial: false,
+        );
+
+        await tester.pumpWidget(createWidgetUnderTest(
+          InstallationSheet.edit(component: component, editEntry: editEntry),
+        ));
+        await tester.pumpAndSettle();
+
+        expect(find.text('BIKE NOT FOUND'), findsAtLeast(1));
+        expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
+        expect(find.text('Bike 2'), findsAtLeast(1));
+      });
+    });
+  });
+
   group('SetInstallationTimeline with isEntryEditable', () {
     testWidgets('disables editing for non-editable entries', (WidgetTester tester) async {
       final now = DateTime.now();
@@ -124,10 +324,10 @@ void main() {
         find.byType(DropdownButtonFormField<String?>).at(1)
       );
       expect(secondDropdown.onChanged, isNotNull);
-      
+
       // Add button should be disabled when isEntryEditable is provided
       final addButton = find.byIcon(Icons.add);
-      expect(addButton, findsNothing); 
+      expect(addButton, findsNothing);
     });
   });
 }

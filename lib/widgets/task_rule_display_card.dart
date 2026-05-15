@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/bike.dart';
 import '../models/task_rule.dart';
+import '../models/task_threshold.dart';
 import '../repositories/app_repository.dart';
 import '../utils/task_actions.dart';
 
@@ -204,6 +206,8 @@ class TaskRuleDisplayCard extends StatelessWidget {
                     ),
                   ],
                 ),
+              if (!isCompleted && taskRule.interval != null)
+                _buildThresholdDetailRow(context, taskRule.interval!, taskRule.delay, status, statusColor),
               if (showStatus && !isCompleted && taskRule.interval != null) ...[
                 const SizedBox(height: 8),
                 LinearProgressIndicator(
@@ -219,5 +223,71 @@ class TaskRuleDisplayCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildThresholdDetailRow(BuildContext context, TaskThreshold interval, TaskThreshold? delay, TaskStatus status, Color statusColor) {
+    final detail = _thresholdDetail(interval, delay, status.progress);
+    if (detail == null) return const SizedBox.shrink();
+    final isExceeded = status.isDue;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      spacing: 2,
+      children: [
+        Icon(isExceeded ? Icons.warning_amber_rounded : Icons.arrow_forward, size: 13, color: statusColor),
+        Text(detail, style: TextStyle(color: statusColor, fontSize: 13)),
+      ],
+    );
+  }
+
+  String? _thresholdDetail(TaskThreshold interval, TaskThreshold? delay, double progress) {
+    switch (interval) {
+      case DistanceThreshold(:final meters):
+        final totalM = meters + (delay is DistanceThreshold ? delay.meters : 0.0);
+        if (totalM <= 0) return null;
+        final accumulatedM = progress * totalM;
+        final fmt = NumberFormat.decimalPattern();
+        return progress < 1.0
+            ? '${fmt.format(((totalM - accumulatedM) / 1000).round())} km remaining'
+            : '${fmt.format(((accumulatedM - totalM) / 1000).round())} km exceeded';
+
+      case ElevationThreshold(:final meters):
+        final totalM = meters + (delay is ElevationThreshold ? delay.meters : 0.0);
+        if (totalM <= 0) return null;
+        final accumulatedM = progress * totalM;
+        final fmt = NumberFormat.decimalPattern();
+        return progress < 1.0
+            ? '${fmt.format((totalM - accumulatedM).round())} m remaining'
+            : '${fmt.format((accumulatedM - totalM).round())} m exceeded';
+
+      case MovingTimeThreshold(:final hours):
+        final totalMicros = hours.inMicroseconds + (delay is MovingTimeThreshold ? delay.hours.inMicroseconds : 0);
+        if (totalMicros <= 0) return null;
+        final diff = Duration(microseconds: ((progress < 1.0 ? 1.0 - progress : progress - 1.0) * totalMicros).round());
+        final label = progress < 1.0 ? 'remaining' : 'exceeded';
+        final h = diff.inHours;
+        final m = diff.inMinutes.remainder(60);
+        return h > 0 ? '${h}h ${m}min $label' : '${m}min $label';
+
+      case DurationThreshold(:final days):
+        final totalMicros = days.inMicroseconds + (delay is DurationThreshold ? delay.days.inMicroseconds : 0);
+        if (totalMicros <= 0) return null;
+        final diff = Duration(microseconds: ((progress < 1.0 ? 1.0 - progress : progress - 1.0) * totalMicros).round());
+        return '${diff.inDays} d ${progress < 1.0 ? 'remaining' : 'exceeded'}';
+
+      case ActivityCountThreshold(:final count):
+        final total = count + (delay is ActivityCountThreshold ? delay.count : 0);
+        if (total <= 0) return null;
+        final accumulated = (progress * total).round();
+        return progress < 1.0
+            ? '${total - accumulated} rides remaining'
+            : '${accumulated - total} rides exceeded';
+
+      case DateTimeThreshold(:final deadline):
+        final effectiveDeadline = deadline.add(delay is DurationThreshold ? delay.days : Duration.zero);
+        final now = DateTime.now().toUtc();
+        final diff = now.isBefore(effectiveDeadline) ? effectiveDeadline.difference(now) : now.difference(effectiveDeadline);
+        return '${diff.inDays} d ${now.isBefore(effectiveDeadline) ? 'remaining' : 'exceeded'}';
+    }
   }
 }

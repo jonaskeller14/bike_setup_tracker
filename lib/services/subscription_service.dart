@@ -96,6 +96,13 @@ class SubscriptionService extends ChangeNotifier {
   String _errorMessage = '';
   StravaEntitlement? _entitlement;
 
+  /// True while `restorePurchases` is in flight at app launch — the cached
+  /// `expiresAt` in Firestore may be stale until the platform-side restore
+  /// completes and `verifySubscription` writes a fresh value. UI uses this
+  /// to avoid flashing the paywall during the brief verification window.
+  bool _isRestoring = false;
+  Timer? _restoreTimeoutTimer;
+
   SubscriptionPurchaseStatus get status => _status;
   String get errorMessage => _errorMessage;
   bool get storeAvailable => _storeAvailable;
@@ -103,6 +110,7 @@ class SubscriptionService extends ChangeNotifier {
   StravaEntitlement? get entitlement => _entitlement;
   bool get hasStravaEntitlement => _entitlement?.isActive ?? false;
   StravaPlan? get activePlan => _entitlement?.plan;
+  bool get isRestoring => _isRestoring;
 
   /// Localized price string from the store for a given plan (e.g. "€0.99",
   /// "$1.09"), or `null` if products haven't loaded yet — callers should fall
@@ -117,9 +125,29 @@ class SubscriptionService extends ChangeNotifier {
   @override
   void dispose() {
     _isDisposed = true;
+    _restoreTimeoutTimer?.cancel();
     unawaited(_purchaseSub?.cancel());
     unawaited(_entitlementSub?.cancel());
     super.dispose();
+  }
+
+  void _beginRestore() {
+    if (_isRestoring) return;
+    _isRestoring = true;
+    notifyListeners();
+    // Hard timeout — if no purchaseStream event arrives in 5s (e.g. store
+    // unreachable, no active subscription), drop the restoring flag so the
+    // UI can resolve to its real state (paywall, success, dashboard).
+    _restoreTimeoutTimer?.cancel();
+    _restoreTimeoutTimer = Timer(const Duration(seconds: 5), _endRestore);
+  }
+
+  void _endRestore() {
+    _restoreTimeoutTimer?.cancel();
+    _restoreTimeoutTimer = null;
+    if (!_isRestoring) return;
+    _isRestoring = false;
+    notifyListeners();
   }
 
   /// Idempotent init — safe to call from a ChangeNotifierProxyProvider's
@@ -156,6 +184,7 @@ class SubscriptionService extends ChangeNotifier {
         // while the app was closed. The purchaseStream delivers any active
         // subscription → _verifyAndAcknowledge → refreshes expiresAt in
         // Firestore. Fire-and-forget: the Firestore listener handles the UI.
+        _beginRestore();
         unawaited(_iap.restorePurchases());
       }
 
@@ -281,6 +310,7 @@ class SubscriptionService extends ChangeNotifier {
       _setError('Store is not available on this device.');
       return;
     }
+    _beginRestore();
     _setStatus(SubscriptionPurchaseStatus.restoring);
     try {
       await _iap.restorePurchases(applicationUserName: _userId);
@@ -291,6 +321,7 @@ class SubscriptionService extends ChangeNotifier {
         _setStatus(SubscriptionPurchaseStatus.idle);
       }
     } catch (e) {
+      _endRestore();
       _setError('Restore failed: $e');
     }
   }
@@ -312,6 +343,8 @@ class SubscriptionService extends ChangeNotifier {
         await _iap.completePurchase(pd);
       }
     }
+    // Restore has produced its events — entitlement is now authoritative.
+    _endRestore();
   }
 
   Future<void> _verifyAndAcknowledge(PurchaseDetails pd) async {

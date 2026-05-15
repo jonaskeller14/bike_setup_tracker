@@ -19,6 +19,46 @@ const {
  * the user explicitly picks which of their linked athletes to sync. Defaults
  * to the first linked athlete.
  */
+/**
+ * Internal: fetches athlete profile + gear and the last 50 activities, then
+ * upserts them. Used by the syncActivities callable AND by exchangeToken when
+ * the athlete already has fresh data (avoids re-pulling the entire history).
+ */
+async function syncRecent(athleteId) {
+  athleteId = String(athleteId);
+  const token = await getValidAccessToken(athleteId);
+
+  // Athlete profile + gear
+  const athleteResponse = await fetch(
+    "https://www.strava.com/api/v3/athlete",
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  checkStravaResponse(athleteResponse, "Strava Athlete API");
+  const athlete = await athleteResponse.json();
+
+  const profileBatch = db.batch();
+  const gearCount = await saveAthleteAndGear(athlete, profileBatch);
+  await profileBatch.commit();
+
+  // Last 50 activities
+  const response = await fetch(
+    "https://www.strava.com/api/v3/athlete/activities?per_page=50",
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  checkStravaResponse(response, "Strava Activities API");
+  const activities = await response.json();
+
+  for (const activity of activities) {
+    await saveActivityToBatch(activity, athleteId);
+  }
+
+  await db.collection("athletes").doc(athleteId).update({
+    strava_sync_last_recent: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return { activityCount: activities.length, gearCount };
+}
+
 exports.syncActivities = onCall(
   { secrets: ["STRAVA_CLIENT_ID", "STRAVA_CLIENT_SECRET"], enforceAppCheck: true },
   async (request) => {
@@ -33,47 +73,14 @@ exports.syncActivities = onCall(
     );
 
     try {
-      const token = await getValidAccessToken(athleteId);
-
-      // 1. Fetch athlete profile + gear summary.
-      const athleteResponse = await fetch(
-        "https://www.strava.com/api/v3/athlete",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      checkStravaResponse(athleteResponse, "Strava Athlete API");
-      const athlete = await athleteResponse.json();
-
-      const profileBatch = db.batch();
-      const gearCount = await saveAthleteAndGear(athlete, profileBatch);
-      await profileBatch.commit();
-
-      // 2. Fetch last 50 activities.
-      const response = await fetch(
-        "https://www.strava.com/api/v3/athlete/activities?per_page=50",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      checkStravaResponse(response, "Strava Activities API");
-      const activities = await response.json();
-
-      for (const activity of activities) {
-        await saveActivityToBatch(activity, athleteId);
-      }
-
-      // 3. Mark last recent sync time on the athlete doc.
-      await db
-        .collection("athletes")
-        .doc(athleteId)
-        .update({
-          strava_sync_last_recent: admin.firestore.FieldValue.serverTimestamp(),
-        });
-
+      const result = await syncRecent(athleteId);
       logger.info("MANUAL_SYNC_SUCCESSFUL", {
         userId,
         athleteId,
-        count: activities.length,
-        gearCount,
+        count: result.activityCount,
+        gearCount: result.gearCount,
       });
-      return `SYNC_SUCCESSFUL: ${activities.length} activities, ${gearCount} gear items processed.`;
+      return `SYNC_SUCCESSFUL: ${result.activityCount} activities, ${result.gearCount} gear items processed.`;
     } catch (error) {
       logger.error("MANUAL_SYNC_FAILED", {
         userId,
@@ -286,4 +293,5 @@ module.exports = {
   syncActivities: exports.syncActivities,
   syncFullHistory,
   syncFullHistoryCloud: exports.syncFullHistoryCloud,
+  syncRecent,
 };

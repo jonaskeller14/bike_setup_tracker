@@ -1,6 +1,11 @@
 const { onRequest, onCall, HttpsError } = require("firebase-functions/v2/https");
 const { db, logger, admin } = require("./firebase");
-const { syncFullHistory } = require("./sync");
+const { syncFullHistory, syncRecent } = require("./sync");
+
+// If the athlete was fully synced within this window, skip the full re-sync
+// and just pull recent activities. Webhooks + weekly scheduled sync cover any
+// drift beyond this freshness boundary.
+const FULL_SYNC_FRESHNESS_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 /**
  * STRATEGY: OAuth Token Exchange
@@ -56,6 +61,14 @@ exports.exchangeToken = onRequest(
       const oauthRef = db.collection("athlete_oauth").doc(athleteId);
       const userRef = db.collection("users").doc(userId);
 
+      // Read existing state BEFORE the merge writes so we can decide between
+      // full vs. recent sync based on whether this athlete was synced
+      // recently by another device.
+      const existingSnap = await athleteRef.get();
+      const lastFullRaw = existingSnap.data()?.strava_sync_last_full;
+      const lastFull = lastFullRaw?.toMillis?.();
+      const isFresh = lastFull && Date.now() - lastFull < FULL_SYNC_FRESHNESS_MS;
+
       // 2a. Write the client-readable athlete doc — profile + sync seed. No
       //     OAuth here (server-only, see below). `merge: true` so a second
       //     device re-linking the same athlete preserves existing sync state.
@@ -92,15 +105,28 @@ exports.exchangeToken = onRequest(
         { merge: true }
       );
 
-      logger.info("STRAVA_AUTH_SUCCESSFUL", { userId, athleteId });
+      logger.info("STRAVA_AUTH_SUCCESSFUL", { userId, athleteId, isFresh });
 
-      // 4. Kick off a full sync in the background. Non-blocking.
-      syncFullHistory(athleteId).catch((err) =>
-        logger.error("BACKGROUND_FULL_SYNC_FAILED", {
-          athleteId,
-          error: err.message,
-        })
-      );
+      // 4. Kick off a background sync. Non-blocking.
+      //    - Fresh athlete (re-link from another device, synced < 7 days ago):
+      //      recent sync only — saves a paginated full pull for data we
+      //      already have. Webhooks + weekly job catch any drift.
+      //    - Stale or new athlete: full history sync.
+      if (isFresh) {
+        syncRecent(athleteId).catch((err) =>
+          logger.error("BACKGROUND_RECENT_SYNC_FAILED", {
+            athleteId,
+            error: err.message,
+          })
+        );
+      } else {
+        syncFullHistory(athleteId).catch((err) =>
+          logger.error("BACKGROUND_FULL_SYNC_FAILED", {
+            athleteId,
+            error: err.message,
+          })
+        );
+      }
 
       // 5. Deep-link back to the app.
       return res.redirect("bike-setup-tracker://strava-auth?success=true");

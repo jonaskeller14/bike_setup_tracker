@@ -100,3 +100,8 @@ Secrets (e.g., `MAPBOX_TOKEN`) are stored in `.env` and obfuscated via `envied`.
 - Firebase App Check uses debug providers in debug mode, `PlayIntegrity`/`AppAttest` in release.
 - `SystemUiMode.edgeToEdge` is set globally for full-bleed UI.
 - The app targets iOS (App Store) and Android (Play Store); web and desktop builds exist but are secondary.
+
+## Commit Rules
+
+- Do NOT include "coauthored by claude" or similar notes in commit messages.
+- Use clear, descriptive summaries of the functional changes.

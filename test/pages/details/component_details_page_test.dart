@@ -9,6 +9,7 @@ import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/pages/details/component_details_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/widgets/lists/adjustment_edit_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -38,6 +39,7 @@ void main() {
       providers: [
         ChangeNotifierProvider.value(value: appSettings),
         ChangeNotifierProvider.value(value: appRepository),
+        ChangeNotifierProvider<SubscriptionService>(create: (_) => SubscriptionService()),
       ],
       child: MaterialApp(
         home: Scaffold(

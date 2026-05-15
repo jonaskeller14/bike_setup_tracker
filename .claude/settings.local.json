@@ -5,7 +5,8 @@
       "mcp__dart_flutter__pub_dev_search",
       "mcp__dart_flutter__pub",
       "mcp__dart_flutter__run_tests",
-      "mcp__dart_flutter__add_roots"
+      "mcp__dart_flutter__add_roots",
+      "Bash(flutter test *)"
     ]
   }
 }

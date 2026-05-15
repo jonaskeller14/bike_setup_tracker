@@ -10,6 +10,7 @@ import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/google_drive_service.dart';
 import 'package:bike_setup_tracker/services/storage_service.dart';
 import 'package:bike_setup_tracker/services/strava_service.dart';
+import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/widgets/items/adjustment_list_card.dart';
 import 'package:bike_setup_tracker/widgets/items/component_list_card.dart';
 import 'package:bike_setup_tracker/widgets/lists/garage_list.dart';
@@ -52,6 +53,8 @@ void main() {
             create: (_) => StravaService(appRepository)),
         ChangeNotifierProvider<GoogleDriveService>(
             create: (_) => GoogleDriveService(appRepository, database)),
+        ChangeNotifierProvider<SubscriptionService>(
+            create: (_) => SubscriptionService()),
       ],
       child: const BikeSetupTrackerApp(),
     );

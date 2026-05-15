@@ -4,6 +4,7 @@ import '../../models/app_settings.dart';
 import '../../models/timeline_entry.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/subscription_service.dart';
 import '../../utils/task_actions.dart';
 import '../items/installation_list_tile.dart';
 import '../items/setup_list_card.dart';
@@ -44,6 +45,7 @@ class SetupListSearch extends StatelessWidget {
       suggestionsBuilder: (context, controller) async {
         final appSettings = context.read<AppSettings>();
         final appRepository = context.read<AppRepository>();
+        final subscriptionService = context.watch<SubscriptionService>();
 
         final controllerText = controller.text.trim().toLowerCase();
         final sortAscending = appRepository.stravaSortAscending;
@@ -58,7 +60,7 @@ class SetupListSearch extends StatelessWidget {
           ).map((s) => SetupEntry(s)));
         }
 
-        if (appSettings.displayShowActivities) {
+        if (appSettings.displayShowActivities && appSettings.enableStrava && subscriptionService.hasStravaEntitlement) {
           final activities = await appRepository.searchStravaActivities(controllerText);
           matchingEntries.addAll(activities.map((a) => StravaEntry(a)));
         }

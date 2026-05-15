@@ -4,6 +4,7 @@ import '../../models/app_settings.dart';
 import '../../models/timeline_entry.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/subscription_service.dart';
 import '../../utils/task_actions.dart';
 import '../chips/setup_list_filter_widget.dart';
 import '../items/installation_list_tile.dart';
@@ -39,6 +40,7 @@ class SetupList extends StatelessWidget {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
+    final subscriptionService = context.watch<SubscriptionService>();
     final sortAscending = appRepository.stravaSortAscending;
     final setupsList = appRepository.filteredSetups.values;
     final stravaActivities = appRepository.filteredStravaActivities.values;
@@ -62,7 +64,7 @@ class SetupList extends StatelessWidget {
                 : !s.datetime.isBefore(horizonDate); // DESC: hide older than horizon
           })
           .map((s) => SetupEntry(s)), 
-      if (appSettings.displayShowActivities) ...stravaActivities.map((a) => StravaEntry(a)),
+      if (appSettings.displayShowActivities && appSettings.enableStrava && subscriptionService.hasStravaEntitlement) ...stravaActivities.map((a) => StravaEntry(a)),
       if (appSettings.displayShowTasks) ...taskEntries
           .where((t) {
             if (horizonDate == null || !appRepository.hasMoreStrava) return true;

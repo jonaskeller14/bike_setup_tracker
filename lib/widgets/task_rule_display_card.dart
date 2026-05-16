@@ -158,30 +158,6 @@ class TaskRuleDisplayCard extends StatelessWidget {
                   );
                 }).toList(),
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 8,
-                children: [
-                  if (taskRule.interval != null)
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: 2,
-                      children: [
-                        Icon(taskRule.interval!.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        Text(
-                          '${taskRule.repeat ? "Every " : "After "}${taskRule.interval!.toDisplayValue()}',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  if (taskRule.delay != null && taskRule.delay!.isPositive)
-                    Icon(Icons.history, size: 13, color: Colors.orange.withValues(alpha: 0.8)),
-                ],
-              ),
               if (taskRule.notes != null && taskRule.notes!.isNotEmpty)
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -206,8 +182,33 @@ class TaskRuleDisplayCard extends StatelessWidget {
                     ),
                   ],
                 ),
-              if (!isCompleted && taskRule.interval != null)
-                _buildThresholdDetailRow(context, taskRule.interval!, taskRule.delay, status, statusColor),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                spacing: 8,
+                children: [
+                  if (taskRule.interval != null)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 2,
+                      children: [
+                        Icon(taskRule.interval!.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        Text(
+                          '${taskRule.repeat ? "Every " : "After "}${taskRule.interval!.toDisplayValue()}',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  if (taskRule.delay != null && taskRule.delay!.isPositive)
+                    Icon(Icons.history, size: 13, color: Colors.orange.withValues(alpha: 0.8)),
+                  if (!isCompleted && taskRule.interval != null)
+                    Flexible(
+                      child: _buildThresholdDetailRow(context, taskRule.interval!, taskRule.delay, status, statusColor),
+                    ),
+                ],
+              ),
               if (showStatus && !isCompleted && taskRule.interval != null) ...[
                 const SizedBox(height: 8),
                 LinearProgressIndicator(
@@ -235,7 +236,14 @@ class TaskRuleDisplayCard extends StatelessWidget {
       spacing: 2,
       children: [
         Icon(isExceeded ? Icons.warning_amber_rounded : Icons.arrow_forward, size: 13, color: statusColor),
-        Text(detail, style: TextStyle(color: statusColor, fontSize: 13)),
+        Flexible(
+          child: Text(
+            detail,
+            style: TextStyle(color: statusColor, fontSize: 13),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
       ],
     );
   }

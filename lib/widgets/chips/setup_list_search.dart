@@ -45,7 +45,7 @@ class SetupListSearch extends StatelessWidget {
       suggestionsBuilder: (context, controller) async {
         final appSettings = context.read<AppSettings>();
         final appRepository = context.read<AppRepository>();
-        final subscriptionService = context.watch<SubscriptionService>();
+        final subscriptionService = context.read<SubscriptionService>();
 
         final controllerText = controller.text.trim().toLowerCase();
         final sortAscending = appRepository.stravaSortAscending;

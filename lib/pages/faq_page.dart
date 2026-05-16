@@ -149,8 +149,8 @@ class FAQPage extends StatelessWidget {
                   ),
                 ),
                 ...faqSection.value.entries.map((faq) => ListTile(
-                  title: Text(faq.key, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text(faq.value),
+                  title: SelectableText(faq.key, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: SelectableText(faq.value),
                   dense: true,
                 )),
                 const Divider(height: 32.0),

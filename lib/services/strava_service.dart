@@ -300,13 +300,18 @@ class StravaService extends ChangeNotifier {
 
     final isEntitled = expiresAt != null && DateTime.now().isBefore(expiresAt);
 
-    // Only clear local data when entitlement transitions from active → inactive.
-    // Treating absence of entitlement as a lapse would incorrectly wipe data on
-    // fresh installs or re-auth flows before verifySubscription has written.
     if (_wasEntitled && !isEntitled) {
+      // Only clear local data when entitlement transitions from active → inactive.
+      // Treating absence of entitlement as a lapse would incorrectly wipe data on
+      // fresh installs or re-auth flows before verifySubscription has written.
       debugPrint('StravaService: subscription lapsed — clearing local Strava data');
       unawaited(_stopDataListeners());
       unawaited(_appRepository.clearStravaData());
+    } else if (!_wasEntitled && isEntitled) {
+      // Subscription restored while athlete is still linked — restart listeners
+      // so data flows again without requiring a full disconnect + re-auth.
+      debugPrint('StravaService: subscription restored — restarting data listeners');
+      unawaited(_startDataListeners());
     }
     _wasEntitled = isEntitled;
   }

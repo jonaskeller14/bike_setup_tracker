@@ -354,7 +354,7 @@ class StravaService extends ChangeNotifier {
   }
 
   Future<void> setStravaNotificationsEnabled(bool enabled) async {
-    if (_userId == null) return;
+    if (_userId == null || _activeAthleteId == null) return;
     try {
       await FirebaseFirestore.instance.collection('users').doc(_userId).set({
         'enable_strava_notifications': enabled,

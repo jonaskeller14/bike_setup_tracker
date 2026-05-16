@@ -91,6 +91,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   Widget build(BuildContext context) {
     final appSettingsWriter = context.read<AppSettings>();
     final appSettingsReader = context.watch<AppSettings>();
+    final strava = context.watch<StravaService>();
 
     return Scaffold(
       appBar: AppBar(title: const Text('App Settings')),
@@ -428,28 +429,29 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     unawaited(launchUrl(uri, mode: LaunchMode.externalApplication));
                   },
                 ),
-                ListTile(
-                  leading: Icon(
-                    Icons.notifications_active,
-                    color: Theme.of(context).colorScheme.primary,
+                if (strava.isConnected)
+                  ListTile(
+                    leading: Icon(
+                      Icons.notifications_active,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    title: const Text("Strava Notifications"),
+                    subtitle: _offOnOptionWidgets[appSettingsReader.enableStravaNotifications] ?? const Text("-"),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                    onTap: () => appSettingsRadioGroupSheet<bool>(
+                      context: context,
+                      title: "Strava Notifications",
+                      value: appSettingsReader.enableStravaNotifications,
+                      optionWidgets: _offOnOptionWidgets,
+                      onChanged: (bool? newValue) {
+                        if (newValue == null) return;
+                        appSettingsWriter.enableStravaNotifications = newValue;
+                        unawaited(context.read<StravaService>().setStravaNotificationsEnabled(newValue));
+                        Navigator.pop(context);
+                      },
+                      infoText: 'Receive push notifications when Strava activities are imported.',
+                    ),
                   ),
-                  title: const Text("Strava Notifications"),
-                  subtitle: _offOnOptionWidgets[appSettingsReader.enableStravaNotifications] ?? const Text("-"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
-                    context: context,
-                    title: "Strava Notifications",
-                    value: appSettingsReader.enableStravaNotifications,
-                    optionWidgets: _offOnOptionWidgets,
-                    onChanged: (bool? newValue) {
-                      if (newValue == null) return;
-                      appSettingsWriter.enableStravaNotifications = newValue;
-                      unawaited(context.read<StravaService>().setStravaNotificationsEnabled(newValue));
-                      Navigator.pop(context);
-                    },
-                    infoText: 'Receive push notifications when Strava activities are imported.',
-                  ),
-                ),
               ],
             ],
           ),

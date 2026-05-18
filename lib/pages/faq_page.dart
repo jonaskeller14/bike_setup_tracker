@@ -67,6 +67,8 @@ class FAQPage extends StatelessWidget {
           'Edit the setup and open the location sheet (tap the location chip) to manually fetch the address from Latitude and Longitude. Then, open the weather sheet (tap the weather chip) and tap "Update Weather by Location".',
       'Can I see a raw data overview of all my setups?':
           'Yes. Open the detailed view of a component (by tapping its icon in "Bikes" tab) and then tap on the large card representing the component. This opens a table view where you can compare setups, select which columns to show, and sort the data for deeper analysis.',
+      'What does the "Restore" option do?':
+          'It duplicates the selected setup, copying all adjustment values, but sets the date and time to now. It also automatically updates the location and weather to your current position. \n\nThis is especially useful if you made changes that feel worse than before and want to easily go back to a previous, known good setup.',
     },
     "Person": {
       'Why?':

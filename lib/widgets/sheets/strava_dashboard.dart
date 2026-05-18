@@ -391,7 +391,7 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
             children: [
               Text("Bike Setup Tracker automatically imports new, updated, or deleted Strava activities in real-time. "
                   "While most updates are instant, a full background sync also runs weekly to catch any missed changes. "
-                  "You can also trigger a manual sync once a week.", 
+                  "You can also trigger a manual sync once a day.", 
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSecondary,
                   )),

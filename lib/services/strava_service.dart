@@ -32,6 +32,7 @@ class StravaService extends ChangeNotifier {
   bool? _isStravaAvailable;
   DateTime? _availabilityCheckedAt;
   static const Duration _availabilityCacheTtl = Duration(minutes: 5);
+  static const Duration _manualSyncCooldown = Duration(days: 1);
   Future<void>? _inFlightAvailabilityCheck;
 
   bool? get isStravaAvailable => _isStravaAvailable;
@@ -397,21 +398,21 @@ class StravaService extends ChangeNotifier {
     return DateTime(now.year, now.month, now.day + daysUntil);
   }
 
-  /// Manual sync can be triggered if it's been more than 7 days
+  /// Manual sync can be triggered if the cooldown has elapsed
   /// since the last manual sync, or if it has never been synced.
   bool get canSyncRecent {
     if (!isConnected) return false;
     if (_status == StravaServiceStatus.syncing) return false;
     if (_lastRecentSync == null) return true;
     final difference = DateTime.now().difference(_lastRecentSync!);
-    return difference.inDays >= 7;
+    return difference >= _manualSyncCooldown;
   }
 
   /// Returns the date when the next manual sync becomes available.
   /// Returns null if manual sync is already available.
   DateTime? get manualSyncAvailableAt {
     if (canSyncRecent || _lastRecentSync == null) return null;
-    return _lastRecentSync!.add(const Duration(days: 7));
+    return _lastRecentSync!.add(_manualSyncCooldown);
   }
 
   static void openActivityOnStrava(int activityId) async {

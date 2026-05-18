@@ -41,21 +41,23 @@ class StravaActivitiyPageContent extends StatelessWidget {
 
   const StravaActivitiyPageContent({super.key, required this.stravaActivity});
 
-  String _formatDistance(double? meters) {
+  String _formatDistance(double? meters, String distanceUnit) {
     if (meters == null) return "-";
-    return "${(meters / 1000).toStringAsFixed(2)} km";
+    final value = AppSettings.convertDistanceFromMeters(meters, distanceUnit)!;
+    return "${value.toStringAsFixed(2)} $distanceUnit";
   }
 
-  String _formatElevation(double? meters) {
+  String _formatElevation(double? meters, String altitudeUnit) {
     if (meters == null) return "-";
-    return "${meters.round()} m";
+    final value = AppSettings.convertElevationFromMeters(meters, altitudeUnit)!;
+    return "${value.round()} $altitudeUnit";
   }
 
-  String _formatSpeed(double? meters, Duration duration) {
+  String _formatSpeed(double? meters, Duration duration, String distanceUnit) {
     if (meters == null || duration.inSeconds == 0) return "-";
-    final km = meters / 1000;
+    final dist = AppSettings.convertDistanceFromMeters(meters, distanceUnit)!;
     final hours = duration.inSeconds / 3600;
-    return "${(km / hours).toStringAsFixed(1)} km/h";
+    return "${(dist / hours).toStringAsFixed(1)} ${AppSettings.speedUnitForDistance(distanceUnit)}";
   }
 
   String _formatDuration(Duration duration) {
@@ -182,9 +184,9 @@ class StravaActivitiyPageContent extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
-                _statWidget(context, "Distance", _formatDistance(stravaActivity.distance)),
-                _statWidget(context, "Elev Gain", _formatElevation(stravaActivity.totalElevationGain)),
-                _statWidget(context, "Avg Speed", _formatSpeed(stravaActivity.distance, stravaActivity.movingTime)),
+                _statWidget(context, "Distance", _formatDistance(stravaActivity.distance, appSettings.distanceUnit)),
+                _statWidget(context, "Elev Gain", _formatElevation(stravaActivity.totalElevationGain, appSettings.altitudeUnit)),
+                _statWidget(context, "Avg Speed", _formatSpeed(stravaActivity.distance, stravaActivity.movingTime, appSettings.distanceUnit)),
               ],
             ),
           ),

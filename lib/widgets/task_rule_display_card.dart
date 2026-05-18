@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/task_rule.dart';
 import '../models/task_threshold.dart';
@@ -18,6 +19,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
+    final appSettings = context.watch<AppSettings>();
     final status = appRepository.getTaskRuleStatus(taskRule);
     final isCompleted = status.type == TaskStatusType.completed;
 
@@ -193,7 +195,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
                       children: [
                         Icon(taskRule.interval!.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         Text(
-                          '${taskRule.repeat ? "Every " : "After "}${taskRule.interval!.toDisplayValue()}',
+                          '${taskRule.repeat ? "Every " : "After "}${taskRule.interval!.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit)}',
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                             fontSize: 13,
@@ -205,7 +207,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
                     Icon(Icons.history, size: 13, color: Colors.orange.withValues(alpha: 0.8)),
                   if (!isCompleted && taskRule.interval != null)
                     Flexible(
-                      child: _buildThresholdDetailRow(context, taskRule.interval!, taskRule.delay, status, statusColor),
+                      child: _buildThresholdDetailRow(context, taskRule.interval!, taskRule.delay, status, statusColor, appSettings.distanceUnit, appSettings.altitudeUnit),
                     ),
                 ],
               ),
@@ -226,8 +228,8 @@ class TaskRuleDisplayCard extends StatelessWidget {
     );
   }
 
-  Widget _buildThresholdDetailRow(BuildContext context, TaskThreshold interval, TaskThreshold? delay, TaskStatus status, Color statusColor) {
-    final detail = _thresholdDetail(interval, delay, status.progress);
+  Widget _buildThresholdDetailRow(BuildContext context, TaskThreshold interval, TaskThreshold? delay, TaskStatus status, Color statusColor, String distanceUnit, String altitudeUnit) {
+    final detail = _thresholdDetail(interval, delay, status.progress, distanceUnit, altitudeUnit);
     if (detail == null) return const SizedBox.shrink();
     final isExceeded = status.isDue;
     return Row(
@@ -248,25 +250,28 @@ class TaskRuleDisplayCard extends StatelessWidget {
     );
   }
 
-  String? _thresholdDetail(TaskThreshold interval, TaskThreshold? delay, double progress) {
+  String? _thresholdDetail(TaskThreshold interval, TaskThreshold? delay, double progress, String distanceUnit, String altitudeUnit) {
     switch (interval) {
       case DistanceThreshold(:final meters):
         final totalM = meters + (delay is DistanceThreshold ? delay.meters : 0.0);
         if (totalM <= 0) return null;
-        final accumulatedM = progress * totalM;
+        final diffM = (totalM - progress * totalM).abs();
+        final converted = AppSettings.convertDistanceFromMeters(diffM, distanceUnit)!;
         final fmt = NumberFormat.decimalPattern();
         return progress < 1.0
-            ? '${fmt.format(((totalM - accumulatedM) / 1000).round())} km remaining'
-            : '${fmt.format(((accumulatedM - totalM) / 1000).round())} km exceeded';
+            ? '${fmt.format(converted.round())} $distanceUnit remaining'
+            : '${fmt.format(converted.round())} $distanceUnit exceeded';
 
       case ElevationThreshold(:final meters):
         final totalM = meters + (delay is ElevationThreshold ? delay.meters : 0.0);
         if (totalM <= 0) return null;
         final accumulatedM = progress * totalM;
+        final diffM = (totalM - accumulatedM).abs();
+        final converted = AppSettings.convertElevationFromMeters(diffM, altitudeUnit)!;
         final fmt = NumberFormat.decimalPattern();
         return progress < 1.0
-            ? '${fmt.format((totalM - accumulatedM).round())} m remaining'
-            : '${fmt.format((accumulatedM - totalM).round())} m exceeded';
+            ? '${fmt.format(converted.round())} $altitudeUnit remaining'
+            : '${fmt.format(converted.round())} $altitudeUnit exceeded';
 
       case MovingTimeThreshold(:final hours):
         final totalMicros = hours.inMicroseconds + (delay is MovingTimeThreshold ? delay.hours.inMicroseconds : 0);

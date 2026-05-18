@@ -142,11 +142,11 @@ class ComponentListCard extends StatelessWidget{
                       children: [
                         _StatItem(
                           icon: Icons.route,
-                          label: '${NumberFormat.decimalPattern().format((component.totalDistance / 1000).round())} km',
+                          label: '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(component.totalDistance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
                         ),
                         _StatItem(
                           icon: Icons.terrain,
-                          label: '${NumberFormat.decimalPattern().format(component.totalElevationGain.round())} m',
+                          label: '${NumberFormat.decimalPattern().format(AppSettings.convertElevationFromMeters(component.totalElevationGain, appSettings.altitudeUnit)!.round())} ${appSettings.altitudeUnit}',
                         ),
                         _StatItem(
                           icon: Icons.timer_outlined,

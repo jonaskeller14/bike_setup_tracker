@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../models/app_settings.dart';
 import '../models/component_stats.dart';
 
 class ComponentStatsCard extends StatefulWidget {
@@ -39,6 +41,7 @@ class _ComponentStatsCardState extends State<ComponentStatsCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final appSettings = context.watch<AppSettings>();
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -59,13 +62,13 @@ class _ComponentStatsCardState extends State<ComponentStatsCard> {
                       context,
                       icon: Icons.route,
                       label: "Distance",
-                      value: '${NumberFormat.decimalPattern().format((widget.componentStats.distance / 1000).round())} km',
+                      value: '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(widget.componentStats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
                     ),
                     _buildStatItem(
                       context,
                       icon: Icons.terrain_outlined,
                       label: "Elevation",
-                      value: '${NumberFormat.decimalPattern().format(widget.componentStats.elevationGain.round())} m',
+                      value: '${NumberFormat.decimalPattern().format(AppSettings.convertElevationFromMeters(widget.componentStats.elevationGain, appSettings.altitudeUnit)!.round())} ${appSettings.altitudeUnit}',
                     ),
                     _buildStatItem(
                       context,

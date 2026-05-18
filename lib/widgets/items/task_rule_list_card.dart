@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/task_rule.dart';
 import '../../pages/details/task_rule_details_page.dart';
@@ -16,6 +17,7 @@ class TaskRuleListCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
+    final appSettings = context.watch<AppSettings>();
     final taskRule = appRepository.taskRules[taskRuleId];
     if (taskRule == null) return const SizedBox.shrink();
 
@@ -199,7 +201,7 @@ class TaskRuleListCard extends StatelessWidget {
                       children: [
                         Icon(taskRule.interval!.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                         Text(
-                          '${taskRule.repeat ? "Every " : "After "}${taskRule.interval!.toDisplayValue()}',
+                          '${taskRule.repeat ? "Every " : "After "}${taskRule.interval!.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit)}',
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                             fontSize: 13,

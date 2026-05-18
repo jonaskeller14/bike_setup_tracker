@@ -11,6 +11,7 @@ class AppSettings extends ChangeNotifier {
   String _windSpeedUnit = 'km/h';
   String _altitudeUnit = 'm';
   String _precipitationUnit = 'mm';
+  String _distanceUnit = 'km';
   bool _enableGoogleDrive = false;  // False is default, can only be activated on Android (see AppSettingsPage)
   bool _enableTextAdjustment = false;
   bool _enablePerson = false;
@@ -42,6 +43,7 @@ class AppSettings extends ChangeNotifier {
   String get windSpeedUnit => _windSpeedUnit;
   String get altitudeUnit => _altitudeUnit;
   String get precipitationUnit => _precipitationUnit;
+  String get distanceUnit => _distanceUnit;
   bool get enableGoogleDrive => _enableGoogleDrive;
   bool get enableTextAdjustment => _enableTextAdjustment;
   bool get enablePerson => _enablePerson;
@@ -117,6 +119,13 @@ class AppSettings extends ChangeNotifier {
   set precipitationUnit(String newUnit) {
     if (newUnit == _precipitationUnit) return;
     _precipitationUnit = newUnit;
+    notifyListeners();
+    saveAppSettings();
+  }
+
+  set distanceUnit(String newUnit) {
+    if (newUnit == _distanceUnit) return;
+    _distanceUnit = newUnit;
     notifyListeners();
     saveAppSettings();
   }
@@ -255,6 +264,7 @@ class AppSettings extends ChangeNotifier {
       _windSpeedUnit = json['windSpeedUnit'] ?? _windSpeedUnit;
       _altitudeUnit = json['altitudeUnit'] ?? _altitudeUnit;
       _precipitationUnit = json['precipitationUnit'] ?? _precipitationUnit;
+      _distanceUnit = json['distanceUnit'] ?? _distanceUnit;
       _enableGoogleDrive = json['enableGoogleDrive'] ?? _enableGoogleDrive;
       _enableTextAdjustment = json['enableTextAdjustment'] ?? _enableTextAdjustment;
       _enableSetupTags = json['enableSetupTags'] ?? _enableSetupTags;
@@ -278,6 +288,7 @@ class AppSettings extends ChangeNotifier {
       'windSpeedUnit': _windSpeedUnit,
       'altitudeUnit': _altitudeUnit,
       'precipitationUnit': _precipitationUnit,
+      'distanceUnit': _distanceUnit,
       'enableGoogleDrive': _enableGoogleDrive,
       'enableTextAdjustment': _enableTextAdjustment,
       'enableSetupTags': _enableSetupTags,
@@ -287,4 +298,25 @@ class AppSettings extends ChangeNotifier {
     });
     await prefs.setString('app_settings', jsonData);
   }
+
+  static double? convertDistanceFromMeters(double? meters, String targetUnit) {
+    if (meters == null) return null;
+    switch (targetUnit) {
+      case 'km': return meters / 1000;
+      case 'mi': return meters / 1609.344;
+      default: return meters / 1000;
+    }
+  }
+
+  static double? convertElevationFromMeters(double? meters, String targetUnit) {
+    if (meters == null) return null;
+    switch (targetUnit) {
+      case 'm': return meters;
+      case 'ft': return meters * 3.28084;
+      default: return meters;
+    }
+  }
+
+  static String speedUnitForDistance(String distanceUnit) =>
+      distanceUnit == 'mi' ? 'mph' : 'km/h';
 }

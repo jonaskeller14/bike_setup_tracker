@@ -23,7 +23,7 @@ sealed class TaskThreshold {
   });
 
   IconData get iconData;
-  String toDisplayValue();
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'});
   bool get isPositive;
 
   factory TaskThreshold.fromJson(Map<String, dynamic> json) {
@@ -71,7 +71,10 @@ class ElevationThreshold extends TaskThreshold {
   IconData get iconData => Icons.terrain;
 
   @override
-  String toDisplayValue() => '${meters.toStringAsFixed(0)} m';
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) {
+    final value = altitudeUnit == 'ft' ? meters * 3.28084 : meters;
+    return '${value.toStringAsFixed(0)} $altitudeUnit';
+  }
 
   @override
   bool get isPositive => meters > 0;
@@ -111,7 +114,10 @@ class DistanceThreshold extends TaskThreshold {
   IconData get iconData => Icons.route;
 
   @override
-  String toDisplayValue() => '${(meters / 1000).toStringAsFixed(1)} km';
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) {
+    final value = distanceUnit == 'mi' ? meters / 1609.344 : meters / 1000;
+    return '${value.toStringAsFixed(1)} $distanceUnit';
+  }
 
   @override
   bool get isPositive => meters > 0;
@@ -151,7 +157,7 @@ class MovingTimeThreshold extends TaskThreshold {
   IconData get iconData => Icons.timer;
 
   @override
-  String toDisplayValue() => '${hours.inHours} h';
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) => '${hours.inHours} h';
 
   @override
   bool get isPositive => hours > Duration.zero;
@@ -191,7 +197,7 @@ class DurationThreshold extends TaskThreshold {
   IconData get iconData => Icons.calendar_today;
 
   @override
-  String toDisplayValue() => '${days.inDays} d';
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) => '${days.inDays} d';
 
   @override
   bool get isPositive => days > Duration.zero;
@@ -233,7 +239,7 @@ class DateTimeThreshold extends TaskThreshold {
   IconData get iconData => Icons.event;
 
   @override
-  String toDisplayValue() => deadline.toLocal().toString().split(' ')[0];
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) => deadline.toLocal().toString().split(' ')[0];
 
   @override
   bool get isPositive => true;
@@ -273,7 +279,7 @@ class ActivityCountThreshold extends TaskThreshold {
   IconData get iconData => Icons.repeat;
 
   @override
-  String toDisplayValue() => '$count rides';
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) => '$count rides';
 
   @override
   bool get isPositive => count > 0;

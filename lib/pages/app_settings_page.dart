@@ -62,6 +62,11 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     'kt': Text('Knots (kt)'),
   };
 
+  static const Map<String, Text> _distanceUnitOptionWidgets = {
+    'km': Text('Kilometers (km)'),
+    'mi': Text('Miles (mi)'),
+  };
+
   static const Map<String, Text> _altitudeUnitOptionWidgets = {
     'm': Text('Meters (m)'),
     'ft': Text('Feet (ft)'),
@@ -156,6 +161,23 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ),
               const Divider(),
               _sectionTitle('Default Units'),
+              ListTile(
+                leading: Icon(Icons.route, color: Theme.of(context).colorScheme.primary),
+                title: const Text("Distance Unit"),
+                subtitle: _distanceUnitOptionWidgets[appSettingsReader.distanceUnit] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<String>(
+                  context: context,
+                  title: "Distance Unit",
+                  value: appSettingsReader.distanceUnit,
+                  optionWidgets: _distanceUnitOptionWidgets,
+                  onChanged: (String? newValue) {
+                    if (newValue == null) return;
+                    appSettingsWriter.distanceUnit = newValue;
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
               ListTile(
                 leading: Icon(Icons.arrow_upward, color: Theme.of(context).colorScheme.primary),
                 title: const Text("Altitude Unit"),

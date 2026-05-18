@@ -39,7 +39,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
         margin: EdgeInsets.zero,
         child: ListTile(
           leading: showStatus
-              ? Checkbox.adaptive(
+              ? Checkbox(
                   value: isCompleted,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   visualDensity: VisualDensity.compact,

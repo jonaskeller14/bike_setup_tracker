@@ -446,7 +446,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                     childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
                     shape: const Border(),
                     collapsedShape: const Border(),
-                    trailing: Checkbox.adaptive(
+                    trailing: Checkbox(
                       tristate: true,
                       value: selectedBikes.isEmpty && widget.allData.bikes.isNotEmpty
                           ? false 
@@ -469,7 +469,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                     childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
                     shape: const Border(),
                     collapsedShape: const Border(),
-                    trailing: Checkbox.adaptive(
+                    trailing: Checkbox(
                       tristate: true,
                       value: selectedComponents.isEmpty && widget.allData.components.isNotEmpty
                           ? false 
@@ -492,7 +492,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                     childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
                     shape: const Border(),
                     collapsedShape: const Border(),
-                    trailing: Checkbox.adaptive(
+                    trailing: Checkbox(
                       tristate: true,
                       value: selectedSetups.isEmpty && widget.allData.setups.isNotEmpty
                           ? false 
@@ -516,7 +516,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                       childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
                       shape: const Border(),
                       collapsedShape: const Border(),
-                      trailing: Checkbox.adaptive(
+                      trailing: Checkbox(
                         tristate: true,
                         value: selectedPersons.isEmpty && widget.allData.persons.isNotEmpty
                             ? false 
@@ -541,7 +541,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                       childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
                       shape: const Border(),
                       collapsedShape: const Border(),
-                      trailing: Checkbox.adaptive(
+                      trailing: Checkbox(
                         tristate: true,
                         value: selectedRatings.isEmpty && widget.allData.ratings.isNotEmpty
                             ? false 
@@ -566,7 +566,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                       childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
                       shape: const Border(),
                       collapsedShape: const Border(),
-                      trailing: Checkbox.adaptive(
+                      trailing: Checkbox(
                         tristate: true,
                         value: selectedTaskRules.isEmpty && widget.allData.taskRules.isNotEmpty
                             ? false 
@@ -591,7 +591,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                       childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
                       shape: const Border(),
                       collapsedShape: const Border(),
-                      trailing: Checkbox.adaptive(
+                      trailing: Checkbox(
                         tristate: true,
                         value: selectedTaskEntries.isEmpty && widget.allData.taskEntries.isNotEmpty
                             ? false 

@@ -1,32 +1,27 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-Future<bool> showConfirmationDialog(
-  BuildContext context, {
-  String title = "Are you sure?",
-  String? content = "This action cannot be undone.",
-  String falseText = "Cancel",
-  String trueText = "Continue",
-  bool isDestructive = false,
-}) async {
+Future<bool> showStravaDisconnectDialog(BuildContext context) async {
   final result = await showDialog<bool>(
     context: context,
-    barrierDismissible: false,
     builder: (context) {
       return AlertDialog.adaptive(
-        title: Text(title),
-        content: content == null ? null : Text(content),
+        title: const Text("Disconnect Strava?"),
+        content: const Text(
+          "This will revoke the app's access and delete all your synced activities from our secure storage. "
+          "Your Strava account itself will not be affected.",
+        ),
         actions: [
           _adaptiveAction(
             context: context,
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text(falseText),
+            child: const Text("Cancel"),
           ),
           _adaptiveAction(
             context: context,
-            isDestructive: isDestructive,
+            isDestructive: true,
             onPressed: () => Navigator.of(context).pop(true),
-            child: Text(trueText),
+            child: const Text("Disconnect"),
           ),
         ],
       );

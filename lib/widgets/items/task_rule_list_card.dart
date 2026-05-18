@@ -35,7 +35,7 @@ class TaskRuleListCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 4.0),
         clipBehavior: Clip.antiAlias, // Borderradius for InkWell,
         child: ListTile(
-          leading: Checkbox.adaptive(
+          leading: Checkbox(
             value: isCompleted,
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             visualDensity: VisualDensity.compact,

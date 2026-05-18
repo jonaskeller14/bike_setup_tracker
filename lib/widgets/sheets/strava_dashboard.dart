@@ -8,6 +8,7 @@ import '../../models/strava/strava_activity.dart';
 import '../../models/strava/strava_athlete.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/strava_service.dart';
+import '../dialogs/strava_disconnect.dart';
 import '../items/strava_list_tile.dart';
 import 'sheet.dart';
 
@@ -212,9 +213,12 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
               children: [
                 if (stravaService.isConnected) ...[
                   OutlinedButton.icon(
-                    onPressed: stravaService.status == StravaServiceStatus.syncing 
-                        ? null 
-                        : () => _showDisconnectConfirmation(context, stravaService),
+                    onPressed: stravaService.status == StravaServiceStatus.syncing
+                        ? null
+                        : () async {
+                            final confirmed = await showStravaDisconnectDialog(context);
+                            if (confirmed) await stravaService.disconnect();
+                          },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Theme.of(context).colorScheme.error,
                       side: BorderSide(color: Theme.of(context).colorScheme.error),
@@ -278,33 +282,6 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showDisconnectConfirmation(BuildContext context, StravaService stravaService) async {
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog.adaptive(
-        title: const Text("Disconnect Strava?"),
-        content: const Text(
-          "This will revoke the app's access and delete all your synced activities from our secure storage. "
-          "Your Strava account itself will not be affected."
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await stravaService.disconnect();
-            },
-            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
-            child: const Text("Disconnect"),
-          ),
-        ],
       ),
     );
   }

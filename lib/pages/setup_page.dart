@@ -153,7 +153,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     _onBikeChange(_initialBike);
 
-    if (widget.setup == null) unawaited(fetchLocationAddressWeather());
+    if (widget.setup == null || widget.mode == SetupPageMode.duplicate) unawaited(fetchLocationAddressWeather());
   }
 
   @override

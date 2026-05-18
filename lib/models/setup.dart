@@ -244,6 +244,7 @@ class Setup {
   }
 
   Setup deepCopy() {
+    // Used for Setup restore --> Duplication with current Date, remove pos/place/weather
     final now = DateTime.now();
 
     return Setup(

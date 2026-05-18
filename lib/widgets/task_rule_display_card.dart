@@ -137,29 +137,30 @@ class TaskRuleDisplayCard extends StatelessWidget {
                   ),
                 ],
               ),
-              Wrap(
-                alignment: WrapAlignment.start,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 4,
-                children: taskRule.tags.map((tag) {
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    spacing: 2,
-                    children: [
-                      Icon(Icons.tag, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                      Flexible(
-                        child: Text(
-                          tag,
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+              if (appSettings.enableTaskTags && taskRule.tags.isNotEmpty)
+                Wrap(
+                  alignment: WrapAlignment.start,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 4,
+                  children: taskRule.tags.map((tag) {
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      spacing: 2,
+                      children: [
+                        Icon(Icons.tag, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        Flexible(
+                          child: Text(
+                            tag,
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                      ),
-                    ],
-                  );
-                }).toList(),
-              ),
+                      ],
+                    );
+                  }).toList(),
+                ),
               if (taskRule.notes != null && taskRule.notes!.isNotEmpty)
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,

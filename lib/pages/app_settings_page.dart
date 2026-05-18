@@ -8,6 +8,7 @@ import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/weather.dart';
+import '../repositories/app_repository.dart';
 import '../services/strava_service.dart';
 import '../widgets/items/strava_subscription_card.dart';
 import '../widgets/sheets/app_settings_radio_group.dart';
@@ -339,9 +340,32 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   onChanged: (bool? newValue) {
                     if (newValue == null) return;
                     appSettingsWriter.enableSetupTags = newValue;
+                    if (!newValue) context.read<AppRepository>().deselectAllSetupTags();
                     Navigator.pop(context);
                   },
                   infoText: 'Adds the option to add tags to Setups',
+                ),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.tag,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: const Text("Task Tags"),
+                subtitle: _offOnOptionWidgets[appSettingsReader.enableTaskTags] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<bool>(
+                  context: context,
+                  title: "Task Tags",
+                  value: appSettingsReader.enableTaskTags,
+                  optionWidgets: _offOnOptionWidgets,
+                  onChanged: (bool? newValue) {
+                    if (newValue == null) return;
+                    appSettingsWriter.enableTaskTags = newValue;
+                    if (!newValue) context.read<AppRepository>().deselectAllTaskRuleTags();
+                    Navigator.pop(context);
+                  },
+                  infoText: 'Adds the option to add tags to Task Rules',
                 ),
               ),
               if (debugMode)

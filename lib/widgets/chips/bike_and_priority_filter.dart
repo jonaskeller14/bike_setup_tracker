@@ -2,6 +2,7 @@ import 'package:bike_setup_tracker/models/task_rule.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../models/app_settings.dart';
 import '../../repositories/app_repository.dart';
 import '../sheets/filter.dart';
 
@@ -12,9 +13,10 @@ class BikeAndPriorityFilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
+    final enableTaskTags = context.watch<AppSettings>().enableTaskTags;
 
     final hasPriorityFilter = !setEquals(appRepository.selectedTaskPriorities, TaskPriority.values.toSet());
-    final hasTagFilter = appRepository.selectedTaskRuleTags.isNotEmpty;
+    final hasTagFilter = enableTaskTags && appRepository.selectedTaskRuleTags.isNotEmpty;
     final hasBikeFilter = appRepository.selectedBike != null;
     final isFiltered = hasBikeFilter || hasPriorityFilter || hasTagFilter;
 
@@ -49,7 +51,7 @@ class BikeAndPriorityFilterChip extends StatelessWidget {
           context: context,
           enableSetupTagFilter: false,
           enableTaskPriorityFilter: true,
-          enableTaskRuleTagFilter: true,
+          enableTaskRuleTagFilter: enableTaskTags,
         );
       },
       onDeleted: !isFiltered

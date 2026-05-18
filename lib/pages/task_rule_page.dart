@@ -410,6 +410,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
   }
 
   Wrap _wrap() {
+    final enableTaskTags = context.watch<AppSettings>().enableTaskTags;
     return Wrap(
       spacing: 8.0,
       runSpacing: 4.0,
@@ -436,26 +437,27 @@ class _TaskRulePageState extends State<TaskRulePage> {
             })),
           ),
         ),
-        ..._tags.map((tag) => FilterChip(
+        if (enableTaskTags) ..._tags.map((tag) => FilterChip(
           avatar: const Icon(Icons.tag),
           showCheckmark: false,
           selected: widget.mode != TaskRulePageMode.edit,
-          label: Text(tag), 
+          label: Text(tag),
           onSelected: (_) => setState(() => _tags.remove(tag)),
           onDeleted: () => setState(() => _tags.remove(tag)),
           backgroundColor: widget.mode == TaskRulePageMode.edit && !widget.taskRule!.tags.contains(tag) ? Colors.orange.withValues(alpha: 0.08) : null,
         )),
-        ActionChip(
-          avatar: const Icon(Icons.add),
-          label: const Text("Tags"),
-          onPressed: () async {
-            await showSetTaskRuleTagsSheet(
-              context: context, 
-              tags: _tags,
-              onChanged: (Set<String> newTags) => setState(() => _tags = newTags),
-            );
-          },
-        ),
+        if (enableTaskTags)
+          ActionChip(
+            avatar: const Icon(Icons.add),
+            label: const Text("Tags"),
+            onPressed: () async {
+              await showSetTaskRuleTagsSheet(
+                context: context,
+                tags: _tags,
+                onChanged: (Set<String> newTags) => setState(() => _tags = newTags),
+              );
+            },
+          ),
       ],
     );
   }

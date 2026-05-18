@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
+import '../../services/subscription_service.dart';
 import '../sheets/setup_list_values_filter.dart';
 
 class SetupListDisplayFilterChip extends StatelessWidget {
@@ -9,14 +10,15 @@ class SetupListDisplayFilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    
-    // Check if any visible display setting is not in its default state
-    final bool isFilterActive = appSettings.setupListOnlyChanges || 
-        !appSettings.setupListBikeAdjustmentValues || 
-        !appSettings.setupListPersonAdjustmentValues || 
+    final subscriptionService = context.watch<SubscriptionService>();
+    final stravaActive = appSettings.enableStrava && subscriptionService.hasStravaEntitlement;
+
+    final bool isFilterActive = appSettings.setupListOnlyChanges ||
+        !appSettings.setupListBikeAdjustmentValues ||
+        !appSettings.setupListPersonAdjustmentValues ||
         !appSettings.setupListRatingAdjustmentValues ||
         !appSettings.displayShowSetups ||
-        (appSettings.enableStrava && !appSettings.displayShowActivities) ||
+        (stravaActive && !appSettings.displayShowActivities) ||
         (appSettings.enableInstallationTimeline && !appSettings.displayShowInstallations) ||
         (appSettings.enableTask && !appSettings.displayShowTasks);
 

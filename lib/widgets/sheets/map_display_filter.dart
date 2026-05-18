@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
+import '../../services/subscription_service.dart';
 import 'sheet.dart';
 
 Future<void> showMapDisplayFilterSheet({required BuildContext context}) async {
@@ -19,6 +20,7 @@ class MapDisplayFilterSheetContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
+    final stravaActive = appSettings.enableStrava && context.watch<SubscriptionService>().hasStravaEntitlement;
 
     return SafeArea(
       child: Column(
@@ -61,7 +63,7 @@ class MapDisplayFilterSheetContent extends StatelessWidget {
                                   ? () => appSettings.displayShowSetups = false
                                   : null
                             ),
-                            if (appSettings.enableStrava)
+                            if (stravaActive)
                               FilterChip(
                                 label: const Text("Strava Activities"),
                                 showCheckmark: false,

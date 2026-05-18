@@ -4,6 +4,7 @@ import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/person.dart';
 import '../../models/rating.dart';
+import '../../services/subscription_service.dart';
 import 'sheet.dart';
 
 Future<void> showSetupListDisplayFilterSheet({required BuildContext context}) async {
@@ -22,6 +23,7 @@ class SetupListDisplayFilterSheetContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
+    final stravaActive = appSettings.enableStrava && context.watch<SubscriptionService>().hasStravaEntitlement;
 
     return SafeArea(
       child: Column(
@@ -64,7 +66,7 @@ class SetupListDisplayFilterSheetContent extends StatelessWidget {
                                   ? () => appSettings.displayShowSetups = false
                                   : null
                             ),
-                            if (appSettings.enableStrava)
+                            if (stravaActive)
                               FilterChip(
                                 label: const Text("Strava Activities"),
                                 showCheckmark: false,

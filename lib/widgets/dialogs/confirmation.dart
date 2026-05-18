@@ -11,7 +11,7 @@ Future<bool> showConfirmationDialog(
     context: context,
     barrierDismissible: false,
     builder: (context) {
-      return AlertDialog(
+      return AlertDialog.adaptive(
         title: Text(title),
         content: content == null ? null : Text(content),
         actions: [

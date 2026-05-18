@@ -4,7 +4,7 @@ Future<bool> showDiscardChangesDialog(BuildContext context) async {
   final result = await showDialog<bool>(
     context: context,
     builder: (context) {
-      return AlertDialog(
+      return AlertDialog.adaptive(
         title: const Text('Discard Changes?'),
         content: const Text('You have unsaved changes. Are you sure you want to exit without saving?'),
         actions: [

@@ -633,7 +633,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                         contentPadding: const EdgeInsets.all(12),
                         title: const Text("Repeat Interval"),
                         subtitle: const Text("Restart interval after each entry"),
-                        trailing: Switch(
+                        trailing: Switch.adaptive(
                           value: _repeat,
                           onChanged: (v) {
                             setState(() => _repeat = v);

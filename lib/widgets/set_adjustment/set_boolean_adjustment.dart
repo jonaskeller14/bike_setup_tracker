@@ -65,7 +65,7 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Switch(value: value!, onChanged: onChanged),
+                        Switch.adaptive(value: value!, onChanged: onChanged),
                         if (isInitial)
                           IconButton(
                             onPressed: () => onChanged(null), 

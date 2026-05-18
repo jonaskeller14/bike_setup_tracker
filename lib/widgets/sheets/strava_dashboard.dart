@@ -285,7 +285,7 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
   void _showDisconnectConfirmation(BuildContext context, StravaService stravaService) async {
     await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => AlertDialog.adaptive(
         title: const Text("Disconnect Strava?"),
         content: const Text(
           "This will revoke the app's access and delete all your synced activities from our secure storage. "

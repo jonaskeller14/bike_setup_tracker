@@ -172,9 +172,11 @@ exports.checkStravaAvailability = onCall(
 
       const activeCount = snapshot.data().count;
       const cap = config.maxUsers + config.buffer;
-      return activeCount < cap
-        ? { available: true }
-        : { available: false, reason: "limit_reached" };
+      if (activeCount >= cap) {
+        logger.warn("STRAVA_LIMIT_REACHED", { activeCount, cap });
+        return { available: false, reason: "limit_reached" };
+      }
+      return { available: true };
     } catch (error) {
       logger.error("CHECK_AVAILABILITY_ERROR", error);
       throw new HttpsError("internal", "Failed to check availability");

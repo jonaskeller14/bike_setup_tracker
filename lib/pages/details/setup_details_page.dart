@@ -199,14 +199,27 @@ class SetupDetailsPageContent extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (setup.notes != null)
+            if (setup.notes != null || (setup.tags.isNotEmpty && appSettings.enableSetupTags))
               Card.outlined(
                 margin: const EdgeInsets.symmetric(vertical: 4),
-                child: ListTile(
-                  leading: const Icon(Icons.notes),
-                  titleAlignment: ListTileTitleAlignment.top,
-                  title: SelectableText(setup.notes!),
-                  dense: true,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (setup.notes != null)
+                      ListTile(
+                        leading: const Icon(Icons.notes),
+                        titleAlignment: ListTileTitleAlignment.titleHeight,
+                        title: SelectableText(setup.notes!),
+                        dense: true,
+                      ),
+                    ...setup.tags.map((tag) {
+                      return ListTile(
+                        leading: const Icon(Icons.tag),
+                        title: Text(tag),
+                        dense: true,
+                      );
+                    }),
+                  ],
                 ),
               ),
             if (setup.position != null || setup.place != null)
@@ -403,20 +416,6 @@ class SetupDetailsPageContent extends StatelessWidget {
                       enabled: setup.weather?.condition != null,
                     ),
                   ],
-                ),
-              ),
-            if (setup.tags.isNotEmpty && appSettings.enableSetupTags)
-              Card.outlined(
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: setup.tags.map((tag) {
-                    return ListTile(
-                      leading: const Icon(Icons.tag),
-                      title: Text(tag),
-                      dense: true,
-                    );
-                  }).toList(),
                 ),
               ),
             Card.outlined(

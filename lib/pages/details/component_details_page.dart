@@ -894,7 +894,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               if (component.notes != null) ...[
                 ListTile(
                   leading: const Icon(Icons.notes),
-                  titleAlignment: ListTileTitleAlignment.top,
+                  titleAlignment: ListTileTitleAlignment.titleHeight,
                   title: SelectableText(component.notes!),
                   dense: true,
                 ),

@@ -100,7 +100,7 @@ class BikeDetailsPage extends StatelessWidget {
               if (bike.notes != null)
                 ListTile(
                   leading: const Icon(Icons.notes),
-                  titleAlignment: ListTileTitleAlignment.top,
+                  titleAlignment: ListTileTitleAlignment.titleHeight,
                   title: SelectableText(bike.notes!),
                   dense: true,
                 ),

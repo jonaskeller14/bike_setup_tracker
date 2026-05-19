@@ -251,7 +251,7 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
               if (person.notes != null)
                 ListTile(
                   leading: const Icon(Icons.notes),
-                  titleAlignment: ListTileTitleAlignment.top,
+                  titleAlignment: ListTileTitleAlignment.titleHeight,
                   title: SelectableText(person.notes!),
                   dense: true,
                 ),

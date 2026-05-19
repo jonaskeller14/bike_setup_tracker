@@ -86,7 +86,7 @@ class RatingDetailsPage extends StatelessWidget {
               if (rating.notes != null)
                 ListTile(
                   leading: const Icon(Icons.notes),
-                  titleAlignment: ListTileTitleAlignment.top,
+                  titleAlignment: ListTileTitleAlignment.titleHeight,
                   title: SelectableText(rating.notes!),
                   dense: true,
                 ),

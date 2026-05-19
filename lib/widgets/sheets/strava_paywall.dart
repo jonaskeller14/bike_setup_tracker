@@ -2,7 +2,7 @@ import 'package:bike_setup_tracker/models/strava/strava_plan.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
+import '../../pages/about_page.dart';
 import '../../services/subscription_service.dart';
 import 'strava_dashboard.dart';
 
@@ -24,10 +24,9 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
         subscription.status == SubscriptionPurchaseStatus.restoring;
 
     final tosRecognizer = TapGestureRecognizer()
-      ..onTap = () => launchUrl(Uri.parse('https://jonaskeller14.de/bike_setup_tracker/terms_of_service.html'));
+      ..onTap = () => AboutPage.launchAppUrl(context, url: AboutPage.tosURL);
     final privacyRecognizer = TapGestureRecognizer()
-      ..onTap = () =>
-          launchUrl(Uri.parse('https://jonaskeller14.com/bike_setup_tracker/privacy_policy.html'));
+      ..onTap = () => AboutPage.launchAppUrl(context, url: AboutPage.privacyPolicyUrl);
     
     final features = [
       (

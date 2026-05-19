@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import '../icons/simple_icons.dart';
 import '../models/app_settings.dart';
 import '../widgets/text/section_title.dart';
@@ -21,10 +20,11 @@ class AboutPage extends StatelessWidget {
 
   static const String privacyPolicyUrl = 'https://jonaskeller14.com/bike_setup_tracker/privacy_policy.html';
   static const String eulaUrl = 'https://jonaskeller14.com/bike_setup_tracker/eula.html';
+  static const String tosURL = 'https://jonaskeller14.de/bike_setup_tracker/terms_of_service.html';
   static const String playStoreUrl = 'https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker';
   static const String appStoreUrl = 'https://apps.apple.com/app/id6759974325?action=write-review';
 
-  Future<void> _launchUrl(BuildContext context, {
+  static Future<void> launchAppUrl(BuildContext context, {
     required String url, 
     LaunchMode launchMode = LaunchMode.platformDefault,
   }) async {
@@ -107,13 +107,14 @@ class AboutPage extends StatelessWidget {
     return ListTile(
       leading: const Icon(Icons.description_outlined),
       title: Text(title),
-      onTap: () => _launchUrl(context, url: url),
+      onTap: () => AboutPage.launchAppUrl(context, url: url),
       trailing: const Icon(Icons.open_in_new, size: 16.0),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final appSettings = context.watch<AppSettings>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('About'),
@@ -167,7 +168,7 @@ class AboutPage extends StatelessWidget {
                 trailing: const Icon(Icons.open_in_new, size: 16.0),
                 onTap: () {
                   final url = Theme.of(context).platform == TargetPlatform.iOS ? appStoreUrl : playStoreUrl;
-                  unawaited(_launchUrl(context, url: url, launchMode: LaunchMode.externalApplication));
+                  unawaited(AboutPage.launchAppUrl(context, url: url, launchMode: LaunchMode.externalApplication));
                 },
               ),
               _buildContactTile(
@@ -216,7 +217,7 @@ class AboutPage extends StatelessWidget {
                 title: const Text("Strava Club Forum"),
                 subtitle: const Text("Get help and discuss the app with other users."),
                 trailing: const Icon(Icons.open_in_new, size: 16.0),
-                onTap: () => _launchUrl(context, url: 'https://www.strava.com/clubs/bike_setup_tracker'),
+                onTap: () => AboutPage.launchAppUrl(context, url: 'https://www.strava.com/clubs/bike_setup_tracker'),
               ),
         
               const Divider(),
@@ -231,6 +232,12 @@ class AboutPage extends StatelessWidget {
                 title: 'End-User License Agreement (EULA)',
                 url: eulaUrl,
               ),
+              if (appSettings.enableStrava)
+                _buildLegalTile(
+                  context: context,
+                  title: 'Terms of Service',
+                  url: tosURL,
+                ),
               const ListTile(
                 leading: Icon(Icons.copyright),
                 title: Text("Third-party trademarks"),

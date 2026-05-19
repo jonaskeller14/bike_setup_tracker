@@ -553,12 +553,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.arrow_back));
     await tester.pumpAndSettle();
 
-    await tester.tap(
-      find.descendant(
-        of: find.byType(ElevatedButton),
-        matching: find.text("Discard Changes"),
-      ),
-    );
+    await tester.tap(find.text("Discard Changes"));
     await tester.pumpAndSettle();
 
     await tester.pump(const Duration(milliseconds: 1000));

@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:simple_icons/simple_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../icons/simple_icons.dart';
 import '../models/app_settings.dart';
 import '../widgets/text/section_title.dart';
 import 'faq_page.dart';

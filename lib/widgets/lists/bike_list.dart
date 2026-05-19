@@ -61,7 +61,7 @@ class BikeList extends StatelessWidget {
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
             header: const BikeListFilterWidget(),
             proxyDecorator: proxyDecorator,
-            onReorder: (int oldIndex, int newIndex) => BikeActions.onReorderBikes(context, oldIndex: oldIndex, newIndex: newIndex),
+            onReorderItem: (int oldIndex, int newIndex) => BikeActions.onReorderBikes(context, oldIndex: oldIndex, newIndex: newIndex),
             itemBuilder: (context, index) {
               final bike = bikesList[index];
               return BikeListCard(

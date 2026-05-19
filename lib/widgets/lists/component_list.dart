@@ -61,7 +61,7 @@ class ComponentList extends StatelessWidget {
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
             header: const ComponentListFilterWidget(),
             proxyDecorator: proxyDecorator,
-            onReorder: (int oldIndex, int newIndex) => ComponentActions.onReorderComponents(context, oldIndex: oldIndex, newIndex: newIndex),
+            onReorderItem: (int oldIndex, int newIndex) => ComponentActions.onReorderComponents(context, oldIndex: oldIndex, newIndex: newIndex),
             itemBuilder: (context, index) {
               final component = componentsList[index];
               return ComponentListCard(

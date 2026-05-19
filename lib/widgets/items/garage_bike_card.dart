@@ -261,7 +261,6 @@ class GarageBikeCard extends StatelessWidget{
                                 oldIndex: oldIndex,
                                 newIndex: newIndex,
                                 filteredComponentsList: bikeComponents.values.toList(),
-                                adjustNewIndex: false,
                               ),
                               onReorderStarted: (index) => setDraggedComponent(bikeComponents.values.toList()[index]),
                               onNoReorder: (index) => setDraggedComponent(null),

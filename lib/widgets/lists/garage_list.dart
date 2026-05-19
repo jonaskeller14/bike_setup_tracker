@@ -118,7 +118,7 @@ class _GarageListState extends State<GarageList> {
               ],
             ),
             proxyDecorator: proxyDecorator,
-            onReorder: (int oldIndex, int newIndex) => BikeActions.onReorderBikes(context, oldIndex: oldIndex, newIndex: newIndex),
+            onReorderItem: (int oldIndex, int newIndex) => BikeActions.onReorderBikes(context, oldIndex: oldIndex, newIndex: newIndex),
             itemBuilder: (context, index) {
               final bike = bikesList[index];
               return GarageBikeCard(

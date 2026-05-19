@@ -285,12 +285,9 @@ class _RatingPageState extends State<RatingPage> {
   }
 
   void _onReorderAdjustments(int oldIndex, int newIndex, {VoidCallback? onChanged}) {
-    int adjustedNewIndex = newIndex;
-    if (oldIndex < newIndex) adjustedNewIndex -= 1;
-
     setState(() {
       final adjustment = _adjustments.removeAt(oldIndex);
-      _adjustments.insert(adjustedNewIndex, adjustment);
+      _adjustments.insert(newIndex, adjustment);
     });
     _changeListener();
     onChanged?.call();

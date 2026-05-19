@@ -63,7 +63,7 @@ class AdjustmentEditList extends StatelessWidget {
           removeAdjustment: removeAdjustment
         );
       },
-      onReorder: onReorderAdjustments,
+      onReorderItem: onReorderAdjustments,
     );
   }
 }

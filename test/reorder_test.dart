@@ -39,7 +39,7 @@ void main() {
       // After manual reorder call, they MUST be in the correct order.
 
       final bikes = repository.bikes.values.toList();
-      await repository.reorderBike(oldIndex: 0, newIndex: 3, filteredBikesList: bikes); // Move 1 to end
+      await repository.reorderBike(oldIndex: 0, newIndex: 2, filteredBikesList: bikes); // Move 1 to end
       await pumpEventQueue();
 
       final reorderedBikes = repository.bikes.values.toList();
@@ -99,13 +99,58 @@ void main() {
       await pumpEventQueue();
 
       final ratings = repository.ratings.values.toList();
-      await repository.reorderRating(oldIndex: 1, newIndex: 3, filteredRatingsList: ratings); // Move 2 to bottom
+      await repository.reorderRating(oldIndex: 1, newIndex: 2, filteredRatingsList: ratings); // Move 2 to bottom
       await pumpEventQueue();
 
       final reorderedRatings = repository.ratings.values.toList();
       expect(reorderedRatings[0].id, "r1");
       expect(reorderedRatings[1].id, "r3");
       expect(reorderedRatings[2].id, "r2");
+    });
+  });
+
+  group("ReorderableWrap reorder", () {
+    Future<void> setupComponents() async {
+      await repository.addComponent(Component(id: "c1", name: "C1", installations: [], componentType: ComponentType.other));
+      await repository.addComponent(Component(id: "c2", name: "C2", installations: [], componentType: ComponentType.other));
+      await repository.addComponent(Component(id: "c3", name: "C3", installations: [], componentType: ComponentType.other));
+      await pumpEventQueue();
+    }
+
+    test("Move first to end", () async {
+      await setupComponents();
+      final comps = repository.components.values.toList();
+      await repository.reorderComponent(oldIndex: 0, newIndex: 2, filteredComponentsList: comps);
+      await pumpEventQueue();
+
+      final result = repository.components.values.toList();
+      expect(result[0].id, "c2");
+      expect(result[1].id, "c3");
+      expect(result[2].id, "c1");
+    });
+
+    test("Move last to first", () async {
+      await setupComponents();
+      final comps = repository.components.values.toList();
+      await repository.reorderComponent(oldIndex: 2, newIndex: 0, filteredComponentsList: comps);
+      await pumpEventQueue();
+
+      final result = repository.components.values.toList();
+      expect(result[0].id, "c3");
+      expect(result[1].id, "c1");
+      expect(result[2].id, "c2");
+    });
+
+    test("Move first to middle", () async {
+      await setupComponents();
+      final comps = repository.components.values.toList();
+      await repository.reorderComponent(oldIndex: 0, newIndex: 1, filteredComponentsList: comps);
+      await pumpEventQueue();
+
+      final result = repository.components.values.toList();
+      expect(result[0].id, "c2");
+      expect(result[1].id, "c1");
+      expect(result[2].id, "c3");
     });
   });
 }

@@ -932,13 +932,10 @@ class AppRepository extends ChangeNotifier {
     final targetItem = newIndex < filteredRatingsList.length ? filteredRatingsList[newIndex] : null;
     final int globalNewIndex = targetItem == null ? globalList.length : globalList.indexOf(targetItem);
 
-    int adjustedNewIndex = globalNewIndex;
-    if (globalOldIndex < globalNewIndex) adjustedNewIndex -= 1;
-
     globalList.removeAt(globalOldIndex);
-    globalList.insert(adjustedNewIndex, itemToMove);
+    globalList.insert(globalNewIndex, itemToMove);
 
-    // Optimistic Update: Manually rearrange state and re-filter immediately to prevent 
+    // Optimistic Update: Manually rearrange state and re-filter immediately to prevent
     // the UI from 'snapping back' while we wait for the database round-trip.
     _ratings = {
       for (int i = 0; i < globalList.length; i++)
@@ -957,13 +954,10 @@ class AppRepository extends ChangeNotifier {
     final targetItem = newIndex < filteredPersonsList.length ? filteredPersonsList[newIndex] : null;
     final int globalNewIndex = targetItem == null ? globalList.length : globalList.indexOf(targetItem);
 
-    int adjustedNewIndex = globalNewIndex;
-    if (globalOldIndex < globalNewIndex) adjustedNewIndex -= 1;
-
     globalList.removeAt(globalOldIndex);
-    globalList.insert(adjustedNewIndex, itemToMove);
+    globalList.insert(globalNewIndex, itemToMove);
 
-    // Optimistic Update: Manually rearrange state and re-filter immediately to prevent 
+    // Optimistic Update: Manually rearrange state and re-filter immediately to prevent
     // the UI from 'snapping back' while we wait for the database round-trip.
     _persons = {
       for (int i = 0; i < globalList.length; i++)
@@ -975,18 +969,15 @@ class AppRepository extends ChangeNotifier {
     await database.personsDao.reorder(globalList.map((e) => e.id).toList());
   }
 
-  Future<void> reorderComponent({required int oldIndex, required int newIndex, required List<Component> filteredComponentsList, bool adjustNewIndex = true}) async {
+  Future<void> reorderComponent({required int oldIndex, required int newIndex, required List<Component> filteredComponentsList}) async {
     final globalList = components.values.toList()..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
     final itemToMove = filteredComponentsList[oldIndex];
     final int globalOldIndex = globalList.indexOf(itemToMove);
     final targetItem = newIndex < filteredComponentsList.length ? filteredComponentsList[newIndex] : null;
     final int globalNewIndex = targetItem == null ? globalList.length : globalList.indexOf(targetItem);
 
-    int adjustedNewIndex = globalNewIndex;
-    if (adjustNewIndex && globalOldIndex < globalNewIndex) adjustedNewIndex -= 1;
-
     globalList.removeAt(globalOldIndex);
-    globalList.insert(adjustedNewIndex, itemToMove);
+    globalList.insert(globalNewIndex, itemToMove);
 
     // Optimistic Update: Manually rearrange state and re-filter immediately to prevent 
     // the UI from 'snapping back' while we wait for the database round-trip.
@@ -1007,13 +998,10 @@ class AppRepository extends ChangeNotifier {
     final targetItem = newIndex < filteredBikesList.length ? filteredBikesList[newIndex] : null;
     final int globalNewIndex = targetItem == null ? globalList.length : globalList.indexOf(targetItem);
 
-    int adjustedNewIndex = globalNewIndex;
-    if (globalOldIndex < globalNewIndex) adjustedNewIndex -= 1;
-
     globalList.removeAt(globalOldIndex);
-    globalList.insert(adjustedNewIndex, itemToMove);
+    globalList.insert(globalNewIndex, itemToMove);
 
-    // Optimistic Update: Manually rearrange state and re-filter immediately to prevent 
+    // Optimistic Update: Manually rearrange state and re-filter immediately to prevent
     // the UI from 'snapping back' while we wait for the database round-trip.
     _bikes = {
       for (int i = 0; i < globalList.length; i++)

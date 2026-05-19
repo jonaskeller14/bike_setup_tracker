@@ -243,24 +243,17 @@ class _PersonPageState extends State<PersonPage> {
   }
 
   void _onReorderAdjustments(int oldIndex, int newIndex, {required AdjustmentCategory adjustmentCategory}) {
-    final adjustmentSubList = _adjustments.where((a) => a.category == adjustmentCategory).toList();
+    final subList = _adjustments.where((a) => a.category == adjustmentCategory).toList();
+    final item = subList.removeAt(oldIndex);
+    subList.insert(newIndex, item);
 
-    final adjustmentToMove = adjustmentSubList[oldIndex];
-    oldIndex = _adjustments.indexOf(adjustmentToMove);
-    final targetAdjustment = newIndex < adjustmentSubList.length
-        ? adjustmentSubList[newIndex]
-        : null;
-    
-    newIndex = targetAdjustment == null
-        ? _adjustments.length
-        : _adjustments.indexOf(targetAdjustment);
-    
-    int adjustedNewIndex = newIndex;
-    if (oldIndex < newIndex) adjustedNewIndex -= 1;
-
+    int subIdx = 0;
     setState(() {
-      final adjustment = _adjustments.removeAt(oldIndex);
-      _adjustments.insert(adjustedNewIndex, adjustment);
+      for (int i = 0; i < _adjustments.length; i++) {
+        if (_adjustments[i].category == adjustmentCategory) {
+          _adjustments[i] = subList[subIdx++];
+        }
+      }
     });
     _changeListener();
   }

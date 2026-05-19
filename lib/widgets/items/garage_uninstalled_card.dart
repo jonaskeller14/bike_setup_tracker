@@ -158,7 +158,6 @@ class GarageUninstalledCard extends StatelessWidget{
                                               filteredComponentsList:
                                                   deinstalledComponents.values
                                                       .toList(),
-                                              adjustNewIndex: false,
                                             ),
                                     onReorderStarted: (index) =>
                                         setDraggedComponent(

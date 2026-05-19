@@ -442,8 +442,14 @@ class _TaskRulePageState extends State<TaskRulePage> {
           showCheckmark: false,
           selected: widget.mode != TaskRulePageMode.edit,
           label: Text(tag),
-          onSelected: (_) => setState(() => _tags.remove(tag)),
-          onDeleted: () => setState(() => _tags.remove(tag)),
+          onSelected: (_) {
+            setState(() => _tags.remove(tag));
+            _changeListener();
+          },
+          onDeleted: () {
+            setState(() => _tags.remove(tag));
+            _changeListener();
+          },
           backgroundColor: widget.mode == TaskRulePageMode.edit && !widget.taskRule!.tags.contains(tag) ? Colors.orange.withValues(alpha: 0.08) : null,
         )),
         if (enableTaskTags)
@@ -454,7 +460,10 @@ class _TaskRulePageState extends State<TaskRulePage> {
               await showSetTaskRuleTagsSheet(
                 context: context,
                 tags: _tags,
-                onChanged: (Set<String> newTags) => setState(() => _tags = newTags),
+                onChanged: (Set<String> newTags) {
+                  setState(() => _tags = newTags);
+                  _changeListener();
+                },
               );
             },
           ),

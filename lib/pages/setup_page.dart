@@ -903,8 +903,14 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 showCheckmark: false,
                 selected: widget.mode != SetupPageMode.edit,
                 label: Text(tag), 
-                onSelected: (_) => setState(() => _tags.remove(tag)),
-                onDeleted: () => setState(() => _tags.remove(tag)),
+                onSelected: (_) {
+                  setState(() => _tags.remove(tag));
+                  _changeListener();
+                },
+                onDeleted: () {
+                  setState(() => _tags.remove(tag));
+                  _changeListener();
+                },
                 backgroundColor: widget.mode == SetupPageMode.edit && !widget.setup!.tags.contains(tag) ? Colors.orange.withValues(alpha: 0.08) : null,
               )),
               ActionChip(
@@ -914,7 +920,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                   await showSetSetupTagsSheet(
                     context: context, 
                     tags: _tags,
-                    onChanged: (Set<String> newTags) => setState(() => _tags = newTags),
+                    onChanged: (Set<String> newTags) {
+                      setState(() => _tags = newTags);
+                      _changeListener();
+                    },
                   );
                 },
               ),

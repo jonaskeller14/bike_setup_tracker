@@ -24,7 +24,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
         subscription.status == SubscriptionPurchaseStatus.restoring;
 
     final tosRecognizer = TapGestureRecognizer()
-      ..onTap = () => launchUrl(Uri.parse('https://jonaskeller14.app/tos'));  //FIXME
+      ..onTap = () => launchUrl(Uri.parse('https://jonaskeller14.de/bike_setup_tracker/terms_of_service.html'));
     final privacyRecognizer = TapGestureRecognizer()
       ..onTap = () =>
           launchUrl(Uri.parse('https://jonaskeller14.com/bike_setup_tracker/privacy_policy.html'));

@@ -8,6 +8,7 @@ import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/installation.dart';
+import '../models/setup.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
 import '../widgets/dashed_border_painter.dart';
@@ -103,9 +104,12 @@ class _ComponentPageState extends State<ComponentPage> {
     _notesController = TextEditingController(text: widget.component?.notes);
     _notesController.addListener(_changeListener);
 
-    _initialDistanceController = TextEditingController(text: widget.component?.initialDistance.toString() ?? "0.0");
+    final appSettings = context.read<AppSettings>();
+    final initialDistance = AppSettings.convertDistanceFromMeters(widget.component?.initialDistance, appSettings.distanceUnit) ?? 0.0;
+    _initialDistanceController = TextEditingController(text: initialDistance.toString());
     _initialDistanceController.addListener(_changeListener);
-    _initialElevationGainController = TextEditingController(text: widget.component?.initialElevationGain.toString() ?? "0.0");
+    final initialElevation = AppSettings.convertElevationFromMeters(widget.component?.initialElevationGain, appSettings.altitudeUnit) ?? 0.0;
+    _initialElevationGainController = TextEditingController(text: initialElevation.toString());
     _initialElevationGainController.addListener(_changeListener);
     _initialMovingTimeController = TextEditingController(text: widget.component?.initialMovingTime.inHours.toString() ?? "0");
     _initialMovingTimeController.addListener(_changeListener);
@@ -238,10 +242,13 @@ class _ComponentPageState extends State<ComponentPage> {
       return;
     }
     
+    final appSettings = context.read<AppSettings>();
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
-    final initialDistance = double.parse(_initialDistanceController.text.trim());
-    final initialElevationGain = double.parse(_initialElevationGainController.text.trim());
+    final initialDistanceInput = double.parse(_initialDistanceController.text.trim());
+    final initialElevationGainInput = double.parse(_initialElevationGainController.text.trim());
+    final double initialDistance = AppSettings.convertDistanceToMeters(initialDistanceInput, appSettings.distanceUnit) ?? 0.0;
+    final double initialElevationGain = Setup.convertAltitudeToMeters(initialElevationGainInput, appSettings.altitudeUnit) ?? 0.0;
     final initialElapsedTime = int.parse(_initialElapsedTimeController.text.trim());
     final initialMovingTime = int.parse(_initialMovingTimeController.text.trim());
     _formHasChanges = false;
@@ -380,7 +387,7 @@ class _ComponentPageState extends State<ComponentPage> {
               if (context.read<AppSettings>().enableTextAdjustment)
                 _buildGuideRow(TextAdjustment.iconData, "Text", "Flexible field for any other setup specifications"),
               if (_enableDurationAdjustment)
-                _buildGuideRow(DurationAdjustment.iconData, "Duration", "Time span"),  //TODO: improve help text
+                _buildGuideRow(DurationAdjustment.iconData, "Duration", "Time span"),
             ],
           ),
         ),
@@ -497,6 +504,7 @@ class _ComponentPageState extends State<ComponentPage> {
   }
 
   Widget _initialStatsFields() {
+    final appSettings = context.watch<AppSettings>();
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -518,9 +526,9 @@ class _ComponentPageState extends State<ComponentPage> {
                   hintText: 'Enter Initial Distance',
                   border: const OutlineInputBorder(),
                   visualDensity: VisualDensity.compact,
-                  suffixText: "m", //FIXME: also change in init and save
+                  suffixText: appSettings.distanceUnit,
                   fillColor: Colors.orange.withValues(alpha: 0.08),
-                  filled: widget.mode == ComponentPageMode.edit && double.tryParse(_initialDistanceController.text.trim()) != widget.component?.initialDistance,
+                  filled: widget.mode == ComponentPageMode.edit && double.tryParse(_initialDistanceController.text.trim()) != AppSettings.convertDistanceFromMeters(widget.component!.initialDistance, appSettings.distanceUnit),
                 ),
                 validator: (String? newValue) {
                   if (newValue == null || newValue.isEmpty || double.tryParse(newValue) == null) {
@@ -543,9 +551,9 @@ class _ComponentPageState extends State<ComponentPage> {
                   hintText: 'Enter Initial Elevation Gain',
                   border: const OutlineInputBorder(),
                   visualDensity: VisualDensity.compact,
-                  suffixText: "m",
+                  suffixText: appSettings.altitudeUnit,
                   fillColor: Colors.orange.withValues(alpha: 0.08),
-                  filled: widget.mode == ComponentPageMode.edit && double.tryParse(_initialElevationGainController.text.trim()) != widget.component?.initialElevationGain,
+                  filled: widget.mode == ComponentPageMode.edit && double.tryParse(_initialElevationGainController.text.trim()) != AppSettings.convertElevationFromMeters(widget.component!.initialElevationGain, appSettings.altitudeUnit),
                 ),
                 validator: (String? newValue) {
                   if (newValue == null || newValue.isEmpty || double.tryParse(newValue) == null) {

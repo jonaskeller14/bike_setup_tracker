@@ -319,6 +319,15 @@ class AppSettings extends ChangeNotifier {
     }
   }
 
+  static double? convertDistanceToMeters(double? distance, String currentUnit) {
+    if (distance == null) return null;
+    switch (currentUnit) {
+      case 'km': return distance * 1000;
+      case 'mi': return distance * 1609.344;
+      default: return distance * 1000;
+    }
+  }
+
   static double? convertElevationFromMeters(double? meters, String targetUnit) {
     if (meters == null) return null;
     switch (targetUnit) {

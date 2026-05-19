@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../services/subscription_service.dart';
+import '../text/sheet_section_title.dart';
 import 'sheet.dart';
 
 Future<void> showMapDisplayFilterSheet({required BuildContext context}) async {
@@ -49,8 +50,7 @@ class MapDisplayFilterSheetContent extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Visibility", style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 6),
+                        const SheetSectionTitle(title: "Visibility"),
                         Wrap(
                           spacing: 6,
                           children: [

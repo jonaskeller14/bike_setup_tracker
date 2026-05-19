@@ -12,6 +12,7 @@ import '../repositories/app_repository.dart';
 import '../services/strava_service.dart';
 import '../widgets/items/strava_subscription_card.dart';
 import '../widgets/sheets/app_settings_radio_group.dart';
+import '../widgets/text/section_title.dart';
 
 class AppSettingsPage extends StatefulWidget {
   const AppSettingsPage({super.key});
@@ -83,16 +84,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     true: Text('On'),
   };
 
-  Widget _sectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.titleLarge,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final appSettingsWriter = context.read<AppSettings>();
@@ -106,9 +97,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _sectionTitle('Appearance'),
+              const SectionTitle(title: 'Appearance'),
               ListTile(
-                leading: Icon(Icons.color_lens, color: Theme.of(context).colorScheme.primary),
+                leading: const Icon(Icons.color_lens),
                 title: const Text("App Theme Mode"),
                 subtitle: _themeModeOptionWidgets[appSettingsReader.themeMode]?.children[1] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -125,9 +116,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               ),
               const Divider(),
-              _sectionTitle('Default Formats'),
+              const SectionTitle(title: 'Default Formats'),
               ListTile(
-                leading: Icon(Icons.calendar_month, color: Theme.of(context).colorScheme.primary),
+                leading: const Icon(Icons.calendar_month),
                 title: const Text("Date Format"),
                 subtitle: _dateFormatOptionWidgets[appSettingsReader.dateFormat] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -144,7 +135,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               ),
               ListTile(
-                leading: Icon(Icons.access_time, color: Theme.of(context).colorScheme.primary),
+                leading: const Icon(Icons.access_time),
                 title: const Text("Time Format"),
                 subtitle: _timeFormatOptionWidgets[appSettingsReader.timeFormat] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -161,9 +152,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               ),
               const Divider(),
-              _sectionTitle('Default Units'),
+              const SectionTitle(title: 'Default Units'),
               ListTile(
-                leading: Icon(Icons.route, color: Theme.of(context).colorScheme.primary),
+                leading: const Icon(Icons.route),
                 title: const Text("Distance Unit"),
                 subtitle: _distanceUnitOptionWidgets[appSettingsReader.distanceUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -180,7 +171,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               ),
               ListTile(
-                leading: Icon(Icons.arrow_upward, color: Theme.of(context).colorScheme.primary),
+                leading: const Icon(Icons.arrow_upward),
                 title: const Text("Altitude Unit"),
                 subtitle: _altitudeUnitOptionWidgets[appSettingsReader.altitudeUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -197,7 +188,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               ),
               ListTile(
-                leading: Icon(Weather.currentTemperatureIconData, color: Theme.of(context).colorScheme.primary),
+                leading: const Icon(Weather.currentTemperatureIconData),
                 title: const Text("Temperature Unit"),
                 subtitle: _tempUnitOptionWidgets[appSettingsReader.temperatureUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -214,10 +205,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               ),
               ListTile(
-                leading: Icon(
-                  Weather.currentWindSpeedIconData,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                leading: const Icon(Weather.currentWindSpeedIconData),
                 title: const Text("Wind Speed Unit"),
                 subtitle: _windSpeedUnitOptionWidgets[appSettingsReader.windSpeedUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -234,10 +222,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               ),
               ListTile(
-                leading: Icon(
-                  Weather.dayAccumulatedPrecipitationIconData,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                leading: const Icon(Weather.dayAccumulatedPrecipitationIconData),
                 title: const Text("Precipitation Unit"),
                 subtitle: _precipitationUnitOptionWidgets[appSettingsReader.precipitationUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -254,7 +239,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               ),
               const Divider(),
-              _sectionTitle('Advanced Features'),
+              const SectionTitle(title: 'Advanced Features'),
               const ListTile(
                 leading: Icon(Icons.info_outline),
                 title: Text('Enable these to add specific functionality to your workflow. Keep them disabled to maintain a simpler interface.'),
@@ -262,10 +247,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ),
               if (Platform.isAndroid)
                 ListTile(
-                  leading: Icon(
-                    SimpleIcons.googledrive,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                  leading: const Icon(SimpleIcons.googledrive),
                   title: const Text("Google Drive Sync"),
                   subtitle: _offOnOptionWidgets[appSettingsReader.enableGoogleDrive] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -283,10 +265,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   ),
                 ),
               ListTile(
-                leading: Icon(
-                  Bike.iconData,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                leading: const Icon(Bike.iconData),
                 title: const Text("Garage"),
                 subtitle: _offOnOptionWidgets[appSettingsReader.enableGarage] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -304,10 +283,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               ),
               ListTile(
-                leading: Icon(
-                  TextAdjustment.iconData,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                leading: const Icon(TextAdjustment.iconData),
                 title: const Text("Text Adjustment"),
                 subtitle: _offOnOptionWidgets[appSettingsReader.enableTextAdjustment] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -325,10 +301,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               ),
               ListTile(
-                leading: Icon(
-                  Icons.tag,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                leading: const Icon(Icons.tag),
                 title: const Text("Setup Tags"),
                 subtitle: _offOnOptionWidgets[appSettingsReader.enableSetupTags] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -347,10 +320,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               ),
               ListTile(
-                leading: Icon(
-                  Icons.tag,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                leading: const Icon(Icons.tag),
                 title: const Text("Task Tags"),
                 subtitle: _offOnOptionWidgets[appSettingsReader.enableTaskTags] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -370,10 +340,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ),
               if (debugMode)
                 ListTile(
-                  leading: Icon(
-                    Icons.person,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                  leading: const Icon(Icons.person),
                   title: const Text("Profile"),
                   subtitle: _offOnOptionWidgets[appSettingsReader.enablePerson] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -391,10 +358,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               if (debugMode)
                 ListTile(
-                  leading: Icon(
-                    Icons.star,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                  leading: const Icon(Icons.star),
                   title: const Text("Rating"),
                   subtitle: _offOnOptionWidgets[appSettingsReader.enableRating] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -411,10 +375,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   ),
                 ),
               ListTile(
-                leading: Icon(
-                  Icons.checklist,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                leading: const Icon(Icons.checklist),
                 title: const Text("Tasks"),
                 subtitle: _offOnOptionWidgets[appSettingsReader.enableTask] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -433,10 +394,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ),
               if (debugMode)
                 ListTile(
-                  leading: Icon(
-                    Icons.checklist,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                  leading: const Icon(Icons.checklist),
                   title: const Text("Installation Timeline"),
                   subtitle: _offOnOptionWidgets[appSettingsReader.enableInstallationTimeline] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -454,13 +412,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               if (appSettingsReader.enableStrava) ...[
                 const Divider(),
-                _sectionTitle('Strava Sync'),
+                const SectionTitle(title: 'Strava Sync'),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: StravaSubscriptionCard(),
                 ),
                 ListTile(
-                  leading: Icon(Icons.manage_accounts, color: Theme.of(context).colorScheme.primary),
+                  leading: const Icon(Icons.manage_accounts),
                   title: const Text("Manage Subscription"),
                   subtitle: const Text("Cancel or change your plan in the store"),
                   trailing: const Icon(Icons.open_in_new, size: 16.0),
@@ -477,10 +435,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
                 if (strava.isConnected)
                   ListTile(
-                    leading: Icon(
-                      Icons.notifications_active,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                    leading: const Icon(Icons.notifications_active),
                     title: const Text("Strava Notifications"),
                     subtitle: _offOnOptionWidgets[appSettingsReader.enableStravaNotifications] ?? const Text("-"),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),

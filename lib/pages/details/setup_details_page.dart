@@ -19,7 +19,7 @@ import '../../utils/setup_actions.dart';
 import '../../widgets/display_adjustment/display_adjustment_list.dart';
 import '../../widgets/display_adjustment/display_dangling_adjustment.dart';
 import '../../widgets/initial_changed_value_legend.dart';
-import '../../widgets/section_title.dart';
+import '../../widgets/text/section_title.dart';
 
 class SetupDetailsPage extends StatefulWidget {
   final List<String> setupIds;

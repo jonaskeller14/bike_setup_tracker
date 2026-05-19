@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../models/bike.dart';
 import '../../models/task_rule.dart';
 import '../../repositories/app_repository.dart';
+import '../text/sheet_section_title.dart';
 import 'sheet.dart';
 
 Future<void> showFilterSheet({
@@ -42,8 +43,7 @@ Future<void> showFilterSheet({
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text("Bike", style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 6),
+                    const SheetSectionTitle(title: "Bike"),
                     appRepository.bikes.isEmpty 
                         ? Padding(
                           padding: const EdgeInsets.symmetric(vertical: 32),
@@ -70,8 +70,7 @@ Future<void> showFilterSheet({
                             )).toList(),
                           ),
                     if (enableSetupTagFilter) ...[
-                      Text("Setup Tags", style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 6),
+                      const SheetSectionTitle(title: "Setup Tags"),
                       appRepository.setupTags.isEmpty
                           ? Padding(
                               padding: const EdgeInsets.symmetric(vertical: 32),
@@ -101,8 +100,7 @@ Future<void> showFilterSheet({
                             ),
                     ],
                     if (enableTaskPriorityFilter) ...[
-                      Text("Task Priority", style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 6),
+                      const SheetSectionTitle(title: "Task Priority"),
                       Wrap(
                         spacing: 6,
                         children: TaskPriority.values.map((tp) {
@@ -124,8 +122,7 @@ Future<void> showFilterSheet({
                       )
                     ],
                     if (enableTaskRuleTagFilter) ...[
-                      Text("Task Tags", style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 6),
+                      const SheetSectionTitle(title: "Task Tags"),
                       appRepository.taskRuleTags.isEmpty
                           ? Padding(
                               padding: const EdgeInsets.symmetric(vertical: 32),

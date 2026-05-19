@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../utils/table_column.dart';
+import '../text/sheet_section_title.dart';
 import 'sheet.dart';
 
 class SelectColumn {
@@ -59,12 +60,7 @@ Future<void> showColumnFilterSheet({
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const SizedBox(height: 12),
-                              Text(
-                                tcs.label, 
-                                style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)
-                              ),
-                              const SizedBox(height: 6),
+                              SheetSectionTitle(title: tcs.label),
                               Wrap(
                                 spacing: 6,
                                 children: columns.map((column) {

@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/task_actions.dart';
 import '../../widgets/items/task_entry_list_item.dart';
-import '../../widgets/section_title.dart';
 import '../../widgets/task_rule_display_card.dart';
+import '../../widgets/text/section_title.dart';
 
 class TaskRuleDetailsPage extends StatelessWidget {
   final String taskRuleId;

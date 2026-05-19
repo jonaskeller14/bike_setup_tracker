@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:simple_icons/simple_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/app_settings.dart';
+import '../widgets/text/section_title.dart';
 import 'faq_page.dart';
 
 class AboutPage extends StatelessWidget {
@@ -93,7 +94,7 @@ class AboutPage extends StatelessWidget {
 
   Widget _buildContactTile({required BuildContext context, required String title, required String email, required IconData icon, required String subject}) {
     return ListTile(
-      leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
+      leading: Icon(icon),
       title: Text(title),
       subtitle: Text(email),
       trailing: const Icon(Icons.open_in_new, size: 16.0),
@@ -103,7 +104,7 @@ class AboutPage extends StatelessWidget {
 
   Widget _buildLegalTile({required BuildContext context, required String title, required String url}) {
     return ListTile(
-      leading: Icon(Icons.description_outlined, color: Theme.of(context).colorScheme.primary),
+      leading: const Icon(Icons.description_outlined),
       title: Text(title),
       onTap: () => _launchUrl(context, url: url),
       trailing: const Icon(Icons.open_in_new, size: 16.0),
@@ -143,13 +144,7 @@ class AboutPage extends StatelessWidget {
               ),
         
               const Divider(),
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0, top: 16.0, bottom: 8.0),
-                child: Text(
-                  'App Information',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
+              const SectionTitle(title: 'App Information'),
               Row(
                 children: [
                   Expanded(
@@ -160,16 +155,10 @@ class AboutPage extends StatelessWidget {
                   ),
                 ],
               ),
-              const Divider(height: 32.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
-                child: Text(
-                  'Contact & Feedback',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
+              const Divider(),
+              const SectionTitle(title: 'Contact & Feedback'),
               ListTile(
-                leading: Icon(Icons.star_outline, color: Theme.of(context).colorScheme.primary),
+                leading: const Icon(Icons.star_outline),
                 title: const Text('Rate this app'),
                 subtitle: Theme.of(context).platform == TargetPlatform.iOS 
                     ? const Text('Rate this app on Apple AppStore.')
@@ -202,16 +191,10 @@ class AboutPage extends StatelessWidget {
                 subject: 'Bike Setup Tracker: Bug Report [v$appVersion+$buildNumber]',
               ),
               
-              const Divider(height: 32.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
-                child: Text(
-                  'Help',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
+              const Divider(),
+              const SectionTitle(title: 'Help'),
               ListTile(
-                leading: Icon(Icons.help_outline, color: Theme.of(context).colorScheme.primary),
+                leading: const Icon(Icons.help_outline),
                 title: const Text("Show Onboarding"),
                 subtitle: const Text("Show onboarding slides to get started."),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -221,28 +204,22 @@ class AboutPage extends StatelessWidget {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.question_answer_outlined, color: Theme.of(context).colorScheme.primary),
+                leading: const Icon(Icons.question_answer_outlined),
                 title: const Text("FAQ"),
                 subtitle: const Text("Show frequently asked questions."),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const FAQPage())),
               ),
               ListTile(
-                leading: Icon(SimpleIcons.strava, color: Theme.of(context).colorScheme.primary),
+                leading: const Icon(SimpleIcons.strava),
                 title: const Text("Strava Club Forum"),
                 subtitle: const Text("Get help and discuss the app with other users."),
                 trailing: const Icon(Icons.open_in_new, size: 16.0),
                 onTap: () => _launchUrl(context, url: 'https://www.strava.com/clubs/bike_setup_tracker'),
               ),
         
-              const Divider(height: 32.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
-                child: Text(
-                  'Legal Agreements',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
+              const Divider(),
+              const SectionTitle(title: 'Legal Agreements'),
               _buildLegalTile(
                 context: context,
                 title: 'Privacy Policy',
@@ -253,13 +230,13 @@ class AboutPage extends StatelessWidget {
                 title: 'End-User License Agreement (EULA)',
                 url: eulaUrl,
               ),
-              ListTile(
-                leading: Icon(Icons.copyright, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                title: const Text("Third-party trademarks"),
-                subtitle: const Text("Google Drive is a trademark of Google LLC."),
+              const ListTile(
+                leading: Icon(Icons.copyright),
+                title: Text("Third-party trademarks"),
+                subtitle: Text("Google Drive is a trademark of Google LLC."),
                 dense: true,
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 16),
             ],
           ),
         ),

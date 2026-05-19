@@ -22,8 +22,8 @@ import '../../widgets/component_stats_card.dart';
 import '../../widgets/display_installation_timeline.dart';
 import '../../widgets/initial_changed_value_legend.dart';
 import '../../widgets/open_tasks_tile.dart';
-import '../../widgets/section_title.dart';
 import '../../widgets/sheets/column_filter.dart';
+import '../../widgets/text/section_title.dart';
 
 class ComponentDetailsPage extends StatefulWidget{
   final String componentId;

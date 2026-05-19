@@ -10,6 +10,7 @@ import '../../repositories/app_repository.dart';
 import '../../services/strava_service.dart';
 import '../dialogs/strava_disconnect.dart';
 import '../items/strava_list_tile.dart';
+import '../text/sheet_section_title.dart';
 import 'sheet.dart';
 
 class StravaDashboardSheet extends StatefulWidget {
@@ -82,10 +83,7 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                       ),
                     ] else if (gears.isNotEmpty) ...[
                       const Divider(),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8),
-                        child: Text("Strava Gear:", style: TextStyle(fontWeight: FontWeight.bold)),
-                      ),
+                      const SheetSectionTitle(title: "Strava Gear:"),
                       Wrap(
                         alignment: WrapAlignment.start,
                         spacing: 4,
@@ -180,10 +178,7 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Divider(),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8),
-                                child: Text("Latest Synced Activities:", style: TextStyle(fontWeight: FontWeight.bold)),
-                              ),
+                              const SheetSectionTitle(title: "Latest Synced Activities:"),
                               ...latestActivities.map((activity) => StravaListTile(
                                 stravaActivity: activity,
                                 contentPadding: EdgeInsets.zero,

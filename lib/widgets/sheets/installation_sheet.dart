@@ -165,42 +165,44 @@ class _InstallationSheetState extends State<InstallationSheet> {
             const SizedBox(height: 16),
             Flexible(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // Origin -> Arrow -> Target Preview
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (!isInitialInstallation)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (!isInitialInstallation)
+                              Expanded(
+                                child: _BikePreview(
+                                  name: originBikeName,
+                                  isDeinstalled: originBikeId == null,
+                                  isError: originBikeNotFound,
+                                ),
+                              ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              child: Icon(Icons.arrow_forward, color: theme.colorScheme.primary),
+                            ),
                             Expanded(
                               child: _BikePreview(
-                                name: originBikeName,
-                                isDeinstalled: originBikeId == null,
-                                isError: originBikeNotFound,
+                                name: targetBikeName,
+                                isDeinstalled: targetBikeId == null,
+                                isError: targetBikeNotFound,
                               ),
                             ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: Icon(Icons.arrow_forward, color: theme.colorScheme.primary),
-                          ),
-                          Expanded(
-                            child: _BikePreview(
-                              name: targetBikeName,
-                              isDeinstalled: targetBikeId == null,
-                              isError: targetBikeNotFound,
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24),

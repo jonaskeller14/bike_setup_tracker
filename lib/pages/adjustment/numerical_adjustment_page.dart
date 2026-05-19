@@ -316,7 +316,6 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             maintainState: true,
                             child: Column(
                               children: [
-                                const SizedBox(height: 12),
                                 TextFormField(
                                   controller: _minController,
                                   textInputAction: TextInputAction.next,

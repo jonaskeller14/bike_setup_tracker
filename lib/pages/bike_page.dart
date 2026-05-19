@@ -327,7 +327,6 @@ class _BikePageState extends State<BikePage> {
                     maintainState: true,
                     child: Column(
                       children: [
-                        const SizedBox(height: 12),
                         _notesField(),
                       ],
                     ),

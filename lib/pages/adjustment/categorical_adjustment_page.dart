@@ -386,7 +386,6 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                             maintainState: true,
                             child: Column(
                               children: [
-                                const SizedBox(height: 12),
                                 TextFormField(
                                   controller: _notesController,
                                   minLines: 2,

@@ -403,7 +403,6 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             maintainState: true,
                             child: Column(
                               children: [
-                                const SizedBox(height: 12),
                                 DropdownButtonFormField<StepAdjustmentVisualization>(
                                   initialValue: visualization,
                                   isExpanded: true,

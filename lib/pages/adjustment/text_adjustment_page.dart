@@ -230,7 +230,6 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                             maintainState: true,
                             child: Column(
                               children: [
-                                const SizedBox(height: 12),
                                 TextFormField(
                                   controller: _notesController,
                                   minLines: 2,

@@ -11,6 +11,7 @@ import '../widgets/dashed_border_painter.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/lists/adjustment_edit_list.dart';
 import '../widgets/sheets/rating_add_adjustment.dart';
+import '../widgets/text/section_title.dart';
 import 'adjustment/boolean_adjustment_page.dart';
 import 'adjustment/categorical_adjustment_page.dart';
 import 'adjustment/duration_adjustment_page.dart';
@@ -546,173 +547,180 @@ class _RatingPageState extends State<RatingPage> {
         ),
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextFormField(
-                    controller: _nameController,
-                    onFieldSubmitted: (_) => _saveRating(),
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    autofocus: widget.mode == RatingPageMode.add,
-                    onChanged: (value) => setState(() {}), // see filled/fillColor
-                    decoration: InputDecoration(
-                      labelText: 'Rating Name',
-                      border: const OutlineInputBorder(),
-                      hintText: 'Enter rating name',
-                      fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.mode == RatingPageMode.edit && _nameController.text.trim() != widget.rating?.name,
-                    ),
-                    validator: _validateName,
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<_FilterFilterType?>(
-                    initialValue: _filterFilterType,
-                    isExpanded: true,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                      labelText: 'Filter',
-                      border: const OutlineInputBorder(),
-                      hintText: "Choose an object which the filter should be applied for",
-                      fillColor: Colors.orange.withValues(alpha: 0.08),
-                      filled: widget.mode == RatingPageMode.edit && _filterFilterType.filter != widget.rating?.filter,
-                    ),
-                    validator: (_FilterFilterType? newValue) {
-                      if (!filterOptions.contains(newValue)) return "Invalid Filter.";
-                      return null;
-                    },
-                    items: [
-                      if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.global)
-                        _invalidFilterDropdownMenuItem(_filterFilterType),
-                      ...filterOptions.where((fo) => fo.filterType == FilterType.global).map((fft) => _dropdownMenuItemGlobal(fft)),
-
-                      _dropdownMenuSection("Bikes"),
-                      if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.bike)
-                        _invalidFilterDropdownMenuItem(_filterFilterType),
-                      ...filterOptions.whereType<_FilterFilterTypeBike>().map((fftb) => _dropdownMenuItemBike(fftb)),
-
-                      _dropdownMenuSection("Component Types"),
-                      if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.componentType)
-                        _invalidFilterDropdownMenuItem(_filterFilterType),
-                      ...filterOptions.whereType<_FilterFilterTypeComponentType>().map((fftct) => _dropdownMenuItemComponentType(fftct)),
-
-                      _dropdownMenuSection("Components"),
-                      if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.component)
-                        _invalidFilterDropdownMenuItem(_filterFilterType),
-                      ...filterOptions.whereType<_FilterFilterTypeComponent>().map((fftc) => _dropdownMenuItemComponent(fftc)),
-
-                      _dropdownMenuSection("Persons"),
-                      if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.person)
-                        _invalidFilterDropdownMenuItem(_filterFilterType),
-                      ...filterOptions.whereType<_FilterFilterTypePerson>().map((fftp) => _dropdownMenuItemPerson(fftp)),
-                    ],
-                    onChanged: (_FilterFilterType? newValue) {
-                      setState(() => _filterFilterType = newValue ?? const _FilterFilterType(null, FilterType.global));
-                      _changeListener();
-                    },
-                  ),
-                  Center(
-                    child: TextButton.icon(
-                      onPressed: () => setState(() => _expanded = !_expanded),
-                      icon: Icon(_expanded 
-                          ? Icons.expand_less 
-                          : Icons.expand_more,
-                      ),
-                      label: Text(_expanded 
-                          ? "Hide Additional Fields" 
-                          : "Show Additional Fields"
-                      ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: _expanded,
-                    maintainState: true,
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        const SizedBox(height: 12),
                         TextFormField(
-                          controller: _notesController,
-                          minLines: 2,
-                          maxLines: null,
+                          controller: _nameController,
+                          onFieldSubmitted: (_) => _saveRating(),
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          autofocus: widget.mode == RatingPageMode.add,
+                          onChanged: (value) => setState(() {}), // see filled/fillColor
+                          decoration: InputDecoration(
+                            labelText: 'Rating Name',
+                            border: const OutlineInputBorder(),
+                            hintText: 'Enter rating name',
+                            fillColor: Colors.orange.withValues(alpha: 0.08),
+                            filled: widget.mode == RatingPageMode.edit && _nameController.text.trim() != widget.rating?.name,
+                          ),
+                          validator: _validateName,
+                        ),
+                        const SizedBox(height: 12),
+                        DropdownButtonFormField<_FilterFilterType?>(
+                          initialValue: _filterFilterType,
+                          isExpanded: true,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           decoration: InputDecoration(
-                            labelText: 'Notes (optional)',
-                            hintText: 'Describe the rating procedure, guidelines, instructions, ...',
+                            labelText: 'Filter',
                             border: const OutlineInputBorder(),
+                            hintText: "Choose an object which the filter should be applied for",
                             fillColor: Colors.orange.withValues(alpha: 0.08),
-                            filled: widget.mode == RatingPageMode.edit && _notesController.text.trim() != (widget.rating?.notes ?? ""),
+                            filled: widget.mode == RatingPageMode.edit && _filterFilterType.filter != widget.rating?.filter,
+                          ),
+                          validator: (_FilterFilterType? newValue) {
+                            if (!filterOptions.contains(newValue)) return "Invalid Filter.";
+                            return null;
+                          },
+                          items: [
+                            if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.global)
+                              _invalidFilterDropdownMenuItem(_filterFilterType),
+                            ...filterOptions.where((fo) => fo.filterType == FilterType.global).map((fft) => _dropdownMenuItemGlobal(fft)),
+
+                            _dropdownMenuSection("Bikes"),
+                            if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.bike)
+                              _invalidFilterDropdownMenuItem(_filterFilterType),
+                            ...filterOptions.whereType<_FilterFilterTypeBike>().map((fftb) => _dropdownMenuItemBike(fftb)),
+
+                            _dropdownMenuSection("Component Types"),
+                            if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.componentType)
+                              _invalidFilterDropdownMenuItem(_filterFilterType),
+                            ...filterOptions.whereType<_FilterFilterTypeComponentType>().map((fftct) => _dropdownMenuItemComponentType(fftct)),
+
+                            _dropdownMenuSection("Components"),
+                            if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.component)
+                              _invalidFilterDropdownMenuItem(_filterFilterType),
+                            ...filterOptions.whereType<_FilterFilterTypeComponent>().map((fftc) => _dropdownMenuItemComponent(fftc)),
+
+                            _dropdownMenuSection("Persons"),
+                            if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.person)
+                              _invalidFilterDropdownMenuItem(_filterFilterType),
+                            ...filterOptions.whereType<_FilterFilterTypePerson>().map((fftp) => _dropdownMenuItemPerson(fftp)),
+                          ],
+                          onChanged: (_FilterFilterType? newValue) {
+                            setState(() => _filterFilterType = newValue ?? const _FilterFilterType(null, FilterType.global));
+                            _changeListener();
+                          },
+                        ),
+                        Center(
+                          child: TextButton.icon(
+                            onPressed: () => setState(() => _expanded = !_expanded),
+                            icon: Icon(_expanded
+                                ? Icons.expand_less
+                                : Icons.expand_more,
+                            ),
+                            label: Text(_expanded
+                                ? "Hide Additional Fields"
+                                : "Show Additional Fields"
+                            ),
+                          ),
+                        ),
+                        Visibility(
+                          visible: _expanded,
+                          maintainState: true,
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                controller: _notesController,
+                                minLines: 2,
+                                maxLines: null,
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
+                                decoration: InputDecoration(
+                                  labelText: 'Notes (optional)',
+                                  hintText: 'Describe the rating procedure, guidelines, instructions, ...',
+                                  border: const OutlineInputBorder(),
+                                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                                  filled: widget.mode == RatingPageMode.edit && _notesController.text.trim() != (widget.rating?.notes ?? ""),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  // const Divider(height: 1),
+                  const SectionTitle(title: "Metrics"),
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0, left: 4.0),
-                    child: Text("Metrics", style: Theme.of(context).textTheme.titleMedium),
-                  ),
-                  FormField<List<Adjustment>>(
-                    initialValue: _adjustments,
-                    validator: (_) { // Evaluate _adjustments for robustness
-                      if (_adjustments.isEmpty) {
-                        return 'You need to add at least one metric';
-                      }
-                      return null;
-                    },
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    builder: (FormFieldState<List<Adjustment>> field) {
-                      void notify() => field.didChange(List.from(_adjustments));
-           
-                      void showAddBottomSheet() => showRatingAddAdjustmentBottomSheet(
-                        context: context,
-                        addAdjustmentFromPreset: (a) => _addAdjustmentFromPreset(a, onChanged: notify),
-                        addAdjustment: <T extends Adjustment>() => _addAdjustment<T>(onChanged: notify),
-                      );
-           
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _adjustments.isNotEmpty
-                              ? AdjustmentEditList(
-                                  adjustments: _adjustments,
-                                  initialAdjustments: widget.mode == RatingPageMode.edit 
-                                      ? Map.fromEntries(widget.rating!.adjustments.map((a) => MapEntry(a.id, a))) 
-                                      : null,
-                                  editAdjustment: (a) => _editAdjustment(a, onChanged: notify),
-                                  duplicateAdjustment: (a) => _duplicateAdjustment(a, onChanged: notify),
-                                  removeAdjustment: (a) => removeAdjustment(a, onChanged: notify),
-                                  onReorderAdjustments: (oldIndex, newIndex) => _onReorderAdjustments(oldIndex, newIndex, onChanged: notify),
-                                ) 
-                              : _emptyAdjustmentsInfo(
-                                  errorText: field.errorText,
-                                  onTap: showAddBottomSheet,
-                                ),
-                          const SizedBox(height: 8),
-                          SizedBox(
-                            width: double.infinity,
-                            child: FilledButton.icon(
-                              onPressed: showAddBottomSheet,
-                              icon: const Icon(Icons.add),
-                              label: const Text("Add Metric"),
-                            ),
-                          ),
-                          if (field.hasError && _adjustments.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8.0, left: 12.0),
-                              child: Text(
-                                field.errorText!,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.error,
-                                  fontSize: 12,
-                                ),
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: FormField<List<Adjustment>>(
+                      initialValue: _adjustments,
+                      validator: (_) { // Evaluate _adjustments for robustness
+                        if (_adjustments.isEmpty) {
+                          return 'You need to add at least one metric';
+                        }
+                        return null;
+                      },
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      builder: (FormFieldState<List<Adjustment>> field) {
+                        void notify() => field.didChange(List.from(_adjustments));
+
+                        void showAddBottomSheet() => showRatingAddAdjustmentBottomSheet(
+                          context: context,
+                          addAdjustmentFromPreset: (a) => _addAdjustmentFromPreset(a, onChanged: notify),
+                          addAdjustment: <T extends Adjustment>() => _addAdjustment<T>(onChanged: notify),
+                        );
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _adjustments.isNotEmpty
+                                ? AdjustmentEditList(
+                                    adjustments: _adjustments,
+                                    initialAdjustments: widget.mode == RatingPageMode.edit
+                                        ? Map.fromEntries(widget.rating!.adjustments.map((a) => MapEntry(a.id, a)))
+                                        : null,
+                                    editAdjustment: (a) => _editAdjustment(a, onChanged: notify),
+                                    duplicateAdjustment: (a) => _duplicateAdjustment(a, onChanged: notify),
+                                    removeAdjustment: (a) => removeAdjustment(a, onChanged: notify),
+                                    onReorderAdjustments: (oldIndex, newIndex) => _onReorderAdjustments(oldIndex, newIndex, onChanged: notify),
+                                  )
+                                : _emptyAdjustmentsInfo(
+                                    errorText: field.errorText,
+                                    onTap: showAddBottomSheet,
+                                  ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              width: double.infinity,
+                              child: FilledButton.icon(
+                                onPressed: showAddBottomSheet,
+                                icon: const Icon(Icons.add),
+                                label: const Text("Add Metric"),
                               ),
                             ),
-                        ],
-                      );
-                    },
+                            if (field.hasError && _adjustments.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+                                child: Text(
+                                  field.errorText!,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.error,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),

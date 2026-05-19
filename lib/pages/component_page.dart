@@ -15,6 +15,7 @@ import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/lists/adjustment_edit_list.dart';
 import '../widgets/set_installation_timeline.dart';
 import '../widgets/sheets/component_add_adjustment.dart';
+import '../widgets/text/section_title.dart';
 import 'adjustment/boolean_adjustment_page.dart';
 import 'adjustment/categorical_adjustment_page.dart';
 import 'adjustment/duration_adjustment_page.dart';
@@ -700,47 +701,56 @@ class _ComponentPageState extends State<ComponentPage> {
         ),
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _nameField(),
-                  const SizedBox(height: 12),
-                  _componentTypeField(existingComponentsCount: existingComponentsCount),
-                  const SizedBox(height: 12),
-                  Center(
-                    child: TextButton.icon(
-                      onPressed: () => setState(() => _expanded = !_expanded),
-                      icon: Icon(_expanded 
-                          ? Icons.expand_less 
-                          : Icons.expand_more,
-                      ),
-                      label: Text(_expanded 
-                          ? "Hide Additional Fields" 
-                          : "Show Additional Fields"
-                      ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: _expanded,
-                    maintainState: true,
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
+                        _nameField(),
                         const SizedBox(height: 12),
-                        _notesField(),
-                        if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement) ...[
-                          const SizedBox(height: 24),
-                          _initialStatsFields(),
-                    ]
+                        _componentTypeField(existingComponentsCount: existingComponentsCount),
+                        Center(
+                          child: TextButton.icon(
+                            onPressed: () => setState(() => _expanded = !_expanded),
+                            icon: Icon(_expanded
+                                ? Icons.expand_less
+                                : Icons.expand_more,
+                            ),
+                            label: Text(_expanded
+                                ? "Hide Additional Fields"
+                                : "Show Additional Fields"
+                            ),
+                          ),
+                        ),
+                        Visibility(
+                          visible: _expanded,
+                          maintainState: true,
+                          child: Column(
+                            children: [
+                              _notesField(),
+                              if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement) ...[
+                                const SizedBox(height: 24),
+                                _initialStatsFields(),
+                              ]
+                            ],
+                          ),
+                        ),
+                        if (!appSettings.enableInstallationTimeline && !_isComplexInstallation) ...[
+                          const SizedBox(height: 12),
+                          _bikesDropdownField(bikes: bikes),
+                        ],
                       ],
                     ),
                   ),
-
-                  const SizedBox(height: 12),
-                  if (appSettings.enableInstallationTimeline || _isComplexInstallation)
+                  if (appSettings.enableInstallationTimeline || _isComplexInstallation) ...[
+                    // const Divider(height: 1),
                     SetInstallationTimeline(
                       initialInstallations: _installations,
                       originalInstallations: widget.mode == ComponentPageMode.edit ? widget.component?.installations : null,
@@ -748,69 +758,67 @@ class _ComponentPageState extends State<ComponentPage> {
                         setState(() => _installations = List.from(newInstallations));
                         _changeListener();
                       },
-                    )
-                  else
-                    _bikesDropdownField(bikes: bikes),
-
-                  const SizedBox(height: 12),                  
+                    ),
+                  ],
+                  // const Divider(height: 1),
+                  const SectionTitle(title: "Adjustments"),
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 8, left: 4),
-                    child: Text("Adjustments", style: Theme.of(context).textTheme.titleMedium),
-                  ),
-                  FormField<List<Adjustment>>(
-                    initialValue: _adjustments,
-                    builder: (FormFieldState<List<Adjustment>> field) {
-                      void notify() => field.didChange(List.from(_adjustments));
-  
-                      void showAddBottomSheet() => showComponentAddAdjustmentBottomSheet(
-                        context: context,
-                        componentType: _componentType,
-                        enableDurationAdjustment: _enableDurationAdjustment,
-                        addAdjustmentFromPreset: (a) => _addAdjustmentFromPreset(a, onChanged: notify),
-                        addAdjustment: <T extends Adjustment>() => _addAdjustment<T>(onChanged: notify),
-                      );
-  
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _adjustments.isNotEmpty
-                              ? AdjustmentEditList(
-                                  adjustments: _adjustments,
-                                  initialAdjustments: widget.mode == ComponentPageMode.edit 
-                                      ? Map.fromEntries(widget.component!.adjustments.map((a) => MapEntry(a.id, a))) 
-                                      : null,
-                                  editAdjustment: (a) => _editAdjustment(a, onChanged: notify),
-                                  duplicateAdjustment: (a) => _duplicateAdjustment(a, onChanged: notify),
-                                  removeAdjustment: (a) => removeAdjustment(a, onChanged: notify),
-                                  onReorderAdjustments: (oldIndex, newIndex) => _onReorderAdjustments(oldIndex, newIndex, onChanged: notify),
-                                ) 
-                              : _emptyAdjustmentsInfo(
-                                  errorText: field.errorText,
-                                  onTap: showAddBottomSheet,
-                                ),
-                          const SizedBox(height: 8),
-                          SizedBox(
-                            width: double.infinity,
-                            child: FilledButton.icon(
-                              onPressed: showAddBottomSheet,
-                              icon: const Icon(Icons.add),
-                              label: const Text("Add Adjustment"),
-                            ),
-                          ),
-                          if (field.hasError && _adjustments.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8.0, left: 12.0),
-                              child: Text(
-                                field.errorText!,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.error,
-                                  fontSize: 12,
-                                ),
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: FormField<List<Adjustment>>(
+                      initialValue: _adjustments,
+                      builder: (FormFieldState<List<Adjustment>> field) {
+                        void notify() => field.didChange(List.from(_adjustments));
+
+                        void showAddBottomSheet() => showComponentAddAdjustmentBottomSheet(
+                          context: context,
+                          componentType: _componentType,
+                          enableDurationAdjustment: _enableDurationAdjustment,
+                          addAdjustmentFromPreset: (a) => _addAdjustmentFromPreset(a, onChanged: notify),
+                          addAdjustment: <T extends Adjustment>() => _addAdjustment<T>(onChanged: notify),
+                        );
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _adjustments.isNotEmpty
+                                ? AdjustmentEditList(
+                                    adjustments: _adjustments,
+                                    initialAdjustments: widget.mode == ComponentPageMode.edit
+                                        ? Map.fromEntries(widget.component!.adjustments.map((a) => MapEntry(a.id, a)))
+                                        : null,
+                                    editAdjustment: (a) => _editAdjustment(a, onChanged: notify),
+                                    duplicateAdjustment: (a) => _duplicateAdjustment(a, onChanged: notify),
+                                    removeAdjustment: (a) => removeAdjustment(a, onChanged: notify),
+                                    onReorderAdjustments: (oldIndex, newIndex) => _onReorderAdjustments(oldIndex, newIndex, onChanged: notify),
+                                  )
+                                : _emptyAdjustmentsInfo(
+                                    errorText: field.errorText,
+                                    onTap: showAddBottomSheet,
+                                  ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              width: double.infinity,
+                              child: FilledButton.icon(
+                                onPressed: showAddBottomSheet,
+                                icon: const Icon(Icons.add),
+                                label: const Text("Add Adjustment"),
                               ),
                             ),
-                        ],
-                      );
-                    },
+                            if (field.hasError && _adjustments.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0, left: 12.0),
+                                child: Text(
+                                  field.errorText!,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.error,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),

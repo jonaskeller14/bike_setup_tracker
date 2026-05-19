@@ -257,7 +257,6 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                             maintainState: true,
                             child: Column(
                               children: [
-                                const SizedBox(height: 12),
                                 TextFormField(
                                   controller: _minController,
                                   readOnly: true,

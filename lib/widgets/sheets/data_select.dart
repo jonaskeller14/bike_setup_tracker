@@ -1,3 +1,4 @@
+import "package:collection/collection.dart";
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 import "../../models/app_settings.dart";
@@ -40,7 +41,7 @@ class _DataSelectFlowState extends State<DataSelectFlow> {
     return PopScope(
       // 'canPop' is true if we are on Step One (let it close).
       // 'canPop' is false if we are on Step Two (we want to intercept it).
-      canPop: !isManualSelection, 
+      canPop: !isManualSelection,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;  // If the pop already happened (Step One), do nothing.
         setState(() => isManualSelection = false);
@@ -83,7 +84,12 @@ class SelectDataMethodSheetContent extends StatelessWidget {
   final VoidCallback onManualSelected;
   final VoidCallback? onBack;
 
-  const SelectDataMethodSheetContent({super.key, required this.onAllSelected, required this.onManualSelected, this.onBack});
+  const SelectDataMethodSheetContent({
+    super.key,
+    required this.onAllSelected,
+    required this.onManualSelected,
+    this.onBack,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +144,12 @@ class SelectDataItemsSheetContent extends StatefulWidget {
   final Function(SelectedData) onConfirm;
   final VoidCallback onBack;
 
-  const SelectDataItemsSheetContent({super.key, required this.allData, required this.onConfirm, required this.onBack});
+  const SelectDataItemsSheetContent({
+    super.key,
+    required this.allData,
+    required this.onConfirm,
+    required this.onBack,
+  });
 
   @override
   State<SelectDataItemsSheetContent> createState() => _SelectDataItemsSheetContentState();
@@ -167,6 +178,8 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
   }
 
   Widget _bikeWidget(Bike bike) {
+    final appSettings = context.read<AppSettings>();
+    final persons = widget.allData.persons;
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       child: CheckboxListTile(
@@ -177,7 +190,39 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
             decoration: bike.isDeleted ? TextDecoration.lineThrough : null,
           ),
         ),
-        //TODO: Add Person subtitle
+        subtitle: appSettings.enablePerson
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 2,
+                children: [
+                  Icon(
+                    bike.person != null ? Person.iconData : Icons.person_off,
+                    size: 13,
+                    color:
+                        bike.person == null || persons.containsKey(bike.person)
+                        ? Theme.of(context).colorScheme.onSurfaceVariant
+                        : Theme.of(context).colorScheme.error,
+                  ),
+                  if (bike.person != null)
+                    Flexible(
+                      child: Text(
+                        persons[bike.person]?.name ?? "PERSON NOT FOUND",
+                        style: TextStyle(
+                          color:
+                              bike.person == null ||
+                                  persons.containsKey(bike.person)
+                              ? Theme.of(context).colorScheme.onSurfaceVariant
+                                    .withValues(alpha: 0.8)
+                              : Theme.of(context).colorScheme.error,
+                          fontSize: 13,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                ],
+              )
+            : null,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         dense: true,
         value: selectedBikes.contains(bike),
@@ -209,18 +254,17 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
           mainAxisSize: MainAxisSize.min,
           spacing: 2,
           children: [
-            Icon(component.bike != null 
-                ? Bike.iconData 
-                : Icons.shelves, 
-              size: 13, 
+            Icon(
+              component.bike != null ? Bike.iconData : Icons.shelves,
+              size: 13,
               color: component.bike == null || widget.allData.bikes.containsKey(component.bike) 
                   ? Theme.of(context).colorScheme.onSurfaceVariant
                   : Theme.of(context).colorScheme.error,
             ),
             Flexible(
               child: Text(
-                component.bike == null 
-                    ? "Not installed" 
+                component.bike == null
+                    ? "Not installed"
                     : widget.allData.bikes[component.bike]?.name ?? "BIKE NOT FOUND",
                 style: TextStyle(
                   color: component.bike == null || widget.allData.bikes.containsKey(component.bike) 
@@ -266,7 +310,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
           spacing: 2,
           children: [
             Icon(Bike.iconData, 
-              size: 13, 
+              size: 13,
               color: widget.allData.bikes.containsKey(setup.bike)
                   ? Theme.of(context).colorScheme.onSurfaceVariant
                   : Theme.of(context).colorScheme.error,
@@ -275,7 +319,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
               child: Text(
                 widget.allData.bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
                 style: TextStyle(
-                  color: widget.allData.bikes.containsKey(setup.bike) 
+                  color: widget.allData.bikes.containsKey(setup.bike)
                       ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
                       : Theme.of(context).colorScheme.error,
                   fontSize: 13,
@@ -340,7 +384,119 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
             decoration: rating.isDeleted ? TextDecoration.lineThrough : null,
           ),
         ),
-        //TODO: Add subtitle with filter
+        subtitle: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 2,
+          children: [
+            Icon(
+              switch (rating.filterType) {
+                FilterType.global => Icons.circle_outlined,
+                FilterType.bike => Bike.iconData,
+                FilterType.person => Person.iconData,
+                FilterType.component =>
+                  (widget.allData.components[rating.filter]?.componentType ??
+                          ComponentType.other)
+                      .getIconData(),
+                FilterType.componentType =>
+                  (ComponentType.values.firstWhereOrNull(
+                            (ct) => ct.toString() == rating.filter,
+                          ) ??
+                          ComponentType.other)
+                      .getIconData(),
+              },
+              size: 13,
+              color: switch (rating.filterType) {
+                FilterType.global || FilterType.componentType => Theme.of(
+                  context,
+                ).colorScheme.onSurfaceVariant,
+                FilterType.person =>
+                  widget.allData.persons.containsKey(rating.filter)
+                      ? Theme.of(context).colorScheme.onSurfaceVariant
+                      : Theme.of(context).colorScheme.error,
+                FilterType.bike =>
+                  widget.allData.bikes.containsKey(rating.filter)
+                      ? Theme.of(context).colorScheme.onSurfaceVariant
+                      : Theme.of(context).colorScheme.error,
+                FilterType.component =>
+                  widget.allData.components.containsKey(rating.filter)
+                      ? Theme.of(context).colorScheme.onSurfaceVariant
+                      : Theme.of(context).colorScheme.error,
+              },
+            ),
+            Flexible(
+              child: switch (rating.filterType) {
+                FilterType.global => Text(
+                  "Global",
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                    fontSize: 13,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+                FilterType.bike => Text(
+                  widget.allData.bikes[rating.filter]?.name ?? "BIKE NOT FOUND",
+                  style: TextStyle(
+                    color: widget.allData.bikes.containsKey(rating.filter)
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                        : Theme.of(context).colorScheme.error,
+                    fontSize: 13,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+                FilterType.person => Text(
+                  widget.allData.persons[rating.filter]?.name ??
+                      "PERSON NOT FOUND",
+                  style: TextStyle(
+                    color: widget.allData.persons.containsKey(rating.filter)
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                        : Theme.of(context).colorScheme.error,
+                    fontSize: 13,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+                FilterType.component => Text(
+                  widget.allData.components[rating.filter]?.name ??
+                      "COMPONENT NOT FOUND",
+                  style: TextStyle(
+                    color: widget.allData.components.containsKey(rating.filter)
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                        : Theme.of(context).colorScheme.error,
+                    fontSize: 13,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+                FilterType.componentType => Text(
+                  ComponentType.values
+                          .firstWhereOrNull(
+                            (ct) => ct.toString() == rating.filter,
+                          )
+                          ?.label ??
+                      "-",
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                    fontSize: 13,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              },
+            ),
+          ],
+        ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         dense: true,
         value: selectedRatings.contains(rating),
@@ -358,6 +514,15 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
   }
 
   Widget _taskRuleWidget(TaskRule taskRule) {
+    final component = taskRule.componentId != null
+        ? widget.allData.components[taskRule.componentId]
+        : null;
+    final bike = taskRule.bikeId != null
+        ? widget.allData.bikes[taskRule.bikeId]
+        : (component?.bike != null
+              ? widget.allData.bikes[component!.bike]
+              : null);
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       child: CheckboxListTile(
@@ -368,7 +533,78 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
             decoration: taskRule.isDeleted ? TextDecoration.lineThrough : null,
           ),
         ),
-        //TODO: Add subtitle with filter
+        subtitle: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 2,
+          children: [
+            if (taskRule.componentId != null) ...[
+              Icon(
+                component?.componentType.getIconData() ?? Icons.grid_view_sharp,
+                size: 13,
+                color: component != null
+                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                    : Theme.of(context).colorScheme.error,
+              ),
+              Flexible(
+                child: Text(
+                  component?.name ?? "COMPONENT NOT FOUND",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: component != null
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                        : Theme.of(context).colorScheme.error,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ] else if (taskRule.bikeId != null) ...[
+              Icon(
+                Bike.iconData,
+                size: 13,
+                color: bike != null
+                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                    : Theme.of(context).colorScheme.error,
+              ),
+              Flexible(
+                child: Text(
+                  bike?.name ?? "BIKE NOT FOUND",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: bike != null
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                        : Theme.of(context).colorScheme.error,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ] else ...[
+              Icon(
+                Icons.circle_outlined,
+                size: 13,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              Flexible(
+                child: Text(
+                  "General Task",
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         dense: true,
         value: selectedTaskRules.contains(taskRule),
@@ -386,6 +622,8 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
   }
 
   Widget _taskEntryWidget(TaskEntry taskEntry) {
+    final taskRules = widget.allData.taskRules;
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       child: CheckboxListTile(
@@ -396,7 +634,34 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
             decoration: taskEntry.isDeleted ? TextDecoration.lineThrough : null,
           ),
         ),
-        //TODO: Add subtitle with rule
+        subtitle: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 2,
+          children: [
+            Icon(
+              Icons.check_box_outlined,
+              size: 13,
+              color: taskRules.containsKey(taskEntry.taskRule)
+                  ? Theme.of(context).colorScheme.onSurfaceVariant
+                  : Theme.of(context).colorScheme.error,
+            ),
+            Flexible(
+              child: Text(
+                taskRules[taskEntry.taskRule]?.name ?? "TASK NOT FOUND",
+                style: TextStyle(
+                  color: taskRules.containsKey(taskEntry.taskRule)
+                      ? Theme.of(
+                          context,
+                        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                      : Theme.of(context).colorScheme.error,
+                  fontSize: 13,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+          ],
+        ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         dense: true,
         value: selectedTaskEntries.contains(taskEntry),
@@ -412,7 +677,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
       ),
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
@@ -427,7 +692,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                sheetBackButton(context, onPressed:  widget.onBack),
+                sheetBackButton(context, onPressed: widget.onBack),
                 sheetTitle(context, 'Select Data'),
                 sheetCloseButton(context),
               ],
@@ -449,7 +714,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                     trailing: Checkbox(
                       tristate: true,
                       value: selectedBikes.isEmpty && widget.allData.bikes.isNotEmpty
-                          ? false 
+                          ? false
                           : (selectedBikes.length == widget.allData.bikes.length ? true : null),
                       onChanged: (bool? newValue) {
                         switch (newValue) {
@@ -472,7 +737,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                     trailing: Checkbox(
                       tristate: true,
                       value: selectedComponents.isEmpty && widget.allData.components.isNotEmpty
-                          ? false 
+                          ? false
                           : (selectedComponents.length == widget.allData.components.length ? true : null),
                       onChanged: (bool? newValue) {
                         switch (newValue) {
@@ -495,7 +760,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                     trailing: Checkbox(
                       tristate: true,
                       value: selectedSetups.isEmpty && widget.allData.setups.isNotEmpty
-                          ? false 
+                          ? false
                           : (selectedSetups.length == widget.allData.setups.length ? true : null),
                       onChanged: (bool? newValue) {
                         switch (newValue) {
@@ -519,7 +784,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                       trailing: Checkbox(
                         tristate: true,
                         value: selectedPersons.isEmpty && widget.allData.persons.isNotEmpty
-                            ? false 
+                            ? false
                             : (selectedPersons.length == widget.allData.persons.length ? true : null),
                         onChanged: (bool? newValue) {
                           switch (newValue) {
@@ -544,7 +809,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                       trailing: Checkbox(
                         tristate: true,
                         value: selectedRatings.isEmpty && widget.allData.ratings.isNotEmpty
-                            ? false 
+                            ? false
                             : (selectedRatings.length == widget.allData.ratings.length ? true : null),
                         onChanged: (bool? newValue) {
                           switch (newValue) {
@@ -569,7 +834,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                       trailing: Checkbox(
                         tristate: true,
                         value: selectedTaskRules.isEmpty && widget.allData.taskRules.isNotEmpty
-                            ? false 
+                            ? false
                             : (selectedTaskRules.length == widget.allData.taskRules.length ? true : null),
                         onChanged: (bool? newValue) {
                           switch (newValue) {
@@ -594,7 +859,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                       trailing: Checkbox(
                         tristate: true,
                         value: selectedTaskEntries.isEmpty && widget.allData.taskEntries.isNotEmpty
-                            ? false 
+                            ? false
                             : (selectedTaskEntries.length == widget.allData.taskEntries.length ? true : null),
                         onChanged: (bool? newValue) {
                           switch (newValue) {

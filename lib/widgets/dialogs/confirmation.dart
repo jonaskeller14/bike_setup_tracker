@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'dialog_action.dart';
 
 Future<bool> showConfirmationDialog(
   BuildContext context, {
@@ -17,12 +17,12 @@ Future<bool> showConfirmationDialog(
         title: Text(title),
         content: content == null ? null : Text(content),
         actions: [
-          _adaptiveAction(
+          adaptiveAction(
             context: context,
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(falseText),
           ),
-          _adaptiveAction(
+          adaptiveAction(
             context: context,
             isDestructive: isDestructive,
             onPressed: () => Navigator.of(context).pop(true),
@@ -33,29 +33,4 @@ Future<bool> showConfirmationDialog(
     },
   );
   return result ?? false;
-}
-
-Widget _adaptiveAction({
-  required BuildContext context,
-  required VoidCallback onPressed,
-  required Widget child,
-  bool isDestructive = false,
-}) {
-  switch (Theme.of(context).platform) {
-    case TargetPlatform.iOS:
-    case TargetPlatform.macOS:
-      return CupertinoDialogAction(
-        isDestructiveAction: isDestructive,
-        onPressed: onPressed,
-        child: child,
-      );
-    default:
-      return TextButton(
-        onPressed: onPressed,
-        style: isDestructive
-            ? TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error)
-            : null,
-        child: child,
-      );
-  }
 }

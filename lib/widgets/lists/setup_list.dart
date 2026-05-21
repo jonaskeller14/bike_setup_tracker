@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
+import '../../models/strava/strava_activity.dart';
 import '../../models/timeline_entry.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
@@ -43,7 +44,12 @@ class SetupList extends StatelessWidget {
     final subscriptionService = context.watch<SubscriptionService>();
     final sortAscending = appRepository.stravaSortAscending;
     final setupsList = appRepository.filteredSetups.values;
-    final stravaActivities = appRepository.filteredStravaActivities.values;
+    final bool showingStrava = appSettings.displayShowActivities &&
+        appSettings.enableStrava &&
+        subscriptionService.hasStravaEntitlement;
+    final stravaActivities = showingStrava
+        ? appRepository.filteredStravaActivities.values
+        : const <StravaActivity>[];
     final taskEntries = appRepository.filteredTaskEntries.values;
     final installations = appRepository.filteredInstallations;
 

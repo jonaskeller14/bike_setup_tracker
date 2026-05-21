@@ -1,3 +1,4 @@
+import 'dart:ui' show ImageFilter;
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -313,15 +314,17 @@ class SetupDetailsPageContent extends StatelessWidget {
                                     point: LatLng(setup.position!.latitude!, setup.position!.longitude!),
                                     width: 40,
                                     height: 40,
-                                    child: Icon(
-                                      Icons.location_pin,
-                                      size: 40,
-                                      color: Theme.of(context).colorScheme.primary,
-                                      shadows: [
-                                        Shadow(
-                                          blurRadius: 8,
-                                          color: Colors.black.withValues(alpha: 0.5),
-                                          offset: const Offset(0, 2),
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        ImageFiltered(
+                                          imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                                          child: const Icon(Icons.location_pin, size: 40, color: Colors.black38),
+                                        ),
+                                        Icon(
+                                          Icons.location_pin,
+                                          size: 40,
+                                          color: Theme.of(context).colorScheme.primary,
                                         ),
                                       ],
                                     ),

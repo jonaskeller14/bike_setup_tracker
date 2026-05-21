@@ -1,3 +1,4 @@
+import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
@@ -127,15 +128,17 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                   onTap: () async {
                     await showSetupDetailsSheet(context: context, setup: setup);
                   },
-                  child: Icon(
-                    Icons.location_pin,
-                    size: 40,
-                    color: Theme.of(context).colorScheme.primary,
-                    shadows: const [
-                      Shadow(
-                        blurRadius: 12,
-                        color: Colors.black26,
-                        offset: Offset(0, 2),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      ImageFiltered(
+                        imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                        child: const Icon(Icons.location_pin, size: 40, color: Colors.black38),
+                      ),
+                      Icon(
+                        Icons.location_pin,
+                        size: 40,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ],
                   ),
@@ -155,15 +158,17 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                       stravaActivity: activity,
                     );
                   },
-                  child: const Icon(
-                    Icons.location_pin,
-                    size: 40,
-                    color: Color(0xFFFC5200), // Strava Orange
-                    shadows: [
-                      Shadow(
-                        blurRadius: 12,
-                        color: Colors.black26,
-                        offset: Offset(0, 2),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      ImageFiltered(
+                        imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                        child: const Icon(Icons.location_pin, size: 40, color: Colors.black38),
+                      ),
+                      const Icon(
+                        Icons.location_pin,
+                        size: 40,
+                        color: Color(0xFFFC5200),
                       ),
                     ],
                   ),

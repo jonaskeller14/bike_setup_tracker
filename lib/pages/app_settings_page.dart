@@ -431,6 +431,24 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               if (kDebugMode)
                 ListTile(
+                  leading: const Icon(Icons.more_time_rounded),
+                  title: const Text("Task Delay"),
+                  subtitle: _offOnOptionWidgets[appSettingsReader.enableTaskDelay] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Task Delay",
+                    value: appSettingsReader.enableTaskDelay,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettingsWriter.enableTaskDelay = newValue;
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              if (kDebugMode)
+                ListTile(
                   leading: const Icon(Icons.map),
                   title: const Text("MapBox Tiles"),
                   subtitle: _offOnOptionWidgets[appSettingsReader.useMapBoxTiles] ?? const Text("-"),

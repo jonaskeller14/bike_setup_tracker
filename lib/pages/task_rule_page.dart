@@ -663,8 +663,10 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                 },
                               ),
                             ),
-                            if (widget.mode == TaskRulePageMode.edit) ...[
+                            if (widget.mode == TaskRulePageMode.edit && appSettings.enableTaskDelay) ...[
                               const SizedBox(height: 12),
+                              //TODO: If delay must match trigger type --> a value field is sufficient
+                              //TODO: Add user info --> What is a delay?
                               Row(
                                 spacing: 8,
                                 children: [

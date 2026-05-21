@@ -23,6 +23,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableGarage = true;
   bool _enableTask = false;
   bool _enableTaskInterval = false;
+  bool _enableTaskDelay = false;
   bool _enableInstallationTimeline = false;
   bool _useMapBoxTiles = false;
 
@@ -56,6 +57,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableGarage => _enableGarage;
   bool get enableTask => _enableTask;
   bool get enableTaskInterval => _enableTaskInterval;
+  bool get enableTaskDelay => _enableTaskDelay;
   bool get enableInstallationTimeline => _enableInstallationTimeline;
   bool get useMapBoxTiles => _useMapBoxTiles;
 
@@ -212,6 +214,13 @@ class AppSettings extends ChangeNotifier {
   set enableTaskInterval(bool newValue) {
     if (newValue == _enableTaskInterval) return;
     _enableTaskInterval = newValue;
+    notifyListeners();
+    saveAppSettings();
+  }
+
+  set enableTaskDelay (bool newValue) {
+    if (newValue == _enableTaskDelay) return;
+    _enableTaskDelay = newValue;
     notifyListeners();
     saveAppSettings();
   }

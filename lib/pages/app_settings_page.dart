@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -23,7 +24,6 @@ class AppSettingsPage extends StatefulWidget {
 }
 
 class _AppSettingsPageState extends State<AppSettingsPage> {
-  static const debugMode = false;
   static const Map<ThemeMode, Row> _themeModeOptionWidgets = {
     ThemeMode.system: Row(
       spacing: 8,
@@ -339,7 +339,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   infoText: 'Adds the option to add tags to Task Rules',
                 ),
               ),
-              if (debugMode)
+              if (kDebugMode)
                 ListTile(
                   leading: const Icon(Icons.person),
                   title: const Text("Profile"),
@@ -357,7 +357,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     },
                   ),
                 ),
-              if (debugMode)
+              if (kDebugMode)
                 ListTile(
                   leading: const Icon(Icons.star),
                   title: const Text("Rating"),
@@ -393,7 +393,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   },
                 ),
               ),
-              if (debugMode)
+              if (kDebugMode)
                 ListTile(
                   leading: const Icon(Icons.checklist),
                   title: const Text("Installation Timeline"),
@@ -407,6 +407,42 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     onChanged: (bool? newValue) {
                       if (newValue == null) return;
                       appSettingsWriter.enableInstallationTimeline = newValue;
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              if (kDebugMode)
+                ListTile(
+                  leading: const Icon(Icons.timer),
+                  title: const Text("Task Interval"),
+                  subtitle: _offOnOptionWidgets[appSettingsReader.enableTaskInterval] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Task Interval",
+                    value: appSettingsReader.enableTaskInterval,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettingsWriter.enableTaskInterval = newValue;
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              if (kDebugMode)
+                ListTile(
+                  leading: const Icon(Icons.map),
+                  title: const Text("MapBox Tiles"),
+                  subtitle: _offOnOptionWidgets[appSettingsReader.useMapBoxTiles] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "MapBox Tiles",
+                    value: appSettingsReader.useMapBoxTiles,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettingsWriter.useMapBoxTiles = newValue;
                       Navigator.pop(context);
                     },
                   ),

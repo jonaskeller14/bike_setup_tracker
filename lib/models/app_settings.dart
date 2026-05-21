@@ -22,9 +22,9 @@ class AppSettings extends ChangeNotifier {
   bool _enableStravaNotifications = true;
   bool _enableGarage = true;
   bool _enableTask = false;
-  static const bool _enableTaskInterval = false;
+  bool _enableTaskInterval = false;
   bool _enableInstallationTimeline = false;
-  static const bool _useMapBoxTiles = false;
+  bool _useMapBoxTiles = false;
 
   // Temporary Settings
   bool _setupListOnlyChanges = false;
@@ -205,6 +205,20 @@ class AppSettings extends ChangeNotifier {
   set enableInstallationTimeline(bool newValue) {
     if (newValue == _enableInstallationTimeline) return;
     _enableInstallationTimeline = newValue;
+    notifyListeners();
+    saveAppSettings();
+  }
+
+  set enableTaskInterval(bool newValue) {
+    if (newValue == _enableTaskInterval) return;
+    _enableTaskInterval = newValue;
+    notifyListeners();
+    saveAppSettings();
+  }
+
+  set useMapBoxTiles(bool newValue) {
+    if (newValue == _useMapBoxTiles) return;
+    _useMapBoxTiles = newValue;
     notifyListeners();
     saveAppSettings();
   }

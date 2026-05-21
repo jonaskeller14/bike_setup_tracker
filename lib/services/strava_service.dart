@@ -119,7 +119,11 @@ class StravaService extends ChangeNotifier {
 
   /// Centralized error handling
   void _handleError(String context, dynamic error, {String? userMessage}) {
-    debugPrint("StravaService $context: $error");
+    if (error is FirebaseFunctionsException) {
+      debugPrint("StravaService $context: [${error.code}] ${error.message}");
+    } else {
+      debugPrint("StravaService $context: $error");
+    }
     if (userMessage != null) {
       errorMessage = userMessage;
     }
@@ -565,6 +569,8 @@ class StravaService extends ChangeNotifier {
     switch (e.code) {
       case 'deadline-exceeded':
       case 'unavailable':
+      // On Android, a compound App Check + network failure surfaces as 'unknown'.
+      case 'unknown':
         return "No internet connection. Please check your connection and try again.";
       case 'unauthenticated':
         return "Authentication error. Please try again or reconnect to Strava.";

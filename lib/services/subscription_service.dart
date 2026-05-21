@@ -349,6 +349,15 @@ class SubscriptionService extends ChangeNotifier {
 
   Future<void> _verifyAndAcknowledge(PurchaseDetails pd) async {
     _setStatus(SubscriptionPurchaseStatus.verifying);
+
+    // For restored purchases, skip re-verification when we already hold an
+    // active entitlement — store webhooks keep Firestore up-to-date on renewal
+    // and the CF call is an unnecessary network round-trip here.
+    if (pd.status == PurchaseStatus.restored && (_entitlement?.isActive ?? false)) {
+      _setStatus(SubscriptionPurchaseStatus.idle);
+      return;
+    }
+
     try {
       final functions =
           FirebaseFunctions.instanceFor(region: 'europe-west3');
@@ -365,8 +374,29 @@ class SubscriptionService extends ChangeNotifier {
       _setStatus(SubscriptionPurchaseStatus.idle);
       // The Firestore listener will pick up the new entitlement and emit
       // notifyListeners on its own — no need to set state here.
+    } on FirebaseFunctionsException catch (e) {
+      // Restore re-verification failing for any CF reason is non-fatal —
+      // Firestore entitlement is cached locally and is the source of truth.
+      if (pd.status == PurchaseStatus.restored) {
+        debugPrint('SubscriptionService: restore verify failed (${e.code}), using cached entitlement');
+        _setStatus(SubscriptionPurchaseStatus.idle);
+        return;
+      }
+      _setError(_friendlyVerifyError(e) ?? 'Could not verify purchase: [${e.code}] ${e.message}');
     } catch (e) {
       _setError('Could not verify purchase: $e');
+    }
+  }
+
+  String? _friendlyVerifyError(FirebaseFunctionsException e) {
+    switch (e.code) {
+      case 'deadline-exceeded':
+      case 'unavailable':
+        return 'No internet connection. Please check your connection and try again.';
+      case 'unauthenticated':
+        return 'Authentication error. Please try again.';
+      default:
+        return null;
     }
   }
 

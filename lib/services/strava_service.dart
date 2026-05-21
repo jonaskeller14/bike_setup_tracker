@@ -530,11 +530,17 @@ class StravaService extends ChangeNotifier {
     errorMessage = "";
     try {
       final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
-      await functions.httpsCallable('syncActivities').call();
+      await functions
+          .httpsCallable('syncActivities',
+              options: HttpsCallableOptions(timeout: const Duration(seconds: 15)))
+          .call();
       status = StravaServiceStatus.idle;
+    } on FirebaseFunctionsException catch (e) {
+      status = StravaServiceStatus.idle;
+      errorMessage = _friendlyFunctionError(e) ?? "Sync failed: [${e.code}] ${e.message}";
     } catch (e) {
-      errorMessage = "Sync failed: $e";
       status = StravaServiceStatus.idle;
+      errorMessage = "Sync failed: $e";
     }
   }
 
@@ -546,9 +552,26 @@ class StravaService extends ChangeNotifier {
       final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
       await functions.httpsCallable('syncFullHistory').call();
       status = StravaServiceStatus.idle;
-    } catch (e) {
-      errorMessage = "Full history sync fail: $e";
+    } on FirebaseFunctionsException catch (e) {
       status = StravaServiceStatus.idle;
+      errorMessage = _friendlyFunctionError(e) ?? "Full history sync failed: [${e.code}] ${e.message}";
+    } catch (e) {
+      status = StravaServiceStatus.idle;
+      errorMessage = "Full history sync failed: $e";
+    }
+  }
+
+  String? _friendlyFunctionError(FirebaseFunctionsException e) {
+    switch (e.code) {
+      case 'deadline-exceeded':
+      case 'unavailable':
+        return "No internet connection. Please check your connection and try again.";
+      case 'unauthenticated':
+        return "Authentication error. Please try again or reconnect to Strava.";
+      case 'resource-exhausted':
+        return "Too many requests. Please try again later.";
+      default:
+        return null;
     }
   }
 }

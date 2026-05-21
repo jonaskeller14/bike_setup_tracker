@@ -58,7 +58,12 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                       )
                     else if (stravaService.errorMessage.isNotEmpty)
                       ListTile(
-                        leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
+                        leading: Icon(
+                          stravaService.errorMessage.startsWith("No internet")
+                              ? Icons.wifi_off
+                              : Icons.error_outline,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
                         title: SelectableText(stravaService.errorMessage, style: TextStyle(color: Theme.of(context).colorScheme.error)),
                         dense: true,
                         contentPadding: EdgeInsets.zero,

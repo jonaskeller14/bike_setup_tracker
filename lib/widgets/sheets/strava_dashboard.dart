@@ -311,10 +311,10 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
   Widget _athleteListTile(BuildContext context, {required StravaAthlete stravaAthletes}) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: Colors.transparent, 
-        foregroundImage: stravaAthletes.profile == null 
-            ? null 
-            : NetworkImage(stravaAthletes.profile!), 
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+        foregroundImage: stravaAthletes.profile == null
+            ? null
+            : NetworkImage(stravaAthletes.profile!),
         child: Icon(Icons.person, color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
       title: Text(

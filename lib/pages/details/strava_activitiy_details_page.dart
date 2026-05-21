@@ -107,43 +107,25 @@ class StravaActivitiyPageContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 26,
-                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  backgroundImage: athlete?.profile != null && athlete!.profile!.startsWith("http") 
-                      ? NetworkImage(athlete.profile!) 
-                      : null,
-                  child: athlete?.profile == null || !athlete!.profile!.startsWith("http")
-                      ? Icon(Icons.person, color: Theme.of(context).colorScheme.onSurfaceVariant)
-                      : null,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        athlete != null 
-                            ? "${athlete.firstname ?? ""} ${athlete.lastname ?? ""}".trim()
-                            : "Strava Athlete",
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      Text(
-                        "${DateFormat(appSettings.dateFormat).format(stravaActivity.startDateLocal)} • ${DateFormat(appSettings.timeFormat).format(stravaActivity.startDateLocal)}",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+          ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              foregroundImage: athlete?.profile != null && athlete!.profile!.startsWith("http")
+                  ? NetworkImage(athlete.profile!)
+                  : null,
+              child: Icon(Icons.person, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            ),
+            title: Text(
+              athlete != null
+                  ? "${athlete.firstname ?? ""} ${athlete.lastname ?? ""}".trim()
+                  : "Strava Athlete",
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              "${DateFormat(appSettings.dateFormat).format(stravaActivity.startDateLocal)} • ${DateFormat(appSettings.timeFormat).format(stravaActivity.startDateLocal)}",
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
           Padding(

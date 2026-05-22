@@ -374,6 +374,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> _onPurchaseUpdate(List<PurchaseDetails> purchases) async {
     for (final pd in purchases) {
+      debugPrint('SubscriptionService _onPurchaseUpdate: ${pd.productID} → ${pd.status} (source=${pd.verificationData.source})');
       switch (pd.status) {
         case PurchaseStatus.pending:
           _setStatus(SubscriptionPurchaseStatus.purchasing);
@@ -386,7 +387,11 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
           _setStatus(SubscriptionPurchaseStatus.idle);
       }
       if (pd.pendingCompletePurchase) {
-        await _iap.completePurchase(pd);
+        try {
+          await _iap.completePurchase(pd);
+        } catch (e) {
+          debugPrint('SubscriptionService: completePurchase threw (ignored): $e');
+        }
       }
     }
     // Restore has produced its events — entitlement is now authoritative.
@@ -405,12 +410,26 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
     }
 
     try {
+      debugPrint('SubscriptionService _verifyAndAcknowledge: calling verifySubscription for ${pd.productID}');
       final functions =
           FirebaseFunctions.instanceFor(region: 'europe-west3');
+      // On iOS, the App Store Server API expects a numeric transactionId
+      // (e.g. "2000000123456789"), not the base64 receipt that
+      // serverVerificationData contains. pd.purchaseID is the
+      // transactionIdentifier from SKPaymentTransaction. On Android, the
+      // server-side Play API uses the purchase token, which IS what
+      // serverVerificationData contains.
+      final iosTxId = pd.purchaseID;
+      if (Platform.isIOS && (iosTxId == null || iosTxId.isEmpty)) {
+        _setError('Missing transaction id for iOS purchase.');
+        return;
+      }
       await functions.httpsCallable('verifySubscription').call({
         'platform': Platform.isIOS ? 'ios' : 'android',
         'productId': pd.productID,
-        'purchaseToken': pd.verificationData.serverVerificationData,
+        'purchaseToken': Platform.isIOS
+            ? iosTxId
+            : pd.verificationData.serverVerificationData,
         'source': pd.verificationData.source,
         // Android needs the package name on the backend (Play API call).
         // It's not available on PurchaseDetails directly, but the Cloud

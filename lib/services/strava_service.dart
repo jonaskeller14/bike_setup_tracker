@@ -289,6 +289,8 @@ class StravaService extends ChangeNotifier {
   }
 
 
+  static const Duration _renewalGracePeriod = Duration(hours: 4);
+
   /// Called whenever the user doc updates while the athlete is still linked.
   /// If the subscription has lapsed, stops data listeners and wipes local
   /// Strava data. Keeps [linked_athletes] in Firestore and Bike/Person Strava
@@ -298,12 +300,19 @@ class StravaService extends ChangeNotifier {
         data['entitlement']?['strava'] as Map<String, dynamic>?;
 
     DateTime? expiresAt;
+    bool autoRenewing = false;
     if (entitlementData != null) {
       final raw = entitlementData['expiresAt'];
       if (raw is Timestamp) expiresAt = raw.toDate();
+      autoRenewing = entitlementData['autoRenewing'] as bool? ?? false;
     }
 
-    final isEntitled = expiresAt != null && DateTime.now().isBefore(expiresAt);
+    // Mirror StravaEntitlement.isActive: grant a grace period when autoRenewing
+    // so that the renewal webhook delivery window (~30 s) does not trigger a
+    // premature data clear. Non-renewing subscriptions expire on the dot.
+    final buffer = autoRenewing ? _renewalGracePeriod : Duration.zero;
+    final isEntitled = expiresAt != null &&
+        DateTime.now().isBefore(expiresAt.add(buffer));
 
     if (_wasEntitled && !isEntitled) {
       // Only clear local data when entitlement transitions from active → inactive.

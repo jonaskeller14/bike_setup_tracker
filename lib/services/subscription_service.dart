@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
@@ -26,6 +26,8 @@ enum SubscriptionPurchaseStatus {
 /// App Store receipt, and updated by Play / App Store webhooks on renewal,
 /// cancellation, refund, and expiry.
 class StravaEntitlement {
+  static const Duration _renewalGracePeriod = Duration(hours: 4);
+
   final StravaPlan plan;
   final DateTime expiresAt;
   final String productId;
@@ -40,7 +42,16 @@ class StravaEntitlement {
     required this.autoRenewing,
   });
 
-  bool get isActive => DateTime.now().isBefore(expiresAt);
+  bool get isActive {
+    final now = DateTime.now();
+    if (autoRenewing) {
+      // Grace period absorbs webhook delivery delay at renewal time (typically < 30 s).
+      // Only subscriptions with autoRenewing=false that have passed expiresAt by more
+      // than the grace period are considered truly lapsed.
+      return now.isBefore(expiresAt.add(_renewalGracePeriod));
+    }
+    return now.isBefore(expiresAt);
+  }
 
   String get billingSource => switch (platform) {
     'ios' => 'Apple App Store',
@@ -73,7 +84,7 @@ class StravaEntitlement {
   }
 }
 
-class SubscriptionService extends ChangeNotifier {
+class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   static const String _firestoreField = 'entitlement';
 
   final InAppPurchase _iap = InAppPurchase.instance;
@@ -102,6 +113,8 @@ class SubscriptionService extends ChangeNotifier {
   /// to avoid flashing the paywall during the brief verification window.
   bool _isRestoring = false;
   Timer? _restoreTimeoutTimer;
+  DateTime? _lastAutoRestoreAt;
+  static const Duration _autoRestoreCooldown = Duration(minutes: 30);
 
   SubscriptionPurchaseStatus get status => _status;
   String get errorMessage => _errorMessage;
@@ -125,10 +138,24 @@ class SubscriptionService extends ChangeNotifier {
   @override
   void dispose() {
     _isDisposed = true;
+    WidgetsBinding.instance.removeObserver(this);
     _restoreTimeoutTimer?.cancel();
     unawaited(_purchaseSub?.cancel());
     unawaited(_entitlementSub?.cancel());
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) { return; }
+    if (hasStravaEntitlement || !_storeAvailable || _isRestoring) { return; }
+    final now = DateTime.now();
+    if (_lastAutoRestoreAt != null &&
+        now.difference(_lastAutoRestoreAt!) < _autoRestoreCooldown) return;
+    _lastAutoRestoreAt = now;
+    debugPrint('SubscriptionService: resumed with inactive entitlement — auto-restoring');
+    _beginRestore();
+    unawaited(_iap.restorePurchases());
   }
 
   void _beginRestore() {
@@ -156,6 +183,7 @@ class SubscriptionService extends ChangeNotifier {
   Future<void> initialize({required bool enableStrava}) async {
     if (_isInitialized || !enableStrava) return;
     _isInitialized = true;
+    WidgetsBinding.instance.addObserver(this);
 
     try {
       _storeAvailable = await _iap.isAvailable();
@@ -210,12 +238,27 @@ class SubscriptionService extends ChangeNotifier {
         .doc(_userId)
         .snapshots()
         .listen((snap) {
+      final previousEntitlement = _entitlement;
       final data = snap.data();
       final entitlementMap =
           data?[_firestoreField] as Map<String, dynamic>?;
       final stravaMap = entitlementMap?['strava'] as Map<String, dynamic>?;
       _entitlement = StravaEntitlement.fromMap(stravaMap);
       notifyListeners();
+
+      // Auto-restore when entitlement lapses while the app is running.
+      // Catches renewal timing gaps (webhook delay or failure) without requiring
+      // a manual "Restore purchase" tap. While restoring, strava.dart routes to
+      // the dashboard (isRestoring=true + isConnected=true), so the user sees
+      // no interruption if the webhook updates Firestore within seconds.
+      if (previousEntitlement?.isActive == true &&
+          !(_entitlement?.isActive ?? false) &&
+          _storeAvailable &&
+          !_isRestoring) {
+        debugPrint('SubscriptionService: entitlement lapsed — auto-restoring');
+        _beginRestore();
+        unawaited(_iap.restorePurchases());
+      }
     }, onError: (Object e) =>
             _setError('Entitlement stream error: $e'));
   }
@@ -310,6 +353,7 @@ class SubscriptionService extends ChangeNotifier {
       _setError('Store is not available on this device.');
       return;
     }
+    if (_isRestoring) return;
     _beginRestore();
     _setStatus(SubscriptionPurchaseStatus.restoring);
     try {

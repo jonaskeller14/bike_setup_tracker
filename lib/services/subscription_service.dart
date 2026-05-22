@@ -8,7 +8,9 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
+import '../models/strava/strava_entitlement.dart';
 import '../models/strava/strava_plan.dart';
+export '../models/strava/strava_entitlement.dart';
 
 enum SubscriptionPurchaseStatus {
   idle,
@@ -17,71 +19,6 @@ enum SubscriptionPurchaseStatus {
   verifying,
   restoring,
   error,
-}
-
-/// Snapshot of the user's entitlement to the Strava sync feature, as derived
-/// from the backend `users/{uid}.entitlement.strava` document. This document
-/// is the source of truth in production — it is written by the Cloud Function
-/// `verifySubscription` after server-side validation of the purchase token /
-/// App Store receipt, and updated by Play / App Store webhooks on renewal,
-/// cancellation, refund, and expiry.
-class StravaEntitlement {
-  static const Duration _renewalGracePeriod = Duration(hours: 4);
-
-  final StravaPlan plan;
-  final DateTime expiresAt;
-  final String productId;
-  final String platform;
-  final bool autoRenewing;
-
-  const StravaEntitlement({
-    required this.plan,
-    required this.expiresAt,
-    required this.productId,
-    required this.platform,
-    required this.autoRenewing,
-  });
-
-  bool get isActive {
-    final now = DateTime.now();
-    if (autoRenewing) {
-      // Grace period absorbs webhook delivery delay at renewal time (typically < 30 s).
-      // Only subscriptions with autoRenewing=false that have passed expiresAt by more
-      // than the grace period are considered truly lapsed.
-      return now.isBefore(expiresAt.add(_renewalGracePeriod));
-    }
-    return now.isBefore(expiresAt);
-  }
-
-  String get billingSource => switch (platform) {
-    'ios' => 'Apple App Store',
-    'android' => 'Google Play Store',
-    _ => platform,
-  };
-
-  static StravaEntitlement? fromMap(Map<String, dynamic>? data) {
-    if (data == null) return null;
-    final planRaw = data['plan'] as String?;
-    final expiresRaw = data['expiresAt'];
-    if (planRaw == null || expiresRaw == null) return null;
-
-    final plan = StravaPlan.values.firstWhere(
-      (p) => p.name == planRaw,
-      orElse: () => StravaPlan.monthly,
-    );
-    final expiresAt = expiresRaw is Timestamp
-        ? expiresRaw.toDate()
-        : DateTime.tryParse(expiresRaw.toString());
-    if (expiresAt == null) return null;
-
-    return StravaEntitlement(
-      plan: plan,
-      expiresAt: expiresAt,
-      productId: data['productId'] as String? ?? '',
-      platform: data['platform'] as String? ?? '',
-      autoRenewing: data['autoRenewing'] as bool? ?? false,
-    );
-  }
 }
 
 class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
@@ -401,12 +338,17 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> _verifyAndAcknowledge(PurchaseDetails pd) async {
     _setStatus(SubscriptionPurchaseStatus.verifying);
 
-    // For restored purchases, skip re-verification when we already hold an
-    // active entitlement — store webhooks keep Firestore up-to-date on renewal
-    // and the CF call is an unnecessary network round-trip here.
-    if (pd.status == PurchaseStatus.restored && (_entitlement?.isActive ?? false)) {
-      _setStatus(SubscriptionPurchaseStatus.idle);
-      return;
+    // For restored purchases, skip re-verification in two cases:
+    // 1. Already have an active entitlement — webhooks keep Firestore current.
+    // 2. Subscription is definitively canceled (autoRenewing=false, expired) —
+    //    Firestore is authoritative; the CF won't change the outcome and the
+    //    round-trip causes the loading state to persist unnecessarily.
+    if (pd.status == PurchaseStatus.restored) {
+      final ent = _entitlement;
+      if ((ent?.isActive ?? false) || (ent != null && !ent.autoRenewing)) {
+        _setStatus(SubscriptionPurchaseStatus.idle);
+        return;
+      }
     }
 
     try {

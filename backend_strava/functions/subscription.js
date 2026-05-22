@@ -344,10 +344,18 @@ exports.appStoreServerNotifications = onRequest(
         await _expireEntitlement(userRef, "ios");
         break;
 
-      case NotificationTypeV2.DID_FAIL_TO_RENEW:
-      case NotificationTypeV2.DID_CHANGE_RENEWAL_STATUS:
-      case NotificationTypeV2.DID_CHANGE_RENEWAL_PREF:
-      case NotificationTypeV2.SUBSCRIBED:
+      case NotificationTypeV2.DID_CHANGE_RENEWAL_STATUS: {
+        // AUTO_RENEW_DISABLED = user canceled; AUTO_RENEW_ENABLED = user re-enabled.
+        // The subscription is still active until expiresAt — only autoRenewing changes.
+        const autoRenewing = notification.subtype !== "AUTO_RENEW_DISABLED";
+        await userRef.update({ "entitlement.strava.autoRenewing": autoRenewing });
+        logger.info("APPLE_AUTO_RENEW_STATUS_UPDATED", { autoRenewing });
+        break;
+      }
+
+      case NotificationTypeV2.DID_FAIL_TO_RENEW: // grace period active; wait for DID_RENEW or GRACE_PERIOD_EXPIRED
+      case NotificationTypeV2.DID_CHANGE_RENEWAL_PREF: // plan switch takes effect at next renewal via DID_RENEW
+      case NotificationTypeV2.SUBSCRIBED: // client already wrote entitlement via verifySubscription
       default:
         logger.info("APPLE_NOTIFICATION_NO_ACTION", { notificationType });
         break;

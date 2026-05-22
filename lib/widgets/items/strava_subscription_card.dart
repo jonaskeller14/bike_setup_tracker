@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -26,9 +27,9 @@ class StravaSubscriptionCard extends StatelessWidget {
     final plan = entitlement?.plan;
     final price = plan != null ? (subscription.localizedPrice(plan) ?? plan.price) : "—";
     final period = plan?.period ?? "";
-    final renewLabel = (entitlement?.autoRenewing ?? true) ? "Renews" : "Expires";
+    final renewLabel = (entitlement?.autoRenewing ?? false) ? "Renews" : "Expires";
     final renewDate = entitlement != null
-        ? DateFormat(appSettings.dateFormat).format(entitlement.expiresAt)
+        ? DateFormat(kDebugMode ? '${appSettings.dateFormat} HH:mm:ss' : appSettings.dateFormat).format(entitlement.expiresAt)
         : "—";
     final billing = entitlement?.billingSource ?? "—";
 

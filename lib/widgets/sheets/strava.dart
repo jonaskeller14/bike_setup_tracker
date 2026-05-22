@@ -20,15 +20,10 @@ Future<void> showStravaSheet({required BuildContext context}) async {
 
       final Widget child;
 
-      // While restorePurchases() is in flight at app launch, the cached
-      // Firestore entitlement may be stale. Avoid flashing the paywall:
-      //   - if the user is already linked to Strava, show the dashboard
-      //     (cached data is real; subscription is almost certainly valid)
-      //   - otherwise show a loading spinner until the restore resolves.
+      // While restorePurchases() is in flight, the Firestore entitlement may
+      // be stale. Show a spinner rather than the paywall until restore resolves.
       if (subscription.isRestoring && !subscription.hasStravaEntitlement) {
-        child = strava.isConnected
-            ? const StravaDashboardSheet()
-            : const _StravaSheetLoading();
+        child = const _StravaSheetLoading();
       }
       // Pre-paywall gate: never offer subscriptions to users who can't
       // actually be onboarded due to Strava API rate-limit caps. Users

@@ -55,3 +55,4 @@ ios/Runner/client_*.plist
 .env
 
 .mcp.json
+.claude/scheduled_tasks.lock

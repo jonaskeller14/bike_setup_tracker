@@ -16,11 +16,12 @@ analyzer:
   #   strict-inference: true
     strict-raw-types: true
 
-  # Exclude generated files from analysis
+  # Exclude generated files and build artifacts from analysis
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
     - "lib/generated_plugin_registrant.dart"
+    - "build/**"
 
 linter:
   # The lint rules applied to this project can be customized in the

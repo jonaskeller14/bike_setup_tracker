@@ -53,3 +53,5 @@ ios/Runner/client_*.plist
 
 # Mapbox Secret Access Token
 .env
+
+.mcp.json

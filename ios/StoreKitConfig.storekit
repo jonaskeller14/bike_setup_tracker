@@ -1,0 +1,117 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "CFA1A264",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6759974325",
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_developerTeamID" : "29VUD6F8SK",
+    "_disableDialogs" : false,
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 801149812.23806095,
+    "_locale" : "en_US",
+    "_renewalBillingIssuesEnabled" : false,
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ],
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "22081820",
+      "localizations" : [
+
+      ],
+      "name" : "Strava Sync",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "0.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6768383762",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Automatischer Strava-Aktivitätsabgleich.",
+              "displayName" : "Monatlich",
+              "locale" : "de"
+            },
+            {
+              "description" : "Automatic Strava activity sync – billed monthly.",
+              "displayName" : "Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "strava_sync_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Strava Sync Monthly",
+          "subscriptionGroupID" : "22081820",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "7.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "6768385140",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Automatischer Strava-Aktivitätsabgleich.",
+              "displayName" : "Jährlich",
+              "locale" : "de"
+            },
+            {
+              "description" : "Automatic Strava activity sync – billed yearly.",
+              "displayName" : "Yearly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "strava_sync_yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Strava Sync Yearly",
+          "subscriptionGroupID" : "22081820",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

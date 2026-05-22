@@ -10,7 +10,8 @@
       "mcp__dart_flutter__read_package_uris",
       "mcp__dart_flutter__rip_grep_packages",
       "WebFetch(domain:pub.dev)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "mcp__firebase__functions_get_logs"
     ]
   }
 }

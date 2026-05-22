@@ -353,9 +353,26 @@ exports.appStoreServerNotifications = onRequest(
         break;
       }
 
+      case NotificationTypeV2.SUBSCRIBED: {
+        if (notification.subtype === "RESUBSCRIBE") {
+          // User resubscribed outside the app — client verifySubscription won't run,
+          // so the webhook is the only mechanism to update Firestore.
+          const expiry = expiresDate ? new Date(expiresDate) : null;
+          if (!expiry) break;
+          const plan = planNameFor("ios", txProductId, null);
+          await userRef.update({
+            "entitlement.strava.expiresAt": admin.firestore.Timestamp.fromDate(expiry),
+            "entitlement.strava.autoRenewing": true,
+            ...(plan && { "entitlement.strava.plan": plan }),
+          });
+          logger.info("APPLE_ENTITLEMENT_RESUBSCRIBED", { expiresAt: expiry.toISOString() });
+        }
+        // INITIAL_BUY: client writes entitlement via verifySubscription.
+        break;
+      }
+
       case NotificationTypeV2.DID_FAIL_TO_RENEW: // grace period active; wait for DID_RENEW or GRACE_PERIOD_EXPIRED
       case NotificationTypeV2.DID_CHANGE_RENEWAL_PREF: // plan switch takes effect at next renewal via DID_RENEW
-      case NotificationTypeV2.SUBSCRIBED: // client already wrote entitlement via verifySubscription
       default:
         logger.info("APPLE_NOTIFICATION_NO_ACTION", { notificationType });
         break;

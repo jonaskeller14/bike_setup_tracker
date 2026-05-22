@@ -449,6 +449,24 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               if (kDebugMode)
                 ListTile(
+                  leading: const Icon(SimpleIcons.strava),
+                  title: const Text("Strava"),
+                  subtitle: _offOnOptionWidgets[appSettingsReader.enableStrava] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Strava",
+                    value: appSettingsReader.enableStrava,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettingsWriter.enableStrava = newValue;
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              if (kDebugMode)
+                ListTile(
                   leading: const Icon(Icons.map),
                   title: const Text("MapBox Tiles"),
                   subtitle: _offOnOptionWidgets[appSettingsReader.useMapBoxTiles] ?? const Text("-"),

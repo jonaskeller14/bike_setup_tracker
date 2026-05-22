@@ -8,7 +8,9 @@
       "mcp__dart_flutter__add_roots",
       "Bash(flutter test *)",
       "mcp__dart_flutter__read_package_uris",
-      "mcp__dart_flutter__rip_grep_packages"
+      "mcp__dart_flutter__rip_grep_packages",
+      "WebFetch(domain:pub.dev)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }

@@ -151,7 +151,9 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
     if (hasStravaEntitlement || !_storeAvailable || _isRestoring) { return; }
     final now = DateTime.now();
     if (_lastAutoRestoreAt != null &&
-        now.difference(_lastAutoRestoreAt!) < _autoRestoreCooldown) return;
+        now.difference(_lastAutoRestoreAt!) < _autoRestoreCooldown) {
+      return;
+    }
     _lastAutoRestoreAt = now;
     debugPrint('SubscriptionService: resumed with inactive entitlement — auto-restoring');
     _beginRestore();

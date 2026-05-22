@@ -83,7 +83,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: "^0.14.4"
-  flutter_native_splash: "^2.4.4"
+  # flutter_native_splash: "^2.4.7"  # Removed: 2.4.4 has broken SPM manifest; 2.4.7 fixes it but conflicts with
+  #   excel ^4.0.6 (needs xml <7.0.0) vs flutter_native_splash >=2.4.6 (needs xml ^7.0.1).
+  #   Re-add once excel supports xml ^7.0.1. See doc/swift_package_manager_migration.md.
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -164,7 +166,7 @@ flutter_launcher_icons:
   adaptive_icon_foreground: "assets/icons/logo_1024.png"
 
 flutter_native_splash:
-  color: "#455A64" # blueGrey.shade700 (matches app theme)
+  color: "#ffffff"
   image: "assets/icons/logo_1024_white.png"
   ios: true
   android: false # User specifically requested Apple launch image; set to true if Android splash is also desired.

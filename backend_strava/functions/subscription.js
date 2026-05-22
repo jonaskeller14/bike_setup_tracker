@@ -358,32 +358,21 @@ exports.appStoreServerNotifications = onRequest(
   }
 );
 
-/**
- * Builds an Apple SignedDataVerifier using Apple's root CA certificates that
- * are embedded in the library bundle.
- */
-function _buildAppleVerifier(environment, bundleId) {
-  // Apple's root CA certificates are shipped inside the library package.
+// Apple's root CAs are not shipped with @apple/app-store-server-library —
+// they must be downloaded from https://www.apple.com/certificateauthority/
+// and bundled with the function. Loaded once at module load.
+const _appleRootCerts = (() => {
   const fs = require("fs");
   const path = require("path");
-  // The library ships Apple's root certs in a top-level directory.
-  const rootCertsDir = path.join(
-    __dirname,
-    "node_modules/@apple/app-store-server-library"
-  );
+  const dir = path.join(__dirname, "apple-certs");
+  return fs.readdirSync(dir)
+    .filter(f => f.endsWith(".cer") || f.endsWith(".pem"))
+    .map(f => fs.readFileSync(path.join(dir, f)));
+})();
 
-  let rootCerts = [];
-  const certFiles = fs.readdirSync(rootCertsDir)
-    .filter(f => f.endsWith(".cer") || f.endsWith(".pem"));
-
-  if (certFiles.length > 0) {
-    rootCerts = certFiles.map(f =>
-      fs.readFileSync(path.join(rootCertsDir, f))
-    );
-  }
-
+function _buildAppleVerifier(environment, bundleId) {
   return new SignedDataVerifier(
-    rootCerts,
+    _appleRootCerts,
     false,        // enableOnlineChecks: false to avoid OCSP calls from Cloud Functions
     environment,
     bundleId

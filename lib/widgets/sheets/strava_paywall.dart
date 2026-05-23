@@ -70,6 +70,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
+                      width: double.infinity,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: const Alignment(-0.4, -1.0),

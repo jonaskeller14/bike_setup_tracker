@@ -144,10 +144,12 @@ exports.playSubscriptionWebhook = onMessagePublished(
 
     logger.info("PLAY_NOTIFICATION", { notificationType, purchaseToken: purchaseToken.slice(0, 20) });
 
-    // Look up the user by the stored purchaseToken.
+    // Look up ALL users sharing this purchaseToken. Normally one, but the same
+    // Play account on multiple devices (or after reinstall) can produce multiple
+    // anonymous Firebase UIDs with the same token. We must update every match so
+    // no device is left with a stale entitlement.
     const userSnap = await db.collection("users")
       .where("entitlement.strava.purchaseToken", "==", purchaseToken)
-      .limit(1)
       .get();
 
     if (userSnap.empty) {
@@ -158,33 +160,30 @@ exports.playSubscriptionWebhook = onMessagePublished(
       return;
     }
 
-    const userRef = userSnap.docs[0].ref;
+    const userRefs = userSnap.docs.map(d => d.ref);
+    if (userRefs.length > 1) {
+      logger.warn("PLAY_MULTIPLE_USERS_FOR_TOKEN", { count: userRefs.length, purchaseToken: purchaseToken.slice(0, 20) });
+    }
 
     // See https://developer.android.com/google/play/billing/rtdn-reference#sub
     switch (notificationType) {
       case 1:  // SUBSCRIPTION_RECOVERED
       case 2:  // SUBSCRIPTION_RENEWED
       case 7:  // SUBSCRIPTION_RESTARTED
-        await _refreshPlayEntitlement(userRef, purchaseToken);
+      case 9:  // SUBSCRIPTION_DEFERRED — expiry was extended; refresh to update expiresAt
+        await _refreshPlayEntitlement(userRefs, purchaseToken);
         break;
 
       case 12: // SUBSCRIPTION_REVOKED (immediate refund)
       case 13: // SUBSCRIPTION_EXPIRED
-        await _expireEntitlement(userRef, "android");
+      case 5:  // SUBSCRIPTION_ON_HOLD — payment failed, user loses access until RECOVERED
+      case 10: // SUBSCRIPTION_PAUSED — user explicitly paused, loses access until RESTARTED
+        await Promise.all(userRefs.map(ref => _expireEntitlement(ref, "android")));
         break;
 
       case 3:  // SUBSCRIPTION_CANCELED — still valid until period end; mark autoRenewing false
-        await userRef.update({ "entitlement.strava.autoRenewing": false });
-        logger.info("PLAY_SUBSCRIPTION_CANCELED", { purchaseToken: purchaseToken.slice(0, 20) });
-        break;
-
-      case 5:  // SUBSCRIPTION_ON_HOLD — payment failed, user loses access until RECOVERED
-      case 10: // SUBSCRIPTION_PAUSED — user explicitly paused, loses access until RESTARTED
-        await _expireEntitlement(userRef, "android");
-        break;
-
-      case 9:  // SUBSCRIPTION_DEFERRED — expiry was extended; refresh to update expiresAt
-        await _refreshPlayEntitlement(userRef, purchaseToken);
+        await Promise.all(userRefs.map(ref => ref.update({ "entitlement.strava.autoRenewing": false })));
+        logger.info("PLAY_SUBSCRIPTION_CANCELED", { purchaseToken: purchaseToken.slice(0, 20), userCount: userRefs.length });
         break;
 
       case 6:  // SUBSCRIPTION_IN_GRACE_PERIOD — keep access during grace period
@@ -196,10 +195,11 @@ exports.playSubscriptionWebhook = onMessagePublished(
 );
 
 /**
- * Re-queries the Play API to get the latest expiresAt and writes it to
- * Firestore. Called on renewal/recovery events.
+ * Re-queries the Play API once and writes the result to all matching Firestore
+ * users in parallel. Accepts an array so the same API call covers every device
+ * that shares the purchaseToken (multiple anonymous UIDs, reinstalls, etc.).
  */
-async function _refreshPlayEntitlement(userRef, purchaseToken) {
+async function _refreshPlayEntitlement(userRefs, purchaseToken) {
   const credentials = JSON.parse(process.env.GOOGLE_PLAY_SERVICE_ACCOUNT);
   const authClient = new google.auth.JWT({
     email: credentials.client_email,
@@ -225,15 +225,18 @@ async function _refreshPlayEntitlement(userRef, purchaseToken) {
   const basePlanId = lineItem.offerDetails?.basePlanId;
   const plan = planNameFor("android", lineItem.productId || ANDROID_PRODUCT_ID, basePlanId);
 
-  await userRef.update({
+  const update = {
     "entitlement.strava.expiresAt": admin.firestore.Timestamp.fromDate(expiry),
     "entitlement.strava.autoRenewing": purchase.subscriptionState === "SUBSCRIPTION_STATE_ACTIVE",
     ...(plan && { "entitlement.strava.plan": plan }),
-  });
+  };
+
+  await Promise.all(userRefs.map(ref => ref.update(update)));
 
   logger.info("PLAY_ENTITLEMENT_REFRESHED", {
     plan,
     expiresAt: expiry.toISOString(),
+    userCount: userRefs.length,
   });
 }
 

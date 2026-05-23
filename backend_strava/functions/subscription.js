@@ -478,18 +478,21 @@ async function verifyGooglePlayPurchase(productId, purchaseToken) {
 async function verifyAppStorePurchase(productId, transactionId) {
   const token = _signAppStoreJwt();
 
-  const fetchTransaction = async (env) => {
-    const host = env === "sandbox"
-      ? "https://api.storekit-sandbox.itunes.apple.com"
-      : "https://api.storekit.itunes.apple.com";
-    return fetch(
-      `${host}/inApps/v1/transactions/${transactionId}`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-  };
+  const appStoreHost = (env) => env === "sandbox"
+    ? "https://api.storekit-sandbox.itunes.apple.com"
+    : "https://api.storekit.itunes.apple.com";
 
-  let response = await fetchTransaction("production");
-  if (response.status === 404) response = await fetchTransaction("sandbox");
+  const fetchTransaction = async (env) => fetch(
+    `${appStoreHost(env)}/inApps/v1/transactions/${transactionId}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+
+  let env = "production";
+  let response = await fetchTransaction(env);
+  if (response.status === 404) {
+    env = "sandbox";
+    response = await fetchTransaction(env);
+  }
   if (!response.ok) {
     throw new Error(`App Store API ${response.status}: ${response.statusText}`);
   }
@@ -508,14 +511,51 @@ async function verifyAppStorePurchase(productId, transactionId) {
   const plan = planNameFor("ios", decoded.productId, null);
   if (!plan) return null;
 
+  const autoRenewing = await _fetchAppleAutoRenewStatus(token, env, decoded.originalTransactionId);
+
   return {
     plan,
     expiresAt: admin.firestore.Timestamp.fromDate(expiry),
     productId: decoded.productId,
     platform: "ios",
-    autoRenewing: true,
+    autoRenewing,
     originalTransactionId: decoded.originalTransactionId, // bridge for webhook lookups
   };
+}
+
+/**
+ * Fetches the actual auto-renew status for an App Store subscription.
+ * The transaction endpoint doesn't include this — we need the subscription
+ * status endpoint which returns signedRenewalInfo with autoRenewStatus.
+ * Falls back to true on any error so new purchases are never incorrectly blocked.
+ */
+async function _fetchAppleAutoRenewStatus(token, env, originalTransactionId) {
+  const host = env === "sandbox"
+    ? "https://api.storekit-sandbox.itunes.apple.com"
+    : "https://api.storekit.itunes.apple.com";
+  try {
+    const res = await fetch(
+      `${host}/inApps/v1/subscriptions/${originalTransactionId}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if (!res.ok) {
+      logger.warn("APPLE_SUBSCRIPTION_STATUS_FAILED", { status: res.status, originalTransactionId });
+      return true;
+    }
+    const statusBody = await res.json();
+    const renewalJws = statusBody.data?.[0]?.lastTransactions?.[0]?.signedRenewalInfo;
+    if (!renewalJws) {
+      logger.warn("APPLE_RENEWAL_INFO_NOT_FOUND", { originalTransactionId });
+      return true;
+    }
+    const renewalInfo = jwt.decode(renewalJws);
+    const autoRenewing = renewalInfo?.autoRenewStatus === 1;
+    logger.info("APPLE_AUTO_RENEW_STATUS", { originalTransactionId, autoRenewing });
+    return autoRenewing;
+  } catch (e) {
+    logger.warn("APPLE_AUTO_RENEW_STATUS_ERROR", { error: e.message });
+    return true;
+  }
 }
 
 function _signAppStoreJwt() {

@@ -319,7 +319,17 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
         case PurchaseStatus.restored:
           await _verifyAndAcknowledge(pd);
         case PurchaseStatus.error:
-          _setError('Purchase failed: ${pd.error?.message ?? 'unknown'}');
+          if (Platform.isAndroid && pd.error?.code == '7') {
+            // ITEM_ALREADY_OWNED — subscription is active on this Play account; restore instead.
+            // Do NOT call _beginRestore() here: _endRestore() fires at the end of this same
+            // _onPurchaseUpdate call, which would immediately cancel the restore flag before
+            // the actual restore events arrive in the next call.
+            debugPrint('SubscriptionService: ITEM_ALREADY_OWNED — auto-restoring');
+            _setStatus(SubscriptionPurchaseStatus.restoring);
+            unawaited(_iap.restorePurchases());
+          } else {
+            _setError('Purchase failed: ${pd.error?.message ?? 'unknown'}');
+          }
         case PurchaseStatus.canceled:
           _setStatus(SubscriptionPurchaseStatus.idle);
       }
@@ -338,17 +348,11 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> _verifyAndAcknowledge(PurchaseDetails pd) async {
     _setStatus(SubscriptionPurchaseStatus.verifying);
 
-    // For restored purchases, skip re-verification in two cases:
-    // 1. Already have an active entitlement — webhooks keep Firestore current.
-    // 2. Subscription is definitively canceled (autoRenewing=false, expired) —
-    //    Firestore is authoritative; the CF won't change the outcome and the
-    //    round-trip causes the loading state to persist unnecessarily.
-    if (pd.status == PurchaseStatus.restored) {
-      final ent = _entitlement;
-      if ((ent?.isActive ?? false) || (ent != null && !ent.autoRenewing)) {
-        _setStatus(SubscriptionPurchaseStatus.idle);
-        return;
-      }
+    // Skip re-verification for a restored purchase if the entitlement is already
+    // active — webhooks keep Firestore current and a redundant CF call isn't needed.
+    if (pd.status == PurchaseStatus.restored && (_entitlement?.isActive ?? false)) {
+      _setStatus(SubscriptionPurchaseStatus.idle);
+      return;
     }
 
     try {

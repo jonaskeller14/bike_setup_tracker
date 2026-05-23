@@ -70,7 +70,7 @@ class SetupList extends StatelessWidget {
                 : !s.datetime.isBefore(horizonDate); // DESC: hide older than horizon
           })
           .map((s) => SetupEntry(s)), 
-      if (appSettings.displayShowActivities && appSettings.enableStrava && subscriptionService.hasStravaEntitlement) ...stravaActivities.map((a) => StravaEntry(a)),
+      if (showingStrava) ...stravaActivities.map((a) => StravaEntry(a)),
       if (appSettings.displayShowTasks) ...taskEntries
           .where((t) {
             if (horizonDate == null || !appRepository.hasMoreStrava) return true;

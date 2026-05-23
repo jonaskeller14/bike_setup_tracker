@@ -133,7 +133,7 @@ class TaskRuleListCard extends StatelessWidget {
                   children: [
                     Icon(Icons.traffic, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     Text(
-                      'Priority: ${taskRule.priority.label}',
+                      taskRule.priority.label,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                         fontSize: 13,

@@ -112,6 +112,10 @@ class FAQPage extends StatelessWidget {
           'A Task Entry is a "Log" or "Record" of work actually performed. When you complete a task defined by a Task Rule, you create a Task Entry to save exactly when it happened and any notes you want to keep.',
       'How do they work together?':
           'The Task Rule defines the goal, and Task Entries track your history. Every time you finish a task, a new Entry is added to that Rule. This allows the app to show you a complete timeline of when the task was performed in the past.',
+      'What is the difference between "Due" and "Overdue"?':
+          'Both statuses mean the task needs your attention, but at different urgency levels.\n\n'
+          '"Due" (shown in orange) means the task has reached 100% of its interval — it\'s time to do it.\n\n'
+          '"Overdue" (shown in red) means the task has exceeded the interval by more than 10%. There is a small grace window before a task escalates from Due to Overdue, so a minor overshoot will not immediately turn red.',
     }
   };
 

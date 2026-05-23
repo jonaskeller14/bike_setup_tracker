@@ -323,10 +323,10 @@ exports.appStoreServerNotifications = onRequest(
       return res.status(200).send("OK");
     }
 
-    // Look up the user by originalTransactionId.
+    // Look up ALL users sharing this originalTransactionId — same multi-device /
+    // reinstall scenario as the Play webhook; must update every match.
     const userSnap = await db.collection("users")
       .where("entitlement.strava.originalTransactionId", "==", originalTransactionId)
-      .limit(1)
       .get();
 
     if (userSnap.empty) {
@@ -335,20 +335,23 @@ exports.appStoreServerNotifications = onRequest(
       return res.status(200).send("OK");
     }
 
-    const userRef = userSnap.docs[0].ref;
+    const userRefs = userSnap.docs.map(d => d.ref);
+    if (userRefs.length > 1) {
+      logger.warn("APPLE_MULTIPLE_USERS_FOR_TRANSACTION", { count: userRefs.length, originalTransactionId });
+    }
 
     switch (notificationType) {
       case NotificationTypeV2.DID_RENEW: {
-        // expiresDate comes from the decoded transaction (milliseconds epoch).
         const expiry = expiresDate ? new Date(expiresDate) : null;
         if (!expiry) break;
         const plan = planNameFor("ios", txProductId, null);
-        await userRef.update({
+        const update = {
           "entitlement.strava.expiresAt": admin.firestore.Timestamp.fromDate(expiry),
           "entitlement.strava.autoRenewing": true,
           ...(plan && { "entitlement.strava.plan": plan }),
-        });
-        logger.info("APPLE_ENTITLEMENT_RENEWED", { expiresAt: expiry.toISOString() });
+        };
+        await Promise.all(userRefs.map(ref => ref.update(update)));
+        logger.info("APPLE_ENTITLEMENT_RENEWED", { expiresAt: expiry.toISOString(), userCount: userRefs.length });
         break;
       }
 
@@ -356,15 +359,15 @@ exports.appStoreServerNotifications = onRequest(
       case NotificationTypeV2.GRACE_PERIOD_EXPIRED:
       case NotificationTypeV2.REFUND:
       case NotificationTypeV2.REVOKE:
-        await _expireEntitlement(userRef, "ios");
+        await Promise.all(userRefs.map(ref => _expireEntitlement(ref, "ios")));
         break;
 
       case NotificationTypeV2.DID_CHANGE_RENEWAL_STATUS: {
         // AUTO_RENEW_DISABLED = user canceled; AUTO_RENEW_ENABLED = user re-enabled.
         // The subscription is still active until expiresAt — only autoRenewing changes.
         const autoRenewing = notification.subtype !== "AUTO_RENEW_DISABLED";
-        await userRef.update({ "entitlement.strava.autoRenewing": autoRenewing });
-        logger.info("APPLE_AUTO_RENEW_STATUS_UPDATED", { autoRenewing });
+        await Promise.all(userRefs.map(ref => ref.update({ "entitlement.strava.autoRenewing": autoRenewing })));
+        logger.info("APPLE_AUTO_RENEW_STATUS_UPDATED", { autoRenewing, userCount: userRefs.length });
         break;
       }
 
@@ -375,12 +378,13 @@ exports.appStoreServerNotifications = onRequest(
           const expiry = expiresDate ? new Date(expiresDate) : null;
           if (!expiry) break;
           const plan = planNameFor("ios", txProductId, null);
-          await userRef.update({
+          const update = {
             "entitlement.strava.expiresAt": admin.firestore.Timestamp.fromDate(expiry),
             "entitlement.strava.autoRenewing": true,
             ...(plan && { "entitlement.strava.plan": plan }),
-          });
-          logger.info("APPLE_ENTITLEMENT_RESUBSCRIBED", { expiresAt: expiry.toISOString() });
+          };
+          await Promise.all(userRefs.map(ref => ref.update(update)));
+          logger.info("APPLE_ENTITLEMENT_RESUBSCRIBED", { expiresAt: expiry.toISOString(), userCount: userRefs.length });
         }
         // INITIAL_BUY: client writes entitlement via verifySubscription.
         break;

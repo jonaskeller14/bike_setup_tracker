@@ -6,6 +6,7 @@ import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../services/weather_service.dart';
+import '../../utils/url.dart';
 import '../dialogs/discard_changes.dart';
 import 'sheet.dart';
 
@@ -371,9 +372,18 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                             ),
                             
                             const SizedBox(height: 2),
-                            Text(
-                              "Weather data by Open-Meteo.com",
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                            InkWell(
+                              onTap: () => launchAppUrl(context, url: 'https://open-meteo.com/'),
+                              borderRadius: BorderRadius.circular(4),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                child: Text(
+                                  "Weather data by Open-Meteo.com",
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         ),

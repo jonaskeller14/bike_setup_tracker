@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../icons/simple_icons.dart';
 import '../models/app_settings.dart';
+import '../utils/url.dart';
 import '../widgets/text/section_title.dart';
 import 'faq_page.dart';
 
@@ -24,66 +25,6 @@ class AboutPage extends StatelessWidget {
   static const String playStoreUrl = 'https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker';
   static const String appStoreUrl = 'https://apps.apple.com/app/id6759974325?action=write-review';
 
-  static Future<void> launchAppUrl(BuildContext context, {
-    required String url, 
-    LaunchMode launchMode = LaunchMode.platformDefault,
-  }) async {
-    final uri = Uri.parse(url);
-    
-    if (await canLaunchUrl(uri)) { // Check if browser exists
-      if (await launchUrl(uri, mode: launchMode)) {
-        return;
-      } else {
-        if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-          content: Text('Failed to open link: $url', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-          backgroundColor: Theme.of(context).colorScheme.errorContainer
-        ));
-      }
-    } else {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text('Could not find a program to launch the link.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
-      ));
-    }
-  }
-
-  Future<void> _launchEmail(BuildContext context, String email, {String? subject, String? body}) async {
-    final encodedBody = Uri.encodeComponent(body ?? "");
-    final uri = Uri.parse('mailto:$email?subject=${Uri.encodeComponent(subject ?? '')}&body=$encodedBody');
-    
-    if (await canLaunchUrl(uri)) { // Check if email client exists
-      if (await launchUrl(uri)) {
-        return;
-      } else {
-        if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          persist: false,
-          showCloseIcon: true,
-          closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-          content: Text('Failed to open email client for: $email', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-          backgroundColor: Theme.of(context).colorScheme.errorContainer
-        ));
-      }
-    } else {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        persist: false,
-        showCloseIcon: true,
-        closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text('Could not find an email app on your device.', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
-        backgroundColor: Theme.of(context).colorScheme.errorContainer
-      ));
-    }
-  }
-
   Widget _buildInfoTile({required String title, required String subtitle}) {
     return ListTile(
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -99,7 +40,7 @@ class AboutPage extends StatelessWidget {
       title: Text(title),
       subtitle: Text(email),
       trailing: const Icon(Icons.open_in_new, size: 16.0),
-      onTap: () => _launchEmail(context, email, subject: subject),
+      onTap: () => launchAppEmail(context, email, subject: subject),
     );
   }
 
@@ -107,7 +48,7 @@ class AboutPage extends StatelessWidget {
     return ListTile(
       leading: const Icon(Icons.description_outlined),
       title: Text(title),
-      onTap: () => AboutPage.launchAppUrl(context, url: url),
+      onTap: () => launchAppUrl(context, url: url),
       trailing: const Icon(Icons.open_in_new, size: 16.0),
     );
   }
@@ -168,7 +109,7 @@ class AboutPage extends StatelessWidget {
                 trailing: const Icon(Icons.open_in_new, size: 16.0),
                 onTap: () {
                   final url = Theme.of(context).platform == TargetPlatform.iOS ? appStoreUrl : playStoreUrl;
-                  unawaited(AboutPage.launchAppUrl(context, url: url, launchMode: LaunchMode.externalApplication));
+                  unawaited(launchAppUrl(context, url: url, launchMode: LaunchMode.externalApplication));
                 },
               ),
               _buildContactTile(
@@ -217,7 +158,7 @@ class AboutPage extends StatelessWidget {
                 title: const Text("Strava Club Forum"),
                 subtitle: const Text("Get help and discuss the app with other users."),
                 trailing: const Icon(Icons.open_in_new, size: 16.0),
-                onTap: () => AboutPage.launchAppUrl(context, url: 'https://www.strava.com/clubs/bike_setup_tracker'),
+                onTap: () => launchAppUrl(context, url: 'https://www.strava.com/clubs/bike_setup_tracker'),
               ),
         
               const Divider(),

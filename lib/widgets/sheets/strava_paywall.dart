@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../pages/about_page.dart';
 import '../../services/subscription_service.dart';
+import '../../utils/url.dart';
 import 'strava_dashboard.dart';
 
 class StravaPaywall extends StatefulWidget {
@@ -24,9 +25,9 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
         subscription.status == SubscriptionPurchaseStatus.restoring;
 
     final tosRecognizer = TapGestureRecognizer()
-      ..onTap = () => AboutPage.launchAppUrl(context, url: AboutPage.tosURL);
+      ..onTap = () => launchAppUrl(context, url: AboutPage.tosURL);
     final privacyRecognizer = TapGestureRecognizer()
-      ..onTap = () => AboutPage.launchAppUrl(context, url: AboutPage.privacyPolicyUrl);
+      ..onTap = () => launchAppUrl(context, url: AboutPage.privacyPolicyUrl);
     
     final features = [
       (

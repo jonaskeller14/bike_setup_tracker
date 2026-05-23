@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import '../../icons/bike_icons.dart';
 
@@ -69,19 +70,11 @@ sealed class Adjustment {
       case null: return '-';
       case String(): return value;
       case bool(): return value ? 'On' : 'Off';
-      case double():
-        if (value.toInt().toDouble() == value) {
-          return value.toInt().toString();
-        } else {
-          return value.toStringAsFixed(5).replaceAll(RegExp(r'([.]*0+)(?!.*\d)'), '');
-        }
+      case double(): return NumberFormat('0.#####', 'en_US').format(value);
       case int(): return value.toString();
       case Duration():
-        String twoDigits(int n) => n.toString().padLeft(2, "0");
-        final String hours = twoDigits(value.inHours);
-        final String minutes = twoDigits(value.inMinutes.remainder(60));
-        final String seconds = twoDigits(value.inSeconds.remainder(60));
-        return "$hours:$minutes:$seconds";
+        String twoDigits(int n) => n.toString().padLeft(2, '0');
+        return '${twoDigits(value.inHours)}:${twoDigits(value.inMinutes.remainder(60))}:${twoDigits(value.inSeconds.remainder(60))}';
       default: return value.toString();
     }
   }

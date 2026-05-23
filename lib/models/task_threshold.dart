@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'component_stats.dart';
 
 sealed class TaskThreshold {
@@ -73,7 +74,7 @@ class ElevationThreshold extends TaskThreshold {
   @override
   String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) {
     final value = altitudeUnit == 'ft' ? meters * 3.28084 : meters;
-    return '${value.toStringAsFixed(0)} $altitudeUnit';
+    return '${NumberFormat.decimalPattern().format(value.round())} $altitudeUnit';
   }
 
   @override
@@ -116,7 +117,7 @@ class DistanceThreshold extends TaskThreshold {
   @override
   String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) {
     final value = distanceUnit == 'mi' ? meters / 1609.344 : meters / 1000;
-    return '${value.toStringAsFixed(1)} $distanceUnit';
+    return '${NumberFormat('#,##0.#').format(value)} $distanceUnit';
   }
 
   @override
@@ -157,7 +158,7 @@ class MovingTimeThreshold extends TaskThreshold {
   IconData get iconData => Icons.timer;
 
   @override
-  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) => '${hours.inHours} h';
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) => '${NumberFormat.decimalPattern().format(hours.inHours)} h';
 
   @override
   bool get isPositive => hours > Duration.zero;
@@ -197,7 +198,7 @@ class DurationThreshold extends TaskThreshold {
   IconData get iconData => Icons.calendar_today;
 
   @override
-  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) => '${days.inDays} d';
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) => '${NumberFormat.decimalPattern().format(days.inDays)} d';
 
   @override
   bool get isPositive => days > Duration.zero;
@@ -279,7 +280,7 @@ class ActivityCountThreshold extends TaskThreshold {
   IconData get iconData => Icons.repeat;
 
   @override
-  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) => '$count rides';
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) => '${NumberFormat.decimalPattern().format(count)} rides';
 
   @override
   bool get isPositive => count > 0;

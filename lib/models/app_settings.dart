@@ -22,6 +22,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableStravaNotifications = true;
   bool _enableGarage = true;
   bool _enableTask = false;
+  bool _enableTaskPriority = true;
   bool _enableTaskInterval = false;
   bool _enableTaskDelay = false;
   bool _enableInstallationTimeline = false;
@@ -56,6 +57,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableStravaNotifications => _enableStravaNotifications;
   bool get enableGarage => _enableGarage;
   bool get enableTask => _enableTask;
+  bool get enableTaskPriority => _enableTaskPriority;
   bool get enableTaskInterval => _enableTaskInterval;
   bool get enableTaskDelay => _enableTaskDelay;
   bool get enableInstallationTimeline => _enableInstallationTimeline;
@@ -211,6 +213,13 @@ class AppSettings extends ChangeNotifier {
     saveAppSettings();
   }
 
+  set enableTaskPriority(bool newValue) {
+    if (newValue == _enableTaskPriority) return;
+    _enableTaskPriority = newValue;
+    notifyListeners();
+    saveAppSettings();
+  }
+
   set enableTaskInterval(bool newValue) {
     if (newValue == _enableTaskInterval) return;
     _enableTaskInterval = newValue;
@@ -304,6 +313,7 @@ class AppSettings extends ChangeNotifier {
       _enableStravaNotifications = json['enableStravaNotifications'] ?? _enableStravaNotifications;
       _enableGarage = json['enableGarage'] ?? _enableGarage;
       _enableTask = json['enableTask'] ?? _enableTask;
+      _enableTaskPriority = json['enableTaskPriority'] ?? _enableTaskPriority;
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
     }
@@ -329,6 +339,7 @@ class AppSettings extends ChangeNotifier {
       'enableStravaNotifications': _enableStravaNotifications,
       'enableGarage': _enableGarage,
       'enableTask': _enableTask,
+      'enableTaskPriority': _enableTaskPriority,
     });
     await prefs.setString('app_settings', jsonData);
   }

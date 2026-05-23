@@ -122,21 +122,22 @@ class TaskRuleDisplayCard extends StatelessWidget {
                   ],
                 ],
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 2,
-                children: [
-                  Icon(Icons.traffic, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  Text(
-                    'Priority: ${taskRule.priority.label}',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                      fontSize: 13,
+              if (appSettings.enableTaskPriority)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 2,
+                  children: [
+                    Icon(Icons.traffic, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    Text(
+                      'Priority: ${taskRule.priority.label}',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                        fontSize: 13,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
               if (appSettings.enableTaskTags && taskRule.tags.isNotEmpty)
                 Wrap(
                   alignment: WrapAlignment.start,
@@ -187,25 +188,32 @@ class TaskRuleDisplayCard extends StatelessWidget {
                 ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 spacing: 8,
                 children: [
-                  if (taskRule.interval != null)
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: 2,
-                      children: [
-                        Icon(taskRule.interval!.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        Text(
-                          '${taskRule.repeat ? "Every " : "After "}${taskRule.interval!.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit)}',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                            fontSize: 13,
-                          ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: 8,
+                    children: [
+                      if (taskRule.interval != null)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: 2,
+                          children: [
+                            Icon(taskRule.interval!.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            Text(
+                              '${taskRule.repeat ? "Every " : "After "}${taskRule.interval!.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit)}',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  if (taskRule.delay != null && taskRule.delay!.isPositive)
-                    Icon(Icons.history, size: 13, color: Colors.orange.withValues(alpha: 0.8)),
+                      if (taskRule.delay != null && taskRule.delay!.isPositive)
+                        Icon(Icons.history, size: 13, color: Colors.orange.withValues(alpha: 0.8)),
+                    ],
+                  ),
                   if (!isCompleted && taskRule.interval != null)
                     Flexible(
                       child: _buildThresholdDetailRow(context, taskRule.interval!, taskRule.delay, status, statusColor, appSettings.distanceUnit, appSettings.altitudeUnit),

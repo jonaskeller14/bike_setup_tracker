@@ -13,9 +13,11 @@ class BikeAndPriorityFilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
-    final enableTaskTags = context.watch<AppSettings>().enableTaskTags;
+    final appSettings = context.watch<AppSettings>();
+    final enableTaskTags = appSettings.enableTaskTags;
+    final enableTaskPriority = appSettings.enableTaskPriority;
 
-    final hasPriorityFilter = !setEquals(appRepository.selectedTaskPriorities, TaskPriority.values.toSet());
+    final hasPriorityFilter = enableTaskPriority && !setEquals(appRepository.selectedTaskPriorities, TaskPriority.values.toSet());
     final hasTagFilter = enableTaskTags && appRepository.selectedTaskRuleTags.isNotEmpty;
     final hasBikeFilter = appRepository.selectedBike != null;
     final isFiltered = hasBikeFilter || hasPriorityFilter || hasTagFilter;
@@ -50,7 +52,7 @@ class BikeAndPriorityFilterChip extends StatelessWidget {
         await showFilterSheet(
           context: context,
           enableSetupTagFilter: false,
-          enableTaskPriorityFilter: true,
+          enableTaskPriorityFilter: enableTaskPriority,
           enableTaskRuleTagFilter: enableTaskTags,
         );
       },

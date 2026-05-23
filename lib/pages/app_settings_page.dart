@@ -339,6 +339,25 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   infoText: 'Adds the option to add tags to Task Rules',
                 ),
               ),
+              ListTile(
+                leading: const Icon(Icons.traffic),
+                title: const Text("Task Priority"),
+                subtitle: _offOnOptionWidgets[appSettingsReader.enableTaskPriority] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<bool>(
+                  context: context,
+                  title: "Task Priority",
+                  value: appSettingsReader.enableTaskPriority,
+                  optionWidgets: _offOnOptionWidgets,
+                  onChanged: (bool? newValue) {
+                    if (newValue == null) return;
+                    appSettingsWriter.enableTaskPriority = newValue;
+                    if (!newValue) context.read<AppRepository>().selectAllTaskPriorities();
+                    Navigator.pop(context);
+                  },
+                  infoText: 'Shows the Priority field on tasks. Disable to simplify the task interface.',
+                ),
+              ),
               if (kDebugMode)
                 ListTile(
                   leading: const Icon(Icons.person),

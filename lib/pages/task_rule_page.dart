@@ -411,33 +411,36 @@ class _TaskRulePageState extends State<TaskRulePage> {
   }
 
   Wrap _wrap() {
-    final enableTaskTags = context.watch<AppSettings>().enableTaskTags;
+    final appSettings = context.watch<AppSettings>();
+    final enableTaskTags = appSettings.enableTaskTags;
+    final enableTaskPriority = appSettings.enableTaskPriority;
     return Wrap(
       spacing: 8.0,
       runSpacing: 4.0,
       children: [
-        ActionChip(
-          avatar: const Icon(Icons.priority_high),
-          label: Text(_priority.label),
-          backgroundColor: widget.mode == TaskRulePageMode.edit && _priority != widget.taskRule?.priority ? Colors.orange.withValues(alpha: 0.08) : null,
-          onPressed: () => appSettingsRadioGroupSheet<TaskPriority>(
-            context: context,
-            title: "Task Priority",
-            value: _priority,
-            onChanged: (TaskPriority? newValue) {
-              if (newValue == null) return;
-              setState(() => _priority = newValue);
-              Navigator.pop(context);
-              _changeListener();
-            },
-            optionWidgets: Map.fromEntries(TaskPriority.values.map((priority) {
-              return MapEntry(
-                priority,
-                Text(priority.label),
-              );
-            })),
+        if (enableTaskPriority)
+          ActionChip(
+            avatar: const Icon(Icons.traffic),
+            label: Text(_priority.label),
+            backgroundColor: widget.mode == TaskRulePageMode.edit && _priority != widget.taskRule?.priority ? Colors.orange.withValues(alpha: 0.08) : null,
+            onPressed: () => appSettingsRadioGroupSheet<TaskPriority>(
+              context: context,
+              title: "Task Priority",
+              value: _priority,
+              onChanged: (TaskPriority? newValue) {
+                if (newValue == null) return;
+                setState(() => _priority = newValue);
+                Navigator.pop(context);
+                _changeListener();
+              },
+              optionWidgets: Map.fromEntries(TaskPriority.values.map((priority) {
+                return MapEntry(
+                  priority,
+                  Text(priority.label),
+                );
+              })),
+            ),
           ),
-        ),
         if (enableTaskTags) ..._tags.map((tag) => FilterChip(
           avatar: const Icon(Icons.tag),
           showCheckmark: false,

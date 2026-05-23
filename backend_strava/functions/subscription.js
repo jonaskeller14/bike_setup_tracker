@@ -173,8 +173,20 @@ exports.playSubscriptionWebhook = onMessagePublished(
         await _expireEntitlement(userRef, "android");
         break;
 
-      case 3:  // SUBSCRIPTION_CANCELED — still valid until period end; EXPIRED fires later
-      case 5:  // SUBSCRIPTION_ON_HOLD — payment failed, grace period not yet active
+      case 3:  // SUBSCRIPTION_CANCELED — still valid until period end; mark autoRenewing false
+        await userRef.update({ "entitlement.strava.autoRenewing": false });
+        logger.info("PLAY_SUBSCRIPTION_CANCELED", { purchaseToken: purchaseToken.slice(0, 20) });
+        break;
+
+      case 5:  // SUBSCRIPTION_ON_HOLD — payment failed, user loses access until RECOVERED
+      case 10: // SUBSCRIPTION_PAUSED — user explicitly paused, loses access until RESTARTED
+        await _expireEntitlement(userRef, "android");
+        break;
+
+      case 9:  // SUBSCRIPTION_DEFERRED — expiry was extended; refresh to update expiresAt
+        await _refreshPlayEntitlement(userRef, purchaseToken);
+        break;
+
       case 6:  // SUBSCRIPTION_IN_GRACE_PERIOD — keep access during grace period
       default:
         logger.info("PLAY_NOTIFICATION_NO_ACTION", { notificationType });

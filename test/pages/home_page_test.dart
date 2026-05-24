@@ -50,7 +50,7 @@ void main() {
         Provider<AppDatabase>.value(value: database),
         Provider<StorageService>(create: (_) => StorageService()),
         ChangeNotifierProvider<StravaService>(
-            create: (_) => StravaService(appRepository)),
+            create: (_) => StravaService(appRepository, appSettings)),
         ChangeNotifierProvider<GoogleDriveService>(
             create: (_) => GoogleDriveService(appRepository, database)),
         ChangeNotifierProvider<SubscriptionService>(

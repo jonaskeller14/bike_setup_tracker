@@ -1050,9 +1050,7 @@ class AppRepository extends ChangeNotifier {
   }
 
   Future<void> setStravaGears(Iterable<StravaGear> gears) async {
-    for (var g in gears) {
-      await database.stravaDao.upsertGear(g.toCompanion());
-    }
+    await database.stravaDao.syncGears(gears.map((g) => g.toCompanion()));
   }
   
   Future<void> clearStravaData() async {

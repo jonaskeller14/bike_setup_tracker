@@ -56,6 +56,23 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
 
   Future<int> upsertAthlete(StravaAthletesCompanion entry) => into(stravaAthletes).insertOnConflictUpdate(entry);
   Future<int> upsertGear(StravaGearsCompanion entry) => into(stravaGears).insertOnConflictUpdate(entry);
+
+  /// Upserts all [gears] and deletes any gear whose ID is not in the incoming set,
+  /// so the local table mirrors the Firestore source of truth.
+  Future<void> syncGears(Iterable<StravaGearsCompanion> gears) async {
+    final companions = gears.toList();
+    final ids = companions.map((g) => g.id.value).toList();
+    await transaction(() async {
+      for (final gear in companions) {
+        await into(stravaGears).insertOnConflictUpdate(gear);
+      }
+      if (ids.isEmpty) {
+        await delete(stravaGears).go();
+      } else {
+        await (delete(stravaGears)..where((t) => t.id.isNotIn(ids))).go();
+      }
+    });
+  }
   Future<int> upsertActivity(StravaActivitiesCompanion entry) => into(stravaActivities).insertOnConflictUpdate(entry);
   Future<int> deleteActivities(Iterable<int> ids) => (delete(stravaActivities)..where((t) => t.id.isIn(ids))).go();
 

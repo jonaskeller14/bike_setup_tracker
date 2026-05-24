@@ -27,6 +27,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableTaskDelay = false;
   bool _enableInstallationTimeline = false;
   bool _useMapBoxTiles = false;
+  bool _stravaGearHintDismissed = false;
 
   // Temporary Settings
   bool _setupListOnlyChanges = false;
@@ -62,6 +63,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableTaskDelay => _enableTaskDelay;
   bool get enableInstallationTimeline => _enableInstallationTimeline;
   bool get useMapBoxTiles => _useMapBoxTiles;
+  bool get stravaGearHintDismissed => _stravaGearHintDismissed;
 
   // Temporary Settings
   bool get setupListOnlyChanges => _setupListOnlyChanges;
@@ -241,6 +243,13 @@ class AppSettings extends ChangeNotifier {
     saveAppSettings();
   }
 
+  set stravaGearHintDismissed(bool newValue) {
+    if (newValue == _stravaGearHintDismissed) return;
+    _stravaGearHintDismissed = newValue;
+    notifyListeners();
+    saveAppSettings();
+  }
+
   set setupListOnlyChanges(bool newValue) {
     if (newValue == setupListOnlyChanges) return;
     _setupListOnlyChanges = newValue;
@@ -314,6 +323,7 @@ class AppSettings extends ChangeNotifier {
       _enableGarage = json['enableGarage'] ?? _enableGarage;
       _enableTask = json['enableTask'] ?? _enableTask;
       _enableTaskPriority = json['enableTaskPriority'] ?? _enableTaskPriority;
+      _stravaGearHintDismissed = json['stravaGearHintDismissed'] ?? _stravaGearHintDismissed;
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
     }
@@ -340,6 +350,7 @@ class AppSettings extends ChangeNotifier {
       'enableGarage': _enableGarage,
       'enableTask': _enableTask,
       'enableTaskPriority': _enableTaskPriority,
+      'stravaGearHintDismissed': _stravaGearHintDismissed,
     });
     await prefs.setString('app_settings', jsonData);
   }

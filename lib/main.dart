@@ -153,7 +153,7 @@ class LoadingGate extends StatelessWidget {
               ),
               ChangeNotifierProxyProvider2<AppSettings, AppRepository, StravaService>(
                 lazy: false,
-                create: (context) => StravaService(appRepository),
+                create: (context) => StravaService(appRepository, appSettings),
                 update: (context, settings, appRepo, stravaService) {
                   if (settings.enableStrava) unawaited(stravaService!.update(appRepository: appRepo, appSettings: settings));
                   return stravaService!;

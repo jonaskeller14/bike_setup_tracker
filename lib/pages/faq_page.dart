@@ -86,7 +86,7 @@ class FAQPage extends StatelessWidget {
     },
     "Strava Sync": {
       'What is Strava Sync?':
-          'Strava Sync is a paid subscription that automatically imports your Strava activities into the app. New, updated, and deleted activities are synced in real time so you can see which setup you ran on every ride.',
+          'Strava Sync is a paid subscription that automatically imports your Strava activities into the app. New, updated, and deleted activities are synced in real time so you can see which setup you ran on every ride. You can also trigger a manual sync at any time — up to once per hour.',
       'How do I cancel my subscription?':
           'You can cancel at any time directly through the App Store or Google Play — not through the app itself.\n\n'
           'On iPhone: Settings → [your name] → Subscriptions → Bike Setup Tracker → Cancel.\n\n'

@@ -4,7 +4,6 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/app_settings.dart';
 import '../models/strava/strava_activity.dart';
@@ -32,7 +31,7 @@ class StravaService extends ChangeNotifier {
   bool? _isStravaAvailable;
   DateTime? _availabilityCheckedAt;
   static const Duration _availabilityCacheTtl = Duration(minutes: 5);
-  static const Duration _manualSyncCooldown = Duration(days: 1);
+  static const Duration _manualSyncCooldown = kDebugMode ? Duration.zero : Duration(hours: 1);
   Future<void>? _inFlightAvailabilityCheck;
 
   bool? get isStravaAvailable => _isStravaAvailable;
@@ -67,8 +66,9 @@ class StravaService extends ChangeNotifier {
   int? _syncDay;
   
   AppRepository _appRepository;
+  AppSettings _appSettings;
 
-  StravaService(this._appRepository);
+  StravaService(this._appRepository, this._appSettings);
 
   @override
   void dispose() async {
@@ -95,6 +95,7 @@ class StravaService extends ChangeNotifier {
 
   Future<void> update({required AppRepository appRepository, required AppSettings appSettings}) async {
     _appRepository = appRepository;
+    _appSettings = appSettings;
 
     if (_isInitialized || _isDisconnecting) return;
     _isInitialized = true;
@@ -103,7 +104,7 @@ class StravaService extends ChangeNotifier {
       await _loadUserId();
       _listenToUserDocument();
       _registerFcmToken();
-      await _syncSettingsToFirestore(appSettings);
+      await _syncSettingsToFirestore();
       unawaited(checkAvailability());
     } catch (e) {
       _isInitialized = false;
@@ -368,8 +369,8 @@ class StravaService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _syncSettingsToFirestore(AppSettings settings) async {
-    await setStravaNotificationsEnabled(settings.enableStravaNotifications);
+  Future<void> _syncSettingsToFirestore() async {
+    await setStravaNotificationsEnabled(_appSettings.enableStravaNotifications);
   }
 
   Future<void> setStravaNotificationsEnabled(bool enabled) async {
@@ -525,6 +526,7 @@ class StravaService extends ChangeNotifier {
 
       await _stopDataListeners();
       await _appRepository.clearStravaData();
+      _appSettings.stravaGearHintDismissed = false;
 
       errorMessage = "";
       status = StravaServiceStatus.idle;

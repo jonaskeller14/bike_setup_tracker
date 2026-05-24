@@ -12,6 +12,7 @@ import '../models/bike.dart';
 import '../models/weather.dart';
 import '../repositories/app_repository.dart';
 import '../services/strava_service.dart';
+import '../widgets/dialogs/strava_disconnect.dart';
 import '../widgets/items/strava_subscription_card.dart';
 import '../widgets/sheets/app_settings_radio_group.dart';
 import '../widgets/text/section_title.dart';
@@ -525,7 +526,19 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     unawaited(launchUrl(uri, mode: LaunchMode.externalApplication));
                   },
                 ),
-                if (strava.isConnected)
+                if (strava.isConnected) ...[
+                  ListTile(
+                    leading: Icon(Icons.link_off, color: Theme.of(context).colorScheme.error),
+                    title: Text(
+                      "Disconnect Strava",
+                      style: TextStyle(color: Theme.of(context).colorScheme.error),
+                    ),
+                    subtitle: const Text("Revoke access and delete synced activities"),
+                    onTap: () async {
+                      final confirmed = await showStravaDisconnectDialog(context);
+                      if (confirmed) await strava.disconnect();
+                    },
+                  ),
                   ListTile(
                     leading: const Icon(Icons.notifications_active),
                     title: const Text("Strava Notifications"),
@@ -545,6 +558,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       infoText: 'Receive push notifications when Strava activities are imported.',
                     ),
                   ),
+                ],
               ],
             ],
           ),

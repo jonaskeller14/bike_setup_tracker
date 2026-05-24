@@ -9,6 +9,7 @@ const sync = require("./sync");
 const scheduledSync = require("./scheduled_sync");
 const orphanCleanup = require("./orphan_cleanup");
 const subscription = require("./subscription");
+const subscriptionCleanup = require("./subscription_cleanup");
 
 // Auth + availability
 exports.exchangeToken = auth.exchangeToken;
@@ -26,6 +27,9 @@ exports.scheduledSyncWorker = scheduledSync.scheduledSyncWorker;
 
 // Orphan cleanup (Firestore trigger on users/{uid})
 exports.cleanupOrphanedAthletes = orphanCleanup.cleanupOrphanedAthletes;
+
+// Daily cron: unlink athletes for users whose entitlement expired GRACE_DAYS ago
+exports.cleanupExpiredSubscriptions = subscriptionCleanup.cleanupExpiredSubscriptions;
 
 // Subscriptions
 exports.verifySubscription = subscription.verifySubscription;

@@ -528,11 +528,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
                 if (strava.isConnected) ...[
                   ListTile(
-                    leading: Icon(Icons.link_off, color: Theme.of(context).colorScheme.error),
-                    title: Text(
-                      "Disconnect Strava",
-                      style: TextStyle(color: Theme.of(context).colorScheme.error),
-                    ),
+                    leading: const Icon(Icons.logout),
+                    title: const Text("Disconnect Strava"),
                     subtitle: const Text("Revoke access and delete synced activities"),
                     onTap: () async {
                       final confirmed = await showStravaDisconnectDialog(context);

@@ -312,9 +312,9 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-        foregroundImage: stravaAthletes.profile == null
-            ? null
-            : NetworkImage(stravaAthletes.profile!),
+        foregroundImage: (stravaAthletes.profile != null && stravaAthletes.profile!.startsWith('http'))
+            ? NetworkImage(stravaAthletes.profile!)
+            : null,
         child: Icon(Icons.person, color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
       title: Text(

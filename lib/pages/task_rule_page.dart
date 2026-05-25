@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import '../models/app_settings.dart';
@@ -615,7 +616,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                       child: Text(
                                         _intervalDate == null
                                             ? "Select Date"
-                                            : _intervalDate!.toLocal().toString().split(' ')[0],
+                                            : DateFormat(appSettings.dateFormat).format(_intervalDate!.toLocal()),
                                         style: Theme.of(context).textTheme.bodyLarge,
                                       ),
                                     ),

@@ -228,6 +228,7 @@ class StravaService extends ChangeNotifier {
               remoteError.isNotEmpty ? remoteError : 'Sync failed';
         } else {
           _status = StravaServiceStatus.idle;
+          _errorMessage = '';
         }
         _lastRecentSync = _parseDateTime(data['strava_sync_last_recent']);
         _lastFullSync = _parseDateTime(data['strava_sync_last_full']);

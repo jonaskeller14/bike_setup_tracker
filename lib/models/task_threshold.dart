@@ -24,7 +24,7 @@ sealed class TaskThreshold {
   });
 
   IconData get iconData;
-  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'});
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'});
   bool get isPositive;
 
   factory TaskThreshold.fromJson(Map<String, dynamic> json) {
@@ -72,7 +72,7 @@ class ElevationThreshold extends TaskThreshold {
   IconData get iconData => Icons.terrain;
 
   @override
-  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) {
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'}) {
     final value = altitudeUnit == 'ft' ? meters * 3.28084 : meters;
     return '${NumberFormat.decimalPattern().format(value.round())} $altitudeUnit';
   }
@@ -115,7 +115,7 @@ class DistanceThreshold extends TaskThreshold {
   IconData get iconData => Icons.route;
 
   @override
-  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) {
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'}) {
     final value = distanceUnit == 'mi' ? meters / 1609.344 : meters / 1000;
     return '${NumberFormat('#,##0.#').format(value)} $distanceUnit';
   }
@@ -158,7 +158,7 @@ class MovingTimeThreshold extends TaskThreshold {
   IconData get iconData => Icons.timer;
 
   @override
-  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) => '${NumberFormat.decimalPattern().format(hours.inHours)} h';
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'}) => '${NumberFormat.decimalPattern().format(hours.inHours)} h';
 
   @override
   bool get isPositive => hours > Duration.zero;
@@ -198,7 +198,7 @@ class DurationThreshold extends TaskThreshold {
   IconData get iconData => Icons.calendar_today;
 
   @override
-  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) => '${NumberFormat.decimalPattern().format(days.inDays)} d';
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'}) => '${NumberFormat.decimalPattern().format(days.inDays)} d';
 
   @override
   bool get isPositive => days > Duration.zero;
@@ -240,7 +240,7 @@ class DateTimeThreshold extends TaskThreshold {
   IconData get iconData => Icons.event;
 
   @override
-  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) => deadline.toLocal().toString().split(' ')[0];
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'}) => DateFormat(dateFormat).format(deadline.toLocal());
 
   @override
   bool get isPositive => true;
@@ -280,7 +280,7 @@ class ActivityCountThreshold extends TaskThreshold {
   IconData get iconData => Icons.repeat;
 
   @override
-  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm'}) => '${NumberFormat.decimalPattern().format(count)} rides';
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'}) => '${NumberFormat.decimalPattern().format(count)} rides';
 
   @override
   bool get isPositive => count > 0;

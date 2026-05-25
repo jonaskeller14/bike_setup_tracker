@@ -219,7 +219,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
                           children: [
                             Icon(taskRule.interval!.iconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                             Text(
-                              '${taskRule.repeat ? "Every " : "After "}${taskRule.interval!.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit)}',
+                              '${taskRule.repeat ? "Every " : "After "}${taskRule.interval!.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                                 fontSize: 13,

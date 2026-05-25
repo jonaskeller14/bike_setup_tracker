@@ -58,6 +58,10 @@ class DeepLinkService {
 
     if (uri.scheme == 'bike-setup-tracker' && uri.host == 'add-setup') {
       _triggerAddSetup();
+    } else if (uri.scheme == 'bike-setup-tracker' && uri.host == 'strava-auth') {
+      if (uri.queryParameters['success'] == 'false') {
+        _showStravaAuthError();
+      }
     }
   }
 
@@ -66,5 +70,13 @@ class DeepLinkService {
     if (context == null) return;
 
     await SetupActions.addSetup(context);
+  }
+
+  void _showStravaAuthError() {
+    final context = NavigationService.context;
+    if (context == null) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Strava connection failed. Please try again.')),
+    );
   }
 }

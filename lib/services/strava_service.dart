@@ -30,7 +30,7 @@ class StravaService extends ChangeNotifier {
   /// completes. Refreshed lazily when stale.
   bool? _isStravaAvailable;
   DateTime? _availabilityCheckedAt;
-  static const Duration _availabilityCacheTtl = Duration(minutes: 5);
+  static const Duration _availabilityCacheTtl = kDebugMode ? Duration.zero : Duration(minutes: 5);
   static const Duration _manualSyncCooldown = kDebugMode ? Duration.zero : Duration(hours: 1);
   Future<void>? _inFlightAvailabilityCheck;
 

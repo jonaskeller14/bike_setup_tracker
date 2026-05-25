@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import '../icons/simple_icons.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
@@ -88,8 +87,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final appSettingsWriter = context.read<AppSettings>();
-    final appSettingsReader = context.watch<AppSettings>();
+    final appSettings = context.watch<AppSettings>();
     final strava = context.watch<StravaService>();
 
     return Scaffold(
@@ -103,16 +101,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ListTile(
                 leading: const Icon(Icons.color_lens),
                 title: const Text("App Theme Mode"),
-                subtitle: _themeModeOptionWidgets[appSettingsReader.themeMode]?.children[1] ?? const Text("-"),
+                subtitle: _themeModeOptionWidgets[appSettings.themeMode]?.children[1] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => appSettingsRadioGroupSheet<ThemeMode>(
                   context: context,
                   title: "App Theme Mode",
-                  value: appSettingsReader.themeMode,
+                  value: appSettings.themeMode,
                   optionWidgets: _themeModeOptionWidgets,
                   onChanged: (ThemeMode? newValue) {
                     if (newValue == null) return;
-                    appSettingsWriter.themeMode = newValue;
+                    appSettings.themeMode = newValue;
                     Navigator.pop(context);
                   },
                 ),
@@ -122,16 +120,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ListTile(
                 leading: const Icon(Icons.calendar_month),
                 title: const Text("Date Format"),
-                subtitle: _dateFormatOptionWidgets[appSettingsReader.dateFormat] ?? const Text("-"),
+                subtitle: _dateFormatOptionWidgets[appSettings.dateFormat] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => appSettingsRadioGroupSheet<String>(
                   context: context,
                   title: "Date Format",
-                  value: appSettingsReader.dateFormat,
+                  value: appSettings.dateFormat,
                   optionWidgets: _dateFormatOptionWidgets,
                   onChanged: (String? newValue) {
                     if (newValue == null) return;
-                    appSettingsWriter.dateFormat = newValue;
+                    appSettings.dateFormat = newValue;
                     Navigator.pop(context);
                   },
                 ),
@@ -139,16 +137,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ListTile(
                 leading: const Icon(Icons.access_time),
                 title: const Text("Time Format"),
-                subtitle: _timeFormatOptionWidgets[appSettingsReader.timeFormat] ?? const Text("-"),
+                subtitle: _timeFormatOptionWidgets[appSettings.timeFormat] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => appSettingsRadioGroupSheet<String>(
                   context: context,
                   title: "Time Format",
-                  value: appSettingsReader.timeFormat,
+                  value: appSettings.timeFormat,
                   optionWidgets: _timeFormatOptionWidgets,
                   onChanged: (String? newValue) {
                     if (newValue == null) return;
-                    appSettingsWriter.timeFormat = newValue;
+                    appSettings.timeFormat = newValue;
                     Navigator.pop(context);
                   },
                 ),
@@ -158,16 +156,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ListTile(
                 leading: const Icon(Icons.route),
                 title: const Text("Distance Unit"),
-                subtitle: _distanceUnitOptionWidgets[appSettingsReader.distanceUnit] ?? const Text("-"),
+                subtitle: _distanceUnitOptionWidgets[appSettings.distanceUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => appSettingsRadioGroupSheet<String>(
                   context: context,
                   title: "Distance Unit",
-                  value: appSettingsReader.distanceUnit,
+                  value: appSettings.distanceUnit,
                   optionWidgets: _distanceUnitOptionWidgets,
                   onChanged: (String? newValue) {
                     if (newValue == null) return;
-                    appSettingsWriter.distanceUnit = newValue;
+                    appSettings.distanceUnit = newValue;
                     Navigator.pop(context);
                   },
                 ),
@@ -175,16 +173,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ListTile(
                 leading: const Icon(Icons.arrow_upward),
                 title: const Text("Altitude Unit"),
-                subtitle: _altitudeUnitOptionWidgets[appSettingsReader.altitudeUnit] ?? const Text("-"),
+                subtitle: _altitudeUnitOptionWidgets[appSettings.altitudeUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => appSettingsRadioGroupSheet<String>(
                   context: context,
                   title: "Altitude Unit",
-                  value: appSettingsReader.altitudeUnit,
+                  value: appSettings.altitudeUnit,
                   optionWidgets: _altitudeUnitOptionWidgets,
                   onChanged: (String? newValue) {
                     if (newValue == null) return;
-                    appSettingsWriter.altitudeUnit = newValue;
+                    appSettings.altitudeUnit = newValue;
                     Navigator.pop(context);
                   },
                 ),
@@ -192,16 +190,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ListTile(
                 leading: const Icon(Weather.currentTemperatureIconData),
                 title: const Text("Temperature Unit"),
-                subtitle: _tempUnitOptionWidgets[appSettingsReader.temperatureUnit] ?? const Text("-"),
+                subtitle: _tempUnitOptionWidgets[appSettings.temperatureUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => appSettingsRadioGroupSheet<String>(
                   context: context,
                   title: "Temperature Unit",
-                  value: appSettingsReader.temperatureUnit,
+                  value: appSettings.temperatureUnit,
                   optionWidgets: _tempUnitOptionWidgets,
                   onChanged: (String? newValue) {
                     if (newValue == null) return;
-                    appSettingsWriter.temperatureUnit = newValue;
+                    appSettings.temperatureUnit = newValue;
                     Navigator.pop(context);
                   },
                 ),
@@ -209,16 +207,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ListTile(
                 leading: const Icon(Weather.currentWindSpeedIconData),
                 title: const Text("Wind Speed Unit"),
-                subtitle: _windSpeedUnitOptionWidgets[appSettingsReader.windSpeedUnit] ?? const Text("-"),
+                subtitle: _windSpeedUnitOptionWidgets[appSettings.windSpeedUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => appSettingsRadioGroupSheet<String>(
                   context: context,
                   title: "Wind Speed Unit",
-                  value: appSettingsReader.windSpeedUnit,
+                  value: appSettings.windSpeedUnit,
                   optionWidgets: _windSpeedUnitOptionWidgets,
                   onChanged: (String? newValue) {
                     if (newValue == null) return;
-                    appSettingsWriter.windSpeedUnit = newValue;
+                    appSettings.windSpeedUnit = newValue;
                     Navigator.pop(context);
                   },
                 ),
@@ -226,16 +224,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ListTile(
                 leading: const Icon(Weather.dayAccumulatedPrecipitationIconData),
                 title: const Text("Precipitation Unit"),
-                subtitle: _precipitationUnitOptionWidgets[appSettingsReader.precipitationUnit] ?? const Text("-"),
+                subtitle: _precipitationUnitOptionWidgets[appSettings.precipitationUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => appSettingsRadioGroupSheet<String>(
                   context: context,
                   title: "Precipitation Unit",
-                  value: appSettingsReader.precipitationUnit,
+                  value: appSettings.precipitationUnit,
                   optionWidgets: _precipitationUnitOptionWidgets,
                   onChanged: (String? newValue) {
                     if (newValue == null) return;
-                    appSettingsWriter.precipitationUnit = newValue;
+                    appSettings.precipitationUnit = newValue;
                     Navigator.pop(context);
                   },
                 ),
@@ -251,16 +249,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ListTile(
                   leading: const Icon(SimpleIcons.googledrive),
                   title: const Text("Google Drive Sync"),
-                  subtitle: _offOnOptionWidgets[appSettingsReader.enableGoogleDrive] ?? const Text("-"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableGoogleDrive] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                   onTap: () => appSettingsRadioGroupSheet<bool>(
                     context: context,
                     title: "Google Drive Sync",
-                    value: appSettingsReader.enableGoogleDrive,
+                    value: appSettings.enableGoogleDrive,
                     optionWidgets: _offOnOptionWidgets,
                     onChanged: (bool? newValue) {
                       if (newValue == null) return;
-                      appSettingsWriter.enableGoogleDrive = newValue;
+                      appSettings.enableGoogleDrive = newValue;
                       Navigator.pop(context);
                     },
                     infoText: 'Sync your data across devices and keep secure backups in your Google Drive. Your data is stored privately in your own account; we never have access to it.',
@@ -269,16 +267,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ListTile(
                 leading: const Icon(Bike.iconData),
                 title: const Text("Garage"),
-                subtitle: _offOnOptionWidgets[appSettingsReader.enableGarage] ?? const Text("-"),
+                subtitle: _offOnOptionWidgets[appSettings.enableGarage] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => appSettingsRadioGroupSheet<bool>(
                   context: context,
                   title: "Garage",
-                  value: appSettingsReader.enableGarage,
+                  value: appSettings.enableGarage,
                   optionWidgets: _offOnOptionWidgets,
                   onChanged: (bool? newValue) {
                     if (newValue == null) return;
-                    appSettingsWriter.enableGarage = newValue;
+                    appSettings.enableGarage = newValue;
                     Navigator.pop(context);
                   },
                   infoText: 'Enables the Garage layout which focuses on Bikes and their installed Components. If disabled, the app uses a more traditional list-based interface.',
@@ -287,16 +285,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ListTile(
                 leading: const Icon(TextAdjustment.iconData),
                 title: const Text("Text Adjustment"),
-                subtitle: _offOnOptionWidgets[appSettingsReader.enableTextAdjustment] ?? const Text("-"),
+                subtitle: _offOnOptionWidgets[appSettings.enableTextAdjustment] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => appSettingsRadioGroupSheet<bool>(
                   context: context,
                   title: "Text Adjustment",
-                  value: appSettingsReader.enableTextAdjustment,
+                  value: appSettings.enableTextAdjustment,
                   optionWidgets: _offOnOptionWidgets,
                   onChanged: (bool? newValue) {
                     if (newValue == null) return;
-                    appSettingsWriter.enableTextAdjustment = newValue;
+                    appSettings.enableTextAdjustment = newValue;
                     Navigator.pop(context);
                   },
                   infoText: 'Adds a Text Adjustment type that provides a free-form text field.',
@@ -305,16 +303,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ListTile(
                 leading: const Icon(Icons.tag),
                 title: const Text("Setup Tags"),
-                subtitle: _offOnOptionWidgets[appSettingsReader.enableSetupTags] ?? const Text("-"),
+                subtitle: _offOnOptionWidgets[appSettings.enableSetupTags] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => appSettingsRadioGroupSheet<bool>(
                   context: context,
                   title: "Setup Tags",
-                  value: appSettingsReader.enableSetupTags,
+                  value: appSettings.enableSetupTags,
                   optionWidgets: _offOnOptionWidgets,
                   onChanged: (bool? newValue) {
                     if (newValue == null) return;
-                    appSettingsWriter.enableSetupTags = newValue;
+                    appSettings.enableSetupTags = newValue;
                     if (!newValue) context.read<AppRepository>().deselectAllSetupTags();
                     Navigator.pop(context);
                   },
@@ -324,16 +322,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ListTile(
                 leading: const Icon(Icons.tag),
                 title: const Text("Task Tags"),
-                subtitle: _offOnOptionWidgets[appSettingsReader.enableTaskTags] ?? const Text("-"),
+                subtitle: _offOnOptionWidgets[appSettings.enableTaskTags] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => appSettingsRadioGroupSheet<bool>(
                   context: context,
                   title: "Task Tags",
-                  value: appSettingsReader.enableTaskTags,
+                  value: appSettings.enableTaskTags,
                   optionWidgets: _offOnOptionWidgets,
                   onChanged: (bool? newValue) {
                     if (newValue == null) return;
-                    appSettingsWriter.enableTaskTags = newValue;
+                    appSettings.enableTaskTags = newValue;
                     if (!newValue) context.read<AppRepository>().deselectAllTaskRuleTags();
                     Navigator.pop(context);
                   },
@@ -343,16 +341,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ListTile(
                 leading: const Icon(Icons.traffic),
                 title: const Text("Task Priority"),
-                subtitle: _offOnOptionWidgets[appSettingsReader.enableTaskPriority] ?? const Text("-"),
+                subtitle: _offOnOptionWidgets[appSettings.enableTaskPriority] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => appSettingsRadioGroupSheet<bool>(
                   context: context,
                   title: "Task Priority",
-                  value: appSettingsReader.enableTaskPriority,
+                  value: appSettings.enableTaskPriority,
                   optionWidgets: _offOnOptionWidgets,
                   onChanged: (bool? newValue) {
                     if (newValue == null) return;
-                    appSettingsWriter.enableTaskPriority = newValue;
+                    appSettings.enableTaskPriority = newValue;
                     if (!newValue) context.read<AppRepository>().selectAllTaskPriorities();
                     Navigator.pop(context);
                   },
@@ -363,16 +361,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ListTile(
                   leading: const Icon(Icons.person),
                   title: const Text("Profile"),
-                  subtitle: _offOnOptionWidgets[appSettingsReader.enablePerson] ?? const Text("-"),
+                  subtitle: _offOnOptionWidgets[appSettings.enablePerson] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                   onTap: () => appSettingsRadioGroupSheet<bool>(
                     context: context,
                     title: "Profile",
-                    value: appSettingsReader.enablePerson,
+                    value: appSettings.enablePerson,
                     optionWidgets: _offOnOptionWidgets,
                     onChanged: (bool? newValue) {
                       if (newValue == null) return;
-                      appSettingsWriter.enablePerson = newValue;
+                      appSettings.enablePerson = newValue;
                       Navigator.pop(context);
                     },
                   ),
@@ -381,16 +379,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ListTile(
                   leading: const Icon(Icons.star),
                   title: const Text("Rating"),
-                  subtitle: _offOnOptionWidgets[appSettingsReader.enableRating] ?? const Text("-"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableRating] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                   onTap: () => appSettingsRadioGroupSheet<bool>(
                     context: context,
                     title: "Rating",
-                    value: appSettingsReader.enableRating,
+                    value: appSettings.enableRating,
                     optionWidgets: _offOnOptionWidgets,
                     onChanged: (bool? newValue) {
                       if (newValue == null) return;
-                      appSettingsWriter.enableRating = newValue;
+                      appSettings.enableRating = newValue;
                       Navigator.pop(context);
                     },
                   ),
@@ -398,17 +396,17 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ListTile(
                 leading: const Icon(Icons.checklist),
                 title: const Text("Tasks"),
-                subtitle: _offOnOptionWidgets[appSettingsReader.enableTask] ?? const Text("-"),
+                subtitle: _offOnOptionWidgets[appSettings.enableTask] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () => appSettingsRadioGroupSheet<bool>(
                   context: context,
                   title: "Tasks",
                   infoText: "Plan and track anything from recurring maintenance like fork services and chain cleaning to setup experiments like suspension testing or trying different handlebar widths. Keep a complete log of your goals and achievements in one place.",
-                  value: appSettingsReader.enableTask,
+                  value: appSettings.enableTask,
                   optionWidgets: _offOnOptionWidgets,
                   onChanged: (bool? newValue) {
                     if (newValue == null) return;
-                    appSettingsWriter.enableTask = newValue;
+                    appSettings.enableTask = newValue;
                     Navigator.pop(context);
                   },
                 ),
@@ -417,16 +415,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ListTile(
                   leading: const Icon(Icons.checklist),
                   title: const Text("Installation Timeline"),
-                  subtitle: _offOnOptionWidgets[appSettingsReader.enableInstallationTimeline] ?? const Text("-"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableInstallationTimeline] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                   onTap: () => appSettingsRadioGroupSheet<bool>(
                     context: context,
                     title: "Installation Timeline",
-                    value: appSettingsReader.enableInstallationTimeline,
+                    value: appSettings.enableInstallationTimeline,
                     optionWidgets: _offOnOptionWidgets,
                     onChanged: (bool? newValue) {
                       if (newValue == null) return;
-                      appSettingsWriter.enableInstallationTimeline = newValue;
+                      appSettings.enableInstallationTimeline = newValue;
                       Navigator.pop(context);
                     },
                   ),
@@ -435,16 +433,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ListTile(
                   leading: const Icon(Icons.timer),
                   title: const Text("Task Interval"),
-                  subtitle: _offOnOptionWidgets[appSettingsReader.enableTaskInterval] ?? const Text("-"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableTaskInterval] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                   onTap: () => appSettingsRadioGroupSheet<bool>(
                     context: context,
                     title: "Task Interval",
-                    value: appSettingsReader.enableTaskInterval,
+                    value: appSettings.enableTaskInterval,
                     optionWidgets: _offOnOptionWidgets,
                     onChanged: (bool? newValue) {
                       if (newValue == null) return;
-                      appSettingsWriter.enableTaskInterval = newValue;
+                      appSettings.enableTaskInterval = newValue;
                       Navigator.pop(context);
                     },
                   ),
@@ -453,16 +451,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ListTile(
                   leading: const Icon(Icons.more_time_rounded),
                   title: const Text("Task Delay"),
-                  subtitle: _offOnOptionWidgets[appSettingsReader.enableTaskDelay] ?? const Text("-"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableTaskDelay] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                   onTap: () => appSettingsRadioGroupSheet<bool>(
                     context: context,
                     title: "Task Delay",
-                    value: appSettingsReader.enableTaskDelay,
+                    value: appSettings.enableTaskDelay,
                     optionWidgets: _offOnOptionWidgets,
                     onChanged: (bool? newValue) {
                       if (newValue == null) return;
-                      appSettingsWriter.enableTaskDelay = newValue;
+                      appSettings.enableTaskDelay = newValue;
                       Navigator.pop(context);
                     },
                   ),
@@ -471,16 +469,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ListTile(
                   leading: const Icon(SimpleIcons.strava),
                   title: const Text("Strava"),
-                  subtitle: _offOnOptionWidgets[appSettingsReader.enableStrava] ?? const Text("-"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableStrava] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                   onTap: () => appSettingsRadioGroupSheet<bool>(
                     context: context,
                     title: "Strava",
-                    value: appSettingsReader.enableStrava,
+                    value: appSettings.enableStrava,
                     optionWidgets: _offOnOptionWidgets,
                     onChanged: (bool? newValue) {
                       if (newValue == null) return;
-                      appSettingsWriter.enableStrava = newValue;
+                      appSettings.enableStrava = newValue;
                       Navigator.pop(context);
                     },
                   ),
@@ -489,21 +487,21 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ListTile(
                   leading: const Icon(Icons.map),
                   title: const Text("MapBox Tiles"),
-                  subtitle: _offOnOptionWidgets[appSettingsReader.useMapBoxTiles] ?? const Text("-"),
+                  subtitle: _offOnOptionWidgets[appSettings.useMapBoxTiles] ?? const Text("-"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                   onTap: () => appSettingsRadioGroupSheet<bool>(
                     context: context,
                     title: "MapBox Tiles",
-                    value: appSettingsReader.useMapBoxTiles,
+                    value: appSettings.useMapBoxTiles,
                     optionWidgets: _offOnOptionWidgets,
                     onChanged: (bool? newValue) {
                       if (newValue == null) return;
-                      appSettingsWriter.useMapBoxTiles = newValue;
+                      appSettings.useMapBoxTiles = newValue;
                       Navigator.pop(context);
                     },
                   ),
                 ),
-              if (appSettingsReader.enableStrava) ...[
+              if (appSettings.enableStrava) ...[
                 const Divider(),
                 const SectionTitle(title: 'Strava Sync'),
                 const Padding(
@@ -539,16 +537,16 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   ListTile(
                     leading: const Icon(Icons.notifications_active),
                     title: const Text("Strava Notifications"),
-                    subtitle: _offOnOptionWidgets[appSettingsReader.enableStravaNotifications] ?? const Text("-"),
+                    subtitle: _offOnOptionWidgets[appSettings.enableStravaNotifications] ?? const Text("-"),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: () => appSettingsRadioGroupSheet<bool>(
                       context: context,
                       title: "Strava Notifications",
-                      value: appSettingsReader.enableStravaNotifications,
+                      value: appSettings.enableStravaNotifications,
                       optionWidgets: _offOnOptionWidgets,
                       onChanged: (bool? newValue) {
                         if (newValue == null) return;
-                        appSettingsWriter.enableStravaNotifications = newValue;
+                        appSettings.enableStravaNotifications = newValue;
                         unawaited(context.read<StravaService>().setStravaNotificationsEnabled(newValue));
                         Navigator.pop(context);
                       },

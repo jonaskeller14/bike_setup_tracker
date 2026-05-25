@@ -27,11 +27,12 @@ class AppRepository extends ChangeNotifier {
   final AppDatabase database;
   final List<StreamSubscription<dynamic>> _subscriptions = [];
   
-  /// Track if the repository has been disposed. 
-  /// This is used as a safety guard for asynchronous operations that might 
+  /// Track if the repository has been disposed.
+  /// This is used as a safety guard for asynchronous operations that might
   /// complete after the repository is closed (common in tests), preventing
   /// 'notifyListeners() called after dispose()' crashes.
   bool _isDisposed = false;
+  bool _pendingDataChange = false;
 
   // ---------------------------------------------------------------------------
   // RAW STATE FROM DB (Read-Only Cache for immediate access)
@@ -237,7 +238,7 @@ class AppRepository extends ChangeNotifier {
 
   Future<void> initialize() async {
     FileExport.deleteOldBackups();
-    await initialStravaLoad();
+    unawaited(initialStravaLoad());
   }
 
   @override
@@ -350,9 +351,15 @@ class AppRepository extends ChangeNotifier {
 
   void _dataChanged() {
     if (_isDisposed) return;
-    _resolveData();
-    _filter();
-    notifyListeners();
+    if (_pendingDataChange) return;
+    _pendingDataChange = true;
+    unawaited(Future.microtask(() {
+      if (_isDisposed) return;
+      _pendingDataChange = false;
+      _resolveData();
+      _filter();
+      notifyListeners();
+    }));
   }
 
   @override

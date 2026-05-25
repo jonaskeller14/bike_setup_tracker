@@ -11,7 +11,7 @@ import '../../models/bike.dart';
 import '../../models/component_stats.dart';
 import '../../models/rating.dart';
 import '../../models/setup.dart';
-import '../../models/task_rule.dart';
+import '../../models/task/task_rule.dart';
 import '../../models/weather.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';

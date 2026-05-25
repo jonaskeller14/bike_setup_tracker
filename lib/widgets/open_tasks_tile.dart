@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/task_rule.dart';
+import '../models/task/task_rule.dart';
 import '../repositories/app_repository.dart';
 import 'items/task_rule_list_card.dart';
 

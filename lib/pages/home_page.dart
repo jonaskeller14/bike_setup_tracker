@@ -21,7 +21,6 @@ import '../widgets/lists/person_list.dart';
 import '../widgets/lists/rating_list.dart';
 import '../widgets/lists/setup_list.dart';
 import '../widgets/lists/task_list.dart';
-import '../widgets/open_tasks_tile.dart';
 import '../widgets/sheets/export.dart';
 import '../widgets/sheets/import.dart';
 import '../widgets/sheets/share.dart';
@@ -44,6 +43,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
+    final toDoTaskRulesCount = appRepository.openTaskRules.length;
     
     _currentPageIndex = _currentPageIndex.clamp(0, (-1)+ (appSettings.enableGarage ? 1 : 2) + 1 + (appSettings.enablePerson ? 1 : 0) + (appSettings.enableRating ? 1: 0) + (appSettings.enableTask ? 1 : 0));
     return Scaffold(
@@ -179,10 +179,10 @@ class _HomePageState extends State<HomePage> {
           if (appSettings.enableTask)
             NavigationDestination(
               icon: Badge.count(
-                count: appRepository.filteredOpenTaskRulesCount,
+                count: toDoTaskRulesCount,
                 maxCount: 99,
-                isLabelVisible: appRepository.filteredOpenTaskRulesCount > 0,
-                backgroundColor: OpenTasksTile.getAggregatedStatus(appRepository.filteredTaskRules.values, appRepository).getStatusColor(),
+                isLabelVisible: toDoTaskRulesCount > 0,
+                backgroundColor: appRepository.openTaskRulesStatusType.getStatusColor(),
                 child: const Icon(Icons.checklist),
               ),
               label: "Tasks",

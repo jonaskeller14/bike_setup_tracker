@@ -1,5 +1,5 @@
 import 'package:uuid/uuid.dart';
-import 'component_stats.dart';
+import '../component_stats.dart';
 
 class TaskEntry {
   final String id;

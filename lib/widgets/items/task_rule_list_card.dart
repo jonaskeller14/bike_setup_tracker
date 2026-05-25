@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';
-import '../../models/task_rule.dart';
+import '../../models/task/task_rule.dart';
 import '../../pages/details/task_rule_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/task_actions.dart';

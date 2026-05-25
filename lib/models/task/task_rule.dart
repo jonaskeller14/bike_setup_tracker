@@ -1,58 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'component_stats.dart';
+import '../component_stats.dart';
 import 'task_entry.dart';
 import 'task_threshold.dart';
 
-enum TaskStatusType {
-  upcoming,
-  due,
-  overdue,
-  completed;
-
-  Color getStatusColor() {
-    return switch (this) {
-      TaskStatusType.overdue => Colors.red,
-      TaskStatusType.due => Colors.orange,
-      TaskStatusType.upcoming => Colors.blue,
-      TaskStatusType.completed => Colors.green,
-    };
-  }
-}
-
-class TaskStatus {
-  final TaskStatusType type;
-  final double progress;
-
-  const TaskStatus({
-    required this.type,
-    required this.progress,
-  });
-
-  bool get isDue => type == TaskStatusType.due || type == TaskStatusType.overdue;
-  bool get isOverdue => type == TaskStatusType.overdue;
-}
-
-class TaskRuleWithStatus {
-  final TaskRule rule;
-  final TaskStatus status;
-
-  const TaskRuleWithStatus({
-    required this.rule,
-    required this.status,
-  });
-}
-
-enum TaskPriority {
-  low('Low'),
-  medium('Medium'),
-  high('High'),
-  critical('Critical');
-
-  final String label;
-  const TaskPriority(this.label);
-}
+part 'task_priority.dart';
+part 'task_status.dart';
 
 class TaskRule {
   final String id;

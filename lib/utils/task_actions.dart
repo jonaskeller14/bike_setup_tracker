@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/task_entry.dart';
-import '../models/task_rule.dart';
+import '../models/task/task_entry.dart';
+import '../models/task/task_rule.dart';
 import '../pages/details/task_rule_details_page.dart';
 import '../pages/task_entry_page.dart';
 import '../pages/task_rule_page.dart';

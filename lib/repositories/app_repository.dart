@@ -18,8 +18,8 @@ import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
-import '../models/task_entry.dart';
-import '../models/task_rule.dart';
+import '../models/task/task_entry.dart';
+import '../models/task/task_rule.dart';
 import '../services/setup_resolution_service.dart';
 import '../utils/file_export.dart';
 
@@ -172,11 +172,11 @@ class AppRepository extends ChangeNotifier {
   Map<String, TaskRule> _filteredOpenTaskRules = {};
   List<ComponentInstallation> _filteredInstallations = [];
 
-  List<TaskRuleWithStatus> get toDoTaskRules {
-    final statusRules = _filteredTaskRules.values.map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule))).toList();
+  List<TaskRuleWithStatus> get openTaskRules {
+    final statusRules = _filteredTaskRules.values.map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule)));
     final toDo = statusRules.where((tr) => tr.status.type != TaskStatusType.completed).toList();
     
-    // Sort ToDo: Status (Overdue > Due > Upcoming), then by progress, then by Priority (Critical > High > Medium > Low)
+    // Sort open Tasks: Status (Overdue > Due > Upcoming), then by progress, then by Priority (Critical > High > Medium > Low)
     toDo.sort((a, b) {
       if (a.status.type.index != b.status.type.index) {
         return b.status.type.index.compareTo(a.status.type.index);
@@ -189,9 +189,34 @@ class AppRepository extends ChangeNotifier {
     });
     return toDo;
   }
+  
+  TaskStatusType get openTaskRulesStatusType {
+    if (_filteredTaskRules.isEmpty) return TaskStatusType.completed;
+
+    bool hasDue = false;
+    bool hasUpcoming = false;
+
+    for (final rule in _filteredTaskRules.values) {
+      final status = getTaskRuleStatus(rule);
+      switch (status.type) {
+        case TaskStatusType.overdue:
+          return TaskStatusType.overdue;
+        case TaskStatusType.due:
+          hasDue = true;
+        case TaskStatusType.upcoming:
+          hasUpcoming = true;
+        case TaskStatusType.completed:
+          break;
+      }
+    }
+
+    if (hasDue) return TaskStatusType.due;
+    if (hasUpcoming) return TaskStatusType.upcoming;
+    return TaskStatusType.completed;
+  }
 
   List<TaskRuleWithStatus> get completedTaskRules {
-    final statusRules = _filteredTaskRules.values.map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule))).toList();
+    final statusRules = _filteredTaskRules.values.map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule)));
     final completed = statusRules.where((tr) => tr.status.type == TaskStatusType.completed).toList();
     completed.sort((a, b) => b.rule.lastModified.compareTo(a.rule.lastModified));
     return completed;

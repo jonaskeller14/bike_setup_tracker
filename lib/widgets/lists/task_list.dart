@@ -37,7 +37,7 @@ class _TaskListState extends State<TaskList> {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
-    final openTaskRules = appRepository.toDoTaskRules;
+    final openTaskRules = appRepository.openTaskRules;
     final completedTaskRules = appRepository.completedTaskRules;
 
     if (openTaskRules.isEmpty && completedTaskRules.isEmpty) {

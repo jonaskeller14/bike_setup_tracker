@@ -9,7 +9,7 @@ import '../models/adjustment/adjustment.dart';
 import '../models/component.dart';
 import '../models/rating.dart';
 import '../models/strava/strava_activity.dart';
-import '../models/task_rule.dart';
+import '../models/task/task_rule.dart';
 import 'converters/duration_converter.dart';
 import 'converters/local_floating_datetime_converter.dart';
 import 'converters/location_data_converter.dart';

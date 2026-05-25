@@ -6,8 +6,9 @@ import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/rating.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
-import 'package:bike_setup_tracker/models/task_entry.dart';
-import 'package:bike_setup_tracker/models/task_rule.dart';
+import 'package:bike_setup_tracker/models/task/task_entry.dart';
+import 'package:bike_setup_tracker/models/task/task_rule.dart';
+import 'package:bike_setup_tracker/models/task/task_threshold.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -545,7 +546,7 @@ void main() {
       await repository.addTaskRule(ruleCritical);
       await pumpEventQueue();
 
-      final toDo = repository.toDoTaskRules;
+      final toDo = repository.openTaskRules;
       expect(toDo.length, 4);
       
       // Since all have the same status (Due, because interval is null) and progress (0.0), 
@@ -554,6 +555,45 @@ void main() {
       expect(toDo[1].rule.name, "High");
       expect(toDo[2].rule.name, "Medium");
       expect(toDo[3].rule.name, "Low");
+    });
+
+    test("openTaskRulesStatusType returns the aggregated highest priority status", () async {
+      // 1. Initially empty: should be completed
+      expect(repository.openTaskRulesStatusType, TaskStatusType.completed);
+
+      // 2. Add an upcoming task
+      final upcomingRule = TaskRule(
+        name: "Upcoming",
+        tags: const {},
+        interval: const DurationThreshold(Duration(days: 30000)), // ~82 years
+      );
+      await repository.addTaskRule(upcomingRule);
+      await pumpEventQueue();
+      expect(repository.openTaskRulesStatusType, TaskStatusType.upcoming);
+
+      // 3. Add a due task (due > upcoming)
+      final dueRule = TaskRule(
+        name: "Due",
+        tags: const {},
+      );
+      await repository.addTaskRule(dueRule);
+      await pumpEventQueue();
+      expect(repository.openTaskRulesStatusType, TaskStatusType.due);
+
+      // 4. Add an overdue task (overdue > due > upcoming)
+      final overdueRule = TaskRule(
+        name: "Overdue",
+        tags: const {},
+        interval: const DurationThreshold(Duration(days: 10)),
+      );
+      await repository.addTaskRule(overdueRule);
+      await pumpEventQueue();
+      expect(repository.openTaskRulesStatusType, TaskStatusType.overdue);
+
+      // 5. Complete/remove uncompleted tasks and verify we go back down
+      await repository.removeTaskRules([overdueRule, dueRule]);
+      await pumpEventQueue();
+      expect(repository.openTaskRulesStatusType, TaskStatusType.upcoming);
     });
   });
 }

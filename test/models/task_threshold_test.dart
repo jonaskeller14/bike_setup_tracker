@@ -1,5 +1,5 @@
 import 'package:bike_setup_tracker/models/component_stats.dart';
-import 'package:bike_setup_tracker/models/task_threshold.dart';
+import 'package:bike_setup_tracker/models/task/task_threshold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -8,8 +8,8 @@ import "../../models/person.dart";
 import "../../models/rating.dart";
 import "../../models/selected_data.dart";
 import "../../models/setup.dart";
-import "../../models/task_entry.dart";
-import "../../models/task_rule.dart";
+import "../../models/task/task_entry.dart";
+import "../../models/task/task_rule.dart";
 import "../../repositories/app_repository.dart";
 import 'sheet.dart';
 

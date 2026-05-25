@@ -427,6 +427,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       appSettings.enableInstallationTimeline = newValue;
                       Navigator.pop(context);
                     },
+                    infoText: 'By default, Components are linked to a Bike. '
+                    'When this setting is enabled, you can track exactly when a component was installed and deinstalled. '
+                    'This allows you to deinstall components and move them between different bikes without losing track of their history, usage, or setups.',
                   ),
                 ),
               if (kDebugMode)

@@ -31,7 +31,9 @@ class _GarageListState extends State<GarageList> {
 
     await Future.microtask(() async {
       if (!mounted) return;
-      if (appSettings.enableInstallationTimeline) {
+      final isComplexInstallation = component.installations.length > 1 ||
+          (component.installations.isNotEmpty && component.installations.first.dateTimeUTC.millisecondsSinceEpoch > 0);
+      if (appSettings.enableInstallationTimeline || isComplexInstallation) {
         showAddInstallationSheet(context, component: component, targetBikeId: newBike);
       } else {
         appRepository.editComponent(component.copyWithNewInstallation(newBike));

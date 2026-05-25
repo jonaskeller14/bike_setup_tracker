@@ -13,21 +13,26 @@ class OpenTasksTile extends StatelessWidget {
     required this.repository,
   });
 
-  static TaskStatusType _getAggregatedStatus(List<TaskRule> rules, AppRepository repository) {
+  static TaskStatusType getAggregatedStatus(Iterable<TaskRule> rules, AppRepository repository) {
     if (rules.isEmpty) return TaskStatusType.completed;
 
-    bool hasOverdue = false;
     bool hasDue = false;
     bool hasUpcoming = false;
 
     for (final rule in rules) {
       final status = repository.getTaskRuleStatus(rule);
-      if (status.type == TaskStatusType.overdue) hasOverdue = true;
-      if (status.type == TaskStatusType.due) hasDue = true;
-      if (status.type == TaskStatusType.upcoming) hasUpcoming = true;
+      switch (status.type) {
+        case TaskStatusType.overdue:
+          return TaskStatusType.overdue;
+        case TaskStatusType.due:
+          hasDue = true;
+        case TaskStatusType.upcoming:
+          hasUpcoming = true;
+        case TaskStatusType.completed:
+          break;
+      }
     }
 
-    if (hasOverdue) return TaskStatusType.overdue;
     if (hasDue) return TaskStatusType.due;
     if (hasUpcoming) return TaskStatusType.upcoming;
     return TaskStatusType.completed;
@@ -36,7 +41,7 @@ class OpenTasksTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final count = openTasks.length;
-    final aggregatedStatus = _getAggregatedStatus(
+    final aggregatedStatus = getAggregatedStatus(
       openTasks.map((t) => t.rule).toList(),
       repository,
     );

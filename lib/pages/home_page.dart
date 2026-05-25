@@ -21,6 +21,7 @@ import '../widgets/lists/person_list.dart';
 import '../widgets/lists/rating_list.dart';
 import '../widgets/lists/setup_list.dart';
 import '../widgets/lists/task_list.dart';
+import '../widgets/open_tasks_tile.dart';
 import '../widgets/sheets/export.dart';
 import '../widgets/sheets/import.dart';
 import '../widgets/sheets/share.dart';
@@ -180,6 +181,8 @@ class _HomePageState extends State<HomePage> {
               icon: Badge.count(
                 count: appRepository.filteredOpenTaskRulesCount,
                 maxCount: 99,
+                isLabelVisible: appRepository.filteredOpenTaskRulesCount > 0,
+                backgroundColor: OpenTasksTile.getAggregatedStatus(appRepository.filteredTaskRules.values, appRepository).getStatusColor(),
                 child: const Icon(Icons.checklist),
               ),
               label: "Tasks",

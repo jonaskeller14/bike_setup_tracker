@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
+import '../utils/bike_actions.dart';
+import '../utils/component_actions.dart';
 import '../utils/setup_actions.dart';
+import '../utils/task_actions.dart';
 import 'navigation_service.dart';
 
 class DeepLinkService {
@@ -56,12 +59,21 @@ class DeepLinkService {
 
     debugPrint('Received deep link: $uri');
 
-    if (uri.scheme == 'bike-setup-tracker' && uri.host == 'add-setup') {
-      _triggerAddSetup();
-    } else if (uri.scheme == 'bike-setup-tracker' && uri.host == 'strava-auth') {
-      if (uri.queryParameters['success'] == 'false') {
-        _showStravaAuthError();
-      }
+    if (uri.scheme != 'bike-setup-tracker') return;
+
+    switch (uri.host) {
+      case 'add-setup':
+        _triggerAddSetup();
+      case 'add-bike':
+        _triggerAddBike();
+      case 'add-component':
+        _triggerAddComponent();
+      case 'add-task':
+        _triggerAddTaskRule();
+      case 'strava-auth':
+        if (uri.queryParameters['success'] == 'false') {
+          _showStravaAuthError();
+        }
     }
   }
 
@@ -70,6 +82,27 @@ class DeepLinkService {
     if (context == null) return;
 
     await SetupActions.addSetup(context);
+  }
+
+  Future<void> _triggerAddBike() async {
+    final context = NavigationService.context;
+    if (context == null) return;
+
+    await BikeActions.addBike(context);
+  }
+
+  Future<void> _triggerAddComponent() async {
+    final context = NavigationService.context;
+    if (context == null) return;
+
+    await ComponentActions.addComponent(context);
+  }
+
+  Future<void> _triggerAddTaskRule() async {
+    final context = NavigationService.context;
+    if (context == null) return;
+
+    await TaskActions.addTaskRule(context);
   }
 
   void _showStravaAuthError() {

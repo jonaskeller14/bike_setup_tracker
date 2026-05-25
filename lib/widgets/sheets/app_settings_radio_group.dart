@@ -35,13 +35,13 @@ Future<void> appSettingsRadioGroupSheet<T>({
                   ),
                 ),
                 const SizedBox(height: 16),
-                if (infoText != null) ...[
+                if (infoText != null)
                   ListTile(
                     leading: const Icon(Icons.info_outline),
+                    titleAlignment: ListTileTitleAlignment.titleHeight,
                     title: Text(infoText),
                     dense: true,
                   ),
-                ],
                 Flexible(
                   child: SingleChildScrollView(
                     child: Column(

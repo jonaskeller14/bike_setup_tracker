@@ -320,6 +320,44 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               ),
               ListTile(
+                leading: const Icon(Icons.checklist),
+                title: const Text("Installation Timeline"),
+                subtitle: _offOnOptionWidgets[appSettings.enableInstallationTimeline] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<bool>(
+                  context: context,
+                  title: "Installation Timeline",
+                  value: appSettings.enableInstallationTimeline,
+                  optionWidgets: _offOnOptionWidgets,
+                  onChanged: (bool? newValue) {
+                    if (newValue == null) return;
+                    appSettings.enableInstallationTimeline = newValue;
+                    Navigator.pop(context);
+                  },
+                  infoText: 'By default, Components are linked to a Bike. '
+                  'When this setting is enabled, you can track exactly when a component was installed and deinstalled. '
+                  'This allows you to deinstall components and move them between different bikes without losing track of their history, usage, or setups.',
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.checklist),
+                title: const Text("Tasks"),
+                subtitle: _offOnOptionWidgets[appSettings.enableTask] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<bool>(
+                  context: context,
+                  title: "Tasks",
+                  infoText: "Plan and track anything from recurring maintenance like fork services and chain cleaning to setup experiments like suspension testing or trying different handlebar widths. Keep a complete log of your goals and achievements in one place.",
+                  value: appSettings.enableTask,
+                  optionWidgets: _offOnOptionWidgets,
+                  onChanged: (bool? newValue) {
+                    if (newValue == null) return;
+                    appSettings.enableTask = newValue;
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+              ListTile(
                 leading: const Icon(Icons.tag),
                 title: const Text("Task Tags"),
                 subtitle: _offOnOptionWidgets[appSettings.enableTaskTags] ?? const Text("-"),
@@ -359,81 +397,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               ),
               if (kDebugMode)
                 ListTile(
-                  leading: const Icon(Icons.person),
-                  title: const Text("Profile"),
-                  subtitle: _offOnOptionWidgets[appSettings.enablePerson] ?? const Text("-"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
-                    context: context,
-                    title: "Profile",
-                    value: appSettings.enablePerson,
-                    optionWidgets: _offOnOptionWidgets,
-                    onChanged: (bool? newValue) {
-                      if (newValue == null) return;
-                      appSettings.enablePerson = newValue;
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-              if (kDebugMode)
-                ListTile(
-                  leading: const Icon(Icons.star),
-                  title: const Text("Rating"),
-                  subtitle: _offOnOptionWidgets[appSettings.enableRating] ?? const Text("-"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
-                    context: context,
-                    title: "Rating",
-                    value: appSettings.enableRating,
-                    optionWidgets: _offOnOptionWidgets,
-                    onChanged: (bool? newValue) {
-                      if (newValue == null) return;
-                      appSettings.enableRating = newValue;
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-              ListTile(
-                leading: const Icon(Icons.checklist),
-                title: const Text("Tasks"),
-                subtitle: _offOnOptionWidgets[appSettings.enableTask] ?? const Text("-"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<bool>(
-                  context: context,
-                  title: "Tasks",
-                  infoText: "Plan and track anything from recurring maintenance like fork services and chain cleaning to setup experiments like suspension testing or trying different handlebar widths. Keep a complete log of your goals and achievements in one place.",
-                  value: appSettings.enableTask,
-                  optionWidgets: _offOnOptionWidgets,
-                  onChanged: (bool? newValue) {
-                    if (newValue == null) return;
-                    appSettings.enableTask = newValue;
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              if (kDebugMode)
-                ListTile(
-                  leading: const Icon(Icons.checklist),
-                  title: const Text("Installation Timeline"),
-                  subtitle: _offOnOptionWidgets[appSettings.enableInstallationTimeline] ?? const Text("-"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
-                    context: context,
-                    title: "Installation Timeline",
-                    value: appSettings.enableInstallationTimeline,
-                    optionWidgets: _offOnOptionWidgets,
-                    onChanged: (bool? newValue) {
-                      if (newValue == null) return;
-                      appSettings.enableInstallationTimeline = newValue;
-                      Navigator.pop(context);
-                    },
-                    infoText: 'By default, Components are linked to a Bike. '
-                    'When this setting is enabled, you can track exactly when a component was installed and deinstalled. '
-                    'This allows you to deinstall components and move them between different bikes without losing track of their history, usage, or setups.',
-                  ),
-                ),
-              if (kDebugMode)
-                ListTile(
                   leading: const Icon(Icons.timer),
                   title: const Text("Task Interval"),
                   subtitle: _offOnOptionWidgets[appSettings.enableTaskInterval] ?? const Text("-"),
@@ -464,6 +427,42 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     onChanged: (bool? newValue) {
                       if (newValue == null) return;
                       appSettings.enableTaskDelay = newValue;
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              if (kDebugMode)
+                ListTile(
+                  leading: const Icon(Icons.person),
+                  title: const Text("Profile"),
+                  subtitle: _offOnOptionWidgets[appSettings.enablePerson] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Profile",
+                    value: appSettings.enablePerson,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettings.enablePerson = newValue;
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              if (kDebugMode)
+                ListTile(
+                  leading: const Icon(Icons.star),
+                  title: const Text("Rating"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableRating] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Rating",
+                    value: appSettings.enableRating,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettings.enableRating = newValue;
                       Navigator.pop(context);
                     },
                   ),

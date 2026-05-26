@@ -64,6 +64,8 @@
 		<true/>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
+		<key>NSCameraUsageDescription</key>
+		<string>Camera access is required by the file picker library used for importing and exporting data files. This app does not capture photos or videos.</string>
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>This app requires access to the photo library to allow for file importing and exporting features.</string>
 		<key>NSLocationWhenInUseUsageDescription</key>

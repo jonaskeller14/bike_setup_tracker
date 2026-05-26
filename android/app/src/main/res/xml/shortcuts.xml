@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        Launcher shortcut: shown in long-press menu.
+        Also acts as the "setup" inventory entity for CREATE_CREATE_TYPE_NAME.
+    -->
     <shortcut
         android:shortcutId="add_setup"
         android:enabled="true"
@@ -11,6 +16,54 @@
             android:targetPackage="com.jonaskeller14.bike_setup_tracker"
             android:targetClass="com.jonaskeller14.bike_setup_tracker.MainActivity"
             android:data="bike-setup-tracker://add-setup" />
-        <capability android:name="actions.intent.CREATE_CREATE_TYPE_NAME" />
+        <capability-binding android:key="actions.intent.CREATE_CREATE_TYPE_NAME">
+            <parameter-binding android:key="object.type" android:value="@array/type_setup" />
+        </capability-binding>
     </shortcut>
+
+    <!--
+        Inventory-only shortcuts (no label → not shown in launcher).
+        Used by Assistant to constrain object.type to known values.
+    -->
+    <shortcut android:shortcutId="add_bike">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.jonaskeller14.bike_setup_tracker"
+            android:targetClass="com.jonaskeller14.bike_setup_tracker.MainActivity"
+            android:data="bike-setup-tracker://add-bike" />
+        <capability-binding android:key="actions.intent.CREATE_CREATE_TYPE_NAME">
+            <parameter-binding android:key="object.type" android:value="@array/type_bike" />
+        </capability-binding>
+    </shortcut>
+
+    <shortcut android:shortcutId="add_component">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.jonaskeller14.bike_setup_tracker"
+            android:targetClass="com.jonaskeller14.bike_setup_tracker.MainActivity"
+            android:data="bike-setup-tracker://add-component" />
+        <capability-binding android:key="actions.intent.CREATE_CREATE_TYPE_NAME">
+            <parameter-binding android:key="object.type" android:value="@array/type_component" />
+        </capability-binding>
+    </shortcut>
+
+    <!--
+        Capability: routes to the matched inventory shortcut's intent based on object.type.
+        Constrains NLU extraction to: setup, bike, component.
+    -->
+    <capability android:name="actions.intent.CREATE_CREATE_TYPE_NAME">
+        <shortcut-fulfillment>
+            <parameter android:name="object.type" />
+        </shortcut-fulfillment>
+    </capability>
+
+    <!-- Assistant-only: "add a task" — separate BII, no launcher entry needed -->
+    <capability android:name="actions.intent.CREATE_TASK">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.jonaskeller14.bike_setup_tracker"
+            android:targetClass="com.jonaskeller14.bike_setup_tracker.MainActivity"
+            android:data="bike-setup-tracker://add-task" />
+    </capability>
+
 </shortcuts>

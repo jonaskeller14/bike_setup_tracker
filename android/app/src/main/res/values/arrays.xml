@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="type_setup">
+        <item>setup</item>
+        <item>setting</item>
+    </string-array>
+    <string-array name="type_bike">
+        <item>bike</item>
+        <item>bicycle</item>
+    </string-array>
+    <string-array name="type_component">
+        <item>component</item>
+        <item>part</item>
+    </string-array>
+</resources>

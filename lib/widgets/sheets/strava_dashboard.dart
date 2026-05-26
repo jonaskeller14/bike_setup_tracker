@@ -9,6 +9,8 @@ import '../../models/strava/strava_athlete.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/strava_service.dart';
 import '../dialogs/strava_disconnect.dart';
+import '../hints/strava_gear_link_hint.dart';
+import '../hints/strava_no_gears_hint.dart';
 import '../items/strava_list_tile.dart';
 import '../text/sheet_section_title.dart';
 import 'sheet.dart';
@@ -83,12 +85,12 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                     
                     if (gears.isEmpty && stravaService.isConnected) ...[
                       const Divider(),
-                      _buildNoGearsCard(context),
+                      const StravaNoGearsHint(),
                     ] else if (gears.isNotEmpty) ...[
                       const Divider(),
                       const SheetSectionTitle(title: "Strava Gear:"),
-                      if (hasUnlinkedGears && !appSettings.stravaGearHintDismissed) ...[
-                        _buildGearLinkHint(context, appSettings),
+                      if (hasUnlinkedGears && appSettings.showStravaLinkGearHint) ...[
+                        const StravaGearLinkHint(),
                         const SizedBox(height: 4),
                       ],
                       Wrap(
@@ -288,205 +290,7 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
     );
   }
 
-  Widget _buildGearLinkHint(BuildContext context, AppSettings appSettings) {
-    final colors = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
 
-    final tintBg = Color.alphaBlend(
-      colors.tertiary.withValues(alpha: 0.10),
-      colors.surface,
-    );
-    final tintBorder = colors.tertiary.withValues(alpha: 0.30);
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        decoration: BoxDecoration(
-          color: tintBg,
-          border: Border.all(color: tintBorder),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(width: 4, color: colors.tertiary),
-              Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              spacing: 6,
-                              children: [
-                                Icon(
-                                  Icons.info_outline,
-                                  size: 14,
-                                  color: colors.tertiary,
-                                ),
-                                Text(
-                                  'INFO',
-                                  style: textTheme.labelSmall?.copyWith(
-                                    color: colors.tertiary,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.8,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Link your Strava gear',
-                              style: textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: colors.onSurface,
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              'Tap a gear below to connect it to one of your bikes.',
-                              style: textTheme.bodySmall?.copyWith(
-                                color: colors.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => appSettings.stravaGearHintDismissed = true,
-                      icon: const Icon(Icons.close, size: 18),
-                      color: colors.tertiary,
-                      visualDensity: VisualDensity.compact,
-                      tooltip: 'Dismiss',
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNoGearsCard(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    final tintBg = Color.alphaBlend(
-      colors.tertiary.withValues(alpha: 0.10),
-      colors.surface,
-    );
-    final tintBorder = colors.tertiary.withValues(alpha: 0.30);
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        decoration: BoxDecoration(
-          color: tintBg,
-          border: Border.all(color: tintBorder),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(width: 4, color: colors.tertiary),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        spacing: 6,
-                        children: [
-                          Icon(Icons.directions_bike_outlined, size: 14, color: colors.tertiary),
-                          Text(
-                            'NO GEAR FOUND',
-                            style: textTheme.labelSmall?.copyWith(
-                              color: colors.tertiary,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.8,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Add a bike in Strava',
-                        style: textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: colors.onSurface,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Add a bike in the Strava app, then tap Sync here.',
-                        style: textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
-                      ),
-                      const SizedBox(height: 8),
-                      ..._noGearsSteps.map((step) => Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 8,
-                          children: [
-                            Container(
-                              width: 18,
-                              height: 18,
-                              decoration: BoxDecoration(
-                                color: colors.tertiary.withValues(alpha: 0.15),
-                                shape: BoxShape.circle,
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                '${_noGearsSteps.indexOf(step) + 1}',
-                                style: textTheme.labelSmall?.copyWith(
-                                  color: colors.tertiary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Text(
-                                step,
-                                style: textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Tip: you can also assign the bike to existing activities in Strava.',
-                        style: textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  static const _noGearsSteps = [
-    'Open the Strava app',
-    'Profile picture → Gear → Add a new Bike',
-    'Come back here and tap Sync',
-  ];
 
   Widget _emptyAthletePlaceholder(BuildContext context) {
     return ListTile(

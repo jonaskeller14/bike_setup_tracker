@@ -527,7 +527,7 @@ class StravaService extends ChangeNotifier {
 
       await _stopDataListeners();
       await _appRepository.clearStravaData();
-      _appSettings.stravaGearHintDismissed = false;
+      _appSettings.showStravaLinkGearHint = true;
 
       errorMessage = "";
       status = StravaServiceStatus.idle;

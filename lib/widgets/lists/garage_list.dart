@@ -6,6 +6,7 @@ import '../../models/component.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/bike_actions.dart';
 import '../chips/bike_list_filter_widget.dart';
+import '../hints/garage_list_hint.dart';
 import '../items/garage_bike_card.dart';
 import '../items/garage_uninstalled_card.dart';
 import '../sheets/installation_sheet.dart';
@@ -73,6 +74,7 @@ class _GarageListState extends State<GarageList> {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
+    final appSettings = context.watch<AppSettings>();
     final bikesList = appRepository.filteredBikes.values.toList();
 
     Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
@@ -105,7 +107,16 @@ class _GarageListState extends State<GarageList> {
         : ReorderableListView.builder(
             itemCount: bikesList.length,
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
-            header: const BikeListFilterWidget(),
+            header: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 8,
+              children: [
+                if (appRepository.bikes.length >= 2 && appRepository.components.isNotEmpty && appSettings.showGarageListHint)
+                  const GarageListHint(),
+                const BikeListFilterWidget(),
+              ],
+            ),
             footer: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

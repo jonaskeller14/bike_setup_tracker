@@ -11,8 +11,8 @@ import 'faq_page.dart';
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
 
-  static const String appVersion = '1.3.1';
-  static const String buildNumber = '23';
+  static const String appVersion = '1.3.2';
+  static const String buildNumber = '24';
   static const String releaseDate = 'May 2026';
 
   static const String supportEmail = 'jonaskeller14.app+support@gmail.com';

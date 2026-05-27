@@ -27,6 +27,7 @@ class QuickActionsService {
           type: 'add_setup',
           localizedTitle: 'Add New Setup',
           icon: 'ic_add',
+          // For anroid: android\app\src\main\res\raw\keep.xml
         ),
       ]);
     } catch (e) {

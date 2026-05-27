@@ -14,6 +14,17 @@
             }
         },
         {
+            "label": "Build & Install APK (Release) [R3CX50CQWVA]",
+            "type": "shell",
+            "command": "flutter build apk --release; adb -s R3CX50CQWVA install build\\app\\outputs\\flutter-apk\\app-release.apk",
+            "problemMatcher": [],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
             "label": "Firebase: Deploy Functions (Strava Backend)",
             "type": "shell",
             "command": "firebase deploy --only functions",

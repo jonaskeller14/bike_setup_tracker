@@ -11,9 +11,25 @@ import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
 import '../repositories/app_repository.dart';
 
-enum StravaServiceStatus {
-  idle,
-  syncing,
+sealed class StravaState {
+  const StravaState();
+}
+
+class StravaIdle extends StravaState {
+  const StravaIdle();
+}
+
+class StravaSyncing extends StravaState {
+  const StravaSyncing();
+}
+
+class StravaDisconnecting extends StravaState {
+  const StravaDisconnecting();
+}
+
+class StravaFailed extends StravaState {
+  final String message;
+  const StravaFailed(this.message);
 }
 
 class StravaService extends ChangeNotifier {
@@ -21,21 +37,30 @@ class StravaService extends ChangeNotifier {
   static const String _redirectUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/exchangeToken";
   static const String _scope = "read,profile:read_all,activity:read_all";
 
-  StravaServiceStatus _status = StravaServiceStatus.idle;
-  String _errorMessage = '';
+  StravaState _state = const StravaIdle();
   bool _isInitialized = false;
-  bool _isDisconnecting = false;
 
-  /// True from the moment the user taps "Sign in to Strava" until the OAuth
-  /// flow either succeeds (athlete linked in Firestore), fails (deep-link
-  /// `success=false`), or times out.
-  bool _isAwaitingStravaAuth = false;
-  String _stravaAuthError = '';
-  Timer? _stravaAuthTimeoutTimer;
-  static const Duration _stravaAuthTimeout = Duration(seconds: 90);
+  StravaState get state => _state;
+  bool get isBusy => switch (_state) {
+        StravaIdle() || StravaFailed() => false,
+        _ => true,
+      };
 
-  bool get isAwaitingStravaAuth => _isAwaitingStravaAuth;
-  String get stravaAuthError => _stravaAuthError;
+  bool get isDisconnecting => _state is StravaDisconnecting;
+
+  String? get errorMessage {
+    final s = _state;
+    return s is StravaFailed ? s.message : null;
+  }
+
+  void clearError() {
+    if (_state is StravaFailed) _setState(const StravaIdle());
+  }
+
+  void _setState(StravaState newState) {
+    _state = newState;
+    notifyListeners();
+  }
 
   /// Cached result of [checkAvailability] — null until the first check
   /// completes. Refreshed lazily when stale.
@@ -47,8 +72,6 @@ class StravaService extends ChangeNotifier {
 
   bool? get isStravaAvailable => _isStravaAvailable;
 
-  StravaServiceStatus get status => _status;
-  String get errorMessage => _errorMessage;
   String? _userId;
   String? get userId => _userId;
 
@@ -84,8 +107,6 @@ class StravaService extends ChangeNotifier {
   @override
   void dispose() async {
     _isDisposed = true;
-    _stravaAuthTimeoutTimer?.cancel();
-    _stravaAuthTimeoutTimer = null;
     await _stopListening();
     super.dispose();
   }
@@ -110,7 +131,7 @@ class StravaService extends ChangeNotifier {
     _appRepository = appRepository;
     _appSettings = appSettings;
 
-    if (_isInitialized || _isDisconnecting) return;
+    if (_isInitialized || isDisconnecting) return;
     _isInitialized = true;
 
     try {
@@ -131,16 +152,13 @@ class StravaService extends ChangeNotifier {
     return null;
   }
 
-  /// Centralized error handling
   void _handleError(String context, dynamic error, {String? userMessage}) {
     if (error is FirebaseFunctionsException) {
       debugPrint("StravaService $context: [${error.code}] ${error.message}");
     } else {
       debugPrint("StravaService $context: $error");
     }
-    if (userMessage != null) {
-      errorMessage = userMessage;
-    }
+    if (userMessage != null) _setState(StravaFailed(userMessage));
   }
 
   Future<void> _listenToUserDocument() async {
@@ -164,12 +182,14 @@ class StravaService extends ChangeNotifier {
       _activeAthleteId = _linkedAthletes.firstOrNull;
 
       // Athlete just became linked — OAuth round-trip succeeded. Clear any
-      // pending auth state so the sheet animates to the dashboard.
-      if (previousAthleteId == null && _activeAthleteId != null) {
-        _clearStravaAuthPending();
+      // lingering [StravaFailed] from a previous attempt so the dashboard
+      // doesn't show a stale error tile. ([StravaSyncing] and
+      // [StravaDisconnecting] can't co-exist with `previousAthleteId == null`.)
+      if (previousAthleteId == null && _activeAthleteId != null && _state is StravaFailed) {
+        _setState(const StravaIdle());
+      } else {
+        notifyListeners();
       }
-
-      notifyListeners();
 
       // Reactive lifecycle: when the active athlete changes (link, unlink, or
       // switch to a different athlete), rebind the athlete-scoped listeners.
@@ -235,24 +255,30 @@ class StravaService extends ChangeNotifier {
           unawaited(_appRepository.setStravaGears([]));
         }
 
-        // Sync state (formerly on the user doc)
-        final String remoteStatus = data['strava_sync_status'] ?? 'idle';
-        final String remoteError = data['strava_sync_error'] ?? '';
-        if (remoteStatus == 'syncing') {
-          _status = StravaServiceStatus.syncing;
-          _errorMessage = '';
-        } else if (remoteStatus == 'error') {
-          _status = StravaServiceStatus.idle;
-          _errorMessage =
-              remoteError.isNotEmpty ? remoteError : 'Sync failed';
-        } else {
-          _status = StravaServiceStatus.idle;
-          _errorMessage = '';
-        }
         _lastRecentSync = _parseDateTime(data['strava_sync_last_recent']);
         _lastFullSync = _parseDateTime(data['strava_sync_last_full']);
         _syncDay = data['sync_day'] as int?;
-        notifyListeners();
+
+        // Mirror the server-driven sync state when we're not in the middle of an auth or disconnect
+        final inSyncDomain = _state is StravaIdle || _state is StravaSyncing || _state is StravaFailed;
+        final String remoteStatus = data['strava_sync_status'] ?? 'idle';
+        final String remoteError = data['strava_sync_error'] ?? '';
+
+        if (inSyncDomain) {
+          if (remoteStatus == 'syncing') {
+            _setState(const StravaSyncing());
+          } else if (remoteStatus == 'error') {
+            _setState(StravaFailed(
+              remoteError.isNotEmpty ? remoteError : 'Sync failed',
+            ));
+          } else if (_state is! StravaIdle) {
+            _setState(const StravaIdle());
+          } else {
+            notifyListeners();
+          }
+        } else {
+          notifyListeners();
+        }
       } else {
         await _appRepository.setStravaAthletes([]);
       }
@@ -305,8 +331,7 @@ class StravaService extends ChangeNotifier {
           toDelete: toDelete,
         ));
       }
-    }, onError: (e) =>
-            _handleError("SyncStream", e, userMessage: "Background sync error"));
+    }, onError: (e) => _handleError("SyncStream", e, userMessage: "Background sync error"));
   }
 
 
@@ -404,16 +429,6 @@ class StravaService extends ChangeNotifier {
     }
   }
 
-  set errorMessage(String message) {
-    _errorMessage = message;
-    notifyListeners();
-  }
-
-  set status(StravaServiceStatus newStatus) {
-    _status = newStatus;
-    notifyListeners();
-  }
-
   DateTime? get lastRecentSync => _lastRecentSync;
   DateTime? get lastFullSync => _lastFullSync;
   int? get syncDay => _syncDay;
@@ -436,7 +451,7 @@ class StravaService extends ChangeNotifier {
   /// since the last manual sync, or if it has never been synced.
   bool get canSyncRecent {
     if (!isConnected) return false;
-    if (_status == StravaServiceStatus.syncing) return false;
+    if (isBusy) return false;
     if (_lastRecentSync == null) return true;
     final difference = DateTime.now().difference(_lastRecentSync!);
     return difference >= _manualSyncCooldown;
@@ -501,16 +516,11 @@ class StravaService extends ChangeNotifier {
     try {
       if (_userId == null) await _loadUserId();
       if (_userId == null) {
-        _setStravaAuthError(
+        _setState(const StravaFailed(
           "Couldn't reach our servers. Check your connection and try again.",
-        );
+        ));
         return;
       }
-
-      _isAwaitingStravaAuth = true;
-      _stravaAuthError = '';
-      status = StravaServiceStatus.syncing;
-      notifyListeners();
 
       final Uri authUrl = Uri.parse(
         "https://www.strava.com/oauth/mobile/authorize"
@@ -522,29 +532,22 @@ class StravaService extends ChangeNotifier {
         "&state=$_userId"
       );
 
-      if (await canLaunchUrl(authUrl)) {
-        await launchUrl(authUrl, mode: LaunchMode.externalApplication);
-      } else {
-        throw 'Could not open Strava-Login';
+      if (!await canLaunchUrl(authUrl)) {
+        _handleError(
+          "StravaAuth",
+          Exception("Failed to launch authUrl: $authUrl"),
+          userMessage: "Could not find a program to launch the link."
+        );
+        return;
       }
-
-      status = StravaServiceStatus.idle;
-      errorMessage = "";
-
-      // If the OAuth round-trip never completes (user cancels, deep link
-      // gets eaten, Cloud Function silently fails), fall back to a timeout
-      // so the UI doesn't stay stuck on the spinner forever.
-      _stravaAuthTimeoutTimer?.cancel();
-      _stravaAuthTimeoutTimer = Timer(_stravaAuthTimeout, () {
-        if (_isAwaitingStravaAuth && !isConnected) {
-          _setStravaAuthError(
-            "Sign-in didn't complete. Please try again.",
-          );
-        }
-      });
+      await launchUrl(authUrl, mode: LaunchMode.externalApplication);
+      // We don't enter any "in-flight" state after handing off to the browser.
+      // The Firestore listener ([_listenToUserDocument]) carries the
+      // authoritative resolution; a deep-link `success=false` surfaces failure
+      // via [handleStravaAuthCallback]. If the user cancels in the browser
+      // they can just retap the button.
     } catch (e) {
-      status = StravaServiceStatus.idle;
-      _setStravaAuthError("Login failed: $e");
+      _setState(StravaFailed("Login failed: $e"));
     }
   }
 
@@ -554,43 +557,18 @@ class StravaService extends ChangeNotifier {
   /// failure we surface the error inline on the sheet.
   void handleStravaAuthCallback({required bool success, String? error}) {
     if (success) return;
-    _setStravaAuthError(
+    _setState(StravaFailed(
       error != null && error.isNotEmpty
           ? "Strava sign-in failed: $error"
           : "Strava sign-in failed. Please try again.",
-    );
-  }
-
-  void _setStravaAuthError(String message) {
-    _stravaAuthTimeoutTimer?.cancel();
-    _stravaAuthTimeoutTimer = null;
-    _isAwaitingStravaAuth = false;
-    _stravaAuthError = message;
-    notifyListeners();
-  }
-
-  void _clearStravaAuthPending() {
-    _stravaAuthTimeoutTimer?.cancel();
-    _stravaAuthTimeoutTimer = null;
-    _isAwaitingStravaAuth = false;
-    _stravaAuthError = '';
-  }
-
-  /// Resets a previously-surfaced auth error (e.g. when the user taps the
-  /// retry button) without affecting the connection state.
-  void clearStravaAuthError() {
-    if (_stravaAuthError.isEmpty) return;
-    _stravaAuthError = '';
-    notifyListeners();
+    ));
   }
 
   Future<void> disconnect() async {
     final uid = _userId;
     final athleteId = _activeAthleteId;
     if (uid == null) return;
-    _isDisconnecting = true;
-    status = StravaServiceStatus.syncing;
-    errorMessage = "Disconnecting...";
+    _setState(const StravaDisconnecting());
 
     try {
       if (athleteId != null) {
@@ -606,51 +584,42 @@ class StravaService extends ChangeNotifier {
       await _appRepository.clearStravaData();
       _appSettings.showStravaLinkGearHint = true;
 
-      errorMessage = "";
-      status = StravaServiceStatus.idle;
-      notifyListeners();
+      _setState(const StravaIdle());
     } catch (e) {
-      errorMessage = "Disconnection failed: $e";
-      status = StravaServiceStatus.idle;
-    } finally {
-      _isDisconnecting = false;
+      _setState(StravaFailed("Disconnection failed: $e"));
     }
   }
 
   Future<void> triggerManualSync() async {
     if (_userId == null) return;
-    status = StravaServiceStatus.syncing;
-    errorMessage = "";
+    _setState(const StravaSyncing());
     try {
       final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
       await functions
           .httpsCallable('syncActivities',
               options: HttpsCallableOptions(timeout: const Duration(seconds: 15)))
           .call();
-      status = StravaServiceStatus.idle;
     } on FirebaseFunctionsException catch (e) {
-      status = StravaServiceStatus.idle;
-      errorMessage = _friendlyFunctionError(e) ?? "Sync failed: [${e.code}] ${e.message}";
+      _setState(StravaFailed(
+        _friendlyFunctionError(e) ?? "Sync failed: [${e.code}] ${e.message}",
+      ));
     } catch (e) {
-      status = StravaServiceStatus.idle;
-      errorMessage = "Sync failed: $e";
+      _setState(StravaFailed("Sync failed: $e"));
     }
   }
 
   Future<void> triggerFullHistorySync() async {
     if (_userId == null) return;
-    status = StravaServiceStatus.syncing;
-    errorMessage = "";
+    _setState(const StravaSyncing());
     try {
       final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
       await functions.httpsCallable('syncFullHistory').call();
-      status = StravaServiceStatus.idle;
     } on FirebaseFunctionsException catch (e) {
-      status = StravaServiceStatus.idle;
-      errorMessage = _friendlyFunctionError(e) ?? "Full history sync failed: [${e.code}] ${e.message}";
+      _setState(StravaFailed(
+        _friendlyFunctionError(e) ?? "Full history sync failed: [${e.code}] ${e.message}",
+      ));
     } catch (e) {
-      status = StravaServiceStatus.idle;
-      errorMessage = "Full history sync failed: $e";
+      _setState(StravaFailed("Full history sync failed: $e"));
     }
   }
 

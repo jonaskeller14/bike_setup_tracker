@@ -11,8 +11,6 @@ class StravaSyncButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final stravaService = context.watch<StravaService>();
 
-    final isSyncing = stravaService.status == StravaServiceStatus.syncing;
-
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -22,7 +20,7 @@ class StravaSyncButton extends StatelessWidget {
         ),
         
         // The "Badge" with loading circle (only shown if isSyncing is true)
-        if (isSyncing)
+        if (stravaService.isBusy)
           Positioned(
             top: 8,
             right: 8,

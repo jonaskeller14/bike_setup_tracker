@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../icons/simple_icons.dart';
 import '../../services/strava_service.dart';
 import '../items/strava_subscription_card.dart';
+import 'strava_dashboard.dart';
 
 class StravaSuccess extends StatelessWidget {
   static const _successFgColor = Color(0xFF1F8A5B);
@@ -14,8 +15,7 @@ class StravaSuccess extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final stravaService = context.watch<StravaService>();
-    final isAwaitingAuth = stravaService.isAwaitingStravaAuth;
-    final authError = stravaService.stravaAuthError;
+    final authError = stravaService.errorMessage ?? '';
 
     return SafeArea(
       child: Padding(
@@ -64,57 +64,17 @@ class StravaSuccess extends StatelessWidget {
               )
             ),
             const SizedBox(height: 16),
-            if (authError.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 18,
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: SelectableText(
-                        authError,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            if (authError.isNotEmpty) StravaErrorTile(message: authError),
             SizedBox(
               height: 56,
               width: double.infinity,
               child: ElevatedButton.icon(
-                icon: isAwaitingAuth
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Icon(SimpleIcons.strava),
-                label: Text(
-                  isAwaitingAuth
-                      ? 'Signing in…'
-                      : (authError.isNotEmpty ? 'Try again' : 'Sign in to Strava'),
-                ),
-                onPressed: isAwaitingAuth
-                    ? null
-                    : () {
-                        // Keep the sheet open — the Consumer in strava.dart watches
-                        // StravaService.isConnected and automatically animates to
-                        // StravaDashboardSheet once exchangeToken completes.
-                        stravaService.clearStravaAuthError();
-                        unawaited(stravaService.launchStravaLogin());
-                      },
+                icon: const Icon(SimpleIcons.strava),
+                label: const Text('Sign in to Strava'),
+                onPressed: () {
+                  stravaService.clearError();
+                  unawaited(stravaService.launchStravaLogin());
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFC4C02),
                   foregroundColor: Colors.white,
@@ -127,7 +87,7 @@ class StravaSuccess extends StatelessWidget {
               ),
             ),
             TextButton(
-              onPressed: isAwaitingAuth ? null : () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(context),
               style: TextButton.styleFrom(
                 foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
               ),

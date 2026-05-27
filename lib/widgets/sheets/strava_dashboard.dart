@@ -51,29 +51,12 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (stravaService.status == StravaServiceStatus.syncing)
-                      ListTile(
-                        leading: const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                        title: SelectableText(stravaService.errorMessage.isEmpty ? "Syncing..." : stravaService.errorMessage),
-                        dense: true,
-                        contentPadding: EdgeInsets.zero,
-                      )
-                    else if (stravaService.errorMessage.isNotEmpty)
-                      ListTile(
-                        leading: Icon(
-                          stravaService.errorMessage.startsWith("No internet")
-                              ? Icons.wifi_off
-                              : Icons.error_outline,
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                        title: SelectableText(stravaService.errorMessage, style: TextStyle(color: Theme.of(context).colorScheme.error)),
-                        dense: true,
-                        contentPadding: EdgeInsets.zero,
-                      ),
+                    switch (stravaService.state) {
+                      StravaSyncing() => _busyTile(context, label: "Syncing..."),
+                      StravaDisconnecting() => _busyTile(context, label: "Disconnecting..."),
+                      StravaFailed(:final message) => StravaErrorTile(message: message),
+                      _ => const SizedBox.shrink(),
+                    },
                     const SizedBox(height: 8),
                     
                     if (athletes.isEmpty)
@@ -217,7 +200,7 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
               children: [
                 if (stravaService.isConnected) ...[
                   OutlinedButton.icon(
-                    onPressed: stravaService.status == StravaServiceStatus.syncing
+                    onPressed: stravaService.isBusy
                         ? null
                         : () async {
                             final confirmed = await showStravaDisconnectDialog(context);
@@ -238,7 +221,7 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                         onPressed: stravaService.canSyncRecent
                             ? () => stravaService.triggerManualSync()
                             : null,
-                        icon: stravaService.status == StravaServiceStatus.syncing
+                        icon: stravaService.isBusy
                             ? const SizedBox(
                                 height: 16,
                                 width: 16,
@@ -254,10 +237,10 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                   //   child: SizedBox(
                   //     width: double.infinity,
                   //     child: FilledButton.icon(
-                  //       onPressed: stravaService.status == StravaServiceStatus.syncing
+                  //       onPressed: stravaService.isBusy
                   //           ? null
                   //           : () => stravaService.triggerFullHistorySync(),
-                  //       icon: stravaService.status == StravaServiceStatus.syncing
+                  //       icon: stravaService.isBusy
                   //           ? const SizedBox(
                   //               height: 16,
                   //               width: 16,
@@ -273,7 +256,7 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                     child: SizedBox(
                       width: double.infinity,
                       child: FilledButton.icon(
-                        onPressed: stravaService.status == StravaServiceStatus.syncing
+                        onPressed: stravaService.isBusy
                             ? null
                             : () => stravaService.launchStravaLogin(),
                         icon: const Icon(Icons.login),
@@ -409,6 +392,39 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
           size: Theme.of(context).textTheme.bodyLarge?.fontSize,
         ),
       ),
+    );
+  }
+}
+
+Widget _busyTile(BuildContext context, {required String label}) {
+  return ListTile(
+    leading: const SizedBox(
+      width: 16,
+      height: 16,
+      child: CircularProgressIndicator(strokeWidth: 2),
+    ),
+    title: Text(label),
+    dense: true,
+    contentPadding: EdgeInsets.zero,
+  );
+}
+
+class StravaErrorTile extends StatelessWidget {
+  final String message;
+
+  const StravaErrorTile({super.key, required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.error;
+    return ListTile(
+      leading: Icon(
+        message.startsWith("No internet") ? Icons.wifi_off : Icons.error_outline,
+        color: color,
+      ),
+      title: SelectableText(message, style: TextStyle(color: color)),
+      dense: true,
+      contentPadding: EdgeInsets.zero,
     );
   }
 }

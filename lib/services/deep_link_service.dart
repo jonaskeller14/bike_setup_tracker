@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../utils/bike_actions.dart';
 import '../utils/component_actions.dart';
 import '../utils/setup_actions.dart';
 import '../utils/task_actions.dart';
 import 'navigation_service.dart';
+import 'strava_service.dart';
 
 class DeepLinkService {
   static final DeepLinkService _instance = DeepLinkService._internal();
@@ -81,9 +83,23 @@ class DeepLinkService {
             _triggerAddComponent();
         }
       case 'strava-auth':
-        if (uri.queryParameters['success'] == 'false') {
-          _showStravaAuthError();
-        }
+        _notifyStravaAuthCallback(
+          success: uri.queryParameters['success'] == 'true',
+          error: uri.queryParameters['error'],
+        );
+    }
+  }
+
+  void _notifyStravaAuthCallback({required bool success, String? error}) {
+    final context = NavigationService.context;
+    if (context == null) return;
+    try {
+      context.read<StravaService>().handleStravaAuthCallback(
+            success: success,
+            error: error,
+          );
+    } catch (_) {
+      // StravaService not yet available in the tree — listener will reconcile.
     }
   }
 
@@ -115,11 +131,4 @@ class DeepLinkService {
     await TaskActions.addTaskRule(context);
   }
 
-  void _showStravaAuthError() {
-    final context = NavigationService.context;
-    if (context == null) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Strava connection failed. Please try again.')),
-    );
-  }
 }

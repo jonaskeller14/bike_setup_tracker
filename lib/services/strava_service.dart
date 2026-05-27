@@ -26,6 +26,17 @@ class StravaService extends ChangeNotifier {
   bool _isInitialized = false;
   bool _isDisconnecting = false;
 
+  /// True from the moment the user taps "Sign in to Strava" until the OAuth
+  /// flow either succeeds (athlete linked in Firestore), fails (deep-link
+  /// `success=false`), or times out.
+  bool _isAwaitingStravaAuth = false;
+  String _stravaAuthError = '';
+  Timer? _stravaAuthTimeoutTimer;
+  static const Duration _stravaAuthTimeout = Duration(seconds: 90);
+
+  bool get isAwaitingStravaAuth => _isAwaitingStravaAuth;
+  String get stravaAuthError => _stravaAuthError;
+
   /// Cached result of [checkAvailability] — null until the first check
   /// completes. Refreshed lazily when stale.
   bool? _isStravaAvailable;
@@ -73,6 +84,8 @@ class StravaService extends ChangeNotifier {
   @override
   void dispose() async {
     _isDisposed = true;
+    _stravaAuthTimeoutTimer?.cancel();
+    _stravaAuthTimeoutTimer = null;
     await _stopListening();
     super.dispose();
   }
@@ -149,6 +162,12 @@ class StravaService extends ChangeNotifier {
           ? rawLinked.map((e) => e.toString()).toList()
           : const [];
       _activeAthleteId = _linkedAthletes.firstOrNull;
+
+      // Athlete just became linked — OAuth round-trip succeeded. Clear any
+      // pending auth state so the sheet animates to the dashboard.
+      if (previousAthleteId == null && _activeAthleteId != null) {
+        _clearStravaAuthPending();
+      }
 
       notifyListeners();
 
@@ -481,7 +500,17 @@ class StravaService extends ChangeNotifier {
   Future<void> launchStravaLogin() async {
     try {
       if (_userId == null) await _loadUserId();
+      if (_userId == null) {
+        _setStravaAuthError(
+          "Couldn't reach our servers. Check your connection and try again.",
+        );
+        return;
+      }
+
+      _isAwaitingStravaAuth = true;
+      _stravaAuthError = '';
       status = StravaServiceStatus.syncing;
+      notifyListeners();
 
       final Uri authUrl = Uri.parse(
         "https://www.strava.com/oauth/mobile/authorize"
@@ -501,10 +530,58 @@ class StravaService extends ChangeNotifier {
 
       status = StravaServiceStatus.idle;
       errorMessage = "";
+
+      // If the OAuth round-trip never completes (user cancels, deep link
+      // gets eaten, Cloud Function silently fails), fall back to a timeout
+      // so the UI doesn't stay stuck on the spinner forever.
+      _stravaAuthTimeoutTimer?.cancel();
+      _stravaAuthTimeoutTimer = Timer(_stravaAuthTimeout, () {
+        if (_isAwaitingStravaAuth && !isConnected) {
+          _setStravaAuthError(
+            "Sign-in didn't complete. Please try again.",
+          );
+        }
+      });
     } catch (e) {
       status = StravaServiceStatus.idle;
-      errorMessage = "Login failed: $e";
+      _setStravaAuthError("Login failed: $e");
     }
+  }
+
+  /// Called by the deep-link handler when the Cloud Function redirects back
+  /// to the app. On success we keep the spinner running and let the Firestore
+  /// listener flip [isConnected] — it carries the authoritative state. On
+  /// failure we surface the error inline on the sheet.
+  void handleStravaAuthCallback({required bool success, String? error}) {
+    if (success) return;
+    _setStravaAuthError(
+      error != null && error.isNotEmpty
+          ? "Strava sign-in failed: $error"
+          : "Strava sign-in failed. Please try again.",
+    );
+  }
+
+  void _setStravaAuthError(String message) {
+    _stravaAuthTimeoutTimer?.cancel();
+    _stravaAuthTimeoutTimer = null;
+    _isAwaitingStravaAuth = false;
+    _stravaAuthError = message;
+    notifyListeners();
+  }
+
+  void _clearStravaAuthPending() {
+    _stravaAuthTimeoutTimer?.cancel();
+    _stravaAuthTimeoutTimer = null;
+    _isAwaitingStravaAuth = false;
+    _stravaAuthError = '';
+  }
+
+  /// Resets a previously-surfaced auth error (e.g. when the user taps the
+  /// retry button) without affecting the connection state.
+  void clearStravaAuthError() {
+    if (_stravaAuthError.isEmpty) return;
+    _stravaAuthError = '';
+    notifyListeners();
   }
 
   Future<void> disconnect() async {

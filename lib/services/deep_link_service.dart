@@ -70,6 +70,16 @@ class DeepLinkService {
         _triggerAddComponent();
       case 'add-task':
         _triggerAddTaskRule();
+      case 'add':
+        // App Actions CREATE capability routes here: ?type={matched shortcutId}
+        switch (uri.queryParameters['type']) {
+          case 'setup':
+            _triggerAddSetup();
+          case 'bike':
+            _triggerAddBike();
+          case 'component':
+            _triggerAddComponent();
+        }
       case 'strava-auth':
         if (uri.queryParameters['success'] == 'false') {
           _showStravaAuthError();

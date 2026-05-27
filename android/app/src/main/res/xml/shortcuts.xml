@@ -2,59 +2,48 @@
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
-        Launcher shortcut: shown in long-press menu.
-        Also acts as the "setup" inventory entity for CREATE_CREATE_TYPE_NAME.
+        The launcher long-press "Add New Setup" entry is registered at runtime
+        by QuickActionsService (lib/services/quick_actions_service.dart) so it
+        works on both Android and iOS; no static action shortcut is defined
+        here to avoid a duplicate launcher entry.
+
+        Inline inventory (entity shortcuts) for the CREATE BII.
+        No <intent>, no labels, no icon → not shown in the launcher and
+        accepted by the Play Console actions-schema parser without
+        shortcutShortLabel. Matching constrains object.type to the listed
+        synonyms; the matched shortcutId is then substituted into the
+        capability intent's URL template below.
     -->
-    <shortcut
-        android:shortcutId="add_setup"
-        android:enabled="true"
-        android:icon="@drawable/ic_add"
-        android:shortcutShortLabel="@string/shortcut_add_setup_short"
-        android:shortcutLongLabel="@string/shortcut_add_setup_long">
-        <intent
-            android:action="android.intent.action.VIEW"
-            android:targetPackage="com.jonaskeller14.bike_setup_tracker"
-            android:targetClass="com.jonaskeller14.bike_setup_tracker.MainActivity"
-            android:data="bike-setup-tracker://add-setup" />
+    <shortcut android:shortcutId="setup">
         <capability-binding android:key="actions.intent.CREATE_CREATE_TYPE_NAME">
             <parameter-binding android:key="object.type" android:value="@array/type_setup" />
         </capability-binding>
     </shortcut>
 
-    <!--
-        Inventory-only shortcuts (no label → not shown in launcher).
-        Used by Assistant to constrain object.type to known values.
-    -->
-    <shortcut android:shortcutId="add_bike">
-        <intent
-            android:action="android.intent.action.VIEW"
-            android:targetPackage="com.jonaskeller14.bike_setup_tracker"
-            android:targetClass="com.jonaskeller14.bike_setup_tracker.MainActivity"
-            android:data="bike-setup-tracker://add-bike" />
+    <shortcut android:shortcutId="bike">
         <capability-binding android:key="actions.intent.CREATE_CREATE_TYPE_NAME">
             <parameter-binding android:key="object.type" android:value="@array/type_bike" />
         </capability-binding>
     </shortcut>
 
-    <shortcut android:shortcutId="add_component">
-        <intent
-            android:action="android.intent.action.VIEW"
-            android:targetPackage="com.jonaskeller14.bike_setup_tracker"
-            android:targetClass="com.jonaskeller14.bike_setup_tracker.MainActivity"
-            android:data="bike-setup-tracker://add-component" />
+    <shortcut android:shortcutId="component">
         <capability-binding android:key="actions.intent.CREATE_CREATE_TYPE_NAME">
             <parameter-binding android:key="object.type" android:value="@array/type_component" />
         </capability-binding>
     </shortcut>
 
     <!--
-        Capability: routes to the matched inventory shortcut's intent based on object.type.
-        Constrains NLU extraction to: setup, bike, component.
+        Capability routes to bike-setup-tracker://add?type={shortcutId}
+        based on which entity shortcut matched.
     -->
     <capability android:name="actions.intent.CREATE_CREATE_TYPE_NAME">
-        <shortcut-fulfillment>
-            <parameter android:name="object.type" />
-        </shortcut-fulfillment>
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.jonaskeller14.bike_setup_tracker"
+            android:targetClass="com.jonaskeller14.bike_setup_tracker.MainActivity">
+            <url-template android:value="bike-setup-tracker://add{?type}" />
+            <parameter android:name="object.type" android:key="type" />
+        </intent>
     </capability>
 
     <!-- Assistant-only: "add a task" — separate BII, no launcher entry needed -->

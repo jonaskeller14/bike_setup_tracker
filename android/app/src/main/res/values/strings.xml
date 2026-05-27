@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="shortcut_add_setup_short">Add Setup</string>
-    <string name="shortcut_add_setup_long">Add a new bike setup</string>
     <string name="shortcut_add_task_short">Add Task</string>
     <string name="shortcut_add_task_long">Add a new maintenance task</string>
 </resources>

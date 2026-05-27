@@ -115,6 +115,11 @@ class LoadingGate extends StatelessWidget {
     }
     
     await appRepository.initialize();
+
+    // Block the UI until the in-memory caches reflect the DB. Deep-link
+    // handlers (shortcuts/App Actions) read these synchronously, so mounting
+    // the navigator before the first emissions causes false-empty checks.
+    await appRepository.initialDataLoaded;
   }
 
   @override

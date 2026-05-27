@@ -34,6 +34,28 @@ class AppRepository extends ChangeNotifier {
   bool _isDisposed = false;
   bool _pendingDataChange = false;
 
+  /// Streams whose first emission must arrive before the app is considered
+  /// ready. Deep-link handlers (e.g. "Add Setup") read these caches
+  /// synchronously, so the UI must not mount until they are populated.
+  static const _requiredInitialStreams = {
+    'bikes', 'components', 'persons', 'ratings',
+    'taskRules', 'taskEntries', 'setups',
+  };
+  final Set<String> _firedInitialStreams = <String>{};
+  final Completer<void> _initialDataCompleter = Completer<void>();
+
+  /// Completes once every stream in [_requiredInitialStreams] has delivered
+  /// its first event, guaranteeing the in-memory caches reflect the DB.
+  Future<void> get initialDataLoaded => _initialDataCompleter.future;
+
+  void _markInitialStreamFired(String name) {
+    if (_initialDataCompleter.isCompleted) return;
+    _firedInitialStreams.add(name);
+    if (_firedInitialStreams.containsAll(_requiredInitialStreams)) {
+      _initialDataCompleter.complete();
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // RAW STATE FROM DB (Read-Only Cache for immediate access)
   // ---------------------------------------------------------------------------
@@ -278,6 +300,7 @@ class AppRepository extends ChangeNotifier {
   void _initStreams() {
     _subscriptions.add(database.bikesDao.watchAllBikes().listen((list) {
       _bikes = {for (var b in list) b.id: b.toModel()};
+      _markInitialStreamFired('bikes');
       _dataChanged();
     }));
 
@@ -286,6 +309,7 @@ class AppRepository extends ChangeNotifier {
         adjustments: c.adjustments.map((a) => a.toModel()).toList(),
         installations: c.installations.map((i) => i.toModel()).toList(),
       )};
+      _markInitialStreamFired('components');
       _dataChanged();
     }));
 
@@ -293,6 +317,7 @@ class AppRepository extends ChangeNotifier {
       _persons = {for (var p in list) p.person.id: p.person.toModel(
         adjustments: p.adjustments.map((a) => a.toModel()).toList(),
       )};
+      _markInitialStreamFired('persons');
       _dataChanged();
     }));
 
@@ -300,16 +325,19 @@ class AppRepository extends ChangeNotifier {
       _ratings = {for (var r in list) r.rating.id: r.rating.toModel(
         adjustments: r.adjustments.map((a) => a.toModel()).toList(),
       )};
+      _markInitialStreamFired('ratings');
       _dataChanged();
     }));
 
     _subscriptions.add(database.taskDao.watchAllRules().listen((list) {
       _taskRules = {for (var r in list) r.id: r.toModel()};
+      _markInitialStreamFired('taskRules');
       _dataChanged();
     }));
 
     _subscriptions.add(database.taskDao.watchAllEntries().listen((list) {
       _taskEntries = {for (var e in list) e.id: e.toModel()};
+      _markInitialStreamFired('taskEntries');
       _dataChanged();
     }));
 
@@ -335,6 +363,7 @@ class AppRepository extends ChangeNotifier {
     
     _subscriptions.add(database.setupsDao.watchAllSetupsWithValues().listen((list) {
       _setups = {for (var s in list) s.setup.id: s.setup.toModel(values: s.values)};
+      _markInitialStreamFired('setups');
       _dataChanged();
     }));
 

@@ -37,7 +37,7 @@ Here are the current development goals and their status:
 - [x] **Cloud sync** (Google Drive) (Android only) ➡️ **Available as an experimental feature since v1.0.6.**
 - [ ] Add **rider profile** (track body weight, ...) ➡️ **In testing phase**
 - [ ] Add a **rating procedure** to systematically distinguish good from bad setups ➡️ **In testing phase**
-- [ ] **Strava** integration** to use activity data as context ➡️ **In testing phase**
+- [x] **Strava** integration to use activity data as context ➡️ **Available with optional subscription**
 - [x] Publish for **iOS** ➡️ **Live on App Store**
 - [x] Migration to **drift SQL Database**
 

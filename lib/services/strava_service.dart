@@ -32,6 +32,8 @@ class StravaFailed extends StravaState {
   const StravaFailed(this.message);
 }
 
+enum StravaAvailability { available, full, networkError }
+
 class StravaService extends ChangeNotifier {
   static const String _stravaClientId = "193047";
   static const String _redirectUri = "https://europe-west3-bike-setup-tracker-strava.cloudfunctions.net/exchangeToken";
@@ -63,14 +65,15 @@ class StravaService extends ChangeNotifier {
   }
 
   /// Cached result of [checkAvailability] — null until the first check
-  /// completes. Refreshed lazily when stale.
-  bool? _isStravaAvailable;
+  /// completes. Refreshed lazily when stale. Network failures are not cached so
+  /// the next sheet open re-probes immediately.
+  StravaAvailability? _availability;
   DateTime? _availabilityCheckedAt;
   static const Duration _availabilityCacheTtl = kDebugMode ? Duration.zero : Duration(minutes: 5);
   static const Duration _manualSyncCooldown = kDebugMode ? Duration.zero : Duration(hours: 1);
   Future<void>? _inFlightAvailabilityCheck;
 
-  bool? get isStravaAvailable => _isStravaAvailable;
+  StravaAvailability? get availability => _availability;
 
   String? _userId;
   String? get userId => _userId;
@@ -471,10 +474,12 @@ class StravaService extends ChangeNotifier {
 
   /// Checks if there are open spots for the Strava integration. The result is
   /// cached for [_availabilityCacheTtl]; pass `force: true` to bypass the
-  /// cache. Concurrent callers share a single in-flight request.
-  Future<bool> checkAvailability({bool force = false}) async {
+  /// cache. Concurrent callers share a single in-flight request. Returns
+  /// [StravaAvailability.networkError] when the check itself failed so the UI
+  /// can distinguish "offline" from "actually full".
+  Future<StravaAvailability> checkAvailability({bool force = false}) async {
     final cachedAt = _availabilityCheckedAt;
-    final cached = _isStravaAvailable;
+    final cached = _availability;
     final fresh = cachedAt != null &&
         DateTime.now().difference(cachedAt) < _availabilityCacheTtl;
     if (!force && cached != null && fresh) return cached;
@@ -482,7 +487,7 @@ class StravaService extends ChangeNotifier {
     final existing = _inFlightAvailabilityCheck;
     if (existing != null) {
       await existing;
-      return _isStravaAvailable ?? false;
+      return _availability ?? StravaAvailability.networkError;
     }
 
     final completer = _refreshAvailability();
@@ -492,7 +497,7 @@ class StravaService extends ChangeNotifier {
     } finally {
       _inFlightAvailabilityCheck = null;
     }
-    return _isStravaAvailable ?? false;
+    return _availability ?? StravaAvailability.networkError;
   }
 
   Future<void> _refreshAvailability() async {
@@ -500,14 +505,29 @@ class StravaService extends ChangeNotifier {
       final functions = FirebaseFunctions.instanceFor(region: 'europe-west3');
       final result = await functions.httpsCallable('checkStravaAvailability').call();
       final data = result.data as Map<String, dynamic>;
-      _isStravaAvailable = data['available'] == true;
+      _availability = data['available'] == true
+          ? StravaAvailability.available
+          : StravaAvailability.full;
+      _availabilityCheckedAt = DateTime.now();
+    } on FirebaseFunctionsException catch (e) {
+      _handleError("checkAvailability", e);
+      // Network-class failures: don't cache so the next sheet open re-probes
+      // immediately. Anything else (e.g. server bug) is treated as full to
+      // prevent users from buying when something is genuinely wrong upstream.
+      if (e.code == 'deadline-exceeded' ||
+          e.code == 'unavailable' ||
+          e.code == 'unknown') {
+        _availability = StravaAvailability.networkError;
+        _availabilityCheckedAt = null;
+      } else {
+        _availability = StravaAvailability.full;
+        _availabilityCheckedAt = DateTime.now();
+      }
     } catch (e) {
       _handleError("checkAvailability", e);
-      // Fail safe: closed if the check failed (e.g. no internet) — don't let
-      // users buy and then fail to connect.
-      _isStravaAvailable = false;
+      _availability = StravaAvailability.networkError;
+      _availabilityCheckedAt = null;
     } finally {
-      _availabilityCheckedAt = DateTime.now();
       notifyListeners();
     }
   }

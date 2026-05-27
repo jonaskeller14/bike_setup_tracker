@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../services/strava_service.dart';
 import '../../services/subscription_service.dart';
 import 'strava_dashboard.dart';
+import 'strava_offline.dart';
 import 'strava_paywall.dart';
 import 'strava_success.dart';
 import 'strava_waitlist.dart';
@@ -30,14 +31,19 @@ Future<void> showStravaSheet({required BuildContext context}) async {
       // already subscribed/connected skip this check entirely — they
       // already hold a slot.
       else if (!subscription.hasStravaEntitlement && !strava.isConnected) {
-        final availability = strava.isStravaAvailable;
+        final availability = strava.availability;
         if (availability == null) {
           unawaited(strava.checkAvailability());
           child = const _StravaSheetLoading();
-        } else if (!availability) {
-          child = const StravaWaitlist();
         } else {
-          child = const StravaPaywall();
+          switch (availability) {
+            case StravaAvailability.networkError:
+              child = const StravaOfflineNotice();
+            case StravaAvailability.full:
+              child = const StravaWaitlist();
+            case StravaAvailability.available:
+              child = const StravaPaywall();
+          }
         }
       } else if (!subscription.hasStravaEntitlement) {
         child = const StravaPaywall();

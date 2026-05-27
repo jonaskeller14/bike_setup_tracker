@@ -34,6 +34,9 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   bool _storeAvailable = false;
   String? _userId;
 
+  bool _justPurchasedStrava = false;
+  bool get justPurchasedStrava => _justPurchasedStrava;
+
   /// Maps a StravaPlan to the ProductDetails that should be used to purchase
   /// it on the current platform. On Android, each entry is a
   /// GooglePlayProductDetails for a specific base plan (carries its
@@ -382,6 +385,9 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
         // Function can derive it from the authenticated user's app context
         // or it can be set here from a build-time constant later.
       });
+      if (pd.status == PurchaseStatus.purchased) {
+        _justPurchasedStrava = true;
+      }
       _setStatus(SubscriptionPurchaseStatus.idle);
       // The Firestore listener will pick up the new entitlement and emit
       // notifyListeners on its own — no need to set state here.

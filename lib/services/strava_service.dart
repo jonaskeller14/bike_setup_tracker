@@ -44,9 +44,9 @@ class StravaService extends ChangeNotifier {
 
   StravaState get state => _state;
   bool get isBusy => switch (_state) {
-        StravaIdle() || StravaFailed() => false,
-        _ => true,
-      };
+    StravaIdle() || StravaFailed() => false,
+    StravaSyncing() || StravaDisconnecting() => true,
+  };
 
   bool get isDisconnecting => _state is StravaDisconnecting;
 
@@ -60,6 +60,7 @@ class StravaService extends ChangeNotifier {
   }
 
   void _setState(StravaState newState) {
+    if (_state == newState) return;
     _state = newState;
     notifyListeners();
   }

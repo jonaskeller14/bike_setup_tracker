@@ -17,44 +17,39 @@ class StravaPaywall extends StatefulWidget {
 class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProviderStateMixin {
   StravaPlan _selectedPlan = StravaPlan.yearly;
 
+  static const bullets = [
+    'Strava is a third-party service. Strava and the Strava logo are registered trademarks of Strava, Inc. — Bike Setup Tracker is not affiliated with or endorsed by Strava.',
+    'Your subscription covers the server costs of syncing activities between Strava and your device.',
+    'We only store the activity fields needed to match a ride to a setup (date, name, location, gear). You can disconnect Strava at any time.',
+  ];
+
+  static const features = [
+    (
+      icon: Icons.show_chart_rounded,
+      title: 'Activities as context',
+      body: 'See which setup you ran on every ride — automatically linked by date and gear.',
+    ),
+    (
+      icon: Icons.map_outlined,
+      title: 'Setups on the map',
+      body: 'Activity start points and saved setups together, so you can revisit what worked at a spot.',
+    ),
+    (
+      icon: Icons.sync_rounded,
+      title: 'Real-time auto-sync',
+      body: 'New, updated and deleted Strava activities import within seconds.',
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final subscription = context.watch<SubscriptionService>();
-    final isBusy = subscription.status == SubscriptionPurchaseStatus.purchasing ||
-        subscription.status == SubscriptionPurchaseStatus.verifying ||
-        subscription.status == SubscriptionPurchaseStatus.restoring;
+    final isBusy = subscription.isBusy;
 
     final tosRecognizer = TapGestureRecognizer()
       ..onTap = () => launchAppUrl(context, url: AboutPage.tosURL);
     final privacyRecognizer = TapGestureRecognizer()
       ..onTap = () => launchAppUrl(context, url: AboutPage.privacyPolicyUrl);
-    
-    final features = [
-      (
-        icon: Icons.show_chart_rounded,
-        title: 'Activities as context',
-        body:
-            'See which setup you ran on every ride — automatically linked by date and gear.',
-      ),
-      (
-        icon: Icons.map_outlined,
-        title: 'Setups on the map',
-        body:
-            'Activity start points and saved setups together, so you can revisit what worked at a spot.',
-      ),
-      (
-        icon: Icons.sync_rounded,
-        title: 'Real-time auto-sync',
-        body:
-            'New, updated and deleted Strava activities import within seconds.',
-      ),
-    ];
-
-    const bullets = [
-      'Strava is a third-party service. Strava and the Strava logo are registered trademarks of Strava, Inc. — Bike Setup Tracker is not affiliated with or endorsed by Strava.',
-      'Your subscription covers the server costs of syncing activities between Strava and your device.',
-      'We only store the activity fields needed to match a ride to a setup (date, name, location, gear). You can disconnect Strava at any time.',
-    ];
 
     return SafeArea(
       child: Padding(
@@ -381,12 +376,11 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
-            if (subscription.status == SubscriptionPurchaseStatus.error &&
-                subscription.errorMessage.isNotEmpty)
+            if (subscription.state is SubscriptionError && subscription.errorMessage != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: SelectableText(
-                  subscription.errorMessage,
+                  subscription.errorMessage ?? "",
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.error,

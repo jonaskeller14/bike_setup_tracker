@@ -12,13 +12,33 @@ import '../models/strava/strava_entitlement.dart';
 import '../models/strava/strava_plan.dart';
 export '../models/strava/strava_entitlement.dart';
 
-enum SubscriptionPurchaseStatus {
-  idle,
-  loadingProducts,
-  purchasing,
-  verifying,
-  restoring,
-  error,
+sealed class SubscriptionState {
+  const SubscriptionState();
+}
+
+class SubscriptionIdle extends SubscriptionState {
+  const SubscriptionIdle();
+}
+
+class SubscriptionLoadingProducts extends SubscriptionState {
+  const SubscriptionLoadingProducts();
+}
+
+class SubscriptionPurchasing extends SubscriptionState {
+  const SubscriptionPurchasing();
+}
+
+class SubscriptionVerifying extends SubscriptionState {
+  const SubscriptionVerifying();
+}
+
+class SubscriptionRestoring extends SubscriptionState {
+  const SubscriptionRestoring();
+}
+
+class SubscriptionError extends SubscriptionState {
+  final String message;
+  const SubscriptionError(this.message);
 }
 
 class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
@@ -43,9 +63,13 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   /// offerToken). On iOS, each entry is a distinct App Store product.
   final Map<StravaPlan, ProductDetails> _planProducts = {};
 
-  SubscriptionPurchaseStatus _status = SubscriptionPurchaseStatus.idle;
-  String _errorMessage = '';
+  SubscriptionState _state = const SubscriptionIdle();
   StravaEntitlement? _entitlement;
+
+  bool get isBusy => switch (_state) {
+    SubscriptionIdle() || SubscriptionError() => false,
+    SubscriptionPurchasing() || SubscriptionVerifying() || SubscriptionRestoring() || SubscriptionLoadingProducts() => true,
+  };
 
   /// True while `restorePurchases` is in flight at app launch — the cached
   /// `expiresAt` in Firestore may be stale until the platform-side restore
@@ -56,8 +80,11 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   DateTime? _lastAutoRestoreAt;
   static const Duration _autoRestoreCooldown = Duration(minutes: 30);
 
-  SubscriptionPurchaseStatus get status => _status;
-  String get errorMessage => _errorMessage;
+  SubscriptionState get state => _state;
+  String? get errorMessage {
+    final s = _state;
+    return s is SubscriptionError ? s.message : null;
+  }
   bool get storeAvailable => _storeAvailable;
   bool get isInitialized => _isInitialized;
   StravaEntitlement? get entitlement => _entitlement;
@@ -134,8 +161,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       // platform may surface pending or restored purchases later.
       _purchaseSub = _iap.purchaseStream.listen(
         _onPurchaseUpdate,
-        onError: (Object e) =>
-            _setError('Purchase stream error: $e'),
+        onError: (Object e) => _setState(SubscriptionError('Purchase stream error: $e')),
       );
 
       // Make sure Apple's StoreKit delegate is registered, otherwise some
@@ -160,7 +186,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
 
       await _bindUser();
     } catch (e) {
-      _setError('Subscription init failed: $e');
+      _setState(SubscriptionError('Subscription init failed: $e'));
       _isInitialized = false; // allow retry
     }
   }
@@ -200,12 +226,11 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
         _beginRestore();
         unawaited(_iap.restorePurchases());
       }
-    }, onError: (Object e) =>
-            _setError('Entitlement stream error: $e'));
+    }, onError: (Object e) => _setState(SubscriptionError('Entitlement stream error: $e')));
   }
 
   Future<void> _loadProducts() async {
-    _setStatus(SubscriptionPurchaseStatus.loadingProducts);
+    _setState(const SubscriptionLoadingProducts());
     try {
       late final Set<String> ids;
       if (Platform.isIOS) {
@@ -213,19 +238,17 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       } else if (Platform.isAndroid) {
         ids = {StravaPlan.androidProductId};
       } else {
-        _setStatus(SubscriptionPurchaseStatus.idle);
+        _setState(const SubscriptionIdle());
         return;
       }
 
       final response = await _iap.queryProductDetails(ids);
       if (response.error != null) {
-        _setError('Could not load plans: ${response.error!.message}');
+        _setState(SubscriptionError('Could not load plans: ${response.error!.message}'));
         return;
       }
       if (response.notFoundIDs.isNotEmpty) {
-        debugPrint(
-          'SubscriptionService: products not found in store: ${response.notFoundIDs}',
-        );
+        debugPrint('SubscriptionService: products not found in store: ${response.notFoundIDs}');
       }
 
       _planProducts.clear();
@@ -233,9 +256,9 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
         final plan = _planForProduct(pd);
         if (plan != null) _planProducts[plan] = pd;
       }
-      _setStatus(SubscriptionPurchaseStatus.idle);
+      _setState(const SubscriptionIdle());
     } catch (e) {
-      _setError('Could not load plans: $e');
+      _setState(SubscriptionError('Could not load plans: $e'));
     }
   }
 
@@ -257,16 +280,16 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   /// the result is delivered asynchronously via [purchaseStream]).
   Future<void> buy(StravaPlan plan) async {
     if (!_storeAvailable) {
-      _setError('Store is not available on this device.');
+      _setState(const SubscriptionError('Store is not available on this device.'));
       return;
     }
     final product = _planProducts[plan];
     if (product == null) {
-      _setError('Plan not loaded yet — try again in a moment.');
+      _setState(const SubscriptionError('Plan not loaded yet — try again in a moment.'));
       return;
     }
 
-    _setStatus(SubscriptionPurchaseStatus.purchasing);
+    _setState(const SubscriptionPurchasing());
     try {
       final PurchaseParam param;
       if (Platform.isAndroid && product is GooglePlayProductDetails) {
@@ -283,7 +306,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       }
       await _iap.buyNonConsumable(purchaseParam: param);
     } catch (e) {
-      _setError('Purchase failed: $e');
+      _setState(SubscriptionError('Purchase failed: $e'));
     }
   }
 
@@ -291,23 +314,23 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   /// requires apps with non-consumable / subscription IAPs to offer this.
   Future<void> restorePurchases() async {
     if (!_storeAvailable) {
-      _setError('Store is not available on this device.');
+      _setState(const SubscriptionError('Store is not available on this device.'));
       return;
     }
     if (_isRestoring) return;
     _beginRestore();
-    _setStatus(SubscriptionPurchaseStatus.restoring);
+    _setState(const SubscriptionRestoring());
     try {
       await _iap.restorePurchases(applicationUserName: _userId);
       // If nothing was restored the stream emits no events, so status would
       // stay stuck at restoring forever. Reset it here; stream events that
       // arrive after this point will override the status as needed.
-      if (_status == SubscriptionPurchaseStatus.restoring) {
-        _setStatus(SubscriptionPurchaseStatus.idle);
+      if (_state is SubscriptionRestoring) {
+        _setState(const SubscriptionIdle());
       }
     } catch (e) {
       _endRestore();
-      _setError('Restore failed: $e');
+      _setState(SubscriptionError('Restore failed: $e'));
     }
   }
 
@@ -316,7 +339,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       debugPrint('SubscriptionService _onPurchaseUpdate: ${pd.productID} → ${pd.status} (source=${pd.verificationData.source})');
       switch (pd.status) {
         case PurchaseStatus.pending:
-          _setStatus(SubscriptionPurchaseStatus.purchasing);
+          _setState(const SubscriptionPurchasing());
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
           await _verifyAndAcknowledge(pd);
@@ -327,13 +350,13 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
             // _onPurchaseUpdate call, which would immediately cancel the restore flag before
             // the actual restore events arrive in the next call.
             debugPrint('SubscriptionService: ITEM_ALREADY_OWNED — auto-restoring');
-            _setStatus(SubscriptionPurchaseStatus.restoring);
+            _setState(const SubscriptionRestoring());
             unawaited(_iap.restorePurchases());
           } else {
-            _setError('Purchase failed: ${pd.error?.message ?? 'unknown'}');
+            _setState(SubscriptionError('Purchase failed: ${pd.error?.message ?? 'unknown'}'));
           }
         case PurchaseStatus.canceled:
-          _setStatus(SubscriptionPurchaseStatus.idle);
+          _setState(const SubscriptionIdle());
       }
       if (pd.pendingCompletePurchase) {
         try {
@@ -348,12 +371,12 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> _verifyAndAcknowledge(PurchaseDetails pd) async {
-    _setStatus(SubscriptionPurchaseStatus.verifying);
+    _setState(const SubscriptionVerifying());
 
     // Skip re-verification for a restored purchase if the entitlement is already
     // active — webhooks keep Firestore current and a redundant CF call isn't needed.
     if (pd.status == PurchaseStatus.restored && (_entitlement?.isActive ?? false)) {
-      _setStatus(SubscriptionPurchaseStatus.idle);
+      _setState(const SubscriptionIdle());
       return;
     }
 
@@ -369,7 +392,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       // serverVerificationData contains.
       final iosTxId = pd.purchaseID;
       if (Platform.isIOS && (iosTxId == null || iosTxId.isEmpty)) {
-        _setError('Missing transaction id for iOS purchase.');
+        _setState(const SubscriptionError('Missing transaction id for iOS purchase.'));
         return;
       }
       await functions.httpsCallable('verifySubscription').call({
@@ -387,7 +410,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       if (pd.status == PurchaseStatus.purchased) {
         _justPurchasedStrava = true;
       }
-      _setStatus(SubscriptionPurchaseStatus.idle);
+      _setState(const SubscriptionIdle());
       // The Firestore listener will pick up the new entitlement and emit
       // notifyListeners on its own — no need to set state here.
     } on FirebaseFunctionsException catch (e) {
@@ -395,12 +418,12 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       // Firestore entitlement is cached locally and is the source of truth.
       if (pd.status == PurchaseStatus.restored) {
         debugPrint('SubscriptionService: restore verify failed (${e.code}), using cached entitlement');
-        _setStatus(SubscriptionPurchaseStatus.idle);
+        _setState(const SubscriptionIdle());
         return;
       }
-      _setError(_friendlyVerifyError(e) ?? 'Could not verify purchase: [${e.code}] ${e.message}');
+      _setState(SubscriptionError(_friendlyVerifyError(e) ?? 'Could not verify purchase: [${e.code}] ${e.message}'));
     } catch (e) {
-      _setError('Could not verify purchase: $e');
+      _setState(SubscriptionError('Could not verify purchase: $e'));
     }
   }
 
@@ -416,17 +439,10 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  void _setStatus(SubscriptionPurchaseStatus s) {
-    if (_status == s) return;
-    _status = s;
-    if (s != SubscriptionPurchaseStatus.error) _errorMessage = '';
-    notifyListeners();
-  }
-
-  void _setError(String message) {
-    debugPrint('SubscriptionService error: $message');
-    _errorMessage = message;
-    _status = SubscriptionPurchaseStatus.error;
+  void _setState(SubscriptionState newState) {
+    if (_state == newState) return;
+    if (newState is SubscriptionError) debugPrint('SubscriptionService error: ${newState.message}');
+    _state = newState;
     notifyListeners();
   }
 }

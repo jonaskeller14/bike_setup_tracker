@@ -169,8 +169,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   /// start streaming the entitlement field. Called once on first init and on
   /// every auth change.
   Future<void> _bindUser() async {
-    User? user = await FirebaseAuth.instance.authStateChanges().first;
-    user ??= (await FirebaseAuth.instance.signInAnonymously()).user;
+    final user = await AuthService.ensureSignedIn();
     _userId = user?.uid;
     if (_userId == null) return;
 
@@ -445,4 +444,28 @@ class _StoreKitPaymentQueueDelegate implements SKPaymentQueueDelegateWrapper {
 
   @override
   bool shouldShowPriceConsent() => false;
+}
+
+/// Multiple services ([StravaService], [SubscriptionService]) need the same
+/// anonymous UID at startup. If each calls [FirebaseAuth.signInAnonymously]
+/// independently, concurrent calls on a fresh install create *two* anonymous
+/// users — the captured UID then mismatches the token the Firestore SDK uses,
+/// causing transient PERMISSION_DENIED on per-user document listeners.
+class AuthService {
+  AuthService._();
+
+  static Future<User?>? _inFlight;
+
+  static Future<User?> ensureSignedIn() => _inFlight ??= _resolve();
+
+  static Future<User?> _resolve() async {
+    try {
+      User? user = await FirebaseAuth.instance.authStateChanges().first;
+      user ??= (await FirebaseAuth.instance.signInAnonymously()).user;
+      return user;
+    } catch (_) {
+      _inFlight = null;
+      rethrow;
+    }
+  }
 }

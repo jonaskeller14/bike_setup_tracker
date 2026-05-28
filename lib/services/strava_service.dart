@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -10,6 +9,7 @@ import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
 import '../repositories/app_repository.dart';
+import 'subscription_service.dart';
 
 sealed class StravaState {
   const StravaState();
@@ -406,13 +406,7 @@ class StravaService extends ChangeNotifier {
   }
 
   Future<void> _loadUserId() async {
-    // Wait for the first auth-state event so Firebase Auth has time to
-    // restore a previously-persisted anonymous user from disk. Calling
-    // signInAnonymously() before that restoration completes creates a
-    // second anonymous user, whose UID would mismatch the token used in
-    // subsequent Firestore requests → PERMISSION_DENIED.
-    User? user = await FirebaseAuth.instance.authStateChanges().first;
-    user ??= (await FirebaseAuth.instance.signInAnonymously()).user;
+    final user = await AuthService.ensureSignedIn();
     _userId = user?.uid;
     notifyListeners();
   }

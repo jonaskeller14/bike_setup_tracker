@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widget_previews.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 
 class StravaGearLinkHint extends StatelessWidget {
+  @Preview(name: "StravaGearLinkHint", group: "Hints")
   const StravaGearLinkHint({super.key});
 
   @override

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widget_previews.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 
@@ -9,6 +10,7 @@ class GarageListHint extends StatelessWidget {
     'Double-tap a bike card to quickly filter your view and focus on its parts.',
   ];
 
+  @Preview(name: "GarageListHint", group: "Hints")
   const GarageListHint({super.key});
 
   @override

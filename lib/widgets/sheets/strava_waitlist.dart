@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'strava_dashboard.dart';
 
-/// Shown when [StravaService.checkAvailability] returned false — Strava's API
-/// rate limits cap how many simultaneous users we can sync, so when the cap is
-/// reached new subscriptions are paused.
 class StravaWaitlist extends StatelessWidget {
   const StravaWaitlist({super.key});
 

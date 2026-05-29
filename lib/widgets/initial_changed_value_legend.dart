@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widget_previews.dart';
 
 class InitialChangedValueLegend extends StatelessWidget {
+  @Preview(name: "InitialChangedValueLegend")
   const InitialChangedValueLegend({super.key});
+
   Widget _buildLegendItem(BuildContext context, Color color, String text) {
     return Row(
       mainAxisSize: MainAxisSize.min,

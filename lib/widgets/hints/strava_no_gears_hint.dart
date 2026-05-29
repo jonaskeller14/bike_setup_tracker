@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widget_previews.dart';
 
 class StravaNoGearsHint extends StatelessWidget {
   static const _noGearsSteps = [
@@ -7,6 +8,7 @@ class StravaNoGearsHint extends StatelessWidget {
     'Come back here and tap Sync',
   ];
 
+  @Preview(name: "StravaNoGearsHint", group: "Hints")
   const StravaNoGearsHint({super.key});
 
   @override

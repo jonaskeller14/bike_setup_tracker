@@ -128,7 +128,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
     return ListenableBuilder(
       listenable: Listenable.merge([widget.locationService, widget.weatherService]),
       builder: (context, child) {
-        final enableFields = widget.weatherService.status != WeatherStatus.searching && widget.locationService.status != LocationStatus.searching;
+        final enableFields = widget.weatherService.status is! WeatherSearching && widget.locationService.status != LocationStatus.searching;
         final enableUpdate = enableFields && widget.currentLocation?.latitude != null && widget.currentLocation?.longitude != null;
         return PopScope(
           canPop: false,
@@ -163,10 +163,10 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                                 dense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),
-                            if (widget.weatherService.status == WeatherStatus.error && widget.weatherService.errorMessage.isNotEmpty)
+                            if (widget.weatherService.status case WeatherError(:final message) when message.isNotEmpty)
                               ListTile(
                                 leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                                title: Text(widget.weatherService.errorMessage),
+                                title: Text(message),
                                 dense: true,
                                 contentPadding: const EdgeInsets.only(bottom: 16),
                               ),
@@ -398,7 +398,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                           fit: FlexFit.tight,
                           child: OutlinedButton.icon(
                             onPressed: enableUpdate ? updateWeather : null,
-                            icon: widget.weatherService.status == WeatherStatus.searching 
+                            icon: widget.weatherService.status is WeatherSearching
                                 ? const SizedBox(
                                     height: 16,
                                     width: 16,

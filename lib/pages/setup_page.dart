@@ -831,19 +831,19 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
             ),
             ActionChip(
               avatar: switch (_weatherService.status) {
-                WeatherStatus.idle => Icon(_currentWeather.value?.getIconData() ?? Icons.cloudy_snowing),
-                WeatherStatus.searching => const Icon(Icons.cloudy_snowing),
-                WeatherStatus.success => Icon(_currentWeather.value?.getIconData() ?? Icons.cloudy_snowing),
-                WeatherStatus.error => Icon(Icons.error, color: Theme.of(context).colorScheme.error),
+                WeatherIdle() => Icon(_currentWeather.value?.getIconData() ?? Icons.cloudy_snowing),
+                WeatherSearching() => const Icon(Icons.cloudy_snowing),
+                WeatherSuccess() => Icon(_currentWeather.value?.getIconData() ?? Icons.cloudy_snowing),
+                WeatherError() => Icon(Icons.error, color: Theme.of(context).colorScheme.error),
               },
               label: switch (_weatherService.status) {
-                WeatherStatus.idle => Text(_currentWeather.value?.getWeatherCodeLabel() ?? "-"),
-                WeatherStatus.searching => _loadingIndicator(),
-                WeatherStatus.success => Text(_currentWeather.value?.getWeatherCodeLabel() ?? "-"),
-                WeatherStatus.error => const Text("Weather Error"),
+                WeatherIdle() => Text(_currentWeather.value?.getWeatherCodeLabel() ?? "-"),
+                WeatherSearching() => _loadingIndicator(),
+                WeatherSuccess() => Text(_currentWeather.value?.getWeatherCodeLabel() ?? "-"),
+                WeatherError() => const Text("Weather Error"),
               },
               backgroundColor: widget.mode == SetupPageMode.edit && _currentWeather.value != widget.setup?.weather ? Colors.orange.withValues(alpha: 0.08) : null,
-              onPressed: _locationService.status == LocationStatus.searching || _weatherService.status == WeatherStatus.searching
+              onPressed: _locationService.status == LocationStatus.searching || _weatherService.status is WeatherSearching
                   ? null
                   : () async {
                       final Weather? newWeather = await showSetWeatherSheet(
@@ -855,18 +855,18 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                         selectedDateTime: _selectedDateTimeLocal,
                       );
                       if (newWeather == null) return;
-                      _weatherService.setStatus(WeatherStatus.success);
+                      _weatherService.setStatus(const WeatherSuccess());
                       _currentWeather.value = newWeather;
                       _changeListener();
                     },
             ),
             ActionChip(
               avatar: Icon(_currentWeather.value?.condition?.getIconData() ?? Icons.edit_road, color: _currentWeather.value?.condition?.getColor()),
-              label: _weatherService.status == WeatherStatus.searching 
+              label: _weatherService.status is WeatherSearching
                 ? _loadingIndicator()
                 : Text(_currentWeather.value?.condition?.value ?? "-"),
               backgroundColor: widget.mode == SetupPageMode.edit && _currentWeather.value?.condition != widget.setup?.weather?.condition ? Colors.orange.withValues(alpha: 0.08) : null,
-              onPressed: _locationService.status == LocationStatus.searching || _weatherService.status == WeatherStatus.searching
+              onPressed: _locationService.status == LocationStatus.searching || _weatherService.status is WeatherSearching
                   ? null
                   : () => appSettingsRadioGroupSheet<Condition?>(
                       context: context,

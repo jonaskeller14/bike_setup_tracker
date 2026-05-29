@@ -5,11 +5,25 @@ import 'package:http/http.dart';
 import 'package:open_meteo/open_meteo.dart';
 import '../models/weather.dart';
 
-enum WeatherStatus {
-  idle,
-  searching,
-  error,
-  success,
+sealed class WeatherStatus {
+  const WeatherStatus();
+}
+
+class WeatherIdle extends WeatherStatus {
+  const WeatherIdle();
+}
+
+class WeatherSearching extends WeatherStatus {
+  const WeatherSearching();
+}
+
+class WeatherSuccess extends WeatherStatus {
+  const WeatherSuccess();
+}
+
+class WeatherError extends WeatherStatus {
+  final String message;
+  const WeatherError(this.message);
 }
 
 class WeatherService extends ChangeNotifier {
@@ -23,22 +37,16 @@ class WeatherService extends ChangeNotifier {
   static const int _maxRequestsPerHour = 12;
   final List<DateTime> _requestTimestamps = [];
 
-  WeatherStatus _status = WeatherStatus.idle;
-  String _errorMessage = '';
+  WeatherStatus _status = const WeatherIdle();
 
   WeatherStatus get status => _status;
-  String get errorMessage => _errorMessage;
-
-  set errorMessage(String message) {
-    _errorMessage = message;
-    notifyListeners();
+  String? get errorMessage {
+    final s = _status;
+    return s is WeatherError ? s.message : null;
   }
 
   void setStatus(WeatherStatus newStatus) {
     _status = newStatus;
-    if (newStatus != WeatherStatus.error) {
-      _errorMessage = '';
-    }
     notifyListeners();
   }
 
@@ -51,14 +59,13 @@ class WeatherService extends ChangeNotifier {
       final resetTimeString = "${resetTime.hour.toString().padLeft(2, '0')}:${resetTime.minute.toString().padLeft(2, '0')}";
       final msg = "Rate limit exceeded ($_maxRequestsPerHour/h). Try again after $resetTimeString";
       debugPrint("WeatherService: $msg");
-      errorMessage = msg;
       throw Exception(msg);
     }
     _requestTimestamps.add(now);
   }
 
   Future<Weather?> fetchWeather({required double lat, required double lon, required DateTime datetime, int counter = 1}) async {
-    setStatus(WeatherStatus.searching);
+    setStatus(const WeatherSearching());
     try {
       _checkRateLimit();
 
@@ -101,7 +108,7 @@ class WeatherService extends ChangeNotifier {
       final int? currentIsDayInt = response.segments[0].hourlyData[HistoricalHourly.is_day]!.values[apiDatetime]?.toInt();
       final bool? currentIsDay = currentIsDayInt == null ? null : (currentIsDayInt == 1);
 
-      setStatus(WeatherStatus.success);
+      setStatus(const WeatherSuccess());
       return Weather(
         currentDateTime: apiDatetime, 
         currentTemperature: currentTemperature,
@@ -115,25 +122,25 @@ class WeatherService extends ChangeNotifier {
       );
     } on ClientException catch (e) {
       debugPrint("WeatherService: Network Error (No Internet): $e");
-      errorMessage = "Network Error (No Internet).";
-      setStatus(WeatherStatus.error);
+      setStatus(const WeatherError("Network Error (No Internet)."));
       return null;
     } on SocketException catch (e) {
       debugPrint("WeatherService: Network Error (No Internet): $e");
-      errorMessage = "Network Error (No Internet).";
-      setStatus(WeatherStatus.error);
+      setStatus(const WeatherError("Network Error (No Internet)."));
       return null;
     } catch (e) {
       debugPrint("WeatherService: Exception caught: $e");
-      
-      // If error message wasn't set by rate limit or network error
-      if (errorMessage.isEmpty) {
-        errorMessage = "Error occured during weather update.";
-      }
-      setStatus(WeatherStatus.error);
 
-      if (counter <= 2 && !errorMessage.contains("Rate limit exceeded")) {
-        setStatus(WeatherStatus.searching);
+      // Preserve the rate-limit message (thrown with the reset time); any other
+      // failure gets a generic message.
+      final isRateLimit = e.toString().contains("Rate limit exceeded");
+      final message = isRateLimit
+          ? e.toString().replaceFirst("Exception: ", "")
+          : "Error occured during weather update.";
+      setStatus(WeatherError(message));
+
+      if (counter <= 2 && !isRateLimit) {
+        setStatus(const WeatherSearching());
         debugPrint("WeatherService Error --> Trying again after 10s.");
         await Future.delayed(const Duration(seconds: 10));
         return fetchWeather(lat: lat, lon: lon, datetime: datetime, counter: counter + 1);

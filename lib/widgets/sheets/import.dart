@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../database/app_database.dart';
 import '../../models/selected_data.dart';
+import '../../repositories/app_repository.dart';
 import '../../utils/file_import.dart';
 import 'backup.dart';
 import 'data_select.dart';
@@ -28,6 +29,7 @@ Future<void> importData(BuildContext context) async {
 
   try {
     final database = context.read<AppDatabase>();
+    final appRepository = context.read<AppRepository>();
     switch (importResult.importMethod) {
       case ImportMethod.overwrite:
         await FileImport.overwrite(remoteData: importResult.dataToImport, database: database);
@@ -36,6 +38,10 @@ Future<void> importData(BuildContext context) async {
       case ImportMethod.replace:
         await FileImport.replace(remoteData: importResult.dataToImport, database: database);
     }
+    // The import wrote task entries directly to the DB with their imported
+    // (foreign / stale) snapshots. Recompute them against the local Strava
+    // activities and installation history.
+    await appRepository.refreshTaskEntrySnapshots();
     scaffoldMessenger.showSnackBar(
       SnackBar(
         persist: false,

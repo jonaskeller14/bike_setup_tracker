@@ -740,8 +740,14 @@ class AppRepository extends ChangeNotifier {
     return ComponentStats.zero();
   }
 
-  Future<void>  refreshTaskEntrySnapshots() async {
-    final entries = _taskEntries.values.toList();
+  /// Reads from the DB, not the in-memory `_taskEntries` cache: (1) the cache
+  /// lags bulk writes (Strava sync, import) until the watch-stream propagates,
+  /// and (2) it omits trashed entries, which must be healed too since restore
+  /// does not recompute the snapshot.
+  Future<void> refreshTaskEntrySnapshots() async {
+    final entries = (await database.taskDao.getAllEntriesBypass())
+        .map((e) => e.toModel())
+        .toList();
     for (final entry in entries) {
       final newSnapshot = await getStatsAt(
         componentId: entry.componentId,

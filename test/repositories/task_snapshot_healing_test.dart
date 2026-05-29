@@ -1,11 +1,15 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/database/mappers.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
+import 'package:bike_setup_tracker/models/component_stats.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/models/selected_data.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/utils/file_import.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Allow Drift streams to propagate through subscriptions.
@@ -223,6 +227,154 @@ void main() {
       final finalStats = await repository.getStatsAt(componentId: component.id, date: DateTime.utc(2024, 1, 4));
       expect(finalStats.distance, 80000.0);
       expect(finalStats.activityCount, 2); // Excludes the middle activityA2
+    });
+  });
+
+  group("Task Snapshot Healing - Import", () {
+    late AppDatabase database;
+    late AppRepository repository;
+
+    setUp(() async {
+      database = AppDatabase.memory();
+      repository = AppRepository(database);
+      await pumpEventQueue();
+    });
+
+    tearDown(() async {
+      await database.close();
+    });
+
+    test("importing entries with stale snapshots heals them against local Strava data", () async {
+      // Local Strava data already exists: one 100km activity on gear "g123".
+      // It survives the import (import does not touch Strava tables).
+      final activity = StravaActivity(
+        id: 1,
+        name: "Local Ride",
+        athlete: 1,
+        sportType: SportType.Ride,
+        startDate: DateTime.utc(2024, 1, 1, 12),
+        startDateLocal: DateTime(2024, 1, 1, 12),
+        gearId: "g123",
+        startLat: 0,
+        startLon: 0,
+        distance: 100000.0, // 100km
+        totalElevationGain: 1000.0,
+        movingTime: const Duration(hours: 4),
+        elapsedTime: const Duration(hours: 5),
+      );
+      await repository.setStravaActivities([activity]);
+      await pumpEventQueue();
+
+      // Build the imported payload: a bike + component + rule + a task entry
+      // whose snapshot is STALE (999km — e.g. computed on the source device
+      // against different Strava data).
+      const bikeId = "bike_1";
+      const componentId = "comp_1";
+      final bike = Bike(id: bikeId, name: "Imported Bike", person: null, stravaGear: "g123");
+      final component = Component(
+        id: componentId,
+        name: "Chain",
+        componentType: ComponentType.chain,
+        installations: [Installation.sinceBeginning(parent: bikeId)],
+      );
+      final rule = TaskRule(name: "Chain Wax", componentId: componentId, tags: const {});
+      final entryDate = DateTime.utc(2024, 1, 2);
+      final entry = TaskEntry(
+        name: "Waxed",
+        taskRule: rule.id,
+        componentId: componentId,
+        dateTimeUTC: entryDate,
+        dateTimeLocal: entryDate.toLocal(),
+        snapshot: ComponentStats(
+          distance: 999000.0, // stale / foreign value
+          elevationGain: 0,
+          movingTime: Duration.zero,
+          elapsedTime: Duration.zero,
+          activityCount: 99,
+        ),
+      );
+
+      final remoteData = SelectedData(
+        bikes: {bike.id: bike},
+        components: {component.id: component},
+        taskRules: {rule.id: rule},
+        taskEntries: {entry.id: entry},
+      );
+
+      // Import (replace) writes the entry straight to the DB with its stale snapshot.
+      await FileImport.replace(remoteData: remoteData, database: database);
+      await pumpEventQueue();
+
+      // Documents the bug: the imported snapshot is stale right after import.
+      expect(repository.taskEntries[entry.id]?.snapshot?.distance, 999000.0);
+
+      // The fix: importData() calls this after a successful import.
+      await repository.refreshTaskEntrySnapshots();
+      await pumpEventQueue();
+
+      // Healed to the local stats (100km, 1 activity).
+      expect(repository.taskEntries[entry.id]?.snapshot?.distance, 100000.0);
+      expect(repository.taskEntries[entry.id]?.snapshot?.activityCount, 1);
+    });
+
+    test("trashed entries are healed too, and stay trashed", () async {
+      final bike = Bike(name: "Test Bike", person: null, stravaGear: "g123");
+      await repository.addBike(bike);
+      final component = Component(
+        name: "Chain",
+        componentType: ComponentType.chain,
+        installations: [Installation.sinceBeginning(parent: bike.id)],
+      );
+      await repository.addComponent(component);
+      final rule = TaskRule(name: "Chain Wax", componentId: component.id, tags: const {});
+      await repository.addTaskRule(rule);
+
+      final activity = StravaActivity(
+        id: 1,
+        name: "Local Ride",
+        athlete: 1,
+        sportType: SportType.Ride,
+        startDate: DateTime.utc(2024, 1, 1, 12),
+        startDateLocal: DateTime(2024, 1, 1, 12),
+        gearId: "g123",
+        startLat: 0,
+        startLon: 0,
+        distance: 100000.0,
+        totalElevationGain: 1000.0,
+        movingTime: const Duration(hours: 4),
+        elapsedTime: const Duration(hours: 5),
+      );
+      await repository.setStravaActivities([activity]);
+      await pumpEventQueue();
+
+      // A deleted (trashed) entry with a stale snapshot, written directly to the DB.
+      final entryDate = DateTime.utc(2024, 1, 2);
+      final trashedEntry = TaskEntry(
+        name: "Waxed",
+        taskRule: rule.id,
+        componentId: component.id,
+        dateTimeUTC: entryDate,
+        dateTimeLocal: entryDate.toLocal(),
+        isDeleted: true,
+        snapshot: ComponentStats(
+          distance: 999000.0,
+          elevationGain: 0,
+          movingTime: Duration.zero,
+          elapsedTime: Duration.zero,
+          activityCount: 99,
+        ),
+      );
+      await database.taskDao.insertEntry(trashedEntry.toCompanion());
+      await pumpEventQueue();
+
+      await repository.refreshTaskEntrySnapshots();
+
+      // Read back from the DB (the in-memory cache omits trashed entries).
+      final healed = (await database.taskDao.getAllEntriesBypass())
+          .firstWhere((e) => e.id == trashedEntry.id);
+      expect(healed.isDeleted, isTrue); // still trashed
+      expect(healed.snapshot, isNotNull);
+      expect(healed.toModel().snapshot?.distance, 100000.0); // healed
     });
   });
 }

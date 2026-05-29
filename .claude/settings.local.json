@@ -12,7 +12,12 @@
       "WebFetch(domain:pub.dev)",
       "WebFetch(domain:github.com)",
       "mcp__firebase__functions_get_logs",
-      "mcp__firebase__firebase_deploy_status"
+      "mcp__firebase__firebase_deploy_status",
+      "Bash(flutter analyze *)"
+    ],
+    "ask": [
+      "Bash(git commit)",
+      "Bash(git commit *)"
     ]
   }
 }

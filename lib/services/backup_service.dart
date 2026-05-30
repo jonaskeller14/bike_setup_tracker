@@ -2,7 +2,7 @@ import 'dart:async';
 import '../database/app_database.dart';
 import '../utils/file_export.dart';
 
-class StorageService {
+class BackupService {
   Timer? _debounce;
 
   void update(AppDatabase database) {

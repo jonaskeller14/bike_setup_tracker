@@ -15,13 +15,13 @@ import 'pages/home_page.dart';
 import 'pages/loading_error_page.dart';
 import 'pages/onboarding_page.dart';
 import 'repositories/app_repository.dart';
+import 'services/backup_service.dart';
 import 'services/database_migration_service.dart';
 import 'services/deep_link_service.dart';
 import 'services/google_drive_service.dart';
 import 'services/navigation_service.dart';
 import 'services/notification_service.dart';
 import 'services/quick_actions_service.dart';
-import 'services/storage_service.dart';
 import 'services/strava_service.dart';
 import 'services/subscription_service.dart';
 import 'utils/file_export.dart';
@@ -143,10 +143,10 @@ class LoadingGate extends StatelessWidget {
               Provider<AppDatabase>.value(value: appRepository.database),
               ChangeNotifierProvider.value(value: appSettings),
               ChangeNotifierProvider.value(value: appRepository),
-              ProxyProvider<AppRepository, StorageService>(
+              ProxyProvider<AppRepository, BackupService>(
                 lazy: false,
-                create: (context) => StorageService(),
-                update: (context, appRepo, storageService) => storageService!..update(appRepository.database),
+                create: (context) => BackupService(),
+                update: (context, appRepo, backupService) => backupService!..update(appRepository.database),
               ),
               ChangeNotifierProxyProvider2<AppRepository, AppSettings, GoogleDriveService>(
                 lazy: false,

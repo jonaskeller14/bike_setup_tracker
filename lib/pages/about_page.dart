@@ -21,7 +21,7 @@ class AboutPage extends StatelessWidget {
 
   static const String privacyPolicyUrl = 'https://jonaskeller14.com/bike_setup_tracker/privacy_policy.html';
   static const String eulaUrl = 'https://jonaskeller14.com/bike_setup_tracker/eula.html';
-  static const String tosURL = 'https://jonaskeller14.de/bike_setup_tracker/terms_of_service.html';
+  static const String tosURL = 'https://jonaskeller14.com/bike_setup_tracker/terms_of_service.html';
   static const String playStoreUrl = 'https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker';
   static const String appStoreUrl = 'https://apps.apple.com/app/id6759974325?action=write-review';
 

@@ -7,8 +7,8 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/backup_service.dart';
 import 'package:bike_setup_tracker/services/google_drive_service.dart';
-import 'package:bike_setup_tracker/services/storage_service.dart';
 import 'package:bike_setup_tracker/services/strava_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/widgets/items/adjustment_list_card.dart';
@@ -48,7 +48,7 @@ void main() {
         ChangeNotifierProvider<AppSettings>.value(value: appSettings),
         ChangeNotifierProvider<AppRepository>.value(value: appRepository),
         Provider<AppDatabase>.value(value: database),
-        Provider<StorageService>(create: (_) => StorageService()),
+        Provider<BackupService>(create: (_) => BackupService()),
         ChangeNotifierProvider<StravaService>(
             create: (_) => StravaService(appRepository, appSettings)),
         ChangeNotifierProvider<GoogleDriveService>(

@@ -285,7 +285,7 @@ void main() {
         componentId: componentId,
         dateTimeUTC: entryDate,
         dateTimeLocal: entryDate.toLocal(),
-        snapshot: ComponentStats(
+        snapshot: const ComponentStats(
           distance: 999000.0, // stale / foreign value
           elevationGain: 0,
           movingTime: Duration.zero,
@@ -356,7 +356,7 @@ void main() {
         dateTimeUTC: entryDate,
         dateTimeLocal: entryDate.toLocal(),
         isDeleted: true,
-        snapshot: ComponentStats(
+        snapshot: const ComponentStats(
           distance: 999000.0,
           elevationGain: 0,
           movingTime: Duration.zero,

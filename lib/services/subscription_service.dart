@@ -80,6 +80,15 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   DateTime? _lastAutoRestoreAt;
   static const Duration _autoRestoreCooldown = Duration(minutes: 30);
 
+  // Bounded retry for transient verify failures (auth/App Check not ready,
+  // network). verifySubscription is idempotent server-side, so retrying is safe.
+  static const int _maxVerifyAttempts = 3;
+
+  // Restore triggered by paywall button 
+  // --> timeout can surface "nothing found" without flashing errors during
+  // the silent launch/resume/lapse auto-restores.
+  bool _userInitiatedRestore = false;
+
   SubscriptionState get state => _state;
   String? get errorMessage {
     final s = _state;
@@ -135,12 +144,34 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
     // unreachable, no active subscription), drop the restoring flag so the
     // UI can resolve to its real state (paywall, success, dashboard).
     _restoreTimeoutTimer?.cancel();
-    _restoreTimeoutTimer = Timer(const Duration(seconds: 5), _endRestore);
+    _restoreTimeoutTimer = Timer(const Duration(seconds: 5), _onRestoreTimeout);
+  }
+
+  // Fires only when no purchaseStream event arrived in the window — the store
+  // returned nothing to restore. For a user-initiated restore with no active
+  // entitlement, tell the user explicitly (also pinpoints the "no restored
+  // event" failure mode). Auto-restores stay silent.
+  void _onRestoreTimeout() {
+    // Only fire "nothing found" when the stream stayed silent — i.e. no
+    // purchase event arrived. Any event moves the state out of
+    // SubscriptionRestoring (to Verifying/Purchasing/Idle), and the event
+    // handlers then own the outcome. Without this guard a slow verify (cold
+    // Cloud Function start or the bounded transient retries) could still be in
+    // flight at 5s and we'd wrongly tell the user no purchase was found.
+    if (_userInitiatedRestore &&
+        _state is SubscriptionRestoring &&
+        !hasStravaEntitlement) {
+      _setState(const SubscriptionError(
+          'No previous purchase found for this account. Make sure you are '
+          'signed in to the same Google/Apple account that bought the subscription.'));
+    }
+    _endRestore();
   }
 
   void _endRestore() {
     _restoreTimeoutTimer?.cancel();
     _restoreTimeoutTimer = null;
+    _userInitiatedRestore = false;
     if (!_isRestoring) return;
     _isRestoring = false;
     notifyListeners();
@@ -322,6 +353,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       return;
     }
     if (_isRestoring) return;
+    _userInitiatedRestore = true;
     _beginRestore();
     _setState(const SubscriptionRestoring());
     try {
@@ -341,12 +373,13 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> _onPurchaseUpdate(List<PurchaseDetails> purchases) async {
     for (final pd in purchases) {
       debugPrint('SubscriptionService _onPurchaseUpdate: ${pd.productID} → ${pd.status} (source=${pd.verificationData.source})');
+      bool granted = false;
       switch (pd.status) {
         case PurchaseStatus.pending:
           _setState(const SubscriptionPurchasing());
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
-          await _verifyAndAcknowledge(pd);
+          granted = await _verifyAndAcknowledge(pd);
         case PurchaseStatus.error:
           if (Platform.isAndroid && pd.error?.code == '7') {
             // ITEM_ALREADY_OWNED — subscription is active on this Play account; restore instead.
@@ -362,7 +395,12 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
         case PurchaseStatus.canceled:
           _setState(const SubscriptionIdle());
       }
-      if (pd.pendingCompletePurchase) {
+      // Acknowledge a *new* purchase only after the server has granted the
+      // entitlement. An un-completed purchase is redelivered on purchaseStream
+      // every launch by the store, giving a durable, store-backed retry queue
+      // (and on Android avoids paid-but-not-acknowledged → auto-refund). Restored
+      // purchases are already acknowledged on the store, so completing is safe.
+      if (pd.pendingCompletePurchase && (pd.status != PurchaseStatus.purchased || granted)) {
         try {
           await _iap.completePurchase(pd);
         } catch (e) {
@@ -374,14 +412,17 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
     _endRestore();
   }
 
-  Future<void> _verifyAndAcknowledge(PurchaseDetails pd) async {
+  /// Verifies a purchase with the backend and returns whether the entitlement
+  /// was granted. Callers use the result to decide whether it is safe to
+  /// acknowledge/complete the purchase.
+  Future<bool> _verifyAndAcknowledge(PurchaseDetails pd, {int attempt = 0}) async {
     _setState(const SubscriptionVerifying());
 
     // Skip re-verification for a restored purchase if the entitlement is already
     // active — webhooks keep Firestore current and a redundant CF call isn't needed.
     if (pd.status == PurchaseStatus.restored && (_entitlement?.isActive ?? false)) {
       _setState(const SubscriptionIdle());
-      return;
+      return true;
     }
 
     try {
@@ -397,7 +438,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       final iosTxId = pd.purchaseID;
       if (Platform.isIOS && (iosTxId == null || iosTxId.isEmpty)) {
         _setState(const SubscriptionError('Missing transaction id for iOS purchase.'));
-        return;
+        return false;
       }
       await functions.httpsCallable('verifySubscription').call({
         'platform': Platform.isIOS ? 'ios' : 'android',
@@ -417,17 +458,42 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
       _setState(const SubscriptionIdle());
       // The Firestore listener will pick up the new entitlement and emit
       // notifyListeners on its own — no need to set state here.
+      return true;
     } on FirebaseFunctionsException catch (e) {
-      // Restore re-verification failing for any CF reason is non-fatal —
-      // Firestore entitlement is cached locally and is the source of truth.
-      if (pd.status == PurchaseStatus.restored) {
+      // Transient (auth/App Check not ready, network) → bounded retry with
+      // backoff. ensureSignedIn() is cheap when already signed in.
+      final isTransient = e.code == 'unauthenticated' ||
+          e.code == 'unavailable' ||
+          e.code == 'deadline-exceeded';
+      if (isTransient && attempt < _maxVerifyAttempts - 1) {
+        debugPrint('SubscriptionService: verify failed (${e.code}) — retry ${attempt + 1}/${_maxVerifyAttempts - 1}');
+        await AuthService.ensureSignedIn();
+        await Future<void>.delayed(Duration(seconds: 1 << attempt));
+        return _verifyAndAcknowledge(pd, attempt: attempt + 1);
+      }
+      // A restored purchase is safe to ignore ONLY when an active entitlement is
+      // already cached (webhooks keep it fresh). With no active entitlement —
+      // e.g. after a reinstall — the failure must surface, not be swallowed.
+      if (pd.status == PurchaseStatus.restored && (_entitlement?.isActive ?? false)) {
         debugPrint('SubscriptionService: restore verify failed (${e.code}), using cached entitlement');
         _setState(const SubscriptionIdle());
-        return;
+        return false;
+      }
+      // The store reports the subscription as lapsed/expired (CF returns
+      // permission-denied "Purchase is not active."). Terminal — no retry, and a
+      // clear, non-alarming message rather than a raw verify error.
+      if (e.code == 'permission-denied' &&
+          (e.message ?? '').toLowerCase().contains('not active')) {
+        _setState(const SubscriptionError(
+            'This subscription is no longer active on your store account. '
+            'If you renewed recently, try again in a moment.'));
+        return false;
       }
       _setState(SubscriptionError(_friendlyVerifyError(e) ?? 'Could not verify purchase: [${e.code}] ${e.message}'));
+      return false;
     } catch (e) {
       _setState(SubscriptionError('Could not verify purchase: $e'));
+      return false;
     }
   }
 

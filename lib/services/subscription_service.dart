@@ -173,6 +173,12 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
         await addition.setDelegate(_StoreKitPaymentQueueDelegate());
       }
 
+      // Sign in and attach the entitlement listener BEFORE any restore. A
+      // restored purchase triggers verifySubscription, which requires an
+      // authenticated user — restoring first races sign-in and the first
+      // verify call lands unauthenticated.
+      await _bindUser();
+
       if (_storeAvailable) {
         await _loadProducts();
         // Silently restore active subscriptions on every launch. Without
@@ -183,8 +189,6 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
         _beginRestore();
         unawaited(_iap.restorePurchases());
       }
-
-      await _bindUser();
     } catch (e) {
       _setState(SubscriptionError('Subscription init failed: $e'));
       _isInitialized = false; // allow retry

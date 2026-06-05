@@ -261,6 +261,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                           borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
                           child: FlutterMap(
                             options: MapOptions(
+                              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                               initialCenter: LatLng(setup.position!.latitude!, setup.position!.longitude!),
                               initialZoom: 13,
                               minZoom: 3,

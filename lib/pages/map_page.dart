@@ -189,6 +189,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
               FlutterMap(
                 mapController: _mapController,
                 options: MapOptions(
+                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   initialRotation: 0,
                   initialCenter: const LatLng(44.1687, 8.3444), // Finale Ligure
                   initialZoom: 13,

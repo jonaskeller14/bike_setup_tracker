@@ -58,6 +58,9 @@ Who is this for?
 
 
 Ditch the notebook. Download Bike Setup Tracker today and tune your ride with precision.
+
+---
+Terms of Use (EULA): https://jonaskeller14.com/bike_setup_tracker/eula.html
 ```
 
 ## Keywords

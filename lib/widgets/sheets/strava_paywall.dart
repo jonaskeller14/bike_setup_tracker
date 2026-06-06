@@ -46,8 +46,13 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
     final subscription = context.watch<SubscriptionService>();
     final isBusy = subscription.isBusy;
 
-    final tosRecognizer = TapGestureRecognizer()
-      ..onTap = () => launchAppUrl(context, url: AppInfo.tosUrl);
+    final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
+    final storeSettings = isIOS ? 'App Store settings' : 'Google Play settings';
+    final autoRenewDisclosure =
+        'Auto-renewable subscription. Manage or cancel anytime in your $storeSettings.';
+
+    final eulaRecognizer = TapGestureRecognizer()
+      ..onTap = () => launchAppUrl(context, url: AppInfo.eulaUrl);
     final privacyRecognizer = TapGestureRecognizer()
       ..onTap = () => launchAppUrl(context, url: AppInfo.privacyPolicyUrl);
 
@@ -344,9 +349,9 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 children: [
-                  const TextSpan(text: 'By subscribing you agree to '),
+                  TextSpan(text: '$autoRenewDisclosure By subscribing you agree to '),
                   TextSpan(
-                    text: 'Terms of Service',
+                    text: 'Terms of Use',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,
@@ -354,7 +359,7 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                       decorationColor: Theme.of(context).colorScheme.primary,
                       letterSpacing: 0.4,
                     ),
-                    recognizer: tosRecognizer,
+                    recognizer: eulaRecognizer,
                   ),
                   const TextSpan(text: ' and '),
                   TextSpan(

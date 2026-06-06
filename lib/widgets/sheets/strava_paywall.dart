@@ -2,8 +2,8 @@ import 'package:bike_setup_tracker/models/strava/strava_plan.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../pages/about_page.dart';
 import '../../services/subscription_service.dart';
+import '../../utils/app_info.dart';
 import '../../utils/url.dart';
 import 'strava_dashboard.dart';
 
@@ -47,9 +47,9 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
     final isBusy = subscription.isBusy;
 
     final tosRecognizer = TapGestureRecognizer()
-      ..onTap = () => launchAppUrl(context, url: AboutPage.tosURL);
+      ..onTap = () => launchAppUrl(context, url: AppInfo.tosUrl);
     final privacyRecognizer = TapGestureRecognizer()
-      ..onTap = () => launchAppUrl(context, url: AboutPage.privacyPolicyUrl);
+      ..onTap = () => launchAppUrl(context, url: AppInfo.privacyPolicyUrl);
 
     return SafeArea(
       child: Padding(

@@ -228,7 +228,13 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                                 child: CircularProgressIndicator(strokeWidth: 2),
                               )
                             : const Icon(Icons.sync),
-                        label: Text(stravaService.canSyncRecent ? "Sync" : "Recently Synced"),
+                        label: Text(
+                          stravaService.isBusy
+                              ? "Syncing"
+                              : stravaService.canSyncRecent
+                                  ? "Sync"
+                                  : "Recently Synced",
+                        ),
                       ),
                     ),
                   ),

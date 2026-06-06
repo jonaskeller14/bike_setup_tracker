@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/app_settings.dart';
+import '../../models/app_settings.dart';
+import '../../widgets/text/section_title.dart';
 
 class FAQPage extends StatelessWidget {
   const FAQPage({super.key});
@@ -147,19 +148,13 @@ class FAQPage extends StatelessWidget {
             children: faqSections.entries.map((faqSection) => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0),
-                  child: Text(
-                    faqSection.key,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ),
+                SectionTitle(title: faqSection.key),
                 ...faqSection.value.entries.map((faq) => ListTile(
                   title: SelectableText(faq.key, style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: SelectableText(faq.value),
                   dense: true,
                 )),
-                const Divider(height: 32.0),
+                const Divider(),
               ],
             )).toList(),
           ),

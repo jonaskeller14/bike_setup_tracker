@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../utils/app_info.dart';
 import '../utils/file_export.dart';
-import 'about_page.dart';
 
 class LoadingErrorPage extends StatelessWidget {
   const LoadingErrorPage({super.key});
@@ -33,10 +33,10 @@ class LoadingErrorPage extends StatelessWidget {
                     ListTile(
                       leading: const Icon(Icons.headset_mic_outlined),
                       title: const Text('Contact Support'),
-                      subtitle: const Text(AboutPage.supportEmail),
+                      subtitle: const Text(AppInfo.supportEmail),
                       trailing: const Icon(Icons.open_in_new, size: 16.0),
                       onTap: () async {
-                        final uri = Uri.parse('mailto:${AboutPage.supportEmail}?subject=App Load Error');
+                        final uri = Uri.parse('mailto:${AppInfo.supportEmail}?subject=App Load Error');
                         if (await canLaunchUrl(uri)) {
                           await launchUrl(uri);
                         } else {

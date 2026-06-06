@@ -1,84 +1,16 @@
-import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
-import '../icons/simple_icons.dart';
-import '../models/adjustment/adjustment.dart';
-import '../models/app_settings.dart';
-import '../models/bike.dart';
-import '../models/weather.dart';
-import '../repositories/app_repository.dart';
-import '../services/strava_service.dart';
-import '../widgets/dialogs/strava_disconnect.dart';
-import '../widgets/items/strava_subscription_card.dart';
-import '../widgets/sheets/app_settings_radio_group.dart';
-import '../widgets/text/section_title.dart';
+import '../../icons/simple_icons.dart';
+import '../../models/adjustment/adjustment.dart';
+import '../../models/app_settings.dart';
+import '../../models/bike.dart';
+import '../../repositories/app_repository.dart';
+import '../../widgets/sheets/app_settings_radio_group.dart';
 
-class AppSettingsPage extends StatefulWidget {
-  const AppSettingsPage({super.key});
-
-  @override
-  State<StatefulWidget> createState() => _AppSettingsPageState();
-}
-
-class _AppSettingsPageState extends State<AppSettingsPage> {
-  static const Map<ThemeMode, Row> _themeModeOptionWidgets = {
-    ThemeMode.system: Row(
-      spacing: 8,
-      children: [Icon(Icons.settings), Text("System")],
-    ),
-    ThemeMode.light: Row(
-      spacing: 8,
-      children: [Icon(Icons.light_mode), Text("Light")],
-    ),
-    ThemeMode.dark: Row(
-      spacing: 8,
-      children: [Icon(Icons.dark_mode), Text("Dark")],
-    ),
-  };
-
-  static const Map<String, Text> _dateFormatOptionWidgets = {
-    'dd.MM.yyyy': Text('dd.MM.yyyy (09.12.2025)'),
-    'dd/MM/yyyy': Text('dd/MM/yyyy (09/12/2025)'),
-    'MM/dd/yyyy': Text('MM/dd/yyyy (12/09/2025)'),
-    'yyyy-MM-dd': Text('yyyy-MM-dd (2025-12-09)'),
-    'dd MMM yyyy': Text('dd MMM yyyy (09 Dec 2025)'),
-  };
-
-  static const Map<String, Text> _timeFormatOptionWidgets = {
-    'HH:mm': Text('HH:mm (20:07)'),
-    'h:mm a': Text('h:mm a (8:07 PM)'),
-  };
-
-  static const Map<String, Text> _tempUnitOptionWidgets = {
-    '°C': Text('Celsius (°C)'),
-    '°F': Text('Fahrenheit (°F)'),
-    'K': Text('Kelvin (K)'),
-  };
-
-  static const Map<String, Text> _windSpeedUnitOptionWidgets = {
-    'km/h': Text('Kilometers per hour (km/h)'),
-    'mph': Text('Miles per hour (mph)'),
-    'm/s': Text('Meters per second (m/s)'),
-    'kt': Text('Knots (kt)'),
-  };
-
-  static const Map<String, Text> _distanceUnitOptionWidgets = {
-    'km': Text('Kilometers (km)'),
-    'mi': Text('Miles (mi)'),
-  };
-
-  static const Map<String, Text> _altitudeUnitOptionWidgets = {
-    'm': Text('Meters (m)'),
-    'ft': Text('Feet (ft)'),
-  };
-
-  static const Map<String, Text> _precipitationUnitOptionWidgets = {
-    'mm': Text('Millimeters (mm)'),
-    'in': Text('Inches (in)'),
-  };
+class FeaturesPage extends StatelessWidget {
+  const FeaturesPage({super.key});
 
   static const Map<bool, Text> _offOnOptionWidgets = {
     false: Text('Off'),
@@ -88,158 +20,14 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    final strava = context.watch<StravaService>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('App Settings')),
+      appBar: AppBar(title: const Text('Features')),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SectionTitle(title: 'Appearance'),
-              ListTile(
-                leading: const Icon(Icons.color_lens),
-                title: const Text("App Theme Mode"),
-                subtitle: _themeModeOptionWidgets[appSettings.themeMode]?.children[1] ?? const Text("-"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<ThemeMode>(
-                  context: context,
-                  title: "App Theme Mode",
-                  value: appSettings.themeMode,
-                  optionWidgets: _themeModeOptionWidgets,
-                  onChanged: (ThemeMode? newValue) {
-                    if (newValue == null) return;
-                    appSettings.themeMode = newValue;
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              const Divider(),
-              const SectionTitle(title: 'Default Formats'),
-              ListTile(
-                leading: const Icon(Icons.calendar_month),
-                title: const Text("Date Format"),
-                subtitle: _dateFormatOptionWidgets[appSettings.dateFormat] ?? const Text("-"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<String>(
-                  context: context,
-                  title: "Date Format",
-                  value: appSettings.dateFormat,
-                  optionWidgets: _dateFormatOptionWidgets,
-                  onChanged: (String? newValue) {
-                    if (newValue == null) return;
-                    appSettings.dateFormat = newValue;
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.access_time),
-                title: const Text("Time Format"),
-                subtitle: _timeFormatOptionWidgets[appSettings.timeFormat] ?? const Text("-"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<String>(
-                  context: context,
-                  title: "Time Format",
-                  value: appSettings.timeFormat,
-                  optionWidgets: _timeFormatOptionWidgets,
-                  onChanged: (String? newValue) {
-                    if (newValue == null) return;
-                    appSettings.timeFormat = newValue;
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              const Divider(),
-              const SectionTitle(title: 'Default Units'),
-              ListTile(
-                leading: const Icon(Icons.route),
-                title: const Text("Distance Unit"),
-                subtitle: _distanceUnitOptionWidgets[appSettings.distanceUnit] ?? const Text("-"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<String>(
-                  context: context,
-                  title: "Distance Unit",
-                  value: appSettings.distanceUnit,
-                  optionWidgets: _distanceUnitOptionWidgets,
-                  onChanged: (String? newValue) {
-                    if (newValue == null) return;
-                    appSettings.distanceUnit = newValue;
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.arrow_upward),
-                title: const Text("Altitude Unit"),
-                subtitle: _altitudeUnitOptionWidgets[appSettings.altitudeUnit] ?? const Text("-"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<String>(
-                  context: context,
-                  title: "Altitude Unit",
-                  value: appSettings.altitudeUnit,
-                  optionWidgets: _altitudeUnitOptionWidgets,
-                  onChanged: (String? newValue) {
-                    if (newValue == null) return;
-                    appSettings.altitudeUnit = newValue;
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Weather.currentTemperatureIconData),
-                title: const Text("Temperature Unit"),
-                subtitle: _tempUnitOptionWidgets[appSettings.temperatureUnit] ?? const Text("-"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<String>(
-                  context: context,
-                  title: "Temperature Unit",
-                  value: appSettings.temperatureUnit,
-                  optionWidgets: _tempUnitOptionWidgets,
-                  onChanged: (String? newValue) {
-                    if (newValue == null) return;
-                    appSettings.temperatureUnit = newValue;
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Weather.currentWindSpeedIconData),
-                title: const Text("Wind Speed Unit"),
-                subtitle: _windSpeedUnitOptionWidgets[appSettings.windSpeedUnit] ?? const Text("-"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<String>(
-                  context: context,
-                  title: "Wind Speed Unit",
-                  value: appSettings.windSpeedUnit,
-                  optionWidgets: _windSpeedUnitOptionWidgets,
-                  onChanged: (String? newValue) {
-                    if (newValue == null) return;
-                    appSettings.windSpeedUnit = newValue;
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Weather.dayAccumulatedPrecipitationIconData),
-                title: const Text("Precipitation Unit"),
-                subtitle: _precipitationUnitOptionWidgets[appSettings.precipitationUnit] ?? const Text("-"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<String>(
-                  context: context,
-                  title: "Precipitation Unit",
-                  value: appSettings.precipitationUnit,
-                  optionWidgets: _precipitationUnitOptionWidgets,
-                  onChanged: (String? newValue) {
-                    if (newValue == null) return;
-                    appSettings.precipitationUnit = newValue;
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              const Divider(),
-              const SectionTitle(title: 'Advanced Features'),
               const ListTile(
                 leading: Icon(Icons.info_outline),
                 title: Text('Enable these to add specific functionality to your workflow. Keep them disabled to maintain a simpler interface.'),
@@ -503,60 +291,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     },
                   ),
                 ),
-              if (appSettings.enableStrava) ...[
-                const Divider(),
-                const SectionTitle(title: 'Strava Sync'),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: StravaSubscriptionCard(),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.manage_accounts),
-                  title: const Text("Manage Subscription"),
-                  subtitle: const Text("Cancel or change your plan in the store"),
-                  trailing: const Icon(Icons.open_in_new, size: 16.0),
-                  onTap: () {
-                    final uri = Platform.isIOS
-                        ? Uri.parse('https://apps.apple.com/account/subscriptions')
-                        : Uri.parse(
-                            'https://play.google.com/store/account/subscriptions'
-                            '?sku=strava_sync'
-                            '&package=com.jonaskeller14.bike_setup_tracker',
-                          );
-                    unawaited(launchUrl(uri, mode: LaunchMode.externalApplication));
-                  },
-                ),
-                if (strava.isConnected) ...[
-                  ListTile(
-                    leading: const Icon(Icons.logout),
-                    title: const Text("Disconnect Strava"),
-                    subtitle: const Text("Revoke access and delete synced activities"),
-                    onTap: () async {
-                      final confirmed = await showStravaDisconnectDialog(context);
-                      if (confirmed) await strava.disconnect();
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.notifications_active),
-                    title: const Text("Strava Notifications"),
-                    subtitle: _offOnOptionWidgets[appSettings.enableStravaNotifications] ?? const Text("-"),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                    onTap: () => appSettingsRadioGroupSheet<bool>(
-                      context: context,
-                      title: "Strava Notifications",
-                      value: appSettings.enableStravaNotifications,
-                      optionWidgets: _offOnOptionWidgets,
-                      onChanged: (bool? newValue) {
-                        if (newValue == null) return;
-                        appSettings.enableStravaNotifications = newValue;
-                        unawaited(context.read<StravaService>().setStravaNotificationsEnabled(newValue));
-                        Navigator.pop(context);
-                      },
-                      infoText: 'Receive push notifications when Strava activities are imported.',
-                    ),
-                  ),
-                ],
-              ],
             ],
           ),
         ),

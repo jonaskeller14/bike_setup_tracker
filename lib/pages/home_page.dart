@@ -25,8 +25,7 @@ import '../widgets/sheets/export.dart';
 import '../widgets/sheets/import.dart';
 import '../widgets/sheets/share.dart';
 import '../widgets/strava_sync_button.dart';
-import 'about_page.dart';
-import 'app_settings_page.dart';
+import 'settings/app_settings_page.dart';
 import 'trash_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -81,79 +80,28 @@ class _HomePageState extends State<HomePage> {
             const StravaSyncButton(),
           if (appSettings.enableGoogleDrive)
             const GoogleDriveSyncButton(),
-          PopupMenuButton<String>(
-            onSelected: (String result) async {
+          PopupMenuButton<_AppOptions>(
+            onSelected: (_AppOptions result) async {
               switch (result) {
-                case 'import': await importData(context);
-                case 'export': await exportData(context);
-                case 'share': await shareData(context);
-                case "trash": await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const TrashPage()));
-                case "settings": await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()));
-                case "about": await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AboutPage()));
+                case _AppOptions.import: await importData(context);
+                case _AppOptions.export: await exportData(context);
+                case _AppOptions.share: await shareData(context);
+                case _AppOptions.trash: await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const TrashPage()));
+                case _AppOptions.settings: await Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const AppSettingsPage()));
               }
             },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'import',
+            itemBuilder: (BuildContext context) => _AppOptions.values.map((appOption) {
+              return PopupMenuItem<_AppOptions>(
+                value: appOption,
                 child: Row(
                   children: [
-                    Icon(Icons.file_upload),
-                    SizedBox(width: 8),
-                    Text('Import Data'),
+                    Icon(appOption.iconData),
+                    const SizedBox(width: 8),
+                    Text(appOption.label),
                   ],
                 ),
-              ),
-              const PopupMenuItem<String>(
-                value: 'export',
-                child: Row(
-                  children: [
-                    Icon(Icons.file_download),
-                    SizedBox(width: 8),
-                    Text('Export Data'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem<String>(
-                value: 'share',
-                child: Row(
-                  children: [
-                    Icon(Icons.share),
-                    SizedBox(width: 8),
-                    Text('Share Data'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem<String>(
-                value: "trash",
-                child: Row(
-                  children: [
-                    Icon(Icons.delete),
-                    SizedBox(width: 8),
-                    Text('Trash'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem<String>(
-                value: 'settings',
-                child: Row(
-                  children: [
-                    Icon(Icons.settings),
-                    SizedBox(width: 8),
-                    Text('Settings'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem<String>(
-                value: 'about',
-                child: Row(
-                  children: [
-                    Icon(Icons.info_outline),
-                    SizedBox(width: 8),
-                    Text('About'),
-                  ],
-                ),
-              ),
-            ],
+              );
+            }).toList(),
             icon: const Icon(Icons.more_vert),
           ),
         ],
@@ -258,4 +206,15 @@ class _HomePageState extends State<HomePage> {
       ][_currentPageIndex],
     );
   }
+}
+
+enum _AppOptions {
+  import('Import Data', Icons.file_upload),
+  export('Export Data', Icons.file_download),
+  share('Share Data', Icons.share),
+  trash('Tash', Icons.delete),
+  settings("Settings", Icons.settings);
+  final String label;
+  final IconData iconData;
+  const _AppOptions(this.label, this.iconData);
 }

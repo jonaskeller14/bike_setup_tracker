@@ -2,6 +2,7 @@ import 'package:bike_setup_tracker/models/strava/strava_plan.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/app_info.dart';
 import '../../utils/url.dart';
@@ -48,13 +49,22 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
 
     final isIOS = Theme.of(context).platform == TargetPlatform.iOS;
     final storeSettings = isIOS ? 'App Store settings' : 'Google Play settings';
-    final autoRenewDisclosure =
-        'Auto-renewable subscription. Manage or cancel anytime in your $storeSettings.';
+    final manageSubscriptionUrl = isIOS
+        ? 'https://apps.apple.com/account/subscriptions'
+        : 'https://play.google.com/store/account/subscriptions'
+            '?sku=strava_sync'
+            '&package=com.jonaskeller14.bike_setup_tracker';
 
     final eulaRecognizer = TapGestureRecognizer()
       ..onTap = () => launchAppUrl(context, url: AppInfo.eulaUrl);
     final privacyRecognizer = TapGestureRecognizer()
       ..onTap = () => launchAppUrl(context, url: AppInfo.privacyPolicyUrl);
+    final storeSettingsRecognizer = TapGestureRecognizer()
+      ..onTap = () => launchAppUrl(
+            context,
+            url: manageSubscriptionUrl,
+            launchMode: LaunchMode.externalApplication,
+          );
 
     return SafeArea(
       child: Padding(
@@ -349,7 +359,21 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 children: [
-                  TextSpan(text: '$autoRenewDisclosure By subscribing you agree to '),
+                  const TextSpan(
+                    text: 'Auto-renewable subscription. Manage or cancel anytime in your ',
+                  ),
+                  TextSpan(
+                    text: storeSettings,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.underline,
+                      decorationColor: Theme.of(context).colorScheme.primary,
+                      letterSpacing: 0.4,
+                    ),
+                    recognizer: storeSettingsRecognizer,
+                  ),
+                  const TextSpan(text: '. By subscribing you agree to '),
                   TextSpan(
                     text: 'Terms of Use',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(

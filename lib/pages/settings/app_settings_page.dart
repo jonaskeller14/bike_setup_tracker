@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../models/app_settings.dart';
 import '../../services/strava_service.dart';
+import '../../utils/url.dart';
 import '../../widgets/dialogs/strava_disconnect.dart';
 import '../../widgets/items/strava_subscription_card.dart';
 import '../../widgets/sheets/app_settings_radio_group.dart';
@@ -44,14 +45,16 @@ class AppSettingsPage extends StatelessWidget {
                   subtitle: const Text("Cancel or change your plan in the store"),
                   trailing: const Icon(Icons.open_in_new, size: 16.0),
                   onTap: () {
-                    final uri = Platform.isIOS
-                        ? Uri.parse('https://apps.apple.com/account/subscriptions')
-                        : Uri.parse(
-                            'https://play.google.com/store/account/subscriptions'
+                    final url = Platform.isIOS
+                        ? 'https://apps.apple.com/account/subscriptions'
+                        : 'https://play.google.com/store/account/subscriptions'
                             '?sku=strava_sync'
-                            '&package=com.jonaskeller14.bike_setup_tracker',
-                          );
-                    unawaited(launchUrl(uri, mode: LaunchMode.externalApplication));
+                            '&package=com.jonaskeller14.bike_setup_tracker';
+                    unawaited(launchAppUrl(
+                      context,
+                      url: url,
+                      launchMode: LaunchMode.externalApplication,
+                    ));
                   },
                 ),
                 if (strava.isConnected) ...[

@@ -96,6 +96,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
   }
   bool get storeAvailable => _storeAvailable;
   bool get isInitialized => _isInitialized;
+  String? get userId => _userId;
   StravaEntitlement? get entitlement => _entitlement;
   bool get hasStravaEntitlement => _entitlement?.isActive ?? false;
   StravaPlan? get activePlan => _entitlement?.plan;

@@ -1,12 +1,31 @@
+import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
+import '../../services/subscription_service.dart';
 import '../../utils/app_info.dart';
 import '../../utils/url.dart';
 import '../../widgets/text/section_title.dart';
 
-class AboutPage extends StatelessWidget {
+class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
+
+  @override
+  State<AboutPage> createState() => _AboutPageState();
+}
+
+class _AboutPageState extends State<AboutPage> {
+  bool _showUserId = false;
+
+  /// The anonymous Firebase UID, regardless of the `enableStrava` rollout gate.
+  /// [SubscriptionService.userId] is only populated once Strava is enabled and
+  /// the service has bound the user, so we fall back to FirebaseAuth's current
+  /// user (the same shared anonymous account) to cover the gated-off case.
+  String? get _userId =>
+      context.read<SubscriptionService>().userId ?? 
+      FirebaseAuth.instance.currentUser?.uid;
 
   Widget _buildInfoTile({required String title, required String subtitle}) {
     return ListTile(
@@ -17,12 +36,36 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Widget _buildLegalTile({required BuildContext context, required String title, required String url}) {
+  Widget _buildLegalTile({required String title, required String url}) {
     return ListTile(
       leading: const Icon(Icons.description_outlined),
       title: Text(title),
       onTap: () => launchAppUrl(context, url: url),
       trailing: const Icon(Icons.open_in_new, size: 16.0),
+    );
+  }
+
+  Widget _buildUserIdTile() {
+    final userId = _userId;
+    return ListTile(
+      title: const Text('User UID', style: TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: userId == null
+          ? const Text('Not available yet')
+          : SelectableText(userId),
+      trailing: userId == null
+          ? null
+          : IconButton(
+              icon: const Icon(Icons.copy_rounded, size: 16.0),
+              tooltip: 'Copy',
+              onPressed: () {
+                unawaited(Clipboard.setData(ClipboardData(text: userId)));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('User UID copied')),
+                );
+              },
+            ),
+      dense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0),
     );
   }
 
@@ -64,29 +107,31 @@ class AboutPage extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: _buildInfoTile(title: 'Version', subtitle: "${AppInfo.appVersion} (+${AppInfo.buildNumber})"),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onDoubleTap: _showUserId ? null : () => setState(() => _showUserId = true),
+                      child: _buildInfoTile(title: 'Version', subtitle: "${AppInfo.appVersion} (+${AppInfo.buildNumber})"),
+                    ),
                   ),
                   Expanded(
                     child: _buildInfoTile(title: 'Release Date', subtitle: AppInfo.releaseDate),
                   ),
                 ],
               ),
+              if (_showUserId) _buildUserIdTile(),
 
               const Divider(),
               const SectionTitle(title: 'Legal Agreements'),
               _buildLegalTile(
-                context: context,
                 title: 'Privacy Policy',
                 url: AppInfo.privacyPolicyUrl,
               ),
               _buildLegalTile(
-                context: context,
                 title: 'End-User License Agreement (EULA)',
                 url: AppInfo.eulaUrl,
               ),
               if (appSettings.enableStrava)
                 _buildLegalTile(
-                  context: context,
                   title: 'Terms of Service',
                   url: AppInfo.tosUrl,
                 ),

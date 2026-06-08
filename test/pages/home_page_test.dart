@@ -6,6 +6,7 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
+import 'package:bike_setup_tracker/pages/onboarding_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/backup_service.dart';
 import 'package:bike_setup_tracker/services/google_drive_service.dart';
@@ -599,6 +600,48 @@ void main() {
 
     // Verify GarageList is shown (body of the first page)
     expect(find.byType(GarageList), findsOneWidget);
+  });
+
+  testWidgets('HomePage -> Settings -> Help -> Show Onboarding shows onboarding',
+      (WidgetTester tester) async {
+    await tester.pumpWidget(createWidgetUnderTest());
+    await tester.pump(const Duration(milliseconds: 200));
+
+    // Sanity check: we start on the HomePage, not onboarding.
+    expect(find.byType(OnboardingPage), findsNothing);
+
+    // Open the AppBar overflow menu and tap "Settings".
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: find.byType(AppBar).last,
+        matching: find.text('Settings'),
+      ),
+      findsOneWidget,
+    );
+
+    // Settings -> Help & Support.
+    await tester.tap(find.text('Help & Support'));
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: find.byType(AppBar).last,
+        matching: find.text('Help & Support'),
+      ),
+      findsOneWidget,
+    );
+
+    // Help -> Show Onboarding. This pops Help + Settings and flips the flag,
+    // which rebuilds the app's home to the OnboardingPage.
+    await tester.tap(find.text('Show Onboarding'));
+    await tester.pumpAndSettle();
+
+    expect(appSettings.showOnboarding, isTrue);
+    expect(find.byType(OnboardingPage), findsOneWidget);
+    expect(find.text('Ready to Dial It In?'), findsOneWidget);
   });
 }
 

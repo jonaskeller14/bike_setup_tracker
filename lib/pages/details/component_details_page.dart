@@ -428,7 +428,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   final adjustment = _findAdjustment(column, componentAdjustments, ratingAdjustments, personAdjustments);
                   final columnName = adjustment?.name ?? column.label;
               
-                  return GestureDetector(
+                  return InkWell(
                     onTap: () {
                       unawaited(HapticFeedback.selectionClick());
                       setState(() {
@@ -439,6 +439,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                         }
                       });
                     },
+                    borderRadius: BorderRadius.circular(8),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -703,7 +704,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                             final isSelected = effectiveSelectedSetupId == setup.id;
                             final isDimmed = effectiveSelectedSetupId != null && !isSelected;
                             final color = primaryHSL.withHue((primaryHSL.hue + (index * 60)) % 360).toColor();
-                            return GestureDetector(
+                            return InkWell(
                               onTap: () {
                                 unawaited(HapticFeedback.selectionClick());
                                 setState(() {
@@ -714,6 +715,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                                   }
                                 });
                               },
+                              borderRadius: BorderRadius.circular(8),
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

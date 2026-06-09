@@ -88,16 +88,16 @@ class StravaListTile extends StatelessWidget {
           stravaActivity: stravaActivity,
         )));
       },
-      trailing: GestureDetector(
-        onTap: () => StravaService.openActivityOnStrava(stravaActivity.id),
-        child: const Text(
-          "View on Strava",
-          style: TextStyle(
-            color: Color(0xFFFC5200),
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
+      trailing: TextButton(
+        onPressed: () => StravaService.openActivityOnStrava(stravaActivity.id),
+        style: TextButton.styleFrom(
+          foregroundColor: const Color(0xFFFC5200),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
         ),
+        child: const Text("View on Strava"),
       ),
     );
   }

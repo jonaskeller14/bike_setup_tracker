@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
-import 'bike_and_tags_filter.dart';
+import 'filter_sheet_chip.dart';
 import 'setup_list_map.dart';
 import 'setup_list_search.dart';
 import 'setup_list_sort.dart';
-import 'setup_list_values_filter.dart';
 
 class SetupListFilterWidget extends StatelessWidget {
   const SetupListFilterWidget({
@@ -24,8 +23,12 @@ class SetupListFilterWidget extends StatelessWidget {
           const SetupListSort(),
           const SetupListSearch(),
           const SetupListMap(),
-          BikeAndTagsFilterChip(enableSetupTagFilter: appSettings.enableSetupTags),
-          const SetupListDisplayFilterChip(),
+          FilterSheetChip(
+            enableSetupTagFilter: appSettings.enableSetupTags,
+            showTimelineVisibility: true,
+            showOnlyChangesSection: true,
+            showByCategorySection: true,
+          ),
         ],
       ),
     );

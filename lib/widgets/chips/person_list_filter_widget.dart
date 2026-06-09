@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'bike_and_tags_filter.dart';
+import 'filter_sheet_chip.dart';
 
 class PersonListFilterWidget extends StatelessWidget {
   const PersonListFilterWidget({super.key});
@@ -12,7 +12,7 @@ class PersonListFilterWidget extends StatelessWidget {
       child: Row(
         spacing: 6,
         children: [
-          BikeAndTagsFilterChip(enableSetupTagFilter: false),
+          FilterSheetChip(enableSetupTagFilter: false),
         ],
       ),
     );

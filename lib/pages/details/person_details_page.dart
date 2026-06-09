@@ -13,7 +13,7 @@ import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/person_actions.dart';
 import '../../utils/table_column.dart';
-import '../../widgets/chips/bike_and_tags_filter.dart';
+import '../../widgets/chips/filter_sheet_chip.dart';
 import '../../widgets/initial_changed_value_legend.dart';
 import '../../widgets/sheets/column_filter.dart';
 import '../../widgets/text/section_title.dart';
@@ -307,7 +307,7 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
                         );
                       },
                     ),
-                    BikeAndTagsFilterChip(enableSetupTagFilter: appSettings.enableSetupTags),
+                    FilterSheetChip(enableSetupTagFilter: appSettings.enableSetupTags),
                   ],
                 ),
               ),

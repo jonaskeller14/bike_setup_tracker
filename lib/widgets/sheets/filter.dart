@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../models/app_settings.dart';
 import '../../models/bike.dart';
+import '../../models/person.dart';
+import '../../models/rating.dart';
 import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/subscription_service.dart';
 import '../text/sheet_section_title.dart';
 import 'sheet.dart';
 
 Future<void> showFilterSheet({
-  required BuildContext context, 
-  required bool enableSetupTagFilter, 
+  required BuildContext context,
+  required bool enableSetupTagFilter,
   bool enableTaskRuleTagFilter = false,
   required bool enableTaskPriorityFilter,
+  bool showMapVisibility = false,
+  bool showTimelineVisibility = false,
+  bool showOnlyChangesSection = false,
+  bool showByCategorySection = false,
 }) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
@@ -19,6 +27,9 @@ Future<void> showFilterSheet({
     context: context, 
     builder: (context) {
       final appRepository = context.watch<AppRepository>();
+      final appSettings = context.watch<AppSettings>();
+      final stravaActive = appSettings.enableStrava &&
+          context.watch<SubscriptionService>().hasStravaEntitlement;
 
       return SafeArea(
         child: Column(
@@ -150,6 +161,144 @@ Future<void> showFilterSheet({
                                 );
                               }).toList(),
                             ),
+                    ],
+                    // ---- Display options (folded-in "Display" chip) ----
+                    // Map visibility: only geo-located entry types.
+                    if (showMapVisibility) ...[
+                      const SheetSectionTitle(title: "Visibility"),
+                      Wrap(
+                        spacing: 6,
+                        children: [
+                          FilterChip(
+                            label: const Text("Setups"),
+                            showCheckmark: false,
+                            selected: appSettings.displayShowSetups,
+                            onSelected: (bool selected) => appSettings.displayShowSetups = selected,
+                            onDeleted: appSettings.displayShowSetups
+                                ? () => appSettings.displayShowSetups = false
+                                : null,
+                          ),
+                          if (stravaActive)
+                            FilterChip(
+                              label: const Text("Strava Activities"),
+                              showCheckmark: false,
+                              selected: appSettings.displayShowActivities,
+                              onSelected: (bool selected) => appSettings.displayShowActivities = selected,
+                              onDeleted: appSettings.displayShowActivities
+                                  ? () => appSettings.displayShowActivities = false
+                                  : null,
+                            ),
+                        ],
+                      ),
+                    ],
+                    // Timeline visibility: all entry types shown in the list.
+                    if (showTimelineVisibility) ...[
+                      const SheetSectionTitle(title: "Visibility"),
+                      Wrap(
+                        spacing: 6,
+                        children: [
+                          FilterChip(
+                            label: const Text("Setups"),
+                            showCheckmark: false,
+                            selected: appSettings.displayShowSetups,
+                            onSelected: (bool selected) => appSettings.displayShowSetups = selected,
+                            onDeleted: appSettings.displayShowSetups
+                                ? () => appSettings.displayShowSetups = false
+                                : null,
+                          ),
+                          if (stravaActive)
+                            FilterChip(
+                              label: const Text("Strava Activities"),
+                              showCheckmark: false,
+                              selected: appSettings.displayShowActivities,
+                              onSelected: (bool selected) => appSettings.displayShowActivities = selected,
+                              onDeleted: appSettings.displayShowActivities
+                                  ? () => appSettings.displayShowActivities = false
+                                  : null,
+                            ),
+                          if (appSettings.enableTask)
+                            FilterChip(
+                              label: const Text("Tasks"),
+                              showCheckmark: false,
+                              selected: appSettings.displayShowTasks,
+                              onSelected: (bool selected) => appSettings.displayShowTasks = selected,
+                              onDeleted: appSettings.displayShowTasks
+                                  ? () => appSettings.displayShowTasks = false
+                                  : null,
+                            ),
+                          if (appSettings.enableInstallationTimeline)
+                            FilterChip(
+                              label: const Text("Installations"),
+                              showCheckmark: false,
+                              selected: appSettings.displayShowInstallations,
+                              onSelected: (bool selected) => appSettings.displayShowInstallations = selected,
+                              onDeleted: appSettings.displayShowInstallations
+                                  ? () => appSettings.displayShowInstallations = false
+                                  : null,
+                            ),
+                        ],
+                      ),
+                    ],
+                    if (showOnlyChangesSection) ...[
+                      const SheetSectionTitle(title: "Setups"),
+                      Wrap(
+                        spacing: 6,
+                        children: [
+                          FilterChip(
+                            label: const Text("Display Only Changes"),
+                            showCheckmark: false,
+                            selected: appSettings.setupListOnlyChanges,
+                            onSelected: (bool selected) => appSettings.setupListOnlyChanges = selected,
+                            tooltip: "Show only changed values",
+                            onDeleted: appSettings.setupListOnlyChanges
+                                ? () => appSettings.setupListOnlyChanges = false
+                                : null,
+                          ),
+                        ],
+                      ),
+                    ],
+                    if (showByCategorySection && (appSettings.enablePerson || appSettings.enableRating)) ...[
+                      const SheetSectionTitle(title: "By Category"),
+                      Wrap(
+                        spacing: 6,
+                        children: [
+                          FilterChip(
+                            avatar: const Icon(Bike.iconData, size: 20),
+                            showCheckmark: false,
+                            label: const Text("Bike Values"),
+                            selected: appSettings.setupListBikeAdjustmentValues,
+                            onSelected: (bool selected) => appSettings.setupListBikeAdjustmentValues = selected,
+                            tooltip: "Show bike/component related values",
+                            onDeleted: appSettings.setupListBikeAdjustmentValues
+                                ? () => appSettings.setupListBikeAdjustmentValues = false
+                                : null,
+                          ),
+                          if (appSettings.enablePerson)
+                            FilterChip(
+                              avatar: const Icon(Person.iconData, size: 20),
+                              showCheckmark: false,
+                              label: const Text("Person Values"),
+                              selected: appSettings.setupListPersonAdjustmentValues,
+                              onSelected: (bool selected) => appSettings.setupListPersonAdjustmentValues = selected,
+                              tooltip: "Show person related values",
+                              onDeleted: appSettings.setupListPersonAdjustmentValues
+                                  ? () => appSettings.setupListPersonAdjustmentValues = false
+                                  : null,
+                            ),
+                          if (appSettings.enableRating)
+                            FilterChip(
+                              avatar: const Icon(Rating.iconData, size: 20),
+                              showCheckmark: false,
+                              label: const Text("Rating Values"),
+                              selected: appSettings.setupListRatingAdjustmentValues,
+                              onSelected: (bool selected) => appSettings.setupListRatingAdjustmentValues = selected,
+                              tooltip: "Show rating related values",
+                              onDeleted: appSettings.setupListRatingAdjustmentValues
+                                  ? () => appSettings.setupListRatingAdjustmentValues = false
+                                  : null,
+                            ),
+                        ],
+                      ),
                     ],
                   ],
                 ),

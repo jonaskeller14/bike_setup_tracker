@@ -17,7 +17,7 @@ import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/component_actions.dart';
 import '../../utils/table_column.dart';
-import '../../widgets/chips/bike_and_tags_filter.dart';
+import '../../widgets/chips/filter_sheet_chip.dart';
 import '../../widgets/component_stats_card.dart';
 import '../../widgets/display_installation_timeline.dart';
 import '../../widgets/initial_changed_value_legend.dart';
@@ -964,7 +964,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                         );
                       },
                     ),
-                    BikeAndTagsFilterChip(enableSetupTagFilter: appSettings.enableSetupTags),
+                    FilterSheetChip(enableSetupTagFilter: appSettings.enableSetupTags),
                   ],
                 ),
               ),

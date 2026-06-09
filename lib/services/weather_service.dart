@@ -136,7 +136,7 @@ class WeatherService extends ChangeNotifier {
       final isRateLimit = e.toString().contains("Rate limit exceeded");
       final message = isRateLimit
           ? e.toString().replaceFirst("Exception: ", "")
-          : "Error occured during weather update.";
+          : "Error occurred during weather update.";
       setStatus(WeatherError(message));
 
       if (counter <= 2 && !isRateLimit) {

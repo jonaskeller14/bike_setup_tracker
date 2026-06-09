@@ -212,7 +212,7 @@ enum _AppOptions {
   import('Import Data', Icons.file_upload),
   export('Export Data', Icons.file_download),
   share('Share Data', Icons.share),
-  trash('Tash', Icons.delete),
+  trash('Trash', Icons.delete),
   settings("Settings", Icons.settings);
   final String label;
   final IconData iconData;

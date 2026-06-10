@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
 Text sheetTitle(BuildContext context, String title) {
-  return Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold));
+  return Text(
+    title, 
+    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+    overflow: TextOverflow.ellipsis,
+  );
 }
 
 IconButton sheetCloseButton(BuildContext context) {

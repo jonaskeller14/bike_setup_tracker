@@ -149,14 +149,18 @@ class _InstallationSheetState extends State<InstallationSheet> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    spacing: 6,
-                    children: [
-                      Icon(widget.component.componentType.getIconData()),
-                      sheetTitle(context, widget.component.name),
-                    ],
+                  Flexible(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      spacing: 6,
+                      children: [
+                        Icon(widget.component.componentType.getIconData()),
+                        Flexible(
+                          child: sheetTitle(context, widget.component.name),
+                        ),
+                      ],
+                    ),
                   ),
                   sheetCloseButton(context),
                 ],

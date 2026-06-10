@@ -59,17 +59,43 @@ class _CalendarPageState extends State<CalendarPage> {
   /// Guards the incremental Strava paging triggered by calendar navigation so
   /// only one coverage-load runs at a time.
   bool _loadingCoverage = false;
-  int _numberOfDaysInView = -1;
+
+  // Named view options so logic references them by identity, not list position.
+  static const _scheduleView = (label: 'Schedule', view: CalendarView.schedule, days: -1);
+  static const _monthView = (label: 'Month', view: CalendarView.month, days: -1);
+  static const _weekView = (label: 'Week', view: CalendarView.week, days: -1);
+  static const _threeDayView = (label: '3 Day', view: CalendarView.day, days: 3);
+  static const _dayView = (label: 'Day', view: CalendarView.day, days: -1);
 
   static const List<({String label, CalendarView view, int days})> _viewOptions = [
-    (label: 'Schedule', view: CalendarView.schedule, days: -1),
-    (label: 'Month', view: CalendarView.month, days: -1),
-    (label: 'Week', view: CalendarView.week, days: -1),
-    (label: '3 Day', view: CalendarView.day, days: 3),
-    (label: 'Day', view: CalendarView.day, days: -1),
+    _scheduleView,
+    _monthView,
+    _weekView,
+    _threeDayView,
+    _dayView,
   ];
 
-  ({String label, CalendarView view, int days}) _selectedView = _viewOptions.first;
+  /// The view shown when the page opens.
+  static const _defaultView = _monthView;
+
+  ({String label, CalendarView view, int days}) _selectedView = _defaultView;
+  int _numberOfDaysInView = _defaultView.days;
+
+  /// Dates currently visible, fed from [SfCalendar.onViewChanged]; used to tell
+  /// whether "today" is already on screen (to disable the Today button).
+  List<DateTime> _visibleDates = const [];
+
+  /// Whether today already falls within the visible date range, so the Today
+  /// button can be disabled. (Schedule scrolls freely, so keep it enabled.)
+  bool get _todayShown {
+    if (_visibleDates.isEmpty || _selectedView.view == CalendarView.schedule) {
+      return false;
+    }
+    final today = DateUtils.dateOnly(DateTime.now());
+    final first = DateUtils.dateOnly(_visibleDates.first);
+    final last = DateUtils.dateOnly(_visibleDates.last);
+    return !today.isBefore(first) && !today.isAfter(last);
+  }
 
   void _selectView(({String label, CalendarView view, int days}) option) {
     setState(() {
@@ -164,8 +190,8 @@ class _CalendarPageState extends State<CalendarPage> {
       final date = details.date;
       if (date != null && _controller.view != CalendarView.day) {
         setState(() {
-          _selectedView = _viewOptions.last; // the "Day" option
-          _numberOfDaysInView = -1;
+          _selectedView = _dayView;
+          _numberOfDaysInView = _dayView.days;
           _controller.view = CalendarView.day;
           _controller.displayDate = date;
         });
@@ -270,18 +296,21 @@ class _CalendarPageState extends State<CalendarPage> {
             ActionChip(
               avatar: const Icon(Icons.today, size: 18),
               label: const Text('Today'),
-              onPressed: () => _controller.displayDate = DateTime.now(),
+              onPressed: _todayShown
+                  ? null
+                  : () => _controller.displayDate = DateTime.now(),
             ),
             const SizedBox(width: 6),
-            PopupMenuButton<({String label, CalendarView view, int days})>(
-              tooltip: 'View',
-              position: PopupMenuPosition.under,
-              onSelected: _selectView,
-              itemBuilder: (context) => [
+            MenuAnchor(
+              alignmentOffset: const Offset(0, 4),
+              menuChildren: [
                 for (final option in _viewOptions)
-                  PopupMenuItem(value: option, child: Text(option.label)),
+                  MenuItemButton(
+                    onPressed: () => _selectView(option),
+                    child: Text(option.label),
+                  ),
               ],
-              child: Chip(
+              builder: (context, controller, child) => ActionChip(
                 avatar: const Icon(Icons.calendar_view_week, size: 18),
                 label: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -290,6 +319,8 @@ class _CalendarPageState extends State<CalendarPage> {
                     const Icon(Icons.arrow_drop_down, size: 18),
                   ],
                 ),
+                onPressed: () =>
+                    controller.isOpen ? controller.close() : controller.open(),
               ),
             ),
           ],
@@ -309,7 +340,7 @@ class _CalendarPageState extends State<CalendarPage> {
               ),
               child: SfCalendar(
                 controller: _controller,
-                view: CalendarView.schedule,
+                view: _defaultView.view,
                 maxDate: DateTime.now().add(kCalendarZeroDuration),
                 dataSource: _TimelineDataSource(entries, cs),
                 allowDragAndDrop: true,
@@ -342,8 +373,12 @@ class _CalendarPageState extends State<CalendarPage> {
                 ),
                 onTap: _onTap,
                 onDragEnd: _onDragEnd,
-                onViewChanged: (ViewChangedDetails details) =>
-                    _ensureStravaCoverage(details.visibleDates),
+                onViewChanged: (ViewChangedDetails details) {
+                  _ensureStravaCoverage(details.visibleDates);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) setState(() => _visibleDates = details.visibleDates);
+                  });
+                },
                 appointmentBuilder: _appointmentBuilder,
                 timeSlotViewSettings: TimeSlotViewSettings(
                   numberOfDaysInView: _numberOfDaysInView,

@@ -598,6 +598,11 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.0"
+  flutter_localizations:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   flutter_map:
     dependency: "direct main"
     description:
@@ -1501,6 +1506,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
+  syncfusion_flutter_calendar:
+    dependency: "direct main"
+    description:
+      name: syncfusion_flutter_calendar
+      sha256: b9492055f538a5f7755304aaef927af5b83c7d02f88140ef3817ae6033569635
+      url: "https://pub.dev"
+    source: hosted
+    version: "33.2.7"
   syncfusion_flutter_core:
     dependency: "direct main"
     description:
@@ -1509,11 +1522,27 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "33.2.7"
+  syncfusion_flutter_datepicker:
+    dependency: transitive
+    description:
+      name: syncfusion_flutter_datepicker
+      sha256: b5cc9de5ae64e99b1e1139ff9fc95d27e17a11c90d988437630a65e04cf6bdf2
+      url: "https://pub.dev"
+    source: hosted
+    version: "33.2.7"
   syncfusion_flutter_sliders:
     dependency: "direct main"
     description:
       name: syncfusion_flutter_sliders
       sha256: "59ed73bca311bbe1dca4824bd8c805052b625e3f861d3f5aa2573282a8f18678"
+      url: "https://pub.dev"
+    source: hosted
+    version: "33.2.7"
+  syncfusion_localizations:
+    dependency: transitive
+    description:
+      name: syncfusion_localizations
+      sha256: "02617cb751d74930543c6106692f2bc4dcd71732b53432096babc22c03040e11"
       url: "https://pub.dev"
     source: hosted
     version: "33.2.7"
@@ -1541,6 +1570,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  timezone:
+    dependency: transitive
+    description:
+      name: timezone
+      sha256: "784a5e34d2eb62e1326f24d6f600aaaee452eb8ca8ef2f384a59244e292d158b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.11.0"
   typed_data:
     dependency: transitive
     description:

@@ -71,17 +71,21 @@ class FilterSheetChip extends StatelessWidget {
       avatar: enableSetupTagFilter
           ? const Icon(Icons.filter_alt_outlined)
           : const Icon(Bike.iconData),
-      label: enableSetupTagFilter
-          ? appRepository.selectedBike != null
-              ? appRepository.selectedSetupTags.isNotEmpty
-                  ? Text("${appRepository.bikes[appRepository.selectedBike]?.name ?? ''} + ${appRepository.selectedSetupTags.length} ${appRepository.selectedSetupTags.length > 1 ? 'Tags' : 'Tag'}")
-                  : Text(appRepository.bikes[appRepository.selectedBike]?.name ?? '')
-              : appRepository.selectedSetupTags.isNotEmpty
-                  ? Text("${appRepository.selectedSetupTags.length} ${appRepository.selectedSetupTags.length > 1 ? 'Tags' : 'Tag'}")
-                  : const Text("Filter")
-          : appRepository.selectedBike == null
-              ? const Text("All Bikes")
-              : Text(appRepository.bikes[appRepository.selectedBike]?.name ?? ''),
+      label: Text(
+        enableSetupTagFilter
+            ? appRepository.selectedBike != null
+                ? appRepository.selectedSetupTags.isNotEmpty
+                    ? "${appRepository.bikes[appRepository.selectedBike]?.name ?? ''} + ${appRepository.selectedSetupTags.length} ${appRepository.selectedSetupTags.length > 1 ? 'Tags' : 'Tag'}"
+                    : (appRepository.bikes[appRepository.selectedBike]?.name ?? '')
+                : appRepository.selectedSetupTags.isNotEmpty
+                    ? "${appRepository.selectedSetupTags.length} ${appRepository.selectedSetupTags.length > 1 ? 'Tags' : 'Tag'}"
+                    : "Filter"
+            : appRepository.selectedBike == null
+                ? "All Bikes"
+                : (appRepository.bikes[appRepository.selectedBike]?.name ?? ''),
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
+      ),
       selected: filterActive || displayActive,
       showCheckmark: false,
       onSelected: (bool newValue) async {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppSettings extends ChangeNotifier {
+  static const bool enableCalendar = false;
   bool _showOnboarding = true;
   ThemeMode _themeMode = ThemeMode.system;
   String _dateFormat = 'yyyy-MM-dd';

@@ -5,12 +5,12 @@ import '../../models/timeline_entry.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
-import '../../utils/task_actions.dart';
 import '../items/installation_list_tile.dart';
 import '../items/setup_list_card.dart';
 import '../items/strava_list_tile.dart';
 import '../items/task_entry_list_item.dart';
 import '../sheets/installation_sheet.dart';
+import '../sheets/task_rule_sheet.dart';
 
 class SetupListSearch extends StatelessWidget {
   const SetupListSearch({
@@ -106,8 +106,8 @@ class SetupListSearch extends StatelessWidget {
             case TaskTimeLineEntry():
               return TaskEntryListItem(
                 taskEntryId: entry.taskEntry.id,
-                onTap: () => TaskActions.showTaskRuleDetails(
-                  context, 
+                onTap: () => showTaskRuleSheet(
+                  context,
                   taskRuleId: entry.taskEntry.taskRule, 
                   highlightTaskEntryId: entry.taskEntry.id,
                 ),

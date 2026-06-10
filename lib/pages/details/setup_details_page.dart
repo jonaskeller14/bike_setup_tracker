@@ -20,6 +20,7 @@ import '../../utils/setup_actions.dart';
 import '../../widgets/display_adjustment/display_adjustment_list.dart';
 import '../../widgets/display_adjustment/display_dangling_adjustment.dart';
 import '../../widgets/initial_changed_value_legend.dart';
+import '../../widgets/sheets/sheet.dart';
 import '../../widgets/text/section_title.dart';
 
 class SetupDetailsPage extends StatefulWidget {
@@ -146,8 +147,10 @@ class _SetupDetailsPageState extends State<SetupDetailsPage> {
 
 class SetupDetailsPageContent extends StatelessWidget {
   final Setup setup;
+  final bool showEditButton;
+  final bool showCloseButton;
 
-  const SetupDetailsPageContent({super.key, required this.setup});
+  const SetupDetailsPageContent({super.key, required this.setup, this.showEditButton = false, this.showCloseButton = false});
 
   SliverAppBar _setupTitle(BuildContext context, {required Setup setup}) {
     final appSettings = context.read<AppSettings>();
@@ -160,20 +163,33 @@ class SetupDetailsPageContent extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.surface,
       surfaceTintColor: Theme.of(context).colorScheme.surface,
       centerTitle: false,
-      title: Column(
+      title: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SelectableText(
-            setup.name,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-            maxLines: 1,
-          ),
-          Text(
-            "${DateFormat(appSettings.dateFormat).format(setup.datetimeLocal)} • ${DateFormat(appSettings.timeFormat).format(setup.datetimeLocal)}",
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SelectableText(
+                  setup.name,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  maxLines: 1,
+                ),
+                Text(
+                  "${DateFormat(appSettings.dateFormat).format(setup.datetimeLocal)} • ${DateFormat(appSettings.timeFormat).format(setup.datetimeLocal)}",
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
+                  ),
+                ),
+              ],
             ),
           ),
+          if (showEditButton || showCloseButton)
+            const SizedBox(width: 12),
+          if (showEditButton)
+            sheetEditButton(context, onPressed: () => SetupActions.editSetup(context, setup: setup)),
+          if (showCloseButton)
+            sheetCloseButton(context),
         ],
       ),
       bottom: const PreferredSize(

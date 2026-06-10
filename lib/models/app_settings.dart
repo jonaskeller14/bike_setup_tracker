@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppSettings extends ChangeNotifier {
-  static const bool enableCalendar = false;
   bool _showOnboarding = true;
   ThemeMode _themeMode = ThemeMode.system;
   String _dateFormat = 'yyyy-MM-dd';
@@ -30,6 +29,7 @@ class AppSettings extends ChangeNotifier {
   bool _useMapBoxTiles = false;
   bool _showStravaLinkGearHint = true;
   bool _showGarageListHint = true;
+  bool _enableCalendar = false;
 
   // Temporary Settings
   bool _setupListOnlyChanges = false;
@@ -67,6 +67,7 @@ class AppSettings extends ChangeNotifier {
   bool get useMapBoxTiles => _useMapBoxTiles;
   bool get showStravaLinkGearHint => _showStravaLinkGearHint;
   bool get showGarageListHint => _showGarageListHint;
+  bool get enableCalendar => _enableCalendar;
 
   // Temporary Settings
   bool get setupListOnlyChanges => _setupListOnlyChanges;
@@ -260,6 +261,14 @@ class AppSettings extends ChangeNotifier {
     saveAppSettings();
   }
 
+  set enableCalendar(bool newValue) {
+    if (newValue == _enableCalendar) return;
+    _enableCalendar = newValue;
+    notifyListeners();
+    saveAppSettings();
+  }
+
+  // Temporary
   set setupListOnlyChanges(bool newValue) {
     if (newValue == setupListOnlyChanges) return;
     _setupListOnlyChanges = newValue;
@@ -336,6 +345,7 @@ class AppSettings extends ChangeNotifier {
       _showStravaLinkGearHint = json['showStravaLinkGearHint'] ?? _showStravaLinkGearHint;
       _showGarageListHint = json['showGarageListHint'] ?? _showGarageListHint;
       _enableInstallationTimeline = json['enableInstallationTimeline'] ?? _enableInstallationTimeline;
+      _enableCalendar = json['enableCalendar'] ?? _enableCalendar;
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
     }
@@ -365,6 +375,7 @@ class AppSettings extends ChangeNotifier {
       'showStravaLinkGearHint': _showStravaLinkGearHint,
       'showGarageListHint': _showGarageListHint,
       'enableInstallationTimeline': _enableInstallationTimeline,
+      'enableCalendar': _enableCalendar,
     });
     await prefs.setString('app_settings', jsonData);
   }

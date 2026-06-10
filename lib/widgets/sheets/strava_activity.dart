@@ -9,7 +9,7 @@ Future<void> showStravaActivitySheet({required BuildContext context, required St
     isScrollControlled: true,
     context: context, 
     builder: (BuildContext context) => SafeArea(
-      child: StravaActivitiyPageContent(stravaActivity: stravaActivity)
+      child: StravaActivitiyPageContent(stravaActivity: stravaActivity, showCloseButton: true),
     ),
   );
 }

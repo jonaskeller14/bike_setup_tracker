@@ -71,7 +71,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
   @override
   void initState() {
     super.initState();
-    _initialName = widget.taskEntry?.name ?? "Completed '${widget.taskRule.name}'";
+    _initialName = widget.taskEntry?.name ?? widget.taskRule.name;
     _nameController = TextEditingController(text: _initialName);
     _nameController.addListener(_changeListener);
     

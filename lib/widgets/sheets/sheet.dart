@@ -17,6 +17,19 @@ IconButton sheetCloseButton(BuildContext context) {
   );
 }
 
+IconButton sheetEditButton(BuildContext context, {required VoidCallback onPressed}) {
+  return IconButton.filled(
+    iconSize: 20, 
+    style: IconButton.styleFrom(
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+      foregroundColor: Theme.of(context).colorScheme.onSurface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    ),
+    onPressed: onPressed,
+    icon: const Icon(Icons.edit), 
+  );
+}
+
 IconButton sheetBackButton(BuildContext context, {required VoidCallback onPressed}) {
   return IconButton.filled(
     iconSize: 20, 

@@ -24,7 +24,7 @@ class SetupListFilterWidget extends StatelessWidget {
           const SetupListSort(),
           const SetupListSearch(),
           const SetupListMap(),
-          if (AppSettings.enableCalendar) const SetupListCalendar(),
+          if (appSettings.enableCalendar) const SetupListCalendar(),
           FilterSheetChip(
             enableSetupTagFilter: appSettings.enableSetupTags,
             showTimelineVisibility: true,

@@ -33,7 +33,7 @@ class InstallationListTile extends StatelessWidget {
 
     return ListTile(
       onTap: onTap,
-      title: Text("${componentInstallation.isInitial ? 'Added' : (componentInstallation.installation.parent != null ? 'Installed' : 'Deinstalled')} '${componentInstallation.component.name}'"),
+      title: Text(componentInstallation.label),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

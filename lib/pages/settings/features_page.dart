@@ -221,6 +221,24 @@ class FeaturesPage extends StatelessWidget {
                 ),
               if (kDebugMode)
                 ListTile(
+                  leading: const Icon(Icons.calendar_month_outlined),
+                  title: const Text("Calendar"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableCalendar] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Calendar",
+                    value: appSettings.enableCalendar,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettings.enableCalendar = newValue;
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              if (kDebugMode)
+                ListTile(
                   leading: const Icon(Icons.person),
                   title: const Text("Profile"),
                   subtitle: _offOnOptionWidgets[appSettings.enablePerson] ?? const Text("-"),

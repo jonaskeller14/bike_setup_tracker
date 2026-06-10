@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
-import '../pages/details/task_rule_details_page.dart';
 import '../pages/task_entry_page.dart';
 import '../pages/task_rule_page.dart';
 import '../repositories/app_repository.dart';
@@ -146,17 +145,5 @@ class TaskActions {
         onPressed: () async => appRepository.removeTaskEntries([taskEntry]),
       ),
     ));
-  }
-
-  static Future<void> showTaskRuleDetails(BuildContext context, {required String taskRuleId, String? highlightTaskEntryId}) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => TaskRuleDetailsPage(
-          taskRuleId: taskRuleId,
-          highlightTaskEntryId: highlightTaskEntryId,
-        ),
-      ),
-    );
   }
 }

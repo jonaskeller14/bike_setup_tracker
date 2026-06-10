@@ -1147,4 +1147,7 @@ class ComponentInstallation {
     this.originParent,
     this.isInitial = false,
   });
+
+  String get label => "${isInitial ? 'Added' : (installation.parent != null ? 'Installed' : 'Deinstalled')} ${component.name}";
+  String get shortLabel => "${isInitial ? '+' : (installation.parent != null ? '>' : '<')} ${component.name}";
 }

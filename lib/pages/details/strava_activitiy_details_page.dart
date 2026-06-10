@@ -8,6 +8,7 @@ import '../../repositories/app_repository.dart';
 import '../../services/strava_service.dart';
 import '../../widgets/items/component_list_card.dart';
 import '../../widgets/items/setup_list_card.dart';
+import '../../widgets/sheets/sheet.dart';
 import '../setup_page.dart';
 
 class StravaActivityDetailsPage extends StatelessWidget {
@@ -38,8 +39,9 @@ class StravaActivityDetailsPage extends StatelessWidget {
 
 class StravaActivitiyPageContent extends StatelessWidget {
   final StravaActivity stravaActivity;
+  final bool showCloseButton;
 
-  const StravaActivitiyPageContent({super.key, required this.stravaActivity});
+  const StravaActivitiyPageContent({super.key, required this.stravaActivity, this.showCloseButton = false});
 
   String _formatDistance(double? meters, String distanceUnit) {
     if (meters == null) return "-";
@@ -107,26 +109,37 @@ class StravaActivitiyPageContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-              foregroundImage: athlete?.profile != null && athlete!.profile!.startsWith("http")
-                  ? NetworkImage(athlete.profile!)
-                  : null,
-              child: Icon(Icons.person, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
-            title: Text(
-              athlete != null
-                  ? "${athlete.firstname ?? ""} ${athlete.lastname ?? ""}".trim()
-                  : "Strava Athlete",
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text(
-              "${DateFormat(appSettings.dateFormat).format(stravaActivity.startDateLocal)} • ${DateFormat(appSettings.timeFormat).format(stravaActivity.startDateLocal)}",
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+          Row(
+            children: [
+              Expanded(
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    foregroundImage: athlete?.profile != null && athlete!.profile!.startsWith("http")
+                        ? NetworkImage(athlete.profile!)
+                        : null,
+                    child: Icon(Icons.person, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  ),
+                  title: Text(
+                    athlete != null
+                        ? "${athlete.firstname ?? ""} ${athlete.lastname ?? ""}".trim()
+                        : "Strava Athlete",
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    "${DateFormat(appSettings.dateFormat).format(stravaActivity.startDateLocal)} • ${DateFormat(appSettings.timeFormat).format(stravaActivity.startDateLocal)}",
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
               ),
-            ),
+              if (showCloseButton) ...[
+                const SizedBox(width: 8),
+                sheetCloseButton(context),
+                const SizedBox(width: 16),
+              ],
+            ],
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),

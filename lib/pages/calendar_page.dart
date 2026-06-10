@@ -6,23 +6,24 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import '../icons/simple_icons.dart';
 import '../models/app_settings.dart';
+import '../models/setup.dart';
 import '../models/timeline_entry.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
-import '../utils/task_actions.dart';
 import '../widgets/chips/filter_sheet_chip.dart';
 import '../widgets/sheets/installation_sheet.dart';
-import '../widgets/sheets/setup_display.dart';
+import '../widgets/sheets/setup_details.dart';
 import '../widgets/sheets/strava_activity.dart';
+import '../widgets/sheets/task_rule_sheet.dart';
 
 const Duration kCalendarZeroDuration = Duration(minutes: 30);
 const Color kCalendarStravaColor = Color(0xFFFC4C02); // Strava brand orange
 
 IconData calendarIconFor(TimelineEntry entry) => switch (entry) {
-      SetupEntry() => Icons.tune,
+      SetupEntry() => Setup.iconData,
       StravaEntry() => SimpleIcons.strava,
       TaskTimeLineEntry() => Icons.check_box_outlined,
-      InstallationEntry() => Icons.grid_view_sharp,
+      InstallationEntry() => entry.componentInstallation.component.componentType.getIconData(),
     };
 
 Color calendarColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) {
@@ -43,7 +44,7 @@ String calendarSubjectFor(TimelineEntry entry) => switch (entry) {
       SetupEntry() => entry.setup.name,
       StravaEntry() => entry.activity.name,
       TaskTimeLineEntry() => entry.taskEntry.name,
-      InstallationEntry() => entry.componentInstallation.component.name,
+      InstallationEntry() => entry.componentInstallation.shortLabel,
     };
 
 class CalendarPage extends StatefulWidget {
@@ -60,26 +61,8 @@ class _CalendarPageState extends State<CalendarPage> {
   /// only one coverage-load runs at a time.
   bool _loadingCoverage = false;
 
-  // Named view options so logic references them by identity, not list position.
-  static const _scheduleView = (label: 'Schedule', view: CalendarView.schedule, days: -1);
-  static const _monthView = (label: 'Month', view: CalendarView.month, days: -1);
-  static const _weekView = (label: 'Week', view: CalendarView.week, days: -1);
-  static const _threeDayView = (label: '3 Day', view: CalendarView.day, days: 3);
-  static const _dayView = (label: 'Day', view: CalendarView.day, days: -1);
-
-  static const List<({String label, CalendarView view, int days})> _viewOptions = [
-    _scheduleView,
-    _monthView,
-    _weekView,
-    _threeDayView,
-    _dayView,
-  ];
-
-  /// The view shown when the page opens.
-  static const _defaultView = _monthView;
-
-  ({String label, CalendarView view, int days}) _selectedView = _defaultView;
-  int _numberOfDaysInView = _defaultView.days;
+  static const _defaultView = _CalendarView.month;
+  _CalendarView _selectedView = _defaultView;
 
   /// Dates currently visible, fed from [SfCalendar.onViewChanged]; used to tell
   /// whether "today" is already on screen (to disable the Today button).
@@ -97,10 +80,9 @@ class _CalendarPageState extends State<CalendarPage> {
     return !today.isBefore(first) && !today.isAfter(last);
   }
 
-  void _selectView(({String label, CalendarView view, int days}) option) {
+  void _selectView(_CalendarView option) {
     setState(() {
       _selectedView = option;
-      _numberOfDaysInView = option.days;
       _controller.view = option.view;
     });
   }
@@ -190,8 +172,7 @@ class _CalendarPageState extends State<CalendarPage> {
       final date = details.date;
       if (date != null && _controller.view != CalendarView.day) {
         setState(() {
-          _selectedView = _dayView;
-          _numberOfDaysInView = _dayView.days;
+          _selectedView = _CalendarView.day;
           _controller.view = CalendarView.day;
           _controller.displayDate = date;
         });
@@ -211,7 +192,7 @@ class _CalendarPageState extends State<CalendarPage> {
       case StravaEntry():
         await showStravaActivitySheet(context: context, stravaActivity: entry.activity);
       case TaskTimeLineEntry():
-        await TaskActions.showTaskRuleDetails(
+        await showTaskRuleSheet(
           context,
           taskRuleId: entry.taskEntry.taskRule,
           highlightTaskEntryId: entry.taskEntry.id,
@@ -304,7 +285,7 @@ class _CalendarPageState extends State<CalendarPage> {
             MenuAnchor(
               alignmentOffset: const Offset(0, 4),
               menuChildren: [
-                for (final option in _viewOptions)
+                for (final option in _CalendarView.values)
                   MenuItemButton(
                     onPressed: () => _selectView(option),
                     child: Text(option.label),
@@ -381,7 +362,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 },
                 appointmentBuilder: _appointmentBuilder,
                 timeSlotViewSettings: TimeSlotViewSettings(
-                  numberOfDaysInView: _numberOfDaysInView,
+                  numberOfDaysInView: _selectedView.days,
                   timeIntervalHeight: 60,
                   timeFormat: settings.timeFormat,
                   timeTextStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
@@ -469,10 +450,10 @@ class _CalendarPageState extends State<CalendarPage> {
           ? const SizedBox.shrink()
           : Row(
               mainAxisSize: MainAxisSize.min,
+              spacing: 4,
               children: [
                 Icon(calendarIconFor(entry), size: iconSize, color: onColor),
-                if (showText) ...[
-                  const SizedBox(width: 4),
+                if (showText)
                   Flexible(
                     child: Text(
                       calendarSubjectFor(entry),
@@ -482,7 +463,6 @@ class _CalendarPageState extends State<CalendarPage> {
                       style: TextStyle(color: onColor, fontSize: fontSize),
                     ),
                   ),
-                ],
               ],
             ),
     );
@@ -523,4 +503,16 @@ class _TimelineDataSource extends CalendarDataSource<TimelineEntry> {
   TimelineEntry convertAppointmentToObject(
           TimelineEntry customData, Appointment appointment) =>
       customData;
+}
+
+enum _CalendarView {
+  schedule(CalendarView.schedule, 'Schedule', -1),
+  month(CalendarView.month, 'Month', -1),
+  week(CalendarView.week, 'Week', -1),
+  threeDay(CalendarView.day, '3 Day', 3),
+  day(CalendarView.day, 'Day', -1);
+  final CalendarView view;
+  final String label;
+  final int days;
+  const _CalendarView(this.view, this.label, this.days);
 }

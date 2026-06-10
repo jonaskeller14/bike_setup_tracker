@@ -10,7 +10,7 @@ Future<void> showSetupDetailsSheet({required BuildContext context, required Setu
     context: context, 
     backgroundColor: Theme.of(context).colorScheme.surface,
     builder: (BuildContext context) => SafeArea(
-      child: SetupDetailsPageContent(setup: setup)
+      child: SetupDetailsPageContent(setup: setup, showEditButton: true, showCloseButton: true),
     ),
   );
 }

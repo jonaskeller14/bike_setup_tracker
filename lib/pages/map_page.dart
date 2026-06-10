@@ -12,7 +12,7 @@ import '../models/strava/strava_activity.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
 import '../widgets/chips/map_filter_widget.dart';
-import '../widgets/sheets/setup_display.dart';
+import '../widgets/sheets/setup_details.dart';
 import '../widgets/sheets/strava_activity.dart';
 
 class MapPage extends StatefulWidget {

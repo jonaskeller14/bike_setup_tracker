@@ -908,7 +908,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   shape: const Border(),
                   collapsedShape: const Border(),
                   title: Text(
-                    "Installation History",
+                    "History",
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -916,7 +916,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   leading: const Icon(Icons.history),
                   childrenPadding: const EdgeInsets.only(left: 20, right: 16),
                   children: [
-                    DisplayInstallationTimeline(component: component),
+                    DisplayInstallationTimeline(component: component, showTaskEntries: true),
                   ],
                 ),
                 const Divider(height: 1),

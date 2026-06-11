@@ -29,15 +29,15 @@ IconData calendarIconFor(TimelineEntry entry) => switch (entry) {
 Color calendarColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) {
       SetupEntry() => cs.primary,
       StravaEntry() => kCalendarStravaColor,
-      TaskTimeLineEntry() => cs.secondary,
-      InstallationEntry() => cs.tertiary,
+      TaskTimeLineEntry() => cs.tertiary,
+      InstallationEntry() => cs.secondary,
     };
 
 Color calendarOnColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) {
       SetupEntry() => cs.onPrimary,
       StravaEntry() => Colors.white,
-      TaskTimeLineEntry() => cs.onSecondary,
-      InstallationEntry() => cs.onTertiary,
+      TaskTimeLineEntry() => cs.onTertiary,
+      InstallationEntry() => cs.onSecondary,
     };
 
 String calendarSubjectFor(TimelineEntry entry) => switch (entry) {

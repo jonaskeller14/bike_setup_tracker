@@ -693,7 +693,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 sheetBackButton(context, onPressed: widget.onBack),
-                sheetTitle(context, 'Select Data'),
+                sheetTitle(context, 'Select Data Items'),
                 sheetCloseButton(context),
               ],
             ),

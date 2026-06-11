@@ -5,12 +5,118 @@ import 'package:timelines_plus/timelines_plus.dart';
 import '../models/app_settings.dart';
 import '../models/component.dart';
 import '../models/installation.dart';
+import '../models/task/task_entry.dart';
 import '../repositories/app_repository.dart';
 
 class DisplayInstallationTimeline extends StatelessWidget {
   final Component component;
-  
-  const DisplayInstallationTimeline({super.key, required this.component});
+  final bool showTaskEntries;
+
+  const DisplayInstallationTimeline({
+    super.key,
+    required this.component,
+    this.showTaskEntries = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    final appSettings = context.watch<AppSettings>();
+    final appRepository = context.watch<AppRepository>();
+
+    final items = <_TimelineItem>[
+      ...component.installations.map((i) => _InstallationItem(i)),
+      if (showTaskEntries)
+        ...appRepository.taskEntries.values.where((te) => te.componentId == component.id).map((te) => _TaskItem(te))
+    ]..sort((a, b) {
+        final byDate = a.dateTimeUTC.compareTo(b.dateTimeUTC);
+        if (byDate != 0) return byDate;
+        // On ties, apply installation state transitions before task markers.
+        return (a is _InstallationItem ? 0 : 1).compareTo(b is _InstallationItem ? 0 : 1);
+      });
+
+    // Precompute the prevailing installation state of the segment *after* each
+    // node: solid while installed, dashed while uninstalled. Installation
+    // nodes update the running state; task nodes inherit it.
+    String? currentParent;
+    final installedAfter = <bool>[];
+    for (final item in items) {
+      if (item is _InstallationItem) currentParent = item.installation.parent;
+      installedAfter.add(currentParent != null);
+    }
+
+    return FixedTimeline.tileBuilder(
+      theme: TimelineThemeData(
+        nodePosition: 0,
+        indicatorTheme: IndicatorThemeData(
+          size: 15.0,
+          color: colorScheme.secondary,
+        ),
+        connectorTheme: ConnectorThemeData(
+          thickness: 3.0,
+          color: colorScheme.secondary.withValues(alpha: 0.6),
+        ),
+      ),
+      builder: TimelineTileBuilder.connected(
+        connectionDirection: ConnectionDirection.after,
+        itemCount: items.length,
+        contentsBuilder: (context, index) {
+          final item = items[index];
+          return switch (item) {
+            _InstallationItem() => _InstallationContents(
+                installation: item.installation,
+                appSettings: appSettings,
+              ),
+            _TaskItem() => _TaskEntryContents(
+                entry: item.taskEntry,
+                appSettings: appSettings,
+              ),
+          };
+        },
+        indicatorBuilder: (context, index) {
+          final item = items[index];
+          return switch (item) {
+            _InstallationItem() => OutlinedDotIndicator(
+                borderWidth: 2.5,
+                color: colorScheme.secondary,
+                backgroundColor: colorScheme.surface,
+                child: item.installation.parent == null
+                    ? Icon(Icons.close, size: 10, color: colorScheme.secondary)
+                    : null,
+              ),
+            _TaskItem() => SizedBox(
+                width: 15,
+                height: 15,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: colorScheme.tertiary,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  child: Icon(Icons.check, size: 11, color: colorScheme.onTertiary),
+                ),
+              ),
+          };
+        },
+        connectorBuilder: (context, index, type) {
+          return installedAfter[index]
+              ? const SolidLineConnector()
+              : const DashedLineConnector();
+        },
+      ),
+    );
+  }
+}
+
+class _InstallationContents extends StatelessWidget {
+  final Installation installation;
+  final AppSettings appSettings;
+
+  const _InstallationContents({
+    required this.installation,
+    required this.appSettings,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,89 +124,90 @@ class DisplayInstallationTimeline extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
-    final appSettings = context.watch<AppSettings>();
-    final appRepository = context.watch<AppRepository>();
-    final bikes = appRepository.bikes;
-    
-    final installations = List<Installation>.from(component.installations)
-      ..sort((a, b) => a.dateTimeUTC.compareTo(b.dateTimeUTC));
+    final bikes = context.read<AppRepository>().bikes;
+    final bikeName = installation.parent != null
+        ? bikes[installation.parent]?.name ?? 'BIKE NOT FOUND'
+        : 'Deinstalled';
+    final dateStr = installation.dateTimeUTC.millisecondsSinceEpoch == 0
+        ? 'From beginning'
+        : "${DateFormat(appSettings.dateFormat).format(installation.dateTimeLocal)} ${DateFormat(appSettings.timeFormat).format(installation.dateTimeLocal)}";
 
-    return FixedTimeline.tileBuilder(
-      theme: TimelineThemeData(
-        nodePosition: 0,
-        indicatorTheme: IndicatorThemeData(
-          size: 15.0,
-          color: colorScheme.primary,
-        ),
-        connectorTheme: ConnectorThemeData(
-          thickness: 3.0,
-          color: colorScheme.outline,
-        ),
-      ),
-      builder: TimelineTileBuilder.connected(
-        connectionDirection: ConnectionDirection.after,
-        itemCount: installations.length,
-        contentsBuilder: (context, index) {
-          final assignment = installations[index];
-          final bikeName = assignment.parent != null
-              ? bikes[assignment.parent]?.name ?? 'BIKE NOT FOUND'
-              : 'Deinstalled';
-          final dateStr = assignment.dateTimeUTC.millisecondsSinceEpoch == 0
-              ? 'From beginning'
-              : "${DateFormat(appSettings.dateFormat).format(assignment.dateTimeLocal)} ${DateFormat(appSettings.timeFormat).format(assignment.dateTimeLocal)}";
-
-          return Container(
-            padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  bikeName,
-                  style: textTheme.titleMedium?.copyWith(
-                    fontWeight: assignment.parent != null
-                        ? FontWeight.bold
-                        : FontWeight.normal,
-                    color: assignment.parent != null
-                        ? bikes[assignment.parent]?.name == null ? colorScheme.error : colorScheme.onSurface
-                        : colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                Text(
-                  dateStr,
-                  style: textTheme.bodySmall?.copyWith(
-                    color: colorScheme.secondary,
-                  ),
-                ),
-              ],
+    return Container(
+      padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            bikeName,
+            style: textTheme.titleMedium?.copyWith(
+              fontWeight:
+                  installation.parent != null ? FontWeight.bold : FontWeight.normal,
+              color: installation.parent != null
+                  ? bikes[installation.parent]?.name == null
+                      ? colorScheme.error
+                      : colorScheme.onSurface
+                  : colorScheme.onSurfaceVariant,
             ),
-          );
-        },
-        indicatorBuilder: (context, index) {
-          final assignment = installations[index];
-          return OutlinedDotIndicator(
-            borderWidth: 2.5,
-            color: assignment.parent != null
-                ? colorScheme.primary
-                : colorScheme.outline,
-            child: assignment.parent == null
-                ? Icon(Icons.close, size: 10, color: colorScheme.outline)
-                : null,
-          );
-        },
-        connectorBuilder: (context, index, type) {
-          final assignment = installations[index];
-          if (assignment.parent == null) {
-            return DashedLineConnector(
-
-              color: colorScheme.outline,
-            );
-          }
-          return SolidLineConnector(
-            color: colorScheme.primary.withValues(alpha: 0.6),
-          );
-        },
+          ),
+          Text(
+            dateStr,
+            style: textTheme.bodySmall?.copyWith(color: colorScheme.secondary),
+          ),
+        ],
       ),
     );
   }
+}
+
+class _TaskEntryContents extends StatelessWidget {
+  final TaskEntry entry;
+  final AppSettings appSettings;
+
+  const _TaskEntryContents({required this.entry, required this.appSettings});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
+    final dateStr =
+        "${DateFormat(appSettings.dateFormat).format(entry.dateTimeLocal)} ${DateFormat(appSettings.timeFormat).format(entry.dateTimeLocal)}";
+
+    return Container(
+      padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            entry.name,
+            style: textTheme.titleSmall?.copyWith(
+              color: colorScheme.onSurface,
+            ),
+          ),
+          Text(
+            dateStr,
+            style: textTheme.bodySmall?.copyWith(color: colorScheme.secondary),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+sealed class _TimelineItem {
+  final DateTime dateTimeUTC;
+  const _TimelineItem(this.dateTimeUTC);
+}
+
+class _InstallationItem extends _TimelineItem {
+  final Installation installation;
+  _InstallationItem(this.installation) : super(installation.dateTimeUTC);
+}
+
+class _TaskItem extends _TimelineItem {
+  final TaskEntry taskEntry;
+  _TaskItem(this.taskEntry) : super(taskEntry.dateTimeUTC);
 }

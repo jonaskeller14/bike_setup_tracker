@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppSettings extends ChangeNotifier {
+  static const String _kPrefix = 'app_settings.';
+  static const String _kLegacyBlobKey = 'app_settings';
+
   bool _showOnboarding = true;
   ThemeMode _themeMode = ThemeMode.system;
   String _dateFormat = 'yyyy-MM-dd';
@@ -31,7 +34,7 @@ class AppSettings extends ChangeNotifier {
   bool _showGarageListHint = true;
   bool _enableCalendar = false;
 
-  // Temporary Settings
+  // Temporary Settings (in-memory only, never persisted)
   bool _setupListOnlyChanges = false;
   bool _setupListBikeAdjustmentValues = true;
   bool _setupListPersonAdjustmentValues = true;
@@ -83,192 +86,192 @@ class AppSettings extends ChangeNotifier {
     if (_showOnboarding == newShowOnboarding) return;
     _showOnboarding = newShowOnboarding;
     notifyListeners();
-    saveAppSettings();
+    _persistBool('showOnboarding', newShowOnboarding);
   }
 
   set themeMode(ThemeMode newThemeMode) {
     if (_themeMode == newThemeMode) return;
     _themeMode = newThemeMode;
     notifyListeners();
-    saveAppSettings();
+    _persistString('themeMode', newThemeMode.toString());
   }
 
   set dateFormat(String newDateFormat) {
     if (newDateFormat == _dateFormat) return;
     _dateFormat = newDateFormat;
     notifyListeners();
-    saveAppSettings();
+    _persistString('dateFormat', newDateFormat);
   }
 
   set timeFormat(String newTimeFormat) {
     if (newTimeFormat == _timeFormat) return;
     _timeFormat = newTimeFormat;
     notifyListeners();
-    saveAppSettings();
+    _persistString('timeFormat', newTimeFormat);
   }
 
   set temperatureUnit(String newUnit) {
     if (newUnit == _temperatureUnit) return;
     _temperatureUnit = newUnit;
     notifyListeners();
-    saveAppSettings();
+    _persistString('temperatureUnit', newUnit);
   }
 
   set windSpeedUnit(String newUnit) {
     if (newUnit == _windSpeedUnit) return;
     _windSpeedUnit = newUnit;
     notifyListeners();
-    saveAppSettings();
+    _persistString('windSpeedUnit', newUnit);
   }
 
   set altitudeUnit(String newUnit) {
     if (newUnit == _altitudeUnit) return;
     _altitudeUnit = newUnit;
     notifyListeners();
-    saveAppSettings();
+    _persistString('altitudeUnit', newUnit);
   }
 
   set precipitationUnit(String newUnit) {
     if (newUnit == _precipitationUnit) return;
     _precipitationUnit = newUnit;
     notifyListeners();
-    saveAppSettings();
+    _persistString('precipitationUnit', newUnit);
   }
 
   set distanceUnit(String newUnit) {
     if (newUnit == _distanceUnit) return;
     _distanceUnit = newUnit;
     notifyListeners();
-    saveAppSettings();
+    _persistString('distanceUnit', newUnit);
   }
 
   set enableGoogleDrive(bool newValue) {
     if (newValue == _enableGoogleDrive) return;
     _enableGoogleDrive = newValue;
     notifyListeners();
-    saveAppSettings();
+    _persistBool('enableGoogleDrive', newValue);
   }
 
   set enableTextAdjustment(bool newValue) {
     if (newValue == _enableTextAdjustment) return;
     _enableTextAdjustment = newValue;
     notifyListeners();
-    saveAppSettings();
+    _persistBool('enableTextAdjustment', newValue);
   }
 
   set enablePerson(bool newValue) {
     if (newValue == _enablePerson) return;
     _enablePerson = newValue;
     notifyListeners();
-    saveAppSettings();
+    _persistBool('enablePerson', newValue);
   }
 
   set enableRating(bool newValue) {
     if (newValue == _enableRating) return;
     _enableRating = newValue;
     notifyListeners();
-    saveAppSettings();
+    _persistBool('enableRating', newValue);
   }
 
   set enableSetupTags(bool newValue) {
     if (newValue == _enableSetupTags) return;
     _enableSetupTags = newValue;
     notifyListeners();
-    saveAppSettings();
+    _persistBool('enableSetupTags', newValue);
   }
 
   set enableTaskTags(bool newValue) {
     if (newValue == _enableTaskTags) return;
     _enableTaskTags = newValue;
     notifyListeners();
-    saveAppSettings();
+    _persistBool('enableTaskTags', newValue);
   }
 
   set enableStrava(bool newValue) {
     if (newValue == _enableStrava) return;
     _enableStrava = newValue;
     notifyListeners();
-    saveAppSettings();
+    _persistBool('enableStrava', newValue);
   }
 
   set enableStravaNotifications(bool newValue) {
     if (newValue == _enableStravaNotifications) return;
     _enableStravaNotifications = newValue;
     notifyListeners();
-    saveAppSettings();
+    _persistBool('enableStravaNotifications', newValue);
   }
 
   set enableGarage(bool newValue) {
     if (newValue == _enableGarage) return;
     _enableGarage = newValue;
     notifyListeners();
-    saveAppSettings();
+    _persistBool('enableGarage', newValue);
   }
 
   set enableTask(bool newValue) {
     if (newValue == _enableTask) return;
     _enableTask = newValue;
     notifyListeners();
-    saveAppSettings();
+    _persistBool('enableTask', newValue);
   }
 
   set enableInstallationTimeline(bool newValue) {
     if (newValue == _enableInstallationTimeline) return;
     _enableInstallationTimeline = newValue;
     notifyListeners();
-    saveAppSettings();
+    _persistBool('enableInstallationTimeline', newValue);
   }
 
   set enableTaskPriority(bool newValue) {
     if (newValue == _enableTaskPriority) return;
     _enableTaskPriority = newValue;
     notifyListeners();
-    saveAppSettings();
+    _persistBool('enableTaskPriority', newValue);
   }
 
   set enableTaskInterval(bool newValue) {
     if (newValue == _enableTaskInterval) return;
     _enableTaskInterval = newValue;
     notifyListeners();
-    saveAppSettings();
+    _persistBool('enableTaskInterval', newValue);
   }
 
   set enableTaskDelay (bool newValue) {
     if (newValue == _enableTaskDelay) return;
     _enableTaskDelay = newValue;
     notifyListeners();
-    saveAppSettings();
+    _persistBool('enableTaskDelay', newValue);
   }
 
   set useMapBoxTiles(bool newValue) {
     if (newValue == _useMapBoxTiles) return;
     _useMapBoxTiles = newValue;
     notifyListeners();
-    saveAppSettings();
+    _persistBool('useMapBoxTiles', newValue);
   }
 
   set showStravaLinkGearHint(bool newValue) {
     if (newValue == _showStravaLinkGearHint) return;
     _showStravaLinkGearHint = newValue;
     notifyListeners();
-    saveAppSettings();
+    _persistBool('showStravaLinkGearHint', newValue);
   }
 
   set showGarageListHint(bool newValue) {
     if (newValue == _showGarageListHint) return;
     _showGarageListHint = newValue;
     notifyListeners();
-    saveAppSettings();
+    _persistBool('showGarageListHint', newValue);
   }
 
   set enableCalendar(bool newValue) {
     if (newValue == _enableCalendar) return;
     _enableCalendar = newValue;
     notifyListeners();
-    saveAppSettings();
+    _persistBool('enableCalendar', newValue);
   }
 
-  // Temporary
+  // Temporary (in-memory only)
   set setupListOnlyChanges(bool newValue) {
     if (newValue == setupListOnlyChanges) return;
     _setupListOnlyChanges = newValue;
@@ -317,68 +320,112 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _persistBool(String name, bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('$_kPrefix$name', value);
+  }
+
+  void _persistString(String name, String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('$_kPrefix$name', value);
+  }
+
   Future<void> loadAppSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final jsonString = prefs.getString("app_settings") ?? "{}";
-      final json = jsonDecode(jsonString) as Map<String, dynamic>;
-      _showOnboarding = json['showOnboarding'] ?? _showOnboarding;
+
+      await _migrateLegacyBlob(prefs);
+
+      _showOnboarding = prefs.getBool('${_kPrefix}showOnboarding') ?? _showOnboarding;
+      final storedThemeMode = prefs.getString('${_kPrefix}themeMode');
       _themeMode = ThemeMode.values.firstWhere(
-        (e) => e.toString() == json['themeMode'],
+        (mode) => mode.toString() == storedThemeMode,
         orElse: () => _themeMode,
       );
-      _dateFormat = json['dateFormat'] ?? _dateFormat;
-      _timeFormat = json['timeFormat'] ?? _timeFormat;
-      _temperatureUnit = json['temperatureUnit'] ?? _temperatureUnit;
-      _windSpeedUnit = json['windSpeedUnit'] ?? _windSpeedUnit;
-      _altitudeUnit = json['altitudeUnit'] ?? _altitudeUnit;
-      _precipitationUnit = json['precipitationUnit'] ?? _precipitationUnit;
-      _distanceUnit = json['distanceUnit'] ?? _distanceUnit;
-      _enableGoogleDrive = json['enableGoogleDrive'] ?? _enableGoogleDrive;
-      _enableTextAdjustment = json['enableTextAdjustment'] ?? _enableTextAdjustment;
-      _enableSetupTags = json['enableSetupTags'] ?? _enableSetupTags;
-      _enableTaskTags = json['enableTaskTags'] ?? _enableTaskTags;
-      _enableStravaNotifications = json['enableStravaNotifications'] ?? _enableStravaNotifications;
-      _enableGarage = json['enableGarage'] ?? _enableGarage;
-      _enableTask = json['enableTask'] ?? _enableTask;
-      _enableTaskPriority = json['enableTaskPriority'] ?? _enableTaskPriority;
-      _showStravaLinkGearHint = json['showStravaLinkGearHint'] ?? _showStravaLinkGearHint;
-      _showGarageListHint = json['showGarageListHint'] ?? _showGarageListHint;
-      _enableInstallationTimeline = json['enableInstallationTimeline'] ?? _enableInstallationTimeline;
-      _enableCalendar = json['enableCalendar'] ?? _enableCalendar;
+      _dateFormat = prefs.getString('${_kPrefix}dateFormat') ?? _dateFormat;
+      _timeFormat = prefs.getString('${_kPrefix}timeFormat') ?? _timeFormat;
+      _temperatureUnit = prefs.getString('${_kPrefix}temperatureUnit') ?? _temperatureUnit;
+      _windSpeedUnit = prefs.getString('${_kPrefix}windSpeedUnit') ?? _windSpeedUnit;
+      _altitudeUnit = prefs.getString('${_kPrefix}altitudeUnit') ?? _altitudeUnit;
+      _precipitationUnit = prefs.getString('${_kPrefix}precipitationUnit') ?? _precipitationUnit;
+      _distanceUnit = prefs.getString('${_kPrefix}distanceUnit') ?? _distanceUnit;
+      _enableGoogleDrive = prefs.getBool('${_kPrefix}enableGoogleDrive') ?? _enableGoogleDrive;
+      _enableTextAdjustment = prefs.getBool('${_kPrefix}enableTextAdjustment') ?? _enableTextAdjustment;
+      _enablePerson = prefs.getBool('${_kPrefix}enablePerson') ?? _enablePerson;
+      _enableRating = prefs.getBool('${_kPrefix}enableRating') ?? _enableRating;
+      _enableSetupTags = prefs.getBool('${_kPrefix}enableSetupTags') ?? _enableSetupTags;
+      _enableTaskTags = prefs.getBool('${_kPrefix}enableTaskTags') ?? _enableTaskTags;
+      _enableStrava = prefs.getBool('${_kPrefix}enableStrava') ?? _enableStrava;
+      _enableStravaNotifications = prefs.getBool('${_kPrefix}enableStravaNotifications') ?? _enableStravaNotifications;
+      _enableGarage = prefs.getBool('${_kPrefix}enableGarage') ?? _enableGarage;
+      _enableTask = prefs.getBool('${_kPrefix}enableTask') ?? _enableTask;
+      _enableTaskPriority = prefs.getBool('${_kPrefix}enableTaskPriority') ?? _enableTaskPriority;
+      _enableTaskInterval = prefs.getBool('${_kPrefix}enableTaskInterval') ?? _enableTaskInterval;
+      _enableTaskDelay = prefs.getBool('${_kPrefix}enableTaskDelay') ?? _enableTaskDelay;
+      _enableInstallationTimeline = prefs.getBool('${_kPrefix}enableInstallationTimeline') ?? _enableInstallationTimeline;
+      _useMapBoxTiles = prefs.getBool('${_kPrefix}useMapBoxTiles') ?? _useMapBoxTiles;
+      _showStravaLinkGearHint = prefs.getBool('${_kPrefix}showStravaLinkGearHint') ?? _showStravaLinkGearHint;
+      _showGarageListHint = prefs.getBool('${_kPrefix}showGarageListHint') ?? _showGarageListHint;
+      _enableCalendar = prefs.getBool('${_kPrefix}enableCalendar') ?? _enableCalendar;
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
     }
   }
 
-  void saveAppSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final jsonData = jsonEncode({
-      'showOnboarding': _showOnboarding,
-      'themeMode': _themeMode.toString(),
-      'dateFormat': _dateFormat,
-      'timeFormat': _timeFormat,
-      'temperatureUnit': _temperatureUnit,
-      'windSpeedUnit': _windSpeedUnit,
-      'altitudeUnit': _altitudeUnit,
-      'precipitationUnit': _precipitationUnit,
-      'distanceUnit': _distanceUnit,
-      'enableGoogleDrive': _enableGoogleDrive,
-      'enableTextAdjustment': _enableTextAdjustment,
-      'enableSetupTags': _enableSetupTags,
-      'enableTaskTags': _enableTaskTags,
-      'enableStravaNotifications': _enableStravaNotifications,
-      'enableGarage': _enableGarage,
-      'enableTask': _enableTask,
-      'enableTaskPriority': _enableTaskPriority,
-      'showStravaLinkGearHint': _showStravaLinkGearHint,
-      'showGarageListHint': _showGarageListHint,
-      'enableInstallationTimeline': _enableInstallationTimeline,
-      'enableCalendar': _enableCalendar,
-    });
-    await prefs.setString('app_settings', jsonData);
+  /// Migrates the pre-existing monolithic `app_settings` JSON blob to per-key
+  /// storage, then removes it. Runs at most once (the blob is gone afterwards).
+  /// Only values that *differ* from the original default are migrated: settings
+  /// the user never explicitly changed are left unset, so they continue to
+  /// track the live code default — matching new-install behaviour.
+  Future<void> _migrateLegacyBlob(SharedPreferences prefs) async {
+    final raw = prefs.getString(_kLegacyBlobKey);
+    if (raw == null) return;
+    try {
+      final json = jsonDecode(raw) as Map<String, dynamic>;
+      for (final entry in json.entries) {
+        final value = entry.value;
+        // Skip untouched defaults so they keep following future code defaults.
+        if (_legacyDefaults[entry.key] == value) continue;
+        final key = '$_kPrefix${entry.key}';
+        if (value is bool) {
+          await prefs.setBool(key, value);
+        } else if (value is String) {
+          await prefs.setString(key, value);
+        }
+      }
+    } catch (e, st) {
+      debugPrint("ERROR migrating legacy App Settings: $e\n$st");
+    }
+    await prefs.remove(_kLegacyBlobKey);
   }
+
+  /// Default values as written into the old monolithic blob. Used solely by
+  /// [_migrateLegacyBlob] to tell an explicit user choice from a frozen default.
+  /// These are the defaults at the time the blob format was retired; do not
+  /// change them when you bump the live defaults above.
+  static const Map<String, Object> _legacyDefaults = {
+    'showOnboarding': true,
+    'themeMode': 'ThemeMode.system',
+    'dateFormat': 'yyyy-MM-dd',
+    'timeFormat': 'HH:mm',
+    'temperatureUnit': '°C',
+    'windSpeedUnit': 'km/h',
+    'altitudeUnit': 'm',
+    'precipitationUnit': 'mm',
+    'distanceUnit': 'km',
+    'enableGoogleDrive': false,
+    'enableTextAdjustment': false,
+    'enableSetupTags': false,
+    'enableTaskTags': false,
+    'enableStravaNotifications': true,
+    'enableGarage': true,
+    'enableTask': false,
+    'enableTaskPriority': true,
+    'showStravaLinkGearHint': true,
+    'showGarageListHint': true,
+    'enableInstallationTimeline': false,
+    'enableCalendar': false,
+  };
 
   static double? convertDistanceFromMeters(double? meters, String targetUnit) {
     if (meters == null) return null;

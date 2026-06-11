@@ -11,7 +11,6 @@ class MapFilterWidget extends StatelessWidget {
     final appSettings = context.watch<AppSettings>();
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.only(bottom: 8),
       scrollDirection: Axis.horizontal,
       child: Row(
         spacing: 6,

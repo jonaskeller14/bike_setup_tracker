@@ -80,6 +80,22 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
     }
   }
 
+  Widget _mapControlButton({required Widget icon, required VoidCallback onPressed}) {
+    final scheme = Theme.of(context).colorScheme;
+    return IconButton(
+      iconSize: 20,
+      style: IconButton.styleFrom(
+        backgroundColor: scheme.surface,
+        foregroundColor: scheme.onSurfaceVariant,
+        side: BorderSide(color: scheme.outlineVariant),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        minimumSize: const Size(44, 44),
+      ),
+      onPressed: onPressed,
+      icon: icon,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
@@ -183,7 +199,6 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
         ];
 
         return Scaffold(
-          appBar: AppBar(title: const Text("Map View"), centerTitle: true),
           body: Stack(
             children: [
               FlutterMap(
@@ -329,10 +344,20 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                   ),
                 ],
               ),
-              const SafeArea(
+              SafeArea(
                 child: Padding(
-                  padding: EdgeInsetsGeometry.all(8),
-                  child: MapFilterWidget(),
+                  padding: const EdgeInsets.all(8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    spacing: 12,
+                    children: [
+                      _mapControlButton(
+                        icon: const BackButtonIcon(),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      const Expanded(child: MapFilterWidget()),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -341,34 +366,27 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
             mainAxisSize: MainAxisSize.min,
             spacing: 8,
             children: [
-              FloatingActionButton(
-                heroTag: 'map_zoom_in',
-                mini: true,
+              _mapControlButton(
+                icon: const Icon(Icons.add),
                 onPressed: () async {
                   final newZoom = (_mapController.camera.zoom + 1).clamp(3.0, 18.0);
                   await _animatedMapMove(_mapController.camera.center, newZoom);
                 },
-                child: const Icon(Icons.add),
               ),
-              FloatingActionButton(
-                heroTag: 'map_zoom_out',
-                mini: true,
+              _mapControlButton(
+                icon: const Icon(Icons.remove),
                 onPressed: () async {
                   final newZoom = (_mapController.camera.zoom - 1).clamp(3.0, 18.0);
                   await _animatedMapMove(_mapController.camera.center, newZoom);
                 },
-                child: const Icon(Icons.remove),
               ),
-              FloatingActionButton(
-                heroTag: 'map_locate_me',
-                mini: true,
+              _mapControlButton(
+                icon: const Icon(Icons.my_location),
                 onPressed: _locateMe,
-                child: const Icon(Icons.my_location),
               ),
-              if (markers.isNotEmpty) ...[
-                FloatingActionButton(
-                  heroTag: 'map_center_focus',
-                  mini: true,
+              if (markers.isNotEmpty)
+                _mapControlButton(
+                  icon: const Icon(Icons.center_focus_strong),
                   onPressed: () {
                     final points = markers.map((m) => m.point).toList();
                     final bounds = LatLngBounds.fromPoints(points);
@@ -381,9 +399,7 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                       ),
                     );
                   },
-                  child: const Icon(Icons.center_focus_strong),
                 ),
-              ],
             ],
           ),
         );

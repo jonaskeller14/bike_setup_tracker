@@ -63,6 +63,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
   static const _defaultView = _CalendarView.month;
   _CalendarView _selectedView = _defaultView;
+  _CalendarView? _returnView;
 
   /// Dates currently visible, fed from [SfCalendar.onViewChanged]; used to tell
   /// whether "today" is already on screen (to disable the Today button).
@@ -84,7 +85,19 @@ class _CalendarPageState extends State<CalendarPage> {
     setState(() {
       _selectedView = option;
       _controller.view = option.view;
+      _returnView = null;
     });
+  }
+
+  bool _selectReturnView() {
+    final returnView = _returnView;
+    if (returnView == null) return false;
+    setState(() {
+      _selectedView = returnView;
+      _controller.view = returnView.view;
+      _returnView = null;
+    });
+    return true;
   }
 
   @override
@@ -172,6 +185,7 @@ class _CalendarPageState extends State<CalendarPage> {
       final date = details.date;
       if (date != null && _controller.view != CalendarView.day) {
         setState(() {
+          _returnView = _selectedView;
           _selectedView = _CalendarView.day;
           _controller.view = CalendarView.day;
           _controller.displayDate = date;
@@ -256,7 +270,13 @@ class _CalendarPageState extends State<CalendarPage> {
     final entries = _buildEntries(repo, settings, sub);
     final cs = Theme.of(context).colorScheme;
 
-    return Scaffold(
+    return PopScope(
+      canPop: _returnView == null,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _selectReturnView();
+      },
+      child: Scaffold(
       appBar: AppBar(
         backgroundColor: cs.surface,
         surfaceTintColor: Colors.transparent,
@@ -404,6 +424,7 @@ class _CalendarPageState extends State<CalendarPage> {
           ),
           ],
         ),
+      ),
       ),
     );
   }

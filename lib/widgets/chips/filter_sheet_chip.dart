@@ -67,22 +67,40 @@ class FilterSheetChip extends StatelessWidget {
         ? appRepository.selectedBike != null || appRepository.selectedSetupTags.isNotEmpty
         : appRepository.selectedBike != null;
 
+    final bool bikeOnly = !enableSetupTagFilter &&
+        !showMapVisibility &&
+        !showTimelineVisibility &&
+        !showOnlyChangesSection &&
+        !showByCategorySection;
+
+    final bool bikeSelected = appRepository.selectedBike != null;
+    final String bikeName = appRepository.bikes[appRepository.selectedBike]?.name ?? '';
+    final int tagCount = appRepository.selectedSetupTags.length;
+    final String tagLabel = "$tagCount ${tagCount > 1 ? 'Tags' : 'Tag'}";
+
+    String labelText;
+    if (bikeOnly) {
+      labelText = bikeSelected ? bikeName : "All Bikes";
+    } else if (enableSetupTagFilter) {
+      if (bikeSelected && tagCount > 0) {
+        labelText = "$bikeName + $tagLabel";
+      } else if (bikeSelected) {
+        labelText = bikeName;
+      } else if (tagCount > 0) {
+        labelText = tagLabel;
+      } else {
+        labelText = "Filter";
+      }
+    } else {
+      labelText = bikeSelected ? bikeName : "Filter";
+    }
+
     return FilterChip(
-      avatar: enableSetupTagFilter
-          ? const Icon(Icons.filter_alt_outlined)
-          : const Icon(Bike.iconData),
+      avatar: bikeOnly
+          ? const Icon(Bike.iconData)
+          : const Icon(Icons.filter_alt_outlined),
       label: Text(
-        enableSetupTagFilter
-            ? appRepository.selectedBike != null
-                ? appRepository.selectedSetupTags.isNotEmpty
-                    ? "${appRepository.bikes[appRepository.selectedBike]?.name ?? ''} + ${appRepository.selectedSetupTags.length} ${appRepository.selectedSetupTags.length > 1 ? 'Tags' : 'Tag'}"
-                    : (appRepository.bikes[appRepository.selectedBike]?.name ?? '')
-                : appRepository.selectedSetupTags.isNotEmpty
-                    ? "${appRepository.selectedSetupTags.length} ${appRepository.selectedSetupTags.length > 1 ? 'Tags' : 'Tag'}"
-                    : "Filter"
-            : appRepository.selectedBike == null
-                ? "All Bikes"
-                : (appRepository.bikes[appRepository.selectedBike]?.name ?? ''),
+        labelText,
         overflow: TextOverflow.ellipsis,
         maxLines: 1,
       ),

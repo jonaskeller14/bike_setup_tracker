@@ -18,6 +18,8 @@ import '../widgets/sheets/task_rule_sheet.dart';
 
 const Duration kCalendarZeroDuration = Duration(minutes: 30);
 const Color kCalendarStravaColor = Color(0xFFFC4C02); // Strava brand orange
+const Duration kCalendarScrollLeadIn = Duration(minutes: 30);
+const int kCalendarFallbackHour = 6;
 
 IconData calendarIconFor(TimelineEntry entry) => switch (entry) {
       SetupEntry() => Setup.iconData,
@@ -68,6 +70,18 @@ class _CalendarPageState extends State<CalendarPage> {
   /// Dates currently visible, fed from [SfCalendar.onViewChanged]; used to tell
   /// whether "today" is already on screen (to disable the Today button).
   List<DateTime> _visibleDates = const [];
+
+  DateTime _displayDateForDay(DateTime day, List<TimelineEntry> entries) {
+    final target = DateUtils.dateOnly(day);
+    DateTime? earliest;
+    for (final entry in entries) {
+      final local = entry.date.toLocal();
+      if (!DateUtils.isSameDay(local, target)) continue;
+      if (earliest == null || local.isBefore(earliest)) earliest = local;
+    }
+    if (earliest == null) return target.copyWith(hour: kCalendarFallbackHour);
+    return earliest.subtract(kCalendarScrollLeadIn);
+  }
 
   /// Whether today already falls within the visible date range, so the Today
   /// button can be disabled. (Schedule scrolls freely, so keep it enabled.)
@@ -179,7 +193,7 @@ class _CalendarPageState extends State<CalendarPage> {
     });
   }
 
-  Future<void> _onTap(CalendarTapDetails details) async {
+  Future<void> _onTap(CalendarTapDetails details, List<TimelineEntry> entries) async {
     // Tapping a day (month cell or day header) drills into the Day view.
     if (details.targetElement == CalendarElement.calendarCell ||
         details.targetElement == CalendarElement.viewHeader) {
@@ -189,7 +203,7 @@ class _CalendarPageState extends State<CalendarPage> {
           _returnView = _selectedView;
           _selectedView = _CalendarView.day;
           _controller.view = CalendarView.day;
-          _controller.displayDate = date;
+          _controller.displayDate = _displayDateForDay(date, entries);
         });
       }
       return;
@@ -339,6 +353,15 @@ class _CalendarPageState extends State<CalendarPage> {
                 backgroundColor: cs.surface,
                 todayHighlightColor: cs.primary,
                 cellBorderColor: cs.outlineVariant,
+                activeDatesTextStyle: TextStyle(
+                  color: cs.onSurface,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+                leadingDatesTextStyle: TextStyle(
+                  color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+                  fontSize: 14,
+                ),
               ),
               child: SfCalendar(
                 controller: _controller,
@@ -373,7 +396,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                onTap: _onTap,
+                onTap: (details) => _onTap(details, entries),
                 onDragEnd: _onDragEnd,
                 onViewChanged: (ViewChangedDetails details) {
                   _ensureStravaCoverage(details.visibleDates);

@@ -52,14 +52,11 @@ class DeepLinkService {
     if (_lastHandledUri == uri && 
         _lastHandledTime != null && 
         DateTime.now().difference(_lastHandledTime!).inMilliseconds < 1000) {
-      debugPrint('Ignoring duplicate deep link: $uri');
       return;
     }
 
     _lastHandledUri = uri;
     _lastHandledTime = DateTime.now();
-
-    debugPrint('Received deep link: $uri');
 
     if (uri.scheme != 'bike-setup-tracker') return;
 

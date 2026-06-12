@@ -119,5 +119,9 @@
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="geo" />
         </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="strava" />
+        </intent>
     </queries>
 </manifest>

@@ -57,9 +57,7 @@ class WeatherService extends ChangeNotifier {
     if (_requestTimestamps.length >= _maxRequestsPerHour) {
       final resetTime = _requestTimestamps.first.add(const Duration(hours: 1));
       final resetTimeString = "${resetTime.hour.toString().padLeft(2, '0')}:${resetTime.minute.toString().padLeft(2, '0')}";
-      final msg = "Rate limit exceeded ($_maxRequestsPerHour/h). Try again after $resetTimeString";
-      debugPrint("WeatherService: $msg");
-      throw Exception(msg);
+      throw Exception("Rate limit exceeded ($_maxRequestsPerHour/h). Try again after $resetTimeString");
     }
     _requestTimestamps.add(now);
   }
@@ -120,17 +118,13 @@ class WeatherService extends ChangeNotifier {
         dayAccumulatedPrecipitation: dayAccumulatedPrecipitation,
         currentIsDay: currentIsDay,
       );
-    } on ClientException catch (e) {
-      debugPrint("WeatherService: Network Error (No Internet): $e");
+    } on ClientException {
       setStatus(const WeatherError("Network Error (No Internet)."));
       return null;
-    } on SocketException catch (e) {
-      debugPrint("WeatherService: Network Error (No Internet): $e");
+    } on SocketException {
       setStatus(const WeatherError("Network Error (No Internet)."));
       return null;
     } catch (e) {
-      debugPrint("WeatherService: Exception caught: $e");
-
       // Preserve the rate-limit message (thrown with the reset time); any other
       // failure gets a generic message.
       final isRateLimit = e.toString().contains("Rate limit exceeded");
@@ -141,7 +135,7 @@ class WeatherService extends ChangeNotifier {
 
       if (counter <= 2 && !isRateLimit) {
         setStatus(const WeatherSearching());
-        debugPrint("WeatherService Error --> Trying again after 10s.");
+        // debugPrint("WeatherService Error --> Trying again after 10s.");
         await Future.delayed(const Duration(seconds: 10));
         return fetchWeather(lat: lat, lon: lon, datetime: datetime, counter: counter + 1);
       } else {

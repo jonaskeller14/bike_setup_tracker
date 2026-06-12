@@ -30,11 +30,34 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
   Future<List<StravaAthleteDb>> getAllAthletesBypass() => select(stravaAthletes).get();
   Future<List<StravaGearDb>> getAllGearsBypass() => select(stravaGears).get();
   Future<List<StravaActivityDb>> getAllActivitiesBypass() => select(stravaActivities).get();
-  Future<List<StravaActivityDb>> getActivitiesPaginated({required int limit, required int offset, OrderingMode mode = OrderingMode.desc}) {
-    return (select(stravaActivities)
-          ..orderBy([(t) => OrderingTerm(expression: t.startDate, mode: mode)])
-          ..limit(limit, offset: offset))
-        .get();
+  /// Paginated activities, optionally filtered by gear so the filter is applied
+  /// in SQL rather than after a global fetch.
+  ///
+  /// - [gearId] non-null: only activities for that gear (a linked bike).
+  /// - [unassignedOnly]: only activities whose gear belongs to no bike — i.e.
+  ///   a null gear or a gear not present in [assignedGears] (an unlinked bike).
+  /// - neither: all activities.
+  Future<List<StravaActivityDb>> getActivitiesPaginated({
+    required int limit,
+    required int offset,
+    OrderingMode mode = OrderingMode.desc,
+    String? gearId,
+    bool unassignedOnly = false,
+    List<String> assignedGears = const [],
+  }) {
+    final query = select(stravaActivities)
+      ..orderBy([(t) => OrderingTerm(expression: t.startDate, mode: mode)]);
+
+    if (gearId != null) {
+      query.where((t) => t.gearId.equals(gearId));
+    } else if (unassignedOnly && assignedGears.isNotEmpty) {
+      // Null gear, or a gear that is not linked to any bike.
+      query.where((t) => t.gearId.isNull() | t.gearId.isNotIn(assignedGears));
+    }
+    // unassignedOnly with no assigned gears => every activity qualifies (no filter).
+
+    query.limit(limit, offset: offset);
+    return query.get();
   }
 
   Stream<List<StravaActivityDb>> watchActivitiesWithPosition() {

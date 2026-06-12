@@ -434,7 +434,7 @@ void main() {
     final updateCompleter = Completer<void>();
     void listener() {
       if (!updateCompleter.isCompleted) {
-        debugPrint('TEST: Repository notified listeners');
+        // debugPrint('TEST: Repository notified listeners');
         updateCompleter.complete();
       }
     }
@@ -444,12 +444,12 @@ void main() {
     await tester.pumpAndSettle();
 
     // The second check is to save the Component (which saves everything)
-    debugPrint('TEST: Tapping final Save on ComponentPage');
+    // debugPrint('TEST: Tapping final Save on ComponentPage');
     await tester.tap(find.byIcon(Icons.check)); // Save Component
     await tester.pump(); // Start the pop and the callback
     
     // Wait for the async repository update
-    debugPrint('TEST: Waiting for repository update...');
+    // debugPrint('TEST: Waiting for repository update...');
     await _waitForRepositoryUpdate(tester);
     
     if (find.textContaining('BooleanAdjustment #1 edit #1').evaluate().isEmpty) {

@@ -85,16 +85,18 @@ void main() {
       expect(repository.filteredStravaActivities.length, 3);
     });
 
-    test("Filtering with a linked bike selected should show only its activities", () {
+    test("Filtering with a linked bike selected should show only its activities", () async {
       repository.onBikeTap(bikeLinked.id);
+      await pumpEventQueue(); // selection re-pages Strava at the DB level
       expect(repository.filteredStravaActivities.length, 1);
       expect(repository.filteredStravaActivities.containsKey(activityLinked.id), true);
     });
 
-    test("Filtering with an unlinked bike selected should show unassigned activities", () {
+    test("Filtering with an unlinked bike selected should show unassigned activities", () async {
       // Selecting the first unlinked bike
       repository.onBikeTap(bikeUnlinked.id);
-      
+      await pumpEventQueue();
+
       // Should show Ride 2 (null gear) and Ride 3 (gear_unknown)
       // because they are not assigned to any bike.
       // This verifies the user's fix for Ride 2 (null gear).
@@ -103,8 +105,9 @@ void main() {
       expect(repository.filteredStravaActivities.containsKey(activityUnknownGear.id), true);
     });
 
-    test("Filtering with another unlinked bike should show the same unassigned pool", () {
+    test("Filtering with another unlinked bike should show the same unassigned pool", () async {
       repository.onBikeTap(bikeOtherUnlinked.id);
+      await pumpEventQueue();
       expect(repository.filteredStravaActivities.length, 2);
       expect(repository.filteredStravaActivities.containsKey(activityUnlinked.id), true);
       expect(repository.filteredStravaActivities.containsKey(activityUnknownGear.id), true);

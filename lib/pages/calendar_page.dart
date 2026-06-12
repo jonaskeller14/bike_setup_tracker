@@ -139,8 +139,9 @@ class _CalendarPageState extends State<CalendarPage> {
 
   /// When the user navigates earlier than the currently loaded Strava window,
   /// page in older activities until the visible range is covered (or there is
-  /// nothing more to load). Uses the *unfiltered* loaded set so progress is
-  /// guaranteed regardless of the active bike filter.
+  /// nothing more to load). Strava is paginated per active filter, so the loaded
+  /// window already reflects the selected bike; paging it advances coverage
+  /// without dead-ending on a global pagination boundary.
   void _ensureStravaCoverage(List<DateTime> visibleDates) {
     if (visibleDates.isEmpty || _loadingCoverage) return;
     final repo = context.read<AppRepository>();

@@ -103,6 +103,24 @@ class _CalendarPageState extends State<CalendarPage> {
     });
   }
 
+  MenuItemButton _viewMenuItem(_CalendarView option, ColorScheme cs) {
+    final selected = option == _selectedView;
+    return MenuItemButton(
+      onPressed: () => _selectView(option),
+      leadingIcon: Icon(option.icon, size: 20),
+      style: MenuItemButton.styleFrom(
+        foregroundColor: selected ? cs.primary : cs.onSurface,
+        backgroundColor: selected ? cs.primary.withValues(alpha: 0.10) : null,
+      ),
+      child: Text(
+        option.label,
+        style: TextStyle(
+          fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+        ),
+      ),
+    );
+  }
+
   bool _selectReturnView() {
     final returnView = _returnView;
     if (returnView == null) return false;
@@ -319,15 +337,17 @@ class _CalendarPageState extends State<CalendarPage> {
             const SizedBox(width: 6),
             MenuAnchor(
               alignmentOffset: const Offset(0, 4),
-              menuChildren: [
-                for (final option in _CalendarView.values)
-                  MenuItemButton(
-                    onPressed: () => _selectView(option),
-                    child: Text(option.label),
-                  ),
-              ],
+              style: MenuStyle(
+                shape: WidgetStatePropertyAll(
+                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                padding: const WidgetStatePropertyAll(
+                  EdgeInsets.symmetric(vertical: 4),
+                ),
+              ),
+              menuChildren: _CalendarView.values.map((cv) => _viewMenuItem(cv, cs)).toList(),
               builder: (context, controller, child) => ActionChip(
-                avatar: const Icon(Icons.calendar_view_week, size: 18),
+                avatar: Icon(_selectedView.icon, size: 18),
                 label: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -551,13 +571,14 @@ class _TimelineDataSource extends CalendarDataSource<TimelineEntry> {
 }
 
 enum _CalendarView {
-  schedule(CalendarView.schedule, 'Schedule', -1),
-  month(CalendarView.month, 'Month', -1),
-  week(CalendarView.week, 'Week', -1),
-  threeDay(CalendarView.day, '3 Day', 3),
-  day(CalendarView.day, 'Day', -1);
+  schedule(CalendarView.schedule, 'Schedule', -1, Icons.view_agenda_outlined),
+  month(CalendarView.month, 'Month', -1, Icons.calendar_view_month),
+  week(CalendarView.week, 'Week', -1, Icons.calendar_view_week),
+  threeDay(CalendarView.day, '3 Day', 3, Icons.view_column_outlined),
+  day(CalendarView.day, 'Day', -1, Icons.calendar_view_day);
   final CalendarView view;
   final String label;
   final int days;
-  const _CalendarView(this.view, this.label, this.days);
+  final IconData icon;
+  const _CalendarView(this.view, this.label, this.days, this.icon);
 }

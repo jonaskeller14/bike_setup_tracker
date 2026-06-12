@@ -33,6 +33,7 @@ class AppSettings extends ChangeNotifier {
   bool _showStravaLinkGearHint = true;
   bool _showGarageListHint = true;
   bool _enableCalendar = false;
+  int _firstDayOfWeek = DateTime.monday; // 1 = Monday … 7 = Sunday
 
   // Temporary Settings (in-memory only, never persisted)
   bool _setupListOnlyChanges = false;
@@ -71,6 +72,7 @@ class AppSettings extends ChangeNotifier {
   bool get showStravaLinkGearHint => _showStravaLinkGearHint;
   bool get showGarageListHint => _showGarageListHint;
   bool get enableCalendar => _enableCalendar;
+  int get firstDayOfWeek => _firstDayOfWeek;
 
   // Temporary Settings
   bool get setupListOnlyChanges => _setupListOnlyChanges;
@@ -271,6 +273,13 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableCalendar', newValue);
   }
 
+  set firstDayOfWeek(int newValue) {
+    if (newValue == _firstDayOfWeek) return;
+    _firstDayOfWeek = newValue;
+    notifyListeners();
+    _persistInt('firstDayOfWeek', newValue);
+  }
+
   // Temporary (in-memory only)
   set setupListOnlyChanges(bool newValue) {
     if (newValue == setupListOnlyChanges) return;
@@ -330,6 +339,11 @@ class AppSettings extends ChangeNotifier {
     await prefs.setString('$_kPrefix$name', value);
   }
 
+  void _persistInt(String name, int value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('$_kPrefix$name', value);
+  }
+
   Future<void> loadAppSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -367,6 +381,7 @@ class AppSettings extends ChangeNotifier {
       _showStravaLinkGearHint = prefs.getBool('${_kPrefix}showStravaLinkGearHint') ?? _showStravaLinkGearHint;
       _showGarageListHint = prefs.getBool('${_kPrefix}showGarageListHint') ?? _showGarageListHint;
       _enableCalendar = prefs.getBool('${_kPrefix}enableCalendar') ?? _enableCalendar;
+      _firstDayOfWeek = prefs.getInt('${_kPrefix}firstDayOfWeek') ?? _firstDayOfWeek;
     } catch (e, st) {
       debugPrint("ERROR loading App Settings: $e\n$st");
     }

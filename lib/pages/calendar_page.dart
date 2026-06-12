@@ -297,10 +297,10 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
-    final repo = context.watch<AppRepository>();
-    final settings = context.watch<AppSettings>();
-    final sub = context.watch<SubscriptionService>();
-    final entries = _buildEntries(repo, settings, sub);
+    final appRepository = context.watch<AppRepository>();
+    final appSettings = context.watch<AppSettings>();
+    final subscriptionService = context.watch<SubscriptionService>();
+    final entries = _buildEntries(appRepository, appSettings, subscriptionService);
     final cs = Theme.of(context).colorScheme;
 
     return PopScope(
@@ -321,7 +321,7 @@ class _CalendarPageState extends State<CalendarPage> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: FilterSheetChip(
-                  enableSetupTagFilter: settings.enableSetupTags,
+                  enableSetupTagFilter: appSettings.enableSetupTags,
                   showTimelineVisibility: true,
                 ),
               ),
@@ -386,11 +386,12 @@ class _CalendarPageState extends State<CalendarPage> {
               child: SfCalendar(
                 controller: _controller,
                 view: _defaultView.view,
+                firstDayOfWeek: appSettings.firstDayOfWeek,
                 maxDate: DateTime.now().add(kCalendarZeroDuration),
                 dataSource: _TimelineDataSource(entries, cs),
                 allowDragAndDrop: true,
                 dragAndDropSettings: DragAndDropSettings(
-                  indicatorTimeFormat: settings.timeFormat,
+                  indicatorTimeFormat: appSettings.timeFormat,
                 ),
                 showDatePickerButton: true,
                 backgroundColor: cs.surface,
@@ -428,7 +429,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 timeSlotViewSettings: TimeSlotViewSettings(
                   numberOfDaysInView: _selectedView.days,
                   timeIntervalHeight: 60,
-                  timeFormat: settings.timeFormat,
+                  timeFormat: appSettings.timeFormat,
                   timeTextStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
                   dayFormat: 'EEE',
                 ),

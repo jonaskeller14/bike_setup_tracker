@@ -36,6 +36,11 @@ class PreferencesPage extends StatelessWidget {
     'h:mm a': Text('h:mm a (8:07 PM)'),
   };
 
+  static const Map<int, Text> _firstDayOfWeekOptionWidgets = {
+    DateTime.monday: Text('Monday'),
+    DateTime.sunday: Text('Sunday'),
+  };
+
   static const Map<String, Text> _tempUnitOptionWidgets = {
     '°C': Text('Celsius (°C)'),
     '°F': Text('Fahrenheit (°F)'),
@@ -129,6 +134,24 @@ class PreferencesPage extends StatelessWidget {
                   },
                 ),
               ),
+              if (appSettings.enableCalendar)
+                ListTile(
+                  leading: const Icon(Icons.calendar_month_outlined),
+                  title: const Text("First Day of Week"),
+                  subtitle: _firstDayOfWeekOptionWidgets[appSettings.firstDayOfWeek] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<int>(
+                    context: context,
+                    title: "First Day of Week",
+                    value: appSettings.firstDayOfWeek,
+                    optionWidgets: _firstDayOfWeekOptionWidgets,
+                    onChanged: (int? newValue) {
+                      if (newValue == null) return;
+                      appSettings.firstDayOfWeek = newValue;
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
               const Divider(),
               const SectionTitle(title: 'Default Units'),
               ListTile(

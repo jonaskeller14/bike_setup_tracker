@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/task_actions.dart';
+import '../../widgets/flash_highlight.dart';
 import '../../widgets/items/task_entry_list_item.dart';
 import '../../widgets/sheets/sheet.dart';
 import '../../widgets/task_rule_display_card.dart';
@@ -114,11 +115,13 @@ class TaskRuleDetailsPageContent extends StatelessWidget {
               final reversedList = taskEntries.reversed.toList();
               final previousEntry = (index + 1 < reversedList.length) ? reversedList[index + 1] : null;
               
-              return TaskEntryListItem(
-                taskEntryId: te.id,
-                previousSnapshot: previousEntry?.snapshot,
-                enabled: highlightTaskEntryId == null || te.id == highlightTaskEntryId,
-                onTap: null, // disable infinite tap
+              return FlashHighlight(
+                highlighted: highlightTaskEntryId != null && te.id == highlightTaskEntryId,
+                child: TaskEntryListItem(
+                  taskEntryId: te.id,
+                  previousSnapshot: previousEntry?.snapshot,
+                  onTap: null, // disable infinite tap
+                ),
               );
             }),
         ],

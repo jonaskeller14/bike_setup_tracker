@@ -158,12 +158,7 @@ class TaskRuleDisplayCard extends StatelessWidget {
     final component = taskRule.componentId != null ? appRepository.components[taskRule.componentId] : null;
     final bike = taskRule.bikeId != null ? appRepository.bikes[taskRule.bikeId] : (component?.bike != null ? appRepository.bikes[component!.bike] : null);
 
-    final statusColor = switch (status.type) {
-      TaskStatusType.upcoming => Colors.blue,
-      TaskStatusType.due => Colors.orange,
-      TaskStatusType.overdue => Colors.red,
-      TaskStatusType.completed => Colors.green,
-    };
+    final statusColor = status.type.getStatusColor();
 
     return Opacity(
       opacity: isCompleted ? 0.5 : 1,

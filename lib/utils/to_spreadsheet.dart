@@ -5,20 +5,22 @@ import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
+import '../models/task/task_entry.dart';
+import '../models/task/task_rule.dart';
 import '../models/weather.dart';
 
 class SpreadsheetExport {
-  static List<int>? toExcel(SelectedData appRepository, AppSettings settings) {
+  static List<int>? toExcel(SelectedData data, AppSettings settings) {
     final excel = Excel.createExcel();
 
-    final bikes = appRepository.bikes.values.where((b) => !b.isDeleted).toList();
+    final bikes = data.bikes.values.where((b) => !b.isDeleted).toList();
     if (bikes.isEmpty) {
       excel['No Data'].appendRow([TextCellValue('No bikes found or data is empty.')]);
     }
 
     for (final bike in bikes) {
       final sheet = excel[bike.name];
-      final headerData = _generateHeader(appRepository, settings, bikeId: bike.id);
+      final headerData = _generateHeader(data, settings, bikeId: bike.id);
       
       // Row 1: Merged Group Headers
       sheet.appendRow(headerData.row1.map((e) => TextCellValue(e)).toList());
@@ -34,24 +36,27 @@ class SpreadsheetExport {
         );
       }
 
-      final setups = appRepository.setups.values.where((s) => s.bike == bike.id && !s.isDeleted).toList();
+      final setups = data.setups.values.where((s) => s.bike == bike.id && !s.isDeleted).toList();
       setups.sort((a, b) => b.datetime.compareTo(a.datetime));
 
       for (final setup in setups) {
-        final row = _generateSetupCellValueRow(setup, headerData.columnMap, appRepository, settings);
+        final row = _generateSetupCellValueRow(setup, headerData.columnMap, data, settings);
         sheet.appendRow(row);
       }
     }
 
-    if (bikes.isNotEmpty && excel.sheets.containsKey('Sheet1')) {
+    _appendTaskLogSheet(excel, data, settings);
+
+    // Drop the default empty sheet once any real sheet has been added.
+    if (excel.sheets.length > 1 && excel.sheets.containsKey('Sheet1')) {
       excel.delete('Sheet1');
     }
 
     return excel.encode();
   }
 
-  static String toCsv(SelectedData appRepository, AppSettings settings) {
-    final headerData = _generateHeader(appRepository, settings, includeBikeColumn: true);
+  static String toCsv(SelectedData data, AppSettings settings) {
+    final headerData = _generateHeader(data, settings, includeBikeColumn: true);
     final row1 = headerData.row1;
     final row2 = headerData.row2;
     final columnMap = headerData.columnMap;
@@ -60,18 +65,38 @@ class SpreadsheetExport {
     buffer.writeln(row1.map((e) => '"${e.replaceAll('"', '""')}"').join(','));
     buffer.writeln(row2.map((e) => '"${e.replaceAll('"', '""')}"').join(','));
 
-    final setups = appRepository.setups.values.where((s) => !s.isDeleted).toList();
+    final setups = data.setups.values.where((s) => !s.isDeleted).toList();
     setups.sort((a, b) => b.datetime.compareTo(a.datetime));
 
     for (final setup in setups) {
-      final row = _generateSetupStringRow(setup, columnMap, appRepository, settings, includeBikeColumn: true);
+      final row = _generateSetupStringRow(setup, columnMap, data, settings, includeBikeColumn: true);
       buffer.writeln(row.map((e) => '"${e.replaceAll('"', '""')}"').join(','));
     }
+
+    _appendTaskLogCsv(buffer, data, settings);
 
     return buffer.toString();
   }
 
-  static _HeaderData _generateHeader(SelectedData appRepository, AppSettings settings, {String? bikeId, bool includeBikeColumn = false}) {
+  static String _csvCell(String value) => '"${value.replaceAll('"', '""')}"';
+
+  static void _appendTaskLogCsv(StringBuffer buffer, SelectedData data, AppSettings settings) {
+    if (!settings.enableTask) return;
+
+    final entries = _sortedTaskEntries(data);
+    if (entries.isEmpty) return;
+
+    buffer.writeln();
+    buffer.writeln(_csvCell('Task Log'));
+    buffer.writeln(_taskLogHeaders(settings).map(_csvCell).join(','));
+
+    for (final entry in entries) {
+      final row = _generateTaskEntryStringRow(entry, data, settings);
+      buffer.writeln(row.map(_csvCell).join(','));
+    }
+  }
+
+  static _HeaderData _generateHeader(SelectedData data, AppSettings settings, {String? bikeId, bool includeBikeColumn = false}) {
     final List<String> row1 = ['General', '', '', '', '', ''];
     final List<String> row2 = ['Name', 'DateTime', 'Tags', 'Notes', 'Place', 'Altitude [${settings.altitudeUnit}]'];
     final Map<String, int> columnMap = {
@@ -116,9 +141,9 @@ class SpreadsheetExport {
     merges.add(_MergeInfo(weatherStart, colIndex - 1, 'Weather'));
 
     // Person Section
-    final bike = bikeId != null ? appRepository.bikes[bikeId] : null;
+    final bike = bikeId != null ? data.bikes[bikeId] : null;
     final personId = bike?.person;
-    final person = personId != null ? appRepository.persons[personId] : null;
+    final person = personId != null ? data.persons[personId] : null;
     if (person != null) {
       final int personStart = colIndex;
       row1.add('Person: ${person.name}');
@@ -134,7 +159,7 @@ class SpreadsheetExport {
     }
 
     // Component Adjustments
-    final components = appRepository.components.values
+    final components = data.components.values
         .where((c) => !c.isDeleted && (bikeId == null || c.bike == bikeId))
         .toList();
 
@@ -157,7 +182,7 @@ class SpreadsheetExport {
 
     // Add Ratings
     final Set<String> ratingAdjIds = {};
-    final setups = appRepository.setups.values.where((s) => !s.isDeleted && (bikeId == null || s.bike == bikeId));
+    final setups = data.setups.values.where((s) => !s.isDeleted && (bikeId == null || s.bike == bikeId));
     for (final setup in setups) {
       ratingAdjIds.addAll(setup.ratingAdjustmentValues.keys);
     }
@@ -170,7 +195,7 @@ class SpreadsheetExport {
       }
       for (final adjId in ratingAdjIds) {
         String name = adjId;
-        for (final rating in appRepository.ratings.values) {
+        for (final rating in data.ratings.values) {
           final adj = rating.adjustments.firstWhereOrNull((a) => a.id == adjId);
           if (adj != null) {
             name = '${adj.name}${adj.unit != null ? ' [${adj.unit}]' : ''}';
@@ -186,7 +211,7 @@ class SpreadsheetExport {
     return _HeaderData(row1, row2, columnMap, merges);
   }
 
-  static List<CellValue> _generateSetupCellValueRow(Setup setup, Map<String, int> columnMap, SelectedData appRepository, AppSettings settings) {
+  static List<CellValue> _generateSetupCellValueRow(Setup setup, Map<String, int> columnMap, SelectedData data, AppSettings settings) {
     final List<CellValue> row = List.filled(columnMap.length, TextCellValue(''));
 
     row[columnMap['name']!] = TextCellValue(setup.name);
@@ -235,8 +260,8 @@ class SpreadsheetExport {
     }
 
     // Person
-    final bike = appRepository.bikes[setup.bike];
-    final person = bike != null ? appRepository.persons[bike.person] : null;
+    final bike = data.bikes[setup.bike];
+    final person = bike != null ? data.persons[bike.person] : null;
     if (person != null && columnMap.containsKey('p_name')) {
       row[columnMap['p_name']!] = TextCellValue(person.name);
       for (final entry in setup.personAdjustmentValues.entries) {
@@ -264,7 +289,7 @@ class SpreadsheetExport {
     return row;
   }
 
-  static List<String> _generateSetupStringRow(Setup setup, Map<String, int> columnMap, SelectedData appRepository, AppSettings settings, {bool includeBikeColumn = false}) {
+  static List<String> _generateSetupStringRow(Setup setup, Map<String, int> columnMap, SelectedData data, AppSettings settings, {bool includeBikeColumn = false}) {
     final List<String> row = List.filled(columnMap.length, '');
 
     row[columnMap['name']!] = setup.name;
@@ -282,7 +307,7 @@ class SpreadsheetExport {
     }
 
     if (includeBikeColumn) {
-      final bike = appRepository.bikes[setup.bike];
+      final bike = data.bikes[setup.bike];
       row[columnMap['bike']!] = bike?.name ?? setup.bike;
     }
 
@@ -299,8 +324,8 @@ class SpreadsheetExport {
     }
 
     // Person
-    final bike = appRepository.bikes[setup.bike];
-    final person = bike != null ? appRepository.persons[bike.person] : null;
+    final bike = data.bikes[setup.bike];
+    final person = bike != null ? data.persons[bike.person] : null;
     if (person != null && columnMap.containsKey('p_name')) {
       row[columnMap['p_name']!] = person.name;
       for (final entry in setup.personAdjustmentValues.entries) {
@@ -322,6 +347,141 @@ class SpreadsheetExport {
       final key = 'rate_${entry.key}';
       if (columnMap.containsKey(key)) {
         row[columnMap[key]!] = Adjustment.formatValue(entry.value);
+      }
+    }
+
+    return row;
+  }
+
+  static List<TaskEntry> _sortedTaskEntries(SelectedData data) {
+    final entries = data.taskEntries.values.where((e) => !e.isDeleted).toList();
+    entries.sort((a, b) => b.dateTimeUTC.compareTo(a.dateTimeUTC));
+    return entries;
+  }
+
+  static List<String> _taskLogHeaders(AppSettings settings) {
+    final headers = <String>[
+      'Name',
+      'Notes',
+      'DateTime',
+      'Link',
+      'Task Rule',
+      'Task Rule Notes',
+      'Task Rule Link',
+    ];
+    if (settings.enableTaskPriority) headers.add('Priority');
+    if (settings.enableTaskTags) headers.add('Tags');
+    headers.add('Interval');
+    // Snapshot stats only carry meaning when Strava tracking is enabled.
+    if (settings.enableStrava) {
+      headers.addAll([
+        'Distance [${settings.distanceUnit}]',
+        'Elevation [${settings.altitudeUnit}]',
+        'Moving Time [h]',
+        'Activities',
+      ]);
+    }
+    return headers;
+  }
+
+  /// Describes what a component/bike pair points at: a component, a bike, or
+  /// neither ("General"). Shared by task entries and their rules, which each
+  /// link to at most one of a component or a bike.
+  static String _linkLabel(String? componentId, String? bikeId, SelectedData data) {
+    if (componentId != null) {
+      return 'Component: ${data.components[componentId]?.name ?? '?'}';
+    }
+    if (bikeId != null) {
+      return 'Bike: ${data.bikes[bikeId]?.name ?? '?'}';
+    }
+    return 'General';
+  }
+
+  static String _intervalDisplay(TaskRule? taskRule, AppSettings appSettings) {
+    return taskRule?.interval?.toDisplayValue(
+          distanceUnit: appSettings.distanceUnit,
+          altitudeUnit: appSettings.altitudeUnit,
+          dateFormat: appSettings.dateFormat,
+        ) ??
+        '';
+  }
+
+  static void _appendTaskLogSheet(Excel excel, SelectedData data, AppSettings settings) {
+    if (!settings.enableTask) return;
+
+    final entries = _sortedTaskEntries(data);
+    if (entries.isEmpty) return;
+
+    final sheet = excel['Task Log'];
+    sheet.appendRow(_taskLogHeaders(settings).map((e) => TextCellValue(e)).toList());
+    for (final entry in entries) {
+      sheet.appendRow(_generateTaskEntryCellValueRow(entry, data, settings));
+    }
+  }
+
+  static List<CellValue> _generateTaskEntryCellValueRow(TaskEntry entry, SelectedData data, AppSettings settings) {
+    final rule = data.taskRules[entry.taskRule];
+    final dt = entry.dateTimeLocal;
+
+    final row = <CellValue>[
+      TextCellValue(entry.name),
+      TextCellValue(entry.notes ?? ''),
+      DateTimeCellValue(year: dt.year, month: dt.month, day: dt.day, hour: dt.hour, minute: dt.minute),
+      TextCellValue(_linkLabel(entry.componentId, entry.bikeId, data)),
+      TextCellValue(rule?.name ?? ''),
+      TextCellValue(rule?.notes ?? ''),
+      TextCellValue(rule != null ? _linkLabel(rule.componentId, rule.bikeId, data) : ''),
+    ];
+
+    if (settings.enableTaskPriority) row.add(TextCellValue(rule?.priority.label ?? ''));
+    if (settings.enableTaskTags) row.add(TextCellValue(rule?.tags.join('; ') ?? ''));
+    row.add(TextCellValue(_intervalDisplay(rule, settings)));
+
+    if (settings.enableStrava) {
+      final snapshot = entry.snapshot;
+      if (snapshot != null) {
+        row.addAll([
+          DoubleCellValue(AppSettings.convertDistanceFromMeters(snapshot.distance, settings.distanceUnit) ?? snapshot.distance),
+          DoubleCellValue(AppSettings.convertElevationFromMeters(snapshot.elevationGain, settings.altitudeUnit) ?? snapshot.elevationGain),
+          DoubleCellValue(snapshot.movingTime.inMinutes / 60),
+          IntCellValue(snapshot.activityCount),
+        ]);
+      } else {
+        row.addAll(List.filled(4, TextCellValue('')));
+      }
+    }
+
+    return row;
+  }
+
+  static List<String> _generateTaskEntryStringRow(TaskEntry taskEntry, SelectedData data, AppSettings appSettings) {
+    final taskRule = data.taskRules[taskEntry.taskRule];
+
+    final row = <String>[
+      taskEntry.name,
+      taskEntry.notes ?? '',
+      DateFormat('yyyy-MM-dd HH:mm').format(taskEntry.dateTimeLocal),
+      _linkLabel(taskEntry.componentId, taskEntry.bikeId, data),
+      taskRule?.name ?? '',
+      taskRule?.notes ?? '',
+      taskRule != null ? _linkLabel(taskRule.componentId, taskRule.bikeId, data) : '',
+    ];
+
+    if (appSettings.enableTaskPriority) row.add(taskRule?.priority.label ?? '');
+    if (appSettings.enableTaskTags) row.add(taskRule?.tags.join('; ') ?? '');
+    row.add(_intervalDisplay(taskRule, appSettings));
+
+    if (appSettings.enableStrava) {
+      final snapshot = taskEntry.snapshot;
+      if (snapshot != null) {
+        row.addAll([
+          (AppSettings.convertDistanceFromMeters(snapshot.distance, appSettings.distanceUnit) ?? snapshot.distance).toStringAsFixed(1),
+          (AppSettings.convertElevationFromMeters(snapshot.elevationGain, appSettings.altitudeUnit) ?? snapshot.elevationGain).round().toString(),
+          (snapshot.movingTime.inMinutes / 60).toStringAsFixed(1),
+          snapshot.activityCount.toString(),
+        ]);
+      } else {
+        row.addAll(List.filled(4, ''));
       }
     }
 

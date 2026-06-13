@@ -5,6 +5,7 @@ import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
+import '../models/task/task_entry.dart';
 import '../models/weather.dart';
 import '../repositories/app_repository.dart';
 
@@ -48,6 +49,20 @@ String toText({
       _appendSetupText(buffer, setup, selectedData.bikes, selectedData.persons, selectedData.components, selectedData.ratings, appSettings);
       if (i < setups.length - 1) {
         buffer.writeln("\n-----------\n");
+      }
+    }
+  }
+
+  final taskEntries = selectedData.taskEntries.values.where((e) => !e.isDeleted).toList();
+  taskEntries.sort((a, b) => b.dateTimeUTC.compareTo(a.dateTimeUTC)); // Sort newest first
+
+  if (appSettings.enableTask && taskEntries.isNotEmpty) {
+    if (buffer.isNotEmpty) buffer.writeln("\n-----------\n");
+    buffer.writeln("TASK LOG:");
+    for (int i = 0; i < taskEntries.length; i++) {
+      _appendTaskEntryText(buffer, taskEntries[i], selectedData, appSettings);
+      if (i < taskEntries.length - 1) {
+        buffer.writeln();
       }
     }
   }
@@ -147,6 +162,65 @@ void _appendSetupText(
       }
     }
   }
+}
+
+void _appendTaskEntryText(
+  StringBuffer buffer,
+  TaskEntry entry,
+  SelectedData data,
+  AppSettings settings,
+) {
+  final dateString = DateFormat(settings.dateFormat).format(entry.dateTimeLocal);
+  final timeString = DateFormat(settings.timeFormat).format(entry.dateTimeLocal);
+
+  final entryLink = _taskLinkLabel(entry.componentId, entry.bikeId, data);
+  final contextString = entryLink != null ? ' ($entryLink)' : '';
+
+  buffer.writeln("✅ $dateString $timeString - ${entry.name}$contextString${entry.isDeleted ? ' [DELETED]' : ''}");
+
+  final rule = data.taskRules[entry.taskRule];
+  if (rule != null) {
+    final ruleLink = _taskLinkLabel(rule.componentId, rule.bikeId, data);
+    buffer.writeln("📋 ${rule.name}${ruleLink != null ? ' ($ruleLink)' : ''}");
+
+    final metaParts = [
+      if (settings.enableTaskPriority) rule.priority.label,
+      if (settings.enableTaskTags && rule.tags.isNotEmpty) '🏷️ ${rule.tags.join(', ')}',
+    ];
+    if (metaParts.isNotEmpty) {
+      buffer.writeln(metaParts.join(' · '));
+    }
+
+    if (rule.notes != null && rule.notes!.isNotEmpty) {
+      buffer.writeln(rule.notes!);
+    }
+  }
+
+  if (entry.notes != null && entry.notes!.isNotEmpty) {
+    buffer.writeln(entry.notes!);
+  }
+
+  final snapshot = entry.snapshot;
+  if (settings.enableStrava && snapshot != null) {
+    final distance = AppSettings.convertDistanceFromMeters(snapshot.distance, settings.distanceUnit)?.round() ?? snapshot.distance.round();
+    final elevation = AppSettings.convertElevationFromMeters(snapshot.elevationGain, settings.altitudeUnit)?.round() ?? snapshot.elevationGain.round();
+    buffer.writeln(
+      "📈 $distance ${settings.distanceUnit}, "
+      "$elevation ${settings.altitudeUnit}, "
+      "${snapshot.movingTime.inHours}h ${snapshot.movingTime.inMinutes.remainder(60)}m, "
+      "${snapshot.activityCount} rides",
+    );
+  }
+}
+
+String? _taskLinkLabel(String? componentId, String? bikeId, SelectedData data) {
+  if (componentId != null) {
+    return 'Component: ${data.components[componentId]?.name ?? '?'}';
+  }
+  if (bikeId != null) {
+    return 'Bike: ${data.bikes[bikeId]?.name ?? '?'}';
+  }
+  return null;
 }
 
 String _generateContextLine(Setup setup, AppSettings settings) {

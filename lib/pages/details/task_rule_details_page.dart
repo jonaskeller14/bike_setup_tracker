@@ -5,7 +5,6 @@ import '../../repositories/app_repository.dart';
 import '../../utils/task_actions.dart';
 import '../../widgets/flash_highlight.dart';
 import '../../widgets/items/task_entry_list_item.dart';
-import '../../widgets/sheets/sheet.dart';
 import '../../widgets/task_rule_display_card.dart';
 import '../../widgets/text/section_title.dart';
 
@@ -45,10 +44,8 @@ class TaskRuleDetailsPage extends StatelessWidget {
 class TaskRuleDetailsPageContent extends StatelessWidget {
   final String taskRuleId;
   final String? highlightTaskEntryId;
-  final bool showEditButton;
-  final bool showCloseButton;
 
-  const TaskRuleDetailsPageContent({super.key, required this.taskRuleId, this.highlightTaskEntryId, this.showEditButton = false, this.showCloseButton = false});
+  const TaskRuleDetailsPageContent({super.key, required this.taskRuleId, this.highlightTaskEntryId});
 
   Widget _noTaskEntriesPlaceholder(BuildContext context) {
     return Container(
@@ -81,24 +78,7 @@ class TaskRuleDetailsPageContent extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 16,
-              children: [
-                Expanded(
-                  child: TaskRuleDisplayCard(taskRule: taskRule, showStatus: true),
-                ),
-                if (showCloseButton || showEditButton)
-                  Column(
-                    children: [
-                      if (showCloseButton)
-                        sheetCloseButton(context),
-                      if (showEditButton)
-                        sheetEditButton(context, onPressed: () => TaskActions.editTaskRule(context, taskRule: taskRule)),
-                    ],
-                  )
-              ],
-            ),
+            child: TaskRuleDisplayCard(taskRule: taskRule, showStatus: true),
           ),
           const SizedBox(height: 16),
 

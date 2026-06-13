@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
@@ -188,6 +189,35 @@ class _TaskRulePageState extends State<TaskRulePage> {
     super.dispose();
   }
 
+  bool _thresholdNeedsAsset(_ThresholdType type) {
+    switch (type) {
+      case _ThresholdType.distance:
+      case _ThresholdType.elevation:
+      case _ThresholdType.movingTime:
+      case _ThresholdType.activityCount:
+        return true;
+      case _ThresholdType.none:
+      case _ThresholdType.duration:
+      case _ThresholdType.dateTime:
+        return false;
+    }
+  }
+
+  bool get _needsAsset =>
+      _thresholdNeedsAsset(_intervalType) || _thresholdNeedsAsset(_delayType);
+
+  List<TextInputFormatter>? _valueInputFormatters(_ThresholdType type) {
+    return switch (type) {
+      _ThresholdType.distance ||
+      _ThresholdType.elevation => [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))],
+      _ThresholdType.movingTime ||
+      _ThresholdType.duration ||
+      _ThresholdType.activityCount => [FilteringTextInputFormatter.digitsOnly],
+      _ThresholdType.dateTime ||
+      _ThresholdType.none => null,
+    };
+  }
+
   TaskThreshold? _createThreshold(_ThresholdType type, String value, DateTime? date) {
     if (type == _ThresholdType.none) return null;
     final doubleVal = double.tryParse(value) ?? 0;
@@ -221,17 +251,6 @@ class _TaskRulePageState extends State<TaskRulePage> {
     final delay = (_intervalType == _ThresholdType.dateTime)
         ? null
         : _createThreshold(_delayType, _delayValueController.text, null);
-
-    // Validation
-    final needsAsset = (interval is DistanceThreshold || interval is MovingTimeThreshold || interval is ActivityCountThreshold || interval is ElevationThreshold) ||
-                       (delay is DistanceThreshold || delay is MovingTimeThreshold || delay is ActivityCountThreshold || delay is ElevationThreshold);
-    
-    if (needsAsset && _association.componentId == null && _association.bikeId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Distance, Time, or Activity triggers require a linked Bike or Component.')),
-      );
-      return;
-    }
 
     _formHasChanges = false;
 
@@ -552,6 +571,12 @@ class _TaskRulePageState extends State<TaskRulePage> {
                               _changeListener();
                             }
                           },
+                          validator: (v) {
+                            if (_needsAsset && (v == null || (v.bikeId == null && v.componentId == null))) {
+                              return 'The selected trigger needs a linked Bike or Component';
+                            }
+                            return null;
+                          },
                         ),
                       ],
                     ),
@@ -630,7 +655,11 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                   flex: 3,
                                   child: TextFormField(
                                     controller: _intervalValueController,
-                                    keyboardType: TextInputType.number,
+                                    keyboardType: TextInputType.numberWithOptions(
+                                      decimal: _intervalType == _ThresholdType.distance || _intervalType == _ThresholdType.elevation,
+                                      signed: false,
+                                    ),
+                                    inputFormatters: _valueInputFormatters(_intervalType),
                                     onChanged: (value) => setState(() {}),
                                     decoration: InputDecoration(
                                       labelText: "Value",
@@ -708,7 +737,11 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                       flex: 3,
                                       child: TextFormField(
                                         controller: _delayValueController,
-                                        keyboardType: TextInputType.number,
+                                        keyboardType: TextInputType.numberWithOptions(
+                                          decimal: _delayType == _ThresholdType.distance || _delayType == _ThresholdType.elevation,
+                                          signed: false,
+                                        ),
+                                        inputFormatters: _valueInputFormatters(_delayType),
                                         decoration: InputDecoration(
                                           labelText: "Delay Value",
                                           suffixText: switch (_delayType) {

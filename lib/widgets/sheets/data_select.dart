@@ -681,6 +681,21 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
+    
+    final allCount = widget.allData.bikes.length +
+        widget.allData.components.length +
+        widget.allData.setups.length +
+        widget.allData.persons.length +
+        widget.allData.ratings.length +
+        widget.allData.taskRules.length +
+        widget.allData.taskEntries.length;
+    final selectedCount = selectedBikes.length +
+        selectedComponents.length +
+        selectedSetups.length +
+        selectedPersons.length +
+        selectedRatings.length +
+        selectedTaskRules.length +
+        selectedTaskEntries.length;
 
     return SafeArea(
       child: Column(
@@ -883,17 +898,17 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
             child: FilledButton(
               onPressed: () {
                 final selectedData = SelectedData(
-                  persons: <String, Person>{for (var item in selectedPersons) item.id: item},
-                  bikes: <String, Bike>{for (var item in selectedBikes) item.id: item},
-                  components: <String, Component>{for (var item in selectedComponents) item.id: item},
-                  setups: <String, Setup>{for (var item in selectedSetups) item.id: item},
-                  ratings: <String, Rating>{for (var item in selectedRatings) item.id: item},
-                  taskRules: <String, TaskRule>{for (var item in selectedTaskRules) item.id: item},
-                  taskEntries: <String, TaskEntry>{for (var item in selectedTaskEntries) item.id: item}
+                  persons: Map.fromEntries(selectedPersons.map((p) => MapEntry(p.id, p))),
+                  bikes: Map.fromEntries(selectedBikes.map((b) => MapEntry(b.id, b))),
+                  components: Map.fromEntries(selectedComponents.map((c) => MapEntry(c.id, c))),
+                  setups: Map.fromEntries(selectedSetups.map((s) => MapEntry(s.id, s))),
+                  ratings: Map.fromEntries(selectedRatings.map((r) => MapEntry(r.id, r))),
+                  taskRules: Map.fromEntries(selectedTaskRules.map((tr) => MapEntry(tr.id, tr))),
+                  taskEntries: Map.fromEntries(selectedTaskEntries.map((te) => MapEntry(te.id, te))),
                 );
                 widget.onConfirm(selectedData);
               },
-              child: const Text("Confirm Selection"),
+              child: Text("Confirm Selection ($selectedCount / $allCount)"),
             ),
           ),
         ],

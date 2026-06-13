@@ -229,6 +229,25 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     return null;
   }
 
+  String _describeAssociation(_TaskAssociation association, Map<String, Bike> bikes, Map<String, Component> components) {
+    if (association.componentId != null) {
+      return components[association.componentId]?.name ?? "a deleted component";
+    }
+    if (association.bikeId != null) {
+      return bikes[association.bikeId]?.name ?? "a deleted bike";
+    }
+    return "a general task";
+  }
+
+  String? _linkMismatchWarning(Map<String, Bike> bikes, Map<String, Component> components) {
+    final ruleAssociation = _TaskAssociation(
+      componentId: widget.taskRule.componentId,
+      bikeId: widget.taskRule.bikeId,
+    );
+    if (_association == ruleAssociation) return null;
+    return 'WARNING: Differs from the task rule, which is linked to ${_describeAssociation(ruleAssociation, bikes, components)}.';
+  }
+
   DropdownMenuItem<_TaskAssociation> _dropdownMenuItemNone() {
     return const DropdownMenuItem<_TaskAssociation>(
       value: _TaskAssociation(),
@@ -414,6 +433,9 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                         border: const OutlineInputBorder(),
                         fillColor: Colors.orange.withValues(alpha: 0.08),
                         filled: _association != _initialAssociation,
+                        helperText: _linkMismatchWarning(bikes, components),
+                        helperMaxLines: 3,
+                        helperStyle: TextStyle(color: Theme.of(context).colorScheme.error),
                       ),
                       items: [
                         _dropdownMenuItemNone(),

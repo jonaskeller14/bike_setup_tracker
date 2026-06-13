@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -41,11 +42,32 @@ class TaskRuleDetailsPage extends StatelessWidget {
   }
 }
 
-class TaskRuleDetailsPageContent extends StatelessWidget {
+class TaskRuleDetailsPageContent extends StatefulWidget {
   final String taskRuleId;
   final String? highlightTaskEntryId;
 
   const TaskRuleDetailsPageContent({super.key, required this.taskRuleId, this.highlightTaskEntryId});
+
+  @override
+  State<TaskRuleDetailsPageContent> createState() => _TaskRuleDetailsPageContentState();
+}
+
+class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent> {
+  final GlobalKey _highlightKey = GlobalKey();
+  bool _didScrollToHighlight = false;
+
+  void _scrollToHighlight() {
+    if (_didScrollToHighlight) return;
+    final context = _highlightKey.currentContext;
+    if (context == null) return;
+    _didScrollToHighlight = true;
+    unawaited(Scrollable.ensureVisible(
+      context,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+      alignment: 0.3,
+    ));
+  }
 
   Widget _noTaskEntriesPlaceholder(BuildContext context) {
     return Container(
@@ -68,10 +90,16 @@ class TaskRuleDetailsPageContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
 
-    final taskRule = appRepository.taskRules[taskRuleId];
+    final taskRule = appRepository.taskRules[widget.taskRuleId];
     if (taskRule == null) return const SizedBox.shrink();
 
     final taskEntries = appRepository.taskEntries.values.where((te) => te.taskRule == taskRule.id).sortedBy((te) => te.dateTimeUTC);
+
+    // After the list is laid out, bring the highlighted entry into view.
+    if (widget.highlightTaskEntryId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToHighlight());
+    }
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,8 +123,10 @@ class TaskRuleDetailsPageContent extends StatelessWidget {
               final reversedList = taskEntries.reversed.toList();
               final previousEntry = (index + 1 < reversedList.length) ? reversedList[index + 1] : null;
               
+              final isHighlighted = widget.highlightTaskEntryId != null && te.id == widget.highlightTaskEntryId;
               return FlashHighlight(
-                highlighted: highlightTaskEntryId != null && te.id == highlightTaskEntryId,
+                key: isHighlighted ? _highlightKey : null,
+                highlighted: isHighlighted,
                 child: TaskEntryListItem(
                   taskEntryId: te.id,
                   previousSnapshot: previousEntry?.snapshot,

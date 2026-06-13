@@ -42,7 +42,9 @@ class HelpPage extends StatelessWidget {
                 subtitle: const Text("Show onboarding slides to get started."),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                 onTap: () {
-                  context.read<AppSettings>().showOnboarding = true;
+                  final appSettings = context.read<AppSettings>();
+                  appSettings.showAllHints();
+                  appSettings.showOnboarding = true;
                   Navigator.pop(context);  // pop Help Page
                   Navigator.pop(context);  // pop Settings Page
                 },

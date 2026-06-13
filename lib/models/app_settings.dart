@@ -329,6 +329,11 @@ class AppSettings extends ChangeNotifier {
     notifyListeners();
   }
 
+  void showAllHints() {
+    showStravaLinkGearHint = true;
+    showGarageListHint = true;
+  }
+
   void _persistBool(String name, bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('$_kPrefix$name', value);

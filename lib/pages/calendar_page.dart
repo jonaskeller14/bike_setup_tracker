@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -20,6 +19,12 @@ const Duration kCalendarZeroDuration = Duration(minutes: 30);
 const Color kCalendarStravaColor = Color(0xFFFC4C02); // Strava brand orange
 const Duration kCalendarScrollLeadIn = Duration(minutes: 30);
 const int kCalendarFallbackHour = 6;
+
+const double kCalendarHeaderHeight = 48;
+/// Approximate height of the weekday-label row above the month grid.
+const double kCalendarViewHeaderHeight = 30;
+const int kCalendarMonthWeekRows = 6;
+const double kCalendarMonthCellMinHeight = 95;
 
 IconData calendarIconFor(TimelineEntry entry) => switch (entry) {
       SetupEntry() => Setup.iconData,
@@ -133,18 +138,7 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    // Syncfusion's month-view layout crashes when the month cells get too short
-    unawaited(SystemChrome.setPreferredOrientations(const [
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]));
-  }
-
-  @override
   void dispose() {
-    unawaited(SystemChrome.setPreferredOrientations(DeviceOrientation.values));
     _controller.dispose();
     super.dispose();
   }
@@ -367,106 +361,111 @@ class _CalendarPageState extends State<CalendarPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-          Expanded(
-            child: SfCalendarTheme(
-              data: SfCalendarThemeData(
-                backgroundColor: cs.surface,
-                todayHighlightColor: cs.primary,
-                cellBorderColor: cs.outlineVariant,
-                activeDatesTextStyle: TextStyle(
-                  color: cs.onSurface,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-                leadingDatesTextStyle: TextStyle(
-                  color: cs.onSurfaceVariant.withValues(alpha: 0.5),
-                  fontSize: 14,
-                ),
-              ),
-              child: SfCalendar(
-                controller: _controller,
-                view: _defaultView.view,
-                firstDayOfWeek: appSettings.firstDayOfWeek,
-                maxDate: DateTime.now().add(kCalendarZeroDuration),
-                dataSource: _TimelineDataSource(entries, cs),
-                allowDragAndDrop: true,
-                dragAndDropSettings: DragAndDropSettings(
-                  indicatorTimeFormat: appSettings.timeFormat,
-                ),
-                showDatePickerButton: true,
-                backgroundColor: cs.surface,
-                cellBorderColor: cs.outlineVariant,
-                todayHighlightColor: cs.primary,
-                headerHeight: 48,
-                headerDateFormat: 'MMMM yyyy',
-                headerStyle: CalendarHeaderStyle(
-                  textAlign: TextAlign.left,
-                  backgroundColor: Colors.transparent,
-                  textStyle: TextStyle(
-                    color: cs.onSurface,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                viewHeaderStyle: ViewHeaderStyle(
-                  backgroundColor: cs.surface,
-                  dayTextStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
-                  dateTextStyle: TextStyle(
-                    color: cs.onSurface,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                onTap: (details) => _onTap(details, entries),
-                onDragEnd: _onDragEnd,
-                onViewChanged: (ViewChangedDetails details) {
-                  _ensureStravaCoverage(details.visibleDates);
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (mounted) setState(() => _visibleDates = details.visibleDates);
-                  });
-                },
-                appointmentBuilder: _appointmentBuilder,
-                timeSlotViewSettings: TimeSlotViewSettings(
-                  numberOfDaysInView: _selectedView.days,
-                  timeIntervalHeight: 60,
-                  timeFormat: appSettings.timeFormat,
-                  timeTextStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
-                  dayFormat: 'EEE',
-                ),
-                scheduleViewSettings: ScheduleViewSettings(
-                  hideEmptyScheduleWeek: true,
-                  appointmentItemHeight: 56,
-                  monthHeaderSettings: MonthHeaderSettings(
-                    height: 56,
-                    monthFormat: 'MMMM yyyy',
-                    backgroundColor: cs.surfaceContainerHighest,
-                    monthTextStyle: TextStyle(
-                      color: cs.onSurface,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  weekHeaderSettings: WeekHeaderSettings(
+            Expanded(
+              child: LayoutBuilder(builder: (context, constraints) {
+                final cellHeight = (constraints.maxHeight - kCalendarHeaderHeight - kCalendarViewHeaderHeight) / kCalendarMonthWeekRows;
+                return SfCalendarTheme(
+                  data: SfCalendarThemeData(
                     backgroundColor: cs.surface,
-                    weekTextStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
-                  ),
-                  dayHeaderSettings: DayHeaderSettings(
-                    dayTextStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
-                    dateTextStyle: TextStyle(
+                    todayHighlightColor: cs.primary,
+                    cellBorderColor: cs.outlineVariant,
+                    activeDatesTextStyle: TextStyle(
                       color: cs.onSurface,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    leadingDatesTextStyle: TextStyle(
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+                      fontSize: 14,
                     ),
                   ),
-                  appointmentTextStyle: TextStyle(color: cs.onSurface, fontSize: 13),
-                ),
-                monthViewSettings: const MonthViewSettings(
-                  appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
-                  appointmentDisplayCount: 4,
-                ),
-              ),
+                  child: SfCalendar(
+                    controller: _controller,
+                    view: _defaultView.view,
+                    firstDayOfWeek: appSettings.firstDayOfWeek,
+                    maxDate: DateTime.now().add(kCalendarZeroDuration),
+                    dataSource: _TimelineDataSource(entries, cs),
+                    allowDragAndDrop: true,
+                    dragAndDropSettings: DragAndDropSettings(
+                      indicatorTimeFormat: appSettings.timeFormat,
+                    ),
+                    showDatePickerButton: true,
+                    backgroundColor: cs.surface,
+                    cellBorderColor: cs.outlineVariant,
+                    todayHighlightColor: cs.primary,
+                    headerHeight: kCalendarHeaderHeight,
+                    headerDateFormat: 'MMMM yyyy',
+                    headerStyle: CalendarHeaderStyle(
+                      textAlign: TextAlign.left,
+                      backgroundColor: Colors.transparent,
+                      textStyle: TextStyle(
+                        color: cs.onSurface,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    viewHeaderStyle: ViewHeaderStyle(
+                      backgroundColor: cs.surface,
+                      dayTextStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
+                      dateTextStyle: TextStyle(
+                        color: cs.onSurface,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    onTap: (details) => _onTap(details, entries),
+                    onDragEnd: _onDragEnd,
+                    onViewChanged: (ViewChangedDetails details) {
+                      _ensureStravaCoverage(details.visibleDates);
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (mounted) setState(() => _visibleDates = details.visibleDates);
+                      });
+                    },
+                    appointmentBuilder: _appointmentBuilder,
+                    timeSlotViewSettings: TimeSlotViewSettings(
+                      numberOfDaysInView: _selectedView.days,
+                      timeIntervalHeight: 60,
+                      timeFormat: appSettings.timeFormat,
+                      timeTextStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
+                      dayFormat: 'EEE',
+                    ),
+                    scheduleViewSettings: ScheduleViewSettings(
+                      hideEmptyScheduleWeek: true,
+                      appointmentItemHeight: 56,
+                      monthHeaderSettings: MonthHeaderSettings(
+                        height: 56,
+                        monthFormat: 'MMMM yyyy',
+                        backgroundColor: cs.surfaceContainerHighest,
+                        monthTextStyle: TextStyle(
+                          color: cs.onSurface,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      weekHeaderSettings: WeekHeaderSettings(
+                        backgroundColor: cs.surface,
+                        weekTextStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
+                      ),
+                      dayHeaderSettings: DayHeaderSettings(
+                        dayTextStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
+                        dateTextStyle: TextStyle(
+                          color: cs.onSurface,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      appointmentTextStyle: TextStyle(color: cs.onSurface, fontSize: 13),
+                    ),
+                    monthViewSettings: MonthViewSettings(
+                      appointmentDisplayMode: cellHeight >= kCalendarMonthCellMinHeight
+                          ? MonthAppointmentDisplayMode.appointment
+                          : MonthAppointmentDisplayMode.indicator,
+                      appointmentDisplayCount: 4,
+                    ),
+                  ),
+                );
+              }),
             ),
-          ),
           ],
         ),
       ),
@@ -504,8 +503,13 @@ class _CalendarPageState extends State<CalendarPage> {
     // gated mainly on width, so it still shows in the short-but-wide month rows.
     final bool showIcon = width >= 16 && height >= 8;
     final bool showText = width >= 40 && height >= 9;
-    final double iconSize = height < 16 ? 9 : (height < 20 ? 11 : 14);
+    final double baseIconSize = height < 16 ? 9 : (height < 20 ? 11 : 14);
     final double fontSize = height < 18 ? 9 : (height < 28 ? 10 : 12);
+    // Slim parallel events (week view) can be narrow but tall: cap the icon to
+    // the width left after padding — and the icon/label gap when text shows —
+    // so a height-sized icon never spills past a thin column.
+    final double iconBudget = showText ? width - 12 : width - 4;
+    final double iconSize = iconBudget <= 0 ? 0 : (baseIconSize < iconBudget ? baseIconSize : iconBudget);
 
     return Container(
       clipBehavior: Clip.hardEdge,
@@ -515,12 +519,12 @@ class _CalendarPageState extends State<CalendarPage> {
       child: !showIcon
           ? const SizedBox.shrink()
           : Row(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisSize: MainAxisSize.max,
               spacing: 4,
               children: [
                 Icon(calendarIconFor(entry), size: iconSize, color: onColor),
                 if (showText)
-                  Flexible(
+                  Expanded(
                     child: Text(
                       calendarSubjectFor(entry),
                       maxLines: 1,

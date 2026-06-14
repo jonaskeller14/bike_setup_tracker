@@ -289,7 +289,13 @@ class FileExport {
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error preparing JSON: $e'), backgroundColor: Theme.of(context).colorScheme.errorContainer),
+        SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+          content: Text('Error preparing JSON: $e', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
+          backgroundColor: Theme.of(context).colorScheme.errorContainer
+        ),
       );
     }
   }
@@ -320,7 +326,13 @@ class FileExport {
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error preparing Excel: $e'), backgroundColor: Theme.of(context).colorScheme.errorContainer),
+        SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+          content: Text('Error preparing Excel: $e', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
+          backgroundColor: Theme.of(context).colorScheme.errorContainer
+        ),
       );
     }
   }
@@ -350,7 +362,13 @@ class FileExport {
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error preparing CSV: $e'), backgroundColor: Theme.of(context).colorScheme.errorContainer),
+        SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
+          content: Text('Error preparing CSV: $e', style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
+          backgroundColor: Theme.of(context).colorScheme.errorContainer
+        ),
       );
     }
   }

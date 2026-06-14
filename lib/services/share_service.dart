@@ -30,7 +30,7 @@ class ShareService {
           persist: false,
           showCloseIcon: true,
           closeIconColor: onErrorContainerColor,
-          content: Text('${errorMessage ?? 'Error sharing file'}: $e'),
+          content: Text('${errorMessage ?? 'Error sharing file'}: $e', style: TextStyle(color: onErrorContainerColor)),
           backgroundColor: errorContainerColor,
         ),
       );
@@ -63,7 +63,7 @@ class ShareService {
           persist: false,
           showCloseIcon: true,
           closeIconColor: onErrorContainerColor,
-          content: Text('${errorMessage ?? 'Error sharing text'}: $e'),
+          content: Text('${errorMessage ?? 'Error sharing text'}: $e', style: TextStyle(color: onErrorContainerColor)),
           backgroundColor: errorContainerColor,
         ),
       );

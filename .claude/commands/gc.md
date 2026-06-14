@@ -9,6 +9,7 @@ Commit the changes that are **already staged**. Do not stage anything yourself.
 ## Steps
 1. Inspect staged changes: `git diff --cached --stat` and `git diff --cached`.
    - If nothing is staged, STOP and tell the user there is nothing to commit (do not run `git add`).
+   - Scan the staged diff for obvious (major) errors or typos — e.g. syntax errors, broken/leftover debug code, obviously wrong identifiers, or misspellings in user-facing strings. If any exist, STOP and return the list of errors to the user (do not commit). Ignore stylistic nitpicks.
 2. If `$ARGUMENTS` is provided, use it as the commit message (or as a strong subject/hint).
    Otherwise write a concise message in this repo's Conventional Commit style:
    `type(scope): summary` where `type` ∈ feat | fix | refactor | docs | chore | test | perf |

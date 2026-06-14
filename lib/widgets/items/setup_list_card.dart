@@ -268,6 +268,7 @@ class SetupListCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
+    final appSettings = context.watch<AppSettings>();
     final setups = appRepository.setups;
     final components = appRepository.components;
     final persons = appRepository.persons;
@@ -310,8 +311,8 @@ class SetupListCard extends StatelessWidget {
                     highlightInitialValues: true,
                     displayOnlyChanges: displayOnlyChanges,
                     displayBikeAdjustmentValues: displayBikeAdjustmentValues,
-                    displayPersonAdjustmentValues: displayPersonAdjustmentValues,
-                    displayRatingAdjustmentValues: displayRatingAdjustmentValues,
+                    displayPersonAdjustmentValues: displayPersonAdjustmentValues && appSettings.enablePerson,
+                    displayRatingAdjustmentValues: displayRatingAdjustmentValues && appSettings.enableRating,
                   ),
                 ),
               ],

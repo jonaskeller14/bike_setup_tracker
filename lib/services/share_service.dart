@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 
 class ShareService {
   static Future<void> shareFile({
     required BuildContext context,
     required String filePath,
-    required String subject,
     required String text,
     String? errorMessage,
   }) async {
+    final fileName = p.basename(filePath);
     final box = context.findRenderObject() as RenderBox?;
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
@@ -17,9 +18,9 @@ class ShareService {
     try {
       await SharePlus.instance.share(
         ShareParams(
-          subject: subject,
           text: text,
           files: [XFile(filePath)],
+          fileNameOverrides: [fileName],
           sharePositionOrigin: box != null ? box.localToGlobal(Offset.zero) & box.size : null,
           downloadFallbackEnabled: true,
         ),
@@ -40,7 +41,6 @@ class ShareService {
   static Future<void> shareText({
     required BuildContext context,
     required String text,
-    String subject = 'Bike Setup Export',
     String? errorMessage,
   }) async {
     final box = context.findRenderObject() as RenderBox?;
@@ -51,7 +51,6 @@ class ShareService {
     try {
       await SharePlus.instance.share(
         ShareParams(
-          subject: subject,
           text: text,
           sharePositionOrigin: box != null ? box.localToGlobal(Offset.zero) & box.size : null,
           downloadFallbackEnabled: true,

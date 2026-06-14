@@ -274,7 +274,7 @@ class FileExport {
       final String jsonString = jsonEncode(exportData);
 
       final Directory tempDir = await getTemporaryDirectory();
-      final String filePath = '${tempDir.path}/bike_setup_data.json';
+      final String filePath = '${tempDir.path}/bike_setup_tracker.json';
       final File file = File(filePath);
       await file.writeAsString(jsonString);
 
@@ -282,7 +282,6 @@ class FileExport {
       await ShareService.shareFile(
         context: context,
         filePath: filePath,
-        subject: 'Bike Setup Backup',
         text: 'Here is my bike setup data!',
         errorMessage: 'Error sharing file',
       );
@@ -311,7 +310,7 @@ class FileExport {
       if (bytes == null) throw Exception("Failed to encode Excel file");
 
       final Directory tempDir = await getTemporaryDirectory();
-      final String filePath = '${tempDir.path}/bike_setup_export.xlsx';
+      final String filePath = '${tempDir.path}/bike_setup_tracker.xlsx';
       final File file = File(filePath);
       await file.writeAsBytes(bytes);
 
@@ -319,7 +318,6 @@ class FileExport {
       await ShareService.shareFile(
         context: context,
         filePath: filePath,
-        subject: 'Bike Setup Export',
         text: 'Here is my bike setup data in Excel format!',
         errorMessage: 'Error sharing Excel file',
       );
@@ -347,7 +345,7 @@ class FileExport {
       final csvString = SpreadsheetExport.toCsv(data, settings);
 
       final Directory tempDir = await getTemporaryDirectory();
-      final String filePath = '${tempDir.path}/bike_setup_export.csv';
+      final String filePath = '${tempDir.path}/bike_setup_tracker.csv';
       final File file = File(filePath);
       await file.writeAsString(csvString);
 
@@ -355,7 +353,6 @@ class FileExport {
       await ShareService.shareFile(
         context: context,
         filePath: filePath,
-        subject: 'Bike Setup Export',
         text: 'Here is my bike setup data in CSV format!',
         errorMessage: 'Error sharing CSV file',
       );

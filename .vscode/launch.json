@@ -34,6 +34,12 @@
             "deviceId": "D2F6409F-6083-4CA3-A1FA-097FBD2B14DE"
         },
         {
+            "name": "iPhone 17",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "C08725E6-5BD6-443C-9B85-11C3A713A7A0"
+        },
+        {
             "name": "Android Emulator",
             "request": "launch",
             "type": "dart",

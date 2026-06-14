@@ -22,9 +22,9 @@ import UIKit
 // Each intent simply opens the app's existing deep link; the Flutter-side
 // DeepLinkService (lib/services/deep_link_service.dart) maps the URL to the
 // matching add flow (SetupActions.addSetup / TaskActions.addTaskRule).
-// iOS 16+ only — on iOS 15 the provider is never registered (graceful no-op).
+// iOS 18+ only — on older versions the provider is never registered (graceful no-op).
 
-@available(iOS 16.0, *)
+@available(iOS 18.0, *)
 struct AddSetupIntent: AppIntent {
   static var title: LocalizedStringResource = "Add a Setup"
   static var description = IntentDescription("Start creating a new setup.")
@@ -36,7 +36,7 @@ struct AddSetupIntent: AppIntent {
   }
 }
 
-@available(iOS 16.0, *)
+@available(iOS 18.0, *)
 struct AddBikeIntent: AppIntent {
   static var title: LocalizedStringResource = "Add a Bike"
   static var description = IntentDescription("Start adding a new bike.")
@@ -48,7 +48,7 @@ struct AddBikeIntent: AppIntent {
   }
 }
 
-@available(iOS 16.0, *)
+@available(iOS 18.0, *)
 struct AddComponentIntent: AppIntent {
   static var title: LocalizedStringResource = "Add a Component"
   static var description = IntentDescription("Start adding a new component.")
@@ -60,7 +60,7 @@ struct AddComponentIntent: AppIntent {
   }
 }
 
-@available(iOS 16.0, *)
+@available(iOS 18.0, *)
 struct AddTaskIntent: AppIntent {
   static var title: LocalizedStringResource = "Add a Task"
   static var description = IntentDescription("Start creating a new maintenance task.")
@@ -72,7 +72,7 @@ struct AddTaskIntent: AppIntent {
   }
 }
 
-@available(iOS 16.0, *)
+@available(iOS 18.0, *)
 struct BikeTrackerAppShortcuts: AppShortcutsProvider {
   static var appShortcuts: [AppShortcut] {
     AppShortcut(

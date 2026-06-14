@@ -33,15 +33,18 @@ class OnboardingSlide2 extends StatelessWidget {
                   child: Icon(Bike.iconData, size: 120),
                 ),
                 const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  spacing: 12,
-                  children: [
-                    DelayedFade(delay: 400, keyId: "onboarding_icon_fork", child: _smallComponentIconCard(BikeIcons.fork)),
-                    DelayedFade(delay: 700, keyId: "onboarding_icon_shock", child: _smallComponentIconCard(BikeIcons.shock)),
-                    DelayedFade(delay: 1000, keyId: "onboarding_icon_wheelFront", child: _smallComponentIconCard(BikeIcons.wheelFront)), 
-                    DelayedFade(delay: 1300, keyId: "onboarding_icon_wheelRear", child: _smallComponentIconCard(BikeIcons.wheelRear)),
-                  ],
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: 12,
+                    children: [
+                      DelayedFade(delay: 400, keyId: "onboarding_icon_fork", child: _smallComponentIconCard(BikeIcons.fork)),
+                      DelayedFade(delay: 700, keyId: "onboarding_icon_shock", child: _smallComponentIconCard(BikeIcons.shock)),
+                      DelayedFade(delay: 1000, keyId: "onboarding_icon_wheelFront", child: _smallComponentIconCard(BikeIcons.wheelFront)),
+                      DelayedFade(delay: 1300, keyId: "onboarding_icon_wheelRear", child: _smallComponentIconCard(BikeIcons.wheelRear)),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 60),
                 stepWidget(context: context, step: 1),

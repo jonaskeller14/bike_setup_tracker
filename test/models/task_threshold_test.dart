@@ -60,4 +60,61 @@ void main() {
       expect(threshold.isMet(currentStats, baselineStats, currentDate, baselineDate, delay: delay), isFalse);
     });
   });
+
+  group('ElapsedTimeThreshold', () {
+    final baselineDate = DateTime(2023, 1, 1);
+    final currentDate = DateTime(2023, 1, 10);
+
+    final baselineStats = const ComponentStats(
+      distance: 1000,
+      elevationGain: 100,
+      movingTime: Duration(hours: 1),
+      elapsedTime: Duration(hours: 2),
+      activityCount: 1,
+    );
+
+    final currentStats = const ComponentStats(
+      distance: 5000,
+      elevationGain: 350,
+      movingTime: Duration(hours: 5),
+      elapsedTime: Duration(hours: 12), // Diff: 10h
+      activityCount: 5,
+    );
+
+    test('isMet returns true when elapsed time exceeds threshold', () {
+      const threshold = ElapsedTimeThreshold(Duration(hours: 8));
+      expect(threshold.isMet(currentStats, baselineStats, currentDate, baselineDate), isTrue);
+    });
+
+    test('isMet returns false when elapsed time is below threshold', () {
+      const threshold = ElapsedTimeThreshold(Duration(hours: 12));
+      expect(threshold.isMet(currentStats, baselineStats, currentDate, baselineDate), isFalse);
+    });
+
+    test('getProgress returns correct ratio', () {
+      const threshold = ElapsedTimeThreshold(Duration(hours: 20));
+      // Diff is 10h. Ratio = 10 / 20 = 0.5
+      expect(threshold.getProgress(currentStats, baselineStats, currentDate, baselineDate), 0.5);
+    });
+
+    test('toJson and fromJson work correctly', () {
+      const threshold = ElapsedTimeThreshold(Duration(hours: 10));
+      final json = threshold.toJson();
+      expect(json['type'], 'elapsedTime');
+      expect(json['microseconds'], const Duration(hours: 10).inMicroseconds);
+
+      final parsed = TaskThreshold.fromJson(json) as ElapsedTimeThreshold;
+      expect(parsed.hours, const Duration(hours: 10));
+      expect(parsed.iconData, Icons.timelapse);
+      expect(parsed.toDisplayValue(), '10 h');
+      expect(parsed.isPositive, isTrue);
+    });
+
+    test('isMet handles delay correctly', () {
+      const threshold = ElapsedTimeThreshold(Duration(hours: 8));
+      const delay = ElapsedTimeThreshold(Duration(hours: 4));
+      // Total needed = 12h. Diff = 10h.
+      expect(threshold.isMet(currentStats, baselineStats, currentDate, baselineDate, delay: delay), isFalse);
+    });
+  });
 }

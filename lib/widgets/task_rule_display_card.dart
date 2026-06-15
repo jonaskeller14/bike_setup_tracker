@@ -303,6 +303,15 @@ class TaskRuleDisplayCard extends StatelessWidget {
         final m = diff.inMinutes.remainder(60);
         return h > 0 ? '${h}h ${m}min $label' : '${m}min $label';
 
+      case ElapsedTimeThreshold(:final hours):
+        final totalMicros = hours.inMicroseconds + (delay is ElapsedTimeThreshold ? delay.hours.inMicroseconds : 0);
+        if (totalMicros <= 0) return null;
+        final diff = Duration(microseconds: ((progress < 1.0 ? 1.0 - progress : progress - 1.0) * totalMicros).round());
+        final label = progress < 1.0 ? 'remaining' : 'exceeded';
+        final h = diff.inHours;
+        final m = diff.inMinutes.remainder(60);
+        return h > 0 ? '${h}h ${m}min $label' : '${m}min $label';
+
       case DurationThreshold(:final days):
         final totalMicros = days.inMicroseconds + (delay is DurationThreshold ? delay.days.inMicroseconds : 0);
         if (totalMicros <= 0) return null;

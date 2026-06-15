@@ -39,9 +39,9 @@ class TaskRule {
       isDeleted = isDeleted ?? false,
       lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc() {
     // Distance/MovingTime thresholds require a component or bike.
-    if (interval is DistanceThreshold || interval is MovingTimeThreshold || interval is ActivityCountThreshold) {
-      assert(componentId != null || bikeId != null, 
-        'Distance/MovingTime/ActivityCount thresholds require at least a componentId or a bikeId');
+    if (interval is DistanceThreshold || interval is MovingTimeThreshold || interval is ElapsedTimeThreshold || interval is ActivityCountThreshold) {
+      assert(componentId != null || bikeId != null,
+        'Distance/MovingTime/ElapsedTime/ActivityCount thresholds require at least a componentId or a bikeId');
     }
     assert(componentId == null || bikeId == null, 'Cannot link to both a component and a bike');
   }

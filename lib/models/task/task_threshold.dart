@@ -32,6 +32,7 @@ sealed class TaskThreshold {
     return switch (type) {
       'distance' => DistanceThreshold.fromJson(json),
       'time' => MovingTimeThreshold.fromJson(json),
+      'elapsedTime' => ElapsedTimeThreshold.fromJson(json),
       'duration' => DurationThreshold.fromJson(json),
       'dateTime' => DateTimeThreshold.fromJson(json),
       'count' => ActivityCountThreshold.fromJson(json),
@@ -165,6 +166,46 @@ class MovingTimeThreshold extends TaskThreshold {
 
   factory MovingTimeThreshold.fromJson(Map<String, dynamic> json) =>
       MovingTimeThreshold(Duration(microseconds: json['microseconds'] as int));
+}
+
+class ElapsedTimeThreshold extends TaskThreshold {
+  final Duration hours;
+  const ElapsedTimeThreshold(this.hours);
+
+  Duration _getDelayDuration(TaskThreshold? delay) {
+    if (delay is ElapsedTimeThreshold) return delay.hours;
+    return Duration.zero;
+  }
+
+  @override
+  bool isMet(ComponentStats current, ComponentStats baseline, DateTime currentDate, DateTime baselineDate, {TaskThreshold? delay}) {
+    return (current.elapsedTime - baseline.elapsedTime) >= (hours + _getDelayDuration(delay));
+  }
+
+  @override
+  double getProgress(ComponentStats current, ComponentStats baseline, DateTime currentDate, DateTime baselineDate, {TaskThreshold? delay}) {
+    final total = hours + _getDelayDuration(delay);
+    if (total == Duration.zero) return 1.0;
+    return (current.elapsedTime - baseline.elapsedTime).inMicroseconds / total.inMicroseconds;
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        'type': 'elapsedTime',
+        'microseconds': hours.inMicroseconds,
+      };
+
+  @override
+  IconData get iconData => Icons.timelapse;
+
+  @override
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'}) => '${NumberFormat.decimalPattern().format(hours.inHours)} h';
+
+  @override
+  bool get isPositive => hours > Duration.zero;
+
+  factory ElapsedTimeThreshold.fromJson(Map<String, dynamic> json) =>
+      ElapsedTimeThreshold(Duration(microseconds: json['microseconds'] as int));
 }
 
 class DurationThreshold extends TaskThreshold {

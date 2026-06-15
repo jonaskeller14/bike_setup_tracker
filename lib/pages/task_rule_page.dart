@@ -62,6 +62,7 @@ enum _ThresholdType {
   distance('Distance'),
   elevation('Elevation'),
   movingTime('Moving Time'),
+  elapsedTime('Elapsed Time'),
   duration('Duration'),
   activityCount('Activity Count'),
   dateTime('Date');
@@ -136,6 +137,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
       case DistanceThreshold(): return _ThresholdType.distance;
       case ElevationThreshold(): return _ThresholdType.elevation;
       case MovingTimeThreshold(): return _ThresholdType.movingTime;
+      case ElapsedTimeThreshold(): return _ThresholdType.elapsedTime;
       case DurationThreshold(): return _ThresholdType.duration;
       case ActivityCountThreshold(): return _ThresholdType.activityCount;
       case DateTimeThreshold(): return _ThresholdType.dateTime;
@@ -149,6 +151,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
       case ElevationThreshold(): return threshold.meters.toStringAsFixed(0);
       case ActivityCountThreshold(): return threshold.count.toString();
       case MovingTimeThreshold(): return threshold.hours.inHours.toString();
+      case ElapsedTimeThreshold(): return threshold.hours.inHours.toString();
       case DurationThreshold(): return threshold.days.inDays.toString();
       case DateTimeThreshold(): return ''; 
     }
@@ -194,6 +197,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
       case _ThresholdType.distance:
       case _ThresholdType.elevation:
       case _ThresholdType.movingTime:
+      case _ThresholdType.elapsedTime:
       case _ThresholdType.activityCount:
         return true;
       case _ThresholdType.none:
@@ -211,6 +215,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
       _ThresholdType.distance ||
       _ThresholdType.elevation => [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$'))],
       _ThresholdType.movingTime ||
+      _ThresholdType.elapsedTime ||
       _ThresholdType.duration ||
       _ThresholdType.activityCount => [FilteringTextInputFormatter.digitsOnly],
       _ThresholdType.dateTime ||
@@ -230,6 +235,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
         return ElevationThreshold(doubleVal);
       case _ThresholdType.movingTime:
         return MovingTimeThreshold(Duration(hours: intVal));
+      case _ThresholdType.elapsedTime:
+        return ElapsedTimeThreshold(Duration(hours: intVal));
       case _ThresholdType.duration:
         return DurationThreshold(Duration(days: intVal));
       case _ThresholdType.activityCount:
@@ -590,7 +597,6 @@ class _TaskRulePageState extends State<TaskRulePage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Row(
-                            spacing: 8,
                             children: [
                               Expanded(
                                 flex: 2,
@@ -613,6 +619,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                   },
                                 ),
                               ),
+                              if (_intervalType != _ThresholdType.none)
+                                const SizedBox(width: 8),
                               switch (_intervalType) {
                                 _ThresholdType.none => const SizedBox.shrink(),
                                 _ThresholdType.dateTime => Expanded(
@@ -651,6 +659,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                 _ThresholdType.distance ||
                                 _ThresholdType.elevation ||
                                 _ThresholdType.movingTime ||
+                                _ThresholdType.elapsedTime ||
                                 _ThresholdType.duration => Expanded(
                                   flex: 3,
                                   child: TextFormField(
@@ -667,6 +676,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                         _ThresholdType.distance => 'km',
                                         _ThresholdType.elevation => 'm',
                                         _ThresholdType.movingTime => 'h',
+                                        _ThresholdType.elapsedTime => 'h',
                                         _ThresholdType.duration => 'days',
                                         _ThresholdType.activityCount => 'rides',
                                         _ => '',
@@ -715,7 +725,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                         fillColor: Colors.orange.withValues(alpha: 0.08),
                                         filled: widget.mode == TaskRulePageMode.edit && _delayType != _getThresholdType(widget.taskRule?.delay),
                                       ),
-                                      items: [_ThresholdType.none, _ThresholdType.distance, _ThresholdType.elevation, _ThresholdType.movingTime, _ThresholdType.duration, _ThresholdType.activityCount]
+                                      items: [_ThresholdType.none, _ThresholdType.distance, _ThresholdType.elevation, _ThresholdType.movingTime, _ThresholdType.elapsedTime, _ThresholdType.duration, _ThresholdType.activityCount]
                                           .map((t) => DropdownMenuItem(value: t, child: Text(t.label)))
                                           .toList(),
                                       onChanged: (v) {
@@ -748,6 +758,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                             _ThresholdType.distance => 'km',
                                             _ThresholdType.elevation => 'm',
                                             _ThresholdType.movingTime => 'h',
+                                            _ThresholdType.elapsedTime => 'h',
                                             _ThresholdType.duration => 'days',
                                             _ThresholdType.activityCount => 'rides',
                                             _ => '',

@@ -223,6 +223,44 @@ class _TaskRulePageState extends State<TaskRulePage> {
     };
   }
 
+  bool _thresholdRequiresInteger(_ThresholdType type) {
+    return switch (type) {
+      _ThresholdType.movingTime ||
+      _ThresholdType.elapsedTime ||
+      _ThresholdType.duration ||
+      _ThresholdType.activityCount => true,
+      _ThresholdType.distance ||
+      _ThresholdType.elevation ||
+      _ThresholdType.dateTime ||
+      _ThresholdType.none => false,
+    };
+  }
+
+  String? _validateThresholdValue(_ThresholdType type, String? rawValue) {
+    if (type == _ThresholdType.none || type == _ThresholdType.dateTime) {
+      return null;
+    }
+
+    final value = rawValue?.trim() ?? '';
+    if (value.isEmpty) {
+      return 'Enter a value';
+    }
+
+    final requiresInteger = _thresholdRequiresInteger(type);
+    final num? parsed = requiresInteger ? int.tryParse(value) : double.tryParse(value);
+    if (parsed == null) {
+      return requiresInteger ? 'Enter a whole number' : 'Enter a valid number';
+    }
+    if (parsed <= 0) {
+      return 'Must be greater than 0';
+    }
+    return null;
+  }
+
+  String? _validateIntervalValue(String? value) => _validateThresholdValue(_intervalType, value);
+
+  String? _validateDelayValue(String? value) => _validateThresholdValue(_delayType, value);
+
   TaskThreshold? _createThreshold(_ThresholdType type, String value, DateTime? date) {
     if (type == _ThresholdType.none) return null;
     final doubleVal = double.tryParse(value) ?? 0;
@@ -625,34 +663,43 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                 _ThresholdType.none => const SizedBox.shrink(),
                                 _ThresholdType.dateTime => Expanded(
                                   flex: 3,
-                                  child: InkWell(
-                                    onTap: () async {
-                                      final d = await showDatePicker(
-                                        context: context,
-                                        initialDate: _intervalDate ?? DateTime.now(),
-                                        firstDate: DateTime(2000),
-                                        lastDate: DateTime(2100),
+                                  child: FormField<DateTime>(
+                                    initialValue: _intervalDate,
+                                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                                    validator: (value) => value == null ? 'Select a date' : null,
+                                    builder: (field) {
+                                      return InkWell(
+                                        onTap: () async {
+                                          final d = await showDatePicker(
+                                            context: context,
+                                            initialDate: _intervalDate ?? DateTime.now(),
+                                            firstDate: DateTime(2000),
+                                            lastDate: DateTime(2100),
+                                          );
+                                          if (d != null) {
+                                            setState(() => _intervalDate = d);
+                                            field.didChange(d);
+                                            _changeListener();
+                                          }
+                                        },
+                                        child: InputDecorator(
+                                          decoration: InputDecoration(
+                                            labelText: "Date",
+                                            border: const OutlineInputBorder(),
+                                            suffixIcon: const Icon(Icons.calendar_today, size: 20),
+                                            errorText: field.errorText,
+                                            fillColor: Colors.orange.withValues(alpha: 0.08),
+                                            filled: widget.mode == TaskRulePageMode.edit && _intervalDate != (widget.taskRule?.interval is DateTimeThreshold ? (widget.taskRule!.interval as DateTimeThreshold).deadline : null),
+                                          ),
+                                          child: Text(
+                                            _intervalDate == null
+                                                ? "Select Date"
+                                                : DateFormat(appSettings.dateFormat).format(_intervalDate!.toLocal()),
+                                            style: Theme.of(context).textTheme.bodyLarge,
+                                          ),
+                                        ),
                                       );
-                                      if (d != null) {
-                                        setState(() => _intervalDate = d);
-                                        _changeListener();
-                                      }
                                     },
-                                    child: InputDecorator(
-                                      decoration: InputDecoration(
-                                        labelText: "Date",
-                                        border: const OutlineInputBorder(),
-                                        suffixIcon: const Icon(Icons.calendar_today, size: 20),
-                                        fillColor: Colors.orange.withValues(alpha: 0.08),
-                                        filled: widget.mode == TaskRulePageMode.edit && _intervalDate != (widget.taskRule?.interval is DateTimeThreshold ? (widget.taskRule!.interval as DateTimeThreshold).deadline : null),
-                                      ),
-                                      child: Text(
-                                        _intervalDate == null
-                                            ? "Select Date"
-                                            : DateFormat(appSettings.dateFormat).format(_intervalDate!.toLocal()),
-                                        style: Theme.of(context).textTheme.bodyLarge,
-                                      ),
-                                    ),
                                   ),
                                 ),
                                 _ThresholdType.activityCount ||
@@ -664,12 +711,14 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                   flex: 3,
                                   child: TextFormField(
                                     controller: _intervalValueController,
+                                    autovalidateMode: AutovalidateMode.onUserInteraction,
                                     keyboardType: TextInputType.numberWithOptions(
                                       decimal: _intervalType == _ThresholdType.distance || _intervalType == _ThresholdType.elevation,
                                       signed: false,
                                     ),
                                     inputFormatters: _valueInputFormatters(_intervalType),
                                     onChanged: (value) => setState(() {}),
+                                    validator: _validateIntervalValue,
                                     decoration: InputDecoration(
                                       labelText: "Value",
                                       suffixText: switch (_intervalType) {
@@ -684,7 +733,6 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                       border: const OutlineInputBorder(),
                                       fillColor: Colors.orange.withValues(alpha: 0.08),
                                       filled: widget.mode == TaskRulePageMode.edit && _intervalValueController.text != _getThresholdValueString(widget.taskRule?.interval),
-                                      //TODO: Add validation for example > 0, double parsable, validate on user interaction
                                     ),
                                   ),
                                 ),
@@ -747,11 +795,13 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                       flex: 3,
                                       child: TextFormField(
                                         controller: _delayValueController,
+                                        autovalidateMode: AutovalidateMode.onUserInteraction,
                                         keyboardType: TextInputType.numberWithOptions(
                                           decimal: _delayType == _ThresholdType.distance || _delayType == _ThresholdType.elevation,
                                           signed: false,
                                         ),
                                         inputFormatters: _valueInputFormatters(_delayType),
+                                        validator: _validateDelayValue,
                                         decoration: InputDecoration(
                                           labelText: "Delay Value",
                                           suffixText: switch (_delayType) {

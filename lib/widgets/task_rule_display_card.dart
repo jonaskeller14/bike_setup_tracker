@@ -271,6 +271,9 @@ class TaskRuleDisplayCard extends StatelessWidget {
     );
   }
 
+  String _plural(int count, String singular, [String? plural]) =>
+      count == 1 ? singular : (plural ?? '${singular}s');
+
   String? _thresholdDetail(TaskThreshold interval, TaskThreshold? delay, double progress, String distanceUnit, String altitudeUnit) {
     switch (interval) {
       case DistanceThreshold(:final meters):
@@ -316,21 +319,23 @@ class TaskRuleDisplayCard extends StatelessWidget {
         final totalMicros = days.inMicroseconds + (delay is DurationThreshold ? delay.days.inMicroseconds : 0);
         if (totalMicros <= 0) return null;
         final diff = Duration(microseconds: ((progress < 1.0 ? 1.0 - progress : progress - 1.0) * totalMicros).round());
-        return '${diff.inDays} d ${progress < 1.0 ? 'remaining' : 'exceeded'}';
+        final dayCount = diff.inDays;
+        return '$dayCount ${_plural(dayCount, 'day')} ${progress < 1.0 ? 'remaining' : 'exceeded'}';
 
       case ActivityCountThreshold(:final count):
         final total = count + (delay is ActivityCountThreshold ? delay.count : 0);
         if (total <= 0) return null;
         final accumulated = (progress * total).round();
-        return progress < 1.0
-            ? '${total - accumulated} rides remaining'
-            : '${accumulated - total} rides exceeded';
+        final rides = progress < 1.0 ? total - accumulated : accumulated - total;
+        return '$rides ${_plural(rides, 'ride')} ${progress < 1.0 ? 'remaining' : 'exceeded'}';
 
       case DateTimeThreshold(:final deadline):
         final effectiveDeadline = deadline.add(delay is DurationThreshold ? delay.days : Duration.zero);
         final now = DateTime.now().toUtc();
-        final diff = now.isBefore(effectiveDeadline) ? effectiveDeadline.difference(now) : now.difference(effectiveDeadline);
-        return '${diff.inDays} d ${now.isBefore(effectiveDeadline) ? 'remaining' : 'exceeded'}';
+        final isBefore = now.isBefore(effectiveDeadline);
+        final diff = isBefore ? effectiveDeadline.difference(now) : now.difference(effectiveDeadline);
+        final days = diff.inDays;
+        return '$days ${_plural(days, 'day')} ${isBefore ? 'remaining' : 'exceeded'}';
     }
   }
 }

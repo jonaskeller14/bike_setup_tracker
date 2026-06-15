@@ -239,7 +239,7 @@ class DurationThreshold extends TaskThreshold {
   IconData get iconData => Icons.calendar_today;
 
   @override
-  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'}) => '${NumberFormat.decimalPattern().format(days.inDays)} d';
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'}) => '${NumberFormat.decimalPattern().format(days.inDays)} ${days.inDays == 1 ? 'day' : 'days'}';
 
   @override
   bool get isPositive => days > Duration.zero;
@@ -321,7 +321,7 @@ class ActivityCountThreshold extends TaskThreshold {
   IconData get iconData => Icons.repeat;
 
   @override
-  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'}) => '${NumberFormat.decimalPattern().format(count)} rides';
+  String toDisplayValue({String distanceUnit = 'km', String altitudeUnit = 'm', String dateFormat = 'yyyy-MM-dd'}) => '${NumberFormat.decimalPattern().format(count)} ${count == 1 ? 'ride' : 'rides'}';
 
   @override
   bool get isPositive => count > 0;

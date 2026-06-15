@@ -252,6 +252,9 @@ class DateTimeThreshold extends TaskThreshold {
   final DateTime deadline;
   const DateTimeThreshold(this.deadline);
 
+  static const Duration _leadWindow = Duration(days: 7); // 0-100% (upcoming period)
+  static const Duration _graceWindow = Duration(days: 3); // due-overdue period
+
   Duration _getDelayDuration(TaskThreshold? delay) {
     if (delay is DurationThreshold) return delay.days;
     // Note: if delay is another DateTimeThreshold, it doesn't make much sense to add them.
@@ -266,9 +269,14 @@ class DateTimeThreshold extends TaskThreshold {
   @override
   double getProgress(ComponentStats current, ComponentStats baseline, DateTime currentDate, DateTime baselineDate, {TaskThreshold? delay}) {
     final effectiveDeadline = deadline.add(_getDelayDuration(delay));
-    final totalDuration = effectiveDeadline.difference(baselineDate);
-    if (totalDuration.inMicroseconds <= 0) return currentDate.isAfter(effectiveDeadline) ? 1.0 : 0.0;
-    return currentDate.difference(baselineDate).inMicroseconds / totalDuration.inMicroseconds;
+    final remaining = effectiveDeadline.difference(currentDate);
+
+    if (remaining > Duration.zero) {
+      return (1.0 - remaining.inMicroseconds / _leadWindow.inMicroseconds).clamp(0.0, 1.0);
+    }
+
+    final overdueBy = currentDate.difference(effectiveDeadline);
+    return 1.0 + (overdueBy.inMicroseconds / _graceWindow.inMicroseconds) * 0.1;
   }
 
   @override

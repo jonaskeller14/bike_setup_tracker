@@ -651,6 +651,39 @@ class AppRepository extends ChangeNotifier {
     _dataChanged();
   }
 
+  /// Re-derives the in-memory window from the database (the single source of
+  /// truth) after an out-of-band write such as a webhook sync, without
+  /// collapsing the user's scroll position. Unlike [initialStravaLoad] this
+  /// re-pages the whole currently-loaded window (page 1 .. current offset), so
+  /// activities the user already scrolled in are kept and any new/changed/
+  /// deleted rows are reflected. It runs silently (no loading spinner).
+  Future<void> reloadStravaWindow() async {
+    final sig = _stravaFilterSignature();
+    _lastStravaFilterSignature = sig;
+    final filter = _currentStravaFilter();
+    // Reload at least the first page; if the user paged further, reload the
+    // whole loaded window so scrolled-in activities aren't dropped.
+    final reloadLimit = _stravaOffset > _stravaLimit ? _stravaOffset : _stravaLimit;
+
+    final list = await database.stravaDao.getActivitiesPaginated(
+      limit: reloadLimit,
+      offset: 0,
+      mode: _stravaSortAscending ? drift.OrderingMode.asc : drift.OrderingMode.desc,
+      gearId: filter.gearId,
+      unassignedOnly: filter.unassignedOnly,
+      assignedGears: filter.assignedGears,
+    );
+    if (_isDisposed) return;
+    // A newer filter took over while we were querying; drop these stale results.
+    if (sig != _lastStravaFilterSignature) return;
+    _filteredStravaActivities = {for (var a in list) a.id: a.toModel()};
+    _stravaOffset = list.length;
+    // Only ever narrows: a short page means the window shrank (deletions);
+    // a full page leaves [_hasMoreStrava] as-is so paging keeps working.
+    if (list.length < reloadLimit) _hasMoreStrava = false;
+    _dataChanged();
+  }
+
   Future<void> setStravaSortOrder(bool ascending) async {
     if (_stravaSortAscending == ascending) return;
     _stravaSortAscending = ascending;
@@ -1137,13 +1170,10 @@ class AppRepository extends ChangeNotifier {
 
     await refreshTaskEntrySnapshots();
 
-    // debugPrint("AppRepository finished syncing activities with database (v$versionAtStart).");
-    // Refresh the first page if we are at the top, to show potentially new activities
-    if (_stravaOffset <= _stravaLimit) {
-      initialStravaLoad();
-    } else {
-       _dataChanged();
-    }
+    // Re-derive the in-memory window from the database so new, changed, or
+    // deleted activities show everywhere (list, calendar) and not only in views
+    // that query the DB directly. Reloads the full loaded window to keep scroll.
+    await reloadStravaWindow();
   }
 
   Future<void> setStravaAthletes(Iterable<StravaAthlete> athletes) async {

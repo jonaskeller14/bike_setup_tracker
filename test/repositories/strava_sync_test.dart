@@ -121,4 +121,74 @@ void main() {
       expect(rows, hasLength(1));
     });
   });
+
+  // Regression: a webhook-delivered activity is written to the DB but must also
+  // refresh the in-memory window (`stravaActivities`) that backs the setup list
+  // and calendar. Previously the refresh was skipped once the user had paged
+  // past the first page (_stravaOffset > _stravaLimit), so new activities only
+  // showed in views that query the DB directly (the Strava dashboard).
+  group('setStravaActivities — refreshes in-memory window after paging', () {
+    late AppDatabase database;
+    late AppRepository repository;
+
+    setUp(() async {
+      database = AppDatabase.memory();
+      repository = AppRepository(database);
+      repository.debugSetStravaLimit(2);
+      await pumpEventQueue();
+    });
+
+    tearDown(() async {
+      await database.close();
+    });
+
+    // Seeds four activities and pages through them so the loaded window extends
+    // past the first page (_stravaOffset > _stravaLimit) — the condition that
+    // previously suppressed the in-memory refresh.
+    Future<void> seedAndPagePastFirstPage() async {
+      await repository.setStravaActivities(
+        [_activity(1), _activity(2), _activity(3), _activity(4)],
+      );
+      await repository.initialStravaLoad(); // offset -> 2 (page 1)
+      await repository.loadMoreStravaActivities(); // offset -> 4 (> limit)
+      await pumpEventQueue();
+      expect(repository.stravaActivities.length, 4);
+    }
+
+    test('new webhook activity surfaces in the in-memory window', () async {
+      await seedAndPagePastFirstPage();
+      expect(repository.stravaActivities.containsKey(5), isFalse);
+
+      // Webhook delivers a brand-new (newest) activity.
+      await repository.setStravaActivities([_activity(5)]);
+      await pumpEventQueue();
+
+      expect(
+        repository.stravaActivities.containsKey(5),
+        isTrue,
+        reason: 'new activity must appear in the window backing the list/calendar',
+      );
+    });
+
+    test('reload preserves the loaded window instead of collapsing to page 1', () async {
+      await seedAndPagePastFirstPage();
+
+      await repository.setStravaActivities([_activity(5)]);
+      await pumpEventQueue();
+
+      // Five activities exist; the window held four before the webhook, so it
+      // should still hold four (newest), not shrink back to the page size (2).
+      expect(repository.stravaActivities.length, 4);
+    });
+
+    test('webhook deletion is removed from the in-memory window', () async {
+      await seedAndPagePastFirstPage();
+      expect(repository.stravaActivities.containsKey(3), isTrue);
+
+      await repository.setStravaActivities([], toDelete: [3]);
+      await pumpEventQueue();
+
+      expect(repository.stravaActivities.containsKey(3), isFalse);
+    });
+  });
 }

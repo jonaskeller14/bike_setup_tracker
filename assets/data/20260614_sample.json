@@ -87,7 +87,7 @@
       "name": "Santa Cruz Hightower",
       "notes": "2025 - XL - CC frame",
       "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
-      "stravaGear": null,
+      "stravaGear": "b18168107",
       "orderIndex": 0
     },
     {
@@ -98,7 +98,7 @@
       "name": "Trek Session 9",
       "notes": "Park bike",
       "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
-      "stravaGear": null,
+      "stravaGear": "b18168110",
       "orderIndex": 1
     },
     {
@@ -109,7 +109,7 @@
       "name": "Specialized Turbo Levo SL",
       "notes": "Lightweight eMTB",
       "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
-      "stravaGear": null,
+      "stravaGear": "b18168112",
       "orderIndex": 2
     },
     {
@@ -120,7 +120,7 @@
       "name": "Canyon Grizl",
       "notes": "Gravel / bikepacking",
       "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
-      "stravaGear": null,
+      "stravaGear": "b18168116",
       "orderIndex": 3
     },
     {
@@ -131,7 +131,7 @@
       "name": "Juliana Roubion",
       "notes": "Mia's enduro",
       "person": "3e376e43-118e-4252-837a-79cdce5758bd",
-      "stravaGear": null,
+      "stravaGear": "b18168117",
       "orderIndex": 4
     }
   ],
@@ -3450,6 +3450,177 @@
         "movingTime": 2340000000000,
         "elapsedTime": 3312000000000,
         "activityCount": 130
+      }
+    },
+    {
+      "id": "7c1d9a04-3e6b-4f21-9a11-2b8c5d0e1f01",
+      "isDeleted": false,
+      "lastModified": "2025-07-18T15:00:00.000Z",
+      "name": "Refreshed tubeless sealant",
+      "notes": "Mid-summer top-up, sealant was drying out.",
+      "dateTimeUTC": "2025-07-18T15:00:00.000Z",
+      "dateTimeLocal": "2025-07-18T17:00:00.000",
+      "taskRule": "13551b20-3a06-4dc8-9a47-12e5197ad207",
+      "componentId": null,
+      "bikeId": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+      "snapshot": {
+        "distance": 2200000,
+        "elevationGain": 81000,
+        "movingTime": 2367000000000,
+        "elapsedTime": 3324000000000,
+        "activityCount": 142
+      }
+    },
+    {
+      "id": "2f9e4b15-6a7c-4d38-bc92-3e1f7a6b2c02",
+      "isDeleted": false,
+      "lastModified": "2025-09-14T16:00:00.000Z",
+      "name": "Replaced chain",
+      "notes": "Wear hit 0.5% after the summer kilometres.",
+      "dateTimeUTC": "2025-09-14T16:00:00.000Z",
+      "dateTimeLocal": "2025-09-14T18:00:00.000",
+      "taskRule": "12888968-9c93-4d3d-98ba-260ccac7b5d0",
+      "componentId": "93a8d294-a489-4275-9868-28643eabe3bd",
+      "bikeId": null,
+      "snapshot": {
+        "distance": 3000000,
+        "elevationGain": 111000,
+        "movingTime": 3228000000000,
+        "elapsedTime": 4533000000000,
+        "activityCount": 188
+      }
+    },
+    {
+      "id": "9b3a6c27-8d4e-4a19-9f73-5c2b8e1d3a03",
+      "isDeleted": false,
+      "lastModified": "2025-10-19T17:30:00.000Z",
+      "name": "Fork lowers service",
+      "notes": "Autumn service before the wet season.",
+      "dateTimeUTC": "2025-10-19T17:30:00.000Z",
+      "dateTimeLocal": "2025-10-19T19:30:00.000",
+      "taskRule": "340ef012-fb70-40d6-889e-02ac62dd6699",
+      "componentId": "e47480ee-0f71-453e-bb97-61d2041d05f5",
+      "bikeId": null,
+      "snapshot": {
+        "distance": 3250000,
+        "elevationGain": 120000,
+        "movingTime": 3497000000000,
+        "elapsedTime": 4911000000000,
+        "activityCount": 202
+      }
+    },
+    {
+      "id": "4e7f1d38-2b9a-4c56-8e14-6d3a9f2b4c04",
+      "isDeleted": false,
+      "lastModified": "2025-12-06T13:00:00.000Z",
+      "name": "Replaced front brake pads",
+      "notes": "Wet autumn ate through the front pads.",
+      "dateTimeUTC": "2025-12-06T13:00:00.000Z",
+      "dateTimeLocal": "2025-12-06T14:00:00.000",
+      "taskRule": "b27319ae-961a-4222-a6cb-abdccd6495e5",
+      "componentId": "f58b4521-87ce-4fbc-b41e-f06142d1c287",
+      "bikeId": null,
+      "snapshot": {
+        "distance": 3500000,
+        "elevationGain": 130000,
+        "movingTime": 3766000000000,
+        "elapsedTime": 5289000000000,
+        "activityCount": 218
+      }
+    },
+    {
+      "id": "6a2c8e49-5f1b-4d73-9a25-7e4b1c3d5a05",
+      "isDeleted": false,
+      "lastModified": "2025-12-06T13:15:00.000Z",
+      "name": "Replaced rear brake pads",
+      "notes": null,
+      "dateTimeUTC": "2025-12-06T13:15:00.000Z",
+      "dateTimeLocal": "2025-12-06T14:15:00.000",
+      "taskRule": "e1c32aab-3bbc-41c1-a6e7-bc3855331539",
+      "componentId": "c5e4f8ea-2c68-4f1f-8082-2928f7b9d674",
+      "bikeId": null,
+      "snapshot": {
+        "distance": 3500000,
+        "elevationGain": 130000,
+        "movingTime": 3766000000000,
+        "elapsedTime": 5289000000000,
+        "activityCount": 218
+      }
+    },
+    {
+      "id": "8d4c6e83-1a5f-4c27-9b69-2c8f5a7b9a09",
+      "isDeleted": false,
+      "lastModified": "2026-01-12T18:30:00.000Z",
+      "name": "Shock air-can service",
+      "notes": "Off-season service during the winter break.",
+      "dateTimeUTC": "2026-01-12T18:30:00.000Z",
+      "dateTimeLocal": "2026-01-12T19:30:00.000",
+      "taskRule": "072b91db-edfb-4723-bb53-ec0d4fd02d95",
+      "componentId": "cc6ec737-f6c2-486c-9e9a-5406e0d5fac3",
+      "bikeId": null,
+      "snapshot": {
+        "distance": 3650000,
+        "elevationGain": 135000,
+        "movingTime": 3928000000000,
+        "elapsedTime": 5517000000000,
+        "activityCount": 230
+      }
+    },
+    {
+      "id": "1d5b7f50-9c2e-4a86-8b36-8f5c2d4e6a06",
+      "isDeleted": false,
+      "lastModified": "2026-02-15T16:00:00.000Z",
+      "name": "Bled front brake",
+      "notes": "Park bike lever felt spongy after winter storage.",
+      "dateTimeUTC": "2026-02-15T16:00:00.000Z",
+      "dateTimeLocal": "2026-02-15T17:00:00.000",
+      "taskRule": "5f7b98e5-bd75-4a82-b1b6-2e02523b28d6",
+      "componentId": "7b46ad10-beb5-4307-b645-85cb8028dda1",
+      "bikeId": null,
+      "snapshot": {
+        "distance": 1400000,
+        "elevationGain": 63000,
+        "movingTime": 1536000000000,
+        "elapsedTime": 2160000000000,
+        "activityCount": 80
+      }
+    },
+    {
+      "id": "3c8e2a61-7d4f-4b95-9c47-9a6d3e5f7a07",
+      "isDeleted": false,
+      "lastModified": "2026-04-11T15:30:00.000Z",
+      "name": "Refreshed tubeless sealant",
+      "notes": "Spring refresh ahead of the bikepark season.",
+      "dateTimeUTC": "2026-04-11T15:30:00.000Z",
+      "dateTimeLocal": "2026-04-11T17:30:00.000",
+      "taskRule": "13551b20-3a06-4dc8-9a47-12e5197ad207",
+      "componentId": null,
+      "bikeId": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+      "snapshot": {
+        "distance": 4500000,
+        "elevationGain": 167000,
+        "movingTime": 4842000000000,
+        "elapsedTime": 6800000000000,
+        "activityCount": 280
+      }
+    },
+    {
+      "id": "5f1a9c72-4e8b-4d16-8a58-1b7e4f6a8a08",
+      "isDeleted": false,
+      "lastModified": "2026-06-05T17:00:00.000Z",
+      "name": "Fork lowers service",
+      "notes": "50 h hit again - quick lowers refresh after the trip.",
+      "dateTimeUTC": "2026-06-05T17:00:00.000Z",
+      "dateTimeLocal": "2026-06-05T19:00:00.000",
+      "taskRule": "340ef012-fb70-40d6-889e-02ac62dd6699",
+      "componentId": "e47480ee-0f71-453e-bb97-61d2041d05f5",
+      "bikeId": null,
+      "snapshot": {
+        "distance": 6250000,
+        "elevationGain": 231000,
+        "movingTime": 6725000000000,
+        "elapsedTime": 9444000000000,
+        "activityCount": 334
       }
     }
   ]

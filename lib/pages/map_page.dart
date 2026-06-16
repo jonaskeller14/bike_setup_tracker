@@ -102,7 +102,9 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
     final setups = appRepository.filteredSetups.values.where(
-      (s) => s.position?.latitude != null && s.position?.longitude != null,
+      (s) =>
+          (s.position?.latitude?.isFinite ?? false) &&
+          (s.position?.longitude?.isFinite ?? false),
     );
 
     return FutureBuilder<List<StravaActivity>>(
@@ -162,7 +164,11 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
               ),
             ),
           if (appSettings.enableStrava && subscriptionService.hasStravaEntitlement && appSettings.displayShowActivities)
-            ...stravaActivities.map(
+            ...stravaActivities
+                .where((a) =>
+                    (a.startLat?.isFinite ?? false) &&
+                    (a.startLon?.isFinite ?? false))
+                .map(
               (activity) => Marker(
                 point: LatLng(activity.startLat!, activity.startLon!),
                 width: 40,
@@ -210,6 +216,18 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                   initialZoom: 13,
                   minZoom: 3,
                   maxZoom: 18,
+                  // Bound the camera to the world. Without this (default is
+                  // CameraConstraint.unconstrained()), a fast pinch/fling
+                  // zoom-out can momentarily drive the zoom scale to <= 0, so
+                  // zoom(scale) = log(scale/256)/ln2 returns NaN/-Infinity. That
+                  // produces a non-finite camera center which flutter_map 8.3.0
+                  // now throws on during projection ("LatLng is not finite").
+                  cameraConstraint: CameraConstraint.contain(
+                    bounds: LatLngBounds(
+                      const LatLng(-85.05112878, -180),
+                      const LatLng(85.05112878, 180),
+                    ),
+                  ),
                   interactionOptions: const InteractionOptions(
                     flags: InteractiveFlag.all,
                   ),

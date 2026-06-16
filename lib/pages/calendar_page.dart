@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -252,24 +253,46 @@ class _CalendarPageState extends State<CalendarPage> {
     final newLocal = details.droppingTime;
     if (entry is! TimelineEntry || newLocal == null) return;
     final newUtc = newLocal.toUtc();
-    final repo = context.read<AppRepository>();
+    final oldLocal = entry.date.toLocal();
+    final appRepository = context.read<AppRepository>();
 
     switch (entry) {
       case SetupEntry():
-        await repo.editSetup(entry.setup.copyWith(datetime: newUtc, datetimeLocal: newLocal));
+        final original = entry.setup;
+        await appRepository.editSetup(original.copyWith(datetime: newUtc, datetimeLocal: newLocal));
+        _showMoveUndoSnackBar(
+          calendarSubjectFor(entry),
+          oldLocal,
+          newLocal,
+          () => appRepository.editSetup(original),
+        );
       case TaskTimeLineEntry():
-        await repo.editTaskEntry(
-          entry.taskEntry.copyWith(dateTimeUTC: newUtc, dateTimeLocal: newLocal),
+        final original = entry.taskEntry;
+        await appRepository.editTaskEntry(
+          original.copyWith(dateTimeUTC: newUtc, dateTimeLocal: newLocal),
+        );
+        _showMoveUndoSnackBar(
+          calendarSubjectFor(entry),
+          oldLocal,
+          newLocal,
+          () => appRepository.editTaskEntry(original),
         );
       case InstallationEntry():
         final ci = entry.componentInstallation;
+        final originalComponent = ci.component;
         final oldInstallation = ci.installation;
         final newInstallation =
             oldInstallation.copyWith(dateTimeUTC: newUtc, dateTimeLocal: newLocal);
-        final updatedInstallations = ci.component.installations
+        final updatedInstallations = originalComponent.installations
             .map((i) => i == oldInstallation ? newInstallation : i)
             .toList();
-        await repo.editComponent(ci.component.copyWith(installations: updatedInstallations));
+        await appRepository.editComponent(originalComponent.copyWith(installations: updatedInstallations));
+        _showMoveUndoSnackBar(
+          calendarSubjectFor(entry),
+          oldLocal,
+          newLocal,
+          () => appRepository.editComponent(originalComponent),
+        );
       case StravaEntry():
         // Strava activities are synced and read-only — reject the move and
         // rebuild so the appointment snaps back to its original slot.
@@ -281,12 +304,37 @@ class _CalendarPageState extends State<CalendarPage> {
           duration: const Duration(seconds: 2),
           backgroundColor: Theme.of(context).colorScheme.errorContainer,
           content: Text(
-            "Strava activities can't be edited",
+            "Strava activities can't be edited.",
             style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
           ),
         ));
         setState(() {});
     }
+  }
+
+  void _showMoveUndoSnackBar(
+    String subject,
+    DateTime from,
+    DateTime to,
+    Future<void> Function() restore,
+  ) {
+    if (!mounted) return;
+    final appSettings = context.read<AppSettings>();
+    final format = DateFormat('${appSettings.dateFormat} ${appSettings.timeFormat}');
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(
+          "'$subject' moved\n${format.format(from)}  →  ${format.format(to)}",
+        ),
+        duration: const Duration(seconds: 5),
+        persist: false,
+        showCloseIcon: true,
+        action: SnackBarAction(
+          label: 'UNDO',
+          onPressed: () async => restore(),
+        ),
+      ));
   }
 
   @override

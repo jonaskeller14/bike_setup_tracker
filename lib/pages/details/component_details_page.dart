@@ -439,6 +439,13 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                         }
                       });
                     },
+                    onLongPress: () {
+                      unawaited(HapticFeedback.selectionClick());
+                      setState(() {
+                        column.active = false;
+                        if (_selectedLineChartColumn == column) _selectedLineChartColumn = null;
+                      });
+                    },
                     borderRadius: BorderRadius.circular(8),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
@@ -712,6 +719,18 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                                     _selectedRadarSetupId = null;
                                   } else {
                                     _selectedRadarSetupId = setup.id;
+                                  }
+                                });
+                              },
+                              onLongPress: () {
+                                unawaited(HapticFeedback.selectionClick());
+                                setState(() {
+                                  _selectedSetupIds!.remove(setup.id);
+                                  if (_selectedRadarSetupId == setup.id) _selectedRadarSetupId = null;
+                                  if (_touchedRadarSetupId == setup.id) {
+                                    _touchedRadarOffset = null;
+                                    _touchedRadarSetupId = null;
+                                    _touchedRadarColumn = null;
                                   }
                                 });
                               },

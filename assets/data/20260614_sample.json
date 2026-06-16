@@ -1,0 +1,3456 @@
+{
+  "persons": [
+    {
+      "version": 1,
+      "id": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Alex Berg",
+      "notes": null,
+      "stravaAthlete": null,
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "86a95c39-2692-49f4-b6d2-122321d25118",
+          "name": "Body weight",
+          "notes": null,
+          "type": "numerical",
+          "unit": "kg",
+          "category": "AdjustmentCategory.body",
+          "min": 0.0,
+          "max": null
+        },
+        {
+          "version": 1,
+          "id": "8dcdc09a-067c-4203-8556-a053fc97371d",
+          "name": "Height",
+          "notes": null,
+          "type": "numerical",
+          "unit": "cm",
+          "category": "AdjustmentCategory.body",
+          "min": 0.0,
+          "max": null
+        },
+        {
+          "version": 1,
+          "id": "2eb8f109-9e2c-4df6-b875-ddd5258e5dd9",
+          "name": "Nutrition",
+          "notes": null,
+          "type": "text",
+          "unit": null,
+          "category": "AdjustmentCategory.nutrition"
+        }
+      ]
+    },
+    {
+      "version": 1,
+      "id": "3e376e43-118e-4252-837a-79cdce5758bd",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Mia Sommer",
+      "notes": null,
+      "stravaAthlete": null,
+      "orderIndex": 1,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "a8f06bfd-b7af-4890-8b9a-d124f231fbc9",
+          "name": "Body weight",
+          "notes": null,
+          "type": "numerical",
+          "unit": "kg",
+          "category": "AdjustmentCategory.body",
+          "min": 0.0,
+          "max": null
+        },
+        {
+          "version": 1,
+          "id": "f952bf93-11e0-4c6d-a34e-9f3a7cd6c235",
+          "name": "Height",
+          "notes": null,
+          "type": "numerical",
+          "unit": "cm",
+          "category": "AdjustmentCategory.body",
+          "min": 0.0,
+          "max": null
+        }
+      ]
+    }
+  ],
+  "bikes": [
+    {
+      "version": 4,
+      "id": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Santa Cruz Hightower",
+      "notes": "2025 - XL - CC frame",
+      "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "stravaGear": null,
+      "orderIndex": 0
+    },
+    {
+      "version": 4,
+      "id": "5c9f1ccd-f00b-4145-ad8d-5e74fbf3c55a",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Trek Session 9",
+      "notes": "Park bike",
+      "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "stravaGear": null,
+      "orderIndex": 1
+    },
+    {
+      "version": 4,
+      "id": "5a1bf1cf-9ae4-4481-9b2e-4a50f9424039",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Specialized Turbo Levo SL",
+      "notes": "Lightweight eMTB",
+      "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "stravaGear": null,
+      "orderIndex": 2
+    },
+    {
+      "version": 4,
+      "id": "2f04a328-75ee-4917-b140-2cafdaf1606f",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Canyon Grizl",
+      "notes": "Gravel / bikepacking",
+      "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "stravaGear": null,
+      "orderIndex": 3
+    },
+    {
+      "version": 4,
+      "id": "08d0a9e6-2c91-472c-a6e6-b28a6431a013",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Juliana Roubion",
+      "notes": "Mia's enduro",
+      "person": "3e376e43-118e-4252-837a-79cdce5758bd",
+      "stravaGear": null,
+      "orderIndex": 4
+    }
+  ],
+  "setups": [
+    {
+      "version": 4,
+      "id": "f3fa91ed-ce3b-4e6c-bcf6-b88129d43f2b",
+      "isDeleted": false,
+      "lastModified": "2026-05-01T15:30:00.000Z",
+      "name": "Hometrails - Season Opener",
+      "datetime": "2026-05-01T15:30:00.000Z",
+      "datetimeLocal": "2026-05-01T17:30:00.000",
+      "notes": "First proper ride of the season. Bike feels great.",
+      "tags": [],
+      "bike": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+      "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "bikeAdjustmentValues": {
+        "22866141-fe35-4cdc-99df-6e1ba91c1033": 82,
+        "8d75bfc4-73d0-4fcc-bbbd-0bf9e4ddc352": 2,
+        "2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d": 6,
+        "752afe27-22b7-45a2-92f6-b78f37237960": 2,
+        "aefea436-580a-479b-bcd4-943a93c8e2fb": 9,
+        "db17c214-1cd8-4297-ae5b-fbb0a3678bc6": 190,
+        "9b86a28f-e963-407d-9771-22231e86ea08": 1,
+        "b3e1a5e0-9f9c-45de-bcb7-575477def1f8": 4,
+        "ae9566eb-92e1-47c5-8f9a-eb910ad04e14": 8,
+        "5ded178b-a101-439e-8981-22723d268c48": "open",
+        "f737bd0c-ed02-43f6-bf34-06fab34687dc": "Assegai MaxxTerra",
+        "da8957c9-ab11-4b3e-8a2a-dc9cc6f63f6f": 1.5,
+        "9064a7c9-73ad-46a7-987e-1b9ca5c362fa": "Minion DHR II",
+        "b195313b-f98d-45b5-afc5-899aa124c085": 1.7,
+        "d6286cb3-6c8e-409f-b86f-13d602d49cb1": true,
+        "a3994fd0-85cb-42fb-b19a-04a36906cacf": 4.0,
+        "a05b6b56-9025-4bf7-9c5b-bb84e563ec6b": 4
+      },
+      "personAdjustmentValues": {
+        "86a95c39-2692-49f4-b6d2-122321d25118": 78.0,
+        "8dcdc09a-067c-4203-8556-a053fc97371d": 183.0
+      },
+      "ratingAdjustmentValues": {
+        "89b5f726-97a8-4fe5-923f-e83c1e7be81f": "Just right",
+        "61b54331-0105-46f3-99b9-a87a91a5c680": "Balanced",
+        "6d15e7c9-85ea-4ca0-b9bc-c588fbb18d5f": 4,
+        "7de2e31f-3956-4f22-8906-d415eb0331c1": false,
+        "3ec059d9-8656-4315-b55c-4bd22c4ce1a7": 5
+      },
+      "position": {
+        "latitude": 48.7758,
+        "longitude": 9.1829,
+        "altitude": 320.0,
+        "accuracy": null,
+        "heading": null,
+        "speed": null,
+        "speedAccuracy": null,
+        "time": null
+      },
+      "place": {
+        "name": "Galgenberg",
+        "thoroughfare": "Trailpark",
+        "subThoroughfare": "",
+        "locality": "Stuttgart",
+        "subLocality": "",
+        "administrativeArea": "Baden-Württemberg",
+        "subAdministrativeArea": "",
+        "postalCode": "70597",
+        "country": "Germany",
+        "isoCountryCode": "DE"
+      },
+      "weather": {
+        "currentDateTime": "2026-05-01T17:00:00.000",
+        "currentTemperature": 18.4,
+        "currentWeatherCode": 1,
+        "currentHumidity": 58.0,
+        "currentWindSpeed": 7.0,
+        "currentPrecipitation": 0.0,
+        "currentSoilMoisture0to7cm": 0.21,
+        "dayAccumulatedPrecipitation": 0.0,
+        "condition": "Condition.dry"
+      }
+    },
+    {
+      "version": 4,
+      "id": "0e0c4484-64e4-491a-be14-c403d67fc4f3",
+      "isDeleted": false,
+      "lastModified": "2026-05-03T09:00:00.000Z",
+      "name": "Bikepark Winterberg",
+      "datetime": "2026-05-03T09:00:00.000Z",
+      "datetimeLocal": "2026-05-03T11:00:00.000",
+      "notes": "Park day. Dialed the 40 a touch faster on rebound.",
+      "tags": [
+        "Bikepark"
+      ],
+      "bike": "5c9f1ccd-f00b-4145-ad8d-5e74fbf3c55a",
+      "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "bikeAdjustmentValues": {
+        "c8afe082-335a-45e8-b31e-14bf653228dc": 78,
+        "dde60d2f-29df-40a0-a537-869845086024": 2,
+        "b580c957-dda6-4060-aab9-befb785ce0c0": -4,
+        "f4f88cb6-7242-4df4-a248-eb8d485d868a": -8,
+        "25ec7116-8a17-410a-9be2-c026169d4966": -3,
+        "b8790bf5-d802-4700-ac57-263c8078b72b": -10,
+        "ce121e00-854b-4f2a-8790-f0494f7f5f86": 450,
+        "b18e65e6-bb38-47df-89bc-5e5c83a6f066": -3,
+        "6635be6b-1972-4b6b-8c99-1ff7286fdca6": -7,
+        "da260eac-0561-42d3-b6c5-babf262a3a62": -2,
+        "02c8bab2-ff9f-4fe7-93c9-7364f06fb29c": -9,
+        "d8a52cdd-f29a-49b3-b8f2-fd0c0eac1eee": "Assegai DH MaxxGrip",
+        "d38eeb64-87b5-4bf7-8575-40fafae647a1": 1.55,
+        "acc7db05-e2ac-4486-872b-44358218e7b4": "Minion DHR II DH",
+        "489b94ee-a0c9-4f4a-bc0a-03716b812127": 1.75,
+        "84ad0435-6890-46f7-8558-1254c7d4ad67": true
+      },
+      "personAdjustmentValues": {
+        "86a95c39-2692-49f4-b6d2-122321d25118": 78.0,
+        "8dcdc09a-067c-4203-8556-a053fc97371d": 183.0
+      },
+      "ratingAdjustmentValues": {},
+      "position": {
+        "latitude": 51.1933,
+        "longitude": 8.5158,
+        "altitude": 668.0,
+        "accuracy": null,
+        "heading": null,
+        "speed": null,
+        "speedAccuracy": null,
+        "time": null
+      },
+      "place": {
+        "name": "Winterberg",
+        "thoroughfare": "Remmeswiese",
+        "subThoroughfare": "1",
+        "locality": "Winterberg",
+        "subLocality": "",
+        "administrativeArea": "Nordrhein-Westfalen",
+        "subAdministrativeArea": "",
+        "postalCode": "59955",
+        "country": "Germany",
+        "isoCountryCode": "DE"
+      },
+      "weather": {
+        "currentDateTime": "2026-05-03T11:00:00.000",
+        "currentTemperature": 14.0,
+        "currentWeatherCode": 3,
+        "currentHumidity": 70.0,
+        "currentWindSpeed": 9.0,
+        "currentPrecipitation": 0.0,
+        "currentSoilMoisture0to7cm": 0.3,
+        "dayAccumulatedPrecipitation": 0.0,
+        "condition": "Condition.moist"
+      }
+    },
+    {
+      "version": 4,
+      "id": "35f8630f-95f0-4c98-a6a1-55bee4d2de25",
+      "isDeleted": false,
+      "lastModified": "2026-05-05T16:00:00.000Z",
+      "name": "Hometrails - post fork service",
+      "datetime": "2026-05-05T16:00:00.000Z",
+      "datetimeLocal": "2026-05-05T18:00:00.000",
+      "notes": "Fresh lowers oil. Fork much more supple off the top.",
+      "tags": [],
+      "bike": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+      "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "bikeAdjustmentValues": {
+        "22866141-fe35-4cdc-99df-6e1ba91c1033": 84,
+        "8d75bfc4-73d0-4fcc-bbbd-0bf9e4ddc352": 2,
+        "2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d": 7,
+        "752afe27-22b7-45a2-92f6-b78f37237960": 2,
+        "aefea436-580a-479b-bcd4-943a93c8e2fb": 9,
+        "db17c214-1cd8-4297-ae5b-fbb0a3678bc6": 192,
+        "9b86a28f-e963-407d-9771-22231e86ea08": 1,
+        "b3e1a5e0-9f9c-45de-bcb7-575477def1f8": 4,
+        "ae9566eb-92e1-47c5-8f9a-eb910ad04e14": 8,
+        "5ded178b-a101-439e-8981-22723d268c48": "open",
+        "f737bd0c-ed02-43f6-bf34-06fab34687dc": "Assegai MaxxTerra",
+        "da8957c9-ab11-4b3e-8a2a-dc9cc6f63f6f": 1.5,
+        "9064a7c9-73ad-46a7-987e-1b9ca5c362fa": "Minion DHR II",
+        "b195313b-f98d-45b5-afc5-899aa124c085": 1.7,
+        "d6286cb3-6c8e-409f-b86f-13d602d49cb1": true,
+        "a3994fd0-85cb-42fb-b19a-04a36906cacf": 4.0,
+        "a05b6b56-9025-4bf7-9c5b-bb84e563ec6b": 4
+      },
+      "personAdjustmentValues": {
+        "86a95c39-2692-49f4-b6d2-122321d25118": 78.0,
+        "8dcdc09a-067c-4203-8556-a053fc97371d": 183.0
+      },
+      "ratingAdjustmentValues": {},
+      "position": {
+        "latitude": 48.782,
+        "longitude": 9.175,
+        "altitude": 360.0,
+        "accuracy": null,
+        "heading": null,
+        "speed": null,
+        "speedAccuracy": null,
+        "time": null
+      },
+      "place": {
+        "name": "Birkenkopf",
+        "thoroughfare": "Trail",
+        "subThoroughfare": "",
+        "locality": "Stuttgart",
+        "subLocality": "",
+        "administrativeArea": "Baden-Württemberg",
+        "subAdministrativeArea": "",
+        "postalCode": "70197",
+        "country": "Germany",
+        "isoCountryCode": "DE"
+      },
+      "weather": {
+        "currentDateTime": "2026-05-05T18:00:00.000",
+        "currentTemperature": 16.0,
+        "currentWeatherCode": 2,
+        "currentHumidity": 62.0,
+        "currentWindSpeed": 5.0,
+        "currentPrecipitation": 0.0,
+        "currentSoilMoisture0to7cm": 0.24,
+        "dayAccumulatedPrecipitation": 0.0,
+        "condition": "Condition.dry"
+      }
+    },
+    {
+      "version": 4,
+      "id": "0e432d37-da80-4711-a6a5-b846a81c3ee1",
+      "isDeleted": false,
+      "lastModified": "2026-05-09T08:30:00.000Z",
+      "name": "Saalbach - Big Day Out",
+      "datetime": "2026-05-09T08:30:00.000Z",
+      "datetimeLocal": "2026-05-09T10:30:00.000",
+      "notes": "2.000 hm uphill, all the trails. Battery to 8%.",
+      "tags": [
+        "Saalbach",
+        "eMTB"
+      ],
+      "bike": "5a1bf1cf-9ae4-4481-9b2e-4a50f9424039",
+      "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "bikeAdjustmentValues": {
+        "0dcda173-d82b-4e8c-8b81-447cdc7a1fbf": 88,
+        "6bad03d7-c551-4699-9c6a-8d37aa26fac3": 2,
+        "785988d6-c3c1-4a43-96e3-8487204ac446": 8,
+        "e5e09e73-b216-4e62-9159-d9600640812d": 4,
+        "6404d661-90ae-4506-98ee-b2fb3cb3fbbd": 9,
+        "53a3d815-06c7-4a3c-bc35-6d552822ff18": 165,
+        "b16a983c-5d9c-453e-84dc-4b0e20bffc5f": "open",
+        "bf847d7e-0eaf-4e57-8b78-b4948b9806e2": 4,
+        "77d7ba98-9865-4d75-b283-5e5bb0956d63": 60,
+        "a9bcbad2-b751-4bcb-9dad-240779fa1afb": 100,
+        "d0fd34bc-476f-4f8d-9646-236e546915b3": "Standard",
+        "3d6ce005-1724-48e9-85d6-2d9e30302890": "Butcher GRID",
+        "8b341730-7552-4be0-8974-3bb37d11caa1": 1.55,
+        "e7e01e6a-fbb3-4407-a365-183399a198b8": "Eliminator GRID",
+        "a22b0d18-6de2-4046-86c8-492c55026f83": 1.8,
+        "ffd9ba1f-e6e8-40e7-a73c-e675f4f4a61e": true
+      },
+      "personAdjustmentValues": {
+        "86a95c39-2692-49f4-b6d2-122321d25118": 78.0,
+        "8dcdc09a-067c-4203-8556-a053fc97371d": 183.0
+      },
+      "ratingAdjustmentValues": {
+        "89b5f726-97a8-4fe5-923f-e83c1e7be81f": "Just right",
+        "61b54331-0105-46f3-99b9-a87a91a5c680": "Balanced",
+        "6d15e7c9-85ea-4ca0-b9bc-c588fbb18d5f": 4,
+        "7de2e31f-3956-4f22-8906-d415eb0331c1": false,
+        "3ec059d9-8656-4315-b55c-4bd22c4ce1a7": 5
+      },
+      "position": {
+        "latitude": 47.3897,
+        "longitude": 12.636,
+        "altitude": 1003.0,
+        "accuracy": null,
+        "heading": null,
+        "speed": null,
+        "speedAccuracy": null,
+        "time": null
+      },
+      "place": {
+        "name": "Saalbach",
+        "thoroughfare": "Glemmtaler Landesstraße",
+        "subThoroughfare": "550",
+        "locality": "Saalbach-Hinterglemm",
+        "subLocality": "",
+        "administrativeArea": "Salzburg",
+        "subAdministrativeArea": "",
+        "postalCode": "5753",
+        "country": "Austria",
+        "isoCountryCode": "AT"
+      },
+      "weather": {
+        "currentDateTime": "2026-05-09T10:00:00.000",
+        "currentTemperature": 12.0,
+        "currentWeatherCode": 1,
+        "currentHumidity": 55.0,
+        "currentWindSpeed": 6.0,
+        "currentPrecipitation": 0.0,
+        "currentSoilMoisture0to7cm": 0.18,
+        "dayAccumulatedPrecipitation": 0.0,
+        "condition": "Condition.dry"
+      }
+    },
+    {
+      "version": 4,
+      "id": "858f5d2b-8719-443a-8607-3160a922ef1b",
+      "isDeleted": false,
+      "lastModified": "2026-05-10T09:00:00.000Z",
+      "name": "Saalbach - Hacklberg & Pro Line",
+      "datetime": "2026-05-10T09:00:00.000Z",
+      "datetimeLocal": "2026-05-10T11:00:00.000",
+      "notes": "Bumped shock pressure for the jump line. Felt poppier.",
+      "tags": [
+        "Saalbach",
+        "eMTB"
+      ],
+      "bike": "5a1bf1cf-9ae4-4481-9b2e-4a50f9424039",
+      "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "bikeAdjustmentValues": {
+        "0dcda173-d82b-4e8c-8b81-447cdc7a1fbf": 88,
+        "6bad03d7-c551-4699-9c6a-8d37aa26fac3": 2,
+        "785988d6-c3c1-4a43-96e3-8487204ac446": 8,
+        "e5e09e73-b216-4e62-9159-d9600640812d": 4,
+        "6404d661-90ae-4506-98ee-b2fb3cb3fbbd": 8,
+        "53a3d815-06c7-4a3c-bc35-6d552822ff18": 168,
+        "b16a983c-5d9c-453e-84dc-4b0e20bffc5f": "open",
+        "bf847d7e-0eaf-4e57-8b78-b4948b9806e2": 5,
+        "77d7ba98-9865-4d75-b283-5e5bb0956d63": 50,
+        "a9bcbad2-b751-4bcb-9dad-240779fa1afb": 100,
+        "d0fd34bc-476f-4f8d-9646-236e546915b3": "Responsive",
+        "3d6ce005-1724-48e9-85d6-2d9e30302890": "Butcher GRID",
+        "8b341730-7552-4be0-8974-3bb37d11caa1": 1.55,
+        "e7e01e6a-fbb3-4407-a365-183399a198b8": "Eliminator GRID",
+        "a22b0d18-6de2-4046-86c8-492c55026f83": 1.8,
+        "ffd9ba1f-e6e8-40e7-a73c-e675f4f4a61e": true
+      },
+      "personAdjustmentValues": {
+        "86a95c39-2692-49f4-b6d2-122321d25118": 78.0,
+        "8dcdc09a-067c-4203-8556-a053fc97371d": 183.0
+      },
+      "ratingAdjustmentValues": {},
+      "position": {
+        "latitude": 47.365,
+        "longitude": 12.644,
+        "altitude": 1870.0,
+        "accuracy": null,
+        "heading": null,
+        "speed": null,
+        "speedAccuracy": null,
+        "time": null
+      },
+      "place": {
+        "name": "Reiterkogel",
+        "thoroughfare": "Bergbahn",
+        "subThoroughfare": "",
+        "locality": "Saalbach-Hinterglemm",
+        "subLocality": "",
+        "administrativeArea": "Salzburg",
+        "subAdministrativeArea": "",
+        "postalCode": "5753",
+        "country": "Austria",
+        "isoCountryCode": "AT"
+      },
+      "weather": {
+        "currentDateTime": "2026-05-10T11:00:00.000",
+        "currentTemperature": 10.5,
+        "currentWeatherCode": 2,
+        "currentHumidity": 60.0,
+        "currentWindSpeed": 8.0,
+        "currentPrecipitation": 0.0,
+        "currentSoilMoisture0to7cm": 0.2,
+        "dayAccumulatedPrecipitation": 0.0,
+        "condition": "Condition.moist"
+      }
+    },
+    {
+      "version": 4,
+      "id": "665a7021-6bbc-4502-ad85-2f44ad17b087",
+      "isDeleted": false,
+      "lastModified": "2026-05-13T15:00:00.000Z",
+      "name": "Flowtrail Stromberg",
+      "datetime": "2026-05-13T15:00:00.000Z",
+      "datetimeLocal": "2026-05-13T17:00:00.000",
+      "notes": "Faster rebound for the flow trail. Switched rear to Dissector.",
+      "tags": [],
+      "bike": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+      "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "bikeAdjustmentValues": {
+        "22866141-fe35-4cdc-99df-6e1ba91c1033": 83,
+        "8d75bfc4-73d0-4fcc-bbbd-0bf9e4ddc352": 2,
+        "2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d": 6,
+        "752afe27-22b7-45a2-92f6-b78f37237960": 2,
+        "aefea436-580a-479b-bcd4-943a93c8e2fb": 10,
+        "db17c214-1cd8-4297-ae5b-fbb0a3678bc6": 190,
+        "9b86a28f-e963-407d-9771-22231e86ea08": 1,
+        "b3e1a5e0-9f9c-45de-bcb7-575477def1f8": 3,
+        "ae9566eb-92e1-47c5-8f9a-eb910ad04e14": 9,
+        "5ded178b-a101-439e-8981-22723d268c48": "open",
+        "f737bd0c-ed02-43f6-bf34-06fab34687dc": "Assegai MaxxTerra",
+        "da8957c9-ab11-4b3e-8a2a-dc9cc6f63f6f": 1.45,
+        "9064a7c9-73ad-46a7-987e-1b9ca5c362fa": "Dissector",
+        "b195313b-f98d-45b5-afc5-899aa124c085": 1.65,
+        "d6286cb3-6c8e-409f-b86f-13d602d49cb1": true,
+        "a3994fd0-85cb-42fb-b19a-04a36906cacf": 4.0,
+        "a05b6b56-9025-4bf7-9c5b-bb84e563ec6b": 4
+      },
+      "personAdjustmentValues": {
+        "86a95c39-2692-49f4-b6d2-122321d25118": 78.0,
+        "8dcdc09a-067c-4203-8556-a053fc97371d": 183.0
+      },
+      "ratingAdjustmentValues": {},
+      "position": {
+        "latitude": 49.93,
+        "longitude": 8.048,
+        "altitude": 280.0,
+        "accuracy": null,
+        "heading": null,
+        "speed": null,
+        "speedAccuracy": null,
+        "time": null
+      },
+      "place": {
+        "name": "Flowtrail",
+        "thoroughfare": "Binger Straße",
+        "subThoroughfare": "",
+        "locality": "Stromberg",
+        "subLocality": "",
+        "administrativeArea": "Rheinland-Pfalz",
+        "subAdministrativeArea": "",
+        "postalCode": "55442",
+        "country": "Germany",
+        "isoCountryCode": "DE"
+      },
+      "weather": {
+        "currentDateTime": "2026-05-13T17:00:00.000",
+        "currentTemperature": 19.0,
+        "currentWeatherCode": 0,
+        "currentHumidity": 50.0,
+        "currentWindSpeed": 4.0,
+        "currentPrecipitation": 0.0,
+        "currentSoilMoisture0to7cm": 0.16,
+        "dayAccumulatedPrecipitation": 0.0,
+        "condition": "Condition.dry"
+      }
+    },
+    {
+      "version": 4,
+      "id": "dd4aadb3-4cef-41b5-b7af-39c406c35e91",
+      "isDeleted": false,
+      "lastModified": "2026-05-16T08:00:00.000Z",
+      "name": "Leogang - Worldcup Track (wet)",
+      "datetime": "2026-05-16T08:00:00.000Z",
+      "datetimeLocal": "2026-05-16T10:00:00.000",
+      "notes": "Rained overnight, dropped pressures for grip. Steep and greasy.",
+      "tags": [
+        "Bikepark",
+        "Leogang"
+      ],
+      "bike": "5c9f1ccd-f00b-4145-ad8d-5e74fbf3c55a",
+      "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "bikeAdjustmentValues": {
+        "c8afe082-335a-45e8-b31e-14bf653228dc": 80,
+        "dde60d2f-29df-40a0-a537-869845086024": 3,
+        "b580c957-dda6-4060-aab9-befb785ce0c0": -5,
+        "f4f88cb6-7242-4df4-a248-eb8d485d868a": -9,
+        "25ec7116-8a17-410a-9be2-c026169d4966": -3,
+        "b8790bf5-d802-4700-ac57-263c8078b72b": -11,
+        "ce121e00-854b-4f2a-8790-f0494f7f5f86": 450,
+        "b18e65e6-bb38-47df-89bc-5e5c83a6f066": -4,
+        "6635be6b-1972-4b6b-8c99-1ff7286fdca6": -8,
+        "da260eac-0561-42d3-b6c5-babf262a3a62": -2,
+        "02c8bab2-ff9f-4fe7-93c9-7364f06fb29c": -10,
+        "d8a52cdd-f29a-49b3-b8f2-fd0c0eac1eee": "Assegai DH MaxxGrip",
+        "d38eeb64-87b5-4bf7-8575-40fafae647a1": 1.45,
+        "acc7db05-e2ac-4486-872b-44358218e7b4": "Minion DHR II DH",
+        "489b94ee-a0c9-4f4a-bc0a-03716b812127": 1.65,
+        "84ad0435-6890-46f7-8558-1254c7d4ad67": true
+      },
+      "personAdjustmentValues": {
+        "86a95c39-2692-49f4-b6d2-122321d25118": 78.0,
+        "8dcdc09a-067c-4203-8556-a053fc97371d": 183.0
+      },
+      "ratingAdjustmentValues": {
+        "89b5f726-97a8-4fe5-923f-e83c1e7be81f": "Bottoming out",
+        "61b54331-0105-46f3-99b9-a87a91a5c680": "Rear is faster",
+        "6d15e7c9-85ea-4ca0-b9bc-c588fbb18d5f": 3,
+        "7de2e31f-3956-4f22-8906-d415eb0331c1": true,
+        "3ec059d9-8656-4315-b55c-4bd22c4ce1a7": 4,
+        "3779e8e1-3b8d-428e-b62a-b2761a19b8b5": "0:03:48.500000"
+      },
+      "position": {
+        "latitude": 47.436,
+        "longitude": 12.756,
+        "altitude": 838.0,
+        "accuracy": null,
+        "heading": null,
+        "speed": null,
+        "speedAccuracy": null,
+        "time": null
+      },
+      "place": {
+        "name": "Leogang",
+        "thoroughfare": "Hütten",
+        "subThoroughfare": "39",
+        "locality": "Leogang",
+        "subLocality": "",
+        "administrativeArea": "Salzburg",
+        "subAdministrativeArea": "",
+        "postalCode": "5771",
+        "country": "Austria",
+        "isoCountryCode": "AT"
+      },
+      "weather": {
+        "currentDateTime": "2026-05-16T10:00:00.000",
+        "currentTemperature": 9.0,
+        "currentWeatherCode": 61,
+        "currentHumidity": 88.0,
+        "currentWindSpeed": 5.0,
+        "currentPrecipitation": 0.4,
+        "currentSoilMoisture0to7cm": 0.4,
+        "dayAccumulatedPrecipitation": 3.2,
+        "condition": "Condition.muddy"
+      }
+    },
+    {
+      "version": 4,
+      "id": "9e39cdba-9d91-446c-bcb7-a2a402796a28",
+      "isDeleted": false,
+      "lastModified": "2026-05-17T11:30:00.000Z",
+      "name": "Leogang - Speedster (dry)",
+      "datetime": "2026-05-17T11:30:00.000Z",
+      "datetimeLocal": "2026-05-17T13:30:00.000",
+      "notes": "Dried out. Added a click of HSC front + rear, more support.",
+      "tags": [
+        "Bikepark",
+        "Leogang"
+      ],
+      "bike": "5c9f1ccd-f00b-4145-ad8d-5e74fbf3c55a",
+      "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "bikeAdjustmentValues": {
+        "c8afe082-335a-45e8-b31e-14bf653228dc": 82,
+        "dde60d2f-29df-40a0-a537-869845086024": 3,
+        "b580c957-dda6-4060-aab9-befb785ce0c0": -4,
+        "f4f88cb6-7242-4df4-a248-eb8d485d868a": -8,
+        "25ec7116-8a17-410a-9be2-c026169d4966": -3,
+        "b8790bf5-d802-4700-ac57-263c8078b72b": -10,
+        "ce121e00-854b-4f2a-8790-f0494f7f5f86": 450,
+        "b18e65e6-bb38-47df-89bc-5e5c83a6f066": -3,
+        "6635be6b-1972-4b6b-8c99-1ff7286fdca6": -7,
+        "da260eac-0561-42d3-b6c5-babf262a3a62": -2,
+        "02c8bab2-ff9f-4fe7-93c9-7364f06fb29c": -9,
+        "d8a52cdd-f29a-49b3-b8f2-fd0c0eac1eee": "Assegai DH MaxxGrip",
+        "d38eeb64-87b5-4bf7-8575-40fafae647a1": 1.55,
+        "acc7db05-e2ac-4486-872b-44358218e7b4": "Minion DHR II DH",
+        "489b94ee-a0c9-4f4a-bc0a-03716b812127": 1.75,
+        "84ad0435-6890-46f7-8558-1254c7d4ad67": true
+      },
+      "personAdjustmentValues": {
+        "86a95c39-2692-49f4-b6d2-122321d25118": 78.0,
+        "8dcdc09a-067c-4203-8556-a053fc97371d": 183.0
+      },
+      "ratingAdjustmentValues": {
+        "89b5f726-97a8-4fe5-923f-e83c1e7be81f": "Just right",
+        "61b54331-0105-46f3-99b9-a87a91a5c680": "Balanced",
+        "6d15e7c9-85ea-4ca0-b9bc-c588fbb18d5f": 4,
+        "7de2e31f-3956-4f22-8906-d415eb0331c1": false,
+        "3ec059d9-8656-4315-b55c-4bd22c4ce1a7": 5,
+        "3779e8e1-3b8d-428e-b62a-b2761a19b8b5": "0:03:41.200000"
+      },
+      "position": {
+        "latitude": 47.436,
+        "longitude": 12.756,
+        "altitude": 1880.0,
+        "accuracy": null,
+        "heading": null,
+        "speed": null,
+        "speedAccuracy": null,
+        "time": null
+      },
+      "place": {
+        "name": "Asitz",
+        "thoroughfare": "Bergbahn",
+        "subThoroughfare": "",
+        "locality": "Leogang",
+        "subLocality": "",
+        "administrativeArea": "Salzburg",
+        "subAdministrativeArea": "",
+        "postalCode": "5771",
+        "country": "Austria",
+        "isoCountryCode": "AT"
+      },
+      "weather": {
+        "currentDateTime": "2026-05-17T13:00:00.000",
+        "currentTemperature": 15.0,
+        "currentWeatherCode": 1,
+        "currentHumidity": 55.0,
+        "currentWindSpeed": 6.0,
+        "currentPrecipitation": 0.0,
+        "currentSoilMoisture0to7cm": 0.22,
+        "dayAccumulatedPrecipitation": 0.0,
+        "condition": "Condition.moist"
+      }
+    },
+    {
+      "version": 4,
+      "id": "5296ee57-47ed-40a1-91e6-f2c215a9b501",
+      "isDeleted": false,
+      "lastModified": "2026-05-18T16:00:00.000Z",
+      "name": "Mia - Hometrails",
+      "datetime": "2026-05-18T16:00:00.000Z",
+      "datetimeLocal": "2026-05-18T18:00:00.000",
+      "notes": "Softened fork a touch, was too harsh on the chatter.",
+      "tags": [],
+      "bike": "08d0a9e6-2c91-472c-a6e6-b28a6431a013",
+      "person": "3e376e43-118e-4252-837a-79cdce5758bd",
+      "bikeAdjustmentValues": {
+        "f14d933f-609b-418f-910b-e31e25c37f29": 62,
+        "e0087ce8-e08f-427a-9b13-2ee6dcc21705": 1,
+        "17e67cc1-7364-49d1-851a-2b1956fa424c": 6,
+        "808d1df2-a20e-45b5-bf15-4faa55598b8a": 8,
+        "48e97611-7411-4cc9-b666-28b40d11f431": 150,
+        "c84c43f2-0f2a-4693-8ee2-b7112227861d": 5,
+        "f90079db-7c0e-4eb8-b7b1-8e3dc0596db7": 9,
+        "4a7a16bd-76b2-4311-88a3-3ed47054d867": "Minion DHR II",
+        "676a82c1-2696-4002-9c01-8e9d8903bc2b": 1.5,
+        "23050bce-720d-456b-b128-1deb6e7fe0f1": true
+      },
+      "personAdjustmentValues": {
+        "a8f06bfd-b7af-4890-8b9a-d124f231fbc9": 64.0,
+        "f952bf93-11e0-4c6d-a34e-9f3a7cd6c235": 170.0
+      },
+      "ratingAdjustmentValues": {},
+      "position": {
+        "latitude": 48.7758,
+        "longitude": 9.1829,
+        "altitude": 320.0,
+        "accuracy": null,
+        "heading": null,
+        "speed": null,
+        "speedAccuracy": null,
+        "time": null
+      },
+      "place": {
+        "name": "Galgenberg",
+        "thoroughfare": "Trailpark",
+        "subThoroughfare": "",
+        "locality": "Stuttgart",
+        "subLocality": "",
+        "administrativeArea": "Baden-Württemberg",
+        "subAdministrativeArea": "",
+        "postalCode": "70597",
+        "country": "Germany",
+        "isoCountryCode": "DE"
+      },
+      "weather": {
+        "currentDateTime": "2026-05-18T18:00:00.000",
+        "currentTemperature": 17.0,
+        "currentWeatherCode": 1,
+        "currentHumidity": 60.0,
+        "currentWindSpeed": 5.0,
+        "currentPrecipitation": 0.0,
+        "currentSoilMoisture0to7cm": 0.21,
+        "dayAccumulatedPrecipitation": 0.0,
+        "condition": "Condition.dry"
+      }
+    },
+    {
+      "version": 4,
+      "id": "60546389-6a03-4f2a-86ff-ef00779c5340",
+      "isDeleted": false,
+      "lastModified": "2026-05-21T08:45:00.000Z",
+      "name": "Bikepark Lac Blanc",
+      "datetime": "2026-05-21T08:45:00.000Z",
+      "datetimeLocal": "2026-05-21T10:45:00.000",
+      "notes": "Rocky and rooty. Added a token in the fork for big hits.",
+      "tags": [
+        "Bikepark"
+      ],
+      "bike": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+      "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "bikeAdjustmentValues": {
+        "22866141-fe35-4cdc-99df-6e1ba91c1033": 85,
+        "8d75bfc4-73d0-4fcc-bbbd-0bf9e4ddc352": 2,
+        "2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d": 7,
+        "752afe27-22b7-45a2-92f6-b78f37237960": 3,
+        "aefea436-580a-479b-bcd4-943a93c8e2fb": 9,
+        "db17c214-1cd8-4297-ae5b-fbb0a3678bc6": 195,
+        "9b86a28f-e963-407d-9771-22231e86ea08": 1,
+        "b3e1a5e0-9f9c-45de-bcb7-575477def1f8": 4,
+        "ae9566eb-92e1-47c5-8f9a-eb910ad04e14": 8,
+        "5ded178b-a101-439e-8981-22723d268c48": "open",
+        "f737bd0c-ed02-43f6-bf34-06fab34687dc": "Assegai MaxxGrip",
+        "da8957c9-ab11-4b3e-8a2a-dc9cc6f63f6f": 1.5,
+        "9064a7c9-73ad-46a7-987e-1b9ca5c362fa": "Minion DHR II",
+        "b195313b-f98d-45b5-afc5-899aa124c085": 1.7,
+        "d6286cb3-6c8e-409f-b86f-13d602d49cb1": true,
+        "a3994fd0-85cb-42fb-b19a-04a36906cacf": 4.0,
+        "a05b6b56-9025-4bf7-9c5b-bb84e563ec6b": 4
+      },
+      "personAdjustmentValues": {
+        "86a95c39-2692-49f4-b6d2-122321d25118": 78.0,
+        "8dcdc09a-067c-4203-8556-a053fc97371d": 183.0
+      },
+      "ratingAdjustmentValues": {},
+      "position": {
+        "latitude": 48.1459,
+        "longitude": 7.0772,
+        "altitude": 1000.0,
+        "accuracy": null,
+        "heading": null,
+        "speed": null,
+        "speedAccuracy": null,
+        "time": null
+      },
+      "place": {
+        "name": "Lac Blanc",
+        "thoroughfare": "Auberge du Vallon",
+        "subThoroughfare": "",
+        "locality": "Le Bonhomme",
+        "subLocality": "",
+        "administrativeArea": "Grand Est",
+        "subAdministrativeArea": "",
+        "postalCode": "68650",
+        "country": "France",
+        "isoCountryCode": "FR"
+      },
+      "weather": {
+        "currentDateTime": "2026-05-21T10:00:00.000",
+        "currentTemperature": 16.0,
+        "currentWeatherCode": 2,
+        "currentHumidity": 65.0,
+        "currentWindSpeed": 7.0,
+        "currentPrecipitation": 0.0,
+        "currentSoilMoisture0to7cm": 0.22,
+        "dayAccumulatedPrecipitation": 0.0,
+        "condition": "Condition.moist"
+      }
+    },
+    {
+      "version": 4,
+      "id": "891c8945-6fff-4a7a-83dc-523bba982d46",
+      "isDeleted": false,
+      "lastModified": "2026-05-23T09:00:00.000Z",
+      "name": "Finale Ligure - NATO Trail",
+      "datetime": "2026-05-23T09:00:00.000Z",
+      "datetimeLocal": "2026-05-23T11:00:00.000",
+      "notes": "Loose over hard. Slowed rebound and firmed up for the long descents.",
+      "tags": [
+        "Finale",
+        "Trip"
+      ],
+      "bike": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+      "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "bikeAdjustmentValues": {
+        "22866141-fe35-4cdc-99df-6e1ba91c1033": 86,
+        "8d75bfc4-73d0-4fcc-bbbd-0bf9e4ddc352": 2,
+        "2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d": 8,
+        "752afe27-22b7-45a2-92f6-b78f37237960": 3,
+        "aefea436-580a-479b-bcd4-943a93c8e2fb": 8,
+        "db17c214-1cd8-4297-ae5b-fbb0a3678bc6": 198,
+        "9b86a28f-e963-407d-9771-22231e86ea08": 1,
+        "b3e1a5e0-9f9c-45de-bcb7-575477def1f8": 5,
+        "ae9566eb-92e1-47c5-8f9a-eb910ad04e14": 8,
+        "5ded178b-a101-439e-8981-22723d268c48": "open",
+        "f737bd0c-ed02-43f6-bf34-06fab34687dc": "Assegai MaxxTerra",
+        "da8957c9-ab11-4b3e-8a2a-dc9cc6f63f6f": 1.55,
+        "9064a7c9-73ad-46a7-987e-1b9ca5c362fa": "Minion DHR II",
+        "b195313b-f98d-45b5-afc5-899aa124c085": 1.8,
+        "d6286cb3-6c8e-409f-b86f-13d602d49cb1": true,
+        "a3994fd0-85cb-42fb-b19a-04a36906cacf": 4.0,
+        "a05b6b56-9025-4bf7-9c5b-bb84e563ec6b": 4
+      },
+      "personAdjustmentValues": {
+        "86a95c39-2692-49f4-b6d2-122321d25118": 78.0,
+        "8dcdc09a-067c-4203-8556-a053fc97371d": 183.0
+      },
+      "ratingAdjustmentValues": {
+        "89b5f726-97a8-4fe5-923f-e83c1e7be81f": "Just right",
+        "61b54331-0105-46f3-99b9-a87a91a5c680": "Balanced",
+        "6d15e7c9-85ea-4ca0-b9bc-c588fbb18d5f": 5,
+        "7de2e31f-3956-4f22-8906-d415eb0331c1": false,
+        "3ec059d9-8656-4315-b55c-4bd22c4ce1a7": 5
+      },
+      "position": {
+        "latitude": 44.1742,
+        "longitude": 8.3538,
+        "altitude": 320.0,
+        "accuracy": null,
+        "heading": null,
+        "speed": null,
+        "speedAccuracy": null,
+        "time": null
+      },
+      "place": {
+        "name": "NATO",
+        "thoroughfare": "Via Ovada",
+        "subThoroughfare": "103",
+        "locality": "Finale Ligure",
+        "subLocality": "",
+        "administrativeArea": "Liguria",
+        "subAdministrativeArea": "",
+        "postalCode": "17024",
+        "country": "Italy",
+        "isoCountryCode": "IT"
+      },
+      "weather": {
+        "currentDateTime": "2026-05-23T11:00:00.000",
+        "currentTemperature": 22.0,
+        "currentWeatherCode": 0,
+        "currentHumidity": 48.0,
+        "currentWindSpeed": 5.0,
+        "currentPrecipitation": 0.0,
+        "currentSoilMoisture0to7cm": 0.12,
+        "dayAccumulatedPrecipitation": 0.0,
+        "condition": "Condition.dry"
+      }
+    },
+    {
+      "version": 4,
+      "id": "aef06f55-8000-42f0-b9e9-d6d71ec2716b",
+      "isDeleted": false,
+      "lastModified": "2026-05-24T08:30:00.000Z",
+      "name": "Finale Ligure - DH Men",
+      "datetime": "2026-05-24T08:30:00.000Z",
+      "datetimeLocal": "2026-05-24T10:30:00.000",
+      "notes": "World Cup DH track. Front MaxxGrip for the steep tech.",
+      "tags": [
+        "Finale",
+        "Trip"
+      ],
+      "bike": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+      "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "bikeAdjustmentValues": {
+        "22866141-fe35-4cdc-99df-6e1ba91c1033": 86,
+        "8d75bfc4-73d0-4fcc-bbbd-0bf9e4ddc352": 2,
+        "2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d": 9,
+        "752afe27-22b7-45a2-92f6-b78f37237960": 3,
+        "aefea436-580a-479b-bcd4-943a93c8e2fb": 8,
+        "db17c214-1cd8-4297-ae5b-fbb0a3678bc6": 198,
+        "9b86a28f-e963-407d-9771-22231e86ea08": 1,
+        "b3e1a5e0-9f9c-45de-bcb7-575477def1f8": 5,
+        "ae9566eb-92e1-47c5-8f9a-eb910ad04e14": 8,
+        "5ded178b-a101-439e-8981-22723d268c48": "open",
+        "f737bd0c-ed02-43f6-bf34-06fab34687dc": "Assegai MaxxGrip",
+        "da8957c9-ab11-4b3e-8a2a-dc9cc6f63f6f": 1.5,
+        "9064a7c9-73ad-46a7-987e-1b9ca5c362fa": "Minion DHR II",
+        "b195313b-f98d-45b5-afc5-899aa124c085": 1.75,
+        "d6286cb3-6c8e-409f-b86f-13d602d49cb1": true,
+        "a3994fd0-85cb-42fb-b19a-04a36906cacf": 4.0,
+        "a05b6b56-9025-4bf7-9c5b-bb84e563ec6b": 4
+      },
+      "personAdjustmentValues": {
+        "86a95c39-2692-49f4-b6d2-122321d25118": 78.0,
+        "8dcdc09a-067c-4203-8556-a053fc97371d": 183.0
+      },
+      "ratingAdjustmentValues": {},
+      "position": {
+        "latitude": 44.189,
+        "longitude": 8.337,
+        "altitude": 480.0,
+        "accuracy": null,
+        "heading": null,
+        "speed": null,
+        "speedAccuracy": null,
+        "time": null
+      },
+      "place": {
+        "name": "DH Men",
+        "thoroughfare": "Via Le Manie",
+        "subThoroughfare": "",
+        "locality": "Finale Ligure",
+        "subLocality": "",
+        "administrativeArea": "Liguria",
+        "subAdministrativeArea": "",
+        "postalCode": "17024",
+        "country": "Italy",
+        "isoCountryCode": "IT"
+      },
+      "weather": {
+        "currentDateTime": "2026-05-24T10:00:00.000",
+        "currentTemperature": 21.0,
+        "currentWeatherCode": 1,
+        "currentHumidity": 52.0,
+        "currentWindSpeed": 6.0,
+        "currentPrecipitation": 0.0,
+        "currentSoilMoisture0to7cm": 0.14,
+        "dayAccumulatedPrecipitation": 0.0,
+        "condition": "Condition.dry"
+      }
+    },
+    {
+      "version": 4,
+      "id": "3b8f08b7-2eb4-4899-8481-161096143daf",
+      "isDeleted": false,
+      "lastModified": "2026-05-25T07:30:00.000Z",
+      "name": "Finale - eMTB explore day",
+      "datetime": "2026-05-25T07:30:00.000Z",
+      "datetimeLocal": "2026-05-25T09:30:00.000",
+      "notes": "Legs cooked from yesterday, took the Levo to link up trails.",
+      "tags": [
+        "Finale",
+        "Trip",
+        "eMTB"
+      ],
+      "bike": "5a1bf1cf-9ae4-4481-9b2e-4a50f9424039",
+      "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "bikeAdjustmentValues": {
+        "0dcda173-d82b-4e8c-8b81-447cdc7a1fbf": 90,
+        "6bad03d7-c551-4699-9c6a-8d37aa26fac3": 2,
+        "785988d6-c3c1-4a43-96e3-8487204ac446": 9,
+        "e5e09e73-b216-4e62-9159-d9600640812d": 4,
+        "6404d661-90ae-4506-98ee-b2fb3cb3fbbd": 9,
+        "53a3d815-06c7-4a3c-bc35-6d552822ff18": 170,
+        "b16a983c-5d9c-453e-84dc-4b0e20bffc5f": "open",
+        "bf847d7e-0eaf-4e57-8b78-b4948b9806e2": 5,
+        "77d7ba98-9865-4d75-b283-5e5bb0956d63": 70,
+        "a9bcbad2-b751-4bcb-9dad-240779fa1afb": 100,
+        "d0fd34bc-476f-4f8d-9646-236e546915b3": "Standard",
+        "3d6ce005-1724-48e9-85d6-2d9e30302890": "Butcher GRID",
+        "8b341730-7552-4be0-8974-3bb37d11caa1": 1.6,
+        "e7e01e6a-fbb3-4407-a365-183399a198b8": "Eliminator GRID",
+        "a22b0d18-6de2-4046-86c8-492c55026f83": 1.85,
+        "ffd9ba1f-e6e8-40e7-a73c-e675f4f4a61e": true
+      },
+      "personAdjustmentValues": {
+        "86a95c39-2692-49f4-b6d2-122321d25118": 78.0,
+        "8dcdc09a-067c-4203-8556-a053fc97371d": 183.0
+      },
+      "ratingAdjustmentValues": {},
+      "position": {
+        "latitude": 44.205,
+        "longitude": 8.345,
+        "altitude": 600.0,
+        "accuracy": null,
+        "heading": null,
+        "speed": null,
+        "speedAccuracy": null,
+        "time": null
+      },
+      "place": {
+        "name": "Le Manie",
+        "thoroughfare": "Strada Le Manie",
+        "subThoroughfare": "",
+        "locality": "Finale Ligure",
+        "subLocality": "",
+        "administrativeArea": "Liguria",
+        "subAdministrativeArea": "",
+        "postalCode": "17024",
+        "country": "Italy",
+        "isoCountryCode": "IT"
+      },
+      "weather": {
+        "currentDateTime": "2026-05-25T09:00:00.000",
+        "currentTemperature": 19.0,
+        "currentWeatherCode": 1,
+        "currentHumidity": 55.0,
+        "currentWindSpeed": 4.0,
+        "currentPrecipitation": 0.0,
+        "currentSoilMoisture0to7cm": 0.15,
+        "dayAccumulatedPrecipitation": 0.0,
+        "condition": "Condition.moist"
+      }
+    },
+    {
+      "version": 4,
+      "id": "9c622baf-c14c-4631-b0a2-3d3ab01c6696",
+      "isDeleted": false,
+      "lastModified": "2026-05-28T06:00:00.000Z",
+      "name": "Gravel - Kaiserstuhl Loop",
+      "datetime": "2026-05-28T06:00:00.000Z",
+      "datetimeLocal": "2026-05-28T08:00:00.000",
+      "notes": "85 km loop through the vineyards. Lowered pressure for the gravel sections.",
+      "tags": [
+        "Gravel"
+      ],
+      "bike": "2f04a328-75ee-4917-b140-2cafdaf1606f",
+      "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "bikeAdjustmentValues": {
+        "bdcc35b4-0bc2-4658-8d51-1ac65741bac4": "Pathfinder Pro 42",
+        "e8bf4053-f593-4d05-a539-0e8a84e3ca3d": 2.6,
+        "a0be17fb-51c3-4522-9078-c950a81d1965": "Pathfinder Pro 42",
+        "ee796534-cfd8-4d89-9f81-2b31396746a2": 2.8,
+        "22162aac-e637-4b56-b1c5-9a1b6c0be1ba": 745.0
+      },
+      "personAdjustmentValues": {
+        "86a95c39-2692-49f4-b6d2-122321d25118": 78.0,
+        "8dcdc09a-067c-4203-8556-a053fc97371d": 183.0
+      },
+      "ratingAdjustmentValues": {},
+      "position": {
+        "latitude": 48.08,
+        "longitude": 7.65,
+        "altitude": 220.0,
+        "accuracy": null,
+        "heading": null,
+        "speed": null,
+        "speedAccuracy": null,
+        "time": null
+      },
+      "place": {
+        "name": "Kaiserstuhl",
+        "thoroughfare": "Weinstraße",
+        "subThoroughfare": "",
+        "locality": "Ihringen",
+        "subLocality": "",
+        "administrativeArea": "Baden-Württemberg",
+        "subAdministrativeArea": "",
+        "postalCode": "79241",
+        "country": "Germany",
+        "isoCountryCode": "DE"
+      },
+      "weather": {
+        "currentDateTime": "2026-05-28T08:00:00.000",
+        "currentTemperature": 14.0,
+        "currentWeatherCode": 1,
+        "currentHumidity": 70.0,
+        "currentWindSpeed": 3.0,
+        "currentPrecipitation": 0.0,
+        "currentSoilMoisture0to7cm": 0.2,
+        "dayAccumulatedPrecipitation": 0.0,
+        "condition": "Condition.dry"
+      }
+    },
+    {
+      "version": 4,
+      "id": "845ce8de-452c-4218-a9df-4c0f18d7db93",
+      "isDeleted": false,
+      "lastModified": "2026-05-30T09:00:00.000Z",
+      "name": "Mia - Bikepark Willingen",
+      "datetime": "2026-05-30T09:00:00.000Z",
+      "datetimeLocal": "2026-05-30T11:00:00.000",
+      "notes": "Added a token + pressure for the big park hits.",
+      "tags": [
+        "Bikepark"
+      ],
+      "bike": "08d0a9e6-2c91-472c-a6e6-b28a6431a013",
+      "person": "3e376e43-118e-4252-837a-79cdce5758bd",
+      "bikeAdjustmentValues": {
+        "f14d933f-609b-418f-910b-e31e25c37f29": 64,
+        "e0087ce8-e08f-427a-9b13-2ee6dcc21705": 2,
+        "17e67cc1-7364-49d1-851a-2b1956fa424c": 7,
+        "808d1df2-a20e-45b5-bf15-4faa55598b8a": 8,
+        "48e97611-7411-4cc9-b666-28b40d11f431": 155,
+        "c84c43f2-0f2a-4693-8ee2-b7112227861d": 6,
+        "f90079db-7c0e-4eb8-b7b1-8e3dc0596db7": 9,
+        "4a7a16bd-76b2-4311-88a3-3ed47054d867": "Minion DHR II",
+        "676a82c1-2696-4002-9c01-8e9d8903bc2b": 1.6,
+        "23050bce-720d-456b-b128-1deb6e7fe0f1": true
+      },
+      "personAdjustmentValues": {
+        "a8f06bfd-b7af-4890-8b9a-d124f231fbc9": 64.0,
+        "f952bf93-11e0-4c6d-a34e-9f3a7cd6c235": 170.0
+      },
+      "ratingAdjustmentValues": {},
+      "position": {
+        "latitude": 51.294,
+        "longitude": 8.609,
+        "altitude": 838.0,
+        "accuracy": null,
+        "heading": null,
+        "speed": null,
+        "speedAccuracy": null,
+        "time": null
+      },
+      "place": {
+        "name": "Willingen",
+        "thoroughfare": "Zur Hoppecke",
+        "subThoroughfare": "5",
+        "locality": "Willingen",
+        "subLocality": "",
+        "administrativeArea": "Hessen",
+        "subAdministrativeArea": "",
+        "postalCode": "34508",
+        "country": "Germany",
+        "isoCountryCode": "DE"
+      },
+      "weather": {
+        "currentDateTime": "2026-05-30T11:00:00.000",
+        "currentTemperature": 13.0,
+        "currentWeatherCode": 3,
+        "currentHumidity": 75.0,
+        "currentWindSpeed": 10.0,
+        "currentPrecipitation": 0.0,
+        "currentSoilMoisture0to7cm": 0.32,
+        "dayAccumulatedPrecipitation": 0.0,
+        "condition": "Condition.moist"
+      }
+    },
+    {
+      "version": 4,
+      "id": "50d59709-8863-40e0-8671-6cf4f0f3bc05",
+      "isDeleted": false,
+      "lastModified": "2026-05-31T17:00:00.000Z",
+      "name": "Hometrails - end of May reference",
+      "datetime": "2026-05-31T17:00:00.000Z",
+      "datetimeLocal": "2026-05-31T19:00:00.000",
+      "notes": "Back to my baseline trail setup. This is the one to beat.",
+      "tags": [],
+      "bike": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+      "person": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "bikeAdjustmentValues": {
+        "22866141-fe35-4cdc-99df-6e1ba91c1033": 83,
+        "8d75bfc4-73d0-4fcc-bbbd-0bf9e4ddc352": 2,
+        "2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d": 6,
+        "752afe27-22b7-45a2-92f6-b78f37237960": 2,
+        "aefea436-580a-479b-bcd4-943a93c8e2fb": 9,
+        "db17c214-1cd8-4297-ae5b-fbb0a3678bc6": 190,
+        "9b86a28f-e963-407d-9771-22231e86ea08": 1,
+        "b3e1a5e0-9f9c-45de-bcb7-575477def1f8": 4,
+        "ae9566eb-92e1-47c5-8f9a-eb910ad04e14": 8,
+        "5ded178b-a101-439e-8981-22723d268c48": "open",
+        "f737bd0c-ed02-43f6-bf34-06fab34687dc": "Assegai MaxxTerra",
+        "da8957c9-ab11-4b3e-8a2a-dc9cc6f63f6f": 1.5,
+        "9064a7c9-73ad-46a7-987e-1b9ca5c362fa": "Minion DHR II",
+        "b195313b-f98d-45b5-afc5-899aa124c085": 1.7,
+        "d6286cb3-6c8e-409f-b86f-13d602d49cb1": true,
+        "a3994fd0-85cb-42fb-b19a-04a36906cacf": 4.0,
+        "a05b6b56-9025-4bf7-9c5b-bb84e563ec6b": 4
+      },
+      "personAdjustmentValues": {
+        "86a95c39-2692-49f4-b6d2-122321d25118": 78.0,
+        "8dcdc09a-067c-4203-8556-a053fc97371d": 183.0
+      },
+      "ratingAdjustmentValues": {
+        "89b5f726-97a8-4fe5-923f-e83c1e7be81f": "Just right",
+        "61b54331-0105-46f3-99b9-a87a91a5c680": "Balanced",
+        "6d15e7c9-85ea-4ca0-b9bc-c588fbb18d5f": 4,
+        "7de2e31f-3956-4f22-8906-d415eb0331c1": false,
+        "3ec059d9-8656-4315-b55c-4bd22c4ce1a7": 5
+      },
+      "position": {
+        "latitude": 48.7758,
+        "longitude": 9.1829,
+        "altitude": 320.0,
+        "accuracy": null,
+        "heading": null,
+        "speed": null,
+        "speedAccuracy": null,
+        "time": null
+      },
+      "place": {
+        "name": "Galgenberg",
+        "thoroughfare": "Trailpark",
+        "subThoroughfare": "",
+        "locality": "Stuttgart",
+        "subLocality": "",
+        "administrativeArea": "Baden-Württemberg",
+        "subAdministrativeArea": "",
+        "postalCode": "70597",
+        "country": "Germany",
+        "isoCountryCode": "DE"
+      },
+      "weather": {
+        "currentDateTime": "2026-05-31T19:00:00.000",
+        "currentTemperature": 17.5,
+        "currentWeatherCode": 1,
+        "currentHumidity": 58.0,
+        "currentWindSpeed": 4.0,
+        "currentPrecipitation": 0.0,
+        "currentSoilMoisture0to7cm": 0.19,
+        "dayAccumulatedPrecipitation": 0.0,
+        "condition": "Condition.dry"
+      }
+    }
+  ],
+  "components": [
+    {
+      "version": 4,
+      "id": "e47480ee-0f71-453e-bb97-61d2041d05f5",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "RockShox Lyrik Ultimate",
+      "componentType": "ComponentType.fork",
+      "installations": [
+        {
+          "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "22866141-fe35-4cdc-99df-6e1ba91c1033",
+          "name": "Pressure",
+          "notes": null,
+          "type": "numerical",
+          "unit": "psi",
+          "category": "AdjustmentCategory.component",
+          "min": 0.0,
+          "max": null
+        },
+        {
+          "version": 1,
+          "id": "8d75bfc4-73d0-4fcc-bbbd-0bf9e4ddc352",
+          "name": "Tokens",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 5,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        },
+        {
+          "version": 1,
+          "id": "2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d",
+          "name": "LSC",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 15,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial"
+        },
+        {
+          "version": 1,
+          "id": "752afe27-22b7-45a2-92f6-b78f37237960",
+          "name": "HSC",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 5,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial"
+        },
+        {
+          "version": 1,
+          "id": "aefea436-580a-479b-bcd4-943a93c8e2fb",
+          "name": "Rebound",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 18,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.sliderWithCounterclockwiseDial"
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "cc6ec737-f6c2-486c-9e9a-5406e0d5fac3",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "RockShox Super Deluxe Ultimate",
+      "componentType": "ComponentType.shock",
+      "installations": [
+        {
+          "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "db17c214-1cd8-4297-ae5b-fbb0a3678bc6",
+          "name": "Pressure",
+          "notes": null,
+          "type": "numerical",
+          "unit": "psi",
+          "category": "AdjustmentCategory.component",
+          "min": 0.0,
+          "max": null
+        },
+        {
+          "version": 1,
+          "id": "9b86a28f-e963-407d-9771-22231e86ea08",
+          "name": "Tokens",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 5,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        },
+        {
+          "version": 1,
+          "id": "b3e1a5e0-9f9c-45de-bcb7-575477def1f8",
+          "name": "LSC",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 15,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial"
+        },
+        {
+          "version": 1,
+          "id": "ae9566eb-92e1-47c5-8f9a-eb910ad04e14",
+          "name": "Rebound",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 18,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.sliderWithCounterclockwiseDial"
+        },
+        {
+          "version": 1,
+          "id": "5ded178b-a101-439e-8981-22723d268c48",
+          "name": "Mode",
+          "notes": null,
+          "type": "categorical",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "options": [
+            "open",
+            "pedal",
+            "lock"
+          ]
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "1690756e-e782-485d-a490-d267d200ffd7",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Front Tire",
+      "componentType": "ComponentType.wheelFront",
+      "installations": [
+        {
+          "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "f737bd0c-ed02-43f6-bf34-06fab34687dc",
+          "name": "Tire",
+          "notes": null,
+          "type": "categorical",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "options": [
+            "Assegai MaxxGrip",
+            "Assegai MaxxTerra",
+            "Minion DHF"
+          ]
+        },
+        {
+          "version": 1,
+          "id": "da8957c9-ab11-4b3e-8a2a-dc9cc6f63f6f",
+          "name": "Pressure",
+          "notes": null,
+          "type": "numerical",
+          "unit": "bar",
+          "category": "AdjustmentCategory.component",
+          "min": 0.0,
+          "max": null
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "3f6bcbb2-2d4b-45de-9901-3a2b9686509e",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Rear Tire",
+      "componentType": "ComponentType.wheelRear",
+      "installations": [
+        {
+          "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "9064a7c9-73ad-46a7-987e-1b9ca5c362fa",
+          "name": "Tire",
+          "notes": null,
+          "type": "categorical",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "options": [
+            "Minion DHR II",
+            "Dissector",
+            "Aggressor"
+          ]
+        },
+        {
+          "version": 1,
+          "id": "b195313b-f98d-45b5-afc5-899aa124c085",
+          "name": "Pressure",
+          "notes": null,
+          "type": "numerical",
+          "unit": "bar",
+          "category": "AdjustmentCategory.component",
+          "min": 0.0,
+          "max": null
+        },
+        {
+          "version": 1,
+          "id": "d6286cb3-6c8e-409f-b86f-13d602d49cb1",
+          "name": "Insert",
+          "notes": null,
+          "type": "boolean",
+          "unit": null,
+          "category": "AdjustmentCategory.component"
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "fd3603d1-e004-4223-a378-0b088c3c703c",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "OneUp Carbon Bar",
+      "componentType": "ComponentType.cockpit",
+      "installations": [
+        {
+          "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "a3994fd0-85cb-42fb-b19a-04a36906cacf",
+          "name": "Bar Roll",
+          "notes": "Handlebar rotation",
+          "type": "numerical",
+          "unit": "°",
+          "category": "AdjustmentCategory.component",
+          "min": null,
+          "max": null
+        },
+        {
+          "version": 1,
+          "id": "a05b6b56-9025-4bf7-9c5b-bb84e563ec6b",
+          "name": "Brake Lever Reach",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 8,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "93a8d294-a489-4275-9868-28643eabe3bd",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "SRAM XX1 Chain",
+      "componentType": "ComponentType.chain",
+      "installations": [
+        {
+          "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "f58b4521-87ce-4fbc-b41e-f06142d1c287",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Front Brake Pads (Metallic)",
+      "componentType": "ComponentType.brakePad",
+      "installations": [
+        {
+          "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "c5e4f8ea-2c68-4f1f-8082-2928f7b9d674",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Rear Brake Pads (Metallic)",
+      "componentType": "ComponentType.brakePad",
+      "installations": [
+        {
+          "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "89f943f3-b7b0-4179-95e6-5a2a51cfc42f",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Lower Link Bearings",
+      "componentType": "ComponentType.bearing",
+      "installations": [
+        {
+          "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "141536f7-14b9-4399-beb4-7383da73cad4",
+      "isDeleted": false,
+      "lastModified": "2026-05-29T17:00:00.000Z",
+      "name": "Fox 40 Factory Grip2",
+      "componentType": "ComponentType.fork",
+      "installations": [
+        {
+          "parent": "5c9f1ccd-f00b-4145-ad8d-5e74fbf3c55a",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        },
+        {
+          "parent": null,
+          "dateTimeUTC": "2026-05-18T19:00:00.000Z",
+          "dateTimeLocal": "2026-05-18T21:00:00.000"
+        },
+        {
+          "parent": "5c9f1ccd-f00b-4145-ad8d-5e74fbf3c55a",
+          "dateTimeUTC": "2026-05-29T17:00:00.000Z",
+          "dateTimeLocal": "2026-05-29T19:00:00.000"
+        }
+      ],
+      "notes": "Lower legs scratched at Leogang - sent in for a full service.",
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "c8afe082-335a-45e8-b31e-14bf653228dc",
+          "name": "Pressure",
+          "notes": null,
+          "type": "numerical",
+          "unit": "psi",
+          "category": "AdjustmentCategory.component",
+          "min": 0.0,
+          "max": null
+        },
+        {
+          "version": 1,
+          "id": "dde60d2f-29df-40a0-a537-869845086024",
+          "name": "Tokens",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 6,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        },
+        {
+          "version": 1,
+          "id": "b580c957-dda6-4060-aab9-befb785ce0c0",
+          "name": "HSC",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": -8,
+          "max": 0,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial"
+        },
+        {
+          "version": 1,
+          "id": "f4f88cb6-7242-4df4-a248-eb8d485d868a",
+          "name": "LSC",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": -16,
+          "max": 0,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial"
+        },
+        {
+          "version": 1,
+          "id": "25ec7116-8a17-410a-9be2-c026169d4966",
+          "name": "HSR",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": -8,
+          "max": 0,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial"
+        },
+        {
+          "version": 1,
+          "id": "b8790bf5-d802-4700-ac57-263c8078b72b",
+          "name": "LSR",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": -18,
+          "max": 0,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial"
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "defb4f8d-4839-4b3f-aa0c-ab420f155875",
+      "isDeleted": false,
+      "lastModified": "2025-10-04T12:00:00.000Z",
+      "name": "Fox DHX2 Factory (Coil)",
+      "componentType": "ComponentType.shock",
+      "installations": [
+        {
+          "parent": "5c9f1ccd-f00b-4145-ad8d-5e74fbf3c55a",
+          "dateTimeUTC": "2025-10-04T12:00:00.000Z",
+          "dateTimeLocal": "2025-10-04T14:00:00.000"
+        }
+      ],
+      "notes": "Swapped in for the park season - replaced the air shock.",
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "ce121e00-854b-4f2a-8790-f0494f7f5f86",
+          "name": "Spring",
+          "notes": null,
+          "type": "numerical",
+          "unit": "lbs",
+          "category": "AdjustmentCategory.component",
+          "min": null,
+          "max": null
+        },
+        {
+          "version": 1,
+          "id": "b18e65e6-bb38-47df-89bc-5e5c83a6f066",
+          "name": "HSC",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": -8,
+          "max": 0,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        },
+        {
+          "version": 1,
+          "id": "6635be6b-1972-4b6b-8c99-1ff7286fdca6",
+          "name": "LSC",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": -16,
+          "max": 0,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        },
+        {
+          "version": 1,
+          "id": "da260eac-0561-42d3-b6c5-babf262a3a62",
+          "name": "HSR",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": -8,
+          "max": 0,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        },
+        {
+          "version": 1,
+          "id": "02c8bab2-ff9f-4fe7-93c9-7364f06fb29c",
+          "name": "LSR",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": -18,
+          "max": 0,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "e29d9f38-1612-4df9-8e48-20c18849716b",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Front Tire",
+      "componentType": "ComponentType.wheelFront",
+      "installations": [
+        {
+          "parent": "5c9f1ccd-f00b-4145-ad8d-5e74fbf3c55a",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "d8a52cdd-f29a-49b3-b8f2-fd0c0eac1eee",
+          "name": "Tire",
+          "notes": null,
+          "type": "categorical",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "options": [
+            "Assegai DH MaxxGrip",
+            "Minion DHF DH"
+          ]
+        },
+        {
+          "version": 1,
+          "id": "d38eeb64-87b5-4bf7-8575-40fafae647a1",
+          "name": "Pressure",
+          "notes": null,
+          "type": "numerical",
+          "unit": "bar",
+          "category": "AdjustmentCategory.component",
+          "min": 0.0,
+          "max": null
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "006bac11-3858-4e89-bfad-2845997653c7",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Rear Tire",
+      "componentType": "ComponentType.wheelRear",
+      "installations": [
+        {
+          "parent": "5c9f1ccd-f00b-4145-ad8d-5e74fbf3c55a",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "acc7db05-e2ac-4486-872b-44358218e7b4",
+          "name": "Tire",
+          "notes": null,
+          "type": "categorical",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "options": [
+            "Minion DHR II DH",
+            "Assegai DH"
+          ]
+        },
+        {
+          "version": 1,
+          "id": "489b94ee-a0c9-4f4a-bc0a-03716b812127",
+          "name": "Pressure",
+          "notes": null,
+          "type": "numerical",
+          "unit": "bar",
+          "category": "AdjustmentCategory.component",
+          "min": 0.0,
+          "max": null
+        },
+        {
+          "version": 1,
+          "id": "84ad0435-6890-46f7-8558-1254c7d4ad67",
+          "name": "Insert",
+          "notes": null,
+          "type": "boolean",
+          "unit": null,
+          "category": "AdjustmentCategory.component"
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "7b46ad10-beb5-4307-b645-85cb8028dda1",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Brake Pads (Sintered)",
+      "componentType": "ComponentType.brakePad",
+      "installations": [
+        {
+          "parent": "5c9f1ccd-f00b-4145-ad8d-5e74fbf3c55a",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "a443763e-031e-4bf2-8b33-7aba7dd4a26b",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Fox 36 Factory",
+      "componentType": "ComponentType.fork",
+      "installations": [
+        {
+          "parent": "5a1bf1cf-9ae4-4481-9b2e-4a50f9424039",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "0dcda173-d82b-4e8c-8b81-447cdc7a1fbf",
+          "name": "Pressure",
+          "notes": null,
+          "type": "numerical",
+          "unit": "psi",
+          "category": "AdjustmentCategory.component",
+          "min": 0.0,
+          "max": null
+        },
+        {
+          "version": 1,
+          "id": "6bad03d7-c551-4699-9c6a-8d37aa26fac3",
+          "name": "Tokens",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 5,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        },
+        {
+          "version": 1,
+          "id": "785988d6-c3c1-4a43-96e3-8487204ac446",
+          "name": "LSC",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 16,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        },
+        {
+          "version": 1,
+          "id": "e5e09e73-b216-4e62-9159-d9600640812d",
+          "name": "HSC",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 8,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        },
+        {
+          "version": 1,
+          "id": "6404d661-90ae-4506-98ee-b2fb3cb3fbbd",
+          "name": "Rebound",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 18,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "7b421b40-16f2-4257-a0ab-e4d9a7514ee3",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Fox Float X Factory",
+      "componentType": "ComponentType.shock",
+      "installations": [
+        {
+          "parent": "5a1bf1cf-9ae4-4481-9b2e-4a50f9424039",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "53a3d815-06c7-4a3c-bc35-6d552822ff18",
+          "name": "Pressure",
+          "notes": null,
+          "type": "numerical",
+          "unit": "psi",
+          "category": "AdjustmentCategory.component",
+          "min": 0.0,
+          "max": null
+        },
+        {
+          "version": 1,
+          "id": "b16a983c-5d9c-453e-84dc-4b0e20bffc5f",
+          "name": "Mode",
+          "notes": null,
+          "type": "categorical",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "options": [
+            "open",
+            "firm"
+          ]
+        },
+        {
+          "version": 1,
+          "id": "bf847d7e-0eaf-4e57-8b78-b4948b9806e2",
+          "name": "LSC",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 10,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "f69b83ab-ede8-480b-8aa7-f3637645f151",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Specialized SL 1.2 Motor",
+      "componentType": "ComponentType.motor",
+      "installations": [
+        {
+          "parent": "5a1bf1cf-9ae4-4481-9b2e-4a50f9424039",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "77d7ba98-9865-4d75-b283-5e5bb0956d63",
+          "name": "Support",
+          "notes": "Assistance level %",
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 100,
+          "step": 10,
+          "visualization": "StepAdjustmentVisualization.slider"
+        },
+        {
+          "version": 1,
+          "id": "a9bcbad2-b751-4bcb-9dad-240779fa1afb",
+          "name": "Peak Power",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 100,
+          "step": 10,
+          "visualization": "StepAdjustmentVisualization.slider"
+        },
+        {
+          "version": 1,
+          "id": "d0fd34bc-476f-4f8d-9646-236e546915b3",
+          "name": "Acceleration",
+          "notes": null,
+          "type": "categorical",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "options": [
+            "Smooth",
+            "Standard",
+            "Responsive"
+          ]
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "b9b68ee0-eae5-4b5e-81d8-7b3296a3d79d",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Front Tire",
+      "componentType": "ComponentType.wheelFront",
+      "installations": [
+        {
+          "parent": "5a1bf1cf-9ae4-4481-9b2e-4a50f9424039",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "3d6ce005-1724-48e9-85d6-2d9e30302890",
+          "name": "Tire",
+          "notes": null,
+          "type": "categorical",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "options": [
+            "Eliminator GRID",
+            "Butcher GRID"
+          ]
+        },
+        {
+          "version": 1,
+          "id": "8b341730-7552-4be0-8974-3bb37d11caa1",
+          "name": "Pressure",
+          "notes": null,
+          "type": "numerical",
+          "unit": "bar",
+          "category": "AdjustmentCategory.component",
+          "min": 0.0,
+          "max": null
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "c8b9e5a7-f116-4581-9cae-481015099a3c",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Rear Tire",
+      "componentType": "ComponentType.wheelRear",
+      "installations": [
+        {
+          "parent": "5a1bf1cf-9ae4-4481-9b2e-4a50f9424039",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "e7e01e6a-fbb3-4407-a365-183399a198b8",
+          "name": "Tire",
+          "notes": null,
+          "type": "categorical",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "options": [
+            "Eliminator GRID",
+            "Butcher GRID"
+          ]
+        },
+        {
+          "version": 1,
+          "id": "a22b0d18-6de2-4046-86c8-492c55026f83",
+          "name": "Pressure",
+          "notes": null,
+          "type": "numerical",
+          "unit": "bar",
+          "category": "AdjustmentCategory.component",
+          "min": 0.0,
+          "max": null
+        },
+        {
+          "version": 1,
+          "id": "ffd9ba1f-e6e8-40e7-a73c-e675f4f4a61e",
+          "name": "Insert",
+          "notes": null,
+          "type": "boolean",
+          "unit": null,
+          "category": "AdjustmentCategory.component"
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "72c26bf4-8bf5-4f33-9ce4-8e058fc0714d",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Internal Battery 320Wh",
+      "componentType": "ComponentType.battery",
+      "installations": [
+        {
+          "parent": "5a1bf1cf-9ae4-4481-9b2e-4a50f9424039",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "59b2a23e-c307-4138-9fa5-7c4ce6ed65dc",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Front Tire",
+      "componentType": "ComponentType.wheelFront",
+      "installations": [
+        {
+          "parent": "2f04a328-75ee-4917-b140-2cafdaf1606f",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "bdcc35b4-0bc2-4658-8d51-1ac65741bac4",
+          "name": "Tire",
+          "notes": null,
+          "type": "categorical",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "options": [
+            "Pathfinder Pro 42",
+            "Terra Speed 40"
+          ]
+        },
+        {
+          "version": 1,
+          "id": "e8bf4053-f593-4d05-a539-0e8a84e3ca3d",
+          "name": "Pressure",
+          "notes": null,
+          "type": "numerical",
+          "unit": "bar",
+          "category": "AdjustmentCategory.component",
+          "min": 0.0,
+          "max": null
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "5f75d1de-06a3-4eb7-919e-21907069d48d",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Rear Tire",
+      "componentType": "ComponentType.wheelRear",
+      "installations": [
+        {
+          "parent": "2f04a328-75ee-4917-b140-2cafdaf1606f",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "a0be17fb-51c3-4522-9078-c950a81d1965",
+          "name": "Tire",
+          "notes": null,
+          "type": "categorical",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "options": [
+            "Pathfinder Pro 42",
+            "Terra Speed 40"
+          ]
+        },
+        {
+          "version": 1,
+          "id": "ee796534-cfd8-4d89-9f81-2b31396746a2",
+          "name": "Pressure",
+          "notes": null,
+          "type": "numerical",
+          "unit": "bar",
+          "category": "AdjustmentCategory.component",
+          "min": 0.0,
+          "max": null
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "dc2ffc45-7454-405f-b41c-be443d708fdb",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Seatpost",
+      "componentType": "ComponentType.seatpost",
+      "installations": [
+        {
+          "parent": "2f04a328-75ee-4917-b140-2cafdaf1606f",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "22162aac-e637-4b56-b1c5-9a1b6c0be1ba",
+          "name": "Saddle Height",
+          "notes": "From BB center",
+          "type": "numerical",
+          "unit": "mm",
+          "category": "AdjustmentCategory.component",
+          "min": null,
+          "max": null
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "c04b068a-c954-4407-b307-b9e7100e921c",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Shimano GRX Chain",
+      "componentType": "ComponentType.chain",
+      "installations": [
+        {
+          "parent": "2f04a328-75ee-4917-b140-2cafdaf1606f",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "f5c3a245-4bd5-4acb-99cf-51e9313913ac",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Fox 36 Factory",
+      "componentType": "ComponentType.fork",
+      "installations": [
+        {
+          "parent": "08d0a9e6-2c91-472c-a6e6-b28a6431a013",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "f14d933f-609b-418f-910b-e31e25c37f29",
+          "name": "Pressure",
+          "notes": null,
+          "type": "numerical",
+          "unit": "psi",
+          "category": "AdjustmentCategory.component",
+          "min": 0.0,
+          "max": null
+        },
+        {
+          "version": 1,
+          "id": "e0087ce8-e08f-427a-9b13-2ee6dcc21705",
+          "name": "Tokens",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 5,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        },
+        {
+          "version": 1,
+          "id": "17e67cc1-7364-49d1-851a-2b1956fa424c",
+          "name": "LSC",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 16,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        },
+        {
+          "version": 1,
+          "id": "808d1df2-a20e-45b5-bf15-4faa55598b8a",
+          "name": "Rebound",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 18,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "59b72831-8674-4044-8386-ecb1f82a503f",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Fox Float X2 Factory",
+      "componentType": "ComponentType.shock",
+      "installations": [
+        {
+          "parent": "08d0a9e6-2c91-472c-a6e6-b28a6431a013",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "48e97611-7411-4cc9-b666-28b40d11f431",
+          "name": "Pressure",
+          "notes": null,
+          "type": "numerical",
+          "unit": "psi",
+          "category": "AdjustmentCategory.component",
+          "min": 0.0,
+          "max": null
+        },
+        {
+          "version": 1,
+          "id": "c84c43f2-0f2a-4693-8ee2-b7112227861d",
+          "name": "LSC",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 16,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        },
+        {
+          "version": 1,
+          "id": "f90079db-7c0e-4eb8-b7b1-8e3dc0596db7",
+          "name": "Rebound",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 18,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "42eda322-ca27-4028-bac7-382fc141f5d4",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Rear Tire",
+      "componentType": "ComponentType.wheelRear",
+      "installations": [
+        {
+          "parent": "08d0a9e6-2c91-472c-a6e6-b28a6431a013",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        }
+      ],
+      "notes": null,
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "4a7a16bd-76b2-4311-88a3-3ed47054d867",
+          "name": "Tire",
+          "notes": null,
+          "type": "categorical",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "options": [
+            "Minion DHR II",
+            "Dissector"
+          ]
+        },
+        {
+          "version": 1,
+          "id": "676a82c1-2696-4002-9c01-8e9d8903bc2b",
+          "name": "Pressure",
+          "notes": null,
+          "type": "numerical",
+          "unit": "bar",
+          "category": "AdjustmentCategory.component",
+          "min": 0.0,
+          "max": null
+        },
+        {
+          "version": 1,
+          "id": "23050bce-720d-456b-b128-1deb6e7fe0f1",
+          "name": "Insert",
+          "notes": null,
+          "type": "boolean",
+          "unit": null,
+          "category": "AdjustmentCategory.component"
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "282164c5-f62f-499d-9155-c6dabd433354",
+      "isDeleted": false,
+      "lastModified": "2025-10-04T11:00:00.000Z",
+      "name": "Fox Float X2 Factory (Air)",
+      "componentType": "ComponentType.shock",
+      "installations": [
+        {
+          "parent": "5c9f1ccd-f00b-4145-ad8d-5e74fbf3c55a",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        },
+        {
+          "parent": null,
+          "dateTimeUTC": "2025-10-04T11:00:00.000Z",
+          "dateTimeLocal": "2025-10-04T13:00:00.000"
+        }
+      ],
+      "notes": "Spare air shock - kept for lighter/pedally days.",
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "a5ee72b1-bf3c-4c28-8751-9231eb9300e8",
+          "name": "Pressure",
+          "notes": null,
+          "type": "numerical",
+          "unit": "psi",
+          "category": "AdjustmentCategory.component",
+          "min": 0.0,
+          "max": null
+        },
+        {
+          "version": 1,
+          "id": "886f41c6-45b9-496c-8d09-edea2d24ac61",
+          "name": "Tokens",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.component",
+          "min": 0,
+          "max": 5,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        }
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    },
+    {
+      "version": 4,
+      "id": "44e3c1ce-72db-4bc2-b58c-47a0de8ab188",
+      "isDeleted": false,
+      "lastModified": "2026-05-20T15:00:00.000Z",
+      "name": "Crankbrothers Stamp 7 Pedals",
+      "componentType": "ComponentType.pedal",
+      "installations": [
+        {
+          "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+          "dateTimeUTC": "1970-01-01T00:00:00.000Z",
+          "dateTimeLocal": "1970-01-01T01:00:00.000"
+        },
+        {
+          "parent": "5c9f1ccd-f00b-4145-ad8d-5e74fbf3c55a",
+          "dateTimeUTC": "2026-05-15T16:00:00.000Z",
+          "dateTimeLocal": "2026-05-15T18:00:00.000"
+        },
+        {
+          "parent": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+          "dateTimeUTC": "2026-05-20T15:00:00.000Z",
+          "dateTimeLocal": "2026-05-20T17:00:00.000"
+        }
+      ],
+      "notes": "One good pair of flats shared between the trail and park bikes.",
+      "orderIndex": 0,
+      "adjustments": [],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
+    }
+  ],
+  "ratings": [
+    {
+      "version": 2,
+      "id": "f3e8450e-b5eb-4ede-b7c2-7c5824bb30b9",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Trail Feel",
+      "notes": null,
+      "filter": "5f250ae9-42eb-4038-95fc-2476730dd33f",
+      "filterType": "FilterType.person",
+      "orderIndex": 0,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "89b5f726-97a8-4fe5-923f-e83c1e7be81f",
+          "name": "Travel Usage",
+          "notes": "Where does the o-ring sit after a run?",
+          "type": "categorical",
+          "unit": null,
+          "category": "AdjustmentCategory.rating",
+          "options": [
+            "Not using enough",
+            "Just right",
+            "Bottoming out"
+          ]
+        },
+        {
+          "version": 1,
+          "id": "61b54331-0105-46f3-99b9-a87a91a5c680",
+          "name": "Rebound Balance",
+          "notes": "Front vs. rear return speed",
+          "type": "categorical",
+          "unit": null,
+          "category": "AdjustmentCategory.rating",
+          "options": [
+            "Front is faster",
+            "Balanced",
+            "Rear is faster"
+          ]
+        },
+        {
+          "version": 1,
+          "id": "6d15e7c9-85ea-4ca0-b9bc-c588fbb18d5f",
+          "name": "Front Grip",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        },
+        {
+          "version": 1,
+          "id": "7de2e31f-3956-4f22-8906-d415eb0331c1",
+          "name": "Harshness",
+          "notes": "Spikey on roots/chatter?",
+          "type": "boolean",
+          "unit": null,
+          "category": "AdjustmentCategory.rating"
+        },
+        {
+          "version": 1,
+          "id": "3ec059d9-8656-4315-b55c-4bd22c4ce1a7",
+          "name": "Overall Fun",
+          "notes": null,
+          "type": "step",
+          "unit": null,
+          "category": "AdjustmentCategory.rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "visualization": "StepAdjustmentVisualization.slider"
+        }
+      ]
+    },
+    {
+      "version": 2,
+      "id": "3e70f21e-252d-448a-8861-3635209bd514",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Race",
+      "notes": null,
+      "filter": null,
+      "filterType": "FilterType.global",
+      "orderIndex": 1,
+      "adjustments": [
+        {
+          "version": 1,
+          "id": "3779e8e1-3b8d-428e-b62a-b2761a19b8b5",
+          "name": "Lap Time",
+          "notes": "Timed segment",
+          "type": "duration",
+          "unit": null,
+          "category": "AdjustmentCategory.rating",
+          "min": null,
+          "max": null
+        }
+      ]
+    }
+  ],
+  "taskRules": [
+    {
+      "version": 1,
+      "id": "12888968-9c93-4d3d-98ba-260ccac7b5d0",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Replace chain",
+      "notes": null,
+      "priority": "TaskPriority.medium",
+      "tags": [
+        "Maintenance",
+        "Drivetrain"
+      ],
+      "componentId": "93a8d294-a489-4275-9868-28643eabe3bd",
+      "bikeId": null,
+      "interval": {
+        "type": "distance",
+        "meters": 1000000.0
+      },
+      "delay": null,
+      "repeat": true
+    },
+    {
+      "version": 1,
+      "id": "b27319ae-961a-4222-a6cb-abdccd6495e5",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Replace front brake pads",
+      "notes": null,
+      "priority": "TaskPriority.high",
+      "tags": [
+        "Maintenance",
+        "Brakes"
+      ],
+      "componentId": "f58b4521-87ce-4fbc-b41e-f06142d1c287",
+      "bikeId": null,
+      "interval": {
+        "type": "distance",
+        "meters": 800000.0
+      },
+      "delay": null,
+      "repeat": true
+    },
+    {
+      "version": 1,
+      "id": "e1c32aab-3bbc-41c1-a6e7-bc3855331539",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Replace rear brake pads",
+      "notes": null,
+      "priority": "TaskPriority.high",
+      "tags": [
+        "Maintenance",
+        "Brakes"
+      ],
+      "componentId": "c5e4f8ea-2c68-4f1f-8082-2928f7b9d674",
+      "bikeId": null,
+      "interval": {
+        "type": "distance",
+        "meters": 700000.0
+      },
+      "delay": null,
+      "repeat": true
+    },
+    {
+      "version": 1,
+      "id": "340ef012-fb70-40d6-889e-02ac62dd6699",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Fork lowers service",
+      "notes": null,
+      "priority": "TaskPriority.medium",
+      "tags": [
+        "Maintenance",
+        "Suspension"
+      ],
+      "componentId": "e47480ee-0f71-453e-bb97-61d2041d05f5",
+      "bikeId": null,
+      "interval": {
+        "type": "time",
+        "microseconds": 180000000000
+      },
+      "delay": null,
+      "repeat": true
+    },
+    {
+      "version": 1,
+      "id": "072b91db-edfb-4723-bb53-ec0d4fd02d95",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Shock air-can service",
+      "notes": null,
+      "priority": "TaskPriority.medium",
+      "tags": [
+        "Maintenance",
+        "Suspension"
+      ],
+      "componentId": "cc6ec737-f6c2-486c-9e9a-5406e0d5fac3",
+      "bikeId": null,
+      "interval": {
+        "type": "time",
+        "microseconds": 180000000000
+      },
+      "delay": null,
+      "repeat": true
+    },
+    {
+      "version": 1,
+      "id": "ca9ac6d2-19ed-427b-b381-7c24280dc0df",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Full suspension service",
+      "notes": null,
+      "priority": "TaskPriority.low",
+      "tags": [
+        "Maintenance",
+        "Suspension"
+      ],
+      "componentId": "e47480ee-0f71-453e-bb97-61d2041d05f5",
+      "bikeId": null,
+      "interval": {
+        "type": "duration",
+        "microseconds": 31536000000000
+      },
+      "delay": null,
+      "repeat": true
+    },
+    {
+      "version": 1,
+      "id": "5f7b98e5-bd75-4a82-b1b6-2e02523b28d6",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Bleed brakes",
+      "notes": null,
+      "priority": "TaskPriority.low",
+      "tags": [
+        "Maintenance",
+        "Brakes"
+      ],
+      "componentId": "7b46ad10-beb5-4307-b645-85cb8028dda1",
+      "bikeId": null,
+      "interval": {
+        "type": "count",
+        "count": 25
+      },
+      "delay": null,
+      "repeat": true
+    },
+    {
+      "version": 1,
+      "id": "9d8e2e33-ba82-44dc-98c9-b1635ec2cee5",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Service pivot bearings",
+      "notes": null,
+      "priority": "TaskPriority.low",
+      "tags": [
+        "Maintenance"
+      ],
+      "componentId": "89f943f3-b7b0-4179-95e6-5a2a51cfc42f",
+      "bikeId": null,
+      "interval": {
+        "type": "distance",
+        "meters": 2500000.0
+      },
+      "delay": null,
+      "repeat": true
+    },
+    {
+      "version": 1,
+      "id": "13551b20-3a06-4dc8-9a47-12e5197ad207",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Refresh tubeless sealant",
+      "notes": null,
+      "priority": "TaskPriority.medium",
+      "tags": [
+        "Maintenance",
+        "Tires"
+      ],
+      "componentId": null,
+      "bikeId": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+      "interval": {
+        "type": "duration",
+        "microseconds": 10368000000000
+      },
+      "delay": null,
+      "repeat": true
+    },
+    {
+      "version": 1,
+      "id": "a39333e1-8674-4a13-a1ba-af053da77eb0",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Replace rear tire - worn out",
+      "notes": null,
+      "priority": "TaskPriority.high",
+      "tags": [],
+      "componentId": null,
+      "bikeId": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+      "interval": {
+        "type": "dateTime",
+        "deadline": "2026-05-20T21:59:00.000Z"
+      },
+      "delay": null,
+      "repeat": false
+    },
+    {
+      "version": 1,
+      "id": "21e8fe3d-8ed4-4a42-b3b1-1dcd63fdfe36",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Pre-Worldcup DH bike check",
+      "notes": null,
+      "priority": "TaskPriority.high",
+      "tags": [],
+      "componentId": null,
+      "bikeId": "5c9f1ccd-f00b-4145-ad8d-5e74fbf3c55a",
+      "interval": {
+        "type": "dateTime",
+        "deadline": "2026-06-20T21:59:00.000Z"
+      },
+      "delay": null,
+      "repeat": false
+    },
+    {
+      "version": 1,
+      "id": "1aff5ddb-0cd0-475f-b496-e6c7641dc08e",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Order: 2x brake pads, chain, sealant",
+      "notes": null,
+      "priority": "TaskPriority.high",
+      "tags": [
+        "Order"
+      ],
+      "componentId": null,
+      "bikeId": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+      "interval": null,
+      "delay": null,
+      "repeat": false
+    },
+    {
+      "version": 1,
+      "id": "d18b5523-f7a1-46b2-8348-ee765964d139",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Investigate BB creaking noise",
+      "notes": null,
+      "priority": "TaskPriority.critical",
+      "tags": [],
+      "componentId": null,
+      "bikeId": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+      "interval": null,
+      "delay": null,
+      "repeat": false
+    },
+    {
+      "version": 1,
+      "id": "2598ca74-03ab-4368-a19b-26c08998271b",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Dropper post getting sticky - service",
+      "notes": null,
+      "priority": "TaskPriority.medium",
+      "tags": [],
+      "componentId": null,
+      "bikeId": "2f04a328-75ee-4917-b140-2cafdaf1606f",
+      "interval": null,
+      "delay": null,
+      "repeat": false
+    },
+    {
+      "version": 1,
+      "id": "0c309f1b-8627-4ab6-ac42-3749bc90c212",
+      "isDeleted": false,
+      "lastModified": "2026-06-01T18:00:00.000Z",
+      "name": "Update Levo motor firmware",
+      "notes": null,
+      "priority": "TaskPriority.low",
+      "tags": [],
+      "componentId": "f69b83ab-ede8-480b-8aa7-f3637645f151",
+      "bikeId": null,
+      "interval": null,
+      "delay": null,
+      "repeat": false
+    }
+  ],
+  "taskEntries": [
+    {
+      "id": "cec54d4f-0ffa-495a-b506-abff5bba29a3",
+      "isDeleted": false,
+      "lastModified": "2026-05-01T07:00:00.000Z",
+      "name": "Replaced chain",
+      "notes": "0.5% wear, swapped before it ate the cassette.",
+      "dateTimeUTC": "2026-05-01T07:00:00.000Z",
+      "dateTimeLocal": "2026-05-01T09:00:00.000",
+      "taskRule": "12888968-9c93-4d3d-98ba-260ccac7b5d0",
+      "componentId": "93a8d294-a489-4275-9868-28643eabe3bd",
+      "bikeId": null,
+      "snapshot": {
+        "distance": 5050000,
+        "elevationGain": 181000,
+        "movingTime": 5436000000000,
+        "elapsedTime": 7632000000000,
+        "activityCount": 302
+      }
+    },
+    {
+      "id": "252d23f9-3647-4b23-b8de-b9ba15373734",
+      "isDeleted": false,
+      "lastModified": "2026-05-04T18:00:00.000Z",
+      "name": "Fork lowers service",
+      "notes": "Lowers oil + dust wipers. Felt notchy off the top.",
+      "dateTimeUTC": "2026-05-04T18:00:00.000Z",
+      "dateTimeLocal": "2026-05-04T20:00:00.000",
+      "taskRule": "340ef012-fb70-40d6-889e-02ac62dd6699",
+      "componentId": "e47480ee-0f71-453e-bb97-61d2041d05f5",
+      "bikeId": null,
+      "snapshot": {
+        "distance": 5100000,
+        "elevationGain": 182500,
+        "movingTime": 5490000000000,
+        "elapsedTime": 7704000000000,
+        "activityCount": 304
+      }
+    },
+    {
+      "id": "4436e5db-5dd8-44bf-9df7-76797e6911e6",
+      "isDeleted": false,
+      "lastModified": "2026-05-08T16:30:00.000Z",
+      "name": "Replaced front brake pads",
+      "notes": null,
+      "dateTimeUTC": "2026-05-08T16:30:00.000Z",
+      "dateTimeLocal": "2026-05-08T18:30:00.000",
+      "taskRule": "b27319ae-961a-4222-a6cb-abdccd6495e5",
+      "componentId": "f58b4521-87ce-4fbc-b41e-f06142d1c287",
+      "bikeId": null,
+      "snapshot": {
+        "distance": 5180000,
+        "elevationGain": 184000,
+        "movingTime": 5536800000000,
+        "elapsedTime": 7776000000000,
+        "activityCount": 306
+      }
+    },
+    {
+      "id": "617a7b64-1a99-4a7f-92cb-18765d6eed2b",
+      "isDeleted": false,
+      "lastModified": "2026-05-08T16:45:00.000Z",
+      "name": "Replaced rear brake pads",
+      "notes": "Both pads down to the backing after Winterberg.",
+      "dateTimeUTC": "2026-05-08T16:45:00.000Z",
+      "dateTimeLocal": "2026-05-08T18:45:00.000",
+      "taskRule": "e1c32aab-3bbc-41c1-a6e7-bc3855331539",
+      "componentId": "c5e4f8ea-2c68-4f1f-8082-2928f7b9d674",
+      "bikeId": null,
+      "snapshot": {
+        "distance": 5180000,
+        "elevationGain": 184000,
+        "movingTime": 5536800000000,
+        "elapsedTime": 7776000000000,
+        "activityCount": 306
+      }
+    },
+    {
+      "id": "ca49b461-a890-491c-9641-3131ae295a71",
+      "isDeleted": false,
+      "lastModified": "2026-05-12T17:00:00.000Z",
+      "name": "Shock air-can service",
+      "notes": null,
+      "dateTimeUTC": "2026-05-12T17:00:00.000Z",
+      "dateTimeLocal": "2026-05-12T19:00:00.000",
+      "taskRule": "072b91db-edfb-4723-bb53-ec0d4fd02d95",
+      "componentId": "cc6ec737-f6c2-486c-9e9a-5406e0d5fac3",
+      "bikeId": null,
+      "snapshot": {
+        "distance": 5240000,
+        "elevationGain": 185500,
+        "movingTime": 5572800000000,
+        "elapsedTime": 7830000000000,
+        "activityCount": 308
+      }
+    },
+    {
+      "id": "43a1b5a7-7072-4e6c-8263-265fa7ab37cf",
+      "isDeleted": false,
+      "lastModified": "2026-05-15T15:00:00.000Z",
+      "name": "Refreshed tubeless sealant",
+      "notes": "Both tires, 80ml each before the Finale trip.",
+      "dateTimeUTC": "2026-05-15T15:00:00.000Z",
+      "dateTimeLocal": "2026-05-15T17:00:00.000",
+      "taskRule": "13551b20-3a06-4dc8-9a47-12e5197ad207",
+      "componentId": null,
+      "bikeId": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+      "snapshot": {
+        "distance": 5300000,
+        "elevationGain": 187000,
+        "movingTime": 5608800000000,
+        "elapsedTime": 7884000000000,
+        "activityCount": 310
+      }
+    },
+    {
+      "id": "d93458b0-141e-4654-a6e4-fca9c7ff78ee",
+      "isDeleted": false,
+      "lastModified": "2026-05-19T18:00:00.000Z",
+      "name": "Bled rear brake",
+      "notes": "Lever was getting spongy after the wet Leogang day.",
+      "dateTimeUTC": "2026-05-19T18:00:00.000Z",
+      "dateTimeLocal": "2026-05-19T20:00:00.000",
+      "taskRule": "5f7b98e5-bd75-4a82-b1b6-2e02523b28d6",
+      "componentId": "7b46ad10-beb5-4307-b645-85cb8028dda1",
+      "bikeId": null,
+      "snapshot": {
+        "distance": 2100000,
+        "elevationGain": 95000,
+        "movingTime": 2304000000000,
+        "elapsedTime": 3240000000000,
+        "activityCount": 120
+      }
+    },
+    {
+      "id": "c9a8036b-a9e6-4523-9d99-67233d4e2ff8",
+      "isDeleted": false,
+      "lastModified": "2026-05-22T14:00:00.000Z",
+      "name": "Replaced rear tire",
+      "notes": "New DHR II + fresh sealant, ready for Finale.",
+      "dateTimeUTC": "2026-05-22T14:00:00.000Z",
+      "dateTimeLocal": "2026-05-22T16:00:00.000",
+      "taskRule": "a39333e1-8674-4a13-a1ba-af053da77eb0",
+      "componentId": null,
+      "bikeId": "93f93d45-3a56-43ae-8936-5cfcbd768c9b",
+      "snapshot": {
+        "distance": 5380000,
+        "elevationGain": 188500,
+        "movingTime": 5644800000000,
+        "elapsedTime": 7938000000000,
+        "activityCount": 312
+      }
+    },
+    {
+      "id": "134f729b-bbc1-4c68-b2a5-d0b23aa21cd9",
+      "isDeleted": false,
+      "lastModified": "2026-05-26T17:30:00.000Z",
+      "name": "Serviced pivot bearings",
+      "notes": "Lower link had play, cleaned and regreased.",
+      "dateTimeUTC": "2026-05-26T17:30:00.000Z",
+      "dateTimeLocal": "2026-05-26T19:30:00.000",
+      "taskRule": "9d8e2e33-ba82-44dc-98c9-b1635ec2cee5",
+      "componentId": "89f943f3-b7b0-4179-95e6-5a2a51cfc42f",
+      "bikeId": null,
+      "snapshot": {
+        "distance": 5460000,
+        "elevationGain": 190000,
+        "movingTime": 5688000000000,
+        "elapsedTime": 8010000000000,
+        "activityCount": 315
+      }
+    },
+    {
+      "id": "fecc5301-21f6-40e7-b410-50b84e7a57bb",
+      "isDeleted": false,
+      "lastModified": "2026-05-26T19:00:00.000Z",
+      "name": "Updated motor firmware",
+      "notes": "New tune, smoother power delivery.",
+      "dateTimeUTC": "2026-05-26T19:00:00.000Z",
+      "dateTimeLocal": "2026-05-26T21:00:00.000",
+      "taskRule": "0c309f1b-8627-4ab6-ac42-3749bc90c212",
+      "componentId": "f69b83ab-ede8-480b-8aa7-f3637645f151",
+      "bikeId": null,
+      "snapshot": {
+        "distance": 1200000,
+        "elevationGain": 45000,
+        "movingTime": 1296000000000,
+        "elapsedTime": 1872000000000,
+        "activityCount": 70
+      }
+    },
+    {
+      "id": "5b9971af-aa0b-43ae-bd93-58d80631915d",
+      "isDeleted": false,
+      "lastModified": "2026-05-29T16:00:00.000Z",
+      "name": "Replaced chain (again)",
+      "notes": "High mileage month - second chain.",
+      "dateTimeUTC": "2026-05-29T16:00:00.000Z",
+      "dateTimeLocal": "2026-05-29T18:00:00.000",
+      "taskRule": "12888968-9c93-4d3d-98ba-260ccac7b5d0",
+      "componentId": "93a8d294-a489-4275-9868-28643eabe3bd",
+      "bikeId": null,
+      "snapshot": {
+        "distance": 6050000,
+        "elevationGain": 195000,
+        "movingTime": 5832000000000,
+        "elapsedTime": 8208000000000,
+        "activityCount": 322
+      }
+    },
+    {
+      "id": "d96c8aff-95f8-4f8e-b092-523c0921045c",
+      "isDeleted": false,
+      "lastModified": "2026-03-15T09:00:00.000Z",
+      "name": "Replaced chain",
+      "notes": null,
+      "dateTimeUTC": "2026-03-15T09:00:00.000Z",
+      "dateTimeLocal": "2026-03-15T11:00:00.000",
+      "taskRule": "12888968-9c93-4d3d-98ba-260ccac7b5d0",
+      "componentId": "93a8d294-a489-4275-9868-28643eabe3bd",
+      "bikeId": null,
+      "snapshot": {
+        "distance": 4000000,
+        "elevationGain": 150000,
+        "movingTime": 4500000000000,
+        "elapsedTime": 6300000000000,
+        "activityCount": 250
+      }
+    },
+    {
+      "id": "7ef7926d-6b82-404f-9f39-499b9a6af14b",
+      "isDeleted": false,
+      "lastModified": "2025-06-10T08:00:00.000Z",
+      "name": "Annual full service",
+      "notes": "Full fork + shock service at the shop.",
+      "dateTimeUTC": "2025-06-10T08:00:00.000Z",
+      "dateTimeLocal": "2025-06-10T10:00:00.000",
+      "taskRule": "ca9ac6d2-19ed-427b-b381-7c24280dc0df",
+      "componentId": "e47480ee-0f71-453e-bb97-61d2041d05f5",
+      "bikeId": null,
+      "snapshot": {
+        "distance": 2000000,
+        "elevationGain": 80000,
+        "movingTime": 2340000000000,
+        "elapsedTime": 3312000000000,
+        "activityCount": 130
+      }
+    }
+  ]
+}

@@ -2,54 +2,59 @@
   "persons": [],
   "bikes": [
     {
-      "version": 3,
+      "version": 4,
       "id": "6b55cf93-4f42-4449-ba2e-88ce763bbe83",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:03:34.833974Z",
+      "lastModified": "2025-12-10T21:03:34.000Z",
       "name": "Raaw Madonna V2.2",
       "notes": null,
       "person": null,
-      "stravaGear": null
+      "stravaGear": null,
+      "orderIndex": 0
     },
     {
-      "version": 3,
+      "version": 4,
       "id": "4019a1ef-ddd8-4794-99c9-8aea0469ec1c",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:03:34.833984Z",
+      "lastModified": "2025-12-10T21:03:34.000Z",
       "name": "Commencal Meta Power SX",
       "notes": null,
       "person": null,
-      "stravaGear": null
+      "stravaGear": null,
+      "orderIndex": 0
     },
     {
-      "version": 3,
+      "version": 4,
       "id": "3f04cd99-d68d-4256-ad73-8b2a774337a5",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:03:34.833988Z",
+      "lastModified": "2025-12-10T21:03:34.000Z",
       "name": "Specialized Tarmac SL8",
       "notes": null,
       "person": null,
-      "stravaGear": null
+      "stravaGear": null,
+      "orderIndex": 0
     },
     {
-      "version": 3,
+      "version": 4,
       "id": "b77766da-f2ff-4c6b-ba94-5d029f4dc0e0",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:03:34.833991Z",
+      "lastModified": "2025-12-10T21:03:34.000Z",
       "name": "Santa Cruz V10",
       "notes": null,
       "person": null,
-      "stravaGear": null
+      "stravaGear": null,
+      "orderIndex": 0
     },
     {
-      "version": 3,
+      "version": 4,
       "id": "2449844e-000a-480e-b906-ef924e94249d",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:03:34.833994Z",
+      "lastModified": "2025-12-10T21:03:34.000Z",
       "name": "Canyon Grizl",
       "notes": null,
       "person": null,
-      "stravaGear": null
+      "stravaGear": null,
+      "orderIndex": 0
     }
   ],
   "setups": [
@@ -57,7 +62,7 @@
       "version": 4,
       "id": "a41a730f-ce21-4d47-ae6c-9fc7430ad6af",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:03:34.834290Z",
+      "lastModified": "2025-12-10T21:03:34.000Z",
       "name": "Fox Setup Guide mit 89 psi",
       "datetime": "2020-01-01T16:00:00.000Z",
       "datetimeLocal": "2020-01-01T17:00:00.000",
@@ -66,17 +71,17 @@
       "bike": "6b55cf93-4f42-4449-ba2e-88ce763bbe83",
       "person": null,
       "bikeAdjustmentValues": {
-        "9e744c6e-27da-48ba-85d1-9a6b622e7219": 3,
-        "f3e4a0c7-db3b-4dad-b53c-ffdc246314d7": -5,
-        "b68c3197-5c76-4f7c-b7cd-b1d3059628a9": -10,
-        "55aadd3e-a4c6-4994-af37-f9188a426a66": -5,
         "0830e57e-78fb-4e27-8755-e9eed3fbcbbe": false,
         "0f8f8878-2338-430d-aaa0-638bc95b1ea4": -4,
         "19113cb1-2a70-4706-9d72-734d25202e71": 550.0,
         "30aea209-3300-4bc6-8ee4-246689c64839": -11,
-        "b279750c-3fc2-4523-a3ea-e59f3d9c2925": -12,
+        "3a92d28c-62c4-4d0e-b250-9f97ca85b861": 89.0,
+        "55aadd3e-a4c6-4994-af37-f9188a426a66": -5,
         "673c7ebd-8e12-412b-96e2-d194c58b9297": -6,
-        "3a92d28c-62c4-4d0e-b250-9f97ca85b861": 89.0
+        "9e744c6e-27da-48ba-85d1-9a6b622e7219": 3,
+        "b279750c-3fc2-4523-a3ea-e59f3d9c2925": -12,
+        "b68c3197-5c76-4f7c-b7cd-b1d3059628a9": -10,
+        "f3e4a0c7-db3b-4dad-b53c-ffdc246314d7": -5
       },
       "personAdjustmentValues": {},
       "ratingAdjustmentValues": {},
@@ -112,16 +117,13 @@
         "currentSoilMoisture0to7cm": 0.365,
         "dayAccumulatedPrecipitation": 0.0,
         "condition": "Condition.muddy"
-      },
-      "previousBikeSetup": null,
-      "previousPersonSetup": null,
-      "isCurrent": false
+      }
     },
     {
       "version": 4,
       "id": "c79e452e-a1b4-4fae-bd61-03049ea0befe",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:03:34.834319Z",
+      "lastModified": "2025-12-10T21:03:34.000Z",
       "name": "German Championship Geisskopf",
       "datetime": "2025-07-25T08:00:00.000Z",
       "datetimeLocal": "2025-07-25T10:00:00.000",
@@ -130,20 +132,20 @@
       "bike": "6b55cf93-4f42-4449-ba2e-88ce763bbe83",
       "person": null,
       "bikeAdjustmentValues": {
-        "9e744c6e-27da-48ba-85d1-9a6b622e7219": 3,
-        "f3e4a0c7-db3b-4dad-b53c-ffdc246314d7": -5,
-        "b68c3197-5c76-4f7c-b7cd-b1d3059628a9": -10,
-        "55aadd3e-a4c6-4994-af37-f9188a426a66": -5,
         "0830e57e-78fb-4e27-8755-e9eed3fbcbbe": false,
         "0f8f8878-2338-430d-aaa0-638bc95b1ea4": -4,
         "19113cb1-2a70-4706-9d72-734d25202e71": 550.0,
-        "30aea209-3300-4bc6-8ee4-246689c64839": -11,
-        "b279750c-3fc2-4523-a3ea-e59f3d9c2925": -12,
-        "673c7ebd-8e12-412b-96e2-d194c58b9297": -6,
-        "3a92d28c-62c4-4d0e-b250-9f97ca85b861": 89.0,
-        "c9d11b74-fc02-458d-b657-d796f0c0fcd1": true,
         "2ef44ab6-f16b-49e1-a792-9f341788b32a": 1.8,
-        "ed56af22-c49c-4fe6-99e6-5eb3f32b0012": 1.6
+        "30aea209-3300-4bc6-8ee4-246689c64839": -11,
+        "3a92d28c-62c4-4d0e-b250-9f97ca85b861": 89.0,
+        "55aadd3e-a4c6-4994-af37-f9188a426a66": -5,
+        "673c7ebd-8e12-412b-96e2-d194c58b9297": -6,
+        "9e744c6e-27da-48ba-85d1-9a6b622e7219": 3,
+        "b279750c-3fc2-4523-a3ea-e59f3d9c2925": -12,
+        "b68c3197-5c76-4f7c-b7cd-b1d3059628a9": -10,
+        "c9d11b74-fc02-458d-b657-d796f0c0fcd1": true,
+        "ed56af22-c49c-4fe6-99e6-5eb3f32b0012": 1.6,
+        "f3e4a0c7-db3b-4dad-b53c-ffdc246314d7": -5
       },
       "personAdjustmentValues": {},
       "ratingAdjustmentValues": {},
@@ -179,16 +181,13 @@
         "currentSoilMoisture0to7cm": 0.278,
         "dayAccumulatedPrecipitation": 0.2,
         "condition": "Condition.wet"
-      },
-      "previousBikeSetup": "a41a730f-ce21-4d47-ae6c-9fc7430ad6af",
-      "previousPersonSetup": null,
-      "isCurrent": false
+      }
     },
     {
       "version": 4,
       "id": "db9ed96e-531c-4d5c-bb5d-520fe8978c5e",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:03:34.834348Z",
+      "lastModified": "2025-12-10T21:03:34.000Z",
       "name": "Bikepark Lac Blanc",
       "datetime": "2025-08-16T08:55:00.000Z",
       "datetimeLocal": "2025-08-16T10:55:00.000",
@@ -197,26 +196,26 @@
       "bike": "4019a1ef-ddd8-4794-99c9-8aea0469ec1c",
       "person": null,
       "bikeAdjustmentValues": {
-        "d17d45a8-ba74-41db-a468-0fc0e9317a87": 13,
-        "858dde8a-1ebe-4afd-a9f6-bdcba660ea98": 105,
-        "ae68303a-1309-4700-ad39-5be50d593a26": true,
-        "a61a254c-acc4-4fc8-83a8-04daf7d0b2de": 6,
-        "89d7a49e-e848-46b1-aff2-d36f7de91302": 7,
-        "21353730-00bb-4c41-a68c-0dae456970af": 4,
-        "b7868612-87ea-43e5-8c4c-16ff6fb33755": 6,
-        "fc76e3d1-b999-49d2-9a7d-03ba3a687cd7": "Longest",
-        "e86b74e0-92c6-4b52-a620-238ce56fcf96": 7,
-        "912a2781-4d2b-459e-b04a-64b68846c432": 9,
         "0c1f0ed4-d2fd-4c24-a300-cf6302f96a4c": 5,
-        "4a83b1ca-69fd-4da1-8784-afacfdbb0a67": 6,
+        "21353730-00bb-4c41-a68c-0dae456970af": 4,
+        "247613bf-1938-4c64-a0c1-41b7956b7c9d": 90.0,
         "389efb9b-332d-45a8-af23-1fb7a5cecb59": 2,
-        "ba396c4f-327c-4516-9745-e7e536d38679": "MINION DHRII",
-        "f7f6acc0-30ac-45dc-b6e5-e82c408f01fa": 1.9,
-        "67c5cfc9-69f2-444c-b36a-3f3866176937": 2.0,
-        "7ea9ec3d-9652-448c-871b-1c3d31321ad7": "MINION DHRII",
-        "6ad04941-7e4c-46cb-baf8-3d4cda02f049": 125.0,
+        "4a83b1ca-69fd-4da1-8784-afacfdbb0a67": 6,
         "5695afdd-07a1-4ba2-b99a-96186be25003": "open",
-        "247613bf-1938-4c64-a0c1-41b7956b7c9d": 90.0
+        "67c5cfc9-69f2-444c-b36a-3f3866176937": 2.0,
+        "6ad04941-7e4c-46cb-baf8-3d4cda02f049": 125.0,
+        "7ea9ec3d-9652-448c-871b-1c3d31321ad7": "MINION DHRII",
+        "858dde8a-1ebe-4afd-a9f6-bdcba660ea98": 105,
+        "89d7a49e-e848-46b1-aff2-d36f7de91302": 7,
+        "912a2781-4d2b-459e-b04a-64b68846c432": 9,
+        "a61a254c-acc4-4fc8-83a8-04daf7d0b2de": 6,
+        "ae68303a-1309-4700-ad39-5be50d593a26": true,
+        "b7868612-87ea-43e5-8c4c-16ff6fb33755": 6,
+        "ba396c4f-327c-4516-9745-e7e536d38679": "MINION DHRII",
+        "d17d45a8-ba74-41db-a468-0fc0e9317a87": 13,
+        "e86b74e0-92c6-4b52-a620-238ce56fcf96": 7,
+        "f7f6acc0-30ac-45dc-b6e5-e82c408f01fa": 1.9,
+        "fc76e3d1-b999-49d2-9a7d-03ba3a687cd7": "Longest"
       },
       "personAdjustmentValues": {},
       "ratingAdjustmentValues": {},
@@ -252,16 +251,13 @@
         "currentSoilMoisture0to7cm": 0.178,
         "dayAccumulatedPrecipitation": 0.0,
         "condition": "Condition.moist"
-      },
-      "previousBikeSetup": null,
-      "previousPersonSetup": null,
-      "isCurrent": false
+      }
     },
     {
       "version": 4,
       "id": "0cebcc87-9b55-492e-a043-f596f429e95d",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:03:34.834382Z",
+      "lastModified": "2025-12-10T21:03:34.000Z",
       "name": "Hometrails (very cold)",
       "datetime": "2025-11-23T12:00:00.000Z",
       "datetimeLocal": "2025-11-23T13:00:00.000",
@@ -270,20 +266,20 @@
       "bike": "6b55cf93-4f42-4449-ba2e-88ce763bbe83",
       "person": null,
       "bikeAdjustmentValues": {
-        "9e744c6e-27da-48ba-85d1-9a6b622e7219": 3,
-        "f3e4a0c7-db3b-4dad-b53c-ffdc246314d7": -7,
-        "b68c3197-5c76-4f7c-b7cd-b1d3059628a9": -10,
-        "55aadd3e-a4c6-4994-af37-f9188a426a66": -9,
         "0830e57e-78fb-4e27-8755-e9eed3fbcbbe": false,
         "0f8f8878-2338-430d-aaa0-638bc95b1ea4": -4,
         "19113cb1-2a70-4706-9d72-734d25202e71": 550.0,
-        "30aea209-3300-4bc6-8ee4-246689c64839": -11,
-        "b279750c-3fc2-4523-a3ea-e59f3d9c2925": -12,
-        "673c7ebd-8e12-412b-96e2-d194c58b9297": -10,
-        "3a92d28c-62c4-4d0e-b250-9f97ca85b861": 89.0,
-        "c9d11b74-fc02-458d-b657-d796f0c0fcd1": true,
         "2ef44ab6-f16b-49e1-a792-9f341788b32a": 1.8,
-        "ed56af22-c49c-4fe6-99e6-5eb3f32b0012": 1.6
+        "30aea209-3300-4bc6-8ee4-246689c64839": -11,
+        "3a92d28c-62c4-4d0e-b250-9f97ca85b861": 89.0,
+        "55aadd3e-a4c6-4994-af37-f9188a426a66": -9,
+        "673c7ebd-8e12-412b-96e2-d194c58b9297": -10,
+        "9e744c6e-27da-48ba-85d1-9a6b622e7219": 3,
+        "b279750c-3fc2-4523-a3ea-e59f3d9c2925": -12,
+        "b68c3197-5c76-4f7c-b7cd-b1d3059628a9": -10,
+        "c9d11b74-fc02-458d-b657-d796f0c0fcd1": true,
+        "ed56af22-c49c-4fe6-99e6-5eb3f32b0012": 1.6,
+        "f3e4a0c7-db3b-4dad-b53c-ffdc246314d7": -7
       },
       "personAdjustmentValues": {},
       "ratingAdjustmentValues": {},
@@ -319,38 +315,35 @@
         "currentSoilMoisture0to7cm": 0.339,
         "dayAccumulatedPrecipitation": 0.0,
         "condition": "Condition.wet"
-      },
-      "previousBikeSetup": "c79e452e-a1b4-4fae-bd61-03049ea0befe",
-      "previousPersonSetup": null,
-      "isCurrent": false
+      }
     },
     {
       "version": 4,
       "id": "b50f92b7-0e10-4ada-b2db-49e7cbcb7b9f",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:03:34.834416Z",
+      "lastModified": "2025-12-10T21:03:34.000Z",
       "name": "SMDH Trail",
-      "datetime": "2025-11-27T15:11:57.763203Z",
-      "datetimeLocal": "2025-11-27T16:11:57.763203",
+      "datetime": "2025-11-27T15:11:57.000Z",
+      "datetimeLocal": "2025-11-27T16:11:57.000",
       "notes": "Two runs. Trail is in bad condition.",
       "tags": [],
       "bike": "6b55cf93-4f42-4449-ba2e-88ce763bbe83",
       "person": null,
       "bikeAdjustmentValues": {
-        "9e744c6e-27da-48ba-85d1-9a6b622e7219": 3,
-        "f3e4a0c7-db3b-4dad-b53c-ffdc246314d7": -6,
-        "b68c3197-5c76-4f7c-b7cd-b1d3059628a9": -10,
-        "55aadd3e-a4c6-4994-af37-f9188a426a66": -9,
         "0830e57e-78fb-4e27-8755-e9eed3fbcbbe": false,
         "0f8f8878-2338-430d-aaa0-638bc95b1ea4": -4,
         "19113cb1-2a70-4706-9d72-734d25202e71": 550.0,
-        "30aea209-3300-4bc6-8ee4-246689c64839": -11,
-        "b279750c-3fc2-4523-a3ea-e59f3d9c2925": -12,
-        "673c7ebd-8e12-412b-96e2-d194c58b9297": -10,
-        "3a92d28c-62c4-4d0e-b250-9f97ca85b861": 89.0,
-        "c9d11b74-fc02-458d-b657-d796f0c0fcd1": true,
         "2ef44ab6-f16b-49e1-a792-9f341788b32a": 1.8,
-        "ed56af22-c49c-4fe6-99e6-5eb3f32b0012": 1.7
+        "30aea209-3300-4bc6-8ee4-246689c64839": -11,
+        "3a92d28c-62c4-4d0e-b250-9f97ca85b861": 89.0,
+        "55aadd3e-a4c6-4994-af37-f9188a426a66": -9,
+        "673c7ebd-8e12-412b-96e2-d194c58b9297": -10,
+        "9e744c6e-27da-48ba-85d1-9a6b622e7219": 3,
+        "b279750c-3fc2-4523-a3ea-e59f3d9c2925": -12,
+        "b68c3197-5c76-4f7c-b7cd-b1d3059628a9": -10,
+        "c9d11b74-fc02-458d-b657-d796f0c0fcd1": true,
+        "ed56af22-c49c-4fe6-99e6-5eb3f32b0012": 1.7,
+        "f3e4a0c7-db3b-4dad-b53c-ffdc246314d7": -6
       },
       "personAdjustmentValues": {},
       "ratingAdjustmentValues": {},
@@ -386,44 +379,41 @@
         "currentSoilMoisture0to7cm": 0.358,
         "dayAccumulatedPrecipitation": 0.0,
         "condition": "Condition.muddy"
-      },
-      "previousBikeSetup": "0cebcc87-9b55-492e-a043-f596f429e95d",
-      "previousPersonSetup": null,
-      "isCurrent": false
+      }
     },
     {
       "version": 4,
       "id": "9980ffd9-a026-4d4d-86dc-f16650f1c794",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:03:34.834441Z",
+      "lastModified": "2025-12-10T21:03:34.000Z",
       "name": "Hometrails",
-      "datetime": "2025-12-01T11:53:35.394193Z",
-      "datetimeLocal": "2025-12-01T12:53:35.394193",
+      "datetime": "2025-12-01T11:53:35.000Z",
+      "datetimeLocal": "2025-12-01T12:53:35.000",
       "notes": "Increased rebound for cold temperature",
       "tags": [],
       "bike": "4019a1ef-ddd8-4794-99c9-8aea0469ec1c",
       "person": null,
       "bikeAdjustmentValues": {
-        "d17d45a8-ba74-41db-a468-0fc0e9317a87": 13,
-        "858dde8a-1ebe-4afd-a9f6-bdcba660ea98": 105,
-        "ae68303a-1309-4700-ad39-5be50d593a26": true,
-        "a61a254c-acc4-4fc8-83a8-04daf7d0b2de": 6,
-        "89d7a49e-e848-46b1-aff2-d36f7de91302": 7,
-        "21353730-00bb-4c41-a68c-0dae456970af": 5,
-        "b7868612-87ea-43e5-8c4c-16ff6fb33755": 7,
-        "fc76e3d1-b999-49d2-9a7d-03ba3a687cd7": "Longest",
-        "e86b74e0-92c6-4b52-a620-238ce56fcf96": 7,
-        "912a2781-4d2b-459e-b04a-64b68846c432": 9,
         "0c1f0ed4-d2fd-4c24-a300-cf6302f96a4c": 6,
-        "4a83b1ca-69fd-4da1-8784-afacfdbb0a67": 8,
+        "21353730-00bb-4c41-a68c-0dae456970af": 5,
+        "247613bf-1938-4c64-a0c1-41b7956b7c9d": 90.0,
         "389efb9b-332d-45a8-af23-1fb7a5cecb59": 2,
-        "ba396c4f-327c-4516-9745-e7e536d38679": "MINION DHRII",
-        "f7f6acc0-30ac-45dc-b6e5-e82c408f01fa": 1.9,
-        "67c5cfc9-69f2-444c-b36a-3f3866176937": 2.0,
-        "7ea9ec3d-9652-448c-871b-1c3d31321ad7": "MINION DHRII",
-        "6ad04941-7e4c-46cb-baf8-3d4cda02f049": 125.0,
+        "4a83b1ca-69fd-4da1-8784-afacfdbb0a67": 8,
         "5695afdd-07a1-4ba2-b99a-96186be25003": "open",
-        "247613bf-1938-4c64-a0c1-41b7956b7c9d": 90.0
+        "67c5cfc9-69f2-444c-b36a-3f3866176937": 2.0,
+        "6ad04941-7e4c-46cb-baf8-3d4cda02f049": 125.0,
+        "7ea9ec3d-9652-448c-871b-1c3d31321ad7": "MINION DHRII",
+        "858dde8a-1ebe-4afd-a9f6-bdcba660ea98": 105,
+        "89d7a49e-e848-46b1-aff2-d36f7de91302": 7,
+        "912a2781-4d2b-459e-b04a-64b68846c432": 9,
+        "a61a254c-acc4-4fc8-83a8-04daf7d0b2de": 6,
+        "ae68303a-1309-4700-ad39-5be50d593a26": true,
+        "b7868612-87ea-43e5-8c4c-16ff6fb33755": 7,
+        "ba396c4f-327c-4516-9745-e7e536d38679": "MINION DHRII",
+        "d17d45a8-ba74-41db-a468-0fc0e9317a87": 13,
+        "e86b74e0-92c6-4b52-a620-238ce56fcf96": 7,
+        "f7f6acc0-30ac-45dc-b6e5-e82c408f01fa": 1.9,
+        "fc76e3d1-b999-49d2-9a7d-03ba3a687cd7": "Longest"
       },
       "personAdjustmentValues": {},
       "ratingAdjustmentValues": {},
@@ -459,88 +449,16 @@
         "currentSoilMoisture0to7cm": 0.397,
         "dayAccumulatedPrecipitation": 0.0,
         "condition": "Condition.muddy"
-      },
-      "previousBikeSetup": "db9ed96e-531c-4d5c-bb5d-520fe8978c5e",
-      "previousPersonSetup": null,
-      "isCurrent": true
-    },
-    {
-      "version": 4,
-      "id": "e25cfe3f-2753-46d3-9594-11a421241840",
-      "isDeleted": true,
-      "lastModified": "2026-03-04T08:07:47.338897Z",
-      "name": "Trails of Freiburg",
-      "datetime": "2025-12-10T07:17:01.173832Z",
-      "datetimeLocal": "2025-12-10T08:17:01.173832",
-      "notes": "Removed a volume spacer and increased compression in the fork",
-      "tags": [
-        "Freiburg"
-      ],
-      "bike": "6b55cf93-4f42-4449-ba2e-88ce763bbe83",
-      "person": null,
-      "bikeAdjustmentValues": {
-        "9e744c6e-27da-48ba-85d1-9a6b622e7219": 2,
-        "f3e4a0c7-db3b-4dad-b53c-ffdc246314d7": -4,
-        "b68c3197-5c76-4f7c-b7cd-b1d3059628a9": -10,
-        "55aadd3e-a4c6-4994-af37-f9188a426a66": -9,
-        "0830e57e-78fb-4e27-8755-e9eed3fbcbbe": false,
-        "0f8f8878-2338-430d-aaa0-638bc95b1ea4": -4,
-        "19113cb1-2a70-4706-9d72-734d25202e71": 550.0,
-        "30aea209-3300-4bc6-8ee4-246689c64839": -11,
-        "b279750c-3fc2-4523-a3ea-e59f3d9c2925": -12,
-        "673c7ebd-8e12-412b-96e2-d194c58b9297": -10,
-        "3a92d28c-62c4-4d0e-b250-9f97ca85b861": 89.0,
-        "c9d11b74-fc02-458d-b657-d796f0c0fcd1": true,
-        "2ef44ab6-f16b-49e1-a792-9f341788b32a": 1.8,
-        "ed56af22-c49c-4fe6-99e6-5eb3f32b0012": 1.7
-      },
-      "personAdjustmentValues": {},
-      "ratingAdjustmentValues": {},
-      "position": {
-        "latitude": 44.1741567,
-        "longitude": 8.3537917,
-        "altitude": 0.0,
-        "accuracy": 5.0,
-        "heading": 0.0,
-        "speed": 0.0,
-        "speedAccuracy": 0.5,
-        "time": "2026-03-04T08:17:05.822"
-      },
-      "place": {
-        "name": "103",
-        "thoroughfare": "Via Ovada",
-        "subThoroughfare": "103",
-        "locality": "Finale Ligure",
-        "subLocality": "",
-        "administrativeArea": "Liguria",
-        "subAdministrativeArea": "Provincia di Savona",
-        "postalCode": "17024",
-        "country": "Italy",
-        "isoCountryCode": "IT"
-      },
-      "weather": {
-        "currentDateTime": "2025-12-10T08:00:00.000",
-        "currentTemperature": 10.808000564575195,
-        "currentWeatherCode": 3,
-        "currentHumidity": 95.76050567626953,
-        "currentWindSpeed": 6.775750637054443,
-        "currentPrecipitation": 0.0,
-        "currentSoilMoisture0to7cm": 0.2750000059604645,
-        "dayAccumulatedPrecipitation": 0.5000000074505806,
-        "condition": "Condition.wet"
-      },
-      "previousBikeSetup": "b50f92b7-0e10-4ada-b2db-49e7cbcb7b9f",
-      "previousPersonSetup": null,
-      "isCurrent": false
+      }
     },
     {
       "version": 4,
       "id": "a0e73c26-bfb8-460a-b37a-65878ad9c56d",
       "isDeleted": false,
-      "lastModified": "2026-03-04T08:21:16.598043Z",
+      "lastModified": "2026-03-04T08:21:16.000Z",
       "name": "Trails of Freiburg",
-      "datetime": "2025-12-10T08:07:48.730972Z",
-      "datetimeLocal": "2025-12-10T09:07:48.730972",
+      "datetime": "2025-12-10T08:07:48.000Z",
+      "datetimeLocal": "2025-12-10T09:07:48.000",
       "notes": "Removed a volume spacer and increased compression in the fork",
       "tags": [
         "Freiburg"
@@ -548,20 +466,20 @@
       "bike": "6b55cf93-4f42-4449-ba2e-88ce763bbe83",
       "person": null,
       "bikeAdjustmentValues": {
-        "9e744c6e-27da-48ba-85d1-9a6b622e7219": 2,
-        "f3e4a0c7-db3b-4dad-b53c-ffdc246314d7": -4,
-        "b68c3197-5c76-4f7c-b7cd-b1d3059628a9": -10,
-        "55aadd3e-a4c6-4994-af37-f9188a426a66": -9,
         "0830e57e-78fb-4e27-8755-e9eed3fbcbbe": false,
         "0f8f8878-2338-430d-aaa0-638bc95b1ea4": -4,
         "19113cb1-2a70-4706-9d72-734d25202e71": 550.0,
-        "30aea209-3300-4bc6-8ee4-246689c64839": -11,
-        "b279750c-3fc2-4523-a3ea-e59f3d9c2925": -12,
-        "673c7ebd-8e12-412b-96e2-d194c58b9297": -10,
-        "3a92d28c-62c4-4d0e-b250-9f97ca85b861": 89.0,
-        "c9d11b74-fc02-458d-b657-d796f0c0fcd1": true,
         "2ef44ab6-f16b-49e1-a792-9f341788b32a": 1.8,
-        "ed56af22-c49c-4fe6-99e6-5eb3f32b0012": 1.7
+        "30aea209-3300-4bc6-8ee4-246689c64839": -11,
+        "3a92d28c-62c4-4d0e-b250-9f97ca85b861": 89.0,
+        "55aadd3e-a4c6-4994-af37-f9188a426a66": -9,
+        "673c7ebd-8e12-412b-96e2-d194c58b9297": -10,
+        "9e744c6e-27da-48ba-85d1-9a6b622e7219": 2,
+        "b279750c-3fc2-4523-a3ea-e59f3d9c2925": -12,
+        "b68c3197-5c76-4f7c-b7cd-b1d3059628a9": -10,
+        "c9d11b74-fc02-458d-b657-d796f0c0fcd1": true,
+        "ed56af22-c49c-4fe6-99e6-5eb3f32b0012": 1.7,
+        "f3e4a0c7-db3b-4dad-b53c-ffdc246314d7": -4
       },
       "personAdjustmentValues": {},
       "ratingAdjustmentValues": {},
@@ -597,38 +515,35 @@
         "currentSoilMoisture0to7cm": 0.3840000033378601,
         "dayAccumulatedPrecipitation": 0.6000000238418579,
         "condition": "Condition.muddy"
-      },
-      "previousBikeSetup": "b50f92b7-0e10-4ada-b2db-49e7cbcb7b9f",
-      "previousPersonSetup": null,
-      "isCurrent": false
+      }
     },
     {
       "version": 4,
       "id": "4f09dcbc-3e40-40ba-bbd6-dc592eedd216",
       "isDeleted": false,
-      "lastModified": "2026-01-28T15:53:19.112446Z",
+      "lastModified": "2026-01-28T15:53:19.000Z",
       "name": "Finale Ligure: Run #1",
-      "datetime": "2026-01-02T10:46:51.106956Z",
-      "datetimeLocal": "2026-01-02T11:46:51.106956",
+      "datetime": "2026-01-02T10:46:51.000Z",
+      "datetimeLocal": "2026-01-02T11:46:51.000",
       "notes": "Removed token and increased fork pressure",
       "tags": [],
       "bike": "6b55cf93-4f42-4449-ba2e-88ce763bbe83",
       "person": null,
       "bikeAdjustmentValues": {
-        "9e744c6e-27da-48ba-85d1-9a6b622e7219": 2,
-        "f3e4a0c7-db3b-4dad-b53c-ffdc246314d7": -6,
-        "b68c3197-5c76-4f7c-b7cd-b1d3059628a9": -10,
-        "55aadd3e-a4c6-4994-af37-f9188a426a66": -9,
         "0830e57e-78fb-4e27-8755-e9eed3fbcbbe": false,
         "0f8f8878-2338-430d-aaa0-638bc95b1ea4": -4,
         "19113cb1-2a70-4706-9d72-734d25202e71": 550.0,
-        "30aea209-3300-4bc6-8ee4-246689c64839": -11,
-        "b279750c-3fc2-4523-a3ea-e59f3d9c2925": -12,
-        "673c7ebd-8e12-412b-96e2-d194c58b9297": -10,
-        "3a92d28c-62c4-4d0e-b250-9f97ca85b861": 92.0,
-        "c9d11b74-fc02-458d-b657-d796f0c0fcd1": true,
         "2ef44ab6-f16b-49e1-a792-9f341788b32a": 1.9,
-        "ed56af22-c49c-4fe6-99e6-5eb3f32b0012": 1.8
+        "30aea209-3300-4bc6-8ee4-246689c64839": -11,
+        "3a92d28c-62c4-4d0e-b250-9f97ca85b861": 92.0,
+        "55aadd3e-a4c6-4994-af37-f9188a426a66": -9,
+        "673c7ebd-8e12-412b-96e2-d194c58b9297": -10,
+        "9e744c6e-27da-48ba-85d1-9a6b622e7219": 2,
+        "b279750c-3fc2-4523-a3ea-e59f3d9c2925": -12,
+        "b68c3197-5c76-4f7c-b7cd-b1d3059628a9": -10,
+        "c9d11b74-fc02-458d-b657-d796f0c0fcd1": true,
+        "ed56af22-c49c-4fe6-99e6-5eb3f32b0012": 1.8,
+        "f3e4a0c7-db3b-4dad-b53c-ffdc246314d7": -6
       },
       "personAdjustmentValues": {},
       "ratingAdjustmentValues": {},
@@ -664,38 +579,35 @@
         "currentSoilMoisture0to7cm": 0.3569999933242798,
         "dayAccumulatedPrecipitation": 0.0,
         "condition": "Condition.muddy"
-      },
-      "previousBikeSetup": "a0e73c26-bfb8-460a-b37a-65878ad9c56d",
-      "previousPersonSetup": null,
-      "isCurrent": false
+      }
     },
     {
       "version": 4,
       "id": "7186df2d-b3d7-4aa5-a912-a96560f7152b",
       "isDeleted": false,
-      "lastModified": "2026-01-28T15:58:04.869936Z",
+      "lastModified": "2026-01-28T15:58:04.000Z",
       "name": "Finale Ligure: Run #2",
-      "datetime": "2026-01-02T10:55:31.675137Z",
-      "datetimeLocal": "2026-01-02T11:55:31.675137",
+      "datetime": "2026-01-02T10:55:31.000Z",
+      "datetimeLocal": "2026-01-02T11:55:31.000",
       "notes": "Increased Fork pressure",
       "tags": [],
       "bike": "6b55cf93-4f42-4449-ba2e-88ce763bbe83",
       "person": null,
       "bikeAdjustmentValues": {
-        "9e744c6e-27da-48ba-85d1-9a6b622e7219": 2,
-        "f3e4a0c7-db3b-4dad-b53c-ffdc246314d7": -6,
-        "b68c3197-5c76-4f7c-b7cd-b1d3059628a9": -10,
-        "55aadd3e-a4c6-4994-af37-f9188a426a66": -9,
         "0830e57e-78fb-4e27-8755-e9eed3fbcbbe": false,
         "0f8f8878-2338-430d-aaa0-638bc95b1ea4": -4,
         "19113cb1-2a70-4706-9d72-734d25202e71": 550.0,
-        "30aea209-3300-4bc6-8ee4-246689c64839": -11,
-        "b279750c-3fc2-4523-a3ea-e59f3d9c2925": -12,
-        "673c7ebd-8e12-412b-96e2-d194c58b9297": -10,
-        "3a92d28c-62c4-4d0e-b250-9f97ca85b861": 95.0,
-        "c9d11b74-fc02-458d-b657-d796f0c0fcd1": true,
         "2ef44ab6-f16b-49e1-a792-9f341788b32a": 1.9,
-        "ed56af22-c49c-4fe6-99e6-5eb3f32b0012": 1.8
+        "30aea209-3300-4bc6-8ee4-246689c64839": -11,
+        "3a92d28c-62c4-4d0e-b250-9f97ca85b861": 95.0,
+        "55aadd3e-a4c6-4994-af37-f9188a426a66": -9,
+        "673c7ebd-8e12-412b-96e2-d194c58b9297": -10,
+        "9e744c6e-27da-48ba-85d1-9a6b622e7219": 2,
+        "b279750c-3fc2-4523-a3ea-e59f3d9c2925": -12,
+        "b68c3197-5c76-4f7c-b7cd-b1d3059628a9": -10,
+        "c9d11b74-fc02-458d-b657-d796f0c0fcd1": true,
+        "ed56af22-c49c-4fe6-99e6-5eb3f32b0012": 1.8,
+        "f3e4a0c7-db3b-4dad-b53c-ffdc246314d7": -6
       },
       "personAdjustmentValues": {},
       "ratingAdjustmentValues": {},
@@ -731,38 +643,35 @@
         "currentSoilMoisture0to7cm": 0.3569999933242798,
         "dayAccumulatedPrecipitation": 0.0,
         "condition": "Condition.muddy"
-      },
-      "previousBikeSetup": "4f09dcbc-3e40-40ba-bbd6-dc592eedd216",
-      "previousPersonSetup": null,
-      "isCurrent": false
+      }
     },
     {
       "version": 4,
       "id": "2f6dd3c5-f4a1-49ee-89e1-f12a55d8107f",
       "isDeleted": false,
-      "lastModified": "2026-01-28T15:57:12.224810Z",
+      "lastModified": "2026-01-28T15:57:12.000Z",
       "name": "Finale Ligure: Run #3",
-      "datetime": "2026-01-02T13:50:29.260205Z",
-      "datetimeLocal": "2026-01-02T14:50:29.260205",
+      "datetime": "2026-01-02T13:50:29.000Z",
+      "datetimeLocal": "2026-01-02T14:50:29.000",
       "notes": "Increased High Speed Compression, decreased pressure to 92 psi",
       "tags": [],
       "bike": "6b55cf93-4f42-4449-ba2e-88ce763bbe83",
       "person": null,
       "bikeAdjustmentValues": {
-        "9e744c6e-27da-48ba-85d1-9a6b622e7219": 2,
-        "f3e4a0c7-db3b-4dad-b53c-ffdc246314d7": -5,
-        "b68c3197-5c76-4f7c-b7cd-b1d3059628a9": -10,
-        "55aadd3e-a4c6-4994-af37-f9188a426a66": -9,
         "0830e57e-78fb-4e27-8755-e9eed3fbcbbe": false,
         "0f8f8878-2338-430d-aaa0-638bc95b1ea4": -4,
         "19113cb1-2a70-4706-9d72-734d25202e71": 550.0,
-        "30aea209-3300-4bc6-8ee4-246689c64839": -11,
-        "b279750c-3fc2-4523-a3ea-e59f3d9c2925": -12,
-        "673c7ebd-8e12-412b-96e2-d194c58b9297": -10,
-        "3a92d28c-62c4-4d0e-b250-9f97ca85b861": 92.0,
-        "c9d11b74-fc02-458d-b657-d796f0c0fcd1": true,
         "2ef44ab6-f16b-49e1-a792-9f341788b32a": 1.9,
-        "ed56af22-c49c-4fe6-99e6-5eb3f32b0012": 1.8
+        "30aea209-3300-4bc6-8ee4-246689c64839": -11,
+        "3a92d28c-62c4-4d0e-b250-9f97ca85b861": 92.0,
+        "55aadd3e-a4c6-4994-af37-f9188a426a66": -9,
+        "673c7ebd-8e12-412b-96e2-d194c58b9297": -10,
+        "9e744c6e-27da-48ba-85d1-9a6b622e7219": 2,
+        "b279750c-3fc2-4523-a3ea-e59f3d9c2925": -12,
+        "b68c3197-5c76-4f7c-b7cd-b1d3059628a9": -10,
+        "c9d11b74-fc02-458d-b657-d796f0c0fcd1": true,
+        "ed56af22-c49c-4fe6-99e6-5eb3f32b0012": 1.8,
+        "f3e4a0c7-db3b-4dad-b53c-ffdc246314d7": -5
       },
       "personAdjustmentValues": {},
       "ratingAdjustmentValues": {},
@@ -798,18 +707,15 @@
         "currentSoilMoisture0to7cm": 0.38100001215934753,
         "dayAccumulatedPrecipitation": 0.0,
         "condition": "Condition.wet"
-      },
-      "previousBikeSetup": "7186df2d-b3d7-4aa5-a912-a96560f7152b",
-      "previousPersonSetup": null,
-      "isCurrent": true
+      }
     }
   ],
   "components": [
     {
-      "version": 2,
+      "version": 4,
       "id": "a83ac49d-efeb-4c43-958b-b80eff16ea57",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:24:30.012537Z",
+      "lastModified": "2025-12-10T21:24:30.000Z",
       "name": "Fox 38 Grip2",
       "componentType": "ComponentType.fork",
       "installations": [
@@ -820,6 +726,7 @@
         }
       ],
       "notes": null,
+      "orderIndex": 0,
       "adjustments": [
         {
           "version": 1,
@@ -840,9 +747,9 @@
           "type": "step",
           "unit": null,
           "category": "AdjustmentCategory.component",
-          "step": 1,
           "min": 0,
           "max": 5,
+          "step": 1,
           "visualization": "StepAdjustmentVisualization.slider"
         },
         {
@@ -853,9 +760,9 @@
           "type": "step",
           "unit": null,
           "category": "AdjustmentCategory.component",
-          "step": 1,
           "min": -7,
           "max": 0,
+          "step": 1,
           "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial"
         },
         {
@@ -866,9 +773,9 @@
           "type": "step",
           "unit": null,
           "category": "AdjustmentCategory.component",
-          "step": 1,
           "min": -14,
           "max": 0,
+          "step": 1,
           "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial"
         },
         {
@@ -879,9 +786,9 @@
           "type": "step",
           "unit": null,
           "category": "AdjustmentCategory.component",
-          "step": 1,
           "min": -9,
           "max": 0,
+          "step": 1,
           "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial"
         },
         {
@@ -892,18 +799,23 @@
           "type": "step",
           "unit": null,
           "category": "AdjustmentCategory.component",
-          "step": 1,
           "min": -15,
           "max": 0,
+          "step": 1,
           "visualization": "StepAdjustmentVisualization.sliderWithClockwiseDial"
         }
-      ]
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
     },
     {
-      "version": 2,
+      "version": 4,
       "id": "5e9f9bb0-2c51-4e7f-8a18-e555d447604a",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:03:34.834086Z",
+      "lastModified": "2025-12-10T21:03:34.000Z",
       "name": "EXT Storia V3",
       "componentType": "ComponentType.shock",
       "installations": [
@@ -914,6 +826,7 @@
         }
       ],
       "notes": null,
+      "orderIndex": 0,
       "adjustments": [
         {
           "version": 1,
@@ -943,9 +856,9 @@
           "type": "step",
           "unit": null,
           "category": "AdjustmentCategory.component",
-          "step": 1,
           "min": -13,
           "max": 0,
+          "step": 1,
           "visualization": "StepAdjustmentVisualization.slider"
         },
         {
@@ -956,9 +869,9 @@
           "type": "step",
           "unit": null,
           "category": "AdjustmentCategory.component",
-          "step": 1,
           "min": -9,
           "max": 0,
+          "step": 1,
           "visualization": "StepAdjustmentVisualization.slider"
         },
         {
@@ -969,18 +882,23 @@
           "type": "step",
           "unit": null,
           "category": "AdjustmentCategory.component",
-          "step": 1,
           "min": -15,
           "max": 0,
+          "step": 1,
           "visualization": "StepAdjustmentVisualization.slider"
         }
-      ]
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
     },
     {
-      "version": 2,
+      "version": 4,
       "id": "4d80c063-62ff-421e-b95c-2840ee90a758",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:03:34.834093Z",
+      "lastModified": "2025-12-10T21:03:34.000Z",
       "name": "Front tire",
       "componentType": "ComponentType.wheelFront",
       "installations": [
@@ -991,6 +909,7 @@
         }
       ],
       "notes": null,
+      "orderIndex": 0,
       "adjustments": [
         {
           "version": 1,
@@ -1003,13 +922,18 @@
           "min": 0.0,
           "max": null
         }
-      ]
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
     },
     {
-      "version": 2,
+      "version": 4,
       "id": "706f9ea6-9953-42be-8107-571117aa112f",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:03:34.834100Z",
+      "lastModified": "2025-12-10T21:03:34.000Z",
       "name": "Rear tire",
       "componentType": "ComponentType.wheelRear",
       "installations": [
@@ -1020,6 +944,7 @@
         }
       ],
       "notes": null,
+      "orderIndex": 0,
       "adjustments": [
         {
           "version": 1,
@@ -1041,13 +966,18 @@
           "unit": null,
           "category": "AdjustmentCategory.component"
         }
-      ]
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
     },
     {
-      "version": 2,
+      "version": 4,
       "id": "c26f1047-aa1a-40f3-881f-30661dfcaea5",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:03:34.834166Z",
+      "lastModified": "2025-12-10T21:03:34.000Z",
       "name": "FOX 36 Factory",
       "componentType": "ComponentType.fork",
       "installations": [
@@ -1058,6 +988,7 @@
         }
       ],
       "notes": null,
+      "orderIndex": 0,
       "adjustments": [
         {
           "version": 1,
@@ -1078,9 +1009,9 @@
           "type": "step",
           "unit": null,
           "category": "AdjustmentCategory.component",
-          "step": 1,
           "min": 0,
           "max": 10,
+          "step": 1,
           "visualization": "StepAdjustmentVisualization.slider"
         },
         {
@@ -1091,9 +1022,9 @@
           "type": "step",
           "unit": null,
           "category": "AdjustmentCategory.component",
-          "step": 1,
           "min": 0,
           "max": 10,
+          "step": 1,
           "visualization": "StepAdjustmentVisualization.slider"
         },
         {
@@ -1104,9 +1035,9 @@
           "type": "step",
           "unit": null,
           "category": "AdjustmentCategory.component",
-          "step": 1,
           "min": 0,
           "max": 10,
+          "step": 1,
           "visualization": "StepAdjustmentVisualization.slider"
         },
         {
@@ -1117,9 +1048,9 @@
           "type": "step",
           "unit": null,
           "category": "AdjustmentCategory.component",
-          "step": 1,
           "min": 0,
           "max": 10,
+          "step": 1,
           "visualization": "StepAdjustmentVisualization.slider"
         },
         {
@@ -1130,18 +1061,23 @@
           "type": "step",
           "unit": null,
           "category": "AdjustmentCategory.component",
-          "step": 1,
           "min": 0,
           "max": 5,
+          "step": 1,
           "visualization": "StepAdjustmentVisualization.slider"
         }
-      ]
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
     },
     {
-      "version": 2,
+      "version": 4,
       "id": "069161c0-c719-4a0c-8252-fe2fdeccb1e5",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:03:34.834152Z",
+      "lastModified": "2025-12-10T21:03:34.000Z",
       "name": "FOX Float X",
       "componentType": "ComponentType.shock",
       "installations": [
@@ -1152,6 +1088,7 @@
         }
       ],
       "notes": null,
+      "orderIndex": 0,
       "adjustments": [
         {
           "version": 1,
@@ -1185,9 +1122,9 @@
           "type": "step",
           "unit": null,
           "category": "AdjustmentCategory.component",
-          "step": 1,
           "min": 0,
           "max": 10,
+          "step": 1,
           "visualization": "StepAdjustmentVisualization.slider"
         },
         {
@@ -1198,9 +1135,9 @@
           "type": "step",
           "unit": null,
           "category": "AdjustmentCategory.component",
-          "step": 1,
           "min": 0,
           "max": 10,
+          "step": 1,
           "visualization": "StepAdjustmentVisualization.slider"
         },
         {
@@ -1211,9 +1148,9 @@
           "type": "step",
           "unit": null,
           "category": "AdjustmentCategory.component",
-          "step": 1,
           "min": 0,
           "max": 10,
+          "step": 1,
           "visualization": "StepAdjustmentVisualization.slider"
         },
         {
@@ -1224,18 +1161,23 @@
           "type": "step",
           "unit": null,
           "category": "AdjustmentCategory.component",
-          "step": 1,
           "min": 0,
           "max": 10,
+          "step": 1,
           "visualization": "StepAdjustmentVisualization.slider"
         }
-      ]
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
     },
     {
-      "version": 2,
+      "version": 4,
       "id": "d6c52bd5-0292-4989-b071-80098bb08cb1",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:03:34.834122Z",
+      "lastModified": "2025-12-10T21:03:34.000Z",
       "name": "DJI Avinox M1",
       "componentType": "ComponentType.motor",
       "installations": [
@@ -1246,6 +1188,7 @@
         }
       ],
       "notes": null,
+      "orderIndex": 0,
       "adjustments": [
         {
           "version": 1,
@@ -1255,9 +1198,9 @@
           "type": "step",
           "unit": null,
           "category": "AdjustmentCategory.component",
-          "step": 1,
           "min": 1,
           "max": 15,
+          "step": 1,
           "visualization": "StepAdjustmentVisualization.slider"
         },
         {
@@ -1268,9 +1211,9 @@
           "type": "step",
           "unit": null,
           "category": "AdjustmentCategory.component",
-          "step": 5,
           "min": 0,
           "max": 105,
+          "step": 5,
           "visualization": "StepAdjustmentVisualization.slider"
         },
         {
@@ -1289,13 +1232,18 @@
             "Longest"
           ]
         }
-      ]
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
     },
     {
-      "version": 2,
+      "version": 4,
       "id": "522226e0-cabf-4795-8a54-5cd45da5a4af",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:03:34.834129Z",
+      "lastModified": "2025-12-10T21:03:34.000Z",
       "name": "Front Tire",
       "componentType": "ComponentType.wheelFront",
       "installations": [
@@ -1306,6 +1254,7 @@
         }
       ],
       "notes": null,
+      "orderIndex": 0,
       "adjustments": [
         {
           "version": 1,
@@ -1330,13 +1279,18 @@
           "min": null,
           "max": null
         }
-      ]
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
     },
     {
-      "version": 2,
+      "version": 4,
       "id": "aaabc601-69fe-4611-a434-890a15713bb1",
       "isDeleted": false,
-      "lastModified": "2026-03-03T19:41:14.091895Z",
+      "lastModified": "2026-03-03T19:41:14.000Z",
       "name": "Handlebar",
       "componentType": "ComponentType.cockpit",
       "installations": [
@@ -1347,6 +1301,7 @@
         }
       ],
       "notes": null,
+      "orderIndex": 0,
       "adjustments": [
         {
           "version": 1,
@@ -1359,13 +1314,18 @@
           "min": null,
           "max": null
         }
-      ]
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
     },
     {
-      "version": 2,
+      "version": 4,
       "id": "9736de43-5835-4b33-ad16-ed00fedc1d82",
       "isDeleted": false,
-      "lastModified": "2026-03-03T19:40:44.573399Z",
+      "lastModified": "2026-03-03T19:40:44.000Z",
       "name": "Front Tire",
       "componentType": "ComponentType.wheelFront",
       "installations": [
@@ -1376,6 +1336,7 @@
         }
       ],
       "notes": null,
+      "orderIndex": 0,
       "adjustments": [
         {
           "version": 1,
@@ -1400,13 +1361,18 @@
           "min": null,
           "max": null
         }
-      ]
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
     },
     {
-      "version": 2,
+      "version": 4,
       "id": "963aa0ce-c197-426e-a6a3-8cfa1d0c6f32",
       "isDeleted": false,
-      "lastModified": "2025-12-10T21:03:34.834137Z",
+      "lastModified": "2025-12-10T21:03:34.000Z",
       "name": "Rear Tire",
       "componentType": "ComponentType.wheelRear",
       "installations": [
@@ -1417,6 +1383,7 @@
         }
       ],
       "notes": null,
+      "orderIndex": 0,
       "adjustments": [
         {
           "version": 1,
@@ -1450,13 +1417,18 @@
           "unit": null,
           "category": "AdjustmentCategory.component"
         }
-      ]
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
     },
     {
-      "version": 2,
+      "version": 4,
       "id": "d1ed9c95-1a38-4f20-8671-38781e519d5e",
       "isDeleted": false,
-      "lastModified": "2026-03-03T19:40:55.019140Z",
+      "lastModified": "2026-03-03T19:40:55.000Z",
       "name": "Rear Tire",
       "componentType": "ComponentType.wheelRear",
       "installations": [
@@ -1467,6 +1439,7 @@
         }
       ],
       "notes": null,
+      "orderIndex": 0,
       "adjustments": [
         {
           "version": 1,
@@ -1500,13 +1473,18 @@
           "unit": null,
           "category": "AdjustmentCategory.component"
         }
-      ]
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
     },
     {
-      "version": 2,
+      "version": 4,
       "id": "ed9af9a9-c6db-4014-8c62-f228bbcb35e4",
       "isDeleted": false,
-      "lastModified": "2026-03-03T19:41:32.000931Z",
+      "lastModified": "2026-03-03T19:41:32.000Z",
       "name": "Front Tire",
       "componentType": "ComponentType.wheelFront",
       "installations": [
@@ -1517,6 +1495,7 @@
         }
       ],
       "notes": null,
+      "orderIndex": 0,
       "adjustments": [
         {
           "version": 1,
@@ -1541,13 +1520,18 @@
           "min": null,
           "max": null
         }
-      ]
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
     },
     {
-      "version": 2,
+      "version": 4,
       "id": "3477e792-9b7e-40a8-8b27-a3555addb0e8",
       "isDeleted": false,
-      "lastModified": "2026-03-03T19:41:25.455051Z",
+      "lastModified": "2026-03-03T19:41:25.000Z",
       "name": "Rear Tire",
       "componentType": "ComponentType.wheelRear",
       "installations": [
@@ -1558,6 +1542,7 @@
         }
       ],
       "notes": null,
+      "orderIndex": 0,
       "adjustments": [
         {
           "version": 1,
@@ -1591,13 +1576,18 @@
           "unit": null,
           "category": "AdjustmentCategory.component"
         }
-      ]
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
     },
     {
-      "version": 2,
+      "version": 4,
       "id": "0986d9e8-08bd-409c-b7bb-8f9b4215cfa5",
       "isDeleted": false,
-      "lastModified": "2026-03-03T19:42:13.658422Z",
+      "lastModified": "2026-03-03T19:42:13.000Z",
       "name": "Fork",
       "componentType": "ComponentType.fork",
       "installations": [
@@ -1608,6 +1598,7 @@
         }
       ],
       "notes": null,
+      "orderIndex": 0,
       "adjustments": [
         {
           "version": 1,
@@ -1618,13 +1609,18 @@
           "unit": null,
           "category": "AdjustmentCategory.component"
         }
-      ]
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
     },
     {
-      "version": 2,
+      "version": 4,
       "id": "aec8ed94-7255-494d-bf65-fc265480ab93",
       "isDeleted": false,
-      "lastModified": "2026-03-03T19:42:28.520685Z",
+      "lastModified": "2026-03-03T19:42:28.000Z",
       "name": "Shock",
       "componentType": "ComponentType.shock",
       "installations": [
@@ -1635,6 +1631,7 @@
         }
       ],
       "notes": null,
+      "orderIndex": 0,
       "adjustments": [
         {
           "version": 1,
@@ -1647,34 +1644,15 @@
           "min": 0.0,
           "max": null
         }
-      ]
+      ],
+      "initialDistance": 0.0,
+      "initialElevationGain": 0.0,
+      "initialMovingTime": 0,
+      "initialElapsedTime": 0,
+      "initialActivityCount": 0
     }
   ],
   "ratings": [],
-  "stravaAthletes": [
-    {
-      "id": 12070305,
-      "lastModified": "2026-02-23T20:32:21.596Z",
-      "firstname": "Jonas",
-      "lastname": "Keller",
-      "profile": "https://dgalywyr863hv.cloudfront.net/pictures/athletes/12070305/37124344/1/large.jpg",
-      "gears": [
-        "b10192549",
-        "b17434703"
-      ]
-    }
-  ],
-  "stravaGears": [
-    {
-      "id": "b10192549",
-      "lastModified": "2026-02-23T20:32:21.596Z",
-      "name": "Raaw Madonna V2.2"
-    },
-    {
-      "id": "b17434703",
-      "lastModified": "2026-02-23T20:32:21.596Z",
-      "name": "testBike"
-    }
-  ],
-  "stravaActivities": []
+  "taskRules": [],
+  "taskEntries": []
 }

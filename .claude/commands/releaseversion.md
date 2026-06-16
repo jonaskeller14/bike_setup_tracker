@@ -61,6 +61,17 @@ Follow these steps in order. Do not skip the constraints at the bottom.
 ## 6. App Store / Play Store release notes
 - Print a separate, short "What's New" block (plain text, 4–6 bullets), user-focused and free of
   technical jargon (no "refactor", "sealed class", "verification flow", etc.).
+- **Platform-specific split:** check whether this release contains changes that only apply to one
+  store's platform. 
+  Genuinely platform-bound examples: iOS-only — Siri / Apple Shortcuts, App Attest, Apple Sign-In,
+  Live Activities; Android-only — Play Integrity, predictive back gesture, Material You / dynamic
+  color theming. If the release has such changes, print **two separate "What's New" blocks** — one
+  labeled **App Store (iOS)** and one labeled **Play Store (Android)** — and put each
+  platform-specific bullet only in the matching block. The Play Store notes must never mention
+  iOS-only features (e.g. no "Improved Siri / Apple Shortcuts integration"), and the App Store
+  notes must never mention Android-only features. Shared bullets appear in both.
+- If the release has no platform-specific changes, print a single combined "What's New" block as
+  before.
 
 ## 7. Summary
 - Print: the new version, the release commit hash, the tag name, and a reminder that nothing was

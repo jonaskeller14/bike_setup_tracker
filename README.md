@@ -42,6 +42,8 @@ Here are the current development goals and their status:
 - [ ] **Marketing** push to grow the user base ➡️ **Next up**
 - [ ] Add **rider profile** (track body weight, ...) ➡️ **Planned for late summer**
 - [ ] Add a **rating procedure** to systematically distinguish good from bad setups ➡️ **Planned for late summer**
+- [ ] Add **images to setups** to capture how a configuration looked
+- [ ] Add **URLs to bikes and components** (link setup guides, service manuals, ...)
 
 I am open for feedback, suggestions, and bug reports—please feel free to open a new issue for any of these.
 

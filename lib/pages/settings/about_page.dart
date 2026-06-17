@@ -135,10 +135,29 @@ class _AboutPageState extends State<AboutPage> {
                   title: 'Terms of Service',
                   url: AppInfo.tosUrl,
                 ),
-              const ListTile(
-                leading: Icon(Icons.copyright),
-                title: Text("Third-party trademarks"),
-                subtitle: Text("Google Drive is a trademark of Google LLC."),
+              ListTile(
+                leading: const Icon(Icons.article_outlined),
+                title: const Text('Open-Source Licenses'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => showLicensePage(
+                  context: context,
+                  applicationName: 'Bike Setup Tracker',
+                  applicationVersion: '${AppInfo.appVersion} (+${AppInfo.buildNumber})',
+                  applicationIcon: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Image.asset('assets/icons/logo_256.png', width: 64, height: 64),
+                  ),
+                  applicationLegalese: '© 2025-2026 Jonas Keller. All rights reserved.',
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.copyright),
+                title: const Text("Third-party trademarks"),
+                subtitle: Text(
+                  appSettings.enableStrava
+                      ? "Strava is a trademark of Strava, Inc.\nGoogle Drive is a trademark of Google LLC."
+                      : "Google Drive is a trademark of Google LLC.",
+                ),
                 dense: true,
               ),
               const SizedBox(height: 16),

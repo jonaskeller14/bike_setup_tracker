@@ -1,5 +1,5 @@
 name: bike_setup_tracker
-description: "A new Flutter project."
+description: "Bike Setup Tracker - Track bike component setups, suspension settings, maintenance tasks and rides for mountain, road and gravel cyclists."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev

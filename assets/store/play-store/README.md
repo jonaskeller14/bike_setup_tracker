@@ -36,13 +36,15 @@ Key Features:
 
 📝 Setup History & Evolution: Never lose a good setup again. Browse your detailed history to see exactly what you changed and when. Compare your current setup to previous sessions (e.g., "Finale Ligure Trip" vs. "Local Trails").
 
-📊 Strava Integration (optional subscription): Connect Strava to pair every setup with the ride you actually rode.
-- Activities as context: See which setup you ran on every ride — automatically linked by date and gear.
-- Setups on the map: Activity start points and saved setups together, so you can revisit what worked at a spot.
+✅ Maintenance & To-Do List: Create maintenance tasks and reminders, then tick them off as you go — never miss a fork service or chain swap again.
+
+📅 Unified Calendar: Rides, setups, component installations, and maintenance tasks all on one timeline.
+
+📊 Strava Sync (optional add-on): Want your rides linked in automatically? Connect Strava to pair every setup with the activity you actually rode, matched by date and gear — and see your setups and rides together on a map. This is the only optional paid extra; everything else is completely free.
 
 🔒 Your Data, Your Ownership: Your settings are stored locally or in your private cloud. We have zero access to your data.
 - Free Forever: The core app will remain free, so you’ll always have access to your setup history.
-- Total Portability: Export your data at any time — you are never locked in.
+- Total Portability: Export your data to Excel, CSV, or JSON at any time — you are never locked in.
 
 Who is this for?
 - Mountain Bikers (MTB): Find the sweet spot on complex suspension systems.

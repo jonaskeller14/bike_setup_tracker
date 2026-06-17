@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../database/app_database.dart';
@@ -1014,21 +1013,40 @@ class AppRepository extends ChangeNotifier {
   }
 
   Future<void> editBike(Bike bike) async {
+    final gearChanged = _bikes[bike.id]?.stravaGear != bike.stravaGear;
+    
     final updated = bike.copyWith(lastModified: DateTime.now().toUtc());
     await database.bikesDao.updateBike(updated.toCompanion());
+    
+    if (gearChanged) await refreshTaskEntrySnapshots();
   }
 
   Future<void> editComponent(Component component) async {
+    // Installation history (which bike, when) and the component's initial stats
+    // both feed into its computed stats, and therefore into the snapshots of any
+    // task entries linked to it. Live component stats recompute via SQL joins,
+    // but persisted task-entry snapshots must be recomputed explicitly.
+    final old = _components[component.id];
+    final statsInputsChanged = old == null ||
+        !listEquals(old.installations, component.installations) ||
+        old.initialDistance != component.initialDistance ||
+        old.initialElevationGain != component.initialElevationGain ||
+        old.initialMovingTime != component.initialMovingTime ||
+        old.initialElapsedTime != component.initialElapsedTime ||
+        old.initialActivityCount != component.initialActivityCount;
+    
     final updated = component.copyWith(lastModified: DateTime.now().toUtc());
     await database.componentsDao.updateComponentWithData(
       component: updated.toCompanion(),
-      adjustmentsList: updated.adjustments.asMap().entries.map((entry) => 
+      adjustmentsList: updated.adjustments.asMap().entries.map((entry) =>
         entry.value.toCompanion(componentId: updated.id, orderIndex: entry.key)
       ).toList(),
-      installationsList: updated.installations.map((inst) => 
+      installationsList: updated.installations.map((inst) =>
         inst.toCompanion(id: const Uuid().v4(), componentId: updated.id)
       ).toList(),
     );
+
+    if (statsInputsChanged) await refreshTaskEntrySnapshots();
   }
 
   Future<void> editRating(Rating rating) async {
@@ -1197,6 +1215,11 @@ class AppRepository extends ChangeNotifier {
     _stravaGears = {};
     _stravaOffset = 0;
     _hasMoreStrava = true;
+
+    // Wiping all activities (disconnect/unlink) means task-entry snapshots must
+    // fall back to each component/bike's initial-only stats; otherwise they keep
+    // showing distances from activities that no longer exist.
+    await refreshTaskEntrySnapshots();
     _dataChanged();
   }
 }

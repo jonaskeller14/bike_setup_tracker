@@ -230,6 +230,426 @@ void main() {
     });
   });
 
+  group("Task Snapshot Healing - Gear Linking", () {
+    late AppDatabase database;
+    late AppRepository repository;
+
+    setUp(() async {
+      database = AppDatabase.memory();
+      repository = AppRepository(database);
+      await pumpEventQueue();
+    });
+
+    tearDown(() async {
+      await database.close();
+    });
+
+    test("linking Strava gear to a bike recomputes task entry snapshots", () async {
+      // 1. Bike with NO gear linked yet, plus a component and task rule.
+      final bike = Bike(name: "Test Bike", person: null, stravaGear: null);
+      await repository.addBike(bike);
+
+      final component = Component(
+        name: "Chain",
+        componentType: ComponentType.chain,
+        installations: [Installation.sinceBeginning(parent: bike.id)],
+      );
+      await repository.addComponent(component);
+
+      final rule = TaskRule(name: "Chain Wax", componentId: component.id, tags: const {});
+      await repository.addTaskRule(rule);
+      await pumpEventQueue();
+
+      // 2. A Strava activity exists for gear "g123" (not yet linked to any bike).
+      final activity = StravaActivity(
+        id: 1,
+        name: "Ride",
+        athlete: 1,
+        sportType: SportType.Ride,
+        startDate: DateTime.utc(2024, 1, 1, 12),
+        startDateLocal: DateTime(2024, 1, 1, 12),
+        gearId: "g123",
+        startLat: 0,
+        startLon: 0,
+        distance: 100000.0, // 100km
+        totalElevationGain: 1000.0,
+        movingTime: const Duration(hours: 4),
+        elapsedTime: const Duration(hours: 5),
+      );
+      await repository.setStravaActivities([activity]);
+      await pumpEventQueue();
+
+      // 3. Task entry created while the bike has no gear -> snapshot is 0km.
+      final entryDate = DateTime.utc(2024, 1, 2);
+      final initialStats = await repository.getStatsAt(componentId: component.id, date: entryDate);
+      expect(initialStats.distance, 0.0);
+
+      final entry = TaskEntry(
+        name: "Waxed",
+        taskRule: rule.id,
+        componentId: component.id,
+        dateTimeUTC: entryDate,
+        dateTimeLocal: entryDate.toLocal(),
+        snapshot: initialStats,
+      );
+      await repository.addTaskEntry(entry);
+      await pumpEventQueue();
+      expect(repository.taskEntries[entry.id]?.snapshot?.distance, 0.0);
+
+      // 4. Link the gear to the bike. This should heal the task entry snapshot.
+      await repository.editBike(bike.copyWith(stravaGear: "g123"));
+      await pumpEventQueue();
+
+      // 5. The snapshot now reflects the gear's activity (100km, 1 activity).
+      final updated = repository.taskEntries[entry.id];
+      expect(updated?.snapshot?.distance, 100000.0);
+      expect(updated?.snapshot?.activityCount, 1);
+    });
+
+    test("unlinking Strava gear from a bike recomputes task entry snapshots", () async {
+      // 1. Bike already linked to gear "g123", with a component and task rule.
+      final bike = Bike(name: "Test Bike", person: null, stravaGear: "g123");
+      await repository.addBike(bike);
+
+      final component = Component(
+        name: "Chain",
+        componentType: ComponentType.chain,
+        installations: [Installation.sinceBeginning(parent: bike.id)],
+      );
+      await repository.addComponent(component);
+
+      final rule = TaskRule(name: "Chain Wax", componentId: component.id, tags: const {});
+      await repository.addTaskRule(rule);
+
+      final activity = StravaActivity(
+        id: 1,
+        name: "Ride",
+        athlete: 1,
+        sportType: SportType.Ride,
+        startDate: DateTime.utc(2024, 1, 1, 12),
+        startDateLocal: DateTime(2024, 1, 1, 12),
+        gearId: "g123",
+        startLat: 0,
+        startLon: 0,
+        distance: 100000.0,
+        totalElevationGain: 1000.0,
+        movingTime: const Duration(hours: 4),
+        elapsedTime: const Duration(hours: 5),
+      );
+      await repository.setStravaActivities([activity]);
+      await pumpEventQueue();
+
+      // 2. Entry snapshot reflects the linked gear (100km).
+      final entryDate = DateTime.utc(2024, 1, 2);
+      final initialStats = await repository.getStatsAt(componentId: component.id, date: entryDate);
+      expect(initialStats.distance, 100000.0);
+
+      final entry = TaskEntry(
+        name: "Waxed",
+        taskRule: rule.id,
+        componentId: component.id,
+        dateTimeUTC: entryDate,
+        dateTimeLocal: entryDate.toLocal(),
+        snapshot: initialStats,
+      );
+      await repository.addTaskEntry(entry);
+      await pumpEventQueue();
+      expect(repository.taskEntries[entry.id]?.snapshot?.distance, 100000.0);
+
+      // 3. Unlink the gear. The snapshot should fall back to 0km.
+      await repository.editBike(bike.copyWith(stravaGear: null));
+      await pumpEventQueue();
+
+      final updated = repository.taskEntries[entry.id];
+      expect(updated?.snapshot?.distance, 0.0);
+      expect(updated?.snapshot?.activityCount, 0);
+    });
+  });
+
+  group("Task Snapshot Healing - Component Edits", () {
+    late AppDatabase database;
+    late AppRepository repository;
+
+    setUp(() async {
+      database = AppDatabase.memory();
+      repository = AppRepository(database);
+      await pumpEventQueue();
+    });
+
+    tearDown(() async {
+      await database.close();
+    });
+
+    test("moving a component to a gear-linked bike recomputes task entry snapshots", () async {
+      // Two bikes: one linked to a gear with activities, one with no gear.
+      final bikeWithGear = Bike(name: "Bike A", person: null, stravaGear: "g123");
+      final bikeNoGear = Bike(name: "Bike B", person: null, stravaGear: null);
+      await repository.addBike(bikeWithGear);
+      await repository.addBike(bikeNoGear);
+
+      // Component starts on the gear-less bike.
+      final component = Component(
+        name: "Chain",
+        componentType: ComponentType.chain,
+        installations: [Installation.sinceBeginning(parent: bikeNoGear.id)],
+      );
+      await repository.addComponent(component);
+
+      final rule = TaskRule(name: "Chain Wax", componentId: component.id, tags: const {});
+      await repository.addTaskRule(rule);
+
+      final activity = StravaActivity(
+        id: 1,
+        name: "Ride",
+        athlete: 1,
+        sportType: SportType.Ride,
+        startDate: DateTime.utc(2024, 1, 1, 12),
+        startDateLocal: DateTime(2024, 1, 1, 12),
+        gearId: "g123",
+        startLat: 0,
+        startLon: 0,
+        distance: 100000.0,
+        totalElevationGain: 1000.0,
+        movingTime: const Duration(hours: 4),
+        elapsedTime: const Duration(hours: 5),
+      );
+      await repository.setStravaActivities([activity]);
+      await pumpEventQueue();
+
+      // Entry created while the component is on the gear-less bike -> 0km.
+      final entryDate = DateTime.utc(2024, 1, 2);
+      final entry = TaskEntry(
+        name: "Waxed",
+        taskRule: rule.id,
+        componentId: component.id,
+        dateTimeUTC: entryDate,
+        dateTimeLocal: entryDate.toLocal(),
+        snapshot: await repository.getStatsAt(componentId: component.id, date: entryDate),
+      );
+      await repository.addTaskEntry(entry);
+      await pumpEventQueue();
+      expect(repository.taskEntries[entry.id]?.snapshot?.distance, 0.0);
+
+      // Move the component onto the gear-linked bike (since the beginning), so
+      // the 100km activity now counts toward it.
+      await repository.editComponent(component.copyWith(
+        installations: [Installation.sinceBeginning(parent: bikeWithGear.id)],
+      ));
+      await pumpEventQueue();
+
+      final updated = repository.taskEntries[entry.id];
+      expect(updated?.snapshot?.distance, 100000.0);
+      expect(updated?.snapshot?.activityCount, 1);
+    });
+
+    test("editing a component's initial stats recomputes task entry snapshots", () async {
+      final bike = Bike(name: "Test Bike", person: null, stravaGear: null);
+      await repository.addBike(bike);
+
+      final component = Component(
+        name: "Chain",
+        componentType: ComponentType.chain,
+        installations: [Installation.sinceBeginning(parent: bike.id)],
+        initialDistance: 0.0,
+      );
+      await repository.addComponent(component);
+
+      final rule = TaskRule(name: "Chain Wax", componentId: component.id, tags: const {});
+      await repository.addTaskRule(rule);
+      await pumpEventQueue();
+
+      final entryDate = DateTime.utc(2024, 1, 2);
+      final entry = TaskEntry(
+        name: "Waxed",
+        taskRule: rule.id,
+        componentId: component.id,
+        dateTimeUTC: entryDate,
+        dateTimeLocal: entryDate.toLocal(),
+        snapshot: await repository.getStatsAt(componentId: component.id, date: entryDate),
+      );
+      await repository.addTaskEntry(entry);
+      await pumpEventQueue();
+      expect(repository.taskEntries[entry.id]?.snapshot?.distance, 0.0);
+
+      // Bump the component's initial distance (e.g. a used part). The snapshot,
+      // which includes initial stats, must reflect the new baseline.
+      await repository.editComponent(component.copyWith(initialDistance: 25000.0));
+      await pumpEventQueue();
+
+      expect(repository.taskEntries[entry.id]?.snapshot?.distance, 25000.0);
+    });
+  });
+
+  group("Task Snapshot Healing - Clear Strava Data", () {
+    late AppDatabase database;
+    late AppRepository repository;
+
+    setUp(() async {
+      database = AppDatabase.memory();
+      repository = AppRepository(database);
+      await pumpEventQueue();
+    });
+
+    tearDown(() async {
+      await database.close();
+    });
+
+    test("clearing Strava data resets task entry snapshots to initial stats", () async {
+      final bike = Bike(name: "Test Bike", person: null, stravaGear: "g123");
+      await repository.addBike(bike);
+
+      final component = Component(
+        name: "Chain",
+        componentType: ComponentType.chain,
+        installations: [Installation.sinceBeginning(parent: bike.id)],
+      );
+      await repository.addComponent(component);
+
+      final rule = TaskRule(name: "Chain Wax", componentId: component.id, tags: const {});
+      await repository.addTaskRule(rule);
+
+      final activity = StravaActivity(
+        id: 1,
+        name: "Ride",
+        athlete: 1,
+        sportType: SportType.Ride,
+        startDate: DateTime.utc(2024, 1, 1, 12),
+        startDateLocal: DateTime(2024, 1, 1, 12),
+        gearId: "g123",
+        startLat: 0,
+        startLon: 0,
+        distance: 100000.0,
+        totalElevationGain: 1000.0,
+        movingTime: const Duration(hours: 4),
+        elapsedTime: const Duration(hours: 5),
+      );
+      await repository.setStravaActivities([activity]);
+      await pumpEventQueue();
+
+      final entryDate = DateTime.utc(2024, 1, 2);
+      final entry = TaskEntry(
+        name: "Waxed",
+        taskRule: rule.id,
+        componentId: component.id,
+        dateTimeUTC: entryDate,
+        dateTimeLocal: entryDate.toLocal(),
+        snapshot: await repository.getStatsAt(componentId: component.id, date: entryDate),
+      );
+      await repository.addTaskEntry(entry);
+      await pumpEventQueue();
+      expect(repository.taskEntries[entry.id]?.snapshot?.distance, 100000.0);
+
+      // Disconnecting Strava wipes all activities; the snapshot must fall back
+      // to the component's initial-only stats (0km here).
+      await repository.clearStravaData();
+      await pumpEventQueue();
+
+      final updated = repository.taskEntries[entry.id];
+      expect(updated?.snapshot?.distance, 0.0);
+      expect(updated?.snapshot?.activityCount, 0);
+    });
+  });
+
+  group("Task Snapshot Healing - Bike-linked entries", () {
+    // The other groups all exercise component-linked entries (getComponentStatsAt).
+    // These cover the parallel getBikeStatsAt path: a task entry linked directly
+    // to a bike (bikeId, no componentId) must heal the same way.
+    late AppDatabase database;
+    late AppRepository repository;
+
+    setUp(() async {
+      database = AppDatabase.memory();
+      repository = AppRepository(database);
+      await pumpEventQueue();
+    });
+
+    tearDown(() async {
+      await database.close();
+    });
+
+    StravaActivity rideForGear(String gearId) => StravaActivity(
+          id: 1,
+          name: "Ride",
+          athlete: 1,
+          sportType: SportType.Ride,
+          startDate: DateTime.utc(2024, 1, 1, 12),
+          startDateLocal: DateTime(2024, 1, 1, 12),
+          gearId: gearId,
+          startLat: 0,
+          startLon: 0,
+          distance: 100000.0,
+          totalElevationGain: 1000.0,
+          movingTime: const Duration(hours: 4),
+          elapsedTime: const Duration(hours: 5),
+        );
+
+    test("linking and unlinking gear recomputes a bike-linked entry snapshot", () async {
+      // Bike with no gear yet + a bike-linked task rule.
+      final bike = Bike(name: "Test Bike", person: null, stravaGear: null);
+      await repository.addBike(bike);
+      final rule = TaskRule(name: "Bike Service", bikeId: bike.id, tags: const {});
+      await repository.addTaskRule(rule);
+
+      // An activity exists for gear "g123" (not linked to any bike yet).
+      await repository.setStravaActivities([rideForGear("g123")]);
+      await pumpEventQueue();
+
+      // Entry created while the bike has no gear -> 0km.
+      final entryDate = DateTime.utc(2024, 1, 2);
+      final entry = TaskEntry(
+        name: "Serviced",
+        taskRule: rule.id,
+        bikeId: bike.id,
+        dateTimeUTC: entryDate,
+        dateTimeLocal: entryDate.toLocal(),
+        snapshot: await repository.getStatsAt(bikeId: bike.id, date: entryDate),
+      );
+      await repository.addTaskEntry(entry);
+      await pumpEventQueue();
+      expect(repository.taskEntries[entry.id]?.snapshot?.distance, 0.0);
+
+      // Link the gear -> the bike-linked snapshot picks up the 100km activity.
+      await repository.editBike(bike.copyWith(stravaGear: "g123"));
+      await pumpEventQueue();
+      expect(repository.taskEntries[entry.id]?.snapshot?.distance, 100000.0);
+      expect(repository.taskEntries[entry.id]?.snapshot?.activityCount, 1);
+
+      // Unlink again -> back to 0km.
+      await repository.editBike(bike.copyWith(stravaGear: null));
+      await pumpEventQueue();
+      expect(repository.taskEntries[entry.id]?.snapshot?.distance, 0.0);
+      expect(repository.taskEntries[entry.id]?.snapshot?.activityCount, 0);
+    });
+
+    test("clearing Strava data resets a bike-linked entry snapshot", () async {
+      final bike = Bike(name: "Test Bike", person: null, stravaGear: "g123");
+      await repository.addBike(bike);
+      final rule = TaskRule(name: "Bike Service", bikeId: bike.id, tags: const {});
+      await repository.addTaskRule(rule);
+
+      await repository.setStravaActivities([rideForGear("g123")]);
+      await pumpEventQueue();
+
+      final entryDate = DateTime.utc(2024, 1, 2);
+      final entry = TaskEntry(
+        name: "Serviced",
+        taskRule: rule.id,
+        bikeId: bike.id,
+        dateTimeUTC: entryDate,
+        dateTimeLocal: entryDate.toLocal(),
+        snapshot: await repository.getStatsAt(bikeId: bike.id, date: entryDate),
+      );
+      await repository.addTaskEntry(entry);
+      await pumpEventQueue();
+      expect(repository.taskEntries[entry.id]?.snapshot?.distance, 100000.0);
+
+      await repository.clearStravaData();
+      await pumpEventQueue();
+      expect(repository.taskEntries[entry.id]?.snapshot?.distance, 0.0);
+      expect(repository.taskEntries[entry.id]?.snapshot?.activityCount, 0);
+    });
+  });
+
   group("Task Snapshot Healing - Import", () {
     late AppDatabase database;
     late AppRepository repository;

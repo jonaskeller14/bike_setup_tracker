@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'adjustment/adjustment.dart';
+import 'rating_metric.dart';
 
 enum FilterType {
   person,
@@ -20,7 +21,7 @@ class Rating {
   final String? filter; // id of filter object (Bike, Component, Person)
   final FilterType filterType;
   final int orderIndex;
-  final List<Adjustment> adjustments;
+  final List<RatingMetric> metrics;
 
   static const IconData iconData = Icons.star;
 
@@ -33,25 +34,25 @@ class Rating {
     required this.filter,
     required this.filterType,
     this.orderIndex = 0,
-    List<Adjustment>? adjustments,
-  }) : adjustments = adjustments ?? [],
+    List<RatingMetric>? metrics,
+  }) : metrics = metrics ?? [],
        id = id ?? const Uuid().v4(),
        isDeleted = isDeleted ?? false,
        lastModified = lastModified ?? DateTime.now().toUtc(),
        assert ((filter == null && filterType == FilterType.global) || (filter != null && filterType != FilterType.global));
-  
+
   Rating deepCopy() {
     return Rating(
       name: name,
       notes: notes,
       filter: filter,
       filterType: filterType,
-      adjustments: adjustments.map((a) => a.deepCopy()).toList(),
+      metrics: metrics.map((m) => m.deepCopy()).toList(),
     );
   }
-  
+
   Map<String, dynamic> toJson() => {
-    'version': 2,
+    'version': 3,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
@@ -60,13 +61,14 @@ class Rating {
     "filter": filter,
     "filterType": filterType.toString(),
     'orderIndex': orderIndex,
-    'adjustments': adjustments.map((a) => a.toJson()).toList(),
+    'metrics': metrics.map((m) => m.toJson()).toList(),
   };
 
   factory Rating.fromJson({required Map<String, dynamic> json}) {
     final int? version = json["version"];
     switch (version) {
       case null || 1 || 2:
+        // Legacy: a flat list of adjustments without weights -> default metrics.
         return Rating(
           id: json["id"],
           isDeleted: json["isDeleted"],
@@ -78,10 +80,30 @@ class Rating {
             (e) => e.toString() == json["filterType"],
             orElse: () => FilterType.global,
           ),
-          adjustments: (json["adjustments"] as List<dynamic>?)
-            ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson, defaultCategory: AdjustmentCategory.rating))
+          metrics: (json["adjustments"] as List<dynamic>?)
+            ?.map((adjustmentJson) => RatingMetric(
+                  adjustment: Adjustment.fromJson(adjustmentJson, defaultCategory: AdjustmentCategory.rating),
+                ))
             .toList()
-            ?? <Adjustment>[],
+            ?? <RatingMetric>[],
+          orderIndex: json["orderIndex"] as int? ?? 0,
+        );
+      case 3:
+        return Rating(
+          id: json["id"],
+          isDeleted: json["isDeleted"],
+          lastModified: DateTime.tryParse(json["lastModified"] ?? ""),
+          name: json['name'],
+          notes: json['notes'],
+          filter: json["filter"],
+          filterType: FilterType.values.firstWhere(
+            (e) => e.toString() == json["filterType"],
+            orElse: () => FilterType.global,
+          ),
+          metrics: (json["metrics"] as List<dynamic>?)
+            ?.map((metricJson) => RatingMetric.fromJson(metricJson as Map<String, dynamic>))
+            .toList()
+            ?? <RatingMetric>[],
           orderIndex: json["orderIndex"] as int? ?? 0,
         );
       default: throw Exception("Json Version $version of Rating incompatible.");
@@ -99,7 +121,7 @@ class Rating {
         notes == other.notes &&
         filter == other.filter &&
         filterType == other.filterType &&
-        listEquals(adjustments, other.adjustments);
+        listEquals(metrics, other.metrics);
   }
 
   @override
@@ -112,7 +134,7 @@ class Rating {
       notes,
       filter,
       filterType,
-      Object.hashAll(adjustments),
+      Object.hashAll(metrics),
     );
   }
 
@@ -125,36 +147,36 @@ class Rating {
     Object? filter = const _Sentinel(),
     Object? filterType = const _Sentinel(),
     Object? orderIndex = const _Sentinel(),
-    Object? adjustments = const _Sentinel(),
+    Object? metrics = const _Sentinel(),
   }) {
     return Rating(
-      id: id is _Sentinel 
-          ? this.id 
+      id: id is _Sentinel
+          ? this.id
           : (id as String),
-      isDeleted: isDeleted is _Sentinel 
-          ? this.isDeleted 
+      isDeleted: isDeleted is _Sentinel
+          ? this.isDeleted
           : (isDeleted as bool),
-      lastModified: lastModified is _Sentinel 
-          ? this.lastModified 
+      lastModified: lastModified is _Sentinel
+          ? this.lastModified
           : (lastModified as DateTime),
-      name: name is _Sentinel 
-          ? this.name 
+      name: name is _Sentinel
+          ? this.name
           : (name as String),
-      notes: notes is _Sentinel 
-          ? this.notes 
+      notes: notes is _Sentinel
+          ? this.notes
           : (notes as String?),
-      filter: filter is _Sentinel 
-          ? this.filter 
+      filter: filter is _Sentinel
+          ? this.filter
           : (filter as String?),
-      filterType: filterType is _Sentinel 
-          ? this.filterType 
+      filterType: filterType is _Sentinel
+          ? this.filterType
           : (filterType as FilterType),
-      orderIndex: orderIndex is _Sentinel 
-          ? this.orderIndex 
+      orderIndex: orderIndex is _Sentinel
+          ? this.orderIndex
           : (orderIndex as int),
-      adjustments: adjustments is _Sentinel 
-          ? this.adjustments 
-          : (adjustments as List<Adjustment>),
+      metrics: metrics is _Sentinel
+          ? this.metrics
+          : (metrics as List<RatingMetric>),
     );
   }
 }

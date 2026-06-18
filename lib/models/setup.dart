@@ -21,7 +21,6 @@ class Setup {
   final String? person;
   final Map<String, dynamic> bikeAdjustmentValues;
   final Map<String, dynamic> personAdjustmentValues;
-  final Map<String, dynamic> ratingAdjustmentValues;
   final LocationData? position;
   final geo.Placemark? place;
   final ContextWeather? weather;
@@ -30,7 +29,6 @@ class Setup {
   bool isCurrent = false;
   Map<String, dynamic> previousBikeAdjustmentValues = {};
   Map<String, dynamic> previousPersonAdjustmentValues = {};
-  Map<String, dynamic> previousRatingAdjustmentValues = {};
 
   static const IconData iconData = Icons.tune;
 
@@ -50,7 +48,6 @@ class Setup {
     required this.person,
     required this.bikeAdjustmentValues,
     required this.personAdjustmentValues,
-    required this.ratingAdjustmentValues,
     this.place,
     this.position,
     this.weather,
@@ -60,7 +57,7 @@ class Setup {
        lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
 
   Map<String, dynamic> toJson() => {
-    'version': 4,
+    'version': 5,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
@@ -73,7 +70,6 @@ class Setup {
     'person': person,
     'bikeAdjustmentValues': adjustmentValuesToJson(bikeAdjustmentValues),
     'personAdjustmentValues': adjustmentValuesToJson(personAdjustmentValues),
-    'ratingAdjustmentValues': adjustmentValuesToJson(ratingAdjustmentValues),
     'position': position != null ? ContextPosition.toJson(position!) : null,
     'place': place != null ? ContextPlace.toJson(place!) : null,
     'weather': weather?.toJson(),
@@ -82,7 +78,7 @@ class Setup {
   factory Setup.fromJson({required Map<String, dynamic> json}) {
     final int? version = json["version"];
     switch (version) {
-      case null || 1 || 2 || 3 || 4:
+      case null || 1 || 2 || 3 || 4 || 5:
         return Setup(
           id: json['id'],
           isDeleted: json["isDeleted"],
@@ -96,7 +92,6 @@ class Setup {
           person: json['person'],
           bikeAdjustmentValues: adjustmentValuesFromJson((json['bikeAdjustmentValues'] ?? json['adjustmentValues']) as Map<String, dynamic>? ?? {}),
           personAdjustmentValues: adjustmentValuesFromJson((json['personAdjustmentValues']) as Map<String, dynamic>? ?? {}),
-          ratingAdjustmentValues: adjustmentValuesFromJson((json['ratingAdjustmentValues']) as Map<String, dynamic>? ?? {}),
           position: json['position'] != null ? ContextPosition.fromJson(json['position']) : null,
           place: json['place'] != null ? ContextPlace.fromJson(json['place']) : null,
           weather: json['weather'] != null ? ContextWeather.fromJson(json['weather']) : null,
@@ -148,10 +143,8 @@ class Setup {
       person: person,
       bikeAdjustmentValues: Map.from(bikeAdjustmentValues),
       personAdjustmentValues: Map.from(personAdjustmentValues),
-      ratingAdjustmentValues: {},
     )..previousBikeAdjustmentValues = Map.from(previousBikeAdjustmentValues)
-     ..previousPersonAdjustmentValues = Map.from(previousPersonAdjustmentValues)
-     ..previousRatingAdjustmentValues = Map.from(previousRatingAdjustmentValues);
+     ..previousPersonAdjustmentValues = Map.from(previousPersonAdjustmentValues);
   }
 
   Setup copyWith({
@@ -167,14 +160,12 @@ class Setup {
     Object? person = const _Sentinel(),
     Object? bikeAdjustmentValues = const _Sentinel(),
     Object? personAdjustmentValues = const _Sentinel(),
-    Object? ratingAdjustmentValues = const _Sentinel(),
     Object? position = const _Sentinel(),
     Object? place = const _Sentinel(),
     Object? weather = const _Sentinel(),
     Object? isCurrent = const _Sentinel(),
     Object? previousBikeAdjustmentValues = const _Sentinel(),
     Object? previousPersonAdjustmentValues = const _Sentinel(),
-    Object? previousRatingAdjustmentValues = const _Sentinel(),
   }) {
     return Setup(
       id: id is _Sentinel
@@ -212,10 +203,7 @@ class Setup {
           : (bikeAdjustmentValues as Map<String, dynamic>), 
       personAdjustmentValues: personAdjustmentValues is _Sentinel
           ? this.personAdjustmentValues
-          : (personAdjustmentValues as Map<String, dynamic>), 
-      ratingAdjustmentValues: ratingAdjustmentValues is _Sentinel
-          ? this.ratingAdjustmentValues
-          : (ratingAdjustmentValues as Map<String, dynamic>),
+          : (personAdjustmentValues as Map<String, dynamic>),
       position: position is _Sentinel
           ? this.position
           : (position as LocationData?),
@@ -233,10 +221,7 @@ class Setup {
           : (previousBikeAdjustmentValues as Map<String, dynamic>)
      ..previousPersonAdjustmentValues = previousPersonAdjustmentValues is _Sentinel
           ? this.previousPersonAdjustmentValues
-          : (previousPersonAdjustmentValues as Map<String, dynamic>)
-     ..previousRatingAdjustmentValues = previousRatingAdjustmentValues is _Sentinel
-          ? this.previousRatingAdjustmentValues
-          : (previousRatingAdjustmentValues as Map<String, dynamic>);
+          : (previousPersonAdjustmentValues as Map<String, dynamic>);
   }
 
   @override
@@ -256,7 +241,6 @@ class Setup {
         person == other.person &&
         mapEquals(bikeAdjustmentValues, other.bikeAdjustmentValues) &&
         mapEquals(personAdjustmentValues, other.personAdjustmentValues) &&
-        mapEquals(ratingAdjustmentValues, other.ratingAdjustmentValues) &&
         ContextPosition.equal(position, other.position) &&
         ContextPlace.equal(place, other.place) &&
         weather == other.weather;
@@ -277,7 +261,6 @@ class Setup {
       person,
       Object.hashAll(bikeAdjustmentValues.entries),
       Object.hashAll(personAdjustmentValues.entries),
-      Object.hashAll(ratingAdjustmentValues.entries),
       position,
       place,
       weather,

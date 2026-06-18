@@ -4,7 +4,9 @@ import 'package:geocoding/geocoding.dart' as geo;
 import 'package:location/location.dart';
 import 'package:uuid/uuid.dart';
 import 'adjustment/adjustment.dart';
-import 'weather.dart';
+import 'context/context_place.dart';
+import 'context/context_position.dart';
+import 'context/context_weather.dart';
 
 class Setup {
   final String id;
@@ -22,7 +24,7 @@ class Setup {
   final Map<String, dynamic> ratingAdjustmentValues;
   final LocationData? position;
   final geo.Placemark? place;
-  final Weather? weather;
+  final ContextWeather? weather;
 
   // Transient values resolved at runtime
   bool isCurrent = false;
@@ -69,8 +71,8 @@ class Setup {
     'bikeAdjustmentValues': adjustmentValuesToJson(bikeAdjustmentValues),
     'personAdjustmentValues': adjustmentValuesToJson(personAdjustmentValues),
     'ratingAdjustmentValues': adjustmentValuesToJson(ratingAdjustmentValues),
-    'position': position != null ? locationDataToJson(position!) : null,
-    'place': place != null ? _placemarkToJson(place!) : null,
+    'position': position != null ? ContextPosition.toJson(position!) : null,
+    'place': place != null ? ContextPlace.toJson(place!) : null,
     'weather': weather?.toJson(),
   };
 
@@ -92,9 +94,9 @@ class Setup {
           bikeAdjustmentValues: adjustmentValuesFromJson((json['bikeAdjustmentValues'] ?? json['adjustmentValues']) as Map<String, dynamic>? ?? {}),
           personAdjustmentValues: adjustmentValuesFromJson((json['personAdjustmentValues']) as Map<String, dynamic>? ?? {}),
           ratingAdjustmentValues: adjustmentValuesFromJson((json['ratingAdjustmentValues']) as Map<String, dynamic>? ?? {}),
-          position: json['position'] != null ? _locationDataFromJson(json['position']) : null,
-          place: json['place'] != null ? _placemarkFromJson(json['place']) : null,
-          weather: json['weather'] != null ? Weather.fromJson(json['weather']) : null,
+          position: json['position'] != null ? ContextPosition.fromJson(json['position']) : null,
+          place: json['place'] != null ? ContextPlace.fromJson(json['place']) : null,
+          weather: json['weather'] != null ? ContextWeather.fromJson(json['weather']) : null,
         );
       default: throw Exception("Json Version $version of Setup incompatible.");
     }
@@ -124,95 +126,6 @@ class Setup {
         default: return MapEntry(key, value);
       }
     });
-  }
-
-  static Map<String, dynamic> locationDataToJson(LocationData data) => {
-    'latitude': data.latitude,
-    'longitude': data.longitude,
-    'altitude': data.altitude,
-    'accuracy': data.accuracy,
-    'heading': data.heading,
-    'speed': data.speed,
-    'speedAccuracy': data.speedAccuracy,
-    'time': data.time != null 
-      ? DateTime.fromMillisecondsSinceEpoch(data.time!.toInt()).toIso8601String() 
-      : null,  
-  };
-
-  static bool locationEqual(LocationData? l1, LocationData? l2) {
-    return identical(l1, l2) ||
-        l1 != null &&
-        l2 != null &&
-        l1.latitude == l2.latitude &&
-        l1.longitude == l2.longitude &&
-        l1.altitude == l2.altitude;
-  }
-
-  static bool placeEqual(geo.Placemark? p1, geo.Placemark? p2) {
-    return identical(p1, p2) ||
-        p1 != null &&
-        p2 != null &&
-        p1.name == p2.name &&
-        p1.administrativeArea == p2.administrativeArea &&
-        p1.country == p2.country &&
-        p1.isoCountryCode == p2.isoCountryCode &&
-        p1.locality == p2.locality &&
-        p1.postalCode == p2.postalCode &&
-        p1.subAdministrativeArea == p2.subAdministrativeArea &&
-        p1.subLocality == p2.subLocality &&
-        p1.subThoroughfare == p2.subThoroughfare &&
-        p1.thoroughfare == p2.thoroughfare;
-  }
-
-  static LocationData _locationDataFromJson(Map<String, dynamic> json) {
-    final int? version = json["version"];
-    switch (version) {
-      case null:
-        return LocationData.fromMap({
-          'latitude': json['latitude'],
-          'longitude': json['longitude'],
-          'altitude': json['altitude'],
-          'accuracy': json['accuracy'],
-          'heading': json['heading'],
-          'speed': json['speed'],
-          'speed_accuracy': json['speedAccuracy'], // Note: key expected by LocationData.fromMap
-          'time': json['time'] != null ? DateTime.parse(json['time']).millisecondsSinceEpoch.toDouble() : null,
-        });
-      default: throw Exception("Json Version $version of Location incompatible."); 
-    } 
-  }
-
-  static Map<String, dynamic> _placemarkToJson(geo.Placemark place) => {
-    'name': place.name,
-    'thoroughfare': place.thoroughfare,
-    'subThoroughfare': place.subThoroughfare,
-    'locality': place.locality,
-    'subLocality': place.subLocality,
-    'administrativeArea': place.administrativeArea,
-    'subAdministrativeArea': place.subAdministrativeArea,
-    'postalCode': place.postalCode,
-    'country': place.country,
-    'isoCountryCode': place.isoCountryCode,
-  };
-
-  static geo.Placemark _placemarkFromJson(Map<String, dynamic> json) {
-    final int? version = json["version"];
-    switch (version) {
-      case null:
-        return geo.Placemark(
-          name: json['name'],
-          thoroughfare: json['thoroughfare'],
-          subThoroughfare: json['subThoroughfare'],
-          locality: json['locality'],
-          subLocality: json['subLocality'],
-          administrativeArea: json['administrativeArea'],
-          subAdministrativeArea: json['subAdministrativeArea'],
-          postalCode: json['postalCode'],
-          country: json['country'],
-          isoCountryCode: json['isoCountryCode'],
-        );
-      default: throw Exception("Json Version $version of Place incompatible.");
-    }
   }
 
   static double? convertAltitudeToMeters(double? alt, String currentUnit) {
@@ -336,7 +249,7 @@ class Setup {
           : (place as geo.Placemark?),
       weather: weather is _Sentinel
           ? this.weather
-          : (weather as Weather?),
+          : (weather as ContextWeather?),
     )..isCurrent = isCurrent is _Sentinel
           ? this.isCurrent
           : (isCurrent as bool)
@@ -369,8 +282,8 @@ class Setup {
         mapEquals(bikeAdjustmentValues, other.bikeAdjustmentValues) &&
         mapEquals(personAdjustmentValues, other.personAdjustmentValues) &&
         mapEquals(ratingAdjustmentValues, other.ratingAdjustmentValues) &&
-        locationEqual(position, other.position) &&
-        placeEqual(place, other.place) &&
+        ContextPosition.equal(position, other.position) &&
+        ContextPlace.equal(place, other.place) &&
         weather == other.weather;
   }
 

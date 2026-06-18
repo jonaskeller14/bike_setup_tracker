@@ -4828,14 +4828,14 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
         requiredDuringInsert: false,
       ).withConverter<geo.Placemark?>($SetupsTable.$converterplacen);
   @override
-  late final GeneratedColumnWithTypeConverter<Weather?, String> weather =
+  late final GeneratedColumnWithTypeConverter<ContextWeather?, String> weather =
       GeneratedColumn<String>(
         'weather',
         aliasedName,
         true,
         type: DriftSqlType.string,
         requiredDuringInsert: false,
-      ).withConverter<Weather?>($SetupsTable.$converterweathern);
+      ).withConverter<ContextWeather?>($SetupsTable.$converterweathern);
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -5002,9 +5002,9 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
       const PlacemarkConverter();
   static TypeConverter<geo.Placemark?, String?> $converterplacen =
       NullAwareTypeConverter.wrap($converterplace);
-  static TypeConverter<Weather, String> $converterweather =
+  static TypeConverter<ContextWeather, String> $converterweather =
       const WeatherConverter();
-  static TypeConverter<Weather?, String?> $converterweathern =
+  static TypeConverter<ContextWeather?, String?> $converterweathern =
       NullAwareTypeConverter.wrap($converterweather);
 }
 
@@ -5021,7 +5021,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
   final Set<String> tags;
   final LocationData? position;
   final geo.Placemark? place;
-  final Weather? weather;
+  final ContextWeather? weather;
   const SetupDb({
     required this.id,
     required this.bikeId,
@@ -5132,7 +5132,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       tags: serializer.fromJson<Set<String>>(json['tags']),
       position: serializer.fromJson<LocationData?>(json['position']),
       place: serializer.fromJson<geo.Placemark?>(json['place']),
-      weather: serializer.fromJson<Weather?>(json['weather']),
+      weather: serializer.fromJson<ContextWeather?>(json['weather']),
     );
   }
   @override
@@ -5151,7 +5151,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       'tags': serializer.toJson<Set<String>>(tags),
       'position': serializer.toJson<LocationData?>(position),
       'place': serializer.toJson<geo.Placemark?>(place),
-      'weather': serializer.toJson<Weather?>(weather),
+      'weather': serializer.toJson<ContextWeather?>(weather),
     };
   }
 
@@ -5168,7 +5168,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     Set<String>? tags,
     Value<LocationData?> position = const Value.absent(),
     Value<geo.Placemark?> place = const Value.absent(),
-    Value<Weather?> weather = const Value.absent(),
+    Value<ContextWeather?> weather = const Value.absent(),
   }) => SetupDb(
     id: id ?? this.id,
     bikeId: bikeId ?? this.bikeId,
@@ -5274,7 +5274,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
   final Value<Set<String>> tags;
   final Value<LocationData?> position;
   final Value<geo.Placemark?> place;
-  final Value<Weather?> weather;
+  final Value<ContextWeather?> weather;
   final Value<int> rowid;
   const SetupsCompanion({
     this.id = const Value.absent(),
@@ -5361,7 +5361,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     Value<Set<String>>? tags,
     Value<LocationData?>? position,
     Value<geo.Placemark?>? place,
-    Value<Weather?>? weather,
+    Value<ContextWeather?>? weather,
     Value<int>? rowid,
   }) {
     return SetupsCompanion(
@@ -7381,7 +7381,7 @@ final class $$ComponentsTableReferences
   static MultiTypedResultKey<$TaskRulesTable, List<TaskRuleDb>>
   _taskRulesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.taskRules,
-    aliasName: $_aliasNameGenerator(db.components.id, db.taskRules.componentId),
+    aliasName: 'components__id__task_rules__component_id',
   );
 
   $$TaskRulesTableProcessedTableManager get taskRulesRefs {
@@ -7399,10 +7399,7 @@ final class $$ComponentsTableReferences
   static MultiTypedResultKey<$TaskEntriesTable, List<TaskEntryDb>>
   _taskEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.taskEntries,
-    aliasName: $_aliasNameGenerator(
-      db.components.id,
-      db.taskEntries.componentId,
-    ),
+    aliasName: 'components__id__task_entries__component_id',
   );
 
   $$TaskEntriesTableProcessedTableManager get taskEntriesRefs {
@@ -7420,10 +7417,7 @@ final class $$ComponentsTableReferences
   static MultiTypedResultKey<$AdjustmentsTable, List<AdjustmentDb>>
   _adjustmentsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.adjustments,
-    aliasName: $_aliasNameGenerator(
-      db.components.id,
-      db.adjustments.componentId,
-    ),
+    aliasName: 'components__id__adjustments__component_id',
   );
 
   $$AdjustmentsTableProcessedTableManager get adjustmentsRefs {
@@ -7441,10 +7435,7 @@ final class $$ComponentsTableReferences
   static MultiTypedResultKey<$InstallationsTable, List<InstallationDb>>
   _installationsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.installations,
-    aliasName: $_aliasNameGenerator(
-      db.components.id,
-      db.installations.componentId,
-    ),
+    aliasName: 'components__id__installations__component_id',
   );
 
   $$InstallationsTableProcessedTableManager get installationsRefs {
@@ -8130,7 +8121,7 @@ final class $$BikesTableReferences
   static MultiTypedResultKey<$TaskRulesTable, List<TaskRuleDb>>
   _taskRulesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.taskRules,
-    aliasName: $_aliasNameGenerator(db.bikes.id, db.taskRules.bikeId),
+    aliasName: 'bikes__id__task_rules__bike_id',
   );
 
   $$TaskRulesTableProcessedTableManager get taskRulesRefs {
@@ -8148,7 +8139,7 @@ final class $$BikesTableReferences
   static MultiTypedResultKey<$TaskEntriesTable, List<TaskEntryDb>>
   _taskEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.taskEntries,
-    aliasName: $_aliasNameGenerator(db.bikes.id, db.taskEntries.bikeId),
+    aliasName: 'bikes__id__task_entries__bike_id',
   );
 
   $$TaskEntriesTableProcessedTableManager get taskEntriesRefs {
@@ -8167,7 +8158,7 @@ final class $$BikesTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.setups,
-    aliasName: $_aliasNameGenerator(db.bikes.id, db.setups.bikeId),
+    aliasName: 'bikes__id__setups__bike_id',
   );
 
   $$SetupsTableProcessedTableManager get setupsRefs {
@@ -8689,9 +8680,7 @@ final class $$TaskRulesTableReferences
   $$TaskRulesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $ComponentsTable _componentIdTable(_$AppDatabase db) =>
-      db.components.createAlias(
-        $_aliasNameGenerator(db.taskRules.componentId, db.components.id),
-      );
+      db.components.createAlias('task_rules__component_id__components__id');
 
   $$ComponentsTableProcessedTableManager? get componentId {
     final $_column = $_itemColumn<String>('component_id');
@@ -8707,9 +8696,8 @@ final class $$TaskRulesTableReferences
     );
   }
 
-  static $BikesTable _bikeIdTable(_$AppDatabase db) => db.bikes.createAlias(
-    $_aliasNameGenerator(db.taskRules.bikeId, db.bikes.id),
-  );
+  static $BikesTable _bikeIdTable(_$AppDatabase db) =>
+      db.bikes.createAlias('task_rules__bike_id__bikes__id');
 
   $$BikesTableProcessedTableManager? get bikeId {
     final $_column = $_itemColumn<String>('bike_id');
@@ -8728,7 +8716,7 @@ final class $$TaskRulesTableReferences
   static MultiTypedResultKey<$TaskEntriesTable, List<TaskEntryDb>>
   _taskEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.taskEntries,
-    aliasName: $_aliasNameGenerator(db.taskRules.id, db.taskEntries.taskRule),
+    aliasName: 'task_rules__id__task_entries__task_rule',
   );
 
   $$TaskEntriesTableProcessedTableManager get taskEntriesRefs {
@@ -9333,9 +9321,7 @@ final class $$TaskEntriesTableReferences
   $$TaskEntriesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $TaskRulesTable _taskRuleTable(_$AppDatabase db) =>
-      db.taskRules.createAlias(
-        $_aliasNameGenerator(db.taskEntries.taskRule, db.taskRules.id),
-      );
+      db.taskRules.createAlias('task_entries__task_rule__task_rules__id');
 
   $$TaskRulesTableProcessedTableManager get taskRule {
     final $_column = $_itemColumn<String>('task_rule')!;
@@ -9352,9 +9338,7 @@ final class $$TaskEntriesTableReferences
   }
 
   static $ComponentsTable _componentIdTable(_$AppDatabase db) =>
-      db.components.createAlias(
-        $_aliasNameGenerator(db.taskEntries.componentId, db.components.id),
-      );
+      db.components.createAlias('task_entries__component_id__components__id');
 
   $$ComponentsTableProcessedTableManager? get componentId {
     final $_column = $_itemColumn<String>('component_id');
@@ -9370,9 +9354,8 @@ final class $$TaskEntriesTableReferences
     );
   }
 
-  static $BikesTable _bikeIdTable(_$AppDatabase db) => db.bikes.createAlias(
-    $_aliasNameGenerator(db.taskEntries.bikeId, db.bikes.id),
-  );
+  static $BikesTable _bikeIdTable(_$AppDatabase db) =>
+      db.bikes.createAlias('task_entries__bike_id__bikes__id');
 
   $$BikesTableProcessedTableManager? get bikeId {
     final $_column = $_itemColumn<String>('bike_id');
@@ -9954,7 +9937,7 @@ final class $$PersonsTableReferences
   static MultiTypedResultKey<$AdjustmentsTable, List<AdjustmentDb>>
   _adjustmentsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.adjustments,
-    aliasName: $_aliasNameGenerator(db.persons.id, db.adjustments.personId),
+    aliasName: 'persons__id__adjustments__person_id',
   );
 
   $$AdjustmentsTableProcessedTableManager get adjustmentsRefs {
@@ -9973,7 +9956,7 @@ final class $$PersonsTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.setups,
-    aliasName: $_aliasNameGenerator(db.persons.id, db.setups.personId),
+    aliasName: 'persons__id__setups__person_id',
   );
 
   $$SetupsTableProcessedTableManager get setupsRefs {
@@ -10399,7 +10382,7 @@ final class $$RatingsTableReferences
   static MultiTypedResultKey<$AdjustmentsTable, List<AdjustmentDb>>
   _adjustmentsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.adjustments,
-    aliasName: $_aliasNameGenerator(db.ratings.id, db.adjustments.ratingId),
+    aliasName: 'ratings__id__adjustments__rating_id',
   );
 
   $$AdjustmentsTableProcessedTableManager get adjustmentsRefs {
@@ -10770,9 +10753,7 @@ final class $$AdjustmentsTableReferences
   $$AdjustmentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $ComponentsTable _componentIdTable(_$AppDatabase db) =>
-      db.components.createAlias(
-        $_aliasNameGenerator(db.adjustments.componentId, db.components.id),
-      );
+      db.components.createAlias('adjustments__component_id__components__id');
 
   $$ComponentsTableProcessedTableManager? get componentId {
     final $_column = $_itemColumn<String>('component_id');
@@ -10789,9 +10770,7 @@ final class $$AdjustmentsTableReferences
   }
 
   static $PersonsTable _personIdTable(_$AppDatabase db) =>
-      db.persons.createAlias(
-        $_aliasNameGenerator(db.adjustments.personId, db.persons.id),
-      );
+      db.persons.createAlias('adjustments__person_id__persons__id');
 
   $$PersonsTableProcessedTableManager? get personId {
     final $_column = $_itemColumn<String>('person_id');
@@ -10808,9 +10787,7 @@ final class $$AdjustmentsTableReferences
   }
 
   static $RatingsTable _ratingIdTable(_$AppDatabase db) =>
-      db.ratings.createAlias(
-        $_aliasNameGenerator(db.adjustments.ratingId, db.ratings.id),
-      );
+      db.ratings.createAlias('adjustments__rating_id__ratings__id');
 
   $$RatingsTableProcessedTableManager? get ratingId {
     final $_column = $_itemColumn<String>('rating_id');
@@ -10833,10 +10810,7 @@ final class $$AdjustmentsTableReferences
   _setupAdjustmentValuesRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.setupAdjustmentValues,
-        aliasName: $_aliasNameGenerator(
-          db.adjustments.id,
-          db.setupAdjustmentValues.adjustmentId,
-        ),
+        aliasName: 'adjustments__id__setup_adjustment_values__adjustment_id',
       );
 
   $$SetupAdjustmentValuesTableProcessedTableManager
@@ -11503,9 +11477,7 @@ final class $$InstallationsTableReferences
   );
 
   static $ComponentsTable _componentIdTable(_$AppDatabase db) =>
-      db.components.createAlias(
-        $_aliasNameGenerator(db.installations.componentId, db.components.id),
-      );
+      db.components.createAlias('installations__component_id__components__id');
 
   $$ComponentsTableProcessedTableManager get componentId {
     final $_column = $_itemColumn<String>('component_id')!;
@@ -11820,7 +11792,7 @@ typedef $$SetupsTableCreateCompanionBuilder =
       required Set<String> tags,
       Value<LocationData?> position,
       Value<geo.Placemark?> place,
-      Value<Weather?> weather,
+      Value<ContextWeather?> weather,
       Value<int> rowid,
     });
 typedef $$SetupsTableUpdateCompanionBuilder =
@@ -11837,7 +11809,7 @@ typedef $$SetupsTableUpdateCompanionBuilder =
       Value<Set<String>> tags,
       Value<LocationData?> position,
       Value<geo.Placemark?> place,
-      Value<Weather?> weather,
+      Value<ContextWeather?> weather,
       Value<int> rowid,
     });
 
@@ -11846,7 +11818,7 @@ final class $$SetupsTableReferences
   $$SetupsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $BikesTable _bikeIdTable(_$AppDatabase db) =>
-      db.bikes.createAlias($_aliasNameGenerator(db.setups.bikeId, db.bikes.id));
+      db.bikes.createAlias('setups__bike_id__bikes__id');
 
   $$BikesTableProcessedTableManager get bikeId {
     final $_column = $_itemColumn<String>('bike_id')!;
@@ -11862,8 +11834,8 @@ final class $$SetupsTableReferences
     );
   }
 
-  static $PersonsTable _personIdTable(_$AppDatabase db) => db.persons
-      .createAlias($_aliasNameGenerator(db.setups.personId, db.persons.id));
+  static $PersonsTable _personIdTable(_$AppDatabase db) =>
+      db.persons.createAlias('setups__person_id__persons__id');
 
   $$PersonsTableProcessedTableManager? get personId {
     final $_column = $_itemColumn<String>('person_id');
@@ -11886,10 +11858,7 @@ final class $$SetupsTableReferences
   _setupAdjustmentValuesRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.setupAdjustmentValues,
-        aliasName: $_aliasNameGenerator(
-          db.setups.id,
-          db.setupAdjustmentValues.setupId,
-        ),
+        aliasName: 'setups__id__setup_adjustment_values__setup_id',
       );
 
   $$SetupAdjustmentValuesTableProcessedTableManager
@@ -11973,11 +11942,11 @@ class $$SetupsTableFilterComposer
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
-  ColumnWithTypeConverterFilters<Weather?, Weather, String> get weather =>
-      $composableBuilder(
-        column: $table.weather,
-        builder: (column) => ColumnWithTypeConverterFilters(column),
-      );
+  ColumnWithTypeConverterFilters<ContextWeather?, ContextWeather, String>
+  get weather => $composableBuilder(
+    column: $table.weather,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
 
   $$BikesTableFilterComposer get bikeId {
     final $$BikesTableFilterComposer composer = $composerBuilder(
@@ -12208,7 +12177,7 @@ class $$SetupsTableAnnotationComposer
   GeneratedColumnWithTypeConverter<geo.Placemark?, String> get place =>
       $composableBuilder(column: $table.place, builder: (column) => column);
 
-  GeneratedColumnWithTypeConverter<Weather?, String> get weather =>
+  GeneratedColumnWithTypeConverter<ContextWeather?, String> get weather =>
       $composableBuilder(column: $table.weather, builder: (column) => column);
 
   $$BikesTableAnnotationComposer get bikeId {
@@ -12328,7 +12297,7 @@ class $$SetupsTableTableManager
                 Value<Set<String>> tags = const Value.absent(),
                 Value<LocationData?> position = const Value.absent(),
                 Value<geo.Placemark?> place = const Value.absent(),
-                Value<Weather?> weather = const Value.absent(),
+                Value<ContextWeather?> weather = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SetupsCompanion(
                 id: id,
@@ -12360,7 +12329,7 @@ class $$SetupsTableTableManager
                 required Set<String> tags,
                 Value<LocationData?> position = const Value.absent(),
                 Value<geo.Placemark?> place = const Value.absent(),
-                Value<Weather?> weather = const Value.absent(),
+                Value<ContextWeather?> weather = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SetupsCompanion.insert(
                 id: id,
@@ -12517,9 +12486,8 @@ final class $$SetupAdjustmentValuesTableReferences
     super.$_typedResult,
   );
 
-  static $SetupsTable _setupIdTable(_$AppDatabase db) => db.setups.createAlias(
-    $_aliasNameGenerator(db.setupAdjustmentValues.setupId, db.setups.id),
-  );
+  static $SetupsTable _setupIdTable(_$AppDatabase db) =>
+      db.setups.createAlias('setup_adjustment_values__setup_id__setups__id');
 
   $$SetupsTableProcessedTableManager get setupId {
     final $_column = $_itemColumn<String>('setup_id')!;
@@ -12535,13 +12503,9 @@ final class $$SetupAdjustmentValuesTableReferences
     );
   }
 
-  static $AdjustmentsTable _adjustmentIdTable(_$AppDatabase db) =>
-      db.adjustments.createAlias(
-        $_aliasNameGenerator(
-          db.setupAdjustmentValues.adjustmentId,
-          db.adjustments.id,
-        ),
-      );
+  static $AdjustmentsTable _adjustmentIdTable(_$AppDatabase db) => db
+      .adjustments
+      .createAlias('setup_adjustment_values__adjustment_id__adjustments__id');
 
   $$AdjustmentsTableProcessedTableManager get adjustmentId {
     final $_column = $_itemColumn<String>('adjustment_id')!;

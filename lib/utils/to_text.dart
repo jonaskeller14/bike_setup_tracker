@@ -3,10 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
+import '../models/context/context_weather.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
 import '../models/task/task_entry.dart';
-import '../models/weather.dart';
 import '../repositories/app_repository.dart';
 
 String toText({
@@ -253,7 +253,7 @@ String _generateContextLine(Setup setup, AppSettings settings) {
     if (label != null) weatherParts.add(label);
     
     if (w.currentTemperature != null) {
-      final temp = Weather.convertTemperatureFromCelsius(w.currentTemperature, settings.temperatureUnit)?.round() ?? w.currentTemperature!.round();
+      final temp = ContextWeather.convertTemperatureFromCelsius(w.currentTemperature, settings.temperatureUnit)?.round() ?? w.currentTemperature!.round();
       weatherParts.add('$temp ${settings.temperatureUnit}');
     }
 
@@ -262,7 +262,7 @@ String _generateContextLine(Setup setup, AppSettings settings) {
     }
 
     if (w.currentWindSpeed != null) {
-      final speed = Weather.convertWindSpeedFromKmh(w.currentWindSpeed, settings.windSpeedUnit)?.round() ?? w.currentWindSpeed!.round();
+      final speed = ContextWeather.convertWindSpeedFromKmh(w.currentWindSpeed, settings.windSpeedUnit)?.round() ?? w.currentWindSpeed!.round();
       weatherParts.add('$speed ${settings.windSpeedUnit} Wind');
     }
 

@@ -1,24 +1,24 @@
-import 'package:bike_setup_tracker/models/weather.dart';
-import 'package:bike_setup_tracker/services/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
+import '../../models/context/context_weather.dart';
+import '../../services/location_service.dart';
 import '../../services/weather_service.dart';
 import '../../utils/url.dart';
 import '../dialogs/discard_changes.dart';
 import 'sheet.dart';
 
-Future<Weather?> showSetWeatherSheet({
+Future<ContextWeather?> showSetWeatherSheet({
   required BuildContext context,
   required WeatherService weatherService, 
-  required Weather? currentWeather,
+  required ContextWeather? currentWeather,
   required LocationService locationService,
   required LocationData? currentLocation,
   required DateTime selectedDateTime,
   }) async {
-  return showModalBottomSheet<Weather?>(
+  return showModalBottomSheet<ContextWeather?>(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
@@ -37,7 +37,7 @@ Future<Weather?> showSetWeatherSheet({
 
 class SetWeatherSheetContent extends StatefulWidget {
   final WeatherService weatherService;
-  final Weather? currentWeather;
+  final ContextWeather? currentWeather;
   final LocationService locationService;
   final LocationData? currentLocation;
   final DateTime selectedDateTime;
@@ -63,7 +63,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
   final TextEditingController _currentWindSpeedController = TextEditingController();
   final TextEditingController _currentSoilMoisture0to7cmController = TextEditingController();
 
-  late Weather? _currentWeather;
+  late ContextWeather? _currentWeather;
 
   @override
   void initState() {
@@ -76,10 +76,10 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
   void setFieldsFromWeather() {
     final appSettings = context.read<AppSettings>();
 
-    _currentTemperatureController.text = Weather.convertTemperatureFromCelsius(_currentWeather?.currentTemperature, appSettings.temperatureUnit)?.toString() ?? '';
-    _dayAccumulatedPrecipitationController.text = Weather.convertPrecipitationFromMm(_currentWeather?.dayAccumulatedPrecipitation, appSettings.precipitationUnit)?.toString() ?? '';
+    _currentTemperatureController.text = ContextWeather.convertTemperatureFromCelsius(_currentWeather?.currentTemperature, appSettings.temperatureUnit)?.toString() ?? '';
+    _dayAccumulatedPrecipitationController.text = ContextWeather.convertPrecipitationFromMm(_currentWeather?.dayAccumulatedPrecipitation, appSettings.precipitationUnit)?.toString() ?? '';
     _currentHumidityController.text = _currentWeather?.currentHumidity?.toString() ?? '';
-    _currentWindSpeedController.text = Weather.convertWindSpeedFromKmh(_currentWeather?.currentWindSpeed, appSettings.windSpeedUnit)?.toString() ?? '';
+    _currentWindSpeedController.text = ContextWeather.convertWindSpeedFromKmh(_currentWeather?.currentWindSpeed, appSettings.windSpeedUnit)?.toString() ?? '';
     _currentSoilMoisture0to7cmController.text = _currentWeather?.currentSoilMoisture0to7cm?.toString() ?? '';
   }
 
@@ -194,11 +194,11 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                                       Padding(
                                         padding: const EdgeInsets.all(2),
                                         child: FittedBox(
-                                          child: Icon(Weather.getStaticIconData(code)),
+                                          child: Icon(ContextWeather.getStaticIconData(code)),
                                         ),
                                       ),
                                       Expanded(
-                                        child: Text(Weather.getStaticWeatherCodeLabel(code) ?? "?", overflow: TextOverflow.ellipsis),
+                                        child: Text(ContextWeather.getStaticWeatherCodeLabel(code) ?? "?", overflow: TextOverflow.ellipsis),
                                       ),
                                     ],
                                   ),
@@ -206,7 +206,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               }).toList(),
                               onChanged: enableFields ? (int? newValue) {
                                 setState(() {
-                                  _currentWeather ??= Weather(currentDateTime: widget.selectedDateTime);
+                                  _currentWeather ??= ContextWeather(currentDateTime: widget.selectedDateTime);
                                   _currentWeather = _currentWeather!.copyWith(currentWeatherCode: newValue);
                                 });
                               } : null,
@@ -226,7 +226,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                                 suffixText: appSettings.temperatureUnit,
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
                                 filled: _currentWeather?.currentTemperature != widget.currentWeather?.currentTemperature,
-                                icon: const Icon(Weather.currentTemperatureIconData),
+                                icon: const Icon(ContextWeather.currentTemperatureIconData),
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
@@ -236,8 +236,8 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               },
                               onChanged: (String newValue) {
                                 setState(() {
-                                  _currentWeather ??= Weather(currentDateTime: widget.selectedDateTime);
-                                  _currentWeather = _currentWeather!.copyWith(currentTemperature: Weather.convertTemperatureToCelsius(double.tryParse(_currentTemperatureController.text.trim()), appSettings.temperatureUnit));
+                                  _currentWeather ??= ContextWeather(currentDateTime: widget.selectedDateTime);
+                                  _currentWeather = _currentWeather!.copyWith(currentTemperature: ContextWeather.convertTemperatureToCelsius(double.tryParse(_currentTemperatureController.text.trim()), appSettings.temperatureUnit));
                                 });
                               },
                               onFieldSubmitted: (_) => _save,
@@ -257,7 +257,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                                 suffixText: appSettings.precipitationUnit,
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
                                 filled: widget.currentWeather?.dayAccumulatedPrecipitation != _currentWeather?.dayAccumulatedPrecipitation,
-                                icon: const Icon(Weather.dayAccumulatedPrecipitationIconData),
+                                icon: const Icon(ContextWeather.dayAccumulatedPrecipitationIconData),
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
@@ -268,8 +268,8 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               },
                               onChanged: (String newValue) {
                                 setState(() {
-                                  _currentWeather ??= Weather(currentDateTime: widget.selectedDateTime);
-                                  _currentWeather = _currentWeather?.copyWith(dayAccumulatedPrecipitation: Weather.convertPrecipitationToMm(double.tryParse(_dayAccumulatedPrecipitationController.text.trim()), appSettings.precipitationUnit));
+                                  _currentWeather ??= ContextWeather(currentDateTime: widget.selectedDateTime);
+                                  _currentWeather = _currentWeather?.copyWith(dayAccumulatedPrecipitation: ContextWeather.convertPrecipitationToMm(double.tryParse(_dayAccumulatedPrecipitationController.text.trim()), appSettings.precipitationUnit));
                                 });
                               },
                               onFieldSubmitted: (_) => _save(),
@@ -289,7 +289,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                                 suffixText: '%',
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
                                 filled: widget.currentWeather?.currentHumidity != _currentWeather?.currentHumidity,
-                                icon: const Icon(Weather.currentHumidityIconData),
+                                icon: const Icon(ContextWeather.currentHumidityIconData),
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
@@ -300,7 +300,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               },
                               onChanged: (String newValue) {
                                 setState(() {
-                                  _currentWeather ??= Weather(currentDateTime: widget.selectedDateTime);
+                                  _currentWeather ??= ContextWeather(currentDateTime: widget.selectedDateTime);
                                   _currentWeather = _currentWeather?.copyWith(currentHumidity: double.tryParse(_currentHumidityController.text.trim()));
                                 });
                               },
@@ -321,7 +321,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                                 suffixText: appSettings.windSpeedUnit,
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
                                 filled: widget.currentWeather?.currentWindSpeed != _currentWeather?.currentWindSpeed,
-                                icon: const Icon(Weather.currentWindSpeedIconData),
+                                icon: const Icon(ContextWeather.currentWindSpeedIconData),
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
@@ -332,8 +332,8 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               },
                               onChanged: (String newValue) {
                                 setState(() {
-                                  _currentWeather ??= Weather(currentDateTime: widget.selectedDateTime);
-                                  _currentWeather = _currentWeather?.copyWith(currentWindSpeed: Weather.convertWindSpeedToKmh(double.tryParse(_currentWindSpeedController.text.trim()), appSettings.windSpeedUnit));
+                                  _currentWeather ??= ContextWeather(currentDateTime: widget.selectedDateTime);
+                                  _currentWeather = _currentWeather?.copyWith(currentWindSpeed: ContextWeather.convertWindSpeedToKmh(double.tryParse(_currentWindSpeedController.text.trim()), appSettings.windSpeedUnit));
                                 });
                               },
                               onFieldSubmitted: (_) => _save(),
@@ -353,7 +353,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                                 suffixText: 'm³/m³',
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
                                 filled: widget.currentWeather?.currentSoilMoisture0to7cm != _currentWeather?.currentSoilMoisture0to7cm,
-                                icon: const Icon(Weather.currentSoilMoisture0to7cmIconData),
+                                icon: const Icon(ContextWeather.currentSoilMoisture0to7cmIconData),
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) return null;
@@ -364,7 +364,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                               },
                               onChanged: (String newValue) {
                                 setState(() {
-                                  _currentWeather ??= Weather(currentDateTime: widget.selectedDateTime);
+                                  _currentWeather ??= ContextWeather(currentDateTime: widget.selectedDateTime);
                                   _currentWeather = _currentWeather?.copyWith(currentSoilMoisture0to7cm: double.tryParse(_currentSoilMoisture0to7cmController.text.trim()));
                                 });
                               },

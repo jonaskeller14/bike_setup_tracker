@@ -11,10 +11,10 @@ import '../../icons/weather_icons.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';
+import '../../models/context/context_weather.dart';
 import '../../models/person.dart';
 import '../../models/rating.dart';
 import '../../models/setup.dart';
-import '../../models/weather.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/setup_actions.dart';
 import '../../widgets/display_adjustment/display_adjustment_list.dart';
@@ -399,38 +399,38 @@ class SetupDetailsPageContent extends StatelessWidget {
                       enabled: setup.weather?.currentWeatherCode != null,
                     ),
                     ListTile(
-                      leading: const Icon(Weather.currentTemperatureIconData),
-                      title: SelectableText("Temperature: ${Weather.convertTemperatureFromCelsius(setup.weather?.currentTemperature, appSettings.temperatureUnit)?.round() ?? '-'} ${appSettings.temperatureUnit}"),
+                      leading: const Icon(ContextWeather.currentTemperatureIconData),
+                      title: SelectableText("Temperature: ${ContextWeather.convertTemperatureFromCelsius(setup.weather?.currentTemperature, appSettings.temperatureUnit)?.round() ?? '-'} ${appSettings.temperatureUnit}"),
                       dense: true,
                       enabled: setup.weather?.currentTemperature != null,
                     ),
                     ListTile(
-                      leading: const Icon(Weather.currentHumidityIconData),
+                      leading: const Icon(ContextWeather.currentHumidityIconData),
                       title: SelectableText("Humidity: ${setup.weather?.currentHumidity?.round() ?? '-'} %"),
                       dense: true,
                       enabled: setup.weather?.currentHumidity != null,
                     ),
                     ListTile(
-                      leading: const Icon(Weather.dayAccumulatedPrecipitationIconData),
-                      title:  SelectableText("Precipitation: ${Weather.convertPrecipitationFromMm(setup.weather?.dayAccumulatedPrecipitation, appSettings.precipitationUnit)?.round() ?? '-'} ${appSettings.precipitationUnit}"),
+                      leading: const Icon(ContextWeather.dayAccumulatedPrecipitationIconData),
+                      title:  SelectableText("Precipitation: ${ContextWeather.convertPrecipitationFromMm(setup.weather?.dayAccumulatedPrecipitation, appSettings.precipitationUnit)?.round() ?? '-'} ${appSettings.precipitationUnit}"),
                       dense: true,
                       enabled: setup.weather?.dayAccumulatedPrecipitation != null,
                     ),
                     ListTile(
-                      leading: const Icon(Weather.currentWindSpeedIconData),
-                      title:  SelectableText("Windspeed: ${Weather.convertWindSpeedFromKmh(setup.weather?.currentWindSpeed, appSettings.windSpeedUnit)?.round() ?? '-'} ${appSettings.windSpeedUnit}"),
+                      leading: const Icon(ContextWeather.currentWindSpeedIconData),
+                      title:  SelectableText("Windspeed: ${ContextWeather.convertWindSpeedFromKmh(setup.weather?.currentWindSpeed, appSettings.windSpeedUnit)?.round() ?? '-'} ${appSettings.windSpeedUnit}"),
                       dense: true,
                       enabled: setup.weather?.currentWindSpeed != null,
                     ),
                     ListTile(
-                      leading: const Icon(Weather.currentSoilMoisture0to7cmIconData),
+                      leading: const Icon(ContextWeather.currentSoilMoisture0to7cmIconData),
                       title:  SelectableText("Soil Moisture: ${setup.weather?.currentSoilMoisture0to7cm?.toStringAsFixed(2) ?? '-'} m³/m³"),
                       dense: true,
                       enabled: setup.weather?.currentSoilMoisture0to7cm != null,
                     ),
                     const Divider(height: 1),
                     ListTile(
-                      leading: Icon(setup.weather?.condition?.getIconData() ?? Icons.question_mark_sharp, color: setup.weather?.condition?.getColor()),
+                      leading: Icon(setup.weather?.condition?.iconData ?? Icons.question_mark_sharp, color: setup.weather?.condition?.color),
                       title: SelectableText('Condition: ${setup.weather?.condition?.value ?? "-"}'),
                       dense: true,
                       enabled: setup.weather?.condition != null,

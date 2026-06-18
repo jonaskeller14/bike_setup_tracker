@@ -3,8 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
+import '../../models/context/context_weather.dart';
 import '../../models/setup.dart';
-import '../../models/weather.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/setup_actions.dart';
 import '../lists/adjustment_compact_display_list.dart';
@@ -162,10 +162,10 @@ class SetupListCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   spacing: 2,
                   children: [
-                    Icon(Weather.currentTemperatureIconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    Icon(ContextWeather.currentTemperatureIconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     Flexible(
                       child: Text(
-                        "${Weather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}",
+                        "${ContextWeather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}",
                         style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                       ),
                     ),
@@ -178,7 +178,7 @@ class SetupListCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   spacing: 2,
                   children: [
-                    Icon(setup.weather?.condition?.getIconData() ?? Icons.question_mark, size: 13, color: setup.weather?.condition?.getColor()),
+                    Icon(setup.weather?.condition?.iconData ?? Icons.question_mark, size: 13, color: setup.weather?.condition?.color),
                     Flexible(
                       child: Text(
                         setup.weather?.condition?.value ?? "-",

@@ -1,19 +1,19 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
-import '../../models/weather.dart';
+import '../../models/context/context_weather.dart';
 
-export '../../models/weather.dart';
+export '../../models/context/context_weather.dart';
 
-class WeatherConverter extends TypeConverter<Weather, String> {
+class WeatherConverter extends TypeConverter<ContextWeather, String> {
   const WeatherConverter();
 
   @override
-  Weather fromSql(String fromDb) {
-    return Weather.fromJson(json.decode(fromDb));
+  ContextWeather fromSql(String fromDb) {
+    return ContextWeather.fromJson(json.decode(fromDb));
   }
 
   @override
-  String toSql(Weather value) {
+  String toSql(ContextWeather value) {
     return json.encode(value.toJson());
   }
 }

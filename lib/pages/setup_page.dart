@@ -9,11 +9,13 @@ import 'package:provider/provider.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
+import '../models/context/context_place.dart';
+import '../models/context/context_position.dart';
+import '../models/context/context_weather.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
-import '../models/weather.dart';
 import '../repositories/app_repository.dart';
 import '../services/address_service.dart';
 import '../services/location_service.dart';
@@ -119,7 +121,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   final ValueNotifier<geo.Placemark?> _currentPlace = ValueNotifier<geo.Placemark?>(null);
 
   final WeatherService _weatherService = WeatherService();
-  final ValueNotifier<Weather?> _currentWeather = ValueNotifier<Weather?>(null);
+  final ValueNotifier<ContextWeather?> _currentWeather = ValueNotifier<ContextWeather?>(null);
 
   @override
   void initState() {
@@ -385,8 +387,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         _initialDateTimeUtc != _selectedDateTimeUtc || 
         _initialDateTimeLocal != _selectedDateTimeLocal ||
 
-        !Setup.locationEqual(_currentLocation.value, widget.setup?.position) ||
-        !Setup.placeEqual(_currentPlace.value, widget.setup?.place) ||
+        !ContextPosition.equal(_currentLocation.value, widget.setup?.position) ||
+        !ContextPlace.equal(_currentPlace.value, widget.setup?.place) ||
         _currentWeather.value != widget.setup?.weather || 
         !setEquals(_tags, _initialTags) ||
         
@@ -749,14 +751,14 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               onPressed: _pickTime,
             ),
             ActionChip(
-              backgroundColor: widget.mode == SetupPageMode.edit && (!Setup.locationEqual(_currentLocation.value, widget.setup?.position) || !Setup.placeEqual(_currentPlace.value, widget.setup?.place)) ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.mode == SetupPageMode.edit && (!ContextPosition.equal(_currentLocation.value, widget.setup?.position) || !ContextPlace.equal(_currentPlace.value, widget.setup?.place)) ? Colors.orange.withValues(alpha: 0.08) : null,
               onPressed: _locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching
                   ? null
                   : () async {
                       final result = await showSetLocationPlaceSheet(context: context, locationService: _locationService, currentLocation: _currentLocation.value, addressService: _addressService, currentPlace: _currentPlace.value);
                       if (result == null) return;
 
-                      final requestWeatherUpdate = !Setup.locationEqual(result.location, _currentLocation.value) && 
+                      final requestWeatherUpdate = !ContextPosition.equal(result.location, _currentLocation.value) && 
                           result.location?.latitude != null && 
                           result.location?.latitude != null;
 
@@ -840,7 +842,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               onPressed: _locationService.status == LocationStatus.searching || _weatherService.status is WeatherSearching
                   ? null
                   : () async {
-                      final Weather? newWeather = await showSetWeatherSheet(
+                      final ContextWeather? newWeather = await showSetWeatherSheet(
                         context: context,
                         currentWeather: _currentWeather.value,
                         weatherService: _weatherService,
@@ -855,7 +857,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                     },
             ),
             ActionChip(
-              avatar: Icon(_currentWeather.value?.condition?.getIconData() ?? Icons.edit_road, color: _currentWeather.value?.condition?.getColor()),
+              avatar: Icon(_currentWeather.value?.condition?.iconData ?? Icons.edit_road, color: _currentWeather.value?.condition?.color),
               label: _weatherService.status is WeatherSearching
                 ? _loadingIndicator()
                 : Text(_currentWeather.value?.condition?.value ?? "-"),
@@ -874,7 +876,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                           Row(
                             spacing: 8, 
                             children: [
-                              Icon(condition.getIconData(), color: condition.getColor()), 
+                              Icon(condition.iconData, color: condition.color), 
                               Text(condition.value)
                             ]
                           ),
@@ -883,7 +885,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       onChanged: (Condition? newValue) {
                         if (newValue == null) return;
                         setState(() {
-                          _currentWeather.value ??= Weather(currentDateTime: _selectedDateTimeLocal);
+                          _currentWeather.value ??= ContextWeather(currentDateTime: _selectedDateTimeLocal);
                           _currentWeather.value = _currentWeather.value?.copyWith(condition: newValue);
                         });
                         Navigator.pop(context);

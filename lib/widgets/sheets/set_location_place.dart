@@ -4,6 +4,8 @@ import 'package:geocoding/geocoding.dart' as geo;
 import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
+import '../../models/context/context_place.dart';
+import '../../models/context/context_position.dart';
 import '../../models/setup.dart';
 import '../../services/address_service.dart';
 import '../../services/elevation_service.dart';
@@ -183,7 +185,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
 
   void _handlePopInvoked(bool didPop, dynamic result) async {
     if (didPop) return;
-    final hasChanges = !Setup.placeEqual(widget.currentPlace, _currentPlace) || !Setup.locationEqual(widget.currentLocation, _currentLocation);
+    final hasChanges = !ContextPlace.equal(widget.currentPlace, _currentPlace) || !ContextPosition.equal(widget.currentLocation, _currentLocation);
     if (!hasChanges) {
       Navigator.of(context).pop(null);
       return;
@@ -396,7 +398,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                                   icon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
                                 ),
                                 fillColor: Colors.orange.withValues(alpha: 0.08),
-                                filled: !Setup.placeEqual(widget.currentPlace, _currentPlace),
+                                filled: !ContextPlace.equal(widget.currentPlace, _currentPlace),
                               ),
                               validator: null,
                               onFieldSubmitted: (value) {
@@ -431,7 +433,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                           flex: 1,
                           fit: FlexFit.tight,
                           child: FilledButton(
-                            onPressed: Setup.placeEqual(widget.currentPlace, _currentPlace) && Setup.locationEqual(widget.currentLocation, _currentLocation)
+                            onPressed: ContextPlace.equal(widget.currentPlace, _currentPlace) && ContextPosition.equal(widget.currentLocation, _currentLocation)
                                 ? null
                                 : _save,
                             child: const Text("Save"),

@@ -5,8 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
+import '../../models/context/context_weather.dart';
 import '../../models/setup.dart';
-import '../../models/weather.dart';
 import '../set_adjustment/set_step_adjustment.dart';
 import 'onboarding_slide_utils.dart';
 
@@ -138,7 +138,7 @@ class _OnboardingSlide4State extends State<OnboardingSlide4> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               spacing: 2,
                               children: [
-                                Icon(Condition.dry.getIconData(), size: 13, color: Condition.dry.getColor()),
+                                Icon(Condition.dry.iconData, size: 13, color: Condition.dry.color),
                                 Text("Dry", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
                                 ),
                               ],

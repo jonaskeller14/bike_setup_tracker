@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/weather.dart';
+import '../models/context/context_weather.dart';
 
 class SoilMoistureLegendTable extends StatelessWidget {
   const SoilMoistureLegendTable({super.key});
@@ -8,26 +8,26 @@ class SoilMoistureLegendTable extends StatelessWidget {
     {
       'range': '0.00 - 0.09',
       'label': Condition.dry.value,
-      'icon': Condition.dry.getIconData(),
-      'color': Condition.dry.getColor(),
+      'icon': Condition.dry.iconData,
+      'color': Condition.dry.color,
     },
     {
       'range': '0.10 - 0.19',
       'label': Condition.moist.value,
-      'icon': Condition.moist.getIconData(),
-      'color': Condition.moist.getColor(),
+      'icon': Condition.moist.iconData,
+      'color': Condition.moist.color,
     },
     {
       'range': '0.20 - 0.34',
       'label': Condition.wet.value,
-      'icon': Condition.wet.getIconData(),
-      'color': Condition.wet.getColor(),
+      'icon': Condition.wet.iconData,
+      'color': Condition.wet.color,
     },
     {
       'range': '0.35+',
       'label': Condition.muddy.value,
-      'icon': Condition.muddy.getIconData(),
-      'color': Condition.muddy.getColor(),
+      'icon': Condition.muddy.iconData,
+      'color': Condition.muddy.color,
     },
   ];
 

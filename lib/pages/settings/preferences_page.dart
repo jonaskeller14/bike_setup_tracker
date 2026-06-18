@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
-import '../../models/weather.dart';
+import '../../models/context/context_weather.dart';
 import '../../widgets/sheets/app_settings_radio_group.dart';
 import '../../widgets/text/section_title.dart';
 
@@ -189,7 +189,7 @@ class PreferencesPage extends StatelessWidget {
                 ),
               ),
               ListTile(
-                leading: const Icon(Weather.currentTemperatureIconData),
+                leading: const Icon(ContextWeather.currentTemperatureIconData),
                 title: const Text("Temperature Unit"),
                 subtitle: _tempUnitOptionWidgets[appSettings.temperatureUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -206,7 +206,7 @@ class PreferencesPage extends StatelessWidget {
                 ),
               ),
               ListTile(
-                leading: const Icon(Weather.currentWindSpeedIconData),
+                leading: const Icon(ContextWeather.currentWindSpeedIconData),
                 title: const Text("Wind Speed Unit"),
                 subtitle: _windSpeedUnitOptionWidgets[appSettings.windSpeedUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
@@ -223,7 +223,7 @@ class PreferencesPage extends StatelessWidget {
                 ),
               ),
               ListTile(
-                leading: const Icon(Weather.dayAccumulatedPrecipitationIconData),
+                leading: const Icon(ContextWeather.dayAccumulatedPrecipitationIconData),
                 title: const Text("Precipitation Unit"),
                 subtitle: _precipitationUnitOptionWidgets[appSettings.precipitationUnit] ?? const Text("-"),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),

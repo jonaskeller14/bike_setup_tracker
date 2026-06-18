@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:location/location.dart';
-import '../models/setup.dart';
+import '../models/context/context_position.dart';
 
 enum LocationStatus {
   idle,
@@ -94,7 +94,7 @@ class LocationService extends ChangeNotifier {
     Object? longitude = const _Sentinel(),
     Object? altitude = const _Sentinel(),
   }) {
-    final newMap = location == null ? <String, dynamic>{} : Setup.locationDataToJson(location);
+    final newMap = location == null ? <String, dynamic>{} : ContextPosition.toJson(location);
     if (latitude is! _Sentinel) newMap["latitude"] = latitude as double?;
     if (longitude is! _Sentinel) newMap["longitude"] = longitude as double?;
     if (altitude is! _Sentinel) newMap["altitude"] = altitude as double?;

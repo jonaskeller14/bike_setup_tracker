@@ -7,6 +7,7 @@ import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/component_stats.dart';
+import '../models/context/context_weather.dart';
 import '../models/installation.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
@@ -17,7 +18,6 @@ import '../models/strava/strava_gear.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../models/task/task_threshold.dart';
-import '../models/weather.dart';
 import 'app_database.dart';
 import 'daos/setups_dao.dart';
 
@@ -321,7 +321,7 @@ extension SetupMapper on Setup {
       personId: Value<String?>(person),
       position: Value<LocationData?>(position),
       place: Value<geo.Placemark?>(place),
-      weather: Value<Weather?>(weather),
+      weather: Value<ContextWeather?>(weather),
     );
   }
 

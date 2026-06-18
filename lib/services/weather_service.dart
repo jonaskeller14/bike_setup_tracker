@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:open_meteo/open_meteo.dart';
-import '../models/weather.dart';
+import '../models/context/context_weather.dart';
 
 sealed class WeatherStatus {
   const WeatherStatus();
@@ -62,7 +62,7 @@ class WeatherService extends ChangeNotifier {
     _requestTimestamps.add(now);
   }
 
-  Future<Weather?> fetchWeather({required double lat, required double lon, required DateTime datetime, int counter = 1}) async {
+  Future<ContextWeather?> fetchWeather({required double lat, required double lon, required DateTime datetime, int counter = 1}) async {
     setStatus(const WeatherSearching());
     try {
       _checkRateLimit();
@@ -107,7 +107,7 @@ class WeatherService extends ChangeNotifier {
       final bool? currentIsDay = currentIsDayInt == null ? null : (currentIsDayInt == 1);
 
       setStatus(const WeatherSuccess());
-      return Weather(
+      return ContextWeather(
         currentDateTime: apiDatetime, 
         currentTemperature: currentTemperature,
         currentWeatherCode: currentWeatherCode,

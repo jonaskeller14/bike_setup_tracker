@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import '../icons/weather_icons.dart';
+import '../../icons/weather_icons.dart';
 
 enum Condition {
   dry('Dry'),
@@ -11,26 +11,22 @@ enum Condition {
   final String value;
   const Condition(this.value);
 
-  IconData getIconData() {
-    switch (this) {
-      case dry: return Icons.wb_sunny;
-      case moist: return Icons.water_drop_outlined;
-      case wet: return Icons.water_drop;
-      case muddy: return Icons.water;
-    }
-  }
+  IconData get iconData => switch (this) {
+    dry => Icons.wb_sunny,
+    moist => Icons.water_drop_outlined,
+    wet => Icons.water_drop,
+    muddy => Icons.water,
+  };
 
-  Color getColor() {
-    switch (this) {
-      case dry: return Colors.deepOrange;
-      case moist: return Colors.amber;
-      case wet: return Colors.lightBlue;
-      case muddy: return Colors.blue;
-    }  
-  }
+  Color get color => switch (this) {
+    dry => Colors.deepOrange,
+    moist => Colors.amber,
+    wet => Colors.lightBlue,
+    muddy => Colors.blue,
+  };
 }
 
-class Weather {
+class ContextWeather {
   final DateTime currentDateTime;
   final double? currentTemperature;
   final int? currentWeatherCode;
@@ -49,7 +45,7 @@ class Weather {
   static const IconData dayAccumulatedPrecipitationIconData = Icons.water_drop;
   static const IconData currentSoilMoisture0to7cmIconData = Icons.spa;
 
-  Weather({
+  ContextWeather({
     required this.currentDateTime, 
     this.currentTemperature,
     this.currentWeatherCode,
@@ -62,7 +58,7 @@ class Weather {
     Condition? condition,
   }) : condition = condition ?? getConditionFromSoilMoisture0to7cm(currentSoilMoisture0to7cm);
 
-  Weather copyWith({
+  ContextWeather copyWith({
     DateTime? currentDateTime,
     Object? currentTemperature = const _Sentinel(),
     Object? currentWeatherCode = const _Sentinel(),
@@ -74,7 +70,7 @@ class Weather {
     Object? currentIsDay = const _Sentinel(),
     Object? condition = const _Sentinel(),
   }) {
-    return Weather(
+    return ContextWeather(
       currentDateTime: currentDateTime ?? this.currentDateTime,
       currentTemperature: currentTemperature is _Sentinel 
           ? this.currentTemperature 
@@ -109,7 +105,7 @@ class Weather {
   @override
   bool operator ==(Object other) {
     return identical(this, other) || 
-        other is Weather &&
+        other is ContextWeather &&
         other.currentDateTime == currentDateTime &&
         other.currentTemperature == currentTemperature &&
         other.currentWeatherCode == currentWeatherCode &&
@@ -170,11 +166,11 @@ class Weather {
     'condition': condition.toString(),
   };
 
-  factory Weather.fromJson(Map<String, dynamic> json) {
+  factory ContextWeather.fromJson(Map<String, dynamic> json) {
     final int? version = json["version"];
     switch (version) {
       case null:
-        return Weather(
+        return ContextWeather(
           currentDateTime: DateTime.parse(json['currentDateTime']),
           currentTemperature: json['currentTemperature'],
           currentWeatherCode: json['currentWeatherCode'],

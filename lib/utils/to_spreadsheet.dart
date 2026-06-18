@@ -3,11 +3,11 @@ import 'package:excel/excel.dart';
 import 'package:intl/intl.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
+import '../models/context/context_weather.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
-import '../models/weather.dart';
 
 class SpreadsheetExport {
   static List<int>? toExcel(SelectedData data, AppSettings settings) {
@@ -242,16 +242,16 @@ class SpreadsheetExport {
     if (w != null) {
       row[columnMap['w_code']!] = TextCellValue(w.getWeatherCodeLabel() ?? '');
       if (w.currentTemperature != null) {
-        row[columnMap['w_temp']!] = DoubleCellValue(Weather.convertTemperatureFromCelsius(w.currentTemperature, settings.temperatureUnit) ?? 0);
+        row[columnMap['w_temp']!] = DoubleCellValue(ContextWeather.convertTemperatureFromCelsius(w.currentTemperature, settings.temperatureUnit) ?? 0);
       }
       if (w.dayAccumulatedPrecipitation != null) {
-        row[columnMap['w_precip']!] = DoubleCellValue(Weather.convertPrecipitationFromMm(w.dayAccumulatedPrecipitation, settings.precipitationUnit) ?? 0);
+        row[columnMap['w_precip']!] = DoubleCellValue(ContextWeather.convertPrecipitationFromMm(w.dayAccumulatedPrecipitation, settings.precipitationUnit) ?? 0);
       }
       if (w.currentHumidity != null) {
         row[columnMap['w_humid']!] = DoubleCellValue(w.currentHumidity!);
       }
       if (w.currentWindSpeed != null) {
-        row[columnMap['w_wind']!] = DoubleCellValue(Weather.convertWindSpeedFromKmh(w.currentWindSpeed, settings.windSpeedUnit) ?? 0);
+        row[columnMap['w_wind']!] = DoubleCellValue(ContextWeather.convertWindSpeedFromKmh(w.currentWindSpeed, settings.windSpeedUnit) ?? 0);
       }
       if (w.currentSoilMoisture0to7cm != null) {
         row[columnMap['w_soil']!] = DoubleCellValue(w.currentSoilMoisture0to7cm!);
@@ -315,10 +315,10 @@ class SpreadsheetExport {
     final w = setup.weather;
     if (w != null) {
       row[columnMap['w_code']!] = w.getWeatherCodeLabel() ?? '';
-      row[columnMap['w_temp']!] = Weather.convertTemperatureFromCelsius(w.currentTemperature, settings.temperatureUnit)?.round().toString() ?? '';
-      row[columnMap['w_precip']!] = Weather.convertPrecipitationFromMm(w.dayAccumulatedPrecipitation, settings.precipitationUnit)?.round().toString() ?? '';
+      row[columnMap['w_temp']!] = ContextWeather.convertTemperatureFromCelsius(w.currentTemperature, settings.temperatureUnit)?.round().toString() ?? '';
+      row[columnMap['w_precip']!] = ContextWeather.convertPrecipitationFromMm(w.dayAccumulatedPrecipitation, settings.precipitationUnit)?.round().toString() ?? '';
       row[columnMap['w_humid']!] = w.currentHumidity?.round().toString() ?? '';
-      row[columnMap['w_wind']!] = Weather.convertWindSpeedFromKmh(w.currentWindSpeed, settings.windSpeedUnit)?.round().toString() ?? '';
+      row[columnMap['w_wind']!] = ContextWeather.convertWindSpeedFromKmh(w.currentWindSpeed, settings.windSpeedUnit)?.round().toString() ?? '';
       row[columnMap['w_soil']!] = w.currentSoilMoisture0to7cm?.toStringAsFixed(2) ?? '';
       row[columnMap['w_cond']!] = w.condition?.value ?? '';
     }

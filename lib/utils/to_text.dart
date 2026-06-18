@@ -108,9 +108,9 @@ void _appendSetupText(
   final personName = persons[setup.person]?.name ?? '-';
 
   if (settings.enablePerson) {
-    buffer.writeln("🎛️ $dateString $timeString - ${setup.name} ($bikeName | $personName)${setup.isDeleted ? ' [DELETED]' : ''}");
+    buffer.writeln("🎛️ $dateString $timeString - ${setup.displayName} ($bikeName | $personName)${setup.isDeleted ? ' [DELETED]' : ''}");
   } else {
-    buffer.writeln("🎛️ $dateString $timeString - ${setup.name} ($bikeName)${setup.isDeleted ? ' [DELETED]' : ''}");
+    buffer.writeln("🎛️ $dateString $timeString - ${setup.displayName} ($bikeName)${setup.isDeleted ? ' [DELETED]' : ''}");
   }
 
   // Location & Weather Context compact oneliner

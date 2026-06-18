@@ -12,7 +12,7 @@ class Setup {
   final String id;
   final bool isDeleted;
   final DateTime lastModified;
-  final String name;
+  final String? name;
   final DateTime datetime;  // UTC
   final DateTime datetimeLocal;
   final String? notes;
@@ -34,11 +34,14 @@ class Setup {
 
   static const IconData iconData = Icons.tune;
 
+  static const String namePlaceholder = 'Unnamed Setup';
+  String get displayName => name ?? namePlaceholder;
+
   Setup({
     String? id,
-    bool? isDeleted, 
+    bool? isDeleted,
     DateTime? lastModified,
-    required this.name,
+    this.name,
     required DateTime datetime,
     required this.datetimeLocal,
     this.notes,
@@ -185,7 +188,7 @@ class Setup {
           : (lastModified as DateTime?),
       name: name is _Sentinel
           ? this.name
-          : (name as String), 
+          : (name as String?),
       notes: notes is _Sentinel
           ? this.notes
           : (notes as String?),

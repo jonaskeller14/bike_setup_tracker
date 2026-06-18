@@ -382,7 +382,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   void _changeListener() {
     const equality = DeepCollectionEquality();
 
-    final hasChanges = _nameController.text.trim() != (widget.setup?.name ?? '') || 
+    final hasChanges = _nameController.text.trim() != (widget.setup?.name ?? '') ||
         _notesController.text.trim() != (widget.setup?.notes ?? '') || 
         _initialDateTimeUtc != _selectedDateTimeUtc || 
         _initialDateTimeLocal != _selectedDateTimeLocal ||
@@ -578,8 +578,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   void _saveSetup() {
-    if (_nameController.text.trim().isEmpty) _nameController.text = "Unnamed Setup";
-
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -595,7 +593,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       );
       return;
     }
-    final name = _nameController.text.trim();
+    final nameText = _nameController.text.trim();
+    final name = nameText.isEmpty ? null : nameText;
     final notesText = _notesController.text.trim();
     final notes = notesText.isEmpty ? null : notesText;
 
@@ -691,12 +690,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         border: const OutlineInputBorder(),
         hintText: 'Enter setup name',
         fillColor: Colors.orange.withValues(alpha: 0.08),
-        filled: widget.mode == SetupPageMode.edit && _nameController.text.trim() != widget.setup?.name,
+        filled: widget.mode == SetupPageMode.edit && _nameController.text.trim() != (widget.setup?.name ?? ''),
       ),
-      validator: (String? value) {
-        if (value == null || value.trim().isEmpty) return 'Name is required';
-        return null;
-      },
     );
   }
 

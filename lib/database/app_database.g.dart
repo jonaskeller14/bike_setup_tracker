@@ -4769,9 +4769,9 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
     'name',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.string,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
   );
   @override
   late final GeneratedColumnWithTypeConverter<DateTime, DateTime> datetime =
@@ -4894,8 +4894,6 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
         _nameMeta,
         name.isAcceptableOrUnknown(data['name']!, _nameMeta),
       );
-    } else if (isInserting) {
-      context.missing(_nameMeta);
     }
     if (data.containsKey('notes')) {
       context.handle(
@@ -4937,7 +4935,7 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
-      )!,
+      ),
       datetime: $SetupsTable.$converterdatetime.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime,
@@ -5014,7 +5012,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
   final String? personId;
   final bool isDeleted;
   final DateTime lastModified;
-  final String name;
+  final String? name;
   final DateTime datetime;
   final DateTime datetimeLocal;
   final String? notes;
@@ -5028,7 +5026,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     this.personId,
     required this.isDeleted,
     required this.lastModified,
-    required this.name,
+    this.name,
     required this.datetime,
     required this.datetimeLocal,
     this.notes,
@@ -5051,7 +5049,9 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
         $SetupsTable.$converterlastModified.toSql(lastModified),
       );
     }
-    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
     {
       map['datetime'] = Variable<DateTime>(
         $SetupsTable.$converterdatetime.toSql(datetime),
@@ -5095,7 +5095,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           : Value(personId),
       isDeleted: Value(isDeleted),
       lastModified: Value(lastModified),
-      name: Value(name),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
       datetime: Value(datetime),
       datetimeLocal: Value(datetimeLocal),
       notes: notes == null && nullToAbsent
@@ -5125,7 +5125,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       personId: serializer.fromJson<String?>(json['personId']),
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
       lastModified: serializer.fromJson<DateTime>(json['lastModified']),
-      name: serializer.fromJson<String>(json['name']),
+      name: serializer.fromJson<String?>(json['name']),
       datetime: serializer.fromJson<DateTime>(json['datetime']),
       datetimeLocal: serializer.fromJson<DateTime>(json['datetimeLocal']),
       notes: serializer.fromJson<String?>(json['notes']),
@@ -5144,7 +5144,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       'personId': serializer.toJson<String?>(personId),
       'isDeleted': serializer.toJson<bool>(isDeleted),
       'lastModified': serializer.toJson<DateTime>(lastModified),
-      'name': serializer.toJson<String>(name),
+      'name': serializer.toJson<String?>(name),
       'datetime': serializer.toJson<DateTime>(datetime),
       'datetimeLocal': serializer.toJson<DateTime>(datetimeLocal),
       'notes': serializer.toJson<String?>(notes),
@@ -5161,7 +5161,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     Value<String?> personId = const Value.absent(),
     bool? isDeleted,
     DateTime? lastModified,
-    String? name,
+    Value<String?> name = const Value.absent(),
     DateTime? datetime,
     DateTime? datetimeLocal,
     Value<String?> notes = const Value.absent(),
@@ -5175,7 +5175,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     personId: personId.present ? personId.value : this.personId,
     isDeleted: isDeleted ?? this.isDeleted,
     lastModified: lastModified ?? this.lastModified,
-    name: name ?? this.name,
+    name: name.present ? name.value : this.name,
     datetime: datetime ?? this.datetime,
     datetimeLocal: datetimeLocal ?? this.datetimeLocal,
     notes: notes.present ? notes.value : this.notes,
@@ -5267,7 +5267,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
   final Value<String?> personId;
   final Value<bool> isDeleted;
   final Value<DateTime> lastModified;
-  final Value<String> name;
+  final Value<String?> name;
   final Value<DateTime> datetime;
   final Value<DateTime> datetimeLocal;
   final Value<String?> notes;
@@ -5298,7 +5298,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     this.personId = const Value.absent(),
     this.isDeleted = const Value.absent(),
     required DateTime lastModified,
-    required String name,
+    this.name = const Value.absent(),
     required DateTime datetime,
     required DateTime datetimeLocal,
     this.notes = const Value.absent(),
@@ -5310,7 +5310,6 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
   }) : id = Value(id),
        bikeId = Value(bikeId),
        lastModified = Value(lastModified),
-       name = Value(name),
        datetime = Value(datetime),
        datetimeLocal = Value(datetimeLocal),
        tags = Value(tags);
@@ -5354,7 +5353,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     Value<String?>? personId,
     Value<bool>? isDeleted,
     Value<DateTime>? lastModified,
-    Value<String>? name,
+    Value<String?>? name,
     Value<DateTime>? datetime,
     Value<DateTime>? datetimeLocal,
     Value<String?>? notes,
@@ -11785,7 +11784,7 @@ typedef $$SetupsTableCreateCompanionBuilder =
       Value<String?> personId,
       Value<bool> isDeleted,
       required DateTime lastModified,
-      required String name,
+      Value<String?> name,
       required DateTime datetime,
       required DateTime datetimeLocal,
       Value<String?> notes,
@@ -11802,7 +11801,7 @@ typedef $$SetupsTableUpdateCompanionBuilder =
       Value<String?> personId,
       Value<bool> isDeleted,
       Value<DateTime> lastModified,
-      Value<String> name,
+      Value<String?> name,
       Value<DateTime> datetime,
       Value<DateTime> datetimeLocal,
       Value<String?> notes,
@@ -12290,7 +12289,7 @@ class $$SetupsTableTableManager
                 Value<String?> personId = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
                 Value<DateTime> lastModified = const Value.absent(),
-                Value<String> name = const Value.absent(),
+                Value<String?> name = const Value.absent(),
                 Value<DateTime> datetime = const Value.absent(),
                 Value<DateTime> datetimeLocal = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
@@ -12322,7 +12321,7 @@ class $$SetupsTableTableManager
                 Value<String?> personId = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
                 required DateTime lastModified,
-                required String name,
+                Value<String?> name = const Value.absent(),
                 required DateTime datetime,
                 required DateTime datetimeLocal,
                 Value<String?> notes = const Value.absent(),

@@ -172,7 +172,7 @@ class SetupDetailsPageContent extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SelectableText(
-                  setup.name,
+                  setup.displayName,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                   maxLines: 1,
                 ),
@@ -284,7 +284,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                               minZoom: 3,
                               onTap: (_, _) async {
                                 final String scheme = Theme.of(context).platform == TargetPlatform.iOS ? 'maps' : 'geo';
-                                await launchUrlString('$scheme:${setup.position!.latitude},${setup.position!.longitude}?q=${setup.position!.latitude},${setup.position!.longitude}(${Uri.encodeComponent(setup.name)})');
+                                await launchUrlString('$scheme:${setup.position!.latitude},${setup.position!.longitude}?q=${setup.position!.latitude},${setup.position!.longitude}(${Uri.encodeComponent(setup.displayName)})');
                               },
                               interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
                             ),

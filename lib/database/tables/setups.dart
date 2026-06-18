@@ -22,7 +22,7 @@ class Setups extends Table {
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   DateTimeColumn get lastModified => dateTime().map(const UtcDateTimeConverter())();
 
-  TextColumn get name => text()();
+  TextColumn get name => text().nullable()();
   DateTimeColumn get datetime => dateTime().map(const UtcDateTimeConverter())(); // UTC
   DateTimeColumn get datetimeLocal => dateTime().map(const LocalFloatingDateTimeConverter())();
   TextColumn get notes => text().nullable()();

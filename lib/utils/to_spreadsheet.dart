@@ -215,7 +215,7 @@ class SpreadsheetExport {
   static List<CellValue> _generateSetupCellValueRow(Setup setup, Map<String, int> columnMap, SelectedData data, AppSettings settings) {
     final List<CellValue> row = List.filled(columnMap.length, TextCellValue(''));
 
-    row[columnMap['name']!] = TextCellValue(setup.name);
+    row[columnMap['name']!] = TextCellValue(setup.displayName);
     
     final localDt = setup.datetimeLocal;
     row[columnMap['datetime']!] = DateTimeCellValue(
@@ -293,7 +293,7 @@ class SpreadsheetExport {
   static List<String> _generateSetupStringRow(Setup setup, Map<String, int> columnMap, SelectedData data, AppSettings settings, {bool includeBikeColumn = false}) {
     final List<String> row = List.filled(columnMap.length, '');
 
-    row[columnMap['name']!] = setup.name;
+    row[columnMap['name']!] = setup.displayName;
     row[columnMap['datetime']!] = DateFormat('yyyy-MM-dd HH:mm').format(setup.datetimeLocal);
     row[columnMap['tags']!] = setup.tags.join('; ');
     row[columnMap['notes']!] = setup.notes ?? '';

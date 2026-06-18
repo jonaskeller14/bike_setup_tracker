@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/context/context_place.dart';
 import '../../models/context/context_position.dart';
-import '../../models/setup.dart';
 import '../../services/address_service.dart';
 import '../../services/elevation_service.dart';
 import '../../services/location_service.dart';

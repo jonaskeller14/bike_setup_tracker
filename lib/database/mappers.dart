@@ -312,7 +312,7 @@ extension SetupMapper on Setup {
       id: Value<String>(id),
       isDeleted: Value<bool>(isDeleted),
       lastModified: Value<DateTime>(lastModified),
-      name: Value<String>(name),
+      name: Value<String?>(name),
       datetime: Value<DateTime>(datetime),
       datetimeLocal: Value<DateTime>(datetimeLocal),
       notes: Value<String?>(notes),

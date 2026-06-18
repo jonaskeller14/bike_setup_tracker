@@ -71,7 +71,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.memory() : super(NativeDatabase.memory());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -87,6 +87,13 @@ class AppDatabase extends _$AppDatabase {
         }
         if (from < 3) {
           await m.addColumn(taskRules, taskRules.tags);
+        }
+        if (from < 4) {
+          // Setup.name became nullable. Recreate the table to drop the NOT NULL
+          // constraint, then clear out the legacy auto-generated placeholder so
+          // those setups fall back to the (localizable) UI placeholder instead.
+          await m.alterTable(TableMigration(setups));
+          await customStatement("UPDATE setups SET name = NULL WHERE name = 'Unnamed Setup'");
         }
       },
     );

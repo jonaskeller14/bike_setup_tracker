@@ -83,7 +83,7 @@ class SetupActions {
     await appRepository.removeSetups([setup]);
 
     messenger.showSnackBar(SnackBar(
-      content: Text("Setup '${setup.name}' moved to trash."),
+      content: Text("Setup '${setup.displayName}' moved to trash."),
       duration: const Duration(seconds: 5),
       persist: false,
       showCloseIcon: true,
@@ -101,7 +101,7 @@ class SetupActions {
     await appRepository.restoreSetups([setup]);
 
     messenger.showSnackBar(SnackBar(
-      content: Text("Setup '${setup.name}' restored from trash."),
+      content: Text("Setup '${setup.displayName}' restored from trash."),
       duration: const Duration(seconds: 5),
       persist: false,
       showCloseIcon: true,

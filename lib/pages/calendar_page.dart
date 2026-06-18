@@ -49,7 +49,7 @@ Color calendarOnColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) 
     };
 
 String calendarSubjectFor(TimelineEntry entry) => switch (entry) {
-      SetupEntry() => entry.setup.name,
+      SetupEntry() => entry.setup.displayName,
       StravaEntry() => entry.activity.name,
       TaskTimeLineEntry() => entry.taskEntry.name,
       InstallationEntry() => entry.componentInstallation.shortLabel,

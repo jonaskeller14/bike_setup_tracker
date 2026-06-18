@@ -300,7 +300,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
       child: CheckboxListTile(
         secondary: const Icon(Setup.iconData),
         title: Text(
-          setup.name,
+          setup.displayName,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             decoration: setup.isDeleted ? TextDecoration.lineThrough : null,
           ),

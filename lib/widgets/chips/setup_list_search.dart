@@ -55,7 +55,7 @@ class SetupListSearch extends StatelessWidget {
         if (appSettings.displayShowSetups) {
           final setups = appRepository.filteredSetups.values;
           matchingEntries.addAll(setups.where((s) =>
-            s.name.toLowerCase().contains(controllerText) ||
+            s.displayName.toLowerCase().contains(controllerText) ||
             (s.notes ?? "").toLowerCase().contains(controllerText)
           ).map((s) => SetupEntry(s)));
         }

@@ -152,7 +152,7 @@ class _SetupTrashItem extends _TrashItem {
   final Setup setup;
   @override DateTime get lastModified => setup.lastModified;
   @override IconData get iconData => Setup.iconData;
-  @override String get name => setup.name;
+  @override String get name => setup.displayName;
   @override
   void restore(BuildContext context) async {
     await SetupActions.restoreSetup(context, setup: setup);

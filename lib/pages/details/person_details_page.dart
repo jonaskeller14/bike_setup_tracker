@@ -56,9 +56,9 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
     switch (_sortColumn!.section) {
       case TableColumnSection.generalContext || TableColumnSection.weatherContext:
         switch (_sortColumn!.label) {
-          case "Name": _sortAscending 
-            ? setups.sort((a, b) => a.name.compareTo(b.name)) 
-            : setups.sort((a, b) => b.name.compareTo(a.name));
+          case "Name": _sortAscending
+            ? setups.sort((a, b) => a.displayName.compareTo(b.displayName))
+            : setups.sort((a, b) => b.displayName.compareTo(a.displayName));
           case "Notes": _sortAscending 
               ? setups.sort((a, b) => (a.notes ?? '').compareTo(b.notes ?? '')) 
               : setups.sort((a, b) => (b.notes ?? '').compareTo(a.notes ?? ''));
@@ -363,7 +363,7 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
                           switch (column.section) {
                             case TableColumnSection.generalContext:
                               return switch (column.label) {
-                                "Name" => DataCell(ConstrainedBox(constraints: const BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.name, overflow: TextOverflow.ellipsis)))),
+                                "Name" => DataCell(ConstrainedBox(constraints: const BoxConstraints(maxWidth: 150), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.displayName, overflow: TextOverflow.ellipsis)))),
                                 "Notes" => DataCell(ConstrainedBox(constraints: const BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.notes ?? '-', overflow: TextOverflow.ellipsis)))),
                                 "Tags" => DataCell(ConstrainedBox(constraints: const BoxConstraints(maxWidth: 300), child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: Text(setup.tags.isEmpty ? '-' : setup.tags.join('; '), overflow: TextOverflow.ellipsis)))),
                                 "Date" => DataCell(Text(DateFormat(appSettings.dateFormat).format(setup.datetimeLocal))),

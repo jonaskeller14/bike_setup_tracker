@@ -62,7 +62,7 @@ class SetupListCard extends StatelessWidget {
       minTileHeight: 0,
       titleAlignment: ListTileTitleAlignment.top,
       title: Text(
-        setup.name,
+        setup.displayName,
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
       subtitle: Column(

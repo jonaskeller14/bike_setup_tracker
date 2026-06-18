@@ -147,9 +147,13 @@ first-class object is the correct call and unlocks everything in §1. Specific n
    earlier). With normalization, the user's intent — "value·weight, higher generally
    better, negative weight for bad questions" — becomes "**normalizedValue · signedWeight,
    summed**", which behaves exactly as expected and stays comparable (see §7 + §7.1).
-2. **One template per entry — DECIDED.** A `RatingEntry` captures **one** template (one
-   "questionnaire instance"). Rating the same setup against two templates = two entries.
-   Cross-template aggregation still works because scores are normalized.
+2. **Entry spans ALL applicable ratings — DECIDED (revised).** A `RatingEntry` is a
+   per-bike rating *session*: it captures values across **every rating that applies** at
+   that time (one rating for the fork, one for the whole bike, …), exactly like the old
+   setup rating tab listed them together. So an entry has **no `ratingId`** — `metricValues`
+   is keyed by `ratingMetricId` across whichever metrics were filled, and the applicable
+   ratings are derived from their filter at the entry's time. Cross-rating aggregation
+   works because scores normalize per metric (§7).
 3. **Setup linkage — DECIDED: hybrid (resolve dynamically + store a provenance snapshot).**
    - On **first save**, compute the active setup (most recent non-deleted setup for the
      entry's bike with `datetime <= entry.datetime`, via the chronological logic in
@@ -187,15 +191,18 @@ first-class object is the correct call and unlocks everything in §1. Specific n
   `RatingEntryValues` keys on. No new id concept; rating metrics simply no longer live in
   the `Adjustments` table (see §6).
 
-### 5.3 `RatingEntry` — NEW `lib/models/rating_entry.dart`
-Mirror the context fields of `Setup` (so reuse its weather/place/location helpers):
+### 5.3 `RatingEntry` — NEW `lib/models/rating_entry.dart` ✅ (done)
+Context fields mirror `Setup`; the shared context wrappers live in `lib/models/context/`:
+`ContextPosition` (`context_position.dart`), `ContextPlace` (`context_place.dart`) — both
+handle JSON + equality — and `ContextWeather` (`context_weather.dart`, formerly `Weather`).
+`Setup` was refactored to use these too.
 ```
 id, isDeleted, lastModified
-ratingId           // FK → Rating template
-bikeId             // FK → Bike
+name?              // optional, like Setup; displayName falls back to a derived label
+bike               // FK → Bike   (NO ratingId — an entry spans all applicable ratings, §4.2)
 setupId?           // write-once provenance snapshot, set on first save (§4.3);
                    //   NOT authoritative for scoring (dynamic resolution is)
-datetime (UTC), datetimeLocal
+dateTimeUTC, dateTimeLocal
 notes?
 metricValues: Map<String, dynamic>   // ratingMetricId → value (same dynamic typing as Setup)
 position?, place?, weather?          // weather carries `condition`
@@ -252,12 +259,14 @@ The `Adjustment` Dart model's existing `toJson`/`fromJson` + `jsonPayload` seria
 is reused verbatim to read/write these columns — only the table differs.
 
 ### 6.3 NEW `RatingEntries` table — `lib/database/tables/rating_entries.dart`
-Parallel to [setups.dart](../lib/database/tables/setups.dart):
+Parallel to [setups.dart](../lib/database/tables/setups.dart). **No `ratingId`** — an entry
+spans all applicable ratings (§4.2):
 ```
-id (pk), ratingId → Ratings (cascade), bikeId → Bikes (cascade),
+id (pk), bikeId → Bikes (cascade),
 setupId? → Setups (setNull on delete)   // provenance snapshot (§4.3, §5.3)
+name?,
 isDeleted, lastModified (UtcDateTimeConverter),
-datetime (UtcDateTimeConverter), datetimeLocal (LocalFloatingDateTimeConverter),
+dateTimeUTC (UtcDateTimeConverter), dateTimeLocal (LocalFloatingDateTimeConverter),
 notes?, position? (LocationDataConverter), place? (PlacemarkConverter),
 weather? (WeatherConverter)
 ```
@@ -406,12 +415,13 @@ template's scored-metrics.
   date/time pickers, location/place chip, weather + condition chips
   (`_wrap()` logic, location/address/weather services). Factor the shared widget out if
   practical (`lib/widgets/setup_context_capture.dart`).
-- Pick the **bike** and the **rating template** (default to the filtered/most-likely
-  template for that bike). Render its metrics' value inputs (reuse the value widgets used
-  by the old `SetupRatingTab`).
-- On save → `RatingEntry`. Show the live computed **entry score (0–10 average)** with the
-  **weighted sum** as a secondary figure (§7.1). Surface the **drift warning** here when
-  applicable (§4.3).
+- Pick the **bike**, then render the metrics of **all ratings that apply** to it
+  (global / bike / component / componentType / person filters), grouped per rating — exactly
+  like the old `SetupRatingTab` listed every applicable rating at once. Reuse those value
+  widgets. No single-template selection (§4.2).
+- On save → one `RatingEntry` whose `metricValues` span all filled metrics. Show the live
+  computed **entry score (0–10 average)** with the **weighted sum** as a secondary figure
+  (§7.1). Surface the **drift warning** here when applicable (§4.3).
 
 ### 8.3 Where RatingEntries appear (DECIDED: under setups only)
 Setups stay the app's focus — RatingEntries are **not** their own timeline / calendar /
@@ -467,7 +477,8 @@ setup**:
 
 **Resolved**
 - **Naming:** `RatingEntry` (parallels existing `TaskEntry`). ✅
-- **One template per entry.** ✅
+- **Entry spans all applicable ratings** (revised — no `ratingId`; like the old setup
+  rating tab). ✅
 - **Scored numeric/duration bounds:** require finite min/max when a metric is scored. ✅
 - **Setup linkage:** hybrid — resolve dynamically (authoritative for score) **and** store
   a write-once `setupId` provenance snapshot; warn on drift (§4.3). ✅
@@ -664,11 +675,14 @@ addition, but important for adoption parity.
 ## 12. Touched files
 
 **New**
-- `lib/models/rating_metric.dart`, `lib/models/rating_entry.dart`
+- `lib/models/rating_metric.dart`, `lib/models/rating_entry.dart` ✅ (done)
+- `lib/models/context/context_position.dart`, `context_place.dart` — shared
+  `ContextPosition`/`ContextPlace` codecs (also used by Setup); `context_weather.dart`
+  (`ContextWeather`, moved from `weather.dart`) ✅ (done)
+- `lib/services/rating_score_service.dart` + `test/rating_score_service_test.dart` ✅ (done)
 - `lib/database/tables/rating_metrics.dart`, `lib/database/tables/rating_entries.dart`,
   `lib/database/tables/rating_entry_values.dart`
 - `lib/database/daos/rating_entries_dao.dart`
-- `lib/services/rating_score_service.dart`
 - `lib/pages/rating_entry_page.dart`
 - `lib/widgets/items/rating_entry_list_card.dart`, (optional) `lib/widgets/lists/rating_entry_list.dart`
 - `lib/utils/rating_entry_actions.dart`
@@ -676,7 +690,9 @@ addition, but important for adoption parity.
 
 **Modified**
 - `lib/models/rating.dart` — metrics, json v3
-- `lib/models/setup.dart` — drop `ratingAdjustmentValues`, json bump, derived score
+- `lib/models/setup.dart` — drop `ratingAdjustmentValues`, json bump, derived score;
+  geo helpers now delegate to `ContextPosition`/`ContextPlace`; weather is `ContextWeather`
+  (`lib/models/context/`) ✅ (geo/context part done)
 - `lib/database/tables/adjustments.dart` — **remove** `ratingId` FK; simplify CHECK to
   (component_id, person_id)
 - `lib/database/app_database.dart` — schemaVersion 3→4, onUpgrade (create 3 tables +

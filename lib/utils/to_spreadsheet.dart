@@ -3,6 +3,7 @@ import 'package:excel/excel.dart';
 import 'package:intl/intl.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
+import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
@@ -234,7 +235,7 @@ class SpreadsheetExport {
 
     final alt = setup.position?.altitude;
     if (alt != null) {
-      row[columnMap['altitude']!] = DoubleCellValue(Setup.convertAltitudeFromMeters(alt, settings.altitudeUnit) ?? alt);
+      row[columnMap['altitude']!] = DoubleCellValue(ContextPosition.convertAltitudeFromMeters(alt, settings.altitudeUnit) ?? alt);
     }
 
     // Weather
@@ -303,7 +304,7 @@ class SpreadsheetExport {
 
     final alt = setup.position?.altitude;
     if (alt != null) {
-      row[columnMap['altitude']!] = (Setup.convertAltitudeFromMeters(alt, settings.altitudeUnit) ?? alt).round().toString();
+      row[columnMap['altitude']!] = (ContextPosition.convertAltitudeFromMeters(alt, settings.altitudeUnit) ?? alt).round().toString();
     }
 
     if (includeBikeColumn) {

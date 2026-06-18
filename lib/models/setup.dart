@@ -128,34 +128,6 @@ class Setup {
     });
   }
 
-  static double? convertAltitudeToMeters(double? alt, String currentUnit) {
-    if (alt == null) return null;
-    const double ftToM = 1 / 3.28084; // ft / 3.28084 = m
-
-    switch (currentUnit) {
-      case 'm':
-        return alt;
-      case 'ft':
-        return alt * ftToM;
-      default:
-        return alt;
-    }
-  }
-
-  static double? convertAltitudeFromMeters(double? altM, String targetUnit) {
-    if (altM == null) return null;
-    const double mToFt = 3.28084;
-
-    switch (targetUnit) {
-      case 'm':
-        return altM;
-      case 'ft':
-        return altM * mToFt;
-      default:
-        return altM;
-    }
-  }
-
   Setup deepCopy() {
     // Used for Setup restore --> Duplication with current Date, remove pos/place/weather
     final now = DateTime.now();

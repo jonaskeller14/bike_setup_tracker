@@ -7,8 +7,8 @@ import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
+import '../models/context/context_position.dart';
 import '../models/installation.dart';
-import '../models/setup.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
 import '../widgets/dashed_border_painter.dart';
@@ -248,7 +248,7 @@ class _ComponentPageState extends State<ComponentPage> {
     final initialDistanceInput = double.parse(_initialDistanceController.text.trim());
     final initialElevationGainInput = double.parse(_initialElevationGainController.text.trim());
     final double initialDistance = AppSettings.convertDistanceToMeters(initialDistanceInput, appSettings.distanceUnit) ?? 0.0;
-    final double initialElevationGain = Setup.convertAltitudeToMeters(initialElevationGainInput, appSettings.altitudeUnit) ?? 0.0;
+    final double initialElevationGain = ContextPosition.convertAltitudeToMeters(initialElevationGainInput, appSettings.altitudeUnit) ?? 0.0;
     final initialElapsedTime = int.parse(_initialElapsedTimeController.text.trim());
     final initialMovingTime = int.parse(_initialMovingTimeController.text.trim());
     _formHasChanges = false;

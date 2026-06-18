@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
+import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
@@ -237,7 +238,7 @@ String _generateContextLine(Setup setup, AppSettings settings) {
   }
   
   if (altitude != null) {
-    final altVal = Setup.convertAltitudeFromMeters(altitude, settings.altitudeUnit)?.round() ?? altitude.round();
+    final altVal = ContextPosition.convertAltitudeFromMeters(altitude, settings.altitudeUnit)?.round() ?? altitude.round();
     locationStr += locationStr.isNotEmpty ? ' ($altVal ${settings.altitudeUnit})' : '$altVal ${settings.altitudeUnit}';
   }
 

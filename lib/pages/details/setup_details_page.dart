@@ -11,6 +11,7 @@ import '../../icons/weather_icons.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';
+import '../../models/context/context_position.dart';
 import '../../models/context/context_weather.dart';
 import '../../models/person.dart';
 import '../../models/rating.dart';
@@ -253,7 +254,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                     ),
                     ListTile(
                       leading: const Icon(Icons.arrow_upward),
-                      title: SelectableText("Altitude: ${Setup.convertAltitudeFromMeters(setup.position?.altitude, appSettings.altitudeUnit)?.round() ?? "-"} ${appSettings.altitudeUnit}"),
+                      title: SelectableText("Altitude: ${ContextPosition.convertAltitudeFromMeters(setup.position?.altitude, appSettings.altitudeUnit)?.round() ?? "-"} ${appSettings.altitudeUnit}"),
                       dense: true,
                       enabled: setup.position?.altitude != null,
                     ),

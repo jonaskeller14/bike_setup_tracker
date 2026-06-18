@@ -87,7 +87,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
 
     _latitudeController.text = _currentLocation?.latitude?.toString() ?? "";
     _longitudeController.text = _currentLocation?.longitude?.toString() ?? "";
-    _altitudeController.text = Setup.convertAltitudeFromMeters(_currentLocation?.altitude, appSettings.altitudeUnit)?.toString() ?? "";
+    _altitudeController.text = ContextPosition.convertAltitudeFromMeters(_currentLocation?.altitude, appSettings.altitudeUnit)?.toString() ?? "";
 
     _addressController.text = _formatAddress(_currentPlace);
   }
@@ -358,7 +358,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                                 setState(() {
                                   _currentLocation = LocationService.copyWithLocationData(
                                     _currentLocation, 
-                                    altitude: Setup.convertAltitudeToMeters(double.tryParse(newValue), appSettings.altitudeUnit),
+                                    altitude: ContextPosition.convertAltitudeToMeters(double.tryParse(newValue), appSettings.altitudeUnit),
                                   );
                                 });
                               },

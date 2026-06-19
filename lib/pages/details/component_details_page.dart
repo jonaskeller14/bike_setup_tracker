@@ -10,7 +10,6 @@ import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component_stats.dart';
 import '../../models/context/context_weather.dart';
-import '../../models/rating.dart';
 import '../../models/setup.dart';
 import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
@@ -56,7 +55,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
 
   static dynamic _rawValue(Setup setup, TableColumn column) => switch (column.section) {
     TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[column.label],
-    TableColumnSection.ratingMetrics => setup.ratingAdjustmentValues[column.label],
+    TableColumnSection.ratingMetrics => null,
     TableColumnSection.personAttributes => setup.personAdjustmentValues[column.label],
     _ => null,
   };
@@ -798,26 +797,17 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     if (component == null) return const SizedBox.shrink();
     final componentAdjustments = component.adjustments;
 
-    final ratings = appRepository.ratings;
     final bikes = appRepository.bikes;
     final bike = bikes[component.bike];
-    
+
     final persons = appRepository.persons;
     final person = persons[bike?.person];
     final personAdjustments = person?.adjustments ?? [];
 
-    final ratingAdjustments = ratings.values.expand((rating) => rating.adjustments);
-
-    final List<Rating> validRatings = ratings.values.where((rating) {
-      if (!appSettings.enableRating) return false;
-      return switch (rating.filterType) {
-        FilterType.global => true,
-        FilterType.componentType => component.componentType.toString() == rating.filter,
-        FilterType.component => component.id == rating.filter,
-        FilterType.bike => component.bike == rating.filter,
-        FilterType.person => bike?.person == rating.filter,
-      };
-    }).toList();
+    // Setups no longer carry rating answers, so the rating-metric columns have no
+    // data source for now (rating data lives on RatingEntries). Keep the column
+    // plumbing intact but feed it nothing.
+    const Iterable<Adjustment> ratingAdjustments = <Adjustment>[];
 
     // Remove only invalid columns (to keep prior modifications to 'active')
     for (final column in _columns.toSet()) {
@@ -835,10 +825,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
             continue;
           }          
         case TableColumnSection.ratingMetrics:
-          if (!validRatings.any((r) => r.adjustments.any((a) => a.id == column.label))) {
-            _columns.remove(column);
-          }
-        case TableColumnSection.weatherContext: continue; 
+          // Rating answers are no longer stored on setups; drop any stale columns.
+          _columns.remove(column);
+        case TableColumnSection.weatherContext: continue;
       }
     }
 
@@ -852,9 +841,6 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     }
     if (appSettings.enablePerson) {
       _columns.addAll(personAdjustments.map((a) => TableColumn(section: TableColumnSection.personAttributes, label: a.id, active: false)));
-    }
-    for (final rating in validRatings) {
-      _columns.addAll(rating.adjustments.map((a) => TableColumn(section: TableColumnSection.ratingMetrics, label: a.id, active: false)));
     }
 
     final sortedColumns = _columns.sorted((a, b) => a.section.index.compareTo(b.section.index));  // sort by enum index
@@ -1086,7 +1072,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                               final value = _rawValue(setup, column);
                               final initialValue = switch (column.section) {
                                 TableColumnSection.componentAdjustments => setup.previousBikeAdjustmentValues[column.label],
-                                TableColumnSection.ratingMetrics => setup.previousRatingAdjustmentValues[column.label],
+                                TableColumnSection.ratingMetrics => null,
                                 TableColumnSection.personAttributes => setup.previousPersonAdjustmentValues[column.label],
                                 _ => null,
                               };

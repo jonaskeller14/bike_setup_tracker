@@ -1,5 +1,17 @@
 # Rating Redesign — Architecture & Implementation Plan
 
+> **Status (2026-06-19):** Phases **A–D complete and committed** (models, scoring +
+> tests, DB tables/DAOs/migration, repository CRUD + score getters). The backend compiles
+> green and the 11 scoring tests pass. The actual **schema version is 5** (not 3→4 as
+> originally drafted in §6.6/§13 — two intermediate bumps happened during the refactor);
+> the migration creates the 3 new tables, deletes rating-metric rows from `Adjustments`,
+> and recreates `Adjustments` without the `rating_id` arm. **Phase E (UI) is in progress** —
+> the *mechanical* green-up (remove `setup.ratingAdjustmentValues` display paths, swap
+> `rating.adjustments` → `rating.metrics.map((m) => m.adjustment)`, delete `SetupRatingTab`)
+> comes first to restore compilation; the new rating-entry UX (entry editor, setup-card
+> menu, score badges) follows as a second pass.
+
+
 Rework the **not-yet-shipped** Rating feature so that ratings are **decoupled from
 `Setup`**, can be captured **multiple times per setup** (different tracks / runs /
 days), produce a **single weighted score** per rating session, and roll up into a
@@ -717,46 +729,71 @@ addition, but important for adoption parity.
 
 ## 13. Step-by-step TODO
 
-**A. Models (no DB yet)**
-1. `RatingMetric` model (+ `isScored`, json, copyWith, equality, deepCopy).
-2. Refactor `Rating` to `List<RatingMetric> metrics` (+ json v3).
-3. `RatingEntry` model (context fields reusing Setup helpers; json, copyWith, equality).
-4. Strip `ratingAdjustmentValues` from `Setup` (+ json bump).
-5. Extract shared adjustment-value json/location/place/weather helpers (optional but
-   reduces duplication).
+**A. Models (no DB yet)** ✅ done
+1. ✅ `RatingMetric` model (+ `isScored`, json, copyWith, equality, deepCopy).
+2. ✅ Refactor `Rating` to `List<RatingMetric> metrics` (+ json v3).
+3. ✅ `RatingEntry` model (context fields reusing Setup helpers; json, copyWith, equality).
+4. ✅ Strip `ratingAdjustmentValues` from `Setup` (+ json bump).
+5. ✅ Shared context wrappers extracted to `lib/models/context/`.
 
-**B. Scoring**
-6. `RatingScoreService`: per-metric normalize, per-entry `weightedAvg` (0–10) +
+**B. Scoring** ✅ done
+6. ✅ `RatingScoreService`: per-metric normalize, per-entry `weightedAvg` (0–10) +
    `weightedSum`, and per-setup **per-metric pooled** score (null-safe, §7).
-7. Unit tests: bounds, signed/negative weights, missing values, mixed types, empty entry,
-   comparability of avg across answered-counts, **per-metric pooling vs entry-mean under
-   sparse/overlapping entries**, and null-safety (no entries / all-empty ⇒ null) (§7/§7.1).
+7. ✅ Unit tests (11 passing): bounds, signed/negative weights, missing values, mixed
+   types, empty entry, comparability of avg across answered-counts, **per-metric pooling
+   vs entry-mean under sparse/overlapping entries**, and null-safety (§7/§7.1).
 
-**C. Database**
-8. New `RatingMetrics` table (adjustment-def columns + `ratingId` + signed `weight`).
-9. New `RatingEntries` (incl. `setupId` provenance) + `RatingEntryValues`
+**C. Database** ✅ done
+8. ✅ New `RatingMetrics` table (adjustment-def columns + `ratingId` + signed `weight`).
+9. ✅ New `RatingEntries` (incl. `setupId` provenance) + `RatingEntryValues`
    (keyed `ratingMetricId`) tables.
-10. Simplify `Adjustments`: drop `ratingId` FK + CHECK arm (recreate-table migration).
-11. `RatingEntriesDao` + `RatingsDao` updates (metrics from `RatingMetrics`).
-12. schemaVersion 3→4 + onUpgrade (createTable ×3 + recreate `Adjustments`); register in DB.
-13. Mappers for `RatingMetric` (reuse `Adjustment` json) and `RatingEntry`.
-14. `build_runner build --delete-conflicting-outputs`; fix generated breakage.
+10. ✅ Simplify `Adjustments`: drop `ratingId` FK + CHECK arm (recreate-table migration).
+11. ✅ `RatingEntriesDao` + `RatingsDao` updates (metrics from `RatingMetrics`).
+12. ✅ schemaVersion → **5** + onUpgrade (createTable ×3 + delete rating rows + recreate
+    `Adjustments`); register in DB.
+13. ✅ Mappers for `RatingMetric` (reuse `Adjustment` json) and `RatingEntry`.
+14. ✅ `build_runner build`; generated breakage fixed.
 
-**D. Repository**
-16. Rating CRUD carries signed weight (via `RatingMetrics`).
-17. RatingEntry in-memory state + CRUD + filtered-by-bike views.
-18. `scoreForSetup` / `entryScore` getters wired to `RatingScoreService`.
+**D. Repository** ✅ done
+16. ✅ Rating CRUD carries signed weight (via `RatingMetrics`).
+17. ✅ RatingEntry in-memory state + CRUD + filtered-by-bike views.
+18. ✅ `scoreForSetup` / `entryScore` getters wired to `RatingScoreService`.
 
-**E. UI**
+**E. UI** — *mechanical green-up done; new rating UX still pending*
+- **E0 (mechanical) ✅ done:** swapped `rating.adjustments` →
+  `rating.metrics.map((m) => m.adjustment)` in display code; removed all
+  `setup.ratingAdjustmentValues` / `previousRatingAdjustmentValues` /
+  `displayRatingAdjustmentValues` usages (incl. `AppSettings.setupListRatingAdjustmentValues`
+  + the filter chip); deleted `SetupRatingTab` + all rating plumbing from `setup_page.dart` /
+  `setup_page_tabs.dart`; removed the obsolete rating section from `setup_details_page`,
+  the rating-metric analytics columns from `component_details_page` / `person_details_page`
+  (now fed empty — they'll re-hook to RatingEntries later), and the rating blocks from
+  `to_text` / `to_spreadsheet`. `rating_page` now round-trips `RatingMetric`s (preserving
+  signed weights on edit; no weight UI yet). `trash_page` restores RatingEntries. **Full
+  `flutter analyze` (lib + test) clean and all 291 tests pass.**
 19. `rating_page.dart`: per-metric signed-weight number field + dynamic sign helper text
     (scored only); no toggle.
 20. `rating_entry_page.dart` (context capture + template metric inputs + live 0–10 average
     + weighted sum + drift warning).
-21. `rating_entry_list_card.dart` + `rating_entry_actions.dart`.
+21. `rating_entry_list_card.dart` + `rating_entry_actions.dart` ✅ (actions created:
+    `RatingEntryActions.remove/restoreRatingEntry` with snackbar+UNDO; card pending).
 22. `setup_list_card.dart`: add "Add Rating" / "Ratings (n)" to the `_SetupOptions` popup
     menu + setup score badge; drop `displayRatingAdjustmentValues`.
 23. Setup detail: score + resolving-entries list + "Add rating".
 24. Remove `SetupRatingTab` + all rating plumbing from `setup_page.dart`.
+
+**E′. Re-introduce rating signals removed in E0 (sourced from RatingEntries, not setups)**
+The E0 pass deleted the old setup-sourced rating displays. These must come back, but now
+backed by **`scoreForSetup` / entry scores** (§7), not the removed `ratingAdjustmentValues`:
+- **E′-a — SetupList filter.** Add a display filter (filter sheet chip, like the old
+  `displayShow*` flags) to **hide/show RatingEntries (and the rating-score badge) in the
+  SetupList**. Mirrors what `setupListRatingAdjustmentValues` did, but for the new score
+  badge / entry indicators. Gate on `enableRating`.
+- **E′-b — Rating score in analytics.** Re-add a **rating column** to the
+  `component_details_page` / `person_details_page` setup tables **and a series to the line /
+  radial charts**, showing each setup's **`scoreForSetup`** (0–10). The `ratingMetrics`
+  column plumbing was kept (currently fed empty) precisely so this can re-hook to the pooled
+  setup score — likely a single "Rating Score" column rather than per-metric columns.
 
 **F. Verify**
 25. `flutter analyze` on touched files; `flutter test`.

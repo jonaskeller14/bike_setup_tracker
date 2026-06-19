@@ -131,7 +131,6 @@ void main() {
         person: 'person1',
         bikeAdjustmentValues: {'adj1': 10},
         personAdjustmentValues: {'adj2': 5},
-        ratingAdjustmentValues: {'adj3': 3},
       );
 
       // Model -> Companion

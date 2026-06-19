@@ -106,8 +106,8 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
         final column2value = switch (_sortColumn!.section) {
           TableColumnSection.componentAdjustments => (Setup s) => s.bikeAdjustmentValues[_sortColumn!.label],
           TableColumnSection.personAttributes => (Setup s) => s.personAdjustmentValues[_sortColumn!.label],
-          TableColumnSection.ratingMetrics => (Setup s) => s.ratingAdjustmentValues[_sortColumn!.label],
-          _ => null, 
+          TableColumnSection.ratingMetrics => (Setup s) => null,
+          _ => null,
         };
         if (column2value == null) return setups;
 
@@ -387,13 +387,13 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
                             case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes || TableColumnSection.ratingMetrics:
                               final value = switch (column.section) {
                                 TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[column.label],
-                                TableColumnSection.ratingMetrics => setup.ratingAdjustmentValues[column.label],
+                                TableColumnSection.ratingMetrics => null,
                                 TableColumnSection.personAttributes => setup.personAdjustmentValues[column.label],
                                 _ => null,
                               };
                               final initialValue = switch (column.section) {
                                 TableColumnSection.componentAdjustments => setup.previousBikeAdjustmentValues[column.label],
-                                TableColumnSection.ratingMetrics => setup.previousRatingAdjustmentValues[column.label],
+                                TableColumnSection.ratingMetrics => null,
                                 TableColumnSection.personAttributes => setup.previousPersonAdjustmentValues[column.label],
                                 _ => null,
                               };

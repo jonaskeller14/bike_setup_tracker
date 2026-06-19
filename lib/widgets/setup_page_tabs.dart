@@ -1,11 +1,8 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/adjustment/adjustment.dart';
-import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/person.dart';
-import '../models/rating.dart';
 import '../utils/component_actions.dart';
 import 'display_adjustment/display_dangling_adjustment.dart';
 import 'initial_changed_value_legend.dart';
@@ -36,12 +33,10 @@ class _TabContentWrapperState extends State<TabContentWrapper>
 class _SetupTabScaffold extends StatelessWidget {
   final String scrollKey;
   final List<Widget> children;
-  final bool showLegend;
 
   const _SetupTabScaffold({
     required this.scrollKey,
     required this.children,
-    this.showLegend = true,
   });
 
   @override
@@ -58,7 +53,7 @@ class _SetupTabScaffold extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   ...children,
-                  if (showLegend) const InitialChangedValueLegend(),
+                  const InitialChangedValueLegend(),
                 ],
               ),
             ),
@@ -286,148 +281,5 @@ class SetupPersonTab extends StatelessWidget {
           ),
       ],
     );
-  }
-}
-
-class SetupRatingTab extends StatelessWidget {
-  final Map<String, Rating> filteredRatings;
-  final Map<String, Bike> bikes;
-  final Map<String, Person> persons;
-  final Map<String, Component> components;
-  final Map<String, dynamic> ratingAdjustmentValues;
-  final Map<String, dynamic> previousBikeAdjustmentValues; // used for key
-  final Map<String, dynamic> initialRatingAdjustmentValues;
-  final Map<String, dynamic> danglingRatingAdjustmentValues;
-  final void Function({required Adjustment adjustment, required dynamic newValue}) onAdjustmentValueChanged;
-  final void Function({required Adjustment adjustment}) onRemoveFromAdjustmentValues;
-  final VoidCallback changeListener;
-  final Function(String) onDanglingRemove;
-
-  const SetupRatingTab({
-    super.key,
-    required this.filteredRatings,
-    required this.bikes,
-    required this.persons,
-    required this.components,
-    required this.ratingAdjustmentValues,
-    required this.previousBikeAdjustmentValues,
-    required this.initialRatingAdjustmentValues,
-    required this.danglingRatingAdjustmentValues,
-    required this.onAdjustmentValueChanged,
-    required this.onRemoveFromAdjustmentValues,
-    required this.changeListener,
-    required this.onDanglingRemove,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return _SetupTabScaffold(
-      scrollKey: 'tab3_rating',
-      showLegend: false,
-      children: [
-        if (filteredRatings.isEmpty)
-          _buildEmptyPlaceholder(context, 'No ratings available. \nExit and add rating procedure.')
-        else
-          ...filteredRatings.values.map((rating) {
-            return Card(
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    title: Text(rating.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(Intl.plural(
-                          rating.adjustments.length,
-                          zero: "No adjustments yet.",
-                          one: "1 adjustment",
-                          other: '${rating.adjustments.length} adjustments',
-                        )),
-                        const Spacer(),
-                        _getFilterIcon(rating),
-                        const SizedBox(width: 2),
-                        _getFilterText(rating),
-                      ],
-                    ),
-                    leading: const Icon(Rating.iconData),
-                    enabled: rating.adjustments.isNotEmpty,
-                    tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  ),
-                  AdjustmentSetList(
-                    key: ValueKey(Object.hash(rating.id, Object.hashAll(previousBikeAdjustmentValues.values))),
-                    adjustments: rating.adjustments,
-                    initialAdjustmentValues: initialRatingAdjustmentValues,
-                    adjustmentValues: ratingAdjustmentValues,
-                    onAdjustmentValueChanged: onAdjustmentValueChanged,
-                    removeFromAdjustmentValues: onRemoveFromAdjustmentValues,
-                  ),
-                ],
-              ),
-            );
-          }),
-        if (danglingRatingAdjustmentValues.isNotEmpty)
-          Opacity(
-            opacity: 0.4,
-            child: Card(
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    title: const Text("Dangling Rating Values", style: TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text(Intl.plural(
-                      danglingRatingAdjustmentValues.length, 
-                      one: "1 rating value found that is not associated with this bike/person/components. Cannot be edited.",
-                      other: "${danglingRatingAdjustmentValues.length} rating values found that are not associated with this bike/person/components. Cannot be edited.",
-                    )),
-                    leading: const Icon(Icons.question_mark),
-                    tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  ),
-                  ...danglingRatingAdjustmentValues.entries.map((danglingAdjustmentValue) {
-                    return DisplayDanglingAdjustmentWidget(
-                      name: danglingAdjustmentValue.key, 
-                      initialValue: null,
-                      value: danglingAdjustmentValue.value,
-                      onRemove: () {
-                        onDanglingRemove(danglingAdjustmentValue.key);
-                      },
-                    );
-                  }),
-                ],
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _getFilterIcon(Rating rating) {
-    return switch (rating.filterType) {
-      FilterType.bike => const Icon(Bike.iconData),
-      FilterType.person => const Icon(Person.iconData),
-      FilterType.component => Icon((components[rating.filter]?.componentType ?? ComponentType.other).getIconData()),
-      FilterType.componentType => Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData()),
-      FilterType.global => const SizedBox.shrink(),
-    };
-  }
-
-  Widget _getFilterText(Rating rating) {
-    return switch (rating.filterType) {
-      FilterType.bike => Text(bikes[rating.filter]?.name ?? "-", overflow: TextOverflow.ellipsis),
-      FilterType.person => Text(persons[rating.filter]?.name ?? "-", overflow: TextOverflow.ellipsis),
-      FilterType.componentType => Text(
-        ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter)?.label ?? "-",
-        overflow: TextOverflow.ellipsis,
-      ),
-      FilterType.component => Text(
-        components[rating.filter]?.name ?? "-",
-        overflow: TextOverflow.ellipsis,
-      ),
-      FilterType.global => const SizedBox.shrink(),
-    };
   }
 }

@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/person.dart';
-import '../../models/rating.dart';
 import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
@@ -283,18 +282,6 @@ Future<void> showFilterSheet({
                               tooltip: "Show person related values",
                               onDeleted: appSettings.setupListPersonAdjustmentValues
                                   ? () => appSettings.setupListPersonAdjustmentValues = false
-                                  : null,
-                            ),
-                          if (appSettings.enableRating)
-                            FilterChip(
-                              avatar: const Icon(Rating.iconData, size: 20),
-                              showCheckmark: false,
-                              label: const Text("Rating Values"),
-                              selected: appSettings.setupListRatingAdjustmentValues,
-                              onSelected: (bool selected) => appSettings.setupListRatingAdjustmentValues = selected,
-                              tooltip: "Show rating related values",
-                              onDeleted: appSettings.setupListRatingAdjustmentValues
-                                  ? () => appSettings.setupListRatingAdjustmentValues = false
                                   : null,
                             ),
                         ],

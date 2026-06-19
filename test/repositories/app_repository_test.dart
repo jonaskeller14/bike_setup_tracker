@@ -5,6 +5,7 @@ import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/rating.dart';
+import 'package:bike_setup_tracker/models/rating_metric.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
@@ -135,7 +136,6 @@ void main() {
         person: null, 
         bikeAdjustmentValues: {}, 
         personAdjustmentValues: {},
-        ratingAdjustmentValues: {},
       );
     });
 
@@ -304,7 +304,7 @@ void main() {
   group("AppRepository - Ratings", () {
     late AppDatabase database;
     late AppRepository repository;
-    final rating1 = Rating(name: "Rating #1", filterType: FilterType.global, filter: null, adjustments: []);
+    final rating1 = Rating(name: "Rating #1", filterType: FilterType.global, filter: null, metrics: []);
 
     setUp(() async {
       database = AppDatabase.memory();
@@ -330,12 +330,12 @@ void main() {
         unit: "",
         category: AdjustmentCategory.rating,
       );
-      final ratingWithAdj = rating1.copyWith(id: rating1.id, adjustments: [adjustment]);
+      final ratingWithAdj = rating1.copyWith(id: rating1.id, metrics: [RatingMetric(adjustment: adjustment)]);
 
       await repository.addRating(ratingWithAdj);
       await pumpEventQueue();
 
-      expect(repository.ratings[ratingWithAdj.id]?.adjustments.length, 1);
+      expect(repository.ratings[ratingWithAdj.id]?.metrics.length, 1);
 
       // Remove
       await repository.removeRatings([ratingWithAdj]);
@@ -343,14 +343,14 @@ void main() {
 
       expect(repository.ratings.containsKey(ratingWithAdj.id), false);
       final deletedRating = repository.deletedRatings.firstWhere((r) => r.id == ratingWithAdj.id);
-      expect(deletedRating.adjustments.isEmpty, true);
+      expect(deletedRating.metrics.isEmpty, true);
 
       // Restore
       await repository.restoreRatings([deletedRating]);
       await pumpEventQueue();
 
       expect(repository.ratings.containsKey(ratingWithAdj.id), true);
-      expect(repository.ratings[ratingWithAdj.id]?.adjustments.length, 1);
+      expect(repository.ratings[ratingWithAdj.id]?.metrics.length, 1);
     });
   });
   group("AppRepository - Installations", () {

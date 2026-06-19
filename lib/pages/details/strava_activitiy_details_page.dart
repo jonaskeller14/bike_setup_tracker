@@ -287,7 +287,6 @@ class StravaActivitiyPageContent extends StatelessWidget {
                         displayOnlyChanges: false,
                         displayBikeAdjustmentValues: true,
                         displayPersonAdjustmentValues: true,
-                        displayRatingAdjustmentValues: true,
                         onTap: null,
                       );
                     }),

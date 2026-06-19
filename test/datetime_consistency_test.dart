@@ -21,7 +21,6 @@ void main() {
         person: null,
         bikeAdjustmentValues: {},
         personAdjustmentValues: {},
-        ratingAdjustmentValues: {},
       );
 
       expect(setup.datetime.isUtc, isTrue);

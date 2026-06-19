@@ -13,7 +13,6 @@ import '../models/context/context_place.dart';
 import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
 import '../models/person.dart';
-import '../models/rating.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../repositories/app_repository.dart';
@@ -103,16 +102,12 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   
   final Map<String, dynamic> _bikeAdjustmentValues = {};
   final Map<String, dynamic> _personAdjustmentValues = {};
-  final Map<String, dynamic> _ratingAdjustmentValues = {};
   final Map<String, dynamic> _initialBikeAdjustmentValues = {};
   final Map<String, dynamic> _initialPersonAdjustmentValues = {};
-  final Map<String, dynamic> _initialRatingAdjustmentValues = {};
   final Map<String, dynamic> _previousBikeAdjustmentValues = {};
   final Map<String, dynamic> _previousPersonAdjustmentValues = {};
   final Map<String, dynamic> _danglingBikeAdjustmentValues = {};
   final Map<String, dynamic> _danglingPersonAdjustmentValues = {};
-  final Map<String, dynamic> _danglingRatingAdjustmentValues = {};
-  final Map<String, Rating> _filteredRatings = {};
 
   final LocationService _locationService = LocationService();
   final ValueNotifier<LocationData?> _currentLocation = ValueNotifier<LocationData?>(null);
@@ -159,7 +154,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final int newLength = 1 + (context.read<AppSettings>().enablePerson ? 1 : 0) + (context.read<AppSettings>().enableRating ? 1 : 0);
+    final int newLength = 1 + (context.read<AppSettings>().enablePerson ? 1 : 0);
     if (_tabControllerLength == null || _tabControllerLength != newLength) {
       _tabControllerLength = newLength;
       _tabController = TabController(
@@ -174,16 +169,14 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     // ADD+EDIT SETUP
     _bikeAdjustmentValues.clear();
     _personAdjustmentValues.clear();
-    _ratingAdjustmentValues.clear();
 
     _bikeAdjustmentValues.addAll(_previousBikeAdjustmentValues);
-    _personAdjustmentValues.addAll(_previousPersonAdjustmentValues); //FIXME: only Body category. 
-    
+    _personAdjustmentValues.addAll(_previousPersonAdjustmentValues); //FIXME: only Body category.
+
     if (widget.setup != null) {
       // EDIT SETUP
       _bikeAdjustmentValues.addAll(_initialBikeAdjustmentValues);
       _personAdjustmentValues.addAll(_initialPersonAdjustmentValues);
-      _ratingAdjustmentValues.addAll(_initialRatingAdjustmentValues);
     }
   }
 
@@ -233,8 +226,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
       _initialPersonAdjustmentValues.clear();
       _initialPersonAdjustmentValues.addAll(_previousPersonAdjustmentValues);
-
-      _initialRatingAdjustmentValues.clear();
     } else {
       // EDIT SETUP
       _initialBikeAdjustmentValues.clear();
@@ -242,14 +233,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
       _initialPersonAdjustmentValues.clear();
       _initialPersonAdjustmentValues.addAll(widget.setup!.personAdjustmentValues);
-
-      _initialRatingAdjustmentValues.clear();
-      _initialRatingAdjustmentValues.addAll(widget.setup!.ratingAdjustmentValues);
     }
   }
 
   void _setDanglingAdjustmentValues() {
-    // Assumes _filteredRatings was calcualted before
     if (widget.setup == null) return;
 
     final appRepository = context.read<AppRepository>();
@@ -269,32 +256,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     for (final personAdj in persons[_person]?.adjustments ?? []) {
       _danglingPersonAdjustmentValues.remove(personAdj.id);
     }
-
-    _danglingRatingAdjustmentValues.clear();
-    _danglingRatingAdjustmentValues.addAll(_ratingAdjustmentValues);
-    _danglingRatingAdjustmentValues.removeWhere((adjId, _) => _filteredRatings.values.any((r) => r.adjustments.map((a) => a.id).contains(adjId)));
-  }
-
-  void _setFilteredRatings() {
-    final appRepository = context.read<AppRepository>();
-    final bikeComponents = appRepository.components.values.where((c) => c.bikeAt(_selectedDateTimeUtc) == _bike).toList();
-    final ratings = appRepository.ratings;
-
-    _filteredRatings.clear();
-    for (final rating in ratings.values) {
-      switch (rating.filterType) {
-        case FilterType.global:
-          _filteredRatings[rating.id] = rating;
-        case FilterType.bike:
-          if (rating.filter == _bike) _filteredRatings[rating.id] = rating;
-        case FilterType.componentType:
-          if (bikeComponents.any((c) => c.componentType.toString() == rating.filter)) _filteredRatings[rating.id] = rating;
-        case FilterType.component:
-          if (bikeComponents.any((c) => c.id == rating.filter)) _filteredRatings[rating.id] = rating;
-        case FilterType.person:
-          if (rating.filter == _person) _filteredRatings[rating.id] = rating;
-      }
-    }
   }
 
   void _onBikeChange (String? newBike) {
@@ -308,7 +269,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _setPreviousAdjustmentValues();
       _setInitialAdjustmentValues();
       _setAdjustmentValuesFromPreviousAndInitialAdjustmentValues();
-      _setFilteredRatings();
       _setDanglingAdjustmentValues();
     });
     _changeListener();
@@ -396,8 +356,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         _person != _initialPerson ||
 
         !equality.equals(_bikeAdjustmentValues, _initialBikeAdjustmentValues) ||
-        !equality.equals(_personAdjustmentValues, _initialPersonAdjustmentValues) ||
-        !equality.equals(_ratingAdjustmentValues, _initialRatingAdjustmentValues);
+        !equality.equals(_personAdjustmentValues, _initialPersonAdjustmentValues);
 
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -450,7 +409,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _selectedDateTimeUtc = newDateTimeLocal.toUtc();
       _setPreviousAdjustmentValues();
       _setInitialAdjustmentValues();
-      _setFilteredRatings();
       _setDanglingAdjustmentValues();
     });
     _changeListener();
@@ -503,7 +461,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _selectedDateTimeUtc = newDateTimeLocal.toUtc();
       _setPreviousAdjustmentValues();
       _setInitialAdjustmentValues();
-      _setFilteredRatings();
       _setDanglingAdjustmentValues();
     });
     _changeListener();
@@ -615,7 +572,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         person: _person,
         bikeAdjustmentValues: _bikeAdjustmentValues,
         personAdjustmentValues: _personAdjustmentValues,
-        ratingAdjustmentValues: _ratingAdjustmentValues,
         position: _currentLocation.value,
         place: _currentPlace.value,
         weather: _currentWeather.value,
@@ -633,11 +589,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _changeListener();
   }
 
-  void _onRatingAdjustmentValueChanged({required Adjustment adjustment, required dynamic newValue}) {
-    _ratingAdjustmentValues[adjustment.id] = newValue;
-    _changeListener();
-  }
-
   void _removeFromBikeAdjustmentValues({required Adjustment adjustment}) {
     _bikeAdjustmentValues.remove(adjustment.id);
     _changeListener();
@@ -645,11 +596,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   void _removeFromPersonAdjustmentValues({required Adjustment adjustment}) {
     _personAdjustmentValues.remove(adjustment.id);
-    _changeListener();
-  }
-
-  void _removeFromRatingAdjustmentValues({required Adjustment adjustment}) {
-    _ratingAdjustmentValues.remove(adjustment.id);
     _changeListener();
   }
 
@@ -1018,8 +964,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                                 const Tab(icon: Icon(Bike.iconData)),
                                 if (context.read<AppSettings>().enablePerson)
                                   const Tab(icon: Icon(Person.iconData)),
-                                if (context.read<AppSettings>().enableRating)
-                                  const Tab(icon: Icon(Rating.iconData)),
                               ],
                             ),
                         ],
@@ -1058,24 +1002,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       onDanglingRemove: (id) => setState(() {
                         _danglingPersonAdjustmentValues.remove(id);
                         _personAdjustmentValues.remove(id);
-                      }),
-                    ),
-                  if (context.read<AppSettings>().enableRating)
-                    SetupRatingTab(
-                      filteredRatings: _filteredRatings,
-                      bikes: appRepository.bikes,
-                      persons: appRepository.persons,
-                      components: appRepository.components,
-                      ratingAdjustmentValues: _ratingAdjustmentValues,
-                      previousBikeAdjustmentValues: _previousBikeAdjustmentValues,
-                      initialRatingAdjustmentValues: _initialRatingAdjustmentValues,
-                      danglingRatingAdjustmentValues: _danglingRatingAdjustmentValues,
-                      onAdjustmentValueChanged: _onRatingAdjustmentValueChanged,
-                      onRemoveFromAdjustmentValues: _removeFromRatingAdjustmentValues,
-                      changeListener: _changeListener,
-                      onDanglingRemove: (id) => setState(() {
-                        _danglingRatingAdjustmentValues.remove(id);
-                        _ratingAdjustmentValues.remove(id);
                       }),
                     ),
                 ],

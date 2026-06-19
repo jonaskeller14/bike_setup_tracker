@@ -6,6 +6,7 @@ import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
+import '../models/rating_metric.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/dashed_border_painter.dart';
 import '../widgets/dialogs/discard_changes.dart';
@@ -90,6 +91,7 @@ class _RatingPageState extends State<RatingPage> {
 
   late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
+  final Map<String, double> _metricWeights = {};
   late _FilterFilterType _filterFilterType;
   late _FilterFilterType _initialFilterFilterType;
 
@@ -98,9 +100,12 @@ class _RatingPageState extends State<RatingPage> {
     super.initState();
     _nameController = TextEditingController(text: widget.rating?.name);
     _nameController.addListener(_changeListener);
-    _adjustments = widget.rating == null 
-        ? [] 
-        : List.from(widget.rating!.adjustments);
+    _adjustments = widget.rating == null
+        ? []
+        : List.from(widget.rating!.metrics.map((m) => m.adjustment));
+    for (final m in widget.rating?.metrics ?? const []) {
+      _metricWeights[m.id] = m.weight;
+    }
     _initialAdjustments = List.from(_adjustments);
     
 
@@ -234,9 +239,13 @@ class _RatingPageState extends State<RatingPage> {
       id: widget.mode == RatingPageMode.edit ? widget.rating?.id : null, 
       name: name,
       notes: notes.isEmpty ? null : notes,
-      filter: _filterFilterType.filter, 
+      filter: _filterFilterType.filter,
       filterType: _filterFilterType.filterType,
-      adjustments: _adjustments,
+      metrics: _adjustments
+          .map((a) => _metricWeights.containsKey(a.id)
+              ? RatingMetric(adjustment: a, weight: _metricWeights[a.id]!)
+              : RatingMetric(adjustment: a))
+          .toList(),
       orderIndex: widget.rating?.orderIndex ?? 0,
     ));
   }
@@ -686,7 +695,7 @@ class _RatingPageState extends State<RatingPage> {
                                 ? AdjustmentEditList(
                                     adjustments: _adjustments,
                                     initialAdjustments: widget.mode == RatingPageMode.edit
-                                        ? Map.fromEntries(widget.rating!.adjustments.map((a) => MapEntry(a.id, a)))
+                                        ? Map.fromEntries(widget.rating!.metrics.map((m) => MapEntry(m.id, m.adjustment)))
                                         : null,
                                     editAdjustment: (a) => _editAdjustment(a, onChanged: notify),
                                     duplicateAdjustment: (a) => _duplicateAdjustment(a, onChanged: notify),

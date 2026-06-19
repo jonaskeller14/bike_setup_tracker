@@ -145,7 +145,6 @@ void main() {
         person: null,
         bikeAdjustmentValues: {'adj1': 5},
         personAdjustmentValues: {},
-        ratingAdjustmentValues: {},
       );
       await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
       await appRepository.addSetup(setup);
@@ -200,8 +199,8 @@ void main() {
     await tester.runAsync(() async {
       await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
       await appRepository.addComponent(component);
-      await appRepository.addSetup(Setup(id: 's1', name: 'A Setup', datetime: DateTime(2023).toUtc(), datetimeLocal: DateTime(2023), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
-      await appRepository.addSetup(Setup(id: 's2', name: 'B Setup', datetime: DateTime(2024).toUtc(), datetimeLocal: DateTime(2024), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's1', name: 'A Setup', datetime: DateTime(2023).toUtc(), datetimeLocal: DateTime(2023), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's2', name: 'B Setup', datetime: DateTime(2024).toUtc(), datetimeLocal: DateTime(2024), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}));
     });
     
     appRepository.dispose();
@@ -263,7 +262,7 @@ void main() {
     await tester.runAsync(() async {
       await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
       await appRepository.addComponent(component);
-      await appRepository.addSetup(Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5, 'adj2': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5, 'adj2': 5}, personAdjustmentValues: {}));
     });
     
     appRepository.dispose();
@@ -315,7 +314,7 @@ void main() {
     await tester.runAsync(() async {
       await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
       await appRepository.addComponent(component);
-      await appRepository.addSetup(Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(name: 'Setup 1', datetime: DateTime.now().toUtc(), datetimeLocal: DateTime.now(), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}));
     });
     
     appRepository.dispose();
@@ -406,7 +405,7 @@ void main() {
           datetime: DateTime(2024, 1, i).toUtc(), datetimeLocal: DateTime(2024, 1, i),
           tags: {}, bike: 'bike1', person: null,
           bikeAdjustmentValues: {'adj1': i},
-          personAdjustmentValues: {}, ratingAdjustmentValues: {},
+          personAdjustmentValues: {},
         ));
       }
     });
@@ -438,8 +437,8 @@ void main() {
         componentType: ComponentType.fork,
         adjustments: [adjustment],
       ));
-      await appRepository.addSetup(Setup(id: 's1', name: 'Setup Old', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
-      await appRepository.addSetup(Setup(id: 's2', name: 'Setup New', datetime: DateTime(2024, 2, 1).toUtc(), datetimeLocal: DateTime(2024, 2, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 7}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's1', name: 'Setup Old', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3}, personAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's2', name: 'Setup New', datetime: DateTime(2024, 2, 1).toUtc(), datetimeLocal: DateTime(2024, 2, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 7}, personAdjustmentValues: {}));
     });
     appRepository.dispose();
     appRepository = AppRepository(database);
@@ -478,8 +477,8 @@ void main() {
         componentType: ComponentType.fork,
         adjustments: [adjustment],
       ));
-      await appRepository.addSetup(Setup(id: 's1', name: 'Setup Old', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
-      await appRepository.addSetup(Setup(id: 's2', name: 'Setup New', datetime: DateTime(2024, 2, 1).toUtc(), datetimeLocal: DateTime(2024, 2, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 7}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's1', name: 'Setup Old', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3}, personAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's2', name: 'Setup New', datetime: DateTime(2024, 2, 1).toUtc(), datetimeLocal: DateTime(2024, 2, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 7}, personAdjustmentValues: {}));
     });
     appRepository.dispose();
     appRepository = AppRepository(database);
@@ -525,7 +524,7 @@ void main() {
         componentType: ComponentType.fork,
         adjustments: [adjustment],
       ));
-      await appRepository.addSetup(Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 'Brand A'}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 'Brand A'}, personAdjustmentValues: {}));
     });
     appRepository.dispose();
     appRepository = AppRepository(database);
@@ -553,8 +552,8 @@ void main() {
         componentType: ComponentType.fork,
         adjustments: [adjustment],
       ));
-      await appRepository.addSetup(Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
-      await appRepository.addSetup(Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3}, personAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}));
     });
     appRepository.dispose();
     appRepository = AppRepository(database);
@@ -587,8 +586,8 @@ void main() {
         componentType: ComponentType.fork,
         adjustments: [adjustment],
       ));
-      await appRepository.addSetup(Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
-      await appRepository.addSetup(Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3}, personAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 5}, personAdjustmentValues: {}));
     });
     appRepository.dispose();
     appRepository = AppRepository(database);
@@ -621,8 +620,8 @@ void main() {
         componentType: ComponentType.fork,
         adjustments: [adj1, adj2],
       ));
-      await appRepository.addSetup(Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3, 'adj2': 5}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
-      await appRepository.addSetup(Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 4, 'adj2': 7}, personAdjustmentValues: {}, ratingAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's1', name: 'Setup 1', datetime: DateTime(2024, 1, 1).toUtc(), datetimeLocal: DateTime(2024, 1, 1), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 3, 'adj2': 5}, personAdjustmentValues: {}));
+      await appRepository.addSetup(Setup(id: 's2', name: 'Setup 2', datetime: DateTime(2024, 1, 2).toUtc(), datetimeLocal: DateTime(2024, 1, 2), tags: {}, bike: 'bike1', person: null, bikeAdjustmentValues: {'adj1': 4, 'adj2': 7}, personAdjustmentValues: {}));
     });
     appRepository.dispose();
     appRepository = AppRepository(database);

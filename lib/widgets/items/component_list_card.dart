@@ -210,7 +210,6 @@ class ComponentListCard extends StatelessWidget{
                   missingValuesPlaceholder: true,
                   displayBikeAdjustmentValues: true,
                   displayPersonAdjustmentValues: false,
-                  displayRatingAdjustmentValues: false,
                 ),
               ),
           ],

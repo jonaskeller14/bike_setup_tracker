@@ -1,5 +1,4 @@
 import 'dart:ui' show ImageFilter;
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:intl/intl.dart';
@@ -14,7 +13,6 @@ import '../../models/component.dart';
 import '../../models/context/context_position.dart';
 import '../../models/context/context_weather.dart';
 import '../../models/person.dart';
-import '../../models/rating.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/setup_actions.dart';
@@ -483,124 +481,6 @@ class SetupDetailsPageContent extends StatelessWidget {
     );
   }
 
-  SliverToBoxAdapter _ratingSection(BuildContext context, {
-    required Setup setup,
-    required Map<String, Rating> filteredRatings, 
-    required Map<String, dynamic> danglingRatingAdjustmentValues
-  }) {
-    final appRepository = context.watch<AppRepository>();
-    final bikes = appRepository.bikes;
-    final persons = appRepository.persons;
-    final components = appRepository.components;
-    
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (filteredRatings.isEmpty)
-              SizedBox(
-                height: 50,
-                child: Center(
-                  child: Text(
-                    'No ratings available.',
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                  ),
-                ),
-              )
-            else
-              ...filteredRatings.values.map((rating) {
-                return Card.outlined(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ListTile(
-                        title: SelectableText(rating.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(Intl.plural(
-                              rating.adjustments.length,
-                              zero: "No adjustments yet.",
-                              one: "1 adjustment",
-                              other: '${rating.adjustments.length} adjustments',
-                            )),
-                            const Spacer(),
-                            switch (rating.filterType) {
-                              FilterType.bike => const Icon(Bike.iconData),
-                              FilterType.person => const Icon(Person.iconData),
-                              FilterType.component => Icon((components[rating.filter]?.componentType ?? ComponentType.other).getIconData()),
-                              FilterType.componentType => Icon((ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter) ?? ComponentType.other).getIconData()),
-                              FilterType.global => const SizedBox.shrink(),
-                            },
-                            const SizedBox(width: 2),
-                            switch (rating.filterType) {
-                              FilterType.bike => Text(bikes[rating.filter]?.name ?? "-", overflow: TextOverflow.ellipsis),
-                              FilterType.person => Text(persons[rating.filter]?.name ?? "-", overflow: TextOverflow.ellipsis),
-                              FilterType.componentType => Text(
-                                ComponentType.values.firstWhereOrNull((ct) => ct.toString() == rating.filter)?.label ?? "-",
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              FilterType.component => Text(
-                                components[rating.filter]?.name ?? "-",
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              FilterType.global => const SizedBox.shrink(),
-                            },
-                          ],
-                        ),
-                        leading: const Icon(Rating.iconData),
-                        enabled: rating.adjustments.isNotEmpty,
-                        tileColor: Theme.of(context).colorScheme.outlineVariant,
-                      ),
-                      AdjustmentDisplayList(
-                        adjustments: rating.adjustments,
-                        initialAdjustmentValues: setup.previousRatingAdjustmentValues,
-                        adjustmentValues: setup.ratingAdjustmentValues,
-                      ),
-                    ],
-                  ),
-                );
-              }),
-            if (danglingRatingAdjustmentValues.isNotEmpty)
-              Opacity(
-                opacity: 0.4,
-                child: Card.outlined(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ListTile(
-                        title: const Text("Dangling Rating Values", style: TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text(Intl.plural(
-                          danglingRatingAdjustmentValues.length, 
-                          one: "1 rating value found that is not associated with this bike/person/components.",
-                          other: "${danglingRatingAdjustmentValues.length} rating values found that are not associated with this bike/person/components.",
-                        )),
-                        leading: const Icon(Icons.question_mark),
-                        tileColor: Theme.of(context).colorScheme.outlineVariant,
-                      ),
-                      ...danglingRatingAdjustmentValues.entries.map((danglingAdjustmentValue) {
-                        return DisplayDanglingAdjustmentWidget(
-                          name: danglingAdjustmentValue.key, 
-                          initialValue: setup.previousRatingAdjustmentValues[danglingAdjustmentValue.key],
-                          value: danglingAdjustmentValue.value,
-                        );
-                      }),
-                    ],
-                  ),
-                ),
-              ),
-          ],
-        )
-      ),
-    );
-  }
-
   SliverToBoxAdapter _valueSection(BuildContext context, {
     required Setup setup,
     required Iterable<Component> bikeComponents,
@@ -751,11 +631,9 @@ class SetupDetailsPageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
     final persons = appRepository.persons;
-    final ratings = appRepository.ratings;
     final components = appRepository.components;
 
     final Bike? bike = bikes[setup.bike];
@@ -774,25 +652,6 @@ class SetupDetailsPageContent extends StatelessWidget {
       danglingPersonAdjustmentValues.remove(personAdj.id);
     }
 
-    final filteredRatings = <String, Rating>{};
-    for (final rating in ratings.values) {
-      switch (rating.filterType) {
-        case FilterType.global:
-          filteredRatings[rating.id] = rating;
-        case FilterType.bike:
-          if (rating.filter == setup.bike) filteredRatings[rating.id] = rating;
-        case FilterType.componentType:
-          if (bikeComponents.any((c) => c.componentType.toString() == rating.filter)) filteredRatings[rating.id] = rating;
-        case FilterType.component:
-          if (bikeComponents.any((c) => c.id == rating.filter)) filteredRatings[rating.id] = rating;
-        case FilterType.person:
-          if (rating.filter == setup.person) filteredRatings[rating.id] = rating;
-      }
-    }
-
-    final Map<String, dynamic> danglingRatingAdjustmentValues = Map.fromEntries(setup.ratingAdjustmentValues.entries);
-    danglingRatingAdjustmentValues.removeWhere((adjId, _) => filteredRatings.values.any((r) => r.adjustments.map((a) => a.id).contains(adjId)));
-    
     return CustomScrollView(
       slivers: [
         _setupTitle(context, setup: setup),
@@ -820,20 +679,6 @@ class SetupDetailsPageContent extends StatelessWidget {
                   ),
                 ]
               ),
-              if (appSettings.enableRating) ...[
-                SliverMainAxisGroup(
-                  slivers: [
-                    const SliverToBoxAdapter(child: Divider(height: 8)),
-                    _sectionTitle(context, title: "Rating"),
-                    _ratingSection(
-                      context,
-                      setup: setup, 
-                      filteredRatings: filteredRatings, 
-                      danglingRatingAdjustmentValues: danglingRatingAdjustmentValues
-                    ),
-                  ]
-                ),
-              ],
               _legend(context),
             ],
           ),

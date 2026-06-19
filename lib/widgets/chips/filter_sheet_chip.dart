@@ -42,8 +42,7 @@ class FilterSheetChip extends StatelessWidget {
     final bool onlyChangesActive = showOnlyChangesSection && appSettings.setupListOnlyChanges;
     final bool byCategoryActive = showByCategorySection &&
         (!appSettings.setupListBikeAdjustmentValues ||
-            (appSettings.enablePerson && !appSettings.setupListPersonAdjustmentValues) ||
-            (appSettings.enableRating && !appSettings.setupListRatingAdjustmentValues));
+            (appSettings.enablePerson && !appSettings.setupListPersonAdjustmentValues));
     final bool displayActive = visibilityActive || onlyChangesActive || byCategoryActive;
 
     void resetDisplay() {
@@ -59,7 +58,6 @@ class FilterSheetChip extends StatelessWidget {
       if (showByCategorySection) {
         appSettings.setupListBikeAdjustmentValues = true;
         appSettings.setupListPersonAdjustmentValues = true;
-        appSettings.setupListRatingAdjustmentValues = true;
       }
     }
 

@@ -85,7 +85,6 @@ void main() async {
       person: null,
       bikeAdjustmentValues: {}, 
       personAdjustmentValues: {}, 
-      ratingAdjustmentValues: {},
     ));
   }
 
@@ -100,8 +99,8 @@ void main() async {
     await data.addRating(Rating(
       name: "Rating #$idx: $loremIpsum",
       filterType: FilterType.global,
-      filter: null, 
-      adjustments: [],
+      filter: null,
+      metrics: [],
     ));
   }
   

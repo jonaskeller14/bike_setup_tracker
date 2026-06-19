@@ -18,7 +18,7 @@ void main() {
     late AppRepository appRepository;
     final bike1 = Bike(name: "Bike #1", person: null);
     final person1 = Person(name: "Person #1", adjustments: []);
-    final rating1 = Rating(name: "Rating #1", filterType: FilterType.global, filter: null, adjustments: []);
+    final rating1 = Rating(name: "Rating #1", filterType: FilterType.global, filter: null, metrics: []);
     late Component component1;
     late Setup setup1;
 
@@ -41,7 +41,6 @@ void main() {
         person: null,
         bikeAdjustmentValues: {},
         personAdjustmentValues: {},
-        ratingAdjustmentValues: {},
       );
     });
 

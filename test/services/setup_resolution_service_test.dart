@@ -73,7 +73,6 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        ratingAdjustmentValues: {},
         bikeAdjustmentValues: {pressureAdj.id: '80', reboundAdj.id: '5'},
       );
 
@@ -86,7 +85,6 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        ratingAdjustmentValues: {},
         bikeAdjustmentValues: {pressureAdj.id: '85'},
       );
 
@@ -99,7 +97,6 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        ratingAdjustmentValues: {},
         bikeAdjustmentValues: {},
       );
 
@@ -140,7 +137,6 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        ratingAdjustmentValues: {},
         bikeAdjustmentValues: {pressureAdj.id: '82', reboundAdj.id: '5'},
       );
 
@@ -153,7 +149,6 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        ratingAdjustmentValues: {},
         bikeAdjustmentValues: {},
       );
 
@@ -166,7 +161,6 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        ratingAdjustmentValues: {},
         bikeAdjustmentValues: {pressureAdj.id: '90'}, // Explicitly overrides
       );
 
@@ -216,7 +210,6 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        ratingAdjustmentValues: {},
         bikeAdjustmentValues: {reboundAdj.id: '7'}, // Set while on myBike
       );
 
@@ -229,7 +222,6 @@ void main() {
         person: me.id, // now on otherBike
         tags: {},
         personAdjustmentValues: {},
-        ratingAdjustmentValues: {},
         bikeAdjustmentValues: {}, // completely sparse
       );
 
@@ -276,7 +268,6 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        ratingAdjustmentValues: {},
         bikeAdjustmentValues: {pressureAdj.id: '80'}, // Recorded snapshot
       );
 
@@ -289,7 +280,6 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        ratingAdjustmentValues: {},
         bikeAdjustmentValues: {pressureAdj.id: '80'}, // Let's say it recorded it historically, then timeline was edited
       );
 
@@ -325,7 +315,6 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        ratingAdjustmentValues: {},
         bikeAdjustmentValues: {pressureAdj.id: '80'},
       );
 
@@ -338,7 +327,6 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        ratingAdjustmentValues: {},
         bikeAdjustmentValues: {reboundAdj.id: '7'},
       );
 
@@ -352,7 +340,6 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        ratingAdjustmentValues: {},
         bikeAdjustmentValues: {}, // Will inherit from s1
       );
 
@@ -385,7 +372,6 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {'person_adj_1': 'val1'},
-        ratingAdjustmentValues: {},
         bikeAdjustmentValues: {pressureAdj.id: '80'},
       );
 
@@ -398,7 +384,6 @@ void main() {
         person: me.id,
         tags: {},
         personAdjustmentValues: {},
-        ratingAdjustmentValues: {},
         bikeAdjustmentValues: {reboundAdj.id: '7'},
       );
 

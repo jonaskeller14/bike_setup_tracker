@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
-import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../models/person.dart';
-import '../../models/rating.dart';
-import '../../repositories/app_repository.dart';
 
 class AdjustmentCompactDisplayList extends StatelessWidget {
   final Iterable<Component> components;
   final Iterable<Person> persons;
-  final Iterable<Rating> ratings;
   final Map<String, dynamic> adjustmentValues;
   final Map<String, dynamic> previousAdjustmentValues;
   final bool showRowIcons;
@@ -18,14 +13,12 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
   final bool displayOnlyChanges;
   final bool displayBikeAdjustmentValues;
   final bool displayPersonAdjustmentValues;
-  final bool displayRatingAdjustmentValues;
   final bool missingValuesPlaceholder;
 
   const AdjustmentCompactDisplayList({
     super.key,
     this.components = const [],
     this.persons = const [],
-    this.ratings = const [],
     required this.adjustmentValues,
     this.previousAdjustmentValues = const {},
     this.showRowIcons = false,
@@ -33,7 +26,6 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
     this.displayOnlyChanges = false,
     this.displayBikeAdjustmentValues = true,
     this.displayPersonAdjustmentValues = true,
-    this.displayRatingAdjustmentValues = true,
     this.missingValuesPlaceholder = false,
   });
 
@@ -44,8 +36,6 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
         ...components.map((c) => _ComponentItem(c)),
       if (displayPersonAdjustmentValues)
         ...persons.map((p) => _PersonItem(p)),
-      if (displayRatingAdjustmentValues)
-        ...ratings.map((r) => _RatingItem(r)),
     ];
 
     final List<Widget> columnChildren = [];
@@ -435,26 +425,4 @@ class _PersonItem extends _Item {
   @override String get name => _person.name;
   @override Icon buildIcon(BuildContext _) => const Icon(Person.iconData);
   _PersonItem(this._person);
-}
-
-class _RatingItem extends _Item {
-  final Rating _rating;
-  @override List<Adjustment> get adjustments => _rating.adjustments;
-  @override String get name => _rating.name;
-  @override Widget buildIcon(BuildContext context) {
-    final appRepository = context.read<AppRepository>();
-    final components = appRepository.components;
-    return Badge(
-      label: switch(_rating.filterType) {
-        FilterType.global => Text("*", style: Theme.of(context).textTheme.labelMedium),
-        FilterType.bike => const Icon(Bike.iconData, size: 14),
-        FilterType.componentType => Icon(ComponentType.fromString(_rating.filter).getIconData(), size: 14),
-        FilterType.component => Icon((components[_rating.filter]?.componentType ?? ComponentType.other).getIconData(), size: 14),
-        FilterType.person => const Icon(Person.iconData, size: 14),
-      }, 
-      backgroundColor: Colors.transparent,
-      child: const Icon(Rating.iconData)
-    );
-  }
-  _RatingItem(this._rating);
 }

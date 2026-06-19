@@ -15,7 +15,6 @@ class SetupListCard extends StatelessWidget {
   final bool displayOnlyChanges;
   final bool displayBikeAdjustmentValues;
   final bool displayPersonAdjustmentValues;
-  final bool displayRatingAdjustmentValues;
 
   const SetupListCard({
     super.key,
@@ -24,7 +23,6 @@ class SetupListCard extends StatelessWidget {
     required this.displayOnlyChanges,
     required this.displayBikeAdjustmentValues,
     required this.displayPersonAdjustmentValues,
-    required this.displayRatingAdjustmentValues,
   });
 
   Widget _setupCardCurrentLabel(BuildContext context) {
@@ -272,7 +270,6 @@ class SetupListCard extends StatelessWidget {
     final setups = appRepository.setups;
     final components = appRepository.components;
     final persons = appRepository.persons;
-    final ratings = appRepository.ratings;
     final setup = setups[setupId];
     if (setup == null) return const SizedBox.shrink();
 
@@ -300,19 +297,16 @@ class SetupListCard extends StatelessWidget {
                   child: AdjustmentCompactDisplayList(
                     components: components.values,
                     persons: persons.values,
-                    ratings: ratings.values,
-                    adjustmentValues: {for (var e in setup.personAdjustmentValues.entries) e.key: e.value, for (var e in setup.bikeAdjustmentValues.entries) e.key: e.value, for (var e in setup.ratingAdjustmentValues.entries) e.key: e.value},
+                    adjustmentValues: {for (var e in setup.personAdjustmentValues.entries) e.key: e.value, for (var e in setup.bikeAdjustmentValues.entries) e.key: e.value},
                     previousAdjustmentValues: {
-                      for (var e in setup.previousBikeAdjustmentValues.entries) e.key: e.value, 
+                      for (var e in setup.previousBikeAdjustmentValues.entries) e.key: e.value,
                       for (var e in setup.previousPersonAdjustmentValues.entries) e.key: e.value,
-                      for (var e in setup.previousRatingAdjustmentValues.entries) e.key: e.value,
                     },
                     showRowIcons: true,
                     highlightInitialValues: true,
                     displayOnlyChanges: displayOnlyChanges,
                     displayBikeAdjustmentValues: displayBikeAdjustmentValues,
                     displayPersonAdjustmentValues: displayPersonAdjustmentValues && appSettings.enablePerson,
-                    displayRatingAdjustmentValues: displayRatingAdjustmentValues && appSettings.enableRating,
                   ),
                 ),
               ],

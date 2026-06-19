@@ -98,8 +98,7 @@ class SetupListSearch extends StatelessWidget {
                 },
                 displayOnlyChanges: appSettings.setupListOnlyChanges, 
                 displayBikeAdjustmentValues:appSettings.setupListBikeAdjustmentValues, 
-                displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues, 
-                displayRatingAdjustmentValues: appSettings.setupListRatingAdjustmentValues,
+                displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues,
               );
             case StravaEntry():
               return StravaListTile(stravaActivity: entry.activity);

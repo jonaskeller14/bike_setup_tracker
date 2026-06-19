@@ -150,7 +150,6 @@ class SetupList extends StatelessWidget {
                     displayOnlyChanges: appSettings.setupListOnlyChanges,
                     displayBikeAdjustmentValues: appSettings.setupListBikeAdjustmentValues,
                     displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues,
-                    displayRatingAdjustmentValues: appSettings.setupListRatingAdjustmentValues,
                   );
                 case TaskTimeLineEntry():
                   return TaskEntryListItem(

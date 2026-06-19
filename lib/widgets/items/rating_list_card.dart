@@ -24,9 +24,9 @@ class RatingListCard extends StatelessWidget {
   Column _ratingAdjustmentsColumn(BuildContext context, {required Rating rating}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: rating.adjustments.map((adjustment) {
+      children: rating.metrics.map((metric) {
         return Text(
-          "● ${adjustment.name}", 
+          "● ${metric.adjustment.name}",
           maxLines: 1, 
           overflow: TextOverflow.ellipsis, 
           style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),

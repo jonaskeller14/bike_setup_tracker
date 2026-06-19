@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:excel/excel.dart';
 import 'package:intl/intl.dart';
 import '../models/adjustment/adjustment.dart';
@@ -181,34 +180,6 @@ class SpreadsheetExport {
       merges.add(_MergeInfo(startCol, colIndex - 1, component.name));
     }
 
-    // Add Ratings
-    final Set<String> ratingAdjIds = {};
-    final setups = data.setups.values.where((s) => !s.isDeleted && (bikeId == null || s.bike == bikeId));
-    for (final setup in setups) {
-      ratingAdjIds.addAll(setup.ratingAdjustmentValues.keys);
-    }
-
-    if (ratingAdjIds.isNotEmpty) {
-      final int startCol = colIndex;
-      row1.add('Ratings');
-      for (int i = 1; i < ratingAdjIds.length; i++) {
-        row1.add('');
-      }
-      for (final adjId in ratingAdjIds) {
-        String name = adjId;
-        for (final rating in data.ratings.values) {
-          final adj = rating.adjustments.firstWhereOrNull((a) => a.id == adjId);
-          if (adj != null) {
-            name = '${adj.name}${adj.unit != null ? ' [${adj.unit}]' : ''}';
-            break;
-          }
-        }
-        row2.add(name);
-        columnMap['rate_$adjId'] = colIndex++;
-      }
-      merges.add(_MergeInfo(startCol, colIndex - 1, 'Ratings'));
-    }
-
     return _HeaderData(row1, row2, columnMap, merges);
   }
 
@@ -280,13 +251,6 @@ class SpreadsheetExport {
       }
     }
 
-    for (final entry in setup.ratingAdjustmentValues.entries) {
-      final key = 'rate_${entry.key}';
-      if (columnMap.containsKey(key)) {
-        row[columnMap[key]!] = TextCellValue(Adjustment.formatValue(entry.value));
-      }
-    }
-
     return row;
   }
 
@@ -339,13 +303,6 @@ class SpreadsheetExport {
 
     for (final entry in setup.bikeAdjustmentValues.entries) {
       final key = 'comp_${entry.key}';
-      if (columnMap.containsKey(key)) {
-        row[columnMap[key]!] = Adjustment.formatValue(entry.value);
-      }
-    }
-
-    for (final entry in setup.ratingAdjustmentValues.entries) {
-      final key = 'rate_${entry.key}';
       if (columnMap.containsKey(key)) {
         row[columnMap[key]!] = Adjustment.formatValue(entry.value);
       }

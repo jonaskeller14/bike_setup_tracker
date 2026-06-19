@@ -136,7 +136,6 @@ class PersonListCard extends StatelessWidget {
                 missingValuesPlaceholder: true,
                 displayBikeAdjustmentValues: false,
                 displayPersonAdjustmentValues: true,
-                displayRatingAdjustmentValues: false,
               ),
             ),
           ],

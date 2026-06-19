@@ -6,6 +6,7 @@ import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
+import '../models/rating_entry.dart';
 import '../models/setup.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
@@ -14,6 +15,7 @@ import '../utils/bike_actions.dart';
 import '../utils/component_actions.dart';
 import '../utils/person_actions.dart';
 import '../utils/rating_actions.dart';
+import '../utils/rating_entry_actions.dart';
 import '../utils/setup_actions.dart';
 import '../utils/task_actions.dart';
 
@@ -46,6 +48,7 @@ class TrashPage extends StatelessWidget{
       ...appRepository.deletedComponents.map((c) => _ComponentTrashItem(c)),
       ...appRepository.deletedSetups.map((s) => _SetupTrashItem(s)),
       ...appRepository.deletedRatings.map((r) => _RatingTrashItem(r)),
+      ...appRepository.deletedRatingEntries.map((re) => _RatingEntryTrashItem(re)),
       ...appRepository.deletedTaskRules.map((tr) => _TaskRuleTrashItem(tr)),
       ...appRepository.deletedTaskEntries.map((te) => _TaskEntryTrashItem(te)),
     ];
@@ -170,6 +173,18 @@ class _RatingTrashItem extends _TrashItem {
     await RatingActions.restoreRating(context, rating: rating);
   }
   const _RatingTrashItem(this.rating);
+}
+
+class _RatingEntryTrashItem extends _TrashItem {
+  final RatingEntry ratingEntry;
+  @override DateTime get lastModified => ratingEntry.lastModified;
+  @override IconData get iconData => RatingEntry.iconData;
+  @override String get name => ratingEntry.displayName;
+  @override
+  void restore(BuildContext context) async {
+    await RatingEntryActions.restoreRatingEntry(context, ratingEntry: ratingEntry);
+  }
+  const _RatingEntryTrashItem(this.ratingEntry);
 }
 
 class _TaskRuleTrashItem extends _TrashItem {

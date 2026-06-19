@@ -152,17 +152,6 @@ void _appendSetupText(
     }
   }
 
-  // Rating Metrics
-  if (settings.enableRating && setup.ratingAdjustmentValues.isNotEmpty) {
-    buffer.writeln("\n📊 Ratings:");
-    for (final rating in ratings.values) {
-      for (final adj in rating.adjustments) {
-        if (setup.ratingAdjustmentValues.containsKey(adj.id)) {
-          buffer.writeln("- ${adj.name}: ${Adjustment.formatValue(setup.ratingAdjustmentValues[adj.id])}${adj.unitSuffix()}");
-        }
-      }
-    }
-  }
 }
 
 void _appendTaskEntryText(

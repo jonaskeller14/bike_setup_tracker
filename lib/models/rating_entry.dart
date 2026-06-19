@@ -14,7 +14,7 @@ class RatingEntry {
   final DateTime lastModified;
   final String? name;
   final String bike;
-  final String? setupId;
+  final String setupId;
   final DateTime dateTimeUTC;
   final DateTime dateTimeLocal;
   final String? notes;
@@ -36,7 +36,7 @@ class RatingEntry {
     DateTime? lastModified,
     this.name,
     required this.bike,
-    this.setupId,
+    required this.setupId,
     required DateTime dateTimeUTC,
     required this.dateTimeLocal,
     this.notes,
@@ -77,7 +77,7 @@ class RatingEntry {
           lastModified: DateTime.tryParse(json['lastModified'] ?? ''),
           name: json['name'] as String?,
           bike: json['bike'],
-          setupId: json['setupId'] as String?,
+          setupId: json['setupId'] as String,
           dateTimeUTC: DateTime.parse(json['dateTimeUTC']).toUtc(),
           dateTimeLocal: (DateTime.tryParse(json['dateTimeLocal'] ?? '') ??
                   DateTime.parse(json['dateTimeUTC']))
@@ -99,7 +99,7 @@ class RatingEntry {
     return RatingEntry(
       name: name,
       bike: bike,
-      setupId: null,
+      setupId: setupId,
       dateTimeUTC: now.toUtc(),
       dateTimeLocal: now,
       notes: notes,
@@ -133,7 +133,7 @@ class RatingEntry {
           : (lastModified as DateTime?),
       name: name is _Sentinel ? this.name : (name as String?),
       bike: bike is _Sentinel ? this.bike : (bike as String),
-      setupId: setupId is _Sentinel ? this.setupId : (setupId as String?),
+      setupId: setupId is _Sentinel ? this.setupId : (setupId as String),
       dateTimeUTC: dateTimeUTC is _Sentinel ? this.dateTimeUTC : (dateTimeUTC as DateTime),
       dateTimeLocal: dateTimeLocal is _Sentinel 
           ? this.dateTimeLocal 

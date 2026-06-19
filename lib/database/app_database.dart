@@ -79,7 +79,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.memory() : super(NativeDatabase.memory());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration {
@@ -115,6 +115,14 @@ class AppDatabase extends _$AppDatabase {
           // column / CHECK arm.
           await customStatement('DELETE FROM adjustments WHERE rating_id IS NOT NULL');
           await m.alterTable(TableMigration(adjustments));
+        }
+        if (from < 6) {
+          // RatingEntry.setupId became required (non-nullable). The unshipped rating
+          // entry data is disposable, so recreate the table with the new schema.
+          await m.deleteTable(ratingEntryValues.actualTableName);
+          await m.deleteTable(ratingEntries.actualTableName);
+          await m.createTable(ratingEntries);
+          await m.createTable(ratingEntryValues);
         }
       },
     );

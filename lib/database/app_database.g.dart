@@ -6347,11 +6347,11 @@ class $RatingEntriesTable extends RatingEntries
   late final GeneratedColumn<String> setupId = GeneratedColumn<String>(
     'setup_id',
     aliasedName,
-    true,
+    false,
     type: DriftSqlType.string,
-    requiredDuringInsert: false,
+    requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES setups (id) ON DELETE SET NULL',
+      'REFERENCES setups (id)',
     ),
   );
   static const VerificationMeta _isDeletedMeta = const VerificationMeta(
@@ -6486,6 +6486,8 @@ class $RatingEntriesTable extends RatingEntries
         _setupIdMeta,
         setupId.isAcceptableOrUnknown(data['setup_id']!, _setupIdMeta),
       );
+    } else if (isInserting) {
+      context.missing(_setupIdMeta);
     }
     if (data.containsKey('is_deleted')) {
       context.handle(
@@ -6525,7 +6527,7 @@ class $RatingEntriesTable extends RatingEntries
       setupId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}setup_id'],
-      ),
+      )!,
       isDeleted: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_deleted'],
@@ -6605,7 +6607,7 @@ class $RatingEntriesTable extends RatingEntries
 class RatingEntryDb extends DataClass implements Insertable<RatingEntryDb> {
   final String id;
   final String bikeId;
-  final String? setupId;
+  final String setupId;
   final bool isDeleted;
   final DateTime lastModified;
   final String? name;
@@ -6618,7 +6620,7 @@ class RatingEntryDb extends DataClass implements Insertable<RatingEntryDb> {
   const RatingEntryDb({
     required this.id,
     required this.bikeId,
-    this.setupId,
+    required this.setupId,
     required this.isDeleted,
     required this.lastModified,
     this.name,
@@ -6634,9 +6636,7 @@ class RatingEntryDb extends DataClass implements Insertable<RatingEntryDb> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['bike_id'] = Variable<String>(bikeId);
-    if (!nullToAbsent || setupId != null) {
-      map['setup_id'] = Variable<String>(setupId);
-    }
+    map['setup_id'] = Variable<String>(setupId);
     map['is_deleted'] = Variable<bool>(isDeleted);
     {
       map['last_modified'] = Variable<DateTime>(
@@ -6681,9 +6681,7 @@ class RatingEntryDb extends DataClass implements Insertable<RatingEntryDb> {
     return RatingEntriesCompanion(
       id: Value(id),
       bikeId: Value(bikeId),
-      setupId: setupId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(setupId),
+      setupId: Value(setupId),
       isDeleted: Value(isDeleted),
       lastModified: Value(lastModified),
       name: name == null && nullToAbsent ? const Value.absent() : Value(name),
@@ -6712,7 +6710,7 @@ class RatingEntryDb extends DataClass implements Insertable<RatingEntryDb> {
     return RatingEntryDb(
       id: serializer.fromJson<String>(json['id']),
       bikeId: serializer.fromJson<String>(json['bikeId']),
-      setupId: serializer.fromJson<String?>(json['setupId']),
+      setupId: serializer.fromJson<String>(json['setupId']),
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
       lastModified: serializer.fromJson<DateTime>(json['lastModified']),
       name: serializer.fromJson<String?>(json['name']),
@@ -6730,7 +6728,7 @@ class RatingEntryDb extends DataClass implements Insertable<RatingEntryDb> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'bikeId': serializer.toJson<String>(bikeId),
-      'setupId': serializer.toJson<String?>(setupId),
+      'setupId': serializer.toJson<String>(setupId),
       'isDeleted': serializer.toJson<bool>(isDeleted),
       'lastModified': serializer.toJson<DateTime>(lastModified),
       'name': serializer.toJson<String?>(name),
@@ -6746,7 +6744,7 @@ class RatingEntryDb extends DataClass implements Insertable<RatingEntryDb> {
   RatingEntryDb copyWith({
     String? id,
     String? bikeId,
-    Value<String?> setupId = const Value.absent(),
+    String? setupId,
     bool? isDeleted,
     DateTime? lastModified,
     Value<String?> name = const Value.absent(),
@@ -6759,7 +6757,7 @@ class RatingEntryDb extends DataClass implements Insertable<RatingEntryDb> {
   }) => RatingEntryDb(
     id: id ?? this.id,
     bikeId: bikeId ?? this.bikeId,
-    setupId: setupId.present ? setupId.value : this.setupId,
+    setupId: setupId ?? this.setupId,
     isDeleted: isDeleted ?? this.isDeleted,
     lastModified: lastModified ?? this.lastModified,
     name: name.present ? name.value : this.name,
@@ -6848,7 +6846,7 @@ class RatingEntryDb extends DataClass implements Insertable<RatingEntryDb> {
 class RatingEntriesCompanion extends UpdateCompanion<RatingEntryDb> {
   final Value<String> id;
   final Value<String> bikeId;
-  final Value<String?> setupId;
+  final Value<String> setupId;
   final Value<bool> isDeleted;
   final Value<DateTime> lastModified;
   final Value<String?> name;
@@ -6877,7 +6875,7 @@ class RatingEntriesCompanion extends UpdateCompanion<RatingEntryDb> {
   RatingEntriesCompanion.insert({
     required String id,
     required String bikeId,
-    this.setupId = const Value.absent(),
+    required String setupId,
     this.isDeleted = const Value.absent(),
     required DateTime lastModified,
     this.name = const Value.absent(),
@@ -6890,6 +6888,7 @@ class RatingEntriesCompanion extends UpdateCompanion<RatingEntryDb> {
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        bikeId = Value(bikeId),
+       setupId = Value(setupId),
        lastModified = Value(lastModified),
        dateTimeUTC = Value(dateTimeUTC),
        dateTimeLocal = Value(dateTimeLocal);
@@ -6928,7 +6927,7 @@ class RatingEntriesCompanion extends UpdateCompanion<RatingEntryDb> {
   RatingEntriesCompanion copyWith({
     Value<String>? id,
     Value<String>? bikeId,
-    Value<String?>? setupId,
+    Value<String>? setupId,
     Value<bool>? isDeleted,
     Value<DateTime>? lastModified,
     Value<String?>? name,
@@ -8925,13 +8924,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('rating_entries', kind: UpdateKind.delete)],
-    ),
-    WritePropagation(
-      on: TableUpdateQuery.onTableName(
-        'setups',
-        limitUpdateKind: UpdateKind.delete,
-      ),
-      result: [TableUpdate('rating_entries', kind: UpdateKind.update)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
@@ -15060,7 +15052,7 @@ typedef $$RatingEntriesTableCreateCompanionBuilder =
     RatingEntriesCompanion Function({
       required String id,
       required String bikeId,
-      Value<String?> setupId,
+      required String setupId,
       Value<bool> isDeleted,
       required DateTime lastModified,
       Value<String?> name,
@@ -15076,7 +15068,7 @@ typedef $$RatingEntriesTableUpdateCompanionBuilder =
     RatingEntriesCompanion Function({
       Value<String> id,
       Value<String> bikeId,
-      Value<String?> setupId,
+      Value<String> setupId,
       Value<bool> isDeleted,
       Value<DateTime> lastModified,
       Value<String?> name,
@@ -15117,9 +15109,9 @@ final class $$RatingEntriesTableReferences
   static $SetupsTable _setupIdTable(_$AppDatabase db) =>
       db.setups.createAlias('rating_entries__setup_id__setups__id');
 
-  $$SetupsTableProcessedTableManager? get setupId {
-    final $_column = $_itemColumn<String>('setup_id');
-    if ($_column == null) return null;
+  $$SetupsTableProcessedTableManager get setupId {
+    final $_column = $_itemColumn<String>('setup_id')!;
+
     final manager = $$SetupsTableTableManager(
       $_db,
       $_db.setups,
@@ -15551,7 +15543,7 @@ class $$RatingEntriesTableTableManager
               ({
                 Value<String> id = const Value.absent(),
                 Value<String> bikeId = const Value.absent(),
-                Value<String?> setupId = const Value.absent(),
+                Value<String> setupId = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
                 Value<DateTime> lastModified = const Value.absent(),
                 Value<String?> name = const Value.absent(),
@@ -15581,7 +15573,7 @@ class $$RatingEntriesTableTableManager
               ({
                 required String id,
                 required String bikeId,
-                Value<String?> setupId = const Value.absent(),
+                required String setupId,
                 Value<bool> isDeleted = const Value.absent(),
                 required DateTime lastModified,
                 Value<String?> name = const Value.absent(),

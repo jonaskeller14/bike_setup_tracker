@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/rating.dart';
+import 'package:bike_setup_tracker/models/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,6 +22,7 @@ void main() {
     final rating1 = Rating(name: "Rating #1", filterType: FilterType.global, filter: null, metrics: []);
     late Component component1;
     late Setup setup1;
+    late RatingEntry ratingEntry1;
 
     setUp(() {
       database = AppDatabase.memory();
@@ -41,6 +43,13 @@ void main() {
         person: null,
         bikeAdjustmentValues: {},
         personAdjustmentValues: {},
+      );
+      ratingEntry1 = RatingEntry(
+        name: "Rating Entry #1",
+        bike: bike1.id,
+        setupId: setup1.id,
+        dateTimeUTC: DateTime(2000).toUtc(),
+        dateTimeLocal: DateTime(2000).toLocal(),
       );
     });
 
@@ -110,6 +119,19 @@ void main() {
       await pumpEventQueue();
       expect(appRepository.setups.containsKey(setup1.id), false);
       expect(appRepository.deletedSetups.any((s) => s.id == setup1.id), true);
+    });
+
+    test("deleted rating entry appears in deletedRatingEntries, not in ratingEntries", () async {
+      await data.addBike(bike1);
+      await data.addRatingEntry(ratingEntry1);
+      await pumpEventQueue();
+      expect(appRepository.ratingEntries.containsKey(ratingEntry1.id), true);
+      expect(appRepository.deletedRatingEntries.any((e) => e.id == ratingEntry1.id), false);
+
+      await data.removeRatingEntries([ratingEntry1]);
+      await pumpEventQueue();
+      expect(appRepository.ratingEntries.containsKey(ratingEntry1.id), false);
+      expect(appRepository.deletedRatingEntries.any((e) => e.id == ratingEntry1.id), true);
     });
 
     test("restored item moves back from deleted to active", () async {

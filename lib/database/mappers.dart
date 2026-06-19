@@ -467,7 +467,7 @@ extension RatingEntryMapper on RatingEntry {
     return RatingEntriesCompanion(
       id: Value<String>(id),
       bikeId: Value<String>(bike),
-      setupId: Value<String?>(setupId),
+      setupId: Value<String>(setupId),
       isDeleted: Value<bool>(isDeleted),
       lastModified: Value<DateTime>(lastModified),
       name: Value<String?>(name),

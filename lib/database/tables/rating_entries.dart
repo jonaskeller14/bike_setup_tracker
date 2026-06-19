@@ -12,7 +12,7 @@ class RatingEntries extends Table {
   TextColumn get id => text()();
 
   TextColumn get bikeId => text().references(Bikes, #id, onDelete: KeyAction.cascade)();
-  TextColumn get setupId => text().nullable().references(Setups, #id, onDelete: KeyAction.setNull)();
+  TextColumn get setupId => text().references(Setups, #id)();
 
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   DateTimeColumn get lastModified => dateTime().map(const UtcDateTimeConverter())();

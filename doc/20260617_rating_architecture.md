@@ -412,15 +412,25 @@ template's scored-metrics.
 ## 8. UI / pages / widgets
 
 ### 8.1 Rating **template** editor — [rating_page.dart](../lib/pages/rating_page.dart)
-- Switch internal `_adjustments` → `_metrics` (`List<RatingMetric>`).
-- In the metric list (today `AdjustmentEditList`), add per-row controls shown **only for
-  scored** types: a **signed weight number field** pre-filled with the default (`+1.0`, or
-  `−1.0` for Duration) and, **below it, a dynamic helper text** describing the current
-  sign's effect (e.g. *"Lower Duration is better"* / *"Higher values improve the score"* /
-  *"Not counted in the score"* when 0). **No direction toggle.** For text/categorical show
-  a muted "Not included in score" hint.
-- Keep the existing add/edit/duplicate/reorder adjustment flows — they still produce the
-  inner `Adjustment`; the page wraps it in a `RatingMetric` carrying the signed weight.
+- **Current state (E0):** the page reuses the existing **Adjustment** add/edit/duplicate/
+  reorder pages unchanged (they produce the inner `Adjustment`), and `rating_page` wraps each
+  in a `RatingMetric`. Existing metric **weights are preserved on edit**; **new metrics
+  default to weight `+1.0`** (no weight UI yet). This is the agreed interim behaviour.
+- **DECIDED target — dedicated RatingMetric add/edit pages with a weight field.** The user
+  wants the metric definition *and* its weight edited together in a proper metric editor
+  (the Adjustment pages already have a drag-a-slider **preview** — value not saved, just
+  visualization — which will later be extended to show the **resulting score in realtime**,
+  §8.1.1). Open implementation question (work out later): **either** add `if`/mode clauses to
+  the existing 6 adjustment pages to optionally show a weight field and return a
+  `RatingMetric`, **or** add separate `RatingMetric*Page` dart files (likely via extracting
+  each adjustment page's form *body* into a shared widget so the metric page = body + weight
+  field + score preview, avoiding 6× duplication — see the earlier discussion). Until then,
+  the interim per-row/weight-1 behaviour above stands.
+- Weight semantics when the editor lands: a **signed weight number field** pre-filled with the
+  default (`+1.0`, or `−1.0` for Duration) and, below it, a **dynamic helper text** describing
+  the sign's effect (*"Lower Duration is better"* / *"Higher values improve the score"* /
+  *"Not counted in the score"* when 0). **No direction toggle.** Text/categorical → muted
+  "Not included in score" hint.
 
 ### 8.2 Rating **entry** editor — NEW `lib/pages/rating_entry_page.dart`
 - Reuse the context-capture UX from [setup_page.dart](../lib/pages/setup_page.dart):
@@ -435,20 +445,27 @@ template's scored-metrics.
   computed **entry score (0–10 average)** with the **weighted sum** as a secondary figure
   (§7.1). Surface the **drift warning** here when applicable (§4.3).
 
-### 8.3 Where RatingEntries appear (DECIDED: under setups only)
-Setups stay the app's focus — RatingEntries are **not** their own timeline / calendar /
-map items and there is **no global FAB** for them. They are reached **only through a
-setup**:
+### 8.3 Where RatingEntries appear
+**Creation** stays setup-centric (no global FAB) — entries are *created* through a setup:
 - **SetupCard popup menu — [setup_list_card.dart:239](../lib/widgets/items/setup_list_card.dart#L239):**
   extend the existing `_SetupOptions` `PopupMenuButton` (today: edit / share / restore /
-  remove) with **"Add Rating"** and **"Ratings (n)"** (open the setup's rating list). This
-  is the sole entry point for creating/viewing entries.
+  remove) with **"Add Rating"** and **"Ratings (n)"** (open the setup's rating list).
 - **Setup detail page** (see §8.4): the full list of a setup's entries + their scores.
-- No `displayShowRatingEntries` flag, no `RatingEntryTimelineEntry`, no changes to
-  `timeline_entry.dart` / calendar / map.
 - New `lib/widgets/items/rating_entry_list_card.dart` (used in the setup detail list and
   the popup-launched list): template name, date, place, condition, 0–10 score + weighted
   sum, and any drift warning.
+
+**Visibility — REVISED (2026-06-19): RatingEntries are surfaced globally, behind one display
+flag.** RatingEntries carry their own datetime + position, so they *are* shown on the
+**SetupList, the Map, and the Calendar**, governed by a single **global `displayShowRatingEntries`
+flag** that mirrors the existing `displayShowSetups` / `displayShowActivities` /
+`displayShowInstallations` display toggles (filter sheet chip in
+[filter.dart](../lib/widgets/sheets/filter.dart) + roll-up in
+[filter_sheet_chip.dart](../lib/widgets/chips/filter_sheet_chip.dart)). Toggling it
+shows/hides rating entries (and the setup rating-score badge) **everywhere at once**, not just
+in the SetupList. Gate on `enableRating`. This supersedes the earlier "no
+`displayShowRatingEntries` flag / no calendar/map items" note — a `RatingEntryTimelineEntry`
+(or equivalent map/calendar item) is now in scope. (See §E′-a.)
 
 ### 8.4 Setup detail / setup card
 - Setup detail page: show the **setup score** + a section listing the `RatingEntry`s that
@@ -771,8 +788,11 @@ addition, but important for adoption parity.
   `to_text` / `to_spreadsheet`. `rating_page` now round-trips `RatingMetric`s (preserving
   signed weights on edit; no weight UI yet). `trash_page` restores RatingEntries. **Full
   `flutter analyze` (lib + test) clean and all 291 tests pass.**
-19. `rating_page.dart`: per-metric signed-weight number field + dynamic sign helper text
-    (scored only); no toggle.
+19. Metric editor with weight. **Interim (done):** reuse Adjustment pages, weight defaults
+    to `+1.0` (preserved on edit). **Target:** dedicated RatingMetric add/edit pages with a
+    signed-weight field + dynamic sign helper (scored only; no toggle) + realtime score
+    preview — impl approach (if-clauses in adjustment pages vs separate files / body
+    extraction) TBD (§8.1).
 20. `rating_entry_page.dart` (context capture + template metric inputs + live 0–10 average
     + weighted sum + drift warning).
 21. `rating_entry_list_card.dart` + `rating_entry_actions.dart` ✅ (actions created:
@@ -785,10 +805,12 @@ addition, but important for adoption parity.
 **E′. Re-introduce rating signals removed in E0 (sourced from RatingEntries, not setups)**
 The E0 pass deleted the old setup-sourced rating displays. These must come back, but now
 backed by **`scoreForSetup` / entry scores** (§7), not the removed `ratingAdjustmentValues`:
-- **E′-a — SetupList filter.** Add a display filter (filter sheet chip, like the old
-  `displayShow*` flags) to **hide/show RatingEntries (and the rating-score badge) in the
-  SetupList**. Mirrors what `setupListRatingAdjustmentValues` did, but for the new score
-  badge / entry indicators. Gate on `enableRating`.
+- **E′-a — Global RatingEntry visibility filter.** Add a single **global**
+  `displayShowRatingEntries` display flag (filter sheet chip, like the existing
+  `displayShowSetups`/`displayShowActivities`/`displayShowInstallations`) that shows/hides
+  RatingEntries — and the setup rating-score badge — across the **SetupList, Map, and
+  Calendar** at once (§8.3, revised). Requires surfacing entries as map/calendar/timeline
+  items (`RatingEntryTimelineEntry` or equivalent). Gate on `enableRating`.
 - **E′-b — Rating score in analytics.** Re-add a **rating column** to the
   `component_details_page` / `person_details_page` setup tables **and a series to the line /
   radial charts**, showing each setup's **`scoreForSetup`** (0–10). The `ratingMetrics`

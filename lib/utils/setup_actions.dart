@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/rating_entry.dart';
 import '../models/setup.dart';
+import '../pages/rating_entry_page.dart';
 import '../pages/setup_page.dart';
 import '../repositories/app_repository.dart';
 import '../services/share_service.dart';
@@ -123,5 +125,23 @@ class SetupActions {
       context: context,
       text: content,
     );
+  }
+
+  static Future<void> addRatingEntryForSetup(BuildContext context, {required Setup setup}) async {
+    final appRepository = context.read<AppRepository>();
+    final bike = appRepository.bikes[setup.bike];
+
+    final newRatingEntry = await Navigator.push<RatingEntry>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RatingEntryPage.add(
+          initialBike: bike,
+          initialSetupId: setup.id,
+        ),
+      ),
+    );
+    if (newRatingEntry == null) return;
+
+    await appRepository.addRatingEntry(newRatingEntry);
   }
 }

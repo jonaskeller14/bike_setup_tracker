@@ -936,8 +936,7 @@ class AppRepository extends ChangeNotifier {
   }
 
   Future<void> addRatingEntry(RatingEntry entry) async {
-    final setupId = entry.setupId ?? resolvedSetupIdFor(entry);
-    final updated = entry.copyWith(setupId: setupId, lastModified: DateTime.now().toUtc());
+    final updated = entry.copyWith(lastModified: DateTime.now().toUtc());
     await database.ratingEntriesDao.insertRatingEntryWithValues(
       entry: updated.toCompanion(),
       values: updated.metricValues,
@@ -965,7 +964,7 @@ class AppRepository extends ChangeNotifier {
     }
   }
   
-  String? _resolveSetupId(String bikeId, DateTime atUtc) {
+  String? resolveSetupId({required String bikeId, required DateTime atUtc}) {
     Setup? best;
     for (final setup in _setups.values) {
       if (setup.bike != bikeId) continue;
@@ -976,7 +975,7 @@ class AppRepository extends ChangeNotifier {
   }
 
   String? resolvedSetupIdFor(RatingEntry entry) =>
-      _resolveSetupId(entry.bike, entry.dateTimeUTC);
+      resolveSetupId(bikeId: entry.bike, atUtc: entry.dateTimeUTC);
 
   List<RatingMetric> _applicableMetricsForBike(String bikeId) {
     final bikePerson = _bikes[bikeId]?.person;
@@ -1002,7 +1001,7 @@ class AppRepository extends ChangeNotifier {
       RatingScoreService.scoreEntry(_applicableMetricsForBike(entry.bike), entry.metricValues);
 
   List<RatingEntry> ratingEntriesForSetup(String setupId) => _ratingEntries.values
-      .where((entry) => _resolveSetupId(entry.bike, entry.dateTimeUTC) == setupId)
+      .where((entry) => resolveSetupId(bikeId: entry.bike, atUtc: entry.dateTimeUTC) == setupId)
       .toList();
 
   double? scoreForSetup(String setupId) {

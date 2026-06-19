@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/context/context_weather.dart';
+import '../../models/rating_entry.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/setup_actions.dart';
@@ -243,6 +244,8 @@ class SetupListCard extends StatelessWidget {
               await SetupActions.shareSetup(context, setup: setup);
             case _SetupOptions.restore:
               await SetupActions.duplicateSetup(context, setup: setup);
+            case _SetupOptions.addRating:
+              await SetupActions.addRatingEntryForSetup(context, setup: setup);
             case _SetupOptions.remove:
               await SetupActions.removeSetup(context, setup: setup);
           }
@@ -324,6 +327,7 @@ enum _SetupOptions {
   edit("Edit", Icons.edit),
   share("Share", Icons.share),
   restore("Restore", Icons.restore),
+  addRating("Add Rating", RatingEntry.iconData),
   remove("Remove", Icons.delete);
   final String label;
   final IconData iconData;

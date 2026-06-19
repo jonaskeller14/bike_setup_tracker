@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../icons/simple_icons.dart';
@@ -143,6 +145,18 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
     return setups;
   }
 
+  Widget _columnHeaderLabel(TableColumn column, String text) {
+    return GestureDetector(
+      onLongPress: () {
+        unawaited(HapticFeedback.selectionClick());
+        setState(() {
+          column.active = false;
+        });
+      },
+      child: Text(text, overflow: TextOverflow.ellipsis),
+    );
+  }
+
   Widget _noColumnsPlaceholder() {
     return SizedBox(
       height: 100,
@@ -283,7 +297,7 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
               if ((appSettings.enableStrava && subscriptionService.hasStravaEntitlement) || person.notes != null)
                 const Divider(height: 1),
 
-              const SectionTitle(title: "Attribute History"),
+              const SectionTitle(title: "Attribute History", infoText: "Add or remove columns via the Columns button, or long-press a column header to remove it. Use the filter button to narrow down by bike or tags. Green values are new (no prior value), orange values have changed from the previous setup."),
 
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -328,7 +342,7 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
                       switch (column.section) {
                         case TableColumnSection.generalContext || TableColumnSection.weatherContext:
                           return DataColumn(
-                            label: Text(column.label, overflow: TextOverflow.ellipsis),
+                            label: _columnHeaderLabel(column, column.label),
                             onSort: (int _, bool ascending) {
                               setState(() {
                                 _sortAscending = ascending;
@@ -344,9 +358,9 @@ class _PersonDetailsPageState extends State<PersonDetailsPage> {
                             _ => null,
                           };
                           return DataColumn(
-                            label: Text(
+                            label: _columnHeaderLabel(
+                              column,
                               (adjustment?.name ?? "-") + (adjustment?.unit != null ? " [${adjustment!.unit}]" : ""),
-                              overflow: TextOverflow.ellipsis,
                             ),
                             onSort: (int _, bool ascending) {
                               setState(() {

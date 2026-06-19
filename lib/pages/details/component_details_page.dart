@@ -179,6 +179,19 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     return setups;
   }
 
+  Widget _columnHeaderLabel(TableColumn column, String text) {
+    return GestureDetector(
+      onLongPress: () {
+        unawaited(HapticFeedback.selectionClick());
+        setState(() {
+          column.active = false;
+          if (_selectedLineChartColumn == column) _selectedLineChartColumn = null;
+        });
+      },
+      child: Text(text, overflow: TextOverflow.ellipsis),
+    );
+  }
+
   Widget _emptyStatePlaceholder({required IconData icon, required String message}) {
     return Center(
       child: Padding(
@@ -947,7 +960,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 const Divider(height: 1),
               ],
 
-              const SectionTitle(title: "Adjustment History", infoText: "Add or remove columns via the Columns button. Use the filter button to narrow down by bike or tags. Select rows to compare specific setups in the charts below. Green values are new (no prior value), orange values have changed from the previous setup."),
+              const SectionTitle(title: "Adjustment History", infoText: "Add or remove columns via the Columns button, or long-press a column header to remove it. Use the filter button to narrow down by bike or tags. Select rows to compare specific setups in the charts below. Green values are new (no prior value), orange values have changed from the previous setup."),
 
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -1001,7 +1014,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                       switch (column.section) {
                         case TableColumnSection.generalContext || TableColumnSection.weatherContext:
                           return DataColumn(
-                            label: Text(column.label, overflow: TextOverflow.ellipsis),
+                            label: _columnHeaderLabel(column, column.label),
                             onSort: (int _, bool ascending) {
                               setState(() {
                                 _sortAscending = ascending;
@@ -1012,9 +1025,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                         case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes || TableColumnSection.ratingMetrics:
                           final adjustment = _findAdjustment(column, componentAdjustments, ratingAdjustments, personAdjustments);
                           return DataColumn(
-                            label: Text(
+                            label: _columnHeaderLabel(
+                              column,
                               (adjustment?.name ?? "-") + (adjustment?.unit != null ? " [${adjustment!.unit}]" : ""),
-                              overflow: TextOverflow.ellipsis,
                             ),
                             onSort: (int _, bool ascending) {
                               setState(() {

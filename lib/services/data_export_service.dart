@@ -50,7 +50,7 @@ class DataExportService {
       'ratings': ratings
           .where((r) => subset == null || subset.ratings.containsKey(r.rating.id))
           .map((r) => r.rating.toModel(
-                adjustments: r.adjustments.map((a) => a.toModel()).toList(),
+                metrics: r.metrics.map((m) => m.toModel()).toList(),
               ).toJson())
           .toList(),
       'taskRules': taskRules.map((tr) => tr.toModel().toJson()).toList(),

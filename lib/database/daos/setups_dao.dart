@@ -87,13 +87,11 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin, Sof
     required SetupsCompanion setup,
     required Map<String, dynamic> bikeValues,
     required Map<String, dynamic> personValues,
-    required Map<String, dynamic> ratingValues,
   }) async {
     await transaction(() async {
       await insertSetup(setup);
       await _upsertValuesMap(setup.id.value, bikeValues);
       await _upsertValuesMap(setup.id.value, personValues);
-      await _upsertValuesMap(setup.id.value, ratingValues);
     });
   }
 
@@ -101,7 +99,6 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin, Sof
     required SetupsCompanion setup,
     required Map<String, dynamic> bikeValues,
     required Map<String, dynamic> personValues,
-    required Map<String, dynamic> ratingValues,
   }) async {
     await transaction(() async {
       await updateSetup(setup);
@@ -109,7 +106,6 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin, Sof
       await (delete(setupAdjustmentValues)..where((t) => t.setupId.equals(setup.id.value))).go();
       await _upsertValuesMap(setup.id.value, bikeValues);
       await _upsertValuesMap(setup.id.value, personValues);
-      await _upsertValuesMap(setup.id.value, ratingValues);
     });
   }
 

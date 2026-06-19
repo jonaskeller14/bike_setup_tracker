@@ -12,6 +12,8 @@ import '../models/component_stats.dart';
 import '../models/installation.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
+import '../models/rating_entry.dart';
+import '../models/rating_metric.dart';
 import '../models/selected_data.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
@@ -19,6 +21,7 @@ import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
+import '../services/rating_score_service.dart';
 import '../services/setup_resolution_service.dart';
 import '../utils/file_export.dart';
 
@@ -37,7 +40,7 @@ class AppRepository extends ChangeNotifier {
   /// ready. Deep-link handlers (e.g. "Add Setup") read these caches
   /// synchronously, so the UI must not mount until they are populated.
   static const _requiredInitialStreams = {
-    'bikes', 'components', 'persons', 'ratings',
+    'bikes', 'components', 'persons', 'ratings', 'ratingEntries',
     'taskRules', 'taskEntries', 'setups',
   };
   final Set<String> _firedInitialStreams = <String>{};
@@ -63,6 +66,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, Setup> _setups = {};
   Map<String, Component> _components = {};
   Map<String, Rating> _ratings = {};
+  Map<String, RatingEntry> _ratingEntries = {};
   Map<String, TaskRule> _taskRules = {};
   Map<String, TaskEntry> _taskEntries = {};
   Map<int, StravaAthlete> _stravaAthletes = {};
@@ -144,6 +148,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, Setup> get setups => _setups;
   Map<String, Component> get components => _components;
   Map<String, Rating> get ratings => _ratings;
+  Map<String, RatingEntry> get ratingEntries => _ratingEntries;
   Map<String, TaskRule> get taskRules => _taskRules;
   Map<String, TaskEntry> get taskEntries => _taskEntries;
   Map<int, StravaAthlete> get stravaAthletes => _stravaAthletes;
@@ -269,6 +274,7 @@ class AppRepository extends ChangeNotifier {
   List<Component> _deletedComponents = [];
   List<Setup> _deletedSetups = [];
   List<Rating> _deletedRatings = [];
+  List<RatingEntry> _deletedRatingEntries = [];
   List<TaskRule> _deletedTaskRules = [];
   List<TaskEntry> _deletedTaskEntries = [];
 
@@ -277,6 +283,7 @@ class AppRepository extends ChangeNotifier {
   List<Component> get deletedComponents => _deletedComponents;
   List<Setup> get deletedSetups => _deletedSetups;
   List<Rating> get deletedRatings => _deletedRatings;
+  List<RatingEntry> get deletedRatingEntries => _deletedRatingEntries;
   List<TaskRule> get deletedTaskRules => _deletedTaskRules;
   List<TaskEntry> get deletedTaskEntries => _deletedTaskEntries;
 
@@ -331,7 +338,7 @@ class AppRepository extends ChangeNotifier {
 
     _subscriptions.add(database.ratingsDao.watchAllRatingsWithData().listen((list) {
       _ratings = {for (var r in list) r.rating.id: r.rating.toModel(
-        adjustments: r.adjustments.map((a) => a.toModel()).toList(),
+        metrics: r.metrics.map((m) => m.toModel()).toList(),
       )};
       _markInitialStreamFired('ratings');
       _dataChanged();
@@ -375,6 +382,12 @@ class AppRepository extends ChangeNotifier {
       _dataChanged();
     }));
 
+    _subscriptions.add(database.ratingEntriesDao.watchAllRatingEntriesWithValues().listen((list) {
+      _ratingEntries = {for (var e in list) e.entry.id: e.entry.toModel(values: e.values)};
+      _markInitialStreamFired('ratingEntries');
+      _dataChanged();
+    }));
+
     // Deleted item streams
     _subscriptions.add(database.bikesDao.watchDeletedBikes().listen((list) {
       _deletedBikes = list.map((b) => b.toModel()).toList();
@@ -393,7 +406,11 @@ class AppRepository extends ChangeNotifier {
       _notifyIfActive();
     }));
     _subscriptions.add(database.ratingsDao.watchDeletedRatings().listen((list) {
-      _deletedRatings = list.map((r) => r.toModel(adjustments: [])).toList();
+      _deletedRatings = list.map((r) => r.toModel(metrics: [])).toList();
+      _notifyIfActive();
+    }));
+    _subscriptions.add(database.ratingEntriesDao.watchDeletedRatingEntries().listen((list) {
+      _deletedRatingEntries = list.map((e) => e.toModel()).toList();
       _notifyIfActive();
     }));
     _subscriptions.add(database.taskDao.watchDeletedRules().listen((list) {
@@ -918,6 +935,84 @@ class AppRepository extends ChangeNotifier {
     }
   }
 
+  Future<void> addRatingEntry(RatingEntry entry) async {
+    final setupId = entry.setupId ?? resolvedSetupIdFor(entry);
+    final updated = entry.copyWith(setupId: setupId, lastModified: DateTime.now().toUtc());
+    await database.ratingEntriesDao.insertRatingEntryWithValues(
+      entry: updated.toCompanion(),
+      values: updated.metricValues,
+    );
+  }
+
+  Future<void> editRatingEntry(RatingEntry entry) async {
+    final updated = entry.copyWith(lastModified: DateTime.now().toUtc());
+    await database.ratingEntriesDao.updateRatingEntryWithValues(
+      entry: updated.toCompanion(),
+      values: updated.metricValues,
+    );
+  }
+
+  Future<void> removeRatingEntries(Iterable<RatingEntry> entries) async {
+    for (final entry in entries) {
+      await database.ratingEntriesDao.deleteRatingEntry(entry.id);
+    }
+  }
+
+  Future<void> restoreRatingEntries(Iterable<RatingEntry> entries) async {
+    for (final entry in entries) {
+      final updated = entry.copyWith(isDeleted: false, lastModified: DateTime.now().toUtc());
+      await database.ratingEntriesDao.updateRatingEntry(updated.toCompanion());
+    }
+  }
+  
+  String? _resolveSetupId(String bikeId, DateTime atUtc) {
+    Setup? best;
+    for (final setup in _setups.values) {
+      if (setup.bike != bikeId) continue;
+      if (setup.datetime.isAfter(atUtc)) continue;
+      if (best == null || setup.datetime.isAfter(best.datetime)) best = setup;
+    }
+    return best?.id;
+  }
+
+  String? resolvedSetupIdFor(RatingEntry entry) =>
+      _resolveSetupId(entry.bike, entry.dateTimeUTC);
+
+  List<RatingMetric> _applicableMetricsForBike(String bikeId) {
+    final bikePerson = _bikes[bikeId]?.person;
+    final bikeComponents = _components.values.where((c) => c.bike == bikeId);
+    final componentIds = bikeComponents.map((c) => c.id).toSet();
+    final componentTypes = bikeComponents.map((c) => c.componentType.toString()).toSet();
+
+    final metrics = <RatingMetric>[];
+    for (final rating in _ratings.values) {
+      final applies = switch (rating.filterType) {
+        FilterType.global => true,
+        FilterType.bike => rating.filter == bikeId,
+        FilterType.person => rating.filter != null && rating.filter == bikePerson,
+        FilterType.component => componentIds.contains(rating.filter),
+        FilterType.componentType => componentTypes.contains(rating.filter),
+      };
+      if (applies) metrics.addAll(rating.metrics);
+    }
+    return metrics;
+  }
+
+  EntryScore? entryScore(RatingEntry entry) =>
+      RatingScoreService.scoreEntry(_applicableMetricsForBike(entry.bike), entry.metricValues);
+
+  List<RatingEntry> ratingEntriesForSetup(String setupId) => _ratingEntries.values
+      .where((entry) => _resolveSetupId(entry.bike, entry.dateTimeUTC) == setupId)
+      .toList();
+
+  double? scoreForSetup(String setupId) {
+    final entries = ratingEntriesForSetup(setupId);
+    if (entries.isEmpty) return null;
+    return RatingScoreService.setupScore(
+      entries.map((e) => (metrics: _applicableMetricsForBike(e.bike), values: e.metricValues)),
+    );
+  }
+
   Future<void> removeTaskRules(Iterable<TaskRule> rules) async {
     for (var rule in rules) {
       await database.taskDao.deleteRule(rule.id);
@@ -963,7 +1058,7 @@ class AppRepository extends ChangeNotifier {
     final updated = rating.copyWith(lastModified: DateTime.now().toUtc());
     await database.ratingsDao.insertRatingWithData(
       rating: updated.toCompanion(),
-      adjustmentsList: updated.adjustments.asMap().entries.map((entry) => 
+      metricsList: updated.metrics.asMap().entries.map((entry) =>
         entry.value.toCompanion(ratingId: updated.id, orderIndex: entry.key)
       ).toList(),
     );
@@ -1053,7 +1148,7 @@ class AppRepository extends ChangeNotifier {
     final updated = rating.copyWith(lastModified: DateTime.now().toUtc());
     await database.ratingsDao.updateRatingWithData(
       rating: updated.toCompanion(),
-      adjustmentsList: updated.adjustments.asMap().entries.map((entry) => 
+      metricsList: updated.metrics.asMap().entries.map((entry) =>
         entry.value.toCompanion(ratingId: updated.id, orderIndex: entry.key)
       ).toList(),
     );
@@ -1062,10 +1157,9 @@ class AppRepository extends ChangeNotifier {
   Future<void> addSetup(Setup setup) async {
     final updated = setup.copyWith(lastModified: DateTime.now().toUtc());
     await database.setupsDao.insertSetupWithValues(
-      setup: updated.toCompanion(), 
-      bikeValues: updated.bikeAdjustmentValues, 
-      personValues: updated.personAdjustmentValues, 
-      ratingValues: updated.ratingAdjustmentValues
+      setup: updated.toCompanion(),
+      bikeValues: updated.bikeAdjustmentValues,
+      personValues: updated.personAdjustmentValues,
     );
   }
 
@@ -1073,9 +1167,8 @@ class AppRepository extends ChangeNotifier {
     final updated = setup.copyWith(lastModified: DateTime.now().toUtc());
     await database.setupsDao.updateSetupWithValues(
       setup: updated.toCompanion(),
-      bikeValues: setup.bikeAdjustmentValues, 
-      personValues: setup.personAdjustmentValues, 
-      ratingValues: setup.ratingAdjustmentValues
+      bikeValues: setup.bikeAdjustmentValues,
+      personValues: setup.personAdjustmentValues,
     );
   }
 

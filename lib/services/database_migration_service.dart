@@ -79,7 +79,6 @@ class DatabaseMigrationService {
         List<Adjustment> adjustments, {
         String? componentId,
         String? personId,
-        String? ratingId,
       }) {
         for (int i = 0; i < adjustments.length; i++) {
           final adj = adjustments[i];
@@ -87,7 +86,6 @@ class DatabaseMigrationService {
             adj.toCompanion(
               componentId: componentId,
               personId: personId,
-              ratingId: ratingId,
               orderIndex: i,
             ),
           );
@@ -100,11 +98,17 @@ class DatabaseMigrationService {
       for (final p in data.persons.values) {
         addAdjustments(p.adjustments, personId: p.id);
       }
-      for (final r in data.ratings.values) {
-        addAdjustments(r.adjustments, ratingId: r.id);
-      }
 
       batch.insertAllOnConflictUpdate(db.adjustments, adjustmentsToInsert);
+
+      // Rating metrics (nested in ratings) live in their own table.
+      final List<RatingMetricsCompanion> ratingMetricsToInsert = [];
+      for (final r in data.ratings.values) {
+        for (int i = 0; i < r.metrics.length; i++) {
+          ratingMetricsToInsert.add(r.metrics[i].toCompanion(ratingId: r.id, orderIndex: i));
+        }
+      }
+      batch.insertAllOnConflictUpdate(db.ratingMetrics, ratingMetricsToInsert);
 
       // -----------------------------------------------------------------------
       // Level 3: Events
@@ -135,16 +139,6 @@ class DatabaseMigrationService {
         }
         // Person adjustments
         for (final entry in setup.personAdjustmentValues.entries) {
-          valuesToInsert.add(
-            SetupAdjustmentValuesCompanion.insert(
-              setupId: setup.id,
-              adjustmentId: entry.key,
-              value: entry.value.toString(),
-            ),
-          );
-        }
-        // Rating adjustments
-        for (final entry in setup.ratingAdjustmentValues.entries) {
           valuesToInsert.add(
             SetupAdjustmentValuesCompanion.insert(
               setupId: setup.id,

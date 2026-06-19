@@ -8,7 +8,6 @@ mixin _$SetupsDaoMixin on DatabaseAccessor<AppDatabase> {
   $PersonsTable get persons => attachedDatabase.persons;
   $SetupsTable get setups => attachedDatabase.setups;
   $ComponentsTable get components => attachedDatabase.components;
-  $RatingsTable get ratings => attachedDatabase.ratings;
   $AdjustmentsTable get adjustments => attachedDatabase.adjustments;
   $SetupAdjustmentValuesTable get setupAdjustmentValues =>
       attachedDatabase.setupAdjustmentValues;
@@ -26,8 +25,6 @@ class SetupsDaoManager {
       $$SetupsTableTableManager(_db.attachedDatabase, _db.setups);
   $$ComponentsTableTableManager get components =>
       $$ComponentsTableTableManager(_db.attachedDatabase, _db.components);
-  $$RatingsTableTableManager get ratings =>
-      $$RatingsTableTableManager(_db.attachedDatabase, _db.ratings);
   $$AdjustmentsTableTableManager get adjustments =>
       $$AdjustmentsTableTableManager(_db.attachedDatabase, _db.adjustments);
   $$SetupAdjustmentValuesTableTableManager get setupAdjustmentValues =>

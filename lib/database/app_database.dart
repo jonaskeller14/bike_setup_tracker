@@ -20,6 +20,7 @@ import 'converters/weather_converter.dart';
 import 'daos/bikes_dao.dart';
 import 'daos/components_dao.dart';
 import 'daos/persons_dao.dart';
+import 'daos/rating_entries_dao.dart';
 import 'daos/ratings_dao.dart';
 import 'daos/setups_dao.dart';
 import 'daos/strava_dao.dart';
@@ -29,6 +30,9 @@ import 'tables/bikes.dart';
 import 'tables/components.dart';
 import 'tables/installations.dart';
 import 'tables/persons.dart';
+import 'tables/rating_entries.dart';
+import 'tables/rating_entry_values.dart';
+import 'tables/rating_metrics.dart';
 import 'tables/ratings.dart';
 import 'tables/setup_adjustment_values.dart';
 import 'tables/setups.dart';
@@ -52,6 +56,9 @@ part 'app_database.g.dart';
     SetupAdjustmentValues,
     Persons,
     Ratings,
+    RatingMetrics,
+    RatingEntries,
+    RatingEntryValues,
     StravaActivities,
     StravaAthletes,
     StravaGears,
@@ -62,6 +69,7 @@ part 'app_database.g.dart';
     SetupsDao,
     PersonsDao,
     RatingsDao,
+    RatingEntriesDao,
     TaskDao,
     StravaDao,
   ],
@@ -71,7 +79,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.memory() : super(NativeDatabase.memory());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration {
@@ -94,6 +102,19 @@ class AppDatabase extends _$AppDatabase {
           // those setups fall back to the (localizable) UI placeholder instead.
           await m.alterTable(TableMigration(setups));
           await customStatement("UPDATE setups SET name = NULL WHERE name = 'Unnamed Setup'");
+        }
+        if (from < 5) {
+          // Rating redesign: metrics move to their own RatingMetrics table and
+          // ratings are captured via RatingEntries (+ values). The unshipped
+          // rating data is disposable.
+          await m.createTable(ratingMetrics);
+          await m.createTable(ratingEntries);
+          await m.createTable(ratingEntryValues);
+          // Drop the now-orphaned rating-metric adjustments (cascades to their
+          // setup values), then recreate `adjustments` without the rating_id
+          // column / CHECK arm.
+          await customStatement('DELETE FROM adjustments WHERE rating_id IS NOT NULL');
+          await m.alterTable(TableMigration(adjustments));
         }
       },
     );

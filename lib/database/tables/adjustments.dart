@@ -2,7 +2,6 @@ import 'package:drift/drift.dart';
 import '../../models/adjustment/adjustment.dart';
 import 'components.dart';
 import 'persons.dart';
-import 'ratings.dart';
 
 @DataClassName('AdjustmentDb')
 class Adjustments extends Table {
@@ -14,18 +13,15 @@ class Adjustments extends Table {
   TextColumn get personId =>
       text().nullable().references(Persons, #id, onDelete: KeyAction.cascade)();
 
-  TextColumn get ratingId =>
-      text().nullable().references(Ratings, #id, onDelete: KeyAction.cascade)();
-
-  // For sorting adjustments within its parent (Component, Person, or Rating)
+  // For sorting adjustments within its parent (Component or Person).
+  // Rating metrics live in their own RatingMetrics table.
   IntColumn get orderIndex => integer()();
 
   @override
   List<String> get customConstraints => [
         'CHECK ('
             ' (component_id IS NOT NULL) + '
-            ' (person_id IS NOT NULL) + '
-            ' (rating_id IS NOT NULL) == 1 '
+            ' (person_id IS NOT NULL) == 1 '
             ')'
       ];
 

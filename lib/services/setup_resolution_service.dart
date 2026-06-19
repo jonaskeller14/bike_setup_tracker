@@ -70,8 +70,6 @@ class SetupResolutionService {
         }
       }
 
-      setup.previousRatingAdjustmentValues = {}; // Ratings do not inherit
-
       // 3.4. Update global state with current setup's recorded values
       // Bike overrides
       globalLastKnownState.addAll(setup.bikeAdjustmentValues);

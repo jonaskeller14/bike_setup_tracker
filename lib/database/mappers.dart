@@ -11,6 +11,8 @@ import '../models/context/context_weather.dart';
 import '../models/installation.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
+import '../models/rating_entry.dart';
+import '../models/rating_metric.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/strava/strava_athlete.dart';
@@ -19,6 +21,7 @@ import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../models/task/task_threshold.dart';
 import 'app_database.dart';
+import 'daos/rating_entries_dao.dart';
 import 'daos/setups_dao.dart';
 
 extension BikeDbMapper on BikeDb {
@@ -102,7 +105,7 @@ extension PersonDbMapper on PersonDb {
 }
 
 extension RatingDbMapper on RatingDb {
-  Rating toModel({List<Adjustment> adjustments = const []}) {
+  Rating toModel({List<RatingMetric> metrics = const []}) {
     return Rating(
       id: id,
       isDeleted: isDeleted,
@@ -111,8 +114,26 @@ extension RatingDbMapper on RatingDb {
       notes: notes,
       filter: filter,
       filterType: filterType,
-      adjustments: adjustments,
+      metrics: metrics,
       orderIndex: orderIndex,
+    );
+  }
+}
+
+extension RatingMetricDbMapper on RatingMetricDb {
+  RatingMetric toModel() {
+    final Map<String, dynamic> payload = jsonDecode(jsonPayload ?? '{}');
+    payload['id'] = id;
+    payload['name'] = name;
+    payload['notes'] = notes;
+    payload['unit'] = unit;
+    payload['category'] = category.toString();
+    payload['type'] = type.name;
+    payload['version'] = payload['version'] ?? 1;
+
+    return RatingMetric(
+      adjustment: Adjustment.fromJson(payload, defaultCategory: category),
+      weight: weight,
     );
   }
 }
@@ -209,7 +230,6 @@ extension AdjustmentMapper on Adjustment {
   AdjustmentsCompanion toCompanion({
     String? componentId,
     String? personId,
-    String? ratingId,
     int? orderIndex,
   }) {
     final json = toJson();
@@ -229,9 +249,6 @@ extension AdjustmentMapper on Adjustment {
       personId: personId == null
           ? const Value.absent()
           : Value<String?>(personId),
-      ratingId: ratingId == null
-          ? const Value.absent()
-          : Value<String?>(ratingId),
       orderIndex: orderIndex == null
           ? const Value.absent()
           : Value<int>(orderIndex),
@@ -250,6 +267,30 @@ extension PersonMapper on Person {
       notes: Value<String?>(notes),
       stravaAthlete: Value<int?>(stravaAthlete),
       orderIndex: Value<int>(orderIndex),
+    );
+  }
+}
+
+extension RatingMetricMapper on RatingMetric {
+  RatingMetricsCompanion toCompanion({
+    required String ratingId,
+    required int orderIndex,
+  }) {
+    final json = adjustment.toJson();
+    final typeString = json['type'] as String;
+    return RatingMetricsCompanion(
+      id: Value<String>(adjustment.id),
+      ratingId: Value<String>(ratingId),
+      orderIndex: Value<int>(orderIndex),
+      weight: Value<double>(weight),
+      name: Value<String>(adjustment.name),
+      notes: Value<String?>(adjustment.notes),
+      unit: Value<String?>(adjustment.unit),
+      category: Value<AdjustmentCategory>(adjustment.category),
+      type: Value<AdjustmentType>(
+        AdjustmentType.values.firstWhere((e) => e.name == typeString),
+      ),
+      jsonPayload: Value<String?>(jsonEncode(json)),
     );
   }
 }
@@ -346,7 +387,6 @@ extension SetupDbMapper on SetupDb {
   }) {
     final bikeAdjustmentValues = <String, dynamic>{};
     final personAdjustmentValues = <String, dynamic>{};
-    final ratingAdjustmentValues = <String, dynamic>{};
 
     for (var typedValue in values) {
       final adj = typedValue.adjustment;
@@ -357,8 +397,6 @@ extension SetupDbMapper on SetupDb {
         bikeAdjustmentValues[adj.id] = parsedValue;
       } else if (adj.personId != null) {
         personAdjustmentValues[adj.id] = parsedValue;
-      } else if (adj.ratingId != null) {
-        ratingAdjustmentValues[adj.id] = parsedValue;
       }
     }
 
@@ -375,7 +413,6 @@ extension SetupDbMapper on SetupDb {
       person: personId,
       bikeAdjustmentValues: bikeAdjustmentValues,
       personAdjustmentValues: personAdjustmentValues,
-      ratingAdjustmentValues: ratingAdjustmentValues,
       position: position,
       place: place,
       weather: weather,
@@ -396,6 +433,67 @@ extension SetupDbMapper on SetupDb {
       case AdjustmentType.duration:
         return DurationAdjustment.tryParseDurationString(valStr);
     }
+  }
+}
+
+extension RatingEntryDbMapper on RatingEntryDb {
+  RatingEntry toModel({List<TypedRatingEntryValue> values = const []}) {
+    final metricValues = <String, dynamic>{};
+    for (final typedValue in values) {
+      metricValues[typedValue.metric.id] =
+          _parseTypedValue(typedValue.value.value, typedValue.metric.type);
+    }
+
+    return RatingEntry(
+      id: id,
+      isDeleted: isDeleted,
+      lastModified: _toUtcSafe(lastModified, 'RatingEntry.lastModified'),
+      name: name,
+      bike: bikeId,
+      setupId: setupId,
+      dateTimeUTC: _toUtcSafe(dateTimeUTC, 'RatingEntry.dateTimeUTC'),
+      dateTimeLocal: dateTimeLocal,
+      notes: notes,
+      metricValues: metricValues,
+      position: position,
+      place: place,
+      weather: weather,
+    );
+  }
+}
+
+extension RatingEntryMapper on RatingEntry {
+  RatingEntriesCompanion toCompanion() {
+    return RatingEntriesCompanion(
+      id: Value<String>(id),
+      bikeId: Value<String>(bike),
+      setupId: Value<String?>(setupId),
+      isDeleted: Value<bool>(isDeleted),
+      lastModified: Value<DateTime>(lastModified),
+      name: Value<String?>(name),
+      dateTimeUTC: Value<DateTime>(dateTimeUTC),
+      dateTimeLocal: Value<DateTime>(dateTimeLocal),
+      notes: Value<String?>(notes),
+      position: Value<LocationData?>(position),
+      place: Value<geo.Placemark?>(place),
+      weather: Value<ContextWeather?>(weather),
+    );
+  }
+}
+
+dynamic _parseTypedValue(String valStr, AdjustmentType type) {
+  switch (type) {
+    case AdjustmentType.boolean:
+      return valStr.toLowerCase() == 'true';
+    case AdjustmentType.numerical:
+      return double.tryParse(valStr);
+    case AdjustmentType.step:
+      return int.tryParse(valStr);
+    case AdjustmentType.categorical:
+    case AdjustmentType.text:
+      return valStr;
+    case AdjustmentType.duration:
+      return DurationAdjustment.tryParseDurationString(valStr);
   }
 }
 

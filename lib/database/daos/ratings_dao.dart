@@ -1,12 +1,12 @@
 import 'package:drift/drift.dart';
 import '../app_database.dart';
-import '../tables/adjustments.dart';
+import '../tables/rating_metrics.dart';
 import '../tables/ratings.dart';
 import 'soft_delete_dao_mixin.dart';
 
 part 'ratings_dao.g.dart';
 
-@DriftAccessor(tables: [Ratings, Adjustments])
+@DriftAccessor(tables: [Ratings, RatingMetrics])
 class RatingsDao extends DatabaseAccessor<AppDatabase> with _$RatingsDaoMixin, SoftDeletableDaoMixin<Ratings, RatingDb, RatingsCompanion> {
   RatingsDao(super.db);
 
@@ -22,8 +22,8 @@ class RatingsDao extends DatabaseAccessor<AppDatabase> with _$RatingsDaoMixin, S
     return (select(ratings)..where((t) => t.id.equals(id))).getSingleOrNull();
   }
 
-  Stream<List<AdjustmentDb>> watchAdjustmentsForRating(String ratingId) {
-    return (select(adjustments)
+  Stream<List<RatingMetricDb>> watchMetricsForRating(String ratingId) {
+    return (select(ratingMetrics)
           ..where((t) => t.ratingId.equals(ratingId))
           ..orderBy([(t) => OrderingTerm(expression: t.orderIndex)]))
         .watch();
@@ -38,76 +38,60 @@ class RatingsDao extends DatabaseAccessor<AppDatabase> with _$RatingsDaoMixin, S
           ..where((t) => isDeletedColumn.equals(false))
           ..orderBy([(t) => OrderingTerm(expression: ratings.orderIndex)]))
         .join([
-      leftOuterJoin(adjustments, adjustments.ratingId.equalsExp(ratings.id)),
+      leftOuterJoin(ratingMetrics, ratingMetrics.ratingId.equalsExp(ratings.id)),
     ]);
 
-    return query.watch().map((rows) {
-      final Map<String, RatingWithData> grouped = {};
-      for (final row in rows) {
-        final rating = row.readTable(ratings);
-        final adjustment = row.readTableOrNull(adjustments);
-
-        final entry = grouped.putIfAbsent(
-          rating.id,
-          () => RatingWithData(rating: rating, adjustments: []),
-        );
-        if (adjustment != null && !entry.adjustments.any((a) => a.id == adjustment.id)) {
-          entry.adjustments.add(adjustment);
-        }
-      }
-      for (final entry in grouped.values) {
-        entry.adjustments.sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
-      }
-      return grouped.values.toList();
-    });
+    return query.watch().map((rows) => _group(rows));
   }
 
   Future<void> insertRatingWithData({
     required RatingsCompanion rating,
-    required List<AdjustmentsCompanion> adjustmentsList,
+    required List<RatingMetricsCompanion> metricsList,
   }) async {
     await transaction(() async {
       await into(ratings).insert(rating);
-      for (final adj in adjustmentsList) {
-        await into(adjustments).insert(adj);
+      for (final metric in metricsList) {
+        await into(ratingMetrics).insert(metric);
       }
     });
   }
 
   Future<void> updateRatingWithData({
     required RatingsCompanion rating,
-    required List<AdjustmentsCompanion> adjustmentsList,
+    required List<RatingMetricsCompanion> metricsList,
   }) async {
     await transaction(() async {
       await update(ratings).replace(rating);
-      await (delete(adjustments)..where((t) => t.ratingId.equals(rating.id.value))).go();
-      for (final adj in adjustmentsList) {
-        await into(adjustments).insert(adj);
+      await (delete(ratingMetrics)..where((t) => t.ratingId.equals(rating.id.value))).go();
+      for (final metric in metricsList) {
+        await into(ratingMetrics).insert(metric);
       }
     });
   }
 
   Future<List<RatingWithData>> getAllRatingsWithDataBypass() async {
     final query = select(ratings).join([
-      leftOuterJoin(adjustments, adjustments.ratingId.equalsExp(ratings.id)),
+      leftOuterJoin(ratingMetrics, ratingMetrics.ratingId.equalsExp(ratings.id)),
     ]);
+    return _group(await query.get());
+  }
 
-    final rows = await query.get();
+  List<RatingWithData> _group(List<TypedResult> rows) {
     final Map<String, RatingWithData> grouped = {};
     for (final row in rows) {
       final rating = row.readTable(ratings);
-      final adjustment = row.readTableOrNull(adjustments);
+      final metric = row.readTableOrNull(ratingMetrics);
 
       final entry = grouped.putIfAbsent(
         rating.id,
-        () => RatingWithData(rating: rating, adjustments: []),
+        () => RatingWithData(rating: rating, metrics: []),
       );
-      if (adjustment != null && !entry.adjustments.any((a) => a.id == adjustment.id)) {
-        entry.adjustments.add(adjustment);
+      if (metric != null && !entry.metrics.any((m) => m.id == metric.id)) {
+        entry.metrics.add(metric);
       }
     }
     for (final entry in grouped.values) {
-      entry.adjustments.sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+      entry.metrics.sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
     }
     return grouped.values.toList();
   }
@@ -124,6 +108,6 @@ class RatingsDao extends DatabaseAccessor<AppDatabase> with _$RatingsDaoMixin, S
 
 class RatingWithData {
   final RatingDb rating;
-  final List<AdjustmentDb> adjustments;
-  RatingWithData({required this.rating, required this.adjustments});
+  final List<RatingMetricDb> metrics;
+  RatingWithData({required this.rating, required this.metrics});
 }

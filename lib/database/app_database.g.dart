@@ -3124,523 +3124,6 @@ class PersonsCompanion extends UpdateCompanion<PersonDb> {
   }
 }
 
-class $RatingsTable extends Ratings with TableInfo<$RatingsTable, RatingDb> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $RatingsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
-    'isDeleted',
-  );
-  @override
-  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
-    'is_deleted',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_deleted" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  @override
-  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
-      GeneratedColumn<DateTime>(
-        'last_modified',
-        aliasedName,
-        false,
-        type: DriftSqlType.dateTime,
-        requiredDuringInsert: true,
-      ).withConverter<DateTime>($RatingsTable.$converterlastModified);
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
-  @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-    'name',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
-  @override
-  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
-    'notes',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _filterMeta = const VerificationMeta('filter');
-  @override
-  late final GeneratedColumn<String> filter = GeneratedColumn<String>(
-    'filter',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  @override
-  late final GeneratedColumnWithTypeConverter<FilterType, String> filterType =
-      GeneratedColumn<String>(
-        'filter_type',
-        aliasedName,
-        false,
-        type: DriftSqlType.string,
-        requiredDuringInsert: true,
-      ).withConverter<FilterType>($RatingsTable.$converterfilterType);
-  static const VerificationMeta _orderIndexMeta = const VerificationMeta(
-    'orderIndex',
-  );
-  @override
-  late final GeneratedColumn<int> orderIndex = GeneratedColumn<int>(
-    'order_index',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(0),
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    isDeleted,
-    lastModified,
-    name,
-    notes,
-    filter,
-    filterType,
-    orderIndex,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'ratings';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<RatingDb> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('is_deleted')) {
-      context.handle(
-        _isDeletedMeta,
-        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
-      );
-    }
-    if (data.containsKey('name')) {
-      context.handle(
-        _nameMeta,
-        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_nameMeta);
-    }
-    if (data.containsKey('notes')) {
-      context.handle(
-        _notesMeta,
-        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
-      );
-    }
-    if (data.containsKey('filter')) {
-      context.handle(
-        _filterMeta,
-        filter.isAcceptableOrUnknown(data['filter']!, _filterMeta),
-      );
-    }
-    if (data.containsKey('order_index')) {
-      context.handle(
-        _orderIndexMeta,
-        orderIndex.isAcceptableOrUnknown(data['order_index']!, _orderIndexMeta),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  RatingDb map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return RatingDb(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}id'],
-      )!,
-      isDeleted: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_deleted'],
-      )!,
-      lastModified: $RatingsTable.$converterlastModified.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime,
-          data['${effectivePrefix}last_modified'],
-        )!,
-      ),
-      name: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}name'],
-      )!,
-      notes: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}notes'],
-      ),
-      filter: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}filter'],
-      ),
-      filterType: $RatingsTable.$converterfilterType.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}filter_type'],
-        )!,
-      ),
-      orderIndex: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}order_index'],
-      )!,
-    );
-  }
-
-  @override
-  $RatingsTable createAlias(String alias) {
-    return $RatingsTable(attachedDatabase, alias);
-  }
-
-  static TypeConverter<DateTime, DateTime> $converterlastModified =
-      const UtcDateTimeConverter();
-  static JsonTypeConverter2<FilterType, String, String> $converterfilterType =
-      const EnumNameConverter<FilterType>(FilterType.values);
-}
-
-class RatingDb extends DataClass implements Insertable<RatingDb> {
-  final String id;
-  final bool isDeleted;
-  final DateTime lastModified;
-  final String name;
-  final String? notes;
-  final String? filter;
-  final FilterType filterType;
-  final int orderIndex;
-  const RatingDb({
-    required this.id,
-    required this.isDeleted,
-    required this.lastModified,
-    required this.name,
-    this.notes,
-    this.filter,
-    required this.filterType,
-    required this.orderIndex,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
-    map['is_deleted'] = Variable<bool>(isDeleted);
-    {
-      map['last_modified'] = Variable<DateTime>(
-        $RatingsTable.$converterlastModified.toSql(lastModified),
-      );
-    }
-    map['name'] = Variable<String>(name);
-    if (!nullToAbsent || notes != null) {
-      map['notes'] = Variable<String>(notes);
-    }
-    if (!nullToAbsent || filter != null) {
-      map['filter'] = Variable<String>(filter);
-    }
-    {
-      map['filter_type'] = Variable<String>(
-        $RatingsTable.$converterfilterType.toSql(filterType),
-      );
-    }
-    map['order_index'] = Variable<int>(orderIndex);
-    return map;
-  }
-
-  RatingsCompanion toCompanion(bool nullToAbsent) {
-    return RatingsCompanion(
-      id: Value(id),
-      isDeleted: Value(isDeleted),
-      lastModified: Value(lastModified),
-      name: Value(name),
-      notes: notes == null && nullToAbsent
-          ? const Value.absent()
-          : Value(notes),
-      filter: filter == null && nullToAbsent
-          ? const Value.absent()
-          : Value(filter),
-      filterType: Value(filterType),
-      orderIndex: Value(orderIndex),
-    );
-  }
-
-  factory RatingDb.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return RatingDb(
-      id: serializer.fromJson<String>(json['id']),
-      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
-      lastModified: serializer.fromJson<DateTime>(json['lastModified']),
-      name: serializer.fromJson<String>(json['name']),
-      notes: serializer.fromJson<String?>(json['notes']),
-      filter: serializer.fromJson<String?>(json['filter']),
-      filterType: $RatingsTable.$converterfilterType.fromJson(
-        serializer.fromJson<String>(json['filterType']),
-      ),
-      orderIndex: serializer.fromJson<int>(json['orderIndex']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'isDeleted': serializer.toJson<bool>(isDeleted),
-      'lastModified': serializer.toJson<DateTime>(lastModified),
-      'name': serializer.toJson<String>(name),
-      'notes': serializer.toJson<String?>(notes),
-      'filter': serializer.toJson<String?>(filter),
-      'filterType': serializer.toJson<String>(
-        $RatingsTable.$converterfilterType.toJson(filterType),
-      ),
-      'orderIndex': serializer.toJson<int>(orderIndex),
-    };
-  }
-
-  RatingDb copyWith({
-    String? id,
-    bool? isDeleted,
-    DateTime? lastModified,
-    String? name,
-    Value<String?> notes = const Value.absent(),
-    Value<String?> filter = const Value.absent(),
-    FilterType? filterType,
-    int? orderIndex,
-  }) => RatingDb(
-    id: id ?? this.id,
-    isDeleted: isDeleted ?? this.isDeleted,
-    lastModified: lastModified ?? this.lastModified,
-    name: name ?? this.name,
-    notes: notes.present ? notes.value : this.notes,
-    filter: filter.present ? filter.value : this.filter,
-    filterType: filterType ?? this.filterType,
-    orderIndex: orderIndex ?? this.orderIndex,
-  );
-  RatingDb copyWithCompanion(RatingsCompanion data) {
-    return RatingDb(
-      id: data.id.present ? data.id.value : this.id,
-      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
-      lastModified: data.lastModified.present
-          ? data.lastModified.value
-          : this.lastModified,
-      name: data.name.present ? data.name.value : this.name,
-      notes: data.notes.present ? data.notes.value : this.notes,
-      filter: data.filter.present ? data.filter.value : this.filter,
-      filterType: data.filterType.present
-          ? data.filterType.value
-          : this.filterType,
-      orderIndex: data.orderIndex.present
-          ? data.orderIndex.value
-          : this.orderIndex,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('RatingDb(')
-          ..write('id: $id, ')
-          ..write('isDeleted: $isDeleted, ')
-          ..write('lastModified: $lastModified, ')
-          ..write('name: $name, ')
-          ..write('notes: $notes, ')
-          ..write('filter: $filter, ')
-          ..write('filterType: $filterType, ')
-          ..write('orderIndex: $orderIndex')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    id,
-    isDeleted,
-    lastModified,
-    name,
-    notes,
-    filter,
-    filterType,
-    orderIndex,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is RatingDb &&
-          other.id == this.id &&
-          other.isDeleted == this.isDeleted &&
-          other.lastModified == this.lastModified &&
-          other.name == this.name &&
-          other.notes == this.notes &&
-          other.filter == this.filter &&
-          other.filterType == this.filterType &&
-          other.orderIndex == this.orderIndex);
-}
-
-class RatingsCompanion extends UpdateCompanion<RatingDb> {
-  final Value<String> id;
-  final Value<bool> isDeleted;
-  final Value<DateTime> lastModified;
-  final Value<String> name;
-  final Value<String?> notes;
-  final Value<String?> filter;
-  final Value<FilterType> filterType;
-  final Value<int> orderIndex;
-  final Value<int> rowid;
-  const RatingsCompanion({
-    this.id = const Value.absent(),
-    this.isDeleted = const Value.absent(),
-    this.lastModified = const Value.absent(),
-    this.name = const Value.absent(),
-    this.notes = const Value.absent(),
-    this.filter = const Value.absent(),
-    this.filterType = const Value.absent(),
-    this.orderIndex = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  RatingsCompanion.insert({
-    required String id,
-    this.isDeleted = const Value.absent(),
-    required DateTime lastModified,
-    required String name,
-    this.notes = const Value.absent(),
-    this.filter = const Value.absent(),
-    required FilterType filterType,
-    this.orderIndex = const Value.absent(),
-    this.rowid = const Value.absent(),
-  }) : id = Value(id),
-       lastModified = Value(lastModified),
-       name = Value(name),
-       filterType = Value(filterType);
-  static Insertable<RatingDb> custom({
-    Expression<String>? id,
-    Expression<bool>? isDeleted,
-    Expression<DateTime>? lastModified,
-    Expression<String>? name,
-    Expression<String>? notes,
-    Expression<String>? filter,
-    Expression<String>? filterType,
-    Expression<int>? orderIndex,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (isDeleted != null) 'is_deleted': isDeleted,
-      if (lastModified != null) 'last_modified': lastModified,
-      if (name != null) 'name': name,
-      if (notes != null) 'notes': notes,
-      if (filter != null) 'filter': filter,
-      if (filterType != null) 'filter_type': filterType,
-      if (orderIndex != null) 'order_index': orderIndex,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  RatingsCompanion copyWith({
-    Value<String>? id,
-    Value<bool>? isDeleted,
-    Value<DateTime>? lastModified,
-    Value<String>? name,
-    Value<String?>? notes,
-    Value<String?>? filter,
-    Value<FilterType>? filterType,
-    Value<int>? orderIndex,
-    Value<int>? rowid,
-  }) {
-    return RatingsCompanion(
-      id: id ?? this.id,
-      isDeleted: isDeleted ?? this.isDeleted,
-      lastModified: lastModified ?? this.lastModified,
-      name: name ?? this.name,
-      notes: notes ?? this.notes,
-      filter: filter ?? this.filter,
-      filterType: filterType ?? this.filterType,
-      orderIndex: orderIndex ?? this.orderIndex,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (isDeleted.present) {
-      map['is_deleted'] = Variable<bool>(isDeleted.value);
-    }
-    if (lastModified.present) {
-      map['last_modified'] = Variable<DateTime>(
-        $RatingsTable.$converterlastModified.toSql(lastModified.value),
-      );
-    }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
-    }
-    if (notes.present) {
-      map['notes'] = Variable<String>(notes.value);
-    }
-    if (filter.present) {
-      map['filter'] = Variable<String>(filter.value);
-    }
-    if (filterType.present) {
-      map['filter_type'] = Variable<String>(
-        $RatingsTable.$converterfilterType.toSql(filterType.value),
-      );
-    }
-    if (orderIndex.present) {
-      map['order_index'] = Variable<int>(orderIndex.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('RatingsCompanion(')
-          ..write('id: $id, ')
-          ..write('isDeleted: $isDeleted, ')
-          ..write('lastModified: $lastModified, ')
-          ..write('name: $name, ')
-          ..write('notes: $notes, ')
-          ..write('filter: $filter, ')
-          ..write('filterType: $filterType, ')
-          ..write('orderIndex: $orderIndex, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class $AdjustmentsTable extends Adjustments
     with TableInfo<$AdjustmentsTable, AdjustmentDb> {
   @override
@@ -3682,20 +3165,6 @@ class $AdjustmentsTable extends Adjustments
     requiredDuringInsert: false,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'REFERENCES persons (id) ON DELETE CASCADE',
-    ),
-  );
-  static const VerificationMeta _ratingIdMeta = const VerificationMeta(
-    'ratingId',
-  );
-  @override
-  late final GeneratedColumn<String> ratingId = GeneratedColumn<String>(
-    'rating_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES ratings (id) ON DELETE CASCADE',
     ),
   );
   static const VerificationMeta _orderIndexMeta = const VerificationMeta(
@@ -3770,7 +3239,6 @@ class $AdjustmentsTable extends Adjustments
     id,
     componentId,
     personId,
-    ratingId,
     orderIndex,
     name,
     notes,
@@ -3809,12 +3277,6 @@ class $AdjustmentsTable extends Adjustments
       context.handle(
         _personIdMeta,
         personId.isAcceptableOrUnknown(data['person_id']!, _personIdMeta),
-      );
-    }
-    if (data.containsKey('rating_id')) {
-      context.handle(
-        _ratingIdMeta,
-        ratingId.isAcceptableOrUnknown(data['rating_id']!, _ratingIdMeta),
       );
     }
     if (data.containsKey('order_index')) {
@@ -3875,10 +3337,6 @@ class $AdjustmentsTable extends Adjustments
         DriftSqlType.string,
         data['${effectivePrefix}person_id'],
       ),
-      ratingId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}rating_id'],
-      ),
       orderIndex: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}order_index'],
@@ -3929,7 +3387,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
   final String id;
   final String? componentId;
   final String? personId;
-  final String? ratingId;
   final int orderIndex;
   final String name;
   final String? notes;
@@ -3941,7 +3398,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
     required this.id,
     this.componentId,
     this.personId,
-    this.ratingId,
     required this.orderIndex,
     required this.name,
     this.notes,
@@ -3959,9 +3415,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
     }
     if (!nullToAbsent || personId != null) {
       map['person_id'] = Variable<String>(personId);
-    }
-    if (!nullToAbsent || ratingId != null) {
-      map['rating_id'] = Variable<String>(ratingId);
     }
     map['order_index'] = Variable<int>(orderIndex);
     map['name'] = Variable<String>(name);
@@ -3996,9 +3449,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
       personId: personId == null && nullToAbsent
           ? const Value.absent()
           : Value(personId),
-      ratingId: ratingId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(ratingId),
       orderIndex: Value(orderIndex),
       name: Value(name),
       notes: notes == null && nullToAbsent
@@ -4022,7 +3472,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
       id: serializer.fromJson<String>(json['id']),
       componentId: serializer.fromJson<String?>(json['componentId']),
       personId: serializer.fromJson<String?>(json['personId']),
-      ratingId: serializer.fromJson<String?>(json['ratingId']),
       orderIndex: serializer.fromJson<int>(json['orderIndex']),
       name: serializer.fromJson<String>(json['name']),
       notes: serializer.fromJson<String?>(json['notes']),
@@ -4043,7 +3492,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
       'id': serializer.toJson<String>(id),
       'componentId': serializer.toJson<String?>(componentId),
       'personId': serializer.toJson<String?>(personId),
-      'ratingId': serializer.toJson<String?>(ratingId),
       'orderIndex': serializer.toJson<int>(orderIndex),
       'name': serializer.toJson<String>(name),
       'notes': serializer.toJson<String?>(notes),
@@ -4062,7 +3510,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
     String? id,
     Value<String?> componentId = const Value.absent(),
     Value<String?> personId = const Value.absent(),
-    Value<String?> ratingId = const Value.absent(),
     int? orderIndex,
     String? name,
     Value<String?> notes = const Value.absent(),
@@ -4074,7 +3521,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
     id: id ?? this.id,
     componentId: componentId.present ? componentId.value : this.componentId,
     personId: personId.present ? personId.value : this.personId,
-    ratingId: ratingId.present ? ratingId.value : this.ratingId,
     orderIndex: orderIndex ?? this.orderIndex,
     name: name ?? this.name,
     notes: notes.present ? notes.value : this.notes,
@@ -4090,7 +3536,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
           ? data.componentId.value
           : this.componentId,
       personId: data.personId.present ? data.personId.value : this.personId,
-      ratingId: data.ratingId.present ? data.ratingId.value : this.ratingId,
       orderIndex: data.orderIndex.present
           ? data.orderIndex.value
           : this.orderIndex,
@@ -4111,7 +3556,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
           ..write('id: $id, ')
           ..write('componentId: $componentId, ')
           ..write('personId: $personId, ')
-          ..write('ratingId: $ratingId, ')
           ..write('orderIndex: $orderIndex, ')
           ..write('name: $name, ')
           ..write('notes: $notes, ')
@@ -4128,7 +3572,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
     id,
     componentId,
     personId,
-    ratingId,
     orderIndex,
     name,
     notes,
@@ -4144,7 +3587,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
           other.id == this.id &&
           other.componentId == this.componentId &&
           other.personId == this.personId &&
-          other.ratingId == this.ratingId &&
           other.orderIndex == this.orderIndex &&
           other.name == this.name &&
           other.notes == this.notes &&
@@ -4158,7 +3600,6 @@ class AdjustmentsCompanion extends UpdateCompanion<AdjustmentDb> {
   final Value<String> id;
   final Value<String?> componentId;
   final Value<String?> personId;
-  final Value<String?> ratingId;
   final Value<int> orderIndex;
   final Value<String> name;
   final Value<String?> notes;
@@ -4171,7 +3612,6 @@ class AdjustmentsCompanion extends UpdateCompanion<AdjustmentDb> {
     this.id = const Value.absent(),
     this.componentId = const Value.absent(),
     this.personId = const Value.absent(),
-    this.ratingId = const Value.absent(),
     this.orderIndex = const Value.absent(),
     this.name = const Value.absent(),
     this.notes = const Value.absent(),
@@ -4185,7 +3625,6 @@ class AdjustmentsCompanion extends UpdateCompanion<AdjustmentDb> {
     required String id,
     this.componentId = const Value.absent(),
     this.personId = const Value.absent(),
-    this.ratingId = const Value.absent(),
     required int orderIndex,
     required String name,
     this.notes = const Value.absent(),
@@ -4203,7 +3642,6 @@ class AdjustmentsCompanion extends UpdateCompanion<AdjustmentDb> {
     Expression<String>? id,
     Expression<String>? componentId,
     Expression<String>? personId,
-    Expression<String>? ratingId,
     Expression<int>? orderIndex,
     Expression<String>? name,
     Expression<String>? notes,
@@ -4217,7 +3655,6 @@ class AdjustmentsCompanion extends UpdateCompanion<AdjustmentDb> {
       if (id != null) 'id': id,
       if (componentId != null) 'component_id': componentId,
       if (personId != null) 'person_id': personId,
-      if (ratingId != null) 'rating_id': ratingId,
       if (orderIndex != null) 'order_index': orderIndex,
       if (name != null) 'name': name,
       if (notes != null) 'notes': notes,
@@ -4233,7 +3670,6 @@ class AdjustmentsCompanion extends UpdateCompanion<AdjustmentDb> {
     Value<String>? id,
     Value<String?>? componentId,
     Value<String?>? personId,
-    Value<String?>? ratingId,
     Value<int>? orderIndex,
     Value<String>? name,
     Value<String?>? notes,
@@ -4247,7 +3683,6 @@ class AdjustmentsCompanion extends UpdateCompanion<AdjustmentDb> {
       id: id ?? this.id,
       componentId: componentId ?? this.componentId,
       personId: personId ?? this.personId,
-      ratingId: ratingId ?? this.ratingId,
       orderIndex: orderIndex ?? this.orderIndex,
       name: name ?? this.name,
       notes: notes ?? this.notes,
@@ -4270,9 +3705,6 @@ class AdjustmentsCompanion extends UpdateCompanion<AdjustmentDb> {
     }
     if (personId.present) {
       map['person_id'] = Variable<String>(personId.value);
-    }
-    if (ratingId.present) {
-      map['rating_id'] = Variable<String>(ratingId.value);
     }
     if (orderIndex.present) {
       map['order_index'] = Variable<int>(orderIndex.value);
@@ -4311,7 +3743,6 @@ class AdjustmentsCompanion extends UpdateCompanion<AdjustmentDb> {
           ..write('id: $id, ')
           ..write('componentId: $componentId, ')
           ..write('personId: $personId, ')
-          ..write('ratingId: $ratingId, ')
           ..write('orderIndex: $orderIndex, ')
           ..write('name: $name, ')
           ..write('notes: $notes, ')
@@ -5740,6 +5171,2147 @@ class SetupAdjustmentValuesCompanion
     return (StringBuffer('SetupAdjustmentValuesCompanion(')
           ..write('setupId: $setupId, ')
           ..write('adjustmentId: $adjustmentId, ')
+          ..write('value: $value, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $RatingsTable extends Ratings with TableInfo<$RatingsTable, RatingDb> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RatingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
+      GeneratedColumn<DateTime>(
+        'last_modified',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($RatingsTable.$converterlastModified);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _filterMeta = const VerificationMeta('filter');
+  @override
+  late final GeneratedColumn<String> filter = GeneratedColumn<String>(
+    'filter',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<FilterType, String> filterType =
+      GeneratedColumn<String>(
+        'filter_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<FilterType>($RatingsTable.$converterfilterType);
+  static const VerificationMeta _orderIndexMeta = const VerificationMeta(
+    'orderIndex',
+  );
+  @override
+  late final GeneratedColumn<int> orderIndex = GeneratedColumn<int>(
+    'order_index',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    isDeleted,
+    lastModified,
+    name,
+    notes,
+    filter,
+    filterType,
+    orderIndex,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'ratings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<RatingDb> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('filter')) {
+      context.handle(
+        _filterMeta,
+        filter.isAcceptableOrUnknown(data['filter']!, _filterMeta),
+      );
+    }
+    if (data.containsKey('order_index')) {
+      context.handle(
+        _orderIndexMeta,
+        orderIndex.isAcceptableOrUnknown(data['order_index']!, _orderIndexMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RatingDb map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RatingDb(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
+      lastModified: $RatingsTable.$converterlastModified.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_modified'],
+        )!,
+      ),
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      filter: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}filter'],
+      ),
+      filterType: $RatingsTable.$converterfilterType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}filter_type'],
+        )!,
+      ),
+      orderIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}order_index'],
+      )!,
+    );
+  }
+
+  @override
+  $RatingsTable createAlias(String alias) {
+    return $RatingsTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<DateTime, DateTime> $converterlastModified =
+      const UtcDateTimeConverter();
+  static JsonTypeConverter2<FilterType, String, String> $converterfilterType =
+      const EnumNameConverter<FilterType>(FilterType.values);
+}
+
+class RatingDb extends DataClass implements Insertable<RatingDb> {
+  final String id;
+  final bool isDeleted;
+  final DateTime lastModified;
+  final String name;
+  final String? notes;
+  final String? filter;
+  final FilterType filterType;
+  final int orderIndex;
+  const RatingDb({
+    required this.id,
+    required this.isDeleted,
+    required this.lastModified,
+    required this.name,
+    this.notes,
+    this.filter,
+    required this.filterType,
+    required this.orderIndex,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    {
+      map['last_modified'] = Variable<DateTime>(
+        $RatingsTable.$converterlastModified.toSql(lastModified),
+      );
+    }
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    if (!nullToAbsent || filter != null) {
+      map['filter'] = Variable<String>(filter);
+    }
+    {
+      map['filter_type'] = Variable<String>(
+        $RatingsTable.$converterfilterType.toSql(filterType),
+      );
+    }
+    map['order_index'] = Variable<int>(orderIndex);
+    return map;
+  }
+
+  RatingsCompanion toCompanion(bool nullToAbsent) {
+    return RatingsCompanion(
+      id: Value(id),
+      isDeleted: Value(isDeleted),
+      lastModified: Value(lastModified),
+      name: Value(name),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      filter: filter == null && nullToAbsent
+          ? const Value.absent()
+          : Value(filter),
+      filterType: Value(filterType),
+      orderIndex: Value(orderIndex),
+    );
+  }
+
+  factory RatingDb.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RatingDb(
+      id: serializer.fromJson<String>(json['id']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      lastModified: serializer.fromJson<DateTime>(json['lastModified']),
+      name: serializer.fromJson<String>(json['name']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      filter: serializer.fromJson<String?>(json['filter']),
+      filterType: $RatingsTable.$converterfilterType.fromJson(
+        serializer.fromJson<String>(json['filterType']),
+      ),
+      orderIndex: serializer.fromJson<int>(json['orderIndex']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'lastModified': serializer.toJson<DateTime>(lastModified),
+      'name': serializer.toJson<String>(name),
+      'notes': serializer.toJson<String?>(notes),
+      'filter': serializer.toJson<String?>(filter),
+      'filterType': serializer.toJson<String>(
+        $RatingsTable.$converterfilterType.toJson(filterType),
+      ),
+      'orderIndex': serializer.toJson<int>(orderIndex),
+    };
+  }
+
+  RatingDb copyWith({
+    String? id,
+    bool? isDeleted,
+    DateTime? lastModified,
+    String? name,
+    Value<String?> notes = const Value.absent(),
+    Value<String?> filter = const Value.absent(),
+    FilterType? filterType,
+    int? orderIndex,
+  }) => RatingDb(
+    id: id ?? this.id,
+    isDeleted: isDeleted ?? this.isDeleted,
+    lastModified: lastModified ?? this.lastModified,
+    name: name ?? this.name,
+    notes: notes.present ? notes.value : this.notes,
+    filter: filter.present ? filter.value : this.filter,
+    filterType: filterType ?? this.filterType,
+    orderIndex: orderIndex ?? this.orderIndex,
+  );
+  RatingDb copyWithCompanion(RatingsCompanion data) {
+    return RatingDb(
+      id: data.id.present ? data.id.value : this.id,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      lastModified: data.lastModified.present
+          ? data.lastModified.value
+          : this.lastModified,
+      name: data.name.present ? data.name.value : this.name,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      filter: data.filter.present ? data.filter.value : this.filter,
+      filterType: data.filterType.present
+          ? data.filterType.value
+          : this.filterType,
+      orderIndex: data.orderIndex.present
+          ? data.orderIndex.value
+          : this.orderIndex,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RatingDb(')
+          ..write('id: $id, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('lastModified: $lastModified, ')
+          ..write('name: $name, ')
+          ..write('notes: $notes, ')
+          ..write('filter: $filter, ')
+          ..write('filterType: $filterType, ')
+          ..write('orderIndex: $orderIndex')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    isDeleted,
+    lastModified,
+    name,
+    notes,
+    filter,
+    filterType,
+    orderIndex,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RatingDb &&
+          other.id == this.id &&
+          other.isDeleted == this.isDeleted &&
+          other.lastModified == this.lastModified &&
+          other.name == this.name &&
+          other.notes == this.notes &&
+          other.filter == this.filter &&
+          other.filterType == this.filterType &&
+          other.orderIndex == this.orderIndex);
+}
+
+class RatingsCompanion extends UpdateCompanion<RatingDb> {
+  final Value<String> id;
+  final Value<bool> isDeleted;
+  final Value<DateTime> lastModified;
+  final Value<String> name;
+  final Value<String?> notes;
+  final Value<String?> filter;
+  final Value<FilterType> filterType;
+  final Value<int> orderIndex;
+  final Value<int> rowid;
+  const RatingsCompanion({
+    this.id = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.lastModified = const Value.absent(),
+    this.name = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.filter = const Value.absent(),
+    this.filterType = const Value.absent(),
+    this.orderIndex = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RatingsCompanion.insert({
+    required String id,
+    this.isDeleted = const Value.absent(),
+    required DateTime lastModified,
+    required String name,
+    this.notes = const Value.absent(),
+    this.filter = const Value.absent(),
+    required FilterType filterType,
+    this.orderIndex = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       lastModified = Value(lastModified),
+       name = Value(name),
+       filterType = Value(filterType);
+  static Insertable<RatingDb> custom({
+    Expression<String>? id,
+    Expression<bool>? isDeleted,
+    Expression<DateTime>? lastModified,
+    Expression<String>? name,
+    Expression<String>? notes,
+    Expression<String>? filter,
+    Expression<String>? filterType,
+    Expression<int>? orderIndex,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (lastModified != null) 'last_modified': lastModified,
+      if (name != null) 'name': name,
+      if (notes != null) 'notes': notes,
+      if (filter != null) 'filter': filter,
+      if (filterType != null) 'filter_type': filterType,
+      if (orderIndex != null) 'order_index': orderIndex,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RatingsCompanion copyWith({
+    Value<String>? id,
+    Value<bool>? isDeleted,
+    Value<DateTime>? lastModified,
+    Value<String>? name,
+    Value<String?>? notes,
+    Value<String?>? filter,
+    Value<FilterType>? filterType,
+    Value<int>? orderIndex,
+    Value<int>? rowid,
+  }) {
+    return RatingsCompanion(
+      id: id ?? this.id,
+      isDeleted: isDeleted ?? this.isDeleted,
+      lastModified: lastModified ?? this.lastModified,
+      name: name ?? this.name,
+      notes: notes ?? this.notes,
+      filter: filter ?? this.filter,
+      filterType: filterType ?? this.filterType,
+      orderIndex: orderIndex ?? this.orderIndex,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (lastModified.present) {
+      map['last_modified'] = Variable<DateTime>(
+        $RatingsTable.$converterlastModified.toSql(lastModified.value),
+      );
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (filter.present) {
+      map['filter'] = Variable<String>(filter.value);
+    }
+    if (filterType.present) {
+      map['filter_type'] = Variable<String>(
+        $RatingsTable.$converterfilterType.toSql(filterType.value),
+      );
+    }
+    if (orderIndex.present) {
+      map['order_index'] = Variable<int>(orderIndex.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RatingsCompanion(')
+          ..write('id: $id, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('lastModified: $lastModified, ')
+          ..write('name: $name, ')
+          ..write('notes: $notes, ')
+          ..write('filter: $filter, ')
+          ..write('filterType: $filterType, ')
+          ..write('orderIndex: $orderIndex, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $RatingMetricsTable extends RatingMetrics
+    with TableInfo<$RatingMetricsTable, RatingMetricDb> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RatingMetricsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ratingIdMeta = const VerificationMeta(
+    'ratingId',
+  );
+  @override
+  late final GeneratedColumn<String> ratingId = GeneratedColumn<String>(
+    'rating_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES ratings (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _orderIndexMeta = const VerificationMeta(
+    'orderIndex',
+  );
+  @override
+  late final GeneratedColumn<int> orderIndex = GeneratedColumn<int>(
+    'order_index',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _weightMeta = const VerificationMeta('weight');
+  @override
+  late final GeneratedColumn<double> weight = GeneratedColumn<double>(
+    'weight',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1.0),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _unitMeta = const VerificationMeta('unit');
+  @override
+  late final GeneratedColumn<String> unit = GeneratedColumn<String>(
+    'unit',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<AdjustmentCategory, String>
+  category = GeneratedColumn<String>(
+    'category',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  ).withConverter<AdjustmentCategory>($RatingMetricsTable.$convertercategory);
+  @override
+  late final GeneratedColumnWithTypeConverter<AdjustmentType, String> type =
+      GeneratedColumn<String>(
+        'type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      ).withConverter<AdjustmentType>($RatingMetricsTable.$convertertype);
+  static const VerificationMeta _jsonPayloadMeta = const VerificationMeta(
+    'jsonPayload',
+  );
+  @override
+  late final GeneratedColumn<String> jsonPayload = GeneratedColumn<String>(
+    'json_payload',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    ratingId,
+    orderIndex,
+    weight,
+    name,
+    notes,
+    unit,
+    category,
+    type,
+    jsonPayload,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'rating_metrics';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<RatingMetricDb> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('rating_id')) {
+      context.handle(
+        _ratingIdMeta,
+        ratingId.isAcceptableOrUnknown(data['rating_id']!, _ratingIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ratingIdMeta);
+    }
+    if (data.containsKey('order_index')) {
+      context.handle(
+        _orderIndexMeta,
+        orderIndex.isAcceptableOrUnknown(data['order_index']!, _orderIndexMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_orderIndexMeta);
+    }
+    if (data.containsKey('weight')) {
+      context.handle(
+        _weightMeta,
+        weight.isAcceptableOrUnknown(data['weight']!, _weightMeta),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('unit')) {
+      context.handle(
+        _unitMeta,
+        unit.isAcceptableOrUnknown(data['unit']!, _unitMeta),
+      );
+    }
+    if (data.containsKey('json_payload')) {
+      context.handle(
+        _jsonPayloadMeta,
+        jsonPayload.isAcceptableOrUnknown(
+          data['json_payload']!,
+          _jsonPayloadMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RatingMetricDb map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RatingMetricDb(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      ratingId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}rating_id'],
+      )!,
+      orderIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}order_index'],
+      )!,
+      weight: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}weight'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      unit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit'],
+      ),
+      category: $RatingMetricsTable.$convertercategory.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}category'],
+        )!,
+      ),
+      type: $RatingMetricsTable.$convertertype.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}type'],
+        )!,
+      ),
+      jsonPayload: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}json_payload'],
+      ),
+    );
+  }
+
+  @override
+  $RatingMetricsTable createAlias(String alias) {
+    return $RatingMetricsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<AdjustmentCategory, String, String>
+  $convertercategory = const EnumNameConverter(AdjustmentCategory.values);
+  static JsonTypeConverter2<AdjustmentType, String, String> $convertertype =
+      const EnumNameConverter<AdjustmentType>(AdjustmentType.values);
+}
+
+class RatingMetricDb extends DataClass implements Insertable<RatingMetricDb> {
+  final String id;
+  final String ratingId;
+  final int orderIndex;
+  final double weight;
+  final String name;
+  final String? notes;
+  final String? unit;
+  final AdjustmentCategory category;
+  final AdjustmentType type;
+  final String? jsonPayload;
+  const RatingMetricDb({
+    required this.id,
+    required this.ratingId,
+    required this.orderIndex,
+    required this.weight,
+    required this.name,
+    this.notes,
+    this.unit,
+    required this.category,
+    required this.type,
+    this.jsonPayload,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['rating_id'] = Variable<String>(ratingId);
+    map['order_index'] = Variable<int>(orderIndex);
+    map['weight'] = Variable<double>(weight);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    if (!nullToAbsent || unit != null) {
+      map['unit'] = Variable<String>(unit);
+    }
+    {
+      map['category'] = Variable<String>(
+        $RatingMetricsTable.$convertercategory.toSql(category),
+      );
+    }
+    {
+      map['type'] = Variable<String>(
+        $RatingMetricsTable.$convertertype.toSql(type),
+      );
+    }
+    if (!nullToAbsent || jsonPayload != null) {
+      map['json_payload'] = Variable<String>(jsonPayload);
+    }
+    return map;
+  }
+
+  RatingMetricsCompanion toCompanion(bool nullToAbsent) {
+    return RatingMetricsCompanion(
+      id: Value(id),
+      ratingId: Value(ratingId),
+      orderIndex: Value(orderIndex),
+      weight: Value(weight),
+      name: Value(name),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      unit: unit == null && nullToAbsent ? const Value.absent() : Value(unit),
+      category: Value(category),
+      type: Value(type),
+      jsonPayload: jsonPayload == null && nullToAbsent
+          ? const Value.absent()
+          : Value(jsonPayload),
+    );
+  }
+
+  factory RatingMetricDb.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RatingMetricDb(
+      id: serializer.fromJson<String>(json['id']),
+      ratingId: serializer.fromJson<String>(json['ratingId']),
+      orderIndex: serializer.fromJson<int>(json['orderIndex']),
+      weight: serializer.fromJson<double>(json['weight']),
+      name: serializer.fromJson<String>(json['name']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      unit: serializer.fromJson<String?>(json['unit']),
+      category: $RatingMetricsTable.$convertercategory.fromJson(
+        serializer.fromJson<String>(json['category']),
+      ),
+      type: $RatingMetricsTable.$convertertype.fromJson(
+        serializer.fromJson<String>(json['type']),
+      ),
+      jsonPayload: serializer.fromJson<String?>(json['jsonPayload']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'ratingId': serializer.toJson<String>(ratingId),
+      'orderIndex': serializer.toJson<int>(orderIndex),
+      'weight': serializer.toJson<double>(weight),
+      'name': serializer.toJson<String>(name),
+      'notes': serializer.toJson<String?>(notes),
+      'unit': serializer.toJson<String?>(unit),
+      'category': serializer.toJson<String>(
+        $RatingMetricsTable.$convertercategory.toJson(category),
+      ),
+      'type': serializer.toJson<String>(
+        $RatingMetricsTable.$convertertype.toJson(type),
+      ),
+      'jsonPayload': serializer.toJson<String?>(jsonPayload),
+    };
+  }
+
+  RatingMetricDb copyWith({
+    String? id,
+    String? ratingId,
+    int? orderIndex,
+    double? weight,
+    String? name,
+    Value<String?> notes = const Value.absent(),
+    Value<String?> unit = const Value.absent(),
+    AdjustmentCategory? category,
+    AdjustmentType? type,
+    Value<String?> jsonPayload = const Value.absent(),
+  }) => RatingMetricDb(
+    id: id ?? this.id,
+    ratingId: ratingId ?? this.ratingId,
+    orderIndex: orderIndex ?? this.orderIndex,
+    weight: weight ?? this.weight,
+    name: name ?? this.name,
+    notes: notes.present ? notes.value : this.notes,
+    unit: unit.present ? unit.value : this.unit,
+    category: category ?? this.category,
+    type: type ?? this.type,
+    jsonPayload: jsonPayload.present ? jsonPayload.value : this.jsonPayload,
+  );
+  RatingMetricDb copyWithCompanion(RatingMetricsCompanion data) {
+    return RatingMetricDb(
+      id: data.id.present ? data.id.value : this.id,
+      ratingId: data.ratingId.present ? data.ratingId.value : this.ratingId,
+      orderIndex: data.orderIndex.present
+          ? data.orderIndex.value
+          : this.orderIndex,
+      weight: data.weight.present ? data.weight.value : this.weight,
+      name: data.name.present ? data.name.value : this.name,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      unit: data.unit.present ? data.unit.value : this.unit,
+      category: data.category.present ? data.category.value : this.category,
+      type: data.type.present ? data.type.value : this.type,
+      jsonPayload: data.jsonPayload.present
+          ? data.jsonPayload.value
+          : this.jsonPayload,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RatingMetricDb(')
+          ..write('id: $id, ')
+          ..write('ratingId: $ratingId, ')
+          ..write('orderIndex: $orderIndex, ')
+          ..write('weight: $weight, ')
+          ..write('name: $name, ')
+          ..write('notes: $notes, ')
+          ..write('unit: $unit, ')
+          ..write('category: $category, ')
+          ..write('type: $type, ')
+          ..write('jsonPayload: $jsonPayload')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    ratingId,
+    orderIndex,
+    weight,
+    name,
+    notes,
+    unit,
+    category,
+    type,
+    jsonPayload,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RatingMetricDb &&
+          other.id == this.id &&
+          other.ratingId == this.ratingId &&
+          other.orderIndex == this.orderIndex &&
+          other.weight == this.weight &&
+          other.name == this.name &&
+          other.notes == this.notes &&
+          other.unit == this.unit &&
+          other.category == this.category &&
+          other.type == this.type &&
+          other.jsonPayload == this.jsonPayload);
+}
+
+class RatingMetricsCompanion extends UpdateCompanion<RatingMetricDb> {
+  final Value<String> id;
+  final Value<String> ratingId;
+  final Value<int> orderIndex;
+  final Value<double> weight;
+  final Value<String> name;
+  final Value<String?> notes;
+  final Value<String?> unit;
+  final Value<AdjustmentCategory> category;
+  final Value<AdjustmentType> type;
+  final Value<String?> jsonPayload;
+  final Value<int> rowid;
+  const RatingMetricsCompanion({
+    this.id = const Value.absent(),
+    this.ratingId = const Value.absent(),
+    this.orderIndex = const Value.absent(),
+    this.weight = const Value.absent(),
+    this.name = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.unit = const Value.absent(),
+    this.category = const Value.absent(),
+    this.type = const Value.absent(),
+    this.jsonPayload = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RatingMetricsCompanion.insert({
+    required String id,
+    required String ratingId,
+    required int orderIndex,
+    this.weight = const Value.absent(),
+    required String name,
+    this.notes = const Value.absent(),
+    this.unit = const Value.absent(),
+    required AdjustmentCategory category,
+    required AdjustmentType type,
+    this.jsonPayload = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       ratingId = Value(ratingId),
+       orderIndex = Value(orderIndex),
+       name = Value(name),
+       category = Value(category),
+       type = Value(type);
+  static Insertable<RatingMetricDb> custom({
+    Expression<String>? id,
+    Expression<String>? ratingId,
+    Expression<int>? orderIndex,
+    Expression<double>? weight,
+    Expression<String>? name,
+    Expression<String>? notes,
+    Expression<String>? unit,
+    Expression<String>? category,
+    Expression<String>? type,
+    Expression<String>? jsonPayload,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (ratingId != null) 'rating_id': ratingId,
+      if (orderIndex != null) 'order_index': orderIndex,
+      if (weight != null) 'weight': weight,
+      if (name != null) 'name': name,
+      if (notes != null) 'notes': notes,
+      if (unit != null) 'unit': unit,
+      if (category != null) 'category': category,
+      if (type != null) 'type': type,
+      if (jsonPayload != null) 'json_payload': jsonPayload,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RatingMetricsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? ratingId,
+    Value<int>? orderIndex,
+    Value<double>? weight,
+    Value<String>? name,
+    Value<String?>? notes,
+    Value<String?>? unit,
+    Value<AdjustmentCategory>? category,
+    Value<AdjustmentType>? type,
+    Value<String?>? jsonPayload,
+    Value<int>? rowid,
+  }) {
+    return RatingMetricsCompanion(
+      id: id ?? this.id,
+      ratingId: ratingId ?? this.ratingId,
+      orderIndex: orderIndex ?? this.orderIndex,
+      weight: weight ?? this.weight,
+      name: name ?? this.name,
+      notes: notes ?? this.notes,
+      unit: unit ?? this.unit,
+      category: category ?? this.category,
+      type: type ?? this.type,
+      jsonPayload: jsonPayload ?? this.jsonPayload,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (ratingId.present) {
+      map['rating_id'] = Variable<String>(ratingId.value);
+    }
+    if (orderIndex.present) {
+      map['order_index'] = Variable<int>(orderIndex.value);
+    }
+    if (weight.present) {
+      map['weight'] = Variable<double>(weight.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (unit.present) {
+      map['unit'] = Variable<String>(unit.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(
+        $RatingMetricsTable.$convertercategory.toSql(category.value),
+      );
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(
+        $RatingMetricsTable.$convertertype.toSql(type.value),
+      );
+    }
+    if (jsonPayload.present) {
+      map['json_payload'] = Variable<String>(jsonPayload.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RatingMetricsCompanion(')
+          ..write('id: $id, ')
+          ..write('ratingId: $ratingId, ')
+          ..write('orderIndex: $orderIndex, ')
+          ..write('weight: $weight, ')
+          ..write('name: $name, ')
+          ..write('notes: $notes, ')
+          ..write('unit: $unit, ')
+          ..write('category: $category, ')
+          ..write('type: $type, ')
+          ..write('jsonPayload: $jsonPayload, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $RatingEntriesTable extends RatingEntries
+    with TableInfo<$RatingEntriesTable, RatingEntryDb> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RatingEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bikeIdMeta = const VerificationMeta('bikeId');
+  @override
+  late final GeneratedColumn<String> bikeId = GeneratedColumn<String>(
+    'bike_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES bikes (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _setupIdMeta = const VerificationMeta(
+    'setupId',
+  );
+  @override
+  late final GeneratedColumn<String> setupId = GeneratedColumn<String>(
+    'setup_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES setups (id) ON DELETE SET NULL',
+    ),
+  );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> lastModified =
+      GeneratedColumn<DateTime>(
+        'last_modified',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($RatingEntriesTable.$converterlastModified);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime> dateTimeUTC =
+      GeneratedColumn<DateTime>(
+        'date_time_u_t_c',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($RatingEntriesTable.$converterdateTimeUTC);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, DateTime>
+  dateTimeLocal = GeneratedColumn<DateTime>(
+    'date_time_local',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  ).withConverter<DateTime>($RatingEntriesTable.$converterdateTimeLocal);
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<LocationData?, String> position =
+      GeneratedColumn<String>(
+        'position',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<LocationData?>($RatingEntriesTable.$converterpositionn);
+  @override
+  late final GeneratedColumnWithTypeConverter<geo.Placemark?, String> place =
+      GeneratedColumn<String>(
+        'place',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<geo.Placemark?>($RatingEntriesTable.$converterplacen);
+  @override
+  late final GeneratedColumnWithTypeConverter<ContextWeather?, String> weather =
+      GeneratedColumn<String>(
+        'weather',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<ContextWeather?>($RatingEntriesTable.$converterweathern);
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    bikeId,
+    setupId,
+    isDeleted,
+    lastModified,
+    name,
+    dateTimeUTC,
+    dateTimeLocal,
+    notes,
+    position,
+    place,
+    weather,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'rating_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<RatingEntryDb> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('bike_id')) {
+      context.handle(
+        _bikeIdMeta,
+        bikeId.isAcceptableOrUnknown(data['bike_id']!, _bikeIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bikeIdMeta);
+    }
+    if (data.containsKey('setup_id')) {
+      context.handle(
+        _setupIdMeta,
+        setupId.isAcceptableOrUnknown(data['setup_id']!, _setupIdMeta),
+      );
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RatingEntryDb map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RatingEntryDb(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      bikeId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bike_id'],
+      )!,
+      setupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}setup_id'],
+      ),
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
+      lastModified: $RatingEntriesTable.$converterlastModified.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}last_modified'],
+        )!,
+      ),
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      ),
+      dateTimeUTC: $RatingEntriesTable.$converterdateTimeUTC.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}date_time_u_t_c'],
+        )!,
+      ),
+      dateTimeLocal: $RatingEntriesTable.$converterdateTimeLocal.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime,
+          data['${effectivePrefix}date_time_local'],
+        )!,
+      ),
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      position: $RatingEntriesTable.$converterpositionn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}position'],
+        ),
+      ),
+      place: $RatingEntriesTable.$converterplacen.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}place'],
+        ),
+      ),
+      weather: $RatingEntriesTable.$converterweathern.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}weather'],
+        ),
+      ),
+    );
+  }
+
+  @override
+  $RatingEntriesTable createAlias(String alias) {
+    return $RatingEntriesTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<DateTime, DateTime> $converterlastModified =
+      const UtcDateTimeConverter();
+  static TypeConverter<DateTime, DateTime> $converterdateTimeUTC =
+      const UtcDateTimeConverter();
+  static TypeConverter<DateTime, DateTime> $converterdateTimeLocal =
+      const LocalFloatingDateTimeConverter();
+  static TypeConverter<LocationData, String> $converterposition =
+      const LocationDataConverter();
+  static TypeConverter<LocationData?, String?> $converterpositionn =
+      NullAwareTypeConverter.wrap($converterposition);
+  static TypeConverter<geo.Placemark, String> $converterplace =
+      const PlacemarkConverter();
+  static TypeConverter<geo.Placemark?, String?> $converterplacen =
+      NullAwareTypeConverter.wrap($converterplace);
+  static TypeConverter<ContextWeather, String> $converterweather =
+      const WeatherConverter();
+  static TypeConverter<ContextWeather?, String?> $converterweathern =
+      NullAwareTypeConverter.wrap($converterweather);
+}
+
+class RatingEntryDb extends DataClass implements Insertable<RatingEntryDb> {
+  final String id;
+  final String bikeId;
+  final String? setupId;
+  final bool isDeleted;
+  final DateTime lastModified;
+  final String? name;
+  final DateTime dateTimeUTC;
+  final DateTime dateTimeLocal;
+  final String? notes;
+  final LocationData? position;
+  final geo.Placemark? place;
+  final ContextWeather? weather;
+  const RatingEntryDb({
+    required this.id,
+    required this.bikeId,
+    this.setupId,
+    required this.isDeleted,
+    required this.lastModified,
+    this.name,
+    required this.dateTimeUTC,
+    required this.dateTimeLocal,
+    this.notes,
+    this.position,
+    this.place,
+    this.weather,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['bike_id'] = Variable<String>(bikeId);
+    if (!nullToAbsent || setupId != null) {
+      map['setup_id'] = Variable<String>(setupId);
+    }
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    {
+      map['last_modified'] = Variable<DateTime>(
+        $RatingEntriesTable.$converterlastModified.toSql(lastModified),
+      );
+    }
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    {
+      map['date_time_u_t_c'] = Variable<DateTime>(
+        $RatingEntriesTable.$converterdateTimeUTC.toSql(dateTimeUTC),
+      );
+    }
+    {
+      map['date_time_local'] = Variable<DateTime>(
+        $RatingEntriesTable.$converterdateTimeLocal.toSql(dateTimeLocal),
+      );
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    if (!nullToAbsent || position != null) {
+      map['position'] = Variable<String>(
+        $RatingEntriesTable.$converterpositionn.toSql(position),
+      );
+    }
+    if (!nullToAbsent || place != null) {
+      map['place'] = Variable<String>(
+        $RatingEntriesTable.$converterplacen.toSql(place),
+      );
+    }
+    if (!nullToAbsent || weather != null) {
+      map['weather'] = Variable<String>(
+        $RatingEntriesTable.$converterweathern.toSql(weather),
+      );
+    }
+    return map;
+  }
+
+  RatingEntriesCompanion toCompanion(bool nullToAbsent) {
+    return RatingEntriesCompanion(
+      id: Value(id),
+      bikeId: Value(bikeId),
+      setupId: setupId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(setupId),
+      isDeleted: Value(isDeleted),
+      lastModified: Value(lastModified),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      dateTimeUTC: Value(dateTimeUTC),
+      dateTimeLocal: Value(dateTimeLocal),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      position: position == null && nullToAbsent
+          ? const Value.absent()
+          : Value(position),
+      place: place == null && nullToAbsent
+          ? const Value.absent()
+          : Value(place),
+      weather: weather == null && nullToAbsent
+          ? const Value.absent()
+          : Value(weather),
+    );
+  }
+
+  factory RatingEntryDb.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RatingEntryDb(
+      id: serializer.fromJson<String>(json['id']),
+      bikeId: serializer.fromJson<String>(json['bikeId']),
+      setupId: serializer.fromJson<String?>(json['setupId']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      lastModified: serializer.fromJson<DateTime>(json['lastModified']),
+      name: serializer.fromJson<String?>(json['name']),
+      dateTimeUTC: serializer.fromJson<DateTime>(json['dateTimeUTC']),
+      dateTimeLocal: serializer.fromJson<DateTime>(json['dateTimeLocal']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      position: serializer.fromJson<LocationData?>(json['position']),
+      place: serializer.fromJson<geo.Placemark?>(json['place']),
+      weather: serializer.fromJson<ContextWeather?>(json['weather']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'bikeId': serializer.toJson<String>(bikeId),
+      'setupId': serializer.toJson<String?>(setupId),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'lastModified': serializer.toJson<DateTime>(lastModified),
+      'name': serializer.toJson<String?>(name),
+      'dateTimeUTC': serializer.toJson<DateTime>(dateTimeUTC),
+      'dateTimeLocal': serializer.toJson<DateTime>(dateTimeLocal),
+      'notes': serializer.toJson<String?>(notes),
+      'position': serializer.toJson<LocationData?>(position),
+      'place': serializer.toJson<geo.Placemark?>(place),
+      'weather': serializer.toJson<ContextWeather?>(weather),
+    };
+  }
+
+  RatingEntryDb copyWith({
+    String? id,
+    String? bikeId,
+    Value<String?> setupId = const Value.absent(),
+    bool? isDeleted,
+    DateTime? lastModified,
+    Value<String?> name = const Value.absent(),
+    DateTime? dateTimeUTC,
+    DateTime? dateTimeLocal,
+    Value<String?> notes = const Value.absent(),
+    Value<LocationData?> position = const Value.absent(),
+    Value<geo.Placemark?> place = const Value.absent(),
+    Value<ContextWeather?> weather = const Value.absent(),
+  }) => RatingEntryDb(
+    id: id ?? this.id,
+    bikeId: bikeId ?? this.bikeId,
+    setupId: setupId.present ? setupId.value : this.setupId,
+    isDeleted: isDeleted ?? this.isDeleted,
+    lastModified: lastModified ?? this.lastModified,
+    name: name.present ? name.value : this.name,
+    dateTimeUTC: dateTimeUTC ?? this.dateTimeUTC,
+    dateTimeLocal: dateTimeLocal ?? this.dateTimeLocal,
+    notes: notes.present ? notes.value : this.notes,
+    position: position.present ? position.value : this.position,
+    place: place.present ? place.value : this.place,
+    weather: weather.present ? weather.value : this.weather,
+  );
+  RatingEntryDb copyWithCompanion(RatingEntriesCompanion data) {
+    return RatingEntryDb(
+      id: data.id.present ? data.id.value : this.id,
+      bikeId: data.bikeId.present ? data.bikeId.value : this.bikeId,
+      setupId: data.setupId.present ? data.setupId.value : this.setupId,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      lastModified: data.lastModified.present
+          ? data.lastModified.value
+          : this.lastModified,
+      name: data.name.present ? data.name.value : this.name,
+      dateTimeUTC: data.dateTimeUTC.present
+          ? data.dateTimeUTC.value
+          : this.dateTimeUTC,
+      dateTimeLocal: data.dateTimeLocal.present
+          ? data.dateTimeLocal.value
+          : this.dateTimeLocal,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      position: data.position.present ? data.position.value : this.position,
+      place: data.place.present ? data.place.value : this.place,
+      weather: data.weather.present ? data.weather.value : this.weather,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RatingEntryDb(')
+          ..write('id: $id, ')
+          ..write('bikeId: $bikeId, ')
+          ..write('setupId: $setupId, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('lastModified: $lastModified, ')
+          ..write('name: $name, ')
+          ..write('dateTimeUTC: $dateTimeUTC, ')
+          ..write('dateTimeLocal: $dateTimeLocal, ')
+          ..write('notes: $notes, ')
+          ..write('position: $position, ')
+          ..write('place: $place, ')
+          ..write('weather: $weather')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    bikeId,
+    setupId,
+    isDeleted,
+    lastModified,
+    name,
+    dateTimeUTC,
+    dateTimeLocal,
+    notes,
+    position,
+    place,
+    weather,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RatingEntryDb &&
+          other.id == this.id &&
+          other.bikeId == this.bikeId &&
+          other.setupId == this.setupId &&
+          other.isDeleted == this.isDeleted &&
+          other.lastModified == this.lastModified &&
+          other.name == this.name &&
+          other.dateTimeUTC == this.dateTimeUTC &&
+          other.dateTimeLocal == this.dateTimeLocal &&
+          other.notes == this.notes &&
+          other.position == this.position &&
+          other.place == this.place &&
+          other.weather == this.weather);
+}
+
+class RatingEntriesCompanion extends UpdateCompanion<RatingEntryDb> {
+  final Value<String> id;
+  final Value<String> bikeId;
+  final Value<String?> setupId;
+  final Value<bool> isDeleted;
+  final Value<DateTime> lastModified;
+  final Value<String?> name;
+  final Value<DateTime> dateTimeUTC;
+  final Value<DateTime> dateTimeLocal;
+  final Value<String?> notes;
+  final Value<LocationData?> position;
+  final Value<geo.Placemark?> place;
+  final Value<ContextWeather?> weather;
+  final Value<int> rowid;
+  const RatingEntriesCompanion({
+    this.id = const Value.absent(),
+    this.bikeId = const Value.absent(),
+    this.setupId = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.lastModified = const Value.absent(),
+    this.name = const Value.absent(),
+    this.dateTimeUTC = const Value.absent(),
+    this.dateTimeLocal = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.position = const Value.absent(),
+    this.place = const Value.absent(),
+    this.weather = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RatingEntriesCompanion.insert({
+    required String id,
+    required String bikeId,
+    this.setupId = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    required DateTime lastModified,
+    this.name = const Value.absent(),
+    required DateTime dateTimeUTC,
+    required DateTime dateTimeLocal,
+    this.notes = const Value.absent(),
+    this.position = const Value.absent(),
+    this.place = const Value.absent(),
+    this.weather = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       bikeId = Value(bikeId),
+       lastModified = Value(lastModified),
+       dateTimeUTC = Value(dateTimeUTC),
+       dateTimeLocal = Value(dateTimeLocal);
+  static Insertable<RatingEntryDb> custom({
+    Expression<String>? id,
+    Expression<String>? bikeId,
+    Expression<String>? setupId,
+    Expression<bool>? isDeleted,
+    Expression<DateTime>? lastModified,
+    Expression<String>? name,
+    Expression<DateTime>? dateTimeUTC,
+    Expression<DateTime>? dateTimeLocal,
+    Expression<String>? notes,
+    Expression<String>? position,
+    Expression<String>? place,
+    Expression<String>? weather,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (bikeId != null) 'bike_id': bikeId,
+      if (setupId != null) 'setup_id': setupId,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (lastModified != null) 'last_modified': lastModified,
+      if (name != null) 'name': name,
+      if (dateTimeUTC != null) 'date_time_u_t_c': dateTimeUTC,
+      if (dateTimeLocal != null) 'date_time_local': dateTimeLocal,
+      if (notes != null) 'notes': notes,
+      if (position != null) 'position': position,
+      if (place != null) 'place': place,
+      if (weather != null) 'weather': weather,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RatingEntriesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? bikeId,
+    Value<String?>? setupId,
+    Value<bool>? isDeleted,
+    Value<DateTime>? lastModified,
+    Value<String?>? name,
+    Value<DateTime>? dateTimeUTC,
+    Value<DateTime>? dateTimeLocal,
+    Value<String?>? notes,
+    Value<LocationData?>? position,
+    Value<geo.Placemark?>? place,
+    Value<ContextWeather?>? weather,
+    Value<int>? rowid,
+  }) {
+    return RatingEntriesCompanion(
+      id: id ?? this.id,
+      bikeId: bikeId ?? this.bikeId,
+      setupId: setupId ?? this.setupId,
+      isDeleted: isDeleted ?? this.isDeleted,
+      lastModified: lastModified ?? this.lastModified,
+      name: name ?? this.name,
+      dateTimeUTC: dateTimeUTC ?? this.dateTimeUTC,
+      dateTimeLocal: dateTimeLocal ?? this.dateTimeLocal,
+      notes: notes ?? this.notes,
+      position: position ?? this.position,
+      place: place ?? this.place,
+      weather: weather ?? this.weather,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (bikeId.present) {
+      map['bike_id'] = Variable<String>(bikeId.value);
+    }
+    if (setupId.present) {
+      map['setup_id'] = Variable<String>(setupId.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (lastModified.present) {
+      map['last_modified'] = Variable<DateTime>(
+        $RatingEntriesTable.$converterlastModified.toSql(lastModified.value),
+      );
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (dateTimeUTC.present) {
+      map['date_time_u_t_c'] = Variable<DateTime>(
+        $RatingEntriesTable.$converterdateTimeUTC.toSql(dateTimeUTC.value),
+      );
+    }
+    if (dateTimeLocal.present) {
+      map['date_time_local'] = Variable<DateTime>(
+        $RatingEntriesTable.$converterdateTimeLocal.toSql(dateTimeLocal.value),
+      );
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<String>(
+        $RatingEntriesTable.$converterpositionn.toSql(position.value),
+      );
+    }
+    if (place.present) {
+      map['place'] = Variable<String>(
+        $RatingEntriesTable.$converterplacen.toSql(place.value),
+      );
+    }
+    if (weather.present) {
+      map['weather'] = Variable<String>(
+        $RatingEntriesTable.$converterweathern.toSql(weather.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RatingEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('bikeId: $bikeId, ')
+          ..write('setupId: $setupId, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('lastModified: $lastModified, ')
+          ..write('name: $name, ')
+          ..write('dateTimeUTC: $dateTimeUTC, ')
+          ..write('dateTimeLocal: $dateTimeLocal, ')
+          ..write('notes: $notes, ')
+          ..write('position: $position, ')
+          ..write('place: $place, ')
+          ..write('weather: $weather, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $RatingEntryValuesTable extends RatingEntryValues
+    with TableInfo<$RatingEntryValuesTable, RatingEntryValueDb> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RatingEntryValuesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _ratingEntryIdMeta = const VerificationMeta(
+    'ratingEntryId',
+  );
+  @override
+  late final GeneratedColumn<String> ratingEntryId = GeneratedColumn<String>(
+    'rating_entry_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES rating_entries (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _ratingMetricIdMeta = const VerificationMeta(
+    'ratingMetricId',
+  );
+  @override
+  late final GeneratedColumn<String> ratingMetricId = GeneratedColumn<String>(
+    'rating_metric_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES rating_metrics (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  @override
+  late final GeneratedColumn<String> value = GeneratedColumn<String>(
+    'value',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [ratingEntryId, ratingMetricId, value];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'rating_entry_values';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<RatingEntryValueDb> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('rating_entry_id')) {
+      context.handle(
+        _ratingEntryIdMeta,
+        ratingEntryId.isAcceptableOrUnknown(
+          data['rating_entry_id']!,
+          _ratingEntryIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_ratingEntryIdMeta);
+    }
+    if (data.containsKey('rating_metric_id')) {
+      context.handle(
+        _ratingMetricIdMeta,
+        ratingMetricId.isAcceptableOrUnknown(
+          data['rating_metric_id']!,
+          _ratingMetricIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_ratingMetricIdMeta);
+    }
+    if (data.containsKey('value')) {
+      context.handle(
+        _valueMeta,
+        value.isAcceptableOrUnknown(data['value']!, _valueMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_valueMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {ratingEntryId, ratingMetricId};
+  @override
+  RatingEntryValueDb map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RatingEntryValueDb(
+      ratingEntryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}rating_entry_id'],
+      )!,
+      ratingMetricId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}rating_metric_id'],
+      )!,
+      value: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}value'],
+      )!,
+    );
+  }
+
+  @override
+  $RatingEntryValuesTable createAlias(String alias) {
+    return $RatingEntryValuesTable(attachedDatabase, alias);
+  }
+}
+
+class RatingEntryValueDb extends DataClass
+    implements Insertable<RatingEntryValueDb> {
+  final String ratingEntryId;
+  final String ratingMetricId;
+  final String value;
+  const RatingEntryValueDb({
+    required this.ratingEntryId,
+    required this.ratingMetricId,
+    required this.value,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['rating_entry_id'] = Variable<String>(ratingEntryId);
+    map['rating_metric_id'] = Variable<String>(ratingMetricId);
+    map['value'] = Variable<String>(value);
+    return map;
+  }
+
+  RatingEntryValuesCompanion toCompanion(bool nullToAbsent) {
+    return RatingEntryValuesCompanion(
+      ratingEntryId: Value(ratingEntryId),
+      ratingMetricId: Value(ratingMetricId),
+      value: Value(value),
+    );
+  }
+
+  factory RatingEntryValueDb.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RatingEntryValueDb(
+      ratingEntryId: serializer.fromJson<String>(json['ratingEntryId']),
+      ratingMetricId: serializer.fromJson<String>(json['ratingMetricId']),
+      value: serializer.fromJson<String>(json['value']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'ratingEntryId': serializer.toJson<String>(ratingEntryId),
+      'ratingMetricId': serializer.toJson<String>(ratingMetricId),
+      'value': serializer.toJson<String>(value),
+    };
+  }
+
+  RatingEntryValueDb copyWith({
+    String? ratingEntryId,
+    String? ratingMetricId,
+    String? value,
+  }) => RatingEntryValueDb(
+    ratingEntryId: ratingEntryId ?? this.ratingEntryId,
+    ratingMetricId: ratingMetricId ?? this.ratingMetricId,
+    value: value ?? this.value,
+  );
+  RatingEntryValueDb copyWithCompanion(RatingEntryValuesCompanion data) {
+    return RatingEntryValueDb(
+      ratingEntryId: data.ratingEntryId.present
+          ? data.ratingEntryId.value
+          : this.ratingEntryId,
+      ratingMetricId: data.ratingMetricId.present
+          ? data.ratingMetricId.value
+          : this.ratingMetricId,
+      value: data.value.present ? data.value.value : this.value,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RatingEntryValueDb(')
+          ..write('ratingEntryId: $ratingEntryId, ')
+          ..write('ratingMetricId: $ratingMetricId, ')
+          ..write('value: $value')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(ratingEntryId, ratingMetricId, value);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RatingEntryValueDb &&
+          other.ratingEntryId == this.ratingEntryId &&
+          other.ratingMetricId == this.ratingMetricId &&
+          other.value == this.value);
+}
+
+class RatingEntryValuesCompanion extends UpdateCompanion<RatingEntryValueDb> {
+  final Value<String> ratingEntryId;
+  final Value<String> ratingMetricId;
+  final Value<String> value;
+  final Value<int> rowid;
+  const RatingEntryValuesCompanion({
+    this.ratingEntryId = const Value.absent(),
+    this.ratingMetricId = const Value.absent(),
+    this.value = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RatingEntryValuesCompanion.insert({
+    required String ratingEntryId,
+    required String ratingMetricId,
+    required String value,
+    this.rowid = const Value.absent(),
+  }) : ratingEntryId = Value(ratingEntryId),
+       ratingMetricId = Value(ratingMetricId),
+       value = Value(value);
+  static Insertable<RatingEntryValueDb> custom({
+    Expression<String>? ratingEntryId,
+    Expression<String>? ratingMetricId,
+    Expression<String>? value,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (ratingEntryId != null) 'rating_entry_id': ratingEntryId,
+      if (ratingMetricId != null) 'rating_metric_id': ratingMetricId,
+      if (value != null) 'value': value,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RatingEntryValuesCompanion copyWith({
+    Value<String>? ratingEntryId,
+    Value<String>? ratingMetricId,
+    Value<String>? value,
+    Value<int>? rowid,
+  }) {
+    return RatingEntryValuesCompanion(
+      ratingEntryId: ratingEntryId ?? this.ratingEntryId,
+      ratingMetricId: ratingMetricId ?? this.ratingMetricId,
+      value: value ?? this.value,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (ratingEntryId.present) {
+      map['rating_entry_id'] = Variable<String>(ratingEntryId.value);
+    }
+    if (ratingMetricId.present) {
+      map['rating_metric_id'] = Variable<String>(ratingMetricId.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<String>(value.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RatingEntryValuesCompanion(')
+          ..write('ratingEntryId: $ratingEntryId, ')
+          ..write('ratingMetricId: $ratingMetricId, ')
           ..write('value: $value, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -7235,12 +8807,16 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TaskRulesTable taskRules = $TaskRulesTable(this);
   late final $TaskEntriesTable taskEntries = $TaskEntriesTable(this);
   late final $PersonsTable persons = $PersonsTable(this);
-  late final $RatingsTable ratings = $RatingsTable(this);
   late final $AdjustmentsTable adjustments = $AdjustmentsTable(this);
   late final $InstallationsTable installations = $InstallationsTable(this);
   late final $SetupsTable setups = $SetupsTable(this);
   late final $SetupAdjustmentValuesTable setupAdjustmentValues =
       $SetupAdjustmentValuesTable(this);
+  late final $RatingsTable ratings = $RatingsTable(this);
+  late final $RatingMetricsTable ratingMetrics = $RatingMetricsTable(this);
+  late final $RatingEntriesTable ratingEntries = $RatingEntriesTable(this);
+  late final $RatingEntryValuesTable ratingEntryValues =
+      $RatingEntryValuesTable(this);
   late final $StravaActivitiesTable stravaActivities = $StravaActivitiesTable(
     this,
   );
@@ -7251,6 +8827,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final SetupsDao setupsDao = SetupsDao(this as AppDatabase);
   late final PersonsDao personsDao = PersonsDao(this as AppDatabase);
   late final RatingsDao ratingsDao = RatingsDao(this as AppDatabase);
+  late final RatingEntriesDao ratingEntriesDao = RatingEntriesDao(
+    this as AppDatabase,
+  );
   late final TaskDao taskDao = TaskDao(this as AppDatabase);
   late final StravaDao stravaDao = StravaDao(this as AppDatabase);
   @override
@@ -7263,11 +8842,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     taskRules,
     taskEntries,
     persons,
-    ratings,
     adjustments,
     installations,
     setups,
     setupAdjustmentValues,
+    ratings,
+    ratingMetrics,
+    ratingEntries,
+    ratingEntryValues,
     stravaActivities,
     stravaAthletes,
     stravaGears,
@@ -7291,13 +8873,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     WritePropagation(
       on: TableUpdateQuery.onTableName(
         'persons',
-        limitUpdateKind: UpdateKind.delete,
-      ),
-      result: [TableUpdate('adjustments', kind: UpdateKind.delete)],
-    ),
-    WritePropagation(
-      on: TableUpdateQuery.onTableName(
-        'ratings',
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('adjustments', kind: UpdateKind.delete)],
@@ -7336,6 +8911,41 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('setup_adjustment_values', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'ratings',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('rating_metrics', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'bikes',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('rating_entries', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'setups',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('rating_entries', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'rating_entries',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('rating_entry_values', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'rating_metrics',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('rating_entry_values', kind: UpdateKind.delete)],
     ),
   ]);
 }
@@ -8171,6 +9781,24 @@ final class $$BikesTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$RatingEntriesTable, List<RatingEntryDb>>
+  _ratingEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.ratingEntries,
+    aliasName: 'bikes__id__rating_entries__bike_id',
+  );
+
+  $$RatingEntriesTableProcessedTableManager get ratingEntriesRefs {
+    final manager = $$RatingEntriesTableTableManager(
+      $_db,
+      $_db.ratingEntries,
+    ).filter((f) => f.bikeId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_ratingEntriesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$BikesTableFilterComposer extends Composer<_$AppDatabase, $BikesTable> {
@@ -8288,6 +9916,31 @@ class $$BikesTableFilterComposer extends Composer<_$AppDatabase, $BikesTable> {
           }) => $$SetupsTableFilterComposer(
             $db: $db,
             $table: $db.setups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> ratingEntriesRefs(
+    Expression<bool> Function($$RatingEntriesTableFilterComposer f) f,
+  ) {
+    final $$RatingEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.ratingEntries,
+      getReferencedColumn: (t) => t.bikeId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RatingEntriesTableFilterComposer(
+            $db: $db,
+            $table: $db.ratingEntries,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -8462,6 +10115,31 @@ class $$BikesTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> ratingEntriesRefs<T extends Object>(
+    Expression<T> Function($$RatingEntriesTableAnnotationComposer a) f,
+  ) {
+    final $$RatingEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.ratingEntries,
+      getReferencedColumn: (t) => t.bikeId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RatingEntriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.ratingEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$BikesTableTableManager
@@ -8481,6 +10159,7 @@ class $$BikesTableTableManager
             bool taskRulesRefs,
             bool taskEntriesRefs,
             bool setupsRefs,
+            bool ratingEntriesRefs,
           })
         > {
   $$BikesTableTableManager(_$AppDatabase db, $BikesTable table)
@@ -8549,6 +10228,7 @@ class $$BikesTableTableManager
                 taskRulesRefs = false,
                 taskEntriesRefs = false,
                 setupsRefs = false,
+                ratingEntriesRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -8556,6 +10236,7 @@ class $$BikesTableTableManager
                     if (taskRulesRefs) db.taskRules,
                     if (taskEntriesRefs) db.taskEntries,
                     if (setupsRefs) db.setups,
+                    if (ratingEntriesRefs) db.ratingEntries,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -8615,6 +10296,27 @@ class $$BikesTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (ratingEntriesRefs)
+                        await $_getPrefetchedData<
+                          BikeDb,
+                          $BikesTable,
+                          RatingEntryDb
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BikesTableReferences
+                              ._ratingEntriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BikesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).ratingEntriesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.bikeId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -8639,6 +10341,7 @@ typedef $$BikesTableProcessedTableManager =
         bool taskRulesRefs,
         bool taskEntriesRefs,
         bool setupsRefs,
+        bool ratingEntriesRefs,
       })
     >;
 typedef $$TaskRulesTableCreateCompanionBuilder =
@@ -10349,379 +12052,11 @@ typedef $$PersonsTableProcessedTableManager =
       PersonDb,
       PrefetchHooks Function({bool adjustmentsRefs, bool setupsRefs})
     >;
-typedef $$RatingsTableCreateCompanionBuilder =
-    RatingsCompanion Function({
-      required String id,
-      Value<bool> isDeleted,
-      required DateTime lastModified,
-      required String name,
-      Value<String?> notes,
-      Value<String?> filter,
-      required FilterType filterType,
-      Value<int> orderIndex,
-      Value<int> rowid,
-    });
-typedef $$RatingsTableUpdateCompanionBuilder =
-    RatingsCompanion Function({
-      Value<String> id,
-      Value<bool> isDeleted,
-      Value<DateTime> lastModified,
-      Value<String> name,
-      Value<String?> notes,
-      Value<String?> filter,
-      Value<FilterType> filterType,
-      Value<int> orderIndex,
-      Value<int> rowid,
-    });
-
-final class $$RatingsTableReferences
-    extends BaseReferences<_$AppDatabase, $RatingsTable, RatingDb> {
-  $$RatingsTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static MultiTypedResultKey<$AdjustmentsTable, List<AdjustmentDb>>
-  _adjustmentsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.adjustments,
-    aliasName: 'ratings__id__adjustments__rating_id',
-  );
-
-  $$AdjustmentsTableProcessedTableManager get adjustmentsRefs {
-    final manager = $$AdjustmentsTableTableManager(
-      $_db,
-      $_db.adjustments,
-    ).filter((f) => f.ratingId.id.sqlEquals($_itemColumn<String>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_adjustmentsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
-
-class $$RatingsTableFilterComposer
-    extends Composer<_$AppDatabase, $RatingsTable> {
-  $$RatingsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isDeleted => $composableBuilder(
-    column: $table.isDeleted,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
-  get lastModified => $composableBuilder(
-    column: $table.lastModified,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  ColumnFilters<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get filter => $composableBuilder(
-    column: $table.filter,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<FilterType, FilterType, String>
-  get filterType => $composableBuilder(
-    column: $table.filterType,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
-  );
-
-  ColumnFilters<int> get orderIndex => $composableBuilder(
-    column: $table.orderIndex,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  Expression<bool> adjustmentsRefs(
-    Expression<bool> Function($$AdjustmentsTableFilterComposer f) f,
-  ) {
-    final $$AdjustmentsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.adjustments,
-      getReferencedColumn: (t) => t.ratingId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$AdjustmentsTableFilterComposer(
-            $db: $db,
-            $table: $db.adjustments,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$RatingsTableOrderingComposer
-    extends Composer<_$AppDatabase, $RatingsTable> {
-  $$RatingsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get isDeleted => $composableBuilder(
-    column: $table.isDeleted,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get lastModified => $composableBuilder(
-    column: $table.lastModified,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get name => $composableBuilder(
-    column: $table.name,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get filter => $composableBuilder(
-    column: $table.filter,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get filterType => $composableBuilder(
-    column: $table.filterType,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get orderIndex => $composableBuilder(
-    column: $table.orderIndex,
-    builder: (column) => ColumnOrderings(column),
-  );
-}
-
-class $$RatingsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $RatingsTable> {
-  $$RatingsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<bool> get isDeleted =>
-      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
-      $composableBuilder(
-        column: $table.lastModified,
-        builder: (column) => column,
-      );
-
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
-
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
-
-  GeneratedColumn<String> get filter =>
-      $composableBuilder(column: $table.filter, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<FilterType, String> get filterType =>
-      $composableBuilder(
-        column: $table.filterType,
-        builder: (column) => column,
-      );
-
-  GeneratedColumn<int> get orderIndex => $composableBuilder(
-    column: $table.orderIndex,
-    builder: (column) => column,
-  );
-
-  Expression<T> adjustmentsRefs<T extends Object>(
-    Expression<T> Function($$AdjustmentsTableAnnotationComposer a) f,
-  ) {
-    final $$AdjustmentsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.adjustments,
-      getReferencedColumn: (t) => t.ratingId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$AdjustmentsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.adjustments,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$RatingsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $RatingsTable,
-          RatingDb,
-          $$RatingsTableFilterComposer,
-          $$RatingsTableOrderingComposer,
-          $$RatingsTableAnnotationComposer,
-          $$RatingsTableCreateCompanionBuilder,
-          $$RatingsTableUpdateCompanionBuilder,
-          (RatingDb, $$RatingsTableReferences),
-          RatingDb,
-          PrefetchHooks Function({bool adjustmentsRefs})
-        > {
-  $$RatingsTableTableManager(_$AppDatabase db, $RatingsTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$RatingsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$RatingsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$RatingsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<String> id = const Value.absent(),
-                Value<bool> isDeleted = const Value.absent(),
-                Value<DateTime> lastModified = const Value.absent(),
-                Value<String> name = const Value.absent(),
-                Value<String?> notes = const Value.absent(),
-                Value<String?> filter = const Value.absent(),
-                Value<FilterType> filterType = const Value.absent(),
-                Value<int> orderIndex = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => RatingsCompanion(
-                id: id,
-                isDeleted: isDeleted,
-                lastModified: lastModified,
-                name: name,
-                notes: notes,
-                filter: filter,
-                filterType: filterType,
-                orderIndex: orderIndex,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                required String id,
-                Value<bool> isDeleted = const Value.absent(),
-                required DateTime lastModified,
-                required String name,
-                Value<String?> notes = const Value.absent(),
-                Value<String?> filter = const Value.absent(),
-                required FilterType filterType,
-                Value<int> orderIndex = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => RatingsCompanion.insert(
-                id: id,
-                isDeleted: isDeleted,
-                lastModified: lastModified,
-                name: name,
-                notes: notes,
-                filter: filter,
-                filterType: filterType,
-                orderIndex: orderIndex,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$RatingsTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback: ({adjustmentsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (adjustmentsRefs) db.adjustments],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (adjustmentsRefs)
-                    await $_getPrefetchedData<
-                      RatingDb,
-                      $RatingsTable,
-                      AdjustmentDb
-                    >(
-                      currentTable: table,
-                      referencedTable: $$RatingsTableReferences
-                          ._adjustmentsRefsTable(db),
-                      managerFromTypedResult: (p0) => $$RatingsTableReferences(
-                        db,
-                        table,
-                        p0,
-                      ).adjustmentsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.ratingId == item.id),
-                      typedResults: items,
-                    ),
-                ];
-              },
-            );
-          },
-        ),
-      );
-}
-
-typedef $$RatingsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $RatingsTable,
-      RatingDb,
-      $$RatingsTableFilterComposer,
-      $$RatingsTableOrderingComposer,
-      $$RatingsTableAnnotationComposer,
-      $$RatingsTableCreateCompanionBuilder,
-      $$RatingsTableUpdateCompanionBuilder,
-      (RatingDb, $$RatingsTableReferences),
-      RatingDb,
-      PrefetchHooks Function({bool adjustmentsRefs})
-    >;
 typedef $$AdjustmentsTableCreateCompanionBuilder =
     AdjustmentsCompanion Function({
       required String id,
       Value<String?> componentId,
       Value<String?> personId,
-      Value<String?> ratingId,
       required int orderIndex,
       required String name,
       Value<String?> notes,
@@ -10736,7 +12071,6 @@ typedef $$AdjustmentsTableUpdateCompanionBuilder =
       Value<String> id,
       Value<String?> componentId,
       Value<String?> personId,
-      Value<String?> ratingId,
       Value<int> orderIndex,
       Value<String> name,
       Value<String?> notes,
@@ -10779,23 +12113,6 @@ final class $$AdjustmentsTableReferences
       $_db.persons,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_personIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static $RatingsTable _ratingIdTable(_$AppDatabase db) =>
-      db.ratings.createAlias('adjustments__rating_id__ratings__id');
-
-  $$RatingsTableProcessedTableManager? get ratingId {
-    final $_column = $_itemColumn<String>('rating_id');
-    if ($_column == null) return null;
-    final manager = $$RatingsTableTableManager(
-      $_db,
-      $_db.ratings,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_ratingIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -10916,29 +12233,6 @@ class $$AdjustmentsTableFilterComposer
           }) => $$PersonsTableFilterComposer(
             $db: $db,
             $table: $db.persons,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$RatingsTableFilterComposer get ratingId {
-    final $$RatingsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.ratingId,
-      referencedTable: $db.ratings,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$RatingsTableFilterComposer(
-            $db: $db,
-            $table: $db.ratings,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -11069,29 +12363,6 @@ class $$AdjustmentsTableOrderingComposer
     );
     return composer;
   }
-
-  $$RatingsTableOrderingComposer get ratingId {
-    final $$RatingsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.ratingId,
-      referencedTable: $db.ratings,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$RatingsTableOrderingComposer(
-            $db: $db,
-            $table: $db.ratings,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 }
 
 class $$AdjustmentsTableAnnotationComposer
@@ -11177,29 +12448,6 @@ class $$AdjustmentsTableAnnotationComposer
     return composer;
   }
 
-  $$RatingsTableAnnotationComposer get ratingId {
-    final $$RatingsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.ratingId,
-      referencedTable: $db.ratings,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$RatingsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.ratings,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
   Expression<T> setupAdjustmentValuesRefs<T extends Object>(
     Expression<T> Function($$SetupAdjustmentValuesTableAnnotationComposer a) f,
   ) {
@@ -11243,7 +12491,6 @@ class $$AdjustmentsTableTableManager
           PrefetchHooks Function({
             bool componentId,
             bool personId,
-            bool ratingId,
             bool setupAdjustmentValuesRefs,
           })
         > {
@@ -11263,7 +12510,6 @@ class $$AdjustmentsTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String?> componentId = const Value.absent(),
                 Value<String?> personId = const Value.absent(),
-                Value<String?> ratingId = const Value.absent(),
                 Value<int> orderIndex = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
@@ -11276,7 +12522,6 @@ class $$AdjustmentsTableTableManager
                 id: id,
                 componentId: componentId,
                 personId: personId,
-                ratingId: ratingId,
                 orderIndex: orderIndex,
                 name: name,
                 notes: notes,
@@ -11291,7 +12536,6 @@ class $$AdjustmentsTableTableManager
                 required String id,
                 Value<String?> componentId = const Value.absent(),
                 Value<String?> personId = const Value.absent(),
-                Value<String?> ratingId = const Value.absent(),
                 required int orderIndex,
                 required String name,
                 Value<String?> notes = const Value.absent(),
@@ -11304,7 +12548,6 @@ class $$AdjustmentsTableTableManager
                 id: id,
                 componentId: componentId,
                 personId: personId,
-                ratingId: ratingId,
                 orderIndex: orderIndex,
                 name: name,
                 notes: notes,
@@ -11326,7 +12569,6 @@ class $$AdjustmentsTableTableManager
               ({
                 componentId = false,
                 personId = false,
-                ratingId = false,
                 setupAdjustmentValuesRefs = false,
               }) {
                 return PrefetchHooks(
@@ -11380,21 +12622,6 @@ class $$AdjustmentsTableTableManager
                                   )
                                   as T;
                         }
-                        if (ratingId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.ratingId,
-                                    referencedTable:
-                                        $$AdjustmentsTableReferences
-                                            ._ratingIdTable(db),
-                                    referencedColumn:
-                                        $$AdjustmentsTableReferences
-                                            ._ratingIdTable(db)
-                                            .id,
-                                  )
-                                  as T;
-                        }
 
                         return state;
                       },
@@ -11444,7 +12671,6 @@ typedef $$AdjustmentsTableProcessedTableManager =
       PrefetchHooks Function({
         bool componentId,
         bool personId,
-        bool ratingId,
         bool setupAdjustmentValuesRefs,
       })
     >;
@@ -11874,6 +13100,24 @@ final class $$SetupsTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$RatingEntriesTable, List<RatingEntryDb>>
+  _ratingEntriesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.ratingEntries,
+    aliasName: 'setups__id__rating_entries__setup_id',
+  );
+
+  $$RatingEntriesTableProcessedTableManager get ratingEntriesRefs {
+    final manager = $$RatingEntriesTableTableManager(
+      $_db,
+      $_db.ratingEntries,
+    ).filter((f) => f.setupId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_ratingEntriesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$SetupsTableFilterComposer
@@ -12016,6 +13260,31 @@ class $$SetupsTableFilterComposer
                     $removeJoinBuilderFromRootComposer,
               ),
         );
+    return f(composer);
+  }
+
+  Expression<bool> ratingEntriesRefs(
+    Expression<bool> Function($$RatingEntriesTableFilterComposer f) f,
+  ) {
+    final $$RatingEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.ratingEntries,
+      getReferencedColumn: (t) => t.setupId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RatingEntriesTableFilterComposer(
+            $db: $db,
+            $table: $db.ratingEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
     return f(composer);
   }
 }
@@ -12250,6 +13519,31 @@ class $$SetupsTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> ratingEntriesRefs<T extends Object>(
+    Expression<T> Function($$RatingEntriesTableAnnotationComposer a) f,
+  ) {
+    final $$RatingEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.ratingEntries,
+      getReferencedColumn: (t) => t.setupId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RatingEntriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.ratingEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$SetupsTableTableManager
@@ -12269,6 +13563,7 @@ class $$SetupsTableTableManager
             bool bikeId,
             bool personId,
             bool setupAdjustmentValuesRefs,
+            bool ratingEntriesRefs,
           })
         > {
   $$SetupsTableTableManager(_$AppDatabase db, $SetupsTable table)
@@ -12357,11 +13652,13 @@ class $$SetupsTableTableManager
                 bikeId = false,
                 personId = false,
                 setupAdjustmentValuesRefs = false,
+                ratingEntriesRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (setupAdjustmentValuesRefs) db.setupAdjustmentValues,
+                    if (ratingEntriesRefs) db.ratingEntries,
                   ],
                   addJoins:
                       <
@@ -12431,6 +13728,27 @@ class $$SetupsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (ratingEntriesRefs)
+                        await $_getPrefetchedData<
+                          SetupDb,
+                          $SetupsTable,
+                          RatingEntryDb
+                        >(
+                          currentTable: table,
+                          referencedTable: $$SetupsTableReferences
+                              ._ratingEntriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$SetupsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).ratingEntriesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.setupId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -12455,6 +13773,7 @@ typedef $$SetupsTableProcessedTableManager =
         bool bikeId,
         bool personId,
         bool setupAdjustmentValuesRefs,
+        bool ratingEntriesRefs,
       })
     >;
 typedef $$SetupAdjustmentValuesTableCreateCompanionBuilder =
@@ -12846,6 +14165,1950 @@ typedef $$SetupAdjustmentValuesTableProcessedTableManager =
       (SetupAdjustmentValueDb, $$SetupAdjustmentValuesTableReferences),
       SetupAdjustmentValueDb,
       PrefetchHooks Function({bool setupId, bool adjustmentId})
+    >;
+typedef $$RatingsTableCreateCompanionBuilder =
+    RatingsCompanion Function({
+      required String id,
+      Value<bool> isDeleted,
+      required DateTime lastModified,
+      required String name,
+      Value<String?> notes,
+      Value<String?> filter,
+      required FilterType filterType,
+      Value<int> orderIndex,
+      Value<int> rowid,
+    });
+typedef $$RatingsTableUpdateCompanionBuilder =
+    RatingsCompanion Function({
+      Value<String> id,
+      Value<bool> isDeleted,
+      Value<DateTime> lastModified,
+      Value<String> name,
+      Value<String?> notes,
+      Value<String?> filter,
+      Value<FilterType> filterType,
+      Value<int> orderIndex,
+      Value<int> rowid,
+    });
+
+final class $$RatingsTableReferences
+    extends BaseReferences<_$AppDatabase, $RatingsTable, RatingDb> {
+  $$RatingsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$RatingMetricsTable, List<RatingMetricDb>>
+  _ratingMetricsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.ratingMetrics,
+    aliasName: 'ratings__id__rating_metrics__rating_id',
+  );
+
+  $$RatingMetricsTableProcessedTableManager get ratingMetricsRefs {
+    final manager = $$RatingMetricsTableTableManager(
+      $_db,
+      $_db.ratingMetrics,
+    ).filter((f) => f.ratingId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_ratingMetricsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$RatingsTableFilterComposer
+    extends Composer<_$AppDatabase, $RatingsTable> {
+  $$RatingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get lastModified => $composableBuilder(
+    column: $table.lastModified,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get filter => $composableBuilder(
+    column: $table.filter,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<FilterType, FilterType, String>
+  get filterType => $composableBuilder(
+    column: $table.filterType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> ratingMetricsRefs(
+    Expression<bool> Function($$RatingMetricsTableFilterComposer f) f,
+  ) {
+    final $$RatingMetricsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.ratingMetrics,
+      getReferencedColumn: (t) => t.ratingId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RatingMetricsTableFilterComposer(
+            $db: $db,
+            $table: $db.ratingMetrics,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$RatingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $RatingsTable> {
+  $$RatingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastModified => $composableBuilder(
+    column: $table.lastModified,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get filter => $composableBuilder(
+    column: $table.filter,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get filterType => $composableBuilder(
+    column: $table.filterType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$RatingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RatingsTable> {
+  $$RatingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
+      $composableBuilder(
+        column: $table.lastModified,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get filter =>
+      $composableBuilder(column: $table.filter, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<FilterType, String> get filterType =>
+      $composableBuilder(
+        column: $table.filterType,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => column,
+  );
+
+  Expression<T> ratingMetricsRefs<T extends Object>(
+    Expression<T> Function($$RatingMetricsTableAnnotationComposer a) f,
+  ) {
+    final $$RatingMetricsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.ratingMetrics,
+      getReferencedColumn: (t) => t.ratingId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RatingMetricsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.ratingMetrics,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$RatingsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $RatingsTable,
+          RatingDb,
+          $$RatingsTableFilterComposer,
+          $$RatingsTableOrderingComposer,
+          $$RatingsTableAnnotationComposer,
+          $$RatingsTableCreateCompanionBuilder,
+          $$RatingsTableUpdateCompanionBuilder,
+          (RatingDb, $$RatingsTableReferences),
+          RatingDb,
+          PrefetchHooks Function({bool ratingMetricsRefs})
+        > {
+  $$RatingsTableTableManager(_$AppDatabase db, $RatingsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RatingsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RatingsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RatingsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<DateTime> lastModified = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<String?> filter = const Value.absent(),
+                Value<FilterType> filterType = const Value.absent(),
+                Value<int> orderIndex = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RatingsCompanion(
+                id: id,
+                isDeleted: isDeleted,
+                lastModified: lastModified,
+                name: name,
+                notes: notes,
+                filter: filter,
+                filterType: filterType,
+                orderIndex: orderIndex,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                Value<bool> isDeleted = const Value.absent(),
+                required DateTime lastModified,
+                required String name,
+                Value<String?> notes = const Value.absent(),
+                Value<String?> filter = const Value.absent(),
+                required FilterType filterType,
+                Value<int> orderIndex = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RatingsCompanion.insert(
+                id: id,
+                isDeleted: isDeleted,
+                lastModified: lastModified,
+                name: name,
+                notes: notes,
+                filter: filter,
+                filterType: filterType,
+                orderIndex: orderIndex,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$RatingsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({ratingMetricsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (ratingMetricsRefs) db.ratingMetrics,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (ratingMetricsRefs)
+                    await $_getPrefetchedData<
+                      RatingDb,
+                      $RatingsTable,
+                      RatingMetricDb
+                    >(
+                      currentTable: table,
+                      referencedTable: $$RatingsTableReferences
+                          ._ratingMetricsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$RatingsTableReferences(
+                        db,
+                        table,
+                        p0,
+                      ).ratingMetricsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.ratingId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$RatingsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $RatingsTable,
+      RatingDb,
+      $$RatingsTableFilterComposer,
+      $$RatingsTableOrderingComposer,
+      $$RatingsTableAnnotationComposer,
+      $$RatingsTableCreateCompanionBuilder,
+      $$RatingsTableUpdateCompanionBuilder,
+      (RatingDb, $$RatingsTableReferences),
+      RatingDb,
+      PrefetchHooks Function({bool ratingMetricsRefs})
+    >;
+typedef $$RatingMetricsTableCreateCompanionBuilder =
+    RatingMetricsCompanion Function({
+      required String id,
+      required String ratingId,
+      required int orderIndex,
+      Value<double> weight,
+      required String name,
+      Value<String?> notes,
+      Value<String?> unit,
+      required AdjustmentCategory category,
+      required AdjustmentType type,
+      Value<String?> jsonPayload,
+      Value<int> rowid,
+    });
+typedef $$RatingMetricsTableUpdateCompanionBuilder =
+    RatingMetricsCompanion Function({
+      Value<String> id,
+      Value<String> ratingId,
+      Value<int> orderIndex,
+      Value<double> weight,
+      Value<String> name,
+      Value<String?> notes,
+      Value<String?> unit,
+      Value<AdjustmentCategory> category,
+      Value<AdjustmentType> type,
+      Value<String?> jsonPayload,
+      Value<int> rowid,
+    });
+
+final class $$RatingMetricsTableReferences
+    extends BaseReferences<_$AppDatabase, $RatingMetricsTable, RatingMetricDb> {
+  $$RatingMetricsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $RatingsTable _ratingIdTable(_$AppDatabase db) =>
+      db.ratings.createAlias('rating_metrics__rating_id__ratings__id');
+
+  $$RatingsTableProcessedTableManager get ratingId {
+    final $_column = $_itemColumn<String>('rating_id')!;
+
+    final manager = $$RatingsTableTableManager(
+      $_db,
+      $_db.ratings,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_ratingIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$RatingEntryValuesTable, List<RatingEntryValueDb>>
+  _ratingEntryValuesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.ratingEntryValues,
+        aliasName: 'rating_metrics__id__rating_entry_values__rating_metric_id',
+      );
+
+  $$RatingEntryValuesTableProcessedTableManager get ratingEntryValuesRefs {
+    final manager = $$RatingEntryValuesTableTableManager(
+      $_db,
+      $_db.ratingEntryValues,
+    ).filter((f) => f.ratingMetricId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _ratingEntryValuesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$RatingMetricsTableFilterComposer
+    extends Composer<_$AppDatabase, $RatingMetricsTable> {
+  $$RatingMetricsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get weight => $composableBuilder(
+    column: $table.weight,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<AdjustmentCategory, AdjustmentCategory, String>
+  get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<AdjustmentType, AdjustmentType, String>
+  get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get jsonPayload => $composableBuilder(
+    column: $table.jsonPayload,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$RatingsTableFilterComposer get ratingId {
+    final $$RatingsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.ratingId,
+      referencedTable: $db.ratings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RatingsTableFilterComposer(
+            $db: $db,
+            $table: $db.ratings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> ratingEntryValuesRefs(
+    Expression<bool> Function($$RatingEntryValuesTableFilterComposer f) f,
+  ) {
+    final $$RatingEntryValuesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.ratingEntryValues,
+      getReferencedColumn: (t) => t.ratingMetricId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RatingEntryValuesTableFilterComposer(
+            $db: $db,
+            $table: $db.ratingEntryValues,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$RatingMetricsTableOrderingComposer
+    extends Composer<_$AppDatabase, $RatingMetricsTable> {
+  $$RatingMetricsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get weight => $composableBuilder(
+    column: $table.weight,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get jsonPayload => $composableBuilder(
+    column: $table.jsonPayload,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$RatingsTableOrderingComposer get ratingId {
+    final $$RatingsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.ratingId,
+      referencedTable: $db.ratings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RatingsTableOrderingComposer(
+            $db: $db,
+            $table: $db.ratings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RatingMetricsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RatingMetricsTable> {
+  $$RatingMetricsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get orderIndex => $composableBuilder(
+    column: $table.orderIndex,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get weight =>
+      $composableBuilder(column: $table.weight, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get unit =>
+      $composableBuilder(column: $table.unit, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<AdjustmentCategory, String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<AdjustmentType, String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get jsonPayload => $composableBuilder(
+    column: $table.jsonPayload,
+    builder: (column) => column,
+  );
+
+  $$RatingsTableAnnotationComposer get ratingId {
+    final $$RatingsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.ratingId,
+      referencedTable: $db.ratings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RatingsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.ratings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> ratingEntryValuesRefs<T extends Object>(
+    Expression<T> Function($$RatingEntryValuesTableAnnotationComposer a) f,
+  ) {
+    final $$RatingEntryValuesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.ratingEntryValues,
+          getReferencedColumn: (t) => t.ratingMetricId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$RatingEntryValuesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.ratingEntryValues,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$RatingMetricsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $RatingMetricsTable,
+          RatingMetricDb,
+          $$RatingMetricsTableFilterComposer,
+          $$RatingMetricsTableOrderingComposer,
+          $$RatingMetricsTableAnnotationComposer,
+          $$RatingMetricsTableCreateCompanionBuilder,
+          $$RatingMetricsTableUpdateCompanionBuilder,
+          (RatingMetricDb, $$RatingMetricsTableReferences),
+          RatingMetricDb,
+          PrefetchHooks Function({bool ratingId, bool ratingEntryValuesRefs})
+        > {
+  $$RatingMetricsTableTableManager(_$AppDatabase db, $RatingMetricsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RatingMetricsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RatingMetricsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RatingMetricsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> ratingId = const Value.absent(),
+                Value<int> orderIndex = const Value.absent(),
+                Value<double> weight = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<String?> unit = const Value.absent(),
+                Value<AdjustmentCategory> category = const Value.absent(),
+                Value<AdjustmentType> type = const Value.absent(),
+                Value<String?> jsonPayload = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RatingMetricsCompanion(
+                id: id,
+                ratingId: ratingId,
+                orderIndex: orderIndex,
+                weight: weight,
+                name: name,
+                notes: notes,
+                unit: unit,
+                category: category,
+                type: type,
+                jsonPayload: jsonPayload,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String ratingId,
+                required int orderIndex,
+                Value<double> weight = const Value.absent(),
+                required String name,
+                Value<String?> notes = const Value.absent(),
+                Value<String?> unit = const Value.absent(),
+                required AdjustmentCategory category,
+                required AdjustmentType type,
+                Value<String?> jsonPayload = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RatingMetricsCompanion.insert(
+                id: id,
+                ratingId: ratingId,
+                orderIndex: orderIndex,
+                weight: weight,
+                name: name,
+                notes: notes,
+                unit: unit,
+                category: category,
+                type: type,
+                jsonPayload: jsonPayload,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$RatingMetricsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({ratingId = false, ratingEntryValuesRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (ratingEntryValuesRefs) db.ratingEntryValues,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (ratingId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.ratingId,
+                                    referencedTable:
+                                        $$RatingMetricsTableReferences
+                                            ._ratingIdTable(db),
+                                    referencedColumn:
+                                        $$RatingMetricsTableReferences
+                                            ._ratingIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (ratingEntryValuesRefs)
+                        await $_getPrefetchedData<
+                          RatingMetricDb,
+                          $RatingMetricsTable,
+                          RatingEntryValueDb
+                        >(
+                          currentTable: table,
+                          referencedTable: $$RatingMetricsTableReferences
+                              ._ratingEntryValuesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$RatingMetricsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).ratingEntryValuesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.ratingMetricId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$RatingMetricsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $RatingMetricsTable,
+      RatingMetricDb,
+      $$RatingMetricsTableFilterComposer,
+      $$RatingMetricsTableOrderingComposer,
+      $$RatingMetricsTableAnnotationComposer,
+      $$RatingMetricsTableCreateCompanionBuilder,
+      $$RatingMetricsTableUpdateCompanionBuilder,
+      (RatingMetricDb, $$RatingMetricsTableReferences),
+      RatingMetricDb,
+      PrefetchHooks Function({bool ratingId, bool ratingEntryValuesRefs})
+    >;
+typedef $$RatingEntriesTableCreateCompanionBuilder =
+    RatingEntriesCompanion Function({
+      required String id,
+      required String bikeId,
+      Value<String?> setupId,
+      Value<bool> isDeleted,
+      required DateTime lastModified,
+      Value<String?> name,
+      required DateTime dateTimeUTC,
+      required DateTime dateTimeLocal,
+      Value<String?> notes,
+      Value<LocationData?> position,
+      Value<geo.Placemark?> place,
+      Value<ContextWeather?> weather,
+      Value<int> rowid,
+    });
+typedef $$RatingEntriesTableUpdateCompanionBuilder =
+    RatingEntriesCompanion Function({
+      Value<String> id,
+      Value<String> bikeId,
+      Value<String?> setupId,
+      Value<bool> isDeleted,
+      Value<DateTime> lastModified,
+      Value<String?> name,
+      Value<DateTime> dateTimeUTC,
+      Value<DateTime> dateTimeLocal,
+      Value<String?> notes,
+      Value<LocationData?> position,
+      Value<geo.Placemark?> place,
+      Value<ContextWeather?> weather,
+      Value<int> rowid,
+    });
+
+final class $$RatingEntriesTableReferences
+    extends BaseReferences<_$AppDatabase, $RatingEntriesTable, RatingEntryDb> {
+  $$RatingEntriesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $BikesTable _bikeIdTable(_$AppDatabase db) =>
+      db.bikes.createAlias('rating_entries__bike_id__bikes__id');
+
+  $$BikesTableProcessedTableManager get bikeId {
+    final $_column = $_itemColumn<String>('bike_id')!;
+
+    final manager = $$BikesTableTableManager(
+      $_db,
+      $_db.bikes,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_bikeIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $SetupsTable _setupIdTable(_$AppDatabase db) =>
+      db.setups.createAlias('rating_entries__setup_id__setups__id');
+
+  $$SetupsTableProcessedTableManager? get setupId {
+    final $_column = $_itemColumn<String>('setup_id');
+    if ($_column == null) return null;
+    final manager = $$SetupsTableTableManager(
+      $_db,
+      $_db.setups,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_setupIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$RatingEntryValuesTable, List<RatingEntryValueDb>>
+  _ratingEntryValuesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.ratingEntryValues,
+        aliasName: 'rating_entries__id__rating_entry_values__rating_entry_id',
+      );
+
+  $$RatingEntryValuesTableProcessedTableManager get ratingEntryValuesRefs {
+    final manager = $$RatingEntryValuesTableTableManager(
+      $_db,
+      $_db.ratingEntryValues,
+    ).filter((f) => f.ratingEntryId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _ratingEntryValuesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$RatingEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $RatingEntriesTable> {
+  $$RatingEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get lastModified => $composableBuilder(
+    column: $table.lastModified,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get dateTimeUTC => $composableBuilder(
+    column: $table.dateTimeUTC,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
+  get dateTimeLocal => $composableBuilder(
+    column: $table.dateTimeLocal,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<LocationData?, LocationData, String>
+  get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<geo.Placemark?, geo.Placemark, String>
+  get place => $composableBuilder(
+    column: $table.place,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<ContextWeather?, ContextWeather, String>
+  get weather => $composableBuilder(
+    column: $table.weather,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  $$BikesTableFilterComposer get bikeId {
+    final $$BikesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bikeId,
+      referencedTable: $db.bikes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BikesTableFilterComposer(
+            $db: $db,
+            $table: $db.bikes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SetupsTableFilterComposer get setupId {
+    final $$SetupsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.setupId,
+      referencedTable: $db.setups,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SetupsTableFilterComposer(
+            $db: $db,
+            $table: $db.setups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> ratingEntryValuesRefs(
+    Expression<bool> Function($$RatingEntryValuesTableFilterComposer f) f,
+  ) {
+    final $$RatingEntryValuesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.ratingEntryValues,
+      getReferencedColumn: (t) => t.ratingEntryId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RatingEntryValuesTableFilterComposer(
+            $db: $db,
+            $table: $db.ratingEntryValues,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$RatingEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $RatingEntriesTable> {
+  $$RatingEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastModified => $composableBuilder(
+    column: $table.lastModified,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get dateTimeUTC => $composableBuilder(
+    column: $table.dateTimeUTC,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get dateTimeLocal => $composableBuilder(
+    column: $table.dateTimeLocal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get position => $composableBuilder(
+    column: $table.position,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get place => $composableBuilder(
+    column: $table.place,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get weather => $composableBuilder(
+    column: $table.weather,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$BikesTableOrderingComposer get bikeId {
+    final $$BikesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bikeId,
+      referencedTable: $db.bikes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BikesTableOrderingComposer(
+            $db: $db,
+            $table: $db.bikes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SetupsTableOrderingComposer get setupId {
+    final $$SetupsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.setupId,
+      referencedTable: $db.setups,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SetupsTableOrderingComposer(
+            $db: $db,
+            $table: $db.setups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RatingEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RatingEntriesTable> {
+  $$RatingEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get lastModified =>
+      $composableBuilder(
+        column: $table.lastModified,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get dateTimeUTC =>
+      $composableBuilder(
+        column: $table.dateTimeUTC,
+        builder: (column) => column,
+      );
+
+  GeneratedColumnWithTypeConverter<DateTime, DateTime> get dateTimeLocal =>
+      $composableBuilder(
+        column: $table.dateTimeLocal,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<LocationData?, String> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<geo.Placemark?, String> get place =>
+      $composableBuilder(column: $table.place, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<ContextWeather?, String> get weather =>
+      $composableBuilder(column: $table.weather, builder: (column) => column);
+
+  $$BikesTableAnnotationComposer get bikeId {
+    final $$BikesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bikeId,
+      referencedTable: $db.bikes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BikesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.bikes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$SetupsTableAnnotationComposer get setupId {
+    final $$SetupsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.setupId,
+      referencedTable: $db.setups,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SetupsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.setups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> ratingEntryValuesRefs<T extends Object>(
+    Expression<T> Function($$RatingEntryValuesTableAnnotationComposer a) f,
+  ) {
+    final $$RatingEntryValuesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.ratingEntryValues,
+          getReferencedColumn: (t) => t.ratingEntryId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$RatingEntryValuesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.ratingEntryValues,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$RatingEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $RatingEntriesTable,
+          RatingEntryDb,
+          $$RatingEntriesTableFilterComposer,
+          $$RatingEntriesTableOrderingComposer,
+          $$RatingEntriesTableAnnotationComposer,
+          $$RatingEntriesTableCreateCompanionBuilder,
+          $$RatingEntriesTableUpdateCompanionBuilder,
+          (RatingEntryDb, $$RatingEntriesTableReferences),
+          RatingEntryDb,
+          PrefetchHooks Function({
+            bool bikeId,
+            bool setupId,
+            bool ratingEntryValuesRefs,
+          })
+        > {
+  $$RatingEntriesTableTableManager(_$AppDatabase db, $RatingEntriesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RatingEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RatingEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RatingEntriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> bikeId = const Value.absent(),
+                Value<String?> setupId = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                Value<DateTime> lastModified = const Value.absent(),
+                Value<String?> name = const Value.absent(),
+                Value<DateTime> dateTimeUTC = const Value.absent(),
+                Value<DateTime> dateTimeLocal = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<LocationData?> position = const Value.absent(),
+                Value<geo.Placemark?> place = const Value.absent(),
+                Value<ContextWeather?> weather = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RatingEntriesCompanion(
+                id: id,
+                bikeId: bikeId,
+                setupId: setupId,
+                isDeleted: isDeleted,
+                lastModified: lastModified,
+                name: name,
+                dateTimeUTC: dateTimeUTC,
+                dateTimeLocal: dateTimeLocal,
+                notes: notes,
+                position: position,
+                place: place,
+                weather: weather,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String bikeId,
+                Value<String?> setupId = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
+                required DateTime lastModified,
+                Value<String?> name = const Value.absent(),
+                required DateTime dateTimeUTC,
+                required DateTime dateTimeLocal,
+                Value<String?> notes = const Value.absent(),
+                Value<LocationData?> position = const Value.absent(),
+                Value<geo.Placemark?> place = const Value.absent(),
+                Value<ContextWeather?> weather = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RatingEntriesCompanion.insert(
+                id: id,
+                bikeId: bikeId,
+                setupId: setupId,
+                isDeleted: isDeleted,
+                lastModified: lastModified,
+                name: name,
+                dateTimeUTC: dateTimeUTC,
+                dateTimeLocal: dateTimeLocal,
+                notes: notes,
+                position: position,
+                place: place,
+                weather: weather,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$RatingEntriesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                bikeId = false,
+                setupId = false,
+                ratingEntryValuesRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (ratingEntryValuesRefs) db.ratingEntryValues,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (bikeId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.bikeId,
+                                    referencedTable:
+                                        $$RatingEntriesTableReferences
+                                            ._bikeIdTable(db),
+                                    referencedColumn:
+                                        $$RatingEntriesTableReferences
+                                            ._bikeIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (setupId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.setupId,
+                                    referencedTable:
+                                        $$RatingEntriesTableReferences
+                                            ._setupIdTable(db),
+                                    referencedColumn:
+                                        $$RatingEntriesTableReferences
+                                            ._setupIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (ratingEntryValuesRefs)
+                        await $_getPrefetchedData<
+                          RatingEntryDb,
+                          $RatingEntriesTable,
+                          RatingEntryValueDb
+                        >(
+                          currentTable: table,
+                          referencedTable: $$RatingEntriesTableReferences
+                              ._ratingEntryValuesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$RatingEntriesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).ratingEntryValuesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.ratingEntryId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$RatingEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $RatingEntriesTable,
+      RatingEntryDb,
+      $$RatingEntriesTableFilterComposer,
+      $$RatingEntriesTableOrderingComposer,
+      $$RatingEntriesTableAnnotationComposer,
+      $$RatingEntriesTableCreateCompanionBuilder,
+      $$RatingEntriesTableUpdateCompanionBuilder,
+      (RatingEntryDb, $$RatingEntriesTableReferences),
+      RatingEntryDb,
+      PrefetchHooks Function({
+        bool bikeId,
+        bool setupId,
+        bool ratingEntryValuesRefs,
+      })
+    >;
+typedef $$RatingEntryValuesTableCreateCompanionBuilder =
+    RatingEntryValuesCompanion Function({
+      required String ratingEntryId,
+      required String ratingMetricId,
+      required String value,
+      Value<int> rowid,
+    });
+typedef $$RatingEntryValuesTableUpdateCompanionBuilder =
+    RatingEntryValuesCompanion Function({
+      Value<String> ratingEntryId,
+      Value<String> ratingMetricId,
+      Value<String> value,
+      Value<int> rowid,
+    });
+
+final class $$RatingEntryValuesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $RatingEntryValuesTable,
+          RatingEntryValueDb
+        > {
+  $$RatingEntryValuesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $RatingEntriesTable _ratingEntryIdTable(_$AppDatabase db) => db
+      .ratingEntries
+      .createAlias('rating_entry_values__rating_entry_id__rating_entries__id');
+
+  $$RatingEntriesTableProcessedTableManager get ratingEntryId {
+    final $_column = $_itemColumn<String>('rating_entry_id')!;
+
+    final manager = $$RatingEntriesTableTableManager(
+      $_db,
+      $_db.ratingEntries,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_ratingEntryIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $RatingMetricsTable _ratingMetricIdTable(_$AppDatabase db) => db
+      .ratingMetrics
+      .createAlias('rating_entry_values__rating_metric_id__rating_metrics__id');
+
+  $$RatingMetricsTableProcessedTableManager get ratingMetricId {
+    final $_column = $_itemColumn<String>('rating_metric_id')!;
+
+    final manager = $$RatingMetricsTableTableManager(
+      $_db,
+      $_db.ratingMetrics,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_ratingMetricIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$RatingEntryValuesTableFilterComposer
+    extends Composer<_$AppDatabase, $RatingEntryValuesTable> {
+  $$RatingEntryValuesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$RatingEntriesTableFilterComposer get ratingEntryId {
+    final $$RatingEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.ratingEntryId,
+      referencedTable: $db.ratingEntries,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RatingEntriesTableFilterComposer(
+            $db: $db,
+            $table: $db.ratingEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$RatingMetricsTableFilterComposer get ratingMetricId {
+    final $$RatingMetricsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.ratingMetricId,
+      referencedTable: $db.ratingMetrics,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RatingMetricsTableFilterComposer(
+            $db: $db,
+            $table: $db.ratingMetrics,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RatingEntryValuesTableOrderingComposer
+    extends Composer<_$AppDatabase, $RatingEntryValuesTable> {
+  $$RatingEntryValuesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$RatingEntriesTableOrderingComposer get ratingEntryId {
+    final $$RatingEntriesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.ratingEntryId,
+      referencedTable: $db.ratingEntries,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RatingEntriesTableOrderingComposer(
+            $db: $db,
+            $table: $db.ratingEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$RatingMetricsTableOrderingComposer get ratingMetricId {
+    final $$RatingMetricsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.ratingMetricId,
+      referencedTable: $db.ratingMetrics,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RatingMetricsTableOrderingComposer(
+            $db: $db,
+            $table: $db.ratingMetrics,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RatingEntryValuesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RatingEntryValuesTable> {
+  $$RatingEntryValuesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
+
+  $$RatingEntriesTableAnnotationComposer get ratingEntryId {
+    final $$RatingEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.ratingEntryId,
+      referencedTable: $db.ratingEntries,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RatingEntriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.ratingEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$RatingMetricsTableAnnotationComposer get ratingMetricId {
+    final $$RatingMetricsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.ratingMetricId,
+      referencedTable: $db.ratingMetrics,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RatingMetricsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.ratingMetrics,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RatingEntryValuesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $RatingEntryValuesTable,
+          RatingEntryValueDb,
+          $$RatingEntryValuesTableFilterComposer,
+          $$RatingEntryValuesTableOrderingComposer,
+          $$RatingEntryValuesTableAnnotationComposer,
+          $$RatingEntryValuesTableCreateCompanionBuilder,
+          $$RatingEntryValuesTableUpdateCompanionBuilder,
+          (RatingEntryValueDb, $$RatingEntryValuesTableReferences),
+          RatingEntryValueDb,
+          PrefetchHooks Function({bool ratingEntryId, bool ratingMetricId})
+        > {
+  $$RatingEntryValuesTableTableManager(
+    _$AppDatabase db,
+    $RatingEntryValuesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RatingEntryValuesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RatingEntryValuesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RatingEntryValuesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> ratingEntryId = const Value.absent(),
+                Value<String> ratingMetricId = const Value.absent(),
+                Value<String> value = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RatingEntryValuesCompanion(
+                ratingEntryId: ratingEntryId,
+                ratingMetricId: ratingMetricId,
+                value: value,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String ratingEntryId,
+                required String ratingMetricId,
+                required String value,
+                Value<int> rowid = const Value.absent(),
+              }) => RatingEntryValuesCompanion.insert(
+                ratingEntryId: ratingEntryId,
+                ratingMetricId: ratingMetricId,
+                value: value,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$RatingEntryValuesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({ratingEntryId = false, ratingMetricId = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (ratingEntryId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.ratingEntryId,
+                                    referencedTable:
+                                        $$RatingEntryValuesTableReferences
+                                            ._ratingEntryIdTable(db),
+                                    referencedColumn:
+                                        $$RatingEntryValuesTableReferences
+                                            ._ratingEntryIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (ratingMetricId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.ratingMetricId,
+                                    referencedTable:
+                                        $$RatingEntryValuesTableReferences
+                                            ._ratingMetricIdTable(db),
+                                    referencedColumn:
+                                        $$RatingEntryValuesTableReferences
+                                            ._ratingMetricIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$RatingEntryValuesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $RatingEntryValuesTable,
+      RatingEntryValueDb,
+      $$RatingEntryValuesTableFilterComposer,
+      $$RatingEntryValuesTableOrderingComposer,
+      $$RatingEntryValuesTableAnnotationComposer,
+      $$RatingEntryValuesTableCreateCompanionBuilder,
+      $$RatingEntryValuesTableUpdateCompanionBuilder,
+      (RatingEntryValueDb, $$RatingEntryValuesTableReferences),
+      RatingEntryValueDb,
+      PrefetchHooks Function({bool ratingEntryId, bool ratingMetricId})
     >;
 typedef $$StravaActivitiesTableCreateCompanionBuilder =
     StravaActivitiesCompanion Function({
@@ -13638,8 +16901,6 @@ class $AppDatabaseManager {
       $$TaskEntriesTableTableManager(_db, _db.taskEntries);
   $$PersonsTableTableManager get persons =>
       $$PersonsTableTableManager(_db, _db.persons);
-  $$RatingsTableTableManager get ratings =>
-      $$RatingsTableTableManager(_db, _db.ratings);
   $$AdjustmentsTableTableManager get adjustments =>
       $$AdjustmentsTableTableManager(_db, _db.adjustments);
   $$InstallationsTableTableManager get installations =>
@@ -13648,6 +16909,14 @@ class $AppDatabaseManager {
       $$SetupsTableTableManager(_db, _db.setups);
   $$SetupAdjustmentValuesTableTableManager get setupAdjustmentValues =>
       $$SetupAdjustmentValuesTableTableManager(_db, _db.setupAdjustmentValues);
+  $$RatingsTableTableManager get ratings =>
+      $$RatingsTableTableManager(_db, _db.ratings);
+  $$RatingMetricsTableTableManager get ratingMetrics =>
+      $$RatingMetricsTableTableManager(_db, _db.ratingMetrics);
+  $$RatingEntriesTableTableManager get ratingEntries =>
+      $$RatingEntriesTableTableManager(_db, _db.ratingEntries);
+  $$RatingEntryValuesTableTableManager get ratingEntryValues =>
+      $$RatingEntryValuesTableTableManager(_db, _db.ratingEntryValues);
   $$StravaActivitiesTableTableManager get stravaActivities =>
       $$StravaActivitiesTableTableManager(_db, _db.stravaActivities);
   $$StravaAthletesTableTableManager get stravaAthletes =>

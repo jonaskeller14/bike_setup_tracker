@@ -4,7 +4,6 @@ import 'setups.dart';
 
 @DataClassName('SetupAdjustmentValueDb')
 class SetupAdjustmentValues extends Table {
-  // Junction table without id
   TextColumn get setupId =>
       text().references(Setups, #id, onDelete: KeyAction.cascade)();
   TextColumn get adjustmentId =>

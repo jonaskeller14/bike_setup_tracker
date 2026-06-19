@@ -6,7 +6,6 @@ part of 'persons_dao.dart';
 mixin _$PersonsDaoMixin on DatabaseAccessor<AppDatabase> {
   $PersonsTable get persons => attachedDatabase.persons;
   $ComponentsTable get components => attachedDatabase.components;
-  $RatingsTable get ratings => attachedDatabase.ratings;
   $AdjustmentsTable get adjustments => attachedDatabase.adjustments;
   PersonsDaoManager get managers => PersonsDaoManager(this);
 }
@@ -18,8 +17,6 @@ class PersonsDaoManager {
       $$PersonsTableTableManager(_db.attachedDatabase, _db.persons);
   $$ComponentsTableTableManager get components =>
       $$ComponentsTableTableManager(_db.attachedDatabase, _db.components);
-  $$RatingsTableTableManager get ratings =>
-      $$RatingsTableTableManager(_db.attachedDatabase, _db.ratings);
   $$AdjustmentsTableTableManager get adjustments =>
       $$AdjustmentsTableTableManager(_db.attachedDatabase, _db.adjustments);
 }

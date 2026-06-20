@@ -1,15 +1,22 @@
 # Rating Redesign — Architecture & Implementation Plan
 
-> **Status (2026-06-19):** Phases **A–D complete and committed** (models, scoring +
-> tests, DB tables/DAOs/migration, repository CRUD + score getters). The backend compiles
-> green and the 11 scoring tests pass. The actual **schema version is 5** (not 3→4 as
-> originally drafted in §6.6/§13 — two intermediate bumps happened during the refactor);
-> the migration creates the 3 new tables, deletes rating-metric rows from `Adjustments`,
-> and recreates `Adjustments` without the `rating_id` arm. **Phase E (UI) is in progress** —
-> the *mechanical* green-up (remove `setup.ratingAdjustmentValues` display paths, swap
-> `rating.adjustments` → `rating.metrics.map((m) => m.adjustment)`, delete `SetupRatingTab`)
-> comes first to restore compilation; the new rating-entry UX (entry editor, setup-card
-> menu, score badges) follows as a second pass.
+> **Status (2026-06-20):** Phases **A–D done**, **E mostly done**. Backend + the new
+> rating-entry UX are committed and green (`flutter analyze` clean, 292 tests pass).
+> **Schema version is now 6** (not 3→4 as originally drafted): v5 added the 3 rating tables
+> + simplified `Adjustments`; v6 made `RatingEntry.setupId` **non-nullable** (a rating always
+> relates to a preceding setup; a purged setup leaves a tolerated dangling id) and recreated
+> `rating_entries`.
+>
+> **Done in Phase E:** E0 mechanical green-up; the **rating-entry editor**
+> ([rating_entry_page.dart](../lib/pages/rating_entry_page.dart), structured like SetupPage —
+> context capture + applicable-rating metric inputs + **live 0–10 / weighted-sum score** +
+> **drift warning with Relink**); **`setupId` resolved in the page's save** (blocked if no
+> preceding setup); **`RatingEntryListTile`** (dense, two scores) + `RatingEntryActions`
+> (add/edit/remove/restore w/ snackbar); **SetupCard** score badge + "Add Rating" / "Ratings (n)"
+> popup; **setup detail** "Ratings" section (setup score + entries + add); and **rating entries
+> surfaced on the SetupList & Calendar** behind a global `displayShowRatingEntries` flag (filter
+> sheet chip). **Still pending:** dedicated weight editor (E19 — interim weight=1), Map markers
+> for rating entries (E′-a remainder), and the analytics rating-score column/series (E′-b).
 
 
 Rework the **not-yet-shipped** Rating feature so that ratings are **decoupled from
@@ -212,8 +219,9 @@ handle JSON + equality — and `ContextWeather` (`context_weather.dart`, formerl
 id, isDeleted, lastModified
 name?              // optional, like Setup; displayName falls back to a derived label
 bike               // FK → Bike   (NO ratingId — an entry spans all applicable ratings, §4.2)
-setupId?           // write-once provenance snapshot, set on first save (§4.3);
-                   //   NOT authoritative for scoring (dynamic resolution is)
+setupId            // REQUIRED (non-nullable). Write-once provenance, resolved in the entry
+                   //   page's save (blocked if no preceding setup); NOT authoritative for
+                   //   scoring (dynamic resolution is). A purged setup leaves a dangling id.
 dateTimeUTC, dateTimeLocal
 notes?
 metricValues: Map<String, dynamic>   // ratingMetricId → value (same dynamic typing as Setup)
@@ -275,7 +283,9 @@ Parallel to [setups.dart](../lib/database/tables/setups.dart). **No `ratingId`**
 spans all applicable ratings (§4.2):
 ```
 id (pk), bikeId → Bikes (cascade),
-setupId? → Setups (setNull on delete)   // provenance snapshot (§4.3, §5.3)
+setupId → Setups (NON-NULL, no onDelete action)   // required provenance (§4.3, §5.3);
+                                                  // setups are soft-deleted, so a dangling
+                                                  // id is tolerated (FKs not enforced)
 name?,
 isDeleted, lastModified (UtcDateTimeConverter),
 dateTimeUTC (UtcDateTimeConverter), dateTimeLocal (LocalFloatingDateTimeConverter),
@@ -793,24 +803,24 @@ addition, but important for adoption parity.
     signed-weight field + dynamic sign helper (scored only; no toggle) + realtime score
     preview — impl approach (if-clauses in adjustment pages vs separate files / body
     extraction) TBD (§8.1).
-20. `rating_entry_page.dart` (context capture + template metric inputs + live 0–10 average
-    + weighted sum + drift warning).
-21. `rating_entry_list_card.dart` + `rating_entry_actions.dart` ✅ (actions created:
-    `RatingEntryActions.remove/restoreRatingEntry` with snackbar+UNDO; card pending).
-22. `setup_list_card.dart`: add "Add Rating" / "Ratings (n)" to the `_SetupOptions` popup
-    menu + setup score badge; drop `displayRatingAdjustmentValues`.
-23. Setup detail: score + resolving-entries list + "Add rating".
-24. Remove `SetupRatingTab` + all rating plumbing from `setup_page.dart`.
+20. ✅ `rating_entry_page.dart` (context capture + applicable-rating metric inputs + live
+    0–10 average + weighted sum + drift warning with Relink; `setupId` resolved in save).
+21. ✅ `rating_entry_list_tile.dart` (dense, two scores) + `rating_entry_actions.dart`
+    (add/edit/remove/restore w/ snackbar+UNDO).
+22. ✅ `setup_list_card.dart`: "Add Rating" / "Ratings (n)" in the `_SetupOptions` popup
+    + setup **score badge** (`scoreForSetup`).
+23. ✅ Setup detail: setup score + resolving-entries list + "Add rating".
+24. ✅ Removed `SetupRatingTab` + all rating plumbing from `setup_page.dart` (E0).
 
 **E′. Re-introduce rating signals removed in E0 (sourced from RatingEntries, not setups)**
 The E0 pass deleted the old setup-sourced rating displays. These must come back, but now
 backed by **`scoreForSetup` / entry scores** (§7), not the removed `ratingAdjustmentValues`:
-- **E′-a — Global RatingEntry visibility filter.** Add a single **global**
-  `displayShowRatingEntries` display flag (filter sheet chip, like the existing
-  `displayShowSetups`/`displayShowActivities`/`displayShowInstallations`) that shows/hides
-  RatingEntries — and the setup rating-score badge — across the **SetupList, Map, and
-  Calendar** at once (§8.3, revised). Requires surfacing entries as map/calendar/timeline
-  items (`RatingEntryTimelineEntry` or equivalent). Gate on `enableRating`.
+- **E′-a — Global RatingEntry visibility filter.** ✅ *mostly done.* Added the global
+  `displayShowRatingEntries` flag (filter sheet "Ratings" chip + roll-up in
+  `filter_sheet_chip`) and a `RatingEntryTimelineEntry`; rating entries now appear on the
+  **SetupList** and **Calendar** (icon/color/subject + tap-to-edit + drag-to-reschedule),
+  gated on `enableRating`. The setup **score badge** also respects `enableRating`. **Remaining:**
+  **Map markers** for rating entries (the map page doesn't yet plot them).
 - **E′-b — Rating score in analytics.** Re-add a **rating column** to the
   `component_details_page` / `person_details_page` setup tables **and a series to the line /
   radial charts**, showing each setup's **`scoreForSetup`** (0–10). The `ratingMetrics`

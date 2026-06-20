@@ -6,10 +6,12 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import '../icons/simple_icons.dart';
 import '../models/app_settings.dart';
+import '../models/rating_entry.dart';
 import '../models/setup.dart';
 import '../models/timeline_entry.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
+import '../utils/rating_entry_actions.dart';
 import '../widgets/chips/filter_sheet_chip.dart';
 import '../widgets/sheets/installation_sheet.dart';
 import '../widgets/sheets/setup_details.dart';
@@ -18,6 +20,7 @@ import '../widgets/sheets/task_rule_sheet.dart';
 
 const Duration kCalendarZeroDuration = Duration(minutes: 30);
 const Color kCalendarStravaColor = Color(0xFFFC4C02); // Strava brand orange
+const Color kCalendarRatingColor = Color(0xFFF9A825);
 const Duration kCalendarScrollLeadIn = Duration(minutes: 30);
 const int kCalendarFallbackHour = 6;
 
@@ -32,6 +35,7 @@ IconData calendarIconFor(TimelineEntry entry) => switch (entry) {
       StravaEntry() => SimpleIcons.strava,
       TaskTimeLineEntry() => Icons.check_box_outlined,
       InstallationEntry() => entry.componentInstallation.component.componentType.getIconData(),
+      RatingEntryTimelineEntry() => RatingEntry.iconData,
     };
 
 Color calendarColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) {
@@ -39,6 +43,7 @@ Color calendarColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) {
       StravaEntry() => kCalendarStravaColor,
       TaskTimeLineEntry() => cs.tertiary,
       InstallationEntry() => cs.secondary,
+      RatingEntryTimelineEntry() => kCalendarRatingColor,
     };
 
 Color calendarOnColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) {
@@ -46,6 +51,7 @@ Color calendarOnColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) 
       StravaEntry() => Colors.white,
       TaskTimeLineEntry() => cs.onTertiary,
       InstallationEntry() => cs.onSecondary,
+      RatingEntryTimelineEntry() => Colors.white,
     };
 
 String calendarSubjectFor(TimelineEntry entry) => switch (entry) {
@@ -53,6 +59,7 @@ String calendarSubjectFor(TimelineEntry entry) => switch (entry) {
       StravaEntry() => entry.activity.name,
       TaskTimeLineEntry() => entry.taskEntry.name,
       InstallationEntry() => entry.componentInstallation.shortLabel,
+      RatingEntryTimelineEntry() => entry.ratingEntry.displayName,
     };
 
 class CalendarPage extends StatefulWidget {
@@ -161,6 +168,8 @@ class _CalendarPageState extends State<CalendarPage> {
         ...repo.filteredTaskEntries.values.map((t) => TaskTimeLineEntry(t)),
       if (settings.displayShowInstallations)
         ...repo.filteredInstallations.map((ci) => InstallationEntry(ci)),
+      if (settings.enableRating && settings.displayShowRatingEntries)
+        ...repo.filteredRatingEntries.values.map((re) => RatingEntryTimelineEntry(re)),
     ];
   }
 
@@ -245,6 +254,8 @@ class _CalendarPageState extends State<CalendarPage> {
           component: entry.componentInstallation.component,
           editEntry: entry.componentInstallation,
         );
+      case RatingEntryTimelineEntry():
+        await RatingEntryActions.editRatingEntry(context, ratingEntry: entry.ratingEntry);
     }
   }
 
@@ -292,6 +303,15 @@ class _CalendarPageState extends State<CalendarPage> {
           oldLocal,
           newLocal,
           () => appRepository.editComponent(originalComponent),
+        );
+      case RatingEntryTimelineEntry():
+        final original = entry.ratingEntry;
+        await appRepository.editRatingEntry(original.copyWith(dateTimeUTC: newUtc, dateTimeLocal: newLocal));
+        _showMoveUndoSnackBar(
+          calendarSubjectFor(entry),
+          oldLocal,
+          newLocal,
+          () => appRepository.editRatingEntry(original),
         );
       case StravaEntry():
         // Strava activities are synced and read-only — reject the move and

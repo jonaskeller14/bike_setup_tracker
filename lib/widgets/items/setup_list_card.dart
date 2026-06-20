@@ -51,18 +51,53 @@ class SetupListCard extends StatelessWidget {
     );
   }
 
+  Widget _scoreBadge(BuildContext context, double score) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 2,
+        children: [
+          Icon(RatingEntry.iconData, size: 13, color: colorScheme.onPrimaryContainer),
+          Text(
+            "${score.toStringAsFixed(1)} / 10",
+            style: TextStyle(color: colorScheme.onPrimaryContainer, fontWeight: FontWeight.bold, fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+
   ListTile _setupListTile(BuildContext context, Setup setup) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
-    
+    final double? score = appSettings.enableRating
+        ? appRepository.scoreForSetup(setup.id)
+        : null;
+
     return ListTile(
       contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
       minTileHeight: 0,
       titleAlignment: ListTileTitleAlignment.top,
-      title: Text(
-        setup.displayName,
-        style: const TextStyle(fontWeight: FontWeight.bold),
+      title: Row(
+        spacing: 8,
+        children: [
+          Expanded(
+            child: Text(
+              setup.displayName,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (score != null)
+            _scoreBadge(context, score),
+        ],
       ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,18 +285,23 @@ class SetupListCard extends StatelessWidget {
               await SetupActions.removeSetup(context, setup: setup);
           }
         },
-        itemBuilder: (BuildContext context) => _SetupOptions.values.map((option) {
-          return PopupMenuItem<_SetupOptions>(
-            value: option,
-            child: Row(
-              spacing: 10,
-              children: [
-                Icon(option.iconData, size: 20),
-                Text(option.label),
-              ],
-            ),
-          );
-        }).toList(),
+        itemBuilder: (BuildContext context) {
+          return _SetupOptions.values.where((option) {
+            if (!appSettings.enableRating && (option == _SetupOptions.addRating)) return false;
+            return true;
+          }).map((option) {
+            return PopupMenuItem<_SetupOptions>(
+              value: option,
+              child: Row(
+                spacing: 10,
+                children: [
+                  Icon(option.iconData, size: 20),
+                  Text(option.label),
+                ],
+              ),
+            );
+          }).toList();
+        },
       ),
     );
   }

@@ -1,9 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/rating_entry.dart';
+import '../pages/rating_entry_page.dart';
 import '../repositories/app_repository.dart';
 
 class RatingEntryActions {
+  static Future<void> editRatingEntry(BuildContext context, {required RatingEntry ratingEntry}) async {
+    final appRepository = context.read<AppRepository>();
+
+    final edited = await Navigator.push<RatingEntry>(
+      context,
+      MaterialPageRoute(builder: (context) => RatingEntryPage.edit(ratingEntry: ratingEntry)),
+    );
+    if (edited == null) return;
+
+    await appRepository.editRatingEntry(edited);
+  }
+
   static Future<void> removeRatingEntry(BuildContext context, {required RatingEntry ratingEntry}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);

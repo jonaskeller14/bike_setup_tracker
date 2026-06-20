@@ -198,6 +198,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, Rating> _filteredRatings = {};
   Map<String, Component> _filteredComponents = {};
   Map<String, Setup> _filteredSetups = {};
+  Map<String, RatingEntry> _filteredRatingEntries = {};
   Map<String, TaskRule> _filteredTaskRules = {};
   Map<String, TaskEntry> _filteredTaskEntries = {};
   Map<int, StravaActivity> _filteredStravaActivities = {};
@@ -259,6 +260,7 @@ class AppRepository extends ChangeNotifier {
   Map<String, Rating> get filteredRatings => _filteredRatings;
   Map<String, Component> get filteredComponents => _filteredComponents;
   Map<String, Setup> get filteredSetups => _filteredSetups;
+  Map<String, RatingEntry> get filteredRatingEntries => _filteredRatingEntries;
   Map<String, TaskRule> get filteredTaskRules => _filteredTaskRules;
   Map<String, TaskRule> get filteredOpenTaskRules => _filteredOpenTaskRules;
   int get filteredOpenTaskRulesCount => _filteredOpenTaskRules.length;
@@ -491,6 +493,7 @@ class AppRepository extends ChangeNotifier {
     _filterBikes();
     _filterComponents();
     _filterSetups();
+    _filterRatingEntries();
     _filterPersons();
     _filterRatings();
     _filterTaskRules();  // after _filterComponents()
@@ -512,10 +515,16 @@ class AppRepository extends ChangeNotifier {
   }
 
   void _filterSetups() {
-    _filteredSetups = Map.fromEntries(setups.entries.where((entry) => 
-      (selectedBike == null ? true : entry.value.bike == selectedBike) && 
+    _filteredSetups = Map.fromEntries(setups.entries.where((entry) =>
+      (selectedBike == null ? true : entry.value.bike == selectedBike) &&
       (selectedSetupTags.isEmpty ? true : entry.value.tags.containsAll(selectedSetupTags))
     ));
+  }
+
+  void _filterRatingEntries() {
+    _filteredRatingEntries = selectedBike == null
+        ? Map.fromEntries(ratingEntries.entries)
+        : Map.fromEntries(ratingEntries.entries.where((entry) => entry.value.bike == selectedBike));
   }
 
   void _filterPersons() {

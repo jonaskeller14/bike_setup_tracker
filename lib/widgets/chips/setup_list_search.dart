@@ -6,6 +6,7 @@ import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../items/installation_list_tile.dart';
+import '../items/rating_entry_list_tile.dart';
 import '../items/setup_list_card.dart';
 import '../items/strava_list_tile.dart';
 import '../items/task_entry_list_item.dart';
@@ -81,6 +82,14 @@ class SetupListSearch extends StatelessWidget {
           ).map((ci) => InstallationEntry(ci)));
         }
 
+        if (appSettings.enableRating && appSettings.displayShowRatingEntries) {
+          final ratingEntries = appRepository.filteredRatingEntries.values;
+          matchingEntries.addAll(ratingEntries.where((re) =>
+            re.displayName.toLowerCase().contains(controllerText) ||
+            (re.notes ?? "").toLowerCase().contains(controllerText)
+          ).map((re) => RatingEntryTimelineEntry(re)));
+        }
+
         matchingEntries.sort((a, b) {
           return sortAscending ? a.date.compareTo(b.date) : b.date.compareTo(a.date);
         });
@@ -122,6 +131,8 @@ class SetupListSearch extends StatelessWidget {
                   );
                 },
               );
+            case RatingEntryTimelineEntry():
+              return RatingEntryListTile(ratingEntry: entry.ratingEntry);
           }
         });
       },

@@ -19,6 +19,7 @@ import '../../utils/setup_actions.dart';
 import '../../widgets/display_adjustment/display_adjustment_list.dart';
 import '../../widgets/display_adjustment/display_dangling_adjustment.dart';
 import '../../widgets/initial_changed_value_legend.dart';
+import '../../widgets/items/rating_entry_list_tile.dart';
 import '../../widgets/sheets/sheet.dart';
 import '../../widgets/text/section_title.dart';
 
@@ -629,8 +630,56 @@ class SetupDetailsPageContent extends StatelessWidget {
     );
   }
 
+  SliverToBoxAdapter _ratingEntriesSection(BuildContext context, {required Setup setup}) {
+    final appRepository = context.watch<AppRepository>();
+    final scheme = Theme.of(context).colorScheme;
+
+    final entries = appRepository.ratingEntriesForSetup(setup.id)
+      ..sort((a, b) => b.dateTimeUTC.compareTo(a.dateTimeUTC));
+    final score = appRepository.scoreForSetup(setup.id);
+
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              titleAlignment: ListTileTitleAlignment.titleHeight,
+              leading: CircleAvatar(
+                backgroundColor: score == null ? scheme.surfaceContainerHighest : scheme.primaryContainer,
+                child: Text(
+                  score == null ? "–" : score.toStringAsFixed(1),
+                  style: TextStyle(
+                    color: score == null ? scheme.onSurfaceVariant : scheme.onPrimaryContainer,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              title: const Text("Setup score", style: TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text(score == null ? "No ratings yet" : "${score.toStringAsFixed(1)} / 10 across ${entries.length} rating${entries.length == 1 ? '' : 's'}"),
+            ),
+            ...entries.map((entry) => RatingEntryListTile(ratingEntry: entry)),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.tonalIcon(
+                onPressed: () => SetupActions.addRatingEntryForSetup(context, setup: setup),
+                icon: const Icon(Icons.add),
+                label: const Text("Add rating"),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
     final persons = appRepository.persons;
@@ -672,14 +721,23 @@ class SetupDetailsPageContent extends StatelessWidget {
                   _valueSection(
                     context,
                     setup: setup,
-                    person: person, 
+                    person: person,
                     bikeComponents: bikeComponents,
                     danglingBikeAdjustmentValues: danglingBikeAdjustmentValues,
                     danglingPersonAdjustmentValues: danglingPersonAdjustmentValues,
                   ),
+                  _legend(context),
                 ]
               ),
-              _legend(context),
+              if (appSettings.enableRating)
+                SliverMainAxisGroup(
+                  slivers: [
+                    const SliverToBoxAdapter(child: Divider(height: 8)),
+                    _sectionTitle(context, title: "Ratings"),
+                    _ratingEntriesSection(context, setup: setup),
+                  ],
+                ),
+              
             ],
           ),
         ),

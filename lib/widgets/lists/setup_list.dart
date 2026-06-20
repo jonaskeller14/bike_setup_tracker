@@ -8,6 +8,7 @@ import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../chips/setup_list_filter_widget.dart';
 import '../items/installation_list_tile.dart';
+import '../items/rating_entry_list_tile.dart';
 import '../items/setup_list_card.dart';
 import '../items/strava_list_tile.dart';
 import '../items/task_entry_list_item.dart';
@@ -82,11 +83,19 @@ class SetupList extends StatelessWidget {
       if (appSettings.displayShowInstallations) ...installations
           .where((ci) {
             if (horizonDate == null || !appRepository.hasMoreStrava) return true;
-            return sortAscending 
+            return sortAscending
                 ? !ci.installation.dateTimeUTC.isAfter(horizonDate) // ASC: hide newer than horizon
                 : !ci.installation.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
           })
           .map((ci) => InstallationEntry(ci)),
+      if (appSettings.enableRating && appSettings.displayShowRatingEntries) ...appRepository.filteredRatingEntries.values
+          .where((re) {
+            if (horizonDate == null || !appRepository.hasMoreStrava) return true;
+            return sortAscending
+                ? !re.dateTimeUTC.isAfter(horizonDate) // ASC: hide newer than horizon
+                : !re.dateTimeUTC.isBefore(horizonDate); // DESC: hide older than horizon
+          })
+          .map((re) => RatingEntryTimelineEntry(re)),
     ];
     entries.sort((a, b) => sortAscending 
         ? a.date.compareTo(b.date) 
@@ -171,6 +180,8 @@ class SetupList extends StatelessWidget {
                       );
                     },
                   );
+                case RatingEntryTimelineEntry():
+                  return RatingEntryListTile(ratingEntry: entry.ratingEntry);
               }
             },
           );

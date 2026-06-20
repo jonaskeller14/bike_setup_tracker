@@ -461,12 +461,12 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
   }
 
   void _onMetricValueChanged({required Adjustment adjustment, required dynamic newValue}) {
-    _metricValues[adjustment.id] = newValue;
+    setState(() => _metricValues[adjustment.id] = newValue);
     _changeListener();
   }
 
   void _removeFromMetricValues({required Adjustment adjustment}) {
-    _metricValues.remove(adjustment.id);
+    setState(() => _metricValues.remove(adjustment.id));
     _changeListener();
   }
 
@@ -801,17 +801,27 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
     final resolvedName = resolved == null ? "no setup" : (appRepository.setups[resolved]?.displayName ?? "another setup");
     final scheme = Theme.of(context).colorScheme;
 
-    return Card.outlined(
+    return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
+      color: scheme.errorContainer,
       child: ListTile(
-        leading: Icon(Icons.info_outline, color: scheme.tertiary),
-        title: const Text("Setup link changed"),
-        subtitle: Text("Originally linked to '$storedName', now resolves to '$resolvedName'. The score follows the current resolution."),
+        dense: true,
+        titleAlignment: ListTileTitleAlignment.titleHeight,
+        leading: Icon(Icons.link_off, color: scheme.onErrorContainer, size: 20),
+        title: Text(
+          "Setup link changed",
+          style: TextStyle(color: scheme.onErrorContainer, fontWeight: FontWeight.bold, fontSize: 13),
+        ),
+        subtitle: Text(
+          "Originally '$storedName', now resolves to '$resolvedName'. Score follows the current resolution.",
+          style: TextStyle(color: scheme.onErrorContainer.withValues(alpha: 0.9), fontSize: 12),
+        ),
         trailing: TextButton(
           onPressed: () {
             setState(() => _setupId = resolved);
             _changeListener();
           },
+          style: TextButton.styleFrom(foregroundColor: scheme.onErrorContainer),
           child: const Text("Relink"),
         ),
       ),

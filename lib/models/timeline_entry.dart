@@ -1,4 +1,5 @@
 import '../repositories/app_repository.dart' show ComponentInstallation;
+import 'rating_entry.dart';
 import 'setup.dart';
 import 'strava/strava_activity.dart';
 import 'task/task_entry.dart';
@@ -33,4 +34,11 @@ class InstallationEntry extends TimelineEntry {
   InstallationEntry(this.componentInstallation);
   @override
   DateTime get date => componentInstallation.installation.dateTimeUTC;
+}
+
+class RatingEntryTimelineEntry extends TimelineEntry {
+  final RatingEntry ratingEntry;
+  RatingEntryTimelineEntry(this.ratingEntry);
+  @override
+  DateTime get date => ratingEntry.dateTimeUTC;
 }

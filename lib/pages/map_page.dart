@@ -12,8 +12,11 @@ import '../models/strava/strava_activity.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
 import '../widgets/chips/map_filter_widget.dart';
+import '../widgets/sheets/rating_entry_details.dart';
 import '../widgets/sheets/setup_details.dart';
 import '../widgets/sheets/strava_activity.dart';
+
+const Color _kMapRatingColor = Color(0xFFF9A825); // amber — rating entries (matches calendar)
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
@@ -191,6 +194,37 @@ class _MapPageState extends State<MapPage> with TickerProviderStateMixin {
                         Icons.location_pin,
                         size: 40,
                         color: Color(0xFFFC5200),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          if (appSettings.enableRating && appSettings.displayShowRatingEntries)
+            ...appRepository.filteredRatingEntries.values
+                .where((re) =>
+                    (re.position?.latitude?.isFinite ?? false) &&
+                    (re.position?.longitude?.isFinite ?? false))
+                .map(
+              (ratingEntry) => Marker(
+                point: LatLng(ratingEntry.position!.latitude!, ratingEntry.position!.longitude!),
+                width: 40,
+                height: 40,
+                child: GestureDetector(
+                  onTap: () async {
+                    await showRatingEntryDetailsSheet(context: context, ratingEntry: ratingEntry);
+                  },
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      ImageFiltered(
+                        imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+                        child: const Icon(Icons.location_pin, size: 40, color: Colors.black38),
+                      ),
+                      const Icon(
+                        Icons.location_pin,
+                        size: 40,
+                        color: _kMapRatingColor,
                       ),
                     ],
                   ),

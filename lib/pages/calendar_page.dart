@@ -11,9 +11,9 @@ import '../models/setup.dart';
 import '../models/timeline_entry.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
-import '../utils/rating_entry_actions.dart';
 import '../widgets/chips/filter_sheet_chip.dart';
 import '../widgets/sheets/installation_sheet.dart';
+import '../widgets/sheets/rating_entry_details.dart';
 import '../widgets/sheets/setup_details.dart';
 import '../widgets/sheets/strava_activity.dart';
 import '../widgets/sheets/task_rule_sheet.dart';
@@ -255,7 +255,7 @@ class _CalendarPageState extends State<CalendarPage> {
           editEntry: entry.componentInstallation,
         );
       case RatingEntryTimelineEntry():
-        await RatingEntryActions.editRatingEntry(context, ratingEntry: entry.ratingEntry);
+        await showRatingEntryDetailsSheet(context: context, ratingEntry: entry.ratingEntry);
     }
   }
 

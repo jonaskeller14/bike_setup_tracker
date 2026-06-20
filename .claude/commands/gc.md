@@ -2,6 +2,8 @@
 description: Commit the currently staged changes with a generated conventional-commit message
 argument-hint: "[optional message or hint]"
 allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git branch:*), Bash(git commit:*)
+model: claude-haiku-4-5-20251001
+context: fork
 ---
 
 Commit the changes that are **already staged**. Do not stage anything yourself.

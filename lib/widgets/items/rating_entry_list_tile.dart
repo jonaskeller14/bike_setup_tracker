@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../models/rating_entry.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/rating_entry_actions.dart';
+import '../sheets/rating_entry_details.dart';
 
 class RatingEntryListTile extends StatelessWidget {
   final RatingEntry ratingEntry;
@@ -45,7 +46,7 @@ class RatingEntryListTile extends StatelessWidget {
           _scorePart(context, symbol: "Σ", text: sumText),
         ],
       ),
-      onTap: () => RatingEntryActions.editRatingEntry(context, ratingEntry: ratingEntry),
+      onTap: () => showRatingEntryDetailsSheet(context: context, ratingEntry: ratingEntry),
       trailing: PopupMenuButton<_RatingEntryOption>(
         onSelected: (option) async {
           switch (option) {

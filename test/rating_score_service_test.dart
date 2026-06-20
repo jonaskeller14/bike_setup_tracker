@@ -117,6 +117,45 @@ void main() {
     });
   });
 
+  group('breakdown', () {
+    test('per-metric rows: subScore (0–10), contribution, and totals reconcile', () {
+      final grip = RatingMetric(adjustment: _step(), weight: 2); // answered 8/10
+      final comfort = RatingMetric(adjustment: _step(), weight: 1); // answered 4/10
+      final missing = RatingMetric(adjustment: _step(), weight: 1); // unanswered
+      final txt = RatingMetric(adjustment: _text(), weight: 1); // not scored
+
+      final b = RatingScoreService.breakdown(
+        [grip, comfort, missing, txt],
+        {grip.id: 8, comfort.id: 4},
+      );
+
+      // Only scored metrics become rows (text excluded).
+      expect(b.rows.length, 3);
+
+      final gripRow = b.rows.firstWhere((r) => r.metric.id == grip.id);
+      expect(gripRow.subScore, closeTo(8.0, 1e-9));
+      expect(gripRow.absWeight, 2);
+      expect(gripRow.contribution, closeTo(1.6, 1e-9)); // 0.8 * 2
+
+      final missingRow = b.rows.firstWhere((r) => r.metric.id == missing.id);
+      expect(missingRow.answered, isFalse);
+      expect(missingRow.subScore, isNull);
+
+      // weightedTotal / maxTotal × 10 == weightedAvg.
+      expect(b.weightedTotal, closeTo(1.6 + 0.4, 1e-9)); // 2.0
+      expect(b.maxTotal, closeTo(3.0, 1e-9)); // |2| + |1| over answered
+      expect(b.weightedTotal / b.maxTotal * 10, closeTo(b.score!.weightedAvg, 1e-9));
+    });
+
+    test('no answers -> rows present but score null', () {
+      final m = RatingMetric(adjustment: _step(), weight: 1);
+      final b = RatingScoreService.breakdown([m], const {});
+      expect(b.rows.length, 1);
+      expect(b.score, isNull);
+      expect(b.maxTotal, 0);
+    });
+  });
+
   group('setupScore (per-metric pooling)', () {
     test('respects weights under sparse/overlapping entries', () {
       // A: important (weight 5), answered once at max (n=1).

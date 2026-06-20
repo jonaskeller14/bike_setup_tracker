@@ -187,6 +187,16 @@ Future<void> showFilterSheet({
                                   ? () => appSettings.displayShowActivities = false
                                   : null,
                             ),
+                          if (appSettings.enableRating)
+                            FilterChip(
+                              label: const Text("Ratings"),
+                              showCheckmark: false,
+                              selected: appSettings.displayShowRatingEntries,
+                              onSelected: (bool selected) => appSettings.displayShowRatingEntries = selected,
+                              onDeleted: appSettings.displayShowRatingEntries
+                                  ? () => appSettings.displayShowRatingEntries = false
+                                  : null,
+                            ),
                         ],
                       ),
                     ],

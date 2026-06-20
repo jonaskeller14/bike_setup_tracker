@@ -1009,6 +1009,9 @@ class AppRepository extends ChangeNotifier {
   EntryScore? entryScore(RatingEntry entry) =>
       RatingScoreService.scoreEntry(_applicableMetricsForBike(entry.bike), entry.metricValues);
 
+  EntryScoreBreakdown entryBreakdown(RatingEntry entry) =>
+      RatingScoreService.breakdown(_applicableMetricsForBike(entry.bike), entry.metricValues);
+
   List<RatingEntry> ratingEntriesForSetup(String setupId) => _ratingEntries.values
       .where((entry) => resolveSetupId(bikeId: entry.bike, atUtc: entry.dateTimeUTC) == setupId)
       .toList();

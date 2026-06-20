@@ -13,10 +13,12 @@
 > **drift warning with Relink**); **`setupId` resolved in the page's save** (blocked if no
 > preceding setup); **`RatingEntryListTile`** (dense, two scores) + `RatingEntryActions`
 > (add/edit/remove/restore w/ snackbar); **SetupCard** score badge + "Add Rating" / "Ratings (n)"
-> popup; **setup detail** "Ratings" section (setup score + entries + add); and **rating entries
-> surfaced on the SetupList & Calendar** behind a global `displayShowRatingEntries` flag (filter
-> sheet chip). **Still pending:** dedicated weight editor (E19 — interim weight=1), Map markers
-> for rating entries (E′-a remainder), and the analytics rating-score column/series (E′-b).
+> popup; **setup detail** "Ratings" section (setup score + entries + add); **rating entries
+> surfaced on the SetupList, search & Calendar** behind a global `displayShowRatingEntries` flag
+> (filter sheet chip); and the **RatingEntry details page + sheet** (tap a tile/calendar item →
+> details with a **0–10 score breakdown** §7.2, edit/delete inside) — including **Map markers**
+> (tap → details). **Still pending:** dedicated weight editor (E19 — interim weight=1) and the
+> analytics rating-score column/series (E′-b).
 
 
 Rework the **not-yet-shipped** Rating feature so that ratings are **decoupled from
@@ -417,6 +419,27 @@ template's scored-metrics.
 > Per-metric normalization is still applied to both so mixed units don't dominate, and
 > signed/negative weights are fully preserved.
 
+### 7.2 Score breakdown UX — DECIDED: one public 0–10 axis, weight as `×N`, points as the receipt
+
+The entry detail shows "how the score adds up." Two facts drive the design:
+- **For a single entry, `weightedAvg/10 == weightedSum/Σ|w|`** (same ratio). So Sum and Average
+  are *the same number* on one entry — the Sum's only extra info is the **scale** (Σ|w| = how
+  much was at stake / breadth). Sum becomes genuinely distinct only **across** entries.
+- Showing per-metric `0–1` goodness next to a `0–10` average is a confusing scale clash.
+
+**Decision:** put everything the user reads as a *score* on **0–10**, show **importance as a
+separate `×N`**, and keep 0–1 / "points" only in a muted footer:
+- Headline = **Score `X.X / 10`** (the weighted average).
+- Per-metric row = the metric's **0–10 sub-score** (`goodness×10`) + a **`×weight` chip** +
+  a goodness bar; `lower is better` caption for negative-weight metrics; unanswered → "–".
+- Muted footer = the additive **"Weighted total `Σcontribution / Σ|w|` pts ( ×10 ÷ max ⇒ X.X/10 )"**
+  — preserves the "contributions sum to the total" property for transparency without putting a
+  second scale in front of the user. (`contribution = goodness·|w|`.)
+- The **Sum stays "total points"**, surfaced as the *receipt*, not a competing headline;
+  its cross-entry role (breadth) lives in comparison/analytics views (E′-b), not the single
+  entry. Service support: `RatingScoreService.breakdown` → `EntryScoreBreakdown` (per-metric
+  rows + `weightedTotal`/`maxTotal`).
+
 ---
 
 ## 8. UI / pages / widgets
@@ -811,16 +834,25 @@ addition, but important for adoption parity.
     + setup **score badge** (`scoreForSetup`).
 23. ✅ Setup detail: setup score + resolving-entries list + "Add rating".
 24. ✅ Removed `SetupRatingTab` + all rating plumbing from `setup_page.dart` (E0).
+27. ✅ **RatingEntry details (page + sheet)** —
+    [rating_entry_details_page.dart](../lib/pages/details/rating_entry_details_page.dart)
+    (`RatingEntryDetailsContent` reused by the full page + the
+    [sheet](../lib/widgets/sheets/rating_entry_details.dart)). Tapping a `RatingEntryListTile`
+    or a Calendar rating item now opens the **details sheet** (edit is a button inside), not the
+    editor. Shows the **score breakdown** (§7.2) + context (bike, resolved setup + drift note,
+    place, weather/condition) + notes. Backed by `RatingScoreService.breakdown` +
+    `AppRepository.entryBreakdown` (2 new unit tests). Map tap → same sheet is pending (E′-a).
 
 **E′. Re-introduce rating signals removed in E0 (sourced from RatingEntries, not setups)**
 The E0 pass deleted the old setup-sourced rating displays. These must come back, but now
 backed by **`scoreForSetup` / entry scores** (§7), not the removed `ratingAdjustmentValues`:
-- **E′-a — Global RatingEntry visibility filter.** ✅ *mostly done.* Added the global
-  `displayShowRatingEntries` flag (filter sheet "Ratings" chip + roll-up in
-  `filter_sheet_chip`) and a `RatingEntryTimelineEntry`; rating entries now appear on the
-  **SetupList** and **Calendar** (icon/color/subject + tap-to-edit + drag-to-reschedule),
-  gated on `enableRating`. The setup **score badge** also respects `enableRating`. **Remaining:**
-  **Map markers** for rating entries (the map page doesn't yet plot them).
+- **E′-a — Global RatingEntry visibility filter.** ✅ **done.** Global
+  `displayShowRatingEntries` flag (filter sheet "Ratings" chip in **both** the Map-visibility
+  and Timeline-visibility sections + roll-up in `filter_sheet_chip`) and a
+  `RatingEntryTimelineEntry`; rating entries now appear on the **SetupList**, **search**,
+  **Calendar** (tap → details, drag → reschedule), and **Map** (amber location-pin markers,
+  clustered; tap → details sheet), all gated on `enableRating`. Setup **score badge** respects
+  `enableRating`.
 - **E′-b — Rating score in analytics.** Re-add a **rating column** to the
   `component_details_page` / `person_details_page` setup tables **and a series to the line /
   radial charts**, showing each setup's **`scoreForSetup`** (0–10). The `ratingMetrics`

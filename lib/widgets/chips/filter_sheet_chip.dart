@@ -39,7 +39,7 @@ class FilterSheetChip extends StatelessWidget {
             (stravaActive && !appSettings.displayShowActivities) ||
             (showTimelineVisibility && appSettings.enableTask && !appSettings.displayShowTasks) ||
             (showTimelineVisibility && appSettings.enableInstallationTimeline && !appSettings.displayShowInstallations) ||
-            (showTimelineVisibility && appSettings.enableRating && !appSettings.displayShowRatingEntries));
+            (appSettings.enableRating && !appSettings.displayShowRatingEntries));
     final bool onlyChangesActive = showOnlyChangesSection && appSettings.setupListOnlyChanges;
     final bool byCategoryActive = showByCategorySection &&
         (!appSettings.setupListBikeAdjustmentValues ||
@@ -50,11 +50,11 @@ class FilterSheetChip extends StatelessWidget {
       if (showMapVisibility || showTimelineVisibility) {
         appSettings.displayShowSetups = true;
         appSettings.displayShowActivities = true;
+        appSettings.displayShowRatingEntries = true;
       }
       if (showTimelineVisibility) {
         appSettings.displayShowTasks = true;
         appSettings.displayShowInstallations = true;
-        appSettings.displayShowRatingEntries = true;
       }
       if (showOnlyChangesSection) appSettings.setupListOnlyChanges = false;
       if (showByCategorySection) {

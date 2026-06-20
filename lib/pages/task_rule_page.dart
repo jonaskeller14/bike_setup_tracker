@@ -637,7 +637,6 @@ class _TaskRulePageState extends State<TaskRulePage> {
                           Row(
                             children: [
                               Expanded(
-                                flex: 2,
                                 child: DropdownButtonFormField<_ThresholdType>(
                                   initialValue: _intervalType,
                                   isExpanded: true,
@@ -662,7 +661,6 @@ class _TaskRulePageState extends State<TaskRulePage> {
                               switch (_intervalType) {
                                 _ThresholdType.none => const SizedBox.shrink(),
                                 _ThresholdType.dateTime => Expanded(
-                                  flex: 3,
                                   child: FormField<DateTime>(
                                     initialValue: _intervalDate,
                                     autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -708,7 +706,6 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                 _ThresholdType.movingTime ||
                                 _ThresholdType.elapsedTime ||
                                 _ThresholdType.duration => Expanded(
-                                  flex: 3,
                                   child: TextFormField(
                                     controller: _intervalValueController,
                                     autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -762,7 +759,6 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                 spacing: 8,
                                 children: [
                                   Expanded(
-                                    flex: 2,
                                     child: DropdownButtonFormField<_ThresholdType>(
                                       initialValue: _delayType,
                                       isExpanded: true,
@@ -792,7 +788,6 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                   ),
                                   if (_delayType != _ThresholdType.none)
                                     Expanded(
-                                      flex: 3,
                                       child: TextFormField(
                                         controller: _delayValueController,
                                         autovalidateMode: AutovalidateMode.onUserInteraction,

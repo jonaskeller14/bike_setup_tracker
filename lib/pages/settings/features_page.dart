@@ -183,24 +183,23 @@ class FeaturesPage extends StatelessWidget {
                   infoText: 'Shows the Priority field on tasks. Disable to simplify the task interface.',
                 ),
               ),
-              if (kDebugMode)
-                ListTile(
-                  leading: const Icon(Icons.timer),
-                  title: const Text("Task Interval"),
-                  subtitle: _offOnOptionWidgets[appSettings.enableTaskInterval] ?? const Text("-"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
-                    context: context,
-                    title: "Task Interval",
-                    value: appSettings.enableTaskInterval,
-                    optionWidgets: _offOnOptionWidgets,
-                    onChanged: (bool? newValue) {
-                      if (newValue == null) return;
-                      appSettings.enableTaskInterval = newValue;
-                      Navigator.pop(context);
-                    },
-                  ),
+              ListTile(
+                leading: const Icon(Icons.timer),
+                title: const Text("Task Interval"),
+                subtitle: _offOnOptionWidgets[appSettings.enableTaskInterval] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<bool>(
+                  context: context,
+                  title: "Task Interval",
+                  value: appSettings.enableTaskInterval,
+                  optionWidgets: _offOnOptionWidgets,
+                  onChanged: (bool? newValue) {
+                    if (newValue == null) return;
+                    appSettings.enableTaskInterval = newValue;
+                    Navigator.pop(context);
+                  },
                 ),
+              ),
               if (kDebugMode)
                 ListTile(
                   leading: const Icon(Icons.more_time_rounded),

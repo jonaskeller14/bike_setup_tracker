@@ -43,6 +43,7 @@ class AppSettings extends ChangeNotifier {
   bool _displayShowActivities = true;
   bool _displayShowInstallations = true;
   bool _displayShowTasks = true;
+  bool _displayShowRatingEntries = true;
 
   bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;
@@ -81,6 +82,7 @@ class AppSettings extends ChangeNotifier {
   bool get displayShowActivities => _displayShowActivities;
   bool get displayShowInstallations => _displayShowInstallations;
   bool get displayShowTasks => _displayShowTasks;
+  bool get displayShowRatingEntries => _displayShowRatingEntries;
 
   set showOnboarding(bool newShowOnboarding) {
     if (_showOnboarding == newShowOnboarding) return;
@@ -318,6 +320,12 @@ class AppSettings extends ChangeNotifier {
   set displayShowTasks(bool newValue) {
     if (newValue == _displayShowTasks) return;
     _displayShowTasks = newValue;
+    notifyListeners();
+  }
+
+  set displayShowRatingEntries(bool newValue) {
+    if (newValue == _displayShowRatingEntries) return;
+    _displayShowRatingEntries = newValue;
     notifyListeners();
   }
 

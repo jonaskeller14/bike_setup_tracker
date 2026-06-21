@@ -404,6 +404,7 @@ class AppSettings extends ChangeNotifier {
       final json = jsonDecode(raw) as Map<String, dynamic>;
       for (final entry in json.entries) {
         final value = entry.value;
+        if (!_legacyDefaults.containsKey(entry.key)) continue;
         // Skip untouched defaults so they keep following future code defaults.
         if (_legacyDefaults[entry.key] == value) continue;
         final key = '$_kPrefix${entry.key}';

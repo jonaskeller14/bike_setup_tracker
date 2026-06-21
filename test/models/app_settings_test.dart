@@ -157,5 +157,37 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getString('${_kPrefix}themeMode'), ThemeMode.dark.toString());
     });
+
+    // Regression: enableStrava was omitted from _legacyDefaults, so its old
+    // default value (false) was being migrated and overrode the new default (true).
+    test('enableStrava old default false does not override new default true', () async {
+      SharedPreferences.setMockInitialValues({
+        _kLegacyBlobKey: jsonEncode({
+          'enableStrava': false, // old default — must not be persisted
+        }),
+      });
+      final settings = AppSettings();
+      await settings.loadAppSettings();
+
+      expect(settings.enableStrava, isTrue);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('${_kPrefix}enableStrava'), isNull);
+    });
+
+    test('keys absent from _legacyDefaults are not migrated', () async {
+      SharedPreferences.setMockInitialValues({
+        _kLegacyBlobKey: jsonEncode({
+          'someUnknownFutureKey': true,
+          'anotherUnknownKey': 'value',
+        }),
+      });
+      final settings = AppSettings();
+      await settings.loadAppSettings();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('${_kPrefix}someUnknownFutureKey'), isNull);
+      expect(prefs.getString('${_kPrefix}anotherUnknownKey'), isNull);
+      expect(prefs.getString(_kLegacyBlobKey), isNull);
+    });
   });
 }

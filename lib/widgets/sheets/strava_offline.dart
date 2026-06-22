@@ -50,9 +50,7 @@ class _StravaOfflineNoticeState extends State<StravaOfflineNotice> {
             const SizedBox(height: 16),
             Text(
               "You're offline",
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
             Text(

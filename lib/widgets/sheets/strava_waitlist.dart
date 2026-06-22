@@ -31,9 +31,7 @@ class StravaWaitlist extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               "Strava Sync is at capacity",
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
             Text(

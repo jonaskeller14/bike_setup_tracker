@@ -119,7 +119,7 @@ class StravaSubscriptionCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
-        Text(price, style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+        Text(price, style: textTheme.titleLarge),
         const SizedBox(width: 6),
         Text(period, style: textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ],

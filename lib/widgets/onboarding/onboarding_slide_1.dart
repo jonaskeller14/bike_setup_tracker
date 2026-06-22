@@ -35,7 +35,6 @@ class OnboardingSlide1 extends StatelessWidget {
                 Text(
                   'Ready to Dial It In?',
                   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   textAlign: TextAlign.center,

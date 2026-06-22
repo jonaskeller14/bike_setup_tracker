@@ -104,7 +104,7 @@ class RatingEntryDetailsContent extends StatelessWidget {
               children: [
                 SelectableText(
                   entry.displayName,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.titleLarge,
                   maxLines: 1,
                 ),
                 Text(

@@ -14,6 +14,7 @@ import '../../models/setup.dart';
 import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
+import '../../theme.dart';
 import '../../utils/component_actions.dart';
 import '../../utils/table_column.dart';
 import '../../widgets/chips/filter_sheet_chip.dart';
@@ -316,7 +317,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
       return _chartPlaceholder(message: "Select at least two setups in the table to visualize a trend");
     }
 
-    final primaryHSL = HSLColor.fromColor(Theme.of(context).colorScheme.primary);
+    final lineChartColors = chartColors(Theme.of(context).colorScheme.primary, validColumns.length);
 
     return Column(
       children: [
@@ -329,7 +330,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               lineBarsData: validColumns.mapIndexed((index, column) {
                 final effectiveSelectedColumn = validColumns.contains(_selectedLineChartColumn) ? _selectedLineChartColumn : null;
                 final isSelected = effectiveSelectedColumn == null || effectiveSelectedColumn == column;
-                final color = primaryHSL.withHue((primaryHSL.hue + (index * 45)) % 360).toColor();
+                final color = lineChartColors[index];
                 return LineChartBarData(
                   spots: chartSetups.asMap().entries.map((entry) {
                     final val = _rawValue(entry.value, column);
@@ -470,7 +471,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   final effectiveSelectedColumn = validColumns.contains(_selectedLineChartColumn) ? _selectedLineChartColumn : null;
                   final isSelected = effectiveSelectedColumn == column;
                   final isDimmed = effectiveSelectedColumn != null && !isSelected;
-                  final color = primaryHSL.withHue((primaryHSL.hue + (index * 45)) % 360).toColor();
+                  final color = lineChartColors[index];
                   final dashArray = _dashPatterns[index % _dashPatterns.length];
                   final columnName = _columnLabel(column, componentAdjustments, personAdjustments);
               
@@ -572,8 +573,6 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     // chartSetups covers all data for stable axis normalization
     final chartSetups = setups.toList()..sort((a, b) => a.datetime.compareTo(b.datetime));
 
-    final primaryHSL = HSLColor.fromColor(Theme.of(context).colorScheme.primary);
-
     return Column(
       children: [
         const SizedBox(height: 16),
@@ -583,6 +582,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
           Builder(
             builder: (context) {
               final radarSetups = selectedSetups;
+              final radarColors = chartColors(Theme.of(context).colorScheme.primary, radarSetups.length);
               final effectiveSelectedSetupId = radarSetups.any((s) => s.id == _selectedRadarSetupId) ? _selectedRadarSetupId : null;
               final featureDefs = validColumns.map((column) {
                 final adjustment = _findAdjustment(column, componentAdjustments, personAdjustments);
@@ -674,7 +674,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                                 ),
                                 dataSets: radarSetups.mapIndexed((index, setup) {
                                   final isSelected = effectiveSelectedSetupId == null || effectiveSelectedSetupId == setup.id;
-                                  final color = primaryHSL.withHue((primaryHSL.hue + (index * 60)) % 360).toColor();
+                                  final color = radarColors[index];
 
                                   final entries = featureDefs.map((def) {
                                     final rawValue = _rawValue(setup, def.column);
@@ -756,7 +756,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                           children: radarSetups.mapIndexed((index, setup) {
                             final isSelected = effectiveSelectedSetupId == setup.id;
                             final isDimmed = effectiveSelectedSetupId != null && !isSelected;
-                            final color = primaryHSL.withHue((primaryHSL.hue + (index * 60)) % 360).toColor();
+                            final color = radarColors[index];
                             return InkWell(
                               onTap: () {
                                 unawaited(HapticFeedback.selectionClick());

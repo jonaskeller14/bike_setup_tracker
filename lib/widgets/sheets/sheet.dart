@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 Text sheetTitle(BuildContext context, String title) {
   return Text(
     title, 
-    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+    style: Theme.of(context).textTheme.titleLarge,
     overflow: TextOverflow.ellipsis,
   );
 }

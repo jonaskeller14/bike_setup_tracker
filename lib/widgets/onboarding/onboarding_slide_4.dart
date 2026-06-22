@@ -156,7 +156,6 @@ class _OnboardingSlide4State extends State<OnboardingSlide4> {
                 Text(
                   'Your Setup Diary',
                   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   textAlign: TextAlign.center,

@@ -374,7 +374,6 @@ class _OnboardingSlide5State extends State<OnboardingSlide5> {
                 Text(
                   'Master your Garage',
                   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   textAlign: TextAlign.center,

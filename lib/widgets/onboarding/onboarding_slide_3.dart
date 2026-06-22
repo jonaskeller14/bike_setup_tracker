@@ -118,7 +118,6 @@ class OnboardingSlide3 extends StatelessWidget {
                     Text(
                       'Virtual Dials for Physical Knobs',
                       style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.primary,
                       ),
                       textAlign: TextAlign.center,

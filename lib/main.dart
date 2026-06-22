@@ -24,6 +24,7 @@ import 'services/notification_service.dart';
 import 'services/quick_actions_service.dart';
 import 'services/strava_service.dart';
 import 'services/subscription_service.dart';
+import 'theme.dart';
 import 'utils/file_export.dart';
 
 @pragma('vm:entry-point')
@@ -32,22 +33,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Handle background message
   debugPrint("Handling background message: ${message.messageId}");
 }
-
-final materialAppTheme = ThemeData(
-  useMaterial3: true,
-  colorScheme: ColorScheme.fromSeed(
-    seedColor: Colors.blueGrey.shade700,
-    brightness: Brightness.light,
-  ),
-);
-
-final materialAppDarkTheme = ThemeData(
-  useMaterial3: true,
-  colorScheme: ColorScheme.fromSeed(
-    seedColor: Colors.blueGrey.shade700,
-    brightness: Brightness.dark,
-  ),
-);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -186,7 +171,7 @@ class LoadingGate extends StatelessWidget {
         } else {
           return MaterialApp(
             theme: materialAppTheme,
-
+            darkTheme: materialAppDarkTheme,
             themeMode: ThemeMode.system,
             home: const Scaffold(body: Center(child: CircularProgressIndicator())),
             debugShowCheckedModeBanner: false,

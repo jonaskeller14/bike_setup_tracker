@@ -217,7 +217,6 @@ class _StravaPaywallState extends State<StravaPaywall> with SingleTickerProvider
                                             Text(
                                               subscription.localizedPrice(plan) ?? plan.price,
                                               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                                fontWeight: FontWeight.bold,
                                                 letterSpacing: -0.3,
                                               ),
                                             ),

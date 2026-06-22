@@ -89,7 +89,6 @@ class StravaActivitiyPageContent extends StatelessWidget {
           Text(
             value,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w400,
               fontSize: 22,
             ),
           ),

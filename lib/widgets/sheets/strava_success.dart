@@ -48,7 +48,7 @@ class StravaSuccess extends StatelessWidget {
                       const SizedBox(height: 14),
                       Text(
                         "You're in.",
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 6),
                       Padding(
@@ -80,7 +80,7 @@ class StravaSuccess extends StatelessWidget {
                       const SizedBox(height: 14),
                       Text(
                         'Connect to Strava',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 6),
                       Padding(

@@ -51,7 +51,6 @@ class OnboardingSlide2 extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text('Build Your Digital Garage', 
                   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   textAlign: TextAlign.center,

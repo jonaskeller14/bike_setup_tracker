@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../../models/app_settings.dart';
 import '../../models/rating_entry.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/rating_entry_actions.dart';
@@ -10,22 +12,11 @@ class RatingEntryListTile extends StatelessWidget {
 
   const RatingEntryListTile({super.key, required this.ratingEntry});
 
-  Widget _scorePart(BuildContext context, {required String symbol, required String text, bool emphasized = false}) {
-    final scheme = Theme.of(context).colorScheme;
-    final color = emphasized ? scheme.onSurface : scheme.onSurfaceVariant;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(symbol, style: TextStyle(color: scheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
-        const SizedBox(width: 4),
-        Text(text, style: TextStyle(color: color, fontWeight: emphasized ? FontWeight.bold : FontWeight.normal)),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final appRepository = context.watch<AppRepository>();
+    final appSettings = context.watch<AppSettings>();
     final score = appRepository.entryScore(ratingEntry);
 
     final avgText = score == null ? "–" : "${score.weightedAvg.toStringAsFixed(1)} / 10";
@@ -38,12 +29,94 @@ class RatingEntryListTile extends StatelessWidget {
       contentPadding: const EdgeInsets.only(left: 16, right: 16),
       leading: const Icon(RatingEntry.iconData),
       title: Text(ratingEntry.displayName),
-      subtitle: Row(
-        mainAxisSize: MainAxisSize.min,
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _scorePart(context, symbol: "Ø", text: avgText, emphasized: true),
-          const SizedBox(width: 16),
-          _scorePart(context, symbol: "Σ", text: sumText),
+          Wrap(
+            alignment: WrapAlignment.start,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 4,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                spacing: 2,
+                children: [
+                  Icon(Icons.calendar_month, size: 12, color: colorScheme.onSurfaceVariant),
+                  Text(
+                    DateFormat(appSettings.dateFormat).format(ratingEntry.dateTimeLocal),
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                spacing: 2,
+                children: [
+                  Icon(Icons.access_time, size: 12, color: colorScheme.onSurfaceVariant),
+                  Flexible(
+                    child: Text(
+                      DateFormat(appSettings.timeFormat).format(ratingEntry.dateTimeLocal),
+                      style: TextStyle(
+                        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 16,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 4,
+                children: [
+                  Text("Ø", style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
+                  Text(avgText, style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 4,
+                children: [
+                  Text("Σ", style: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontWeight: FontWeight.bold)),
+                  Text(sumText, style: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontWeight: FontWeight.normal)),
+                ],
+              ),
+            ],
+          ),
+          if (ratingEntry.notes != null && ratingEntry.notes!.isNotEmpty)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 3), // tweak to match font size
+                  child: Icon(
+                    Icons.notes,
+                    size: 12,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(width: 2),
+                Expanded(
+                  child: Text(
+                    ratingEntry.notes!,
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
         ],
       ),
       onTap: () => showRatingEntryDetailsSheet(context: context, ratingEntry: ratingEntry),

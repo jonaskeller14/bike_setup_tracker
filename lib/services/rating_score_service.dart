@@ -141,6 +141,19 @@ class RatingScoreService {
     return EntryScoreBreakdown(rows: rows, score: scoreEntry(metrics, values));
   }
 
+  static Map<String, double> setupMetricScores(Iterable<ScoringInput> entries) {
+    final Map<String, List<double>> pooled = {};
+    for (final entry in entries) {
+      for (final metric in entry.metrics) {
+        if (!metric.isScored) continue;
+        final g = goodness(metric, entry.values[metric.id]);
+        if (g == null) continue;
+        (pooled[metric.id] ??= []).add(g);
+      }
+    }
+    return Map.fromEntries(pooled.entries.map((e) => MapEntry(e.key, (e.value.reduce((a, b) => a + b) / e.value.length) * 10)));
+  }
+
   static double? setupScore(Iterable<ScoringInput> entries) {
     final Map<String, List<double>> pooled = {};
     final Map<String, double> absWeights = {};

@@ -242,8 +242,19 @@ class SetupDetailsPageContent extends StatelessWidget {
             if (setup.position != null || setup.place != null)
               Card.outlined(
                 margin: const EdgeInsets.symmetric(vertical: 4),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                child: ExpansionTile(
+                  dense: true,
+                  shape: const Border(),
+                  collapsedShape: const Border(),
+                  leading: const Icon(Icons.location_city),
+                  title: setup.place == null 
+                      ? const Text("No Address available")
+                      : SelectableText(
+                          "${setup.place!.thoroughfare ?? ''} ${setup.place!.subThoroughfare ?? ''}, "
+                          "${setup.place!.locality ?? ''}, ${setup.place!.isoCountryCode ?? ''}"
+                            .replaceAll(RegExp(r' ,'), '')
+                            .trim(),
+                        ),
                   children: [
                     ListTile(
                       leading: const Icon(Icons.my_location),
@@ -256,19 +267,6 @@ class SetupDetailsPageContent extends StatelessWidget {
                       title: SelectableText("Altitude: ${ContextPosition.convertAltitudeFromMeters(setup.position?.altitude, appSettings.altitudeUnit)?.round() ?? "-"} ${appSettings.altitudeUnit}"),
                       dense: true,
                       enabled: setup.position?.altitude != null,
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.location_city),
-                      title: setup.place == null 
-                          ? const Text("No Address available")
-                          : SelectableText(
-                              "${setup.place!.thoroughfare ?? ''} ${setup.place!.subThoroughfare ?? ''}, "
-                              "${setup.place!.locality ?? ''}, ${setup.place!.isoCountryCode ?? ''}"
-                                .replaceAll(RegExp(r' ,'), '')
-                                .trim(),
-                            ),
-                      dense: true,
-                      enabled: setup.place != null,
                     ),
                     if (setup.position?.latitude != null && setup.position?.longitude != null)
                       SizedBox(
@@ -392,41 +390,44 @@ class SetupDetailsPageContent extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    ListTile(
-                      leading: Icon(setup.weather?.getIconData() ?? WeatherIcons.na),
+                    ExpansionTile(
+                      dense: true,
+                      shape: const Border(),
+                      collapsedShape: const Border(),
+                      leading: Icon(setup.weather?.getIconData() ?? WeatherIcons.na),                 
                       title: Text("Weather: ${setup.weather?.getWeatherCodeLabel() ?? '-'}"),
-                      dense: true,
-                      enabled: setup.weather?.currentWeatherCode != null,
-                    ),
-                    ListTile(
-                      leading: const Icon(ContextWeather.currentTemperatureIconData),
-                      title: SelectableText("Temperature: ${ContextWeather.convertTemperatureFromCelsius(setup.weather?.currentTemperature, appSettings.temperatureUnit)?.round() ?? '-'} ${appSettings.temperatureUnit}"),
-                      dense: true,
-                      enabled: setup.weather?.currentTemperature != null,
-                    ),
-                    ListTile(
-                      leading: const Icon(ContextWeather.currentHumidityIconData),
-                      title: SelectableText("Humidity: ${setup.weather?.currentHumidity?.round() ?? '-'} %"),
-                      dense: true,
-                      enabled: setup.weather?.currentHumidity != null,
-                    ),
-                    ListTile(
-                      leading: const Icon(ContextWeather.dayAccumulatedPrecipitationIconData),
-                      title:  SelectableText("Precipitation: ${ContextWeather.convertPrecipitationFromMm(setup.weather?.dayAccumulatedPrecipitation, appSettings.precipitationUnit)?.round() ?? '-'} ${appSettings.precipitationUnit}"),
-                      dense: true,
-                      enabled: setup.weather?.dayAccumulatedPrecipitation != null,
-                    ),
-                    ListTile(
-                      leading: const Icon(ContextWeather.currentWindSpeedIconData),
-                      title:  SelectableText("Windspeed: ${ContextWeather.convertWindSpeedFromKmh(setup.weather?.currentWindSpeed, appSettings.windSpeedUnit)?.round() ?? '-'} ${appSettings.windSpeedUnit}"),
-                      dense: true,
-                      enabled: setup.weather?.currentWindSpeed != null,
-                    ),
-                    ListTile(
-                      leading: const Icon(ContextWeather.currentSoilMoisture0to7cmIconData),
-                      title:  SelectableText("Soil Moisture: ${setup.weather?.currentSoilMoisture0to7cm?.toStringAsFixed(2) ?? '-'} m³/m³"),
-                      dense: true,
-                      enabled: setup.weather?.currentSoilMoisture0to7cm != null,
+                      children: [
+                        ListTile(
+                          leading: const Icon(ContextWeather.currentTemperatureIconData),
+                          title: SelectableText("Temperature: ${ContextWeather.convertTemperatureFromCelsius(setup.weather?.currentTemperature, appSettings.temperatureUnit)?.round() ?? '-'} ${appSettings.temperatureUnit}"),
+                          dense: true,
+                          enabled: setup.weather?.currentTemperature != null,
+                        ),
+                        ListTile(
+                          leading: const Icon(ContextWeather.dayAccumulatedPrecipitationIconData),
+                          title:  SelectableText("Precipitation: ${ContextWeather.convertPrecipitationFromMm(setup.weather?.dayAccumulatedPrecipitation, appSettings.precipitationUnit)?.round() ?? '-'} ${appSettings.precipitationUnit}"),
+                          dense: true,
+                          enabled: setup.weather?.dayAccumulatedPrecipitation != null,
+                        ),
+                        ListTile(
+                          leading: const Icon(ContextWeather.currentHumidityIconData),
+                          title: SelectableText("Humidity: ${setup.weather?.currentHumidity?.round() ?? '-'} %"),
+                          dense: true,
+                          enabled: setup.weather?.currentHumidity != null,
+                        ),
+                        ListTile(
+                          leading: const Icon(ContextWeather.currentWindSpeedIconData),
+                          title:  SelectableText("Windspeed: ${ContextWeather.convertWindSpeedFromKmh(setup.weather?.currentWindSpeed, appSettings.windSpeedUnit)?.round() ?? '-'} ${appSettings.windSpeedUnit}"),
+                          dense: true,
+                          enabled: setup.weather?.currentWindSpeed != null,
+                        ),
+                        ListTile(
+                          leading: const Icon(ContextWeather.currentSoilMoisture0to7cmIconData),
+                          title:  SelectableText("Soil Moisture: ${setup.weather?.currentSoilMoisture0to7cm?.toStringAsFixed(2) ?? '-'} m³/m³"),
+                          dense: true,
+                          enabled: setup.weather?.currentSoilMoisture0to7cm != null,
+                        ),
+                      ],
                     ),
                     const Divider(height: 1),
                     ListTile(

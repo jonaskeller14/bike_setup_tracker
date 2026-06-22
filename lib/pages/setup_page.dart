@@ -957,7 +957,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                           const SizedBox(height: 12),
                           _bikeField(bikes: bikes),
                           const SizedBox(height: 12),
-                          if (context.read<AppSettings>().enablePerson || context.read<AppSettings>().enableRating)
+                          if (context.read<AppSettings>().enablePerson)
                             TabBar.secondary(
                               controller: _tabController,
                               tabs: <Widget>[

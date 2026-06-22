@@ -17,8 +17,8 @@
 > surfaced on the SetupList, search & Calendar** behind a global `displayShowRatingEntries` flag
 > (filter sheet chip); and the **RatingEntry details page + sheet** (tap a tile/calendar item →
 > details with a **0–10 score breakdown** §7.2, edit/delete inside) — including **Map markers**
-> (tap → details). **Still pending:** dedicated weight editor (E19 — interim weight=1) and the
-> analytics rating-score column/series (E′-b).
+> (tap → details); and the **analytics "Rating Score" column + chart series** (E′-b) in
+> component/person details. **Still pending:** dedicated weight editor (E19 — interim weight=1).
 
 
 Rework the **not-yet-shipped** Rating feature so that ratings are **decoupled from
@@ -853,11 +853,13 @@ backed by **`scoreForSetup` / entry scores** (§7), not the removed `ratingAdjus
   **Calendar** (tap → details, drag → reschedule), and **Map** (amber location-pin markers,
   clustered; tap → details sheet), all gated on `enableRating`. Setup **score badge** respects
   `enableRating`.
-- **E′-b — Rating score in analytics.** Re-add a **rating column** to the
-  `component_details_page` / `person_details_page` setup tables **and a series to the line /
-  radial charts**, showing each setup's **`scoreForSetup`** (0–10). The `ratingMetrics`
-  column plumbing was kept (currently fed empty) precisely so this can re-hook to the pooled
-  setup score — likely a single "Rating Score" column rather than per-metric columns.
+- **E′-b — Rating score in analytics.** ✅ **done.** Added a new
+  `TableColumnSection.ratingScore` — a single **"Rating Score"** column showing each setup's
+  `scoreForSetup` (0–10), gated on `enableRating`. Wired through sort, header, cell, the
+  column-filter sheet, and (component only) the **line + radial chart** series (treated like a
+  numeric column; per-setup scores precomputed into `_ratingScores` each build). Present in both
+  `component_details_page` and `person_details_page` (person has no charts). The old per-metric
+  `ratingMetrics` plumbing stays inert.
 
 **F. Verify**
 25. `flutter analyze` on touched files; `flutter test`.

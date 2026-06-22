@@ -1,23 +1,12 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import '../../models/adjustment/adjustment.dart';
 import '../../utils/table_column.dart';
 import '../text/sheet_section_title.dart';
 import 'sheet.dart';
 
-class SelectColumn {
-  final String id;
-  final String label;
-  bool selected = false;
-  SelectColumn({required this.id, required this.label, this.selected = false});
-}
-
 Future<void> showColumnFilterSheet({
   required BuildContext context,
   required List<TableColumn> sortedColumns,
-  required Iterable<Adjustment> componentAdjustments,
-  required Iterable<Adjustment> personAdjustments,
-  required Iterable<Adjustment> ratingAdjustments,
+  required String Function(TableColumn column) columnLabel,
   required VoidCallback onColumnStatusChanged,
 }) async {
   final sortedColumnsCopy = sortedColumns.toList();
@@ -65,15 +54,7 @@ Future<void> showColumnFilterSheet({
                                 spacing: 6,
                                 children: columns.map((column) {
                                   return FilterChip(
-                                    label: Text(
-                                      switch (column.section) {
-                                        TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label)?.name ?? "-",
-                                        TableColumnSection.ratingMetrics => ratingAdjustments.firstWhereOrNull((a) => a.id == column.label)?.name ?? "-",
-                                        TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == column.label)?.name ?? "-",
-                                        _ => column.label,
-                                      },
-                                      overflow: TextOverflow.ellipsis
-                                    ),
+                                    label: Text(columnLabel(column), overflow: TextOverflow.ellipsis),
                                     selected: column.active,
                                     onSelected: (bool newValue) {
                                       setSheetState(() => column.active = newValue);

@@ -1024,6 +1024,19 @@ class AppRepository extends ChangeNotifier {
     );
   }
 
+  Map<String, double> metricScoresForSetup(String setupId) {
+    final entries = ratingEntriesForSetup(setupId);
+    if (entries.isEmpty) return const {};
+    return RatingScoreService.setupMetricScores(
+      entries.map((e) => (metrics: _applicableMetricsForBike(e.bike), values: e.metricValues)),
+    );
+  }
+
+  Map<String, RatingMetric> get allRatingMetricsById => {
+        for (final rating in _ratings.values)
+          for (final metric in rating.metrics) metric.id: metric,
+      };
+
   Future<void> removeTaskRules(Iterable<TaskRule> rules) async {
     for (var rule in rules) {
       await database.taskDao.deleteRule(rule.id);

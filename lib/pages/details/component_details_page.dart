@@ -53,9 +53,22 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     [10, 4, 2, 4],
   ];
 
-  static dynamic _rawValue(Setup setup, TableColumn column) => switch (column.section) {
+  Map<String, double?> _ratingScores = {};
+  Map<String, Map<String, double>> _metricScores = {};
+  // ratingMetricId → display name, for the per-metric rating columns.
+  Map<String, String> _ratingMetricNames = {};
+
+  /// True for the synthetic rating columns whose value is a 0–10 score
+  /// ([TableColumnSection.ratingScore] = the setup score, [ratingMetrics] = a
+  /// single metric's pooled sub-score) rather than a raw adjustment value.
+  static bool _isScoreColumn(TableColumn column) =>
+      column.section == TableColumnSection.ratingScore ||
+      column.section == TableColumnSection.ratingMetrics;
+
+  dynamic _rawValue(Setup setup, TableColumn column) => switch (column.section) {
     TableColumnSection.componentAdjustments => setup.bikeAdjustmentValues[column.label],
-    TableColumnSection.ratingMetrics => null,
+    TableColumnSection.ratingMetrics => _metricScores[setup.id]?[column.label],
+    TableColumnSection.ratingScore => _ratingScores[setup.id],
     TableColumnSection.personAttributes => setup.personAdjustmentValues[column.label],
     _ => null,
   };
@@ -63,14 +76,24 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
   static Adjustment? _findAdjustment(
     TableColumn column,
     Iterable<Adjustment> componentAdjustments,
-    Iterable<Adjustment> ratingAdjustments,
     Iterable<Adjustment> personAdjustments,
   ) => switch (column.section) {
     TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label),
-    TableColumnSection.ratingMetrics => ratingAdjustments.firstWhereOrNull((a) => a.id == column.label),
     TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == column.label),
     _ => null,
   };
+
+  String _columnLabel(TableColumn column, Iterable<Adjustment> componentAdjustments, Iterable<Adjustment> personAdjustments) {
+    return switch (column.section) {
+      TableColumnSection.generalContext || 
+      TableColumnSection.weatherContext || 
+      TableColumnSection.ratingScore => column.label,
+      TableColumnSection.ratingMetrics => _ratingMetricNames[column.label] ?? column.label,
+      TableColumnSection.componentAdjustments => componentAdjustments.firstWhereOrNull((a) => a.id == column.label)?.name ?? column.label,
+      TableColumnSection.personAttributes => personAdjustments.firstWhereOrNull((a) => a.id == column.label)?.name ?? column.label,
+
+    };
+  }
 
   final Set<TableColumn> _columns = {
     TableColumn(section: TableColumnSection.generalContext, label: "Name", active: true),
@@ -95,7 +118,6 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     required List<Setup> setups,
     required Iterable<Adjustment> componentAdjustments,
     required Iterable<Adjustment> personAdjustments,
-    required Iterable<Adjustment> ratingAdjustments,
     required Map<String, Bike> bikes,
   }) {
     if (_sortColumn == null) return setups;
@@ -149,8 +171,13 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               ? setups.sort((a, b) => (a.weather?.condition?.value ?? '').compareTo(b.weather?.condition?.value ?? '')) 
               : setups.sort((a, b) => (b.weather?.condition?.value ?? '').compareTo(a.weather?.condition?.value ?? ''));
         }
-      case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes || TableColumnSection.ratingMetrics:
-        final Adjustment? adjustment = _findAdjustment(_sortColumn!, componentAdjustments, ratingAdjustments, personAdjustments);
+      case TableColumnSection.ratingScore || TableColumnSection.ratingMetrics:
+        double rs(Setup s) => (_rawValue(s, _sortColumn!) as double?) ?? double.negativeInfinity;
+        _sortAscending
+            ? setups.sort((a, b) => rs(a).compareTo(rs(b)))
+            : setups.sort((a, b) => rs(b).compareTo(rs(a)));
+      case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes:
+        final Adjustment? adjustment = _findAdjustment(_sortColumn!, componentAdjustments, personAdjustments);
         if (adjustment == null) return setups;
 
         dynamic v(Setup s) => _rawValue(s, _sortColumn!);
@@ -179,16 +206,24 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     return setups;
   }
 
-  Widget _columnHeaderLabel(TableColumn column, String text) {
-    return GestureDetector(
-      onLongPress: () {
-        unawaited(HapticFeedback.selectionClick());
+  DataColumn _dataColumn(TableColumn column, Iterable<Adjustment> componentAdjustments, Iterable<Adjustment> personAdjustments) {
+    return DataColumn(
+      label: GestureDetector(
+        onLongPress: () {
+          unawaited(HapticFeedback.selectionClick());
+          setState(() {
+            column.active = false;
+            if (_selectedLineChartColumn == column) _selectedLineChartColumn = null;
+          });
+        },
+        child: Text(_columnLabel(column, componentAdjustments, personAdjustments), overflow: TextOverflow.ellipsis),
+      ),
+      onSort: (int _, bool ascending) {
         setState(() {
-          column.active = false;
-          if (_selectedLineChartColumn == column) _selectedLineChartColumn = null;
+          _sortAscending = ascending;
+          _sortColumn = column;
         });
       },
-      child: Text(text, overflow: TextOverflow.ellipsis),
     );
   }
 
@@ -250,10 +285,10 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     required List<Setup> selectedSetups,
     required Iterable<Adjustment> componentAdjustments,
     required Iterable<Adjustment> personAdjustments,
-    required Iterable<Adjustment> ratingAdjustments,
   }) {
     final activeChartColumns = activeColumns.where((column) {
-      final adjustment = _findAdjustment(column, componentAdjustments, ratingAdjustments, personAdjustments);
+      if (_isScoreColumn(column)) return true;
+      final adjustment = _findAdjustment(column, componentAdjustments, personAdjustments);
       return adjustment is StepAdjustment || adjustment is NumericalAdjustment;
     }).toList();
 
@@ -380,8 +415,8 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                       getTooltipItems: (touchedSpots) {
                         return touchedSpots.map((barSpot) {
                           final column = validColumns[barSpot.barIndex];
-                          final adjustment = _findAdjustment(column, componentAdjustments, ratingAdjustments, personAdjustments);
-                          final columnName = adjustment?.name ?? column.label;
+                          final adjustment = _findAdjustment(column, componentAdjustments, personAdjustments);
+                          final columnName = _columnLabel(column, componentAdjustments, personAdjustments);
                           final unit = adjustment?.unit ?? "";
                           final formattedY = Adjustment.formatValue(barSpot.y);
                           
@@ -437,8 +472,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                   final isDimmed = effectiveSelectedColumn != null && !isSelected;
                   final color = primaryHSL.withHue((primaryHSL.hue + (index * 45)) % 360).toColor();
                   final dashArray = _dashPatterns[index % _dashPatterns.length];
-                  final adjustment = _findAdjustment(column, componentAdjustments, ratingAdjustments, personAdjustments);
-                  final columnName = adjustment?.name ?? column.label;
+                  final columnName = _columnLabel(column, componentAdjustments, personAdjustments);
               
                   return InkWell(
                     onTap: () {
@@ -510,10 +544,10 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     required List<Setup> selectedSetups,
     required Iterable<Adjustment> componentAdjustments,
     required Iterable<Adjustment> personAdjustments,
-    required Iterable<Adjustment> ratingAdjustments,
   }) {
     final activeChartColumns = activeColumns.where((column) {
-      final adjustment = _findAdjustment(column, componentAdjustments, ratingAdjustments, personAdjustments);
+      if (_isScoreColumn(column)) return true;
+      final adjustment = _findAdjustment(column, componentAdjustments, personAdjustments);
       return adjustment is StepAdjustment || adjustment is NumericalAdjustment;
     }).toList();
 
@@ -551,7 +585,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               final radarSetups = selectedSetups;
               final effectiveSelectedSetupId = radarSetups.any((s) => s.id == _selectedRadarSetupId) ? _selectedRadarSetupId : null;
               final featureDefs = validColumns.map((column) {
-                final adjustment = _findAdjustment(column, componentAdjustments, ratingAdjustments, personAdjustments);
+                final adjustment = _findAdjustment(column, componentAdjustments, personAdjustments);
 
                 double dataMin = double.infinity;
                 double dataMax = double.negativeInfinity;
@@ -578,7 +612,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
 
                 return (
                   column: column,
-                  name: adjustment?.name ?? column.label,
+                  name: _columnLabel(column, componentAdjustments, personAdjustments),
                   unit: adjustment?.unit ?? "",
                   min: dataMin,
                   max: dataMax,
@@ -817,10 +851,22 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     final person = persons[bike?.person];
     final personAdjustments = person?.adjustments ?? [];
 
-    // Setups no longer carry rating answers, so the rating-metric columns have no
-    // data source for now (rating data lives on RatingEntries). Keep the column
-    // plumbing intact but feed it nothing.
-    const Iterable<Adjustment> ratingAdjustments = <Adjustment>[];
+    final setupsUnsorted = appRepository.filteredSetups.values.where(
+        (s) => component.adjustments.any((adj) => s.bikeAdjustmentValues.containsKey(adj.id))
+    ).toList().reversed.toList();
+
+    // Rating scores derived from RatingEntries that resolve to each setup:
+    // overall (0–10) and per-metric sub-scores (0–10).
+    _ratingScores = {for (final s in setupsUnsorted) s.id: appRepository.scoreForSetup(s.id)};
+    _metricScores = {for (final s in setupsUnsorted) s.id: appRepository.metricScoresForSetup(s.id)};
+
+    // Rating-metric columns: one per metric that actually has data here, named
+    // after the metric (values are the 0–10 sub-scores above).
+    final allRatingMetrics = appRepository.allRatingMetricsById;
+    final ratingMetricIds = <String>{for (final m in _metricScores.values) ...m.keys};
+    _ratingMetricNames = {
+      for (final id in ratingMetricIds) id: allRatingMetrics[id]?.adjustment.name ?? id,
+    };
 
     // Remove only invalid columns (to keep prior modifications to 'active')
     for (final column in _columns.toSet()) {
@@ -838,8 +884,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
             continue;
           }          
         case TableColumnSection.ratingMetrics:
-          // Rating answers are no longer stored on setups; drop any stale columns.
-          _columns.remove(column);
+          if (!appSettings.enableRating || !ratingMetricIds.contains(column.label)) _columns.remove(column);
+        case TableColumnSection.ratingScore:
+          if (!appSettings.enableRating) _columns.remove(column);
         case TableColumnSection.weatherContext: continue;
       }
     }
@@ -855,20 +902,21 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     if (appSettings.enablePerson) {
       _columns.addAll(personAdjustments.map((a) => TableColumn(section: TableColumnSection.personAttributes, label: a.id, active: false)));
     }
+    if (appSettings.enableRating) {
+      _columns.add(TableColumn(section: TableColumnSection.ratingScore, label: "Rating Score", active: false));
+      for (final id in ratingMetricIds) {
+        _columns.add(TableColumn(section: TableColumnSection.ratingMetrics, label: id, active: false));
+      }
+    }
 
     final sortedColumns = _columns.sorted((a, b) => a.section.index.compareTo(b.section.index));  // sort by enum index
     final activeColumns = sortedColumns.where((c) => c.active).toList();
     if (!activeColumns.contains(_sortColumn)) _sortColumn = null;
 
-    final setupsUnsorted = appRepository.filteredSetups.values.where(
-        (s) => component.adjustments.any((adj) => s.bikeAdjustmentValues.containsKey(adj.id))
-    ).toList().reversed.toList();
-
     final setups = sortSetupsByColumn(
       setups: setupsUnsorted,
       componentAdjustments: componentAdjustments,
       personAdjustments: personAdjustments,
-      ratingAdjustments: ratingAdjustments,
       bikes: bikes,
     );
 
@@ -975,11 +1023,9 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                       selected: _columns.any((c) => c.active),
                       onSelected: (bool newValue) async {
                         await showColumnFilterSheet(
-                          context: context, 
-                          sortedColumns: sortedColumns, 
-                          componentAdjustments: componentAdjustments,
-                          ratingAdjustments: ratingAdjustments,
-                          personAdjustments: personAdjustments,
+                          context: context,
+                          sortedColumns: sortedColumns,
+                          columnLabel: (TableColumn c) => _columnLabel(c, componentAdjustments, personAdjustments),
                           onColumnStatusChanged: () => setState(() {}), // TableColumn.active is changed
                         );
                       },
@@ -1011,32 +1057,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                     headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
                     dataRowMaxHeight: double.infinity,
                     columns: activeColumns.map((column) {
-                      switch (column.section) {
-                        case TableColumnSection.generalContext || TableColumnSection.weatherContext:
-                          return DataColumn(
-                            label: _columnHeaderLabel(column, column.label),
-                            onSort: (int _, bool ascending) {
-                              setState(() {
-                                _sortAscending = ascending;
-                                _sortColumn = column;
-                              });
-                            },
-                          );
-                        case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes || TableColumnSection.ratingMetrics:
-                          final adjustment = _findAdjustment(column, componentAdjustments, ratingAdjustments, personAdjustments);
-                          return DataColumn(
-                            label: _columnHeaderLabel(
-                              column,
-                              (adjustment?.name ?? "-") + (adjustment?.unit != null ? " [${adjustment!.unit}]" : ""),
-                            ),
-                            onSort: (int _, bool ascending) {
-                              setState(() {
-                                _sortAscending = ascending;
-                                _sortColumn = column;
-                              });
-                            },
-                          );
-                      }
+                      return _dataColumn(column, componentAdjustments, personAdjustments);
                     }).toList(),
                     rows: setups.map((setup) {
                       return DataRow(
@@ -1081,11 +1102,10 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                                 "Condition" => DataCell(Center(child: Text(setup.weather?.condition == null ? '-' : setup.weather?.condition!.value ?? "-"))),
                                 _ => const DataCell(Text("ERROR")),
                               };
-                            case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes || TableColumnSection.ratingMetrics:
+                            case TableColumnSection.componentAdjustments || TableColumnSection.personAttributes:
                               final value = _rawValue(setup, column);
                               final initialValue = switch (column.section) {
                                 TableColumnSection.componentAdjustments => setup.previousBikeAdjustmentValues[column.label],
-                                TableColumnSection.ratingMetrics => null,
                                 TableColumnSection.personAttributes => setup.previousPersonAdjustmentValues[column.label],
                                 _ => null,
                               };
@@ -1100,12 +1120,15 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                               return DataCell(
                                 Center(
                                   child: Text(
-                                    Adjustment.formatValue(value), 
+                                    Adjustment.formatValue(value),
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(color: highlightColor, fontWeight: highlightColor != null ? FontWeight.bold : null),
                                   ),
                                 ),
                               );
+                            case TableColumnSection.ratingScore || TableColumnSection.ratingMetrics:
+                              final score = _rawValue(setup, column) as double?;
+                              return DataCell(Center(child: Text(score == null ? '-' : "${score.toStringAsFixed(1)} / 10")));
                           }
                         }).toList(),
                       );
@@ -1130,7 +1153,6 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 selectedSetups: selectedSetups,
                 componentAdjustments: componentAdjustments,
                 personAdjustments: personAdjustments,
-                ratingAdjustments: ratingAdjustments,
               ),
 
               const Divider(height: 1),
@@ -1143,7 +1165,6 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 selectedSetups: selectedSetups,
                 componentAdjustments: componentAdjustments,
                 personAdjustments: personAdjustments,
-                ratingAdjustments: ratingAdjustments,
               ),
             ],
           ),

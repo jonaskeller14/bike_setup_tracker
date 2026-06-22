@@ -3,7 +3,8 @@ enum TableColumnSection {
   weatherContext("Weather Context"),
   componentAdjustments("Component Adjustments"),
   personAttributes("Person Attributes"),
-  ratingMetrics("Rating Metrics");
+  ratingMetrics("Rating Metrics"),
+  ratingScore("Rating");
   final String label;
   const TableColumnSection(this.label);
 }

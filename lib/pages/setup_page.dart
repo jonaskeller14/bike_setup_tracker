@@ -9,7 +9,6 @@ import 'package:provider/provider.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
-import '../models/component.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
 import '../models/setup.dart';
@@ -94,7 +93,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   late String _initialBike;
   late String? _person;
   late String? _initialPerson;
-  Iterable<Component> _bikeComponents = [];
 
   late DateTime _selectedDateTimeUtc;
   late DateTime _initialDateTimeUtc;
@@ -192,6 +190,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _previousPersonAdjustmentValues.clear();
 
     final appRepository = context.read<AppRepository>();
+    final bikeComponents = appRepository.components.values.where((c) => c.bikeAt(_selectedDateTimeUtc) == _bike).toList();
+
     
     // Use the centralized resolution service to get the cumulative global state up to our current date/time.
     // This correctly handles chronological inheritance and component transfers across different bikes.
@@ -202,7 +202,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     );
 
     // 1. Resolve Bike Adjustments
-    for (final bikeComponent in _bikeComponents) {
+    for (final bikeComponent in bikeComponents) {
       for (final adj in bikeComponent.adjustments) {
         if (historicalState.containsKey(adj.id)) {
           _previousBikeAdjustmentValues[adj.id] = historicalState[adj.id];
@@ -249,16 +249,18 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   void _setDanglingAdjustmentValues() {
     // Assumes _filteredRatings was calcualted before
     if (widget.setup == null) return;
+
+    final appRepository = context.read<AppRepository>();
+    final bikeComponents = appRepository.components.values.where((c) => c.bikeAt(_selectedDateTimeUtc) == _bike).toList();
     
     _danglingBikeAdjustmentValues.clear();
     _danglingBikeAdjustmentValues.addAll(_bikeAdjustmentValues);
-    for (final bikeComponent in _bikeComponents) {
+    for (final bikeComponent in bikeComponents) {
       for (final bikeComponentAdj in bikeComponent.adjustments) {
         _danglingBikeAdjustmentValues.remove(bikeComponentAdj.id);
       }
     }
-
-    final appRepository = context.read<AppRepository>();
+    
     final persons = appRepository.persons;
     _danglingPersonAdjustmentValues.clear();
     _danglingPersonAdjustmentValues.addAll(_personAdjustmentValues);
@@ -273,6 +275,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   void _setFilteredRatings() {
     final appRepository = context.read<AppRepository>();
+    final bikeComponents = appRepository.components.values.where((c) => c.bikeAt(_selectedDateTimeUtc) == _bike).toList();
     final ratings = appRepository.ratings;
 
     _filteredRatings.clear();
@@ -283,19 +286,13 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         case FilterType.bike:
           if (rating.filter == _bike) _filteredRatings[rating.id] = rating;
         case FilterType.componentType:
-          if (_bikeComponents.any((c) => c.componentType.toString() == rating.filter)) _filteredRatings[rating.id] = rating;
+          if (bikeComponents.any((c) => c.componentType.toString() == rating.filter)) _filteredRatings[rating.id] = rating;
         case FilterType.component:
-          if (_bikeComponents.any((c) => c.id == rating.filter)) _filteredRatings[rating.id] = rating;
+          if (bikeComponents.any((c) => c.id == rating.filter)) _filteredRatings[rating.id] = rating;
         case FilterType.person:
           if (rating.filter == _person) _filteredRatings[rating.id] = rating;
       }
     }
-  }
-
-  void _updateBikeComponents() {
-    final appRepository = context.read<AppRepository>();
-    final components = appRepository.components;
-    _bikeComponents = components.values.where((c) => c.bikeAt(_selectedDateTimeUtc) == _bike).toList();
   }
 
   void _onBikeChange (String? newBike) {
@@ -306,7 +303,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     setState(() {
       _bike = newBike;
       _person = bikes[_bike]?.person;
-      _updateBikeComponents();
       _setPreviousAdjustmentValues();
       _setInitialAdjustmentValues();
       _setAdjustmentValuesFromPreviousAndInitialAdjustmentValues();
@@ -450,7 +446,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     setState(() {
       _selectedDateTimeLocal = newDateTimeLocal;
       _selectedDateTimeUtc = newDateTimeLocal.toUtc();
-      _updateBikeComponents();
       _setPreviousAdjustmentValues();
       _setInitialAdjustmentValues();
       _setFilteredRatings();
@@ -504,7 +499,6 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     setState(() {
       _selectedDateTimeLocal = newDateTimeLocal;
       _selectedDateTimeUtc = newDateTimeLocal.toUtc();
-      _updateBikeComponents();
       _setPreviousAdjustmentValues();
       _setInitialAdjustmentValues();
       _setFilteredRatings();
@@ -985,6 +979,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
+    final bikeComponents = appRepository.components.values.where((c) => c.bikeAt(_selectedDateTimeUtc) == _bike).toList();
 
     return PopScope(
       canPop: !_formHasChanges,
@@ -1040,7 +1035,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 controller: _tabController,
                 children: <Widget>[
                   SetupBikeTab(
-                    bikeComponents: _bikeComponents.toList(),
+                    bikeComponents: bikeComponents,
                     bikeAdjustmentValues: _bikeAdjustmentValues,
                     previousBikeAdjustmentValues: _previousBikeAdjustmentValues,
                     initialBikeAdjustmentValues: _initialBikeAdjustmentValues,

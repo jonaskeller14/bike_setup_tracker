@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/adjustment/adjustment.dart';
 import '../models/component.dart';
 import '../models/installation.dart';
+import '../pages/adjustment/boolean_adjustment_page.dart';
+import '../pages/adjustment/categorical_adjustment_page.dart';
+import '../pages/adjustment/duration_adjustment_page.dart';
+import '../pages/adjustment/numerical_adjustment_page.dart';
+import '../pages/adjustment/step_adjustment_page.dart';
+import '../pages/adjustment/text_adjustment_page.dart';
 import '../pages/component_page.dart';
 import '../repositories/app_repository.dart';
+import '../widgets/sheets/component_add_adjustment.dart';
 import '../widgets/sheets/replace_component.dart';
 import 'bike_actions.dart';
 
@@ -134,6 +142,47 @@ class ComponentActions {
   static Future<void> onReorderComponents(BuildContext context, {required int oldIndex, required int newIndex}) async {
     final appRepository = context.read<AppRepository>();
     await appRepository.reorderComponent(oldIndex: oldIndex, newIndex: newIndex, filteredComponentsList: appRepository.filteredComponents.values.toList());
+  }
+
+  static Future<void> addAdjustmentForComponent(BuildContext context, {required Component component}) async {
+    showComponentAddAdjustmentBottomSheet(
+      context: context,
+      componentType: component.componentType,
+      enableDurationAdjustment: false,
+      addAdjustmentFromPreset: (Adjustment adjustment) async {
+        final appRepository = context.read<AppRepository>();
+        final newAdjustment = await Navigator.push<Adjustment>(
+          context,
+          MaterialPageRoute(builder: (context) => switch (adjustment.deepCopy()) {
+            final BooleanAdjustment a     => BooleanAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.component}),
+            final CategoricalAdjustment a => CategoricalAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.component}),
+            final StepAdjustment a        => StepAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.component}),
+            final NumericalAdjustment a   => NumericalAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.component}),
+            final TextAdjustment a        => TextAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.component}),
+            final DurationAdjustment a    => DurationAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.component}),
+          }),
+        );
+        if (newAdjustment == null) return;
+        await appRepository.editComponent(component.copyWith(adjustments: [...component.adjustments, newAdjustment]));
+      },
+      addAdjustment: <T extends Adjustment>() async {
+        final appRepository = context.read<AppRepository>();
+        final newAdjustment = await Navigator.push<T>(
+          context,
+          MaterialPageRoute(builder: (context) => switch(T) {
+            const (BooleanAdjustment)       => BooleanAdjustmentPage.add(categories: const {AdjustmentCategory.component}),
+            const (CategoricalAdjustment)   => CategoricalAdjustmentPage.add(categories: const {AdjustmentCategory.component}),
+            const (StepAdjustment)          => StepAdjustmentPage.add(categories: const {AdjustmentCategory.component}),
+            const (NumericalAdjustment)     => NumericalAdjustmentPage.add(categories: const {AdjustmentCategory.component}),
+            const (TextAdjustment)          => TextAdjustmentPage.add(categories: const {AdjustmentCategory.component}),
+            const (DurationAdjustment)      => DurationAdjustmentPage.add(categories: const {AdjustmentCategory.component}),
+            Type() => throw UnimplementedError(),
+          }),
+        );
+        if (newAdjustment == null) return;
+        await appRepository.editComponent(component.copyWith(adjustments: [...component.adjustments, newAdjustment]));
+      },
+    );
   }
 }
 

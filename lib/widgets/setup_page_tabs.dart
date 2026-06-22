@@ -6,6 +6,7 @@ import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
+import '../utils/component_actions.dart';
 import 'display_adjustment/display_dangling_adjustment.dart';
 import 'initial_changed_value_legend.dart';
 import 'lists/adjustment_set_list.dart';
@@ -89,7 +90,7 @@ class SetupBikeTab extends StatelessWidget {
   final Map<String, dynamic> danglingBikeAdjustmentValues;
   final void Function({required Adjustment adjustment, required dynamic newValue}) onAdjustmentValueChanged;
   final void Function({required Adjustment adjustment}) onRemoveFromAdjustmentValues;
-  final Function(String) onDanglingRemove; 
+  final Function(String) onDanglingRemove;
 
   const SetupBikeTab({
     super.key,
@@ -127,6 +128,10 @@ class SetupBikeTab extends StatelessWidget {
                     )),
                     leading: Icon(bikeComponent.componentType.getIconData()),
                     enabled: bikeComponent.adjustments.isNotEmpty,
+                    trailing: IconButton(
+                      onPressed: () => ComponentActions.addAdjustmentForComponent(context, component: bikeComponent),
+                      icon: const Icon(Icons.add),
+                    ),
                   ),
                   AdjustmentSetList(
                     key: ValueKey(Object.hash(bikeComponent.id, Object.hashAll(previousBikeAdjustmentValues.values), Object.hashAll(bikeAdjustmentValues.values))),

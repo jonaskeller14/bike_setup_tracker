@@ -635,6 +635,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 8,
                             children: [
                               Expanded(
                                 child: DropdownButtonFormField<_ThresholdType>(
@@ -656,8 +658,6 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                   },
                                 ),
                               ),
-                              if (_intervalType != _ThresholdType.none)
-                                const SizedBox(width: 8),
                               switch (_intervalType) {
                                 _ThresholdType.none => const SizedBox.shrink(),
                                 _ThresholdType.dateTime => Expanded(
@@ -737,7 +737,6 @@ class _TaskRulePageState extends State<TaskRulePage> {
                             ],
                           ),
                           if (_intervalType != _ThresholdType.none && _intervalType != _ThresholdType.dateTime) ...[
-                            const SizedBox(height: 12),
                             ListTile(
                               tileColor: widget.mode == TaskRulePageMode.edit && _repeat != (widget.taskRule?.repeat ?? true) ? Colors.orange.withValues(alpha: 0.08) : null,
                               contentPadding: const EdgeInsets.all(12),
@@ -756,6 +755,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                               //TODO: If delay must match trigger type --> a value field is sufficient
                               //TODO: Add user info --> What is a delay?
                               Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 spacing: 8,
                                 children: [
                                   Expanded(

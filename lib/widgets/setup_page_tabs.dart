@@ -136,7 +136,7 @@ class SetupBikeTab extends StatelessWidget {
                     tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   ),
                   AdjustmentSetList(
-                    key: ValueKey(Object.hash(bikeComponent.id, Object.hashAll(previousBikeAdjustmentValues.values), Object.hashAll(bikeAdjustmentValues.values))),
+                    key: ValueKey(Object.hash(bikeComponent.id, Object.hashAll(previousBikeAdjustmentValues.values))),
                     adjustments: bikeComponent.adjustments,
                     initialAdjustmentValues: previousBikeAdjustmentValues,
                     adjustmentValues: bikeAdjustmentValues,
@@ -241,7 +241,7 @@ class SetupPersonTab extends StatelessWidget {
                   tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                 ),
                 AdjustmentSetList(
-                  key: ValueKey(Object.hash(personId, Object.hashAll(previousPersonAdjustmentValues.values), Object.hashAll(personAdjustmentValues.values))),
+                  key: ValueKey(Object.hash(personId, Object.hashAll(previousPersonAdjustmentValues.values))),
                   adjustments: person.adjustments,
                   initialAdjustmentValues: previousPersonAdjustmentValues,
                   adjustmentValues: personAdjustmentValues,
@@ -357,7 +357,7 @@ class SetupRatingTab extends StatelessWidget {
                     tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   ),
                   AdjustmentSetList(
-                    key: ValueKey(Object.hash(rating.id, Object.hashAll(previousBikeAdjustmentValues.values), Object.hashAll(ratingAdjustmentValues.values))),
+                    key: ValueKey(Object.hash(rating.id, Object.hashAll(previousBikeAdjustmentValues.values))),
                     adjustments: rating.adjustments,
                     initialAdjustmentValues: initialRatingAdjustmentValues,
                     adjustmentValues: ratingAdjustmentValues,

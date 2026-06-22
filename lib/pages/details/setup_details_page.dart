@@ -512,6 +512,7 @@ class SetupDetailsPageContent extends StatelessWidget {
               ...filteredRatings.values.map((rating) {
                 return Card.outlined(
                   margin: const EdgeInsets.symmetric(vertical: 4),
+                  clipBehavior: Clip.antiAlias,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -552,6 +553,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                         ),
                         leading: const Icon(Rating.iconData),
                         enabled: rating.adjustments.isNotEmpty,
+                        tileColor: Theme.of(context).colorScheme.outlineVariant,
                       ),
                       AdjustmentDisplayList(
                         adjustments: rating.adjustments,
@@ -567,6 +569,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                 opacity: 0.4,
                 child: Card.outlined(
                   margin: const EdgeInsets.symmetric(vertical: 4),
+                  clipBehavior: Clip.antiAlias,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -578,6 +581,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                           other: "${danglingRatingAdjustmentValues.length} rating values found that are not associated with this bike/person/components.",
                         )),
                         leading: const Icon(Icons.question_mark),
+                        tileColor: Theme.of(context).colorScheme.outlineVariant,
                       ),
                       ...danglingRatingAdjustmentValues.entries.map((danglingAdjustmentValue) {
                         return DisplayDanglingAdjustmentWidget(
@@ -624,6 +628,7 @@ class SetupDetailsPageContent extends StatelessWidget {
               ...bikeComponents.map((bikeComponent) {
                 return Card.outlined(
                   margin: const EdgeInsets.symmetric(vertical: 4),
+                  clipBehavior: Clip.antiAlias,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -637,6 +642,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                         )),
                         leading: Icon(bikeComponent.componentType.getIconData()),
                         enabled: bikeComponent.adjustments.isNotEmpty,
+                        tileColor: Theme.of(context).colorScheme.outlineVariant,
                       ),
                       AdjustmentDisplayList(
                         adjustments: bikeComponent.adjustments,
@@ -652,6 +658,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                 opacity: 0.4,
                 child: Card.outlined(
                   margin: const EdgeInsets.symmetric(vertical: 4),
+                  clipBehavior: Clip.antiAlias,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -663,6 +670,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                           other: "${danglingBikeAdjustmentValues.length} adjustment values found that are not associated with this bike.",
                         )),
                         leading: const Icon(Icons.question_mark),
+                        tileColor: Theme.of(context).colorScheme.outlineVariant,
                       ),
                       ...danglingBikeAdjustmentValues.entries.map((danglingAdjustmentValue) {
                         return DisplayDanglingAdjustmentWidget(
@@ -679,6 +687,7 @@ class SetupDetailsPageContent extends StatelessWidget {
               if (person != null)
                 Card.outlined(
                   margin: const EdgeInsets.symmetric(vertical: 4),
+                  clipBehavior: Clip.antiAlias,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -692,6 +701,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                         )),
                         leading: const Icon(Person.iconData),
                         enabled: person.adjustments.isNotEmpty,
+                        tileColor: Theme.of(context).colorScheme.outlineVariant,
                       ),
                       AdjustmentDisplayList(
                         adjustments: person.adjustments,
@@ -706,6 +716,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                   opacity: 0.4,
                   child: Card.outlined(
                     margin: const EdgeInsets.symmetric(vertical: 4),
+                    clipBehavior: Clip.antiAlias,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -717,6 +728,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                             other: "${danglingPersonAdjustmentValues.length} attribute values found that are not associated with this person.",
                           )),
                           leading: const Icon(Icons.question_mark),
+                          tileColor: Theme.of(context).colorScheme.outlineVariant,
                         ),
                         ...danglingPersonAdjustmentValues.entries.map((danglingAdjustmentValue) {
                           return DisplayDanglingAdjustmentWidget(

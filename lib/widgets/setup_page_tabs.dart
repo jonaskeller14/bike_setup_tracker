@@ -115,6 +115,7 @@ class SetupBikeTab extends StatelessWidget {
           ...bikeComponents.map((bikeComponent) {
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 4),
+              clipBehavior: Clip.antiAlias,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -132,6 +133,7 @@ class SetupBikeTab extends StatelessWidget {
                       onPressed: () => ComponentActions.addAdjustmentForComponent(context, component: bikeComponent),
                       icon: const Icon(Icons.add),
                     ),
+                    tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   ),
                   AdjustmentSetList(
                     key: ValueKey(Object.hash(bikeComponent.id, Object.hashAll(previousBikeAdjustmentValues.values), Object.hashAll(bikeAdjustmentValues.values))),
@@ -145,11 +147,13 @@ class SetupBikeTab extends StatelessWidget {
               ),
             );
           }),
-        if (danglingBikeAdjustmentValues.isNotEmpty)
+        if (danglingBikeAdjustmentValues.isNotEmpty) ...[
+          const Divider(height: 50),
           Opacity(
             opacity: 0.4,
             child: Card(
               margin: const EdgeInsets.symmetric(vertical: 4),
+              clipBehavior: Clip.antiAlias,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -161,6 +165,7 @@ class SetupBikeTab extends StatelessWidget {
                       other: "${danglingBikeAdjustmentValues.length} adjustment values found that are not associated with this bike. Cannot be edited.",
                     )),
                     leading: const Icon(Icons.question_mark),
+                    tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   ),
                   ...danglingBikeAdjustmentValues.entries.map((danglingAdjustmentValue) {
                     return DisplayDanglingAdjustmentWidget(
@@ -176,6 +181,7 @@ class SetupBikeTab extends StatelessWidget {
               ),
             ),
           ),
+        ],
       ],
     );
   }
@@ -218,6 +224,7 @@ class SetupPersonTab extends StatelessWidget {
         else
           Card(
             margin: const EdgeInsets.symmetric(vertical: 4),
+            clipBehavior: Clip.antiAlias,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -231,6 +238,7 @@ class SetupPersonTab extends StatelessWidget {
                   )),
                   leading: const Icon(Person.iconData),
                   enabled: person.adjustments.isNotEmpty,
+                  tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                 ),
                 AdjustmentSetList(
                   key: ValueKey(Object.hash(personId, Object.hashAll(previousPersonAdjustmentValues.values), Object.hashAll(personAdjustmentValues.values))),
@@ -248,6 +256,7 @@ class SetupPersonTab extends StatelessWidget {
             opacity: 0.4,
             child: Card(
               margin: const EdgeInsets.symmetric(vertical: 4),
+              clipBehavior: Clip.antiAlias,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -259,6 +268,7 @@ class SetupPersonTab extends StatelessWidget {
                       other: "${danglingPersonAdjustmentValues.length} attribute values found that are not associated with this person. Cannot be edited.",
                     )),
                     leading: const Icon(Icons.question_mark),
+                    tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   ),
                   ...danglingPersonAdjustmentValues.entries.map((danglingAdjustmentValue) {
                     return DisplayDanglingAdjustmentWidget(
@@ -321,6 +331,7 @@ class SetupRatingTab extends StatelessWidget {
           ...filteredRatings.values.map((rating) {
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 4),
+              clipBehavior: Clip.antiAlias,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -343,6 +354,7 @@ class SetupRatingTab extends StatelessWidget {
                     ),
                     leading: const Icon(Rating.iconData),
                     enabled: rating.adjustments.isNotEmpty,
+                    tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   ),
                   AdjustmentSetList(
                     key: ValueKey(Object.hash(rating.id, Object.hashAll(previousBikeAdjustmentValues.values), Object.hashAll(ratingAdjustmentValues.values))),
@@ -361,6 +373,7 @@ class SetupRatingTab extends StatelessWidget {
             opacity: 0.4,
             child: Card(
               margin: const EdgeInsets.symmetric(vertical: 4),
+              clipBehavior: Clip.antiAlias,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -372,6 +385,7 @@ class SetupRatingTab extends StatelessWidget {
                       other: "${danglingRatingAdjustmentValues.length} rating values found that are not associated with this bike/person/components. Cannot be edited.",
                     )),
                     leading: const Icon(Icons.question_mark),
+                    tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   ),
                   ...danglingRatingAdjustmentValues.entries.map((danglingAdjustmentValue) {
                     return DisplayDanglingAdjustmentWidget(

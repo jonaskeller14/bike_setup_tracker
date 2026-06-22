@@ -783,6 +783,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
             ? null
             : Tooltip(
                 message: "Some scored metrics are unanswered",
+                triggerMode: TooltipTriggerMode.tap,
                 child: Icon(Icons.info_outline, color: scheme.onSurfaceVariant.withValues(alpha: 0.6)),
               ),
       ),

@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
@@ -194,7 +196,10 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                 final label = (!isInitial && !_showDelta) ? "Σ" : (isInitial ? "Σ" : "+");
 
                 return GestureDetector(
-                  onTap: isInitial ? null : () => setState(() => _showDelta = !_showDelta),
+                  onTap: isInitial ? null : () async {
+                    setState(() => _showDelta = !_showDelta);
+                    unawaited(HapticFeedback.selectionClick());
+                  },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                     decoration: BoxDecoration(

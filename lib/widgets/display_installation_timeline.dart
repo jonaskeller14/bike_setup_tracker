@@ -7,6 +7,7 @@ import '../models/component.dart';
 import '../models/installation.dart';
 import '../models/task/task_entry.dart';
 import '../repositories/app_repository.dart';
+import 'sheets/task_rule_sheet.dart';
 
 class DisplayInstallationTimeline extends StatelessWidget {
   final Component component;
@@ -130,7 +131,7 @@ class _InstallationContents extends StatelessWidget {
         : 'Deinstalled';
     final dateStr = installation.dateTimeUTC.millisecondsSinceEpoch == 0
         ? 'From beginning'
-        : "${DateFormat(appSettings.dateFormat).format(installation.dateTimeLocal)} ${DateFormat(appSettings.timeFormat).format(installation.dateTimeLocal)}";
+        : "${DateFormat(appSettings.dateFormat).format(installation.dateTimeLocal)} • ${DateFormat(appSettings.timeFormat).format(installation.dateTimeLocal)}";
 
     return Container(
       padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),
@@ -173,25 +174,36 @@ class _TaskEntryContents extends StatelessWidget {
     final textTheme = theme.textTheme;
 
     final dateStr =
-        "${DateFormat(appSettings.dateFormat).format(entry.dateTimeLocal)} ${DateFormat(appSettings.timeFormat).format(entry.dateTimeLocal)}";
+        "${DateFormat(appSettings.dateFormat).format(entry.dateTimeLocal)} • ${DateFormat(appSettings.timeFormat).format(entry.dateTimeLocal)}";
 
-    return Container(
-      padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            entry.name,
-            style: textTheme.titleSmall?.copyWith(
-              color: colorScheme.onSurface,
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () async {
+        await showTaskRuleSheet(
+          context,
+          taskRuleId: entry.taskRule,
+          highlightTaskEntryId: entry.id,
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              entry.name,
+              style: textTheme.titleSmall?.copyWith(
+                color: colorScheme.onSurface,
+              ),
             ),
-          ),
-          Text(
-            dateStr,
-            style: textTheme.bodySmall?.copyWith(color: colorScheme.secondary),
-          ),
-        ],
+            Text(
+              dateStr,
+              style: textTheme.bodySmall?.copyWith(color: colorScheme.secondary),
+            ),
+          ],
+        ),
       ),
     );
   }

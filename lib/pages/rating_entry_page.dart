@@ -886,6 +886,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
                       final ratingAdjustments = rating.metrics.map((m) => m.adjustment).toList();
                       return Card(
                         margin: const EdgeInsets.symmetric(vertical: 4),
+                        clipBehavior: Clip.antiAlias,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -900,6 +901,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
                               )),
                               trailing: _ratingFilterIcon(rating, components),
                               enabled: ratingAdjustments.isNotEmpty,
+                              tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                             ),
                             AdjustmentSetList(
                               key: ValueKey(Object.hash(rating.id, _bike)),

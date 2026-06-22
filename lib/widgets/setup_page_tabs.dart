@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show setEquals;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/adjustment/adjustment.dart';
@@ -77,7 +78,7 @@ Widget _buildEmptyPlaceholder(BuildContext context, String message) {
   );
 }
 
-class SetupBikeTab extends StatelessWidget {
+class SetupBikeTab extends StatefulWidget {
   final List<Component> bikeComponents;
   final Map<String, dynamic> bikeAdjustmentValues;
   final Map<String, dynamic> previousBikeAdjustmentValues;
@@ -100,21 +101,49 @@ class SetupBikeTab extends StatelessWidget {
   });
 
   @override
+  State<SetupBikeTab> createState() => _SetupBikeTabState();
+}
+
+class _SetupBikeTabState extends State<SetupBikeTab> {
+  late Set<String> _initiallyEmptyComponentIds;
+
+  @override
+  void initState() {
+    super.initState();
+    _initiallyEmptyComponentIds = widget.bikeComponents
+        .where((c) => c.adjustments.isEmpty)
+        .map((c) => c.id)
+        .toSet();
+  }
+
+  @override
+  void didUpdateWidget(SetupBikeTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldIds = oldWidget.bikeComponents.map((c) => c.id).toSet();
+    final newIds = widget.bikeComponents.map((c) => c.id).toSet();
+    if (!setEquals(oldIds, newIds)) {
+      _initiallyEmptyComponentIds
+        ..removeWhere((id) => !newIds.contains(id))
+        ..addAll(widget.bikeComponents.where((c) => c.adjustments.isEmpty).map((c) => c.id));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return _SetupTabScaffold(
       scrollKey: 'tab1_bike',
       children: [
-        if (bikeComponents.isEmpty)
+        if (widget.bikeComponents.isEmpty)
           _buildEmptyPlaceholder(context, 'No components available.')
         else
-          ...bikeComponents.map((bikeComponent) {
+          ...widget.bikeComponents.map((bikeComponent) {
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 4),
               clipBehavior: Clip.antiAlias,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                   ListTile(
+                  ListTile(
                     title: Text(bikeComponent.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(Intl.plural(
                       bikeComponent.adjustments.length,
@@ -124,25 +153,27 @@ class SetupBikeTab extends StatelessWidget {
                     )),
                     leading: Icon(bikeComponent.componentType.getIconData()),
                     enabled: bikeComponent.adjustments.isNotEmpty,
-                    trailing: IconButton(
-                      onPressed: () => ComponentActions.addAdjustmentForComponent(context, component: bikeComponent),
-                      icon: const Icon(Icons.add),
-                    ),
+                    trailing: _initiallyEmptyComponentIds.contains(bikeComponent.id)
+                        ? IconButton(
+                            onPressed: () => ComponentActions.addAdjustmentForComponent(context, component: bikeComponent),
+                            icon: const Icon(Icons.add),
+                          )
+                        : null,
                     tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   ),
                   AdjustmentSetList(
-                    key: ValueKey(Object.hash(bikeComponent.id, Object.hashAll(previousBikeAdjustmentValues.values))),
+                    key: ValueKey(Object.hash(bikeComponent.id, Object.hashAll(widget.previousBikeAdjustmentValues.values))),
                     adjustments: bikeComponent.adjustments,
-                    initialAdjustmentValues: previousBikeAdjustmentValues,
-                    adjustmentValues: bikeAdjustmentValues,
-                    onAdjustmentValueChanged: onAdjustmentValueChanged,
-                    removeFromAdjustmentValues: onRemoveFromAdjustmentValues,
+                    initialAdjustmentValues: widget.previousBikeAdjustmentValues,
+                    adjustmentValues: widget.bikeAdjustmentValues,
+                    onAdjustmentValueChanged: widget.onAdjustmentValueChanged,
+                    removeFromAdjustmentValues: widget.onRemoveFromAdjustmentValues,
                   ),
                 ],
               ),
             );
           }),
-        if (danglingBikeAdjustmentValues.isNotEmpty) ...[
+        if (widget.danglingBikeAdjustmentValues.isNotEmpty) ...[
           const Divider(height: 50),
           Opacity(
             opacity: 0.4,
@@ -155,20 +186,20 @@ class SetupBikeTab extends StatelessWidget {
                   ListTile(
                     title: const Text("Dangling Adjustment Values", style: TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(Intl.plural(
-                      danglingBikeAdjustmentValues.length, 
+                      widget.danglingBikeAdjustmentValues.length,
                       one: "1 adjustment value found that is not associated with this bike. Cannot be edited.",
-                      other: "${danglingBikeAdjustmentValues.length} adjustment values found that are not associated with this bike. Cannot be edited.",
+                      other: "${widget.danglingBikeAdjustmentValues.length} adjustment values found that are not associated with this bike. Cannot be edited.",
                     )),
                     leading: const Icon(Icons.question_mark),
                     tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   ),
-                  ...danglingBikeAdjustmentValues.entries.map((danglingAdjustmentValue) {
+                  ...widget.danglingBikeAdjustmentValues.entries.map((danglingAdjustmentValue) {
                     return DisplayDanglingAdjustmentWidget(
-                      name: danglingAdjustmentValue.key, 
-                      initialValue: initialBikeAdjustmentValues[danglingAdjustmentValue.key], 
+                      name: danglingAdjustmentValue.key,
+                      initialValue: widget.initialBikeAdjustmentValues[danglingAdjustmentValue.key],
                       value: danglingAdjustmentValue.value,
                       onRemove: () {
-                        onDanglingRemove(danglingAdjustmentValue.key);
+                        widget.onDanglingRemove(danglingAdjustmentValue.key);
                       },
                     );
                   }),

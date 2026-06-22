@@ -7,19 +7,24 @@ import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/task_actions.dart';
 
-class TaskEntryListItem extends StatelessWidget {
+class TaskEntryListItem extends StatefulWidget {
   final String taskEntryId;
   final ComponentStats? previousSnapshot;
-  final bool enabled;
   final VoidCallback? onTap;
 
   const TaskEntryListItem({
-    super.key, 
-    required this.taskEntryId, 
+    super.key,
+    required this.taskEntryId,
     this.previousSnapshot,
-    this.enabled = true,
     this.onTap,
   });
+
+  @override
+  State<TaskEntryListItem> createState() => _TaskEntryListItemState();
+}
+
+class _TaskEntryListItemState extends State<TaskEntryListItem> {
+  bool _showDelta = true;
 
   Widget _buildStatItem(BuildContext context, IconData icon, String text) {
     return Row(
@@ -44,7 +49,7 @@ class TaskEntryListItem extends StatelessWidget {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
-    final taskEntry = appRepository.taskEntries[taskEntryId];
+    final taskEntry = appRepository.taskEntries[widget.taskEntryId];
     if (taskEntry == null) return const SizedBox.shrink();
 
     final taskRules = appRepository.taskRules;
@@ -182,36 +187,39 @@ class TaskEntryListItem extends StatelessWidget {
             const SizedBox(height: 4),
             Builder(
               builder: (context) {
-                final isInitial = previousSnapshot == null;
-                final effectivePrevious = previousSnapshot ?? ComponentStats.zero();
+                final isInitial = widget.previousSnapshot == null;
+                final effectivePrevious = widget.previousSnapshot ?? ComponentStats.zero();
                 final delta = taskEntry.snapshot! - effectivePrevious;
-                
-                final label = isInitial ? "Σ" : "+";
+                final stats = (!isInitial && !_showDelta) ? taskEntry.snapshot! : delta;
+                final label = (!isInitial && !_showDelta) ? "Σ" : (isInitial ? "Σ" : "+");
 
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 2,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Text(
-                        label,
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
+                return GestureDetector(
+                  onTap: isInitial ? null : () => setState(() => _showDelta = !_showDelta),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 2,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                         ),
-                      ),
-                      _buildStatItem(context, Icons.route, '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(delta.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}'),
-                      _buildStatItem(context, Icons.terrain, '${NumberFormat.decimalPattern().format(AppSettings.convertElevationFromMeters(delta.elevationGain, appSettings.altitudeUnit)!.round())} ${appSettings.altitudeUnit}'),
-                      _buildStatItem(context, Icons.timer, '${NumberFormat.decimalPattern().format(delta.movingTime.inHours)}h ${delta.movingTime.inMinutes.remainder(60)}m'),
-                      _buildStatItem(context, Icons.repeat, NumberFormat.decimalPattern().format(delta.activityCount)),
-                    ],
+                        _buildStatItem(context, Icons.route, '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(stats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}'),
+                        _buildStatItem(context, Icons.terrain, '${NumberFormat.decimalPattern().format(AppSettings.convertElevationFromMeters(stats.elevationGain, appSettings.altitudeUnit)!.round())} ${appSettings.altitudeUnit}'),
+                        _buildStatItem(context, Icons.timer, '${NumberFormat.decimalPattern().format(stats.movingTime.inHours)}h ${stats.movingTime.inMinutes.remainder(60)}m'),
+                        _buildStatItem(context, Icons.repeat, NumberFormat.decimalPattern().format(stats.activityCount)),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -254,8 +262,7 @@ class TaskEntryListItem extends StatelessWidget {
       ),
       dense: true,
       visualDensity: VisualDensity.compact,
-      enabled: enabled,
-      onTap: onTap,
+      onTap: widget.onTap,
     );
   }
 }

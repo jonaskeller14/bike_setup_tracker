@@ -36,15 +36,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _currentPageIndex = 0;
+  int? _currentPageIndex;
 
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final toDoTaskRulesCount = appRepository.openTaskRules.length;
-    
-    _currentPageIndex = _currentPageIndex.clamp(0, (-1)+ (appSettings.enableGarage ? 1 : 2) + 1 + (appSettings.enablePerson ? 1 : 0) + (appSettings.enableRating ? 1: 0) + (appSettings.enableTask ? 1 : 0));
+
+    final pageIndex = (_currentPageIndex ?? (appSettings.enableGarage ? 1 : 2))
+        .clamp(0, (-1)+ (appSettings.enableGarage ? 1 : 2) + 1 + (appSettings.enablePerson ? 1 : 0) + (appSettings.enableRating ? 1: 0) + (appSettings.enableTask ? 1 : 0));
+    _currentPageIndex = pageIndex;
     return Scaffold(
       appBar: AppBar(
         leading: Padding(
@@ -74,7 +76,7 @@ class _HomePageState extends State<HomePage> {
             const Text("Ratings"),
           if (appSettings.enableTask)
             const Text("Tasks"),
-        ][_currentPageIndex],
+        ][pageIndex],
         actions: [
           if (appSettings.enableStrava)
             const StravaSyncButton(),
@@ -108,7 +110,7 @@ class _HomePageState extends State<HomePage> {
       ),
       bottomNavigationBar: NavigationBar(
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        selectedIndex: _currentPageIndex,
+        selectedIndex: pageIndex,
         onDestinationSelected: (int index) {
           setState(() => _currentPageIndex = index);
         },
@@ -152,7 +154,7 @@ class _HomePageState extends State<HomePage> {
             const RatingList(),
           if (appSettings.enableTask)
             const TaskList(),
-        ][_currentPageIndex],
+        ][pageIndex],
       ),
       floatingActionButton: <Widget>[
         if (appSettings.enableGarage)
@@ -203,7 +205,7 @@ class _HomePageState extends State<HomePage> {
             tooltip: 'Add Task',
             child: const Icon(Icons.add),
           ),
-      ][_currentPageIndex],
+      ][pageIndex],
     );
   }
 }

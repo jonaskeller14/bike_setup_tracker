@@ -30,7 +30,6 @@ import 'utils/file_export.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  // Handle background message
   debugPrint("Handling background message: ${message.messageId}");
 }
 

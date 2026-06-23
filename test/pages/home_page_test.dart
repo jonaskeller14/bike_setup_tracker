@@ -67,7 +67,7 @@ void main() {
 
     AppBar appBar = tester.widget(find.byType(AppBar).last);
     Text titleText = appBar.title as Text;
-    expect(titleText.data, contains('Bikes'));
+    expect(titleText.data, contains('Setup History'));
 
     final bikesDestination = find.descendant(
       of: find.byType(NavigationBar),
@@ -570,10 +570,10 @@ void main() {
     await tester.pumpWidget(createWidgetUnderTest());
     await tester.pump(const Duration(milliseconds: 200));
 
-    // Verify Title is "Bikes"
+    // Verify Title is "Setup History" (default tab)
     final AppBar appBar = tester.widget(find.byType(AppBar).last);
     final Text titleText = appBar.title as Text;
-    expect(titleText.data, contains('Bikes'));
+    expect(titleText.data, contains('Setup History'));
 
     // Verify NavigationBar has "Bikes" and "Setups" but NOT "Components"
     expect(
@@ -598,7 +598,12 @@ void main() {
       findsNothing,
     );
 
-    // Verify GarageList is shown (body of the first page)
+    // Navigate to Bikes tab and verify GarageList is shown
+    await tester.tap(find.descendant(
+      of: find.byType(NavigationBar),
+      matching: find.text('Bikes'),
+    ));
+    await tester.pumpAndSettle();
     expect(find.byType(GarageList), findsOneWidget);
   });
 

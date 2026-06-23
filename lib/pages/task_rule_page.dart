@@ -627,7 +627,9 @@ class _TaskRulePageState extends State<TaskRulePage> {
                     ),
                   ),
                   if (appSettings.enableTaskInterval) ...[
-                    const SectionTitle(title: "Task Trigger"),
+                    const SizedBox(height: 16),
+                    const Divider(height: 1),
+                    const SectionTitle(title: "Task Trigger", infoText: "(Optional) Set a task trigger to display a progress bar that updates automatically based on activity stats or time."),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                       child: Column(
@@ -658,8 +660,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                   },
                                 ),
                               ),
-                              switch (_intervalType) {
-                                _ThresholdType.none => const SizedBox.shrink(),
+                              ?switch (_intervalType) {
+                                _ThresholdType.none => null,
                                 _ThresholdType.dateTime => Expanded(
                                   child: FormField<DateTime>(
                                     initialValue: _intervalDate,

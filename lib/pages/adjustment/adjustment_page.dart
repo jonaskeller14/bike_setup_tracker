@@ -49,7 +49,7 @@ class _CollapsibleAdjustmentPreviewState extends State<CollapsibleAdjustmentPrev
               children: [
                 chevron,
                 Text(
-                  'Preview',
+                  _expanded ? "Preview only — changes won’t be saved!" : 'Preview',
                   style: TextStyle(
                     color: theme.colorScheme.onInverseSurface	,
                     fontWeight: FontWeight.w600,

@@ -719,7 +719,7 @@ class _ComponentPageState extends State<ComponentPage> {
                     ),
                   ],
                   // const Divider(height: 1),
-                  const SectionTitle(title: "Adjustments"),
+                  const SectionTitle(title: "Adjustments", infoText: "Adjustments are physical parameters on this component that can be tuned—such as dial positions, switch settings, or pressure ranges. Step 1: Define what adjustment parameters exist for this component and set their limits here. Step 2: After you save this component, create a Setup to save actual adjustment values for your bike."),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                     child: FormField<List<Adjustment>>(

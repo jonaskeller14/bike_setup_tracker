@@ -976,6 +976,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 controller: _tabController,
                 children: <Widget>[
                   SetupBikeTab(
+                    bike: _bike,
                     bikeComponents: bikeComponents,
                     bikeAdjustmentValues: _bikeAdjustmentValues,
                     previousBikeAdjustmentValues: _previousBikeAdjustmentValues,

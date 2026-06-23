@@ -19,7 +19,7 @@ class SetupActions {
         persist: false,
         showCloseIcon: true, 
         closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text("Add a bike first", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        content: Text("A bike is required to create a setup", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
         backgroundColor: Theme.of(context).colorScheme.errorContainer,
         action: SnackBarAction(
           label: 'ADD',
@@ -34,7 +34,7 @@ class SetupActions {
         persist: false,
         showCloseIcon: true, 
         closeIconColor: Theme.of(context).colorScheme.onErrorContainer,
-        content: Text("Add a component first", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)), 
+        content: Text("A component is required to create a setup", style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
         backgroundColor: Theme.of(context).colorScheme.errorContainer,
         action: SnackBarAction(
           label: 'ADD',

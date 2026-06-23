@@ -5,6 +5,7 @@ import '../models/adjustment/adjustment.dart';
 import '../models/component.dart';
 import '../models/person.dart';
 import '../utils/component_actions.dart';
+import 'dashed_border_painter.dart';
 import 'display_adjustment/display_dangling_adjustment.dart';
 import 'initial_changed_value_legend.dart';
 import 'lists/adjustment_set_list.dart';
@@ -34,10 +35,12 @@ class _TabContentWrapperState extends State<TabContentWrapper>
 class _SetupTabScaffold extends StatelessWidget {
   final String scrollKey;
   final List<Widget> children;
+  final bool showLegend;
 
   const _SetupTabScaffold({
     required this.scrollKey,
     required this.children,
+    this.showLegend = true,
   });
 
   @override
@@ -54,7 +57,7 @@ class _SetupTabScaffold extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   ...children,
-                  const InitialChangedValueLegend(),
+                  if (showLegend) const InitialChangedValueLegend(),
                 ],
               ),
             ),
@@ -79,6 +82,7 @@ Widget _buildEmptyPlaceholder(BuildContext context, String message) {
 }
 
 class SetupBikeTab extends StatefulWidget {
+  final String bike;
   final List<Component> bikeComponents;
   final Map<String, dynamic> bikeAdjustmentValues;
   final Map<String, dynamic> previousBikeAdjustmentValues;
@@ -90,6 +94,7 @@ class SetupBikeTab extends StatefulWidget {
 
   const SetupBikeTab({
     super.key,
+    required this.bike,
     required this.bikeComponents,
     required this.bikeAdjustmentValues,
     required this.previousBikeAdjustmentValues,
@@ -128,14 +133,75 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
     }
   }
 
+  Widget _buildEmptyComponentsPlaceholder(BuildContext context, String bike) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        InkWell(
+          onTap: () => ComponentActions.addComponent(context, initialBike: bike),
+          borderRadius: BorderRadius.circular(12),
+          child: CustomPaint(
+            painter: DashedBorderPainter(
+              color: Theme.of(context).colorScheme.outlineVariant,
+              strokeWidth: 1.5,
+              dashWidth: 6,
+              dashSpace: 4,
+              borderRadius: 12,
+            ),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Component.iconData,
+                    size: 32,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    "No components yet",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Add a component to this bike to start tracking adjustments",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        FilledButton.icon(
+          onPressed: () => ComponentActions.addComponent(context, initialBike: bike),
+          icon: const Icon(Icons.add),
+          label: const Text("Add Component"),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return _SetupTabScaffold(
       scrollKey: 'tab1_bike',
+      showLegend: widget.bikeComponents.isNotEmpty,
       children: [
-        if (widget.bikeComponents.isEmpty)
-          _buildEmptyPlaceholder(context, 'No components available.')
-        else
+        if (widget.bikeComponents.isEmpty) ...[
+          _buildEmptyComponentsPlaceholder(context, widget.bike),
+        ] else ...[
           ...widget.bikeComponents.map((bikeComponent) {
             return Card(
               margin: const EdgeInsets.symmetric(vertical: 4),
@@ -173,6 +239,14 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
               ),
             );
           }),
+          Center(
+            child: TextButton.icon(
+              onPressed: () => ComponentActions.addComponent(context, initialBike: widget.bike),
+              icon: const Icon(Icons.add),
+              label: const Text("Add Component"),
+            ),
+          ),
+        ],
         if (widget.danglingBikeAdjustmentValues.isNotEmpty) ...[
           const Divider(height: 50),
           Opacity(
@@ -246,7 +320,7 @@ class SetupPersonTab extends StatelessWidget {
       scrollKey: 'tab2_person',
       children: [
         if (person == null)
-           _buildEmptyPlaceholder(context, 'No person linked to this bike. \nExit and edit bike to link a person.')
+          _buildEmptyPlaceholder(context, 'No person linked to this bike. \nExit and edit bike to link a person.')
         else
           Card(
             margin: const EdgeInsets.symmetric(vertical: 4),
@@ -289,7 +363,7 @@ class SetupPersonTab extends StatelessWidget {
                   ListTile(
                     title: const Text("Dangling Attribute Values", style: TextStyle(fontWeight: FontWeight.bold)),
                     subtitle: Text(Intl.plural(
-                      danglingPersonAdjustmentValues.length, 
+                      danglingPersonAdjustmentValues.length,
                       one: "1 attribute value found that is not associated with this person. Cannot be edited.",
                       other: "${danglingPersonAdjustmentValues.length} attribute values found that are not associated with this person. Cannot be edited.",
                     )),
@@ -298,8 +372,8 @@ class SetupPersonTab extends StatelessWidget {
                   ),
                   ...danglingPersonAdjustmentValues.entries.map((danglingAdjustmentValue) {
                     return DisplayDanglingAdjustmentWidget(
-                      name: danglingAdjustmentValue.key, 
-                      initialValue: initialPersonAdjustmentValues[danglingAdjustmentValue.key], 
+                      name: danglingAdjustmentValue.key,
+                      initialValue: initialPersonAdjustmentValues[danglingAdjustmentValue.key],
                       value: danglingAdjustmentValue.value,
                       onRemove: () {
                         onDanglingRemove(danglingAdjustmentValue.key);

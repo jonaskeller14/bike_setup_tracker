@@ -12,26 +12,75 @@ String? validateAdjustmentName(String? value) {
   return null;
 }
 
-Widget previewLabel(BuildContext context) {
-  return Positioned(
-    top: -1, 
-    left: -1, 
-    child: Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
-        borderRadius: const BorderRadius.only(
-          bottomRight: Radius.circular(6),
+class CollapsibleAdjustmentPreview extends StatefulWidget {
+  final Widget child;
+
+  const CollapsibleAdjustmentPreview({super.key, required this.child});
+
+  @override
+  State<CollapsibleAdjustmentPreview> createState() => _CollapsibleAdjustmentPreviewState();
+}
+
+class _CollapsibleAdjustmentPreviewState extends State<CollapsibleAdjustmentPreview> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+
+    final chevron = Icon(
+      _expanded ? Icons.keyboard_double_arrow_down : Icons.keyboard_double_arrow_up,
+      size: 18,
+      color: theme.colorScheme.onInverseSurface	,
+    );
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        InkWell(
+          onTap: () => setState(() => _expanded = !_expanded),
+          child: Container(
+            width: double.infinity,
+            color: theme.colorScheme.inverseSurface	,
+            padding: EdgeInsets.fromLTRB(16, 8, 16, _expanded ? 8 : 8 + bottomInset),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                chevron,
+                Text(
+                  'Preview',
+                  style: TextStyle(
+                    color: theme.colorScheme.onInverseSurface	,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                chevron,
+              ],
+            ),
+          ),
         ),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-      child: Text(
-        'Preview only — changes won’t be saved',
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onPrimary,
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
+        AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          alignment: Alignment.topCenter,
+          child: _expanded
+              ? Container(
+                  width: double.infinity,
+                  color: theme.colorScheme.secondary.withValues(alpha: 0.3),
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.sizeOf(context).height * 0.5,
+                  ),
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+                    child: widget.child,
+                  ),
+                )
+              : const SizedBox.shrink(),
         ),
-      ),
-    ),
-  );
+      ],
+    );
+  }
 }

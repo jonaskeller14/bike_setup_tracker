@@ -510,36 +510,22 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                   ),
                 ),
               ),
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.sizeOf(context).height * 0.5,
-                ),
-                child: Stack(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
-                      child: SingleChildScrollView(
-                        padding: EdgeInsetsGeometry.fromLTRB(16, 48, 16, 16 + MediaQuery.of(context).padding.bottom),
-                        child: Card(
-                          child: SetStepAdjustmentWidget(
-                            key: ValueKey(_previewAdjustment),
-                            adjustment: _previewAdjustment,
-                            initialValue: 0.0,
-                            value: _previewValue,
-                            onChanged: (double? newValue) {
-                              unawaited(HapticFeedback.lightImpact());
-                              setState(() {
-                                _previewValue = newValue ?? _previewAdjustment.min.toDouble();
-                              });
-                            },
-                            onChangedEnd: (_) => {},
-                            highlighting: false,
-                          ),
-                        ),
-                      ),
-                    ),
-                    previewLabel(context),
-                  ],
+              CollapsibleAdjustmentPreview(
+                child: Card(
+                  child: SetStepAdjustmentWidget(
+                    key: ValueKey(_previewAdjustment),
+                    adjustment: _previewAdjustment,
+                    initialValue: 0.0,
+                    value: _previewValue,
+                    onChanged: (double? newValue) {
+                      unawaited(HapticFeedback.lightImpact());
+                      setState(() {
+                        _previewValue = newValue ?? _previewAdjustment.min.toDouble();
+                      });
+                    },
+                    onChangedEnd: (_) => {},
+                    highlighting: false,
+                  ),
                 ),
               ),
             ],

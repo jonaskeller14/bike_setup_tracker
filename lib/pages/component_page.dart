@@ -277,36 +277,6 @@ class _ComponentPageState extends State<ComponentPage> {
     Navigator.of(context).pop(null);
   }
 
-  Widget _buildGuideRow(IconData icon, String type, String example) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(icon, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-          const SizedBox(width: 8),
-          Expanded(
-            child: RichText(
-              text: TextSpan(
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13, height: 1.3),
-                children: [
-                  TextSpan(
-                    text: "$type: ", 
-                    style: const TextStyle(fontWeight: FontWeight.bold)
-                  ),
-                  TextSpan(
-                    text: example,
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5), fontStyle: FontStyle.italic)
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _onReorderAdjustments(int oldIndex, int newIndex, {VoidCallback? onChanged}) {
     setState(() {
       final adjustment = _adjustments.removeAt(oldIndex);
@@ -317,9 +287,7 @@ class _ComponentPageState extends State<ComponentPage> {
   }
 
   Widget _emptyAdjustmentsInfo({String? errorText, VoidCallback? onTap}) {
-    return Column(
-      children: [
-        InkWell(
+    return InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
           child: CustomPaint(
@@ -374,24 +342,6 @@ class _ComponentPageState extends State<ComponentPage> {
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Column(
-            children: [
-              _buildGuideRow(NumericalAdjustment.iconData, "Numerical", "Pressure (psi/bar), Length, Angle, Weight"),
-              _buildGuideRow(StepAdjustment.iconData, "Step", "Rebound/Compression Clicks, Spacers"),
-              _buildGuideRow(CategoricalAdjustment.iconData, "Categorical", "Tire Compound (Soft/Hard), Model, Brand"),
-              _buildGuideRow(BooleanAdjustment.iconData, "On/Off", "Lockout Lever, Climb Switch, Tire insert installed?"),
-              if (context.read<AppSettings>().enableTextAdjustment)
-                _buildGuideRow(TextAdjustment.iconData, "Text", "Flexible field for any other setup specifications"),
-              if (_enableDurationAdjustment)
-                _buildGuideRow(DurationAdjustment.iconData, "Duration", "Time span"),
-            ],
-          ),
-        ),
-      ],
     );
   }
 

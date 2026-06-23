@@ -388,34 +388,20 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                   ),
                 ),
               ),
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.sizeOf(context).height * 0.5,
-                ),
-                child: Stack(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
-                      child: SingleChildScrollView(
-                        padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16 + MediaQuery.of(context).padding.bottom),
-                        child: Card(
-                          child: SetDurationAdjustmentWidget(
-                            key: ValueKey(_previewAdjustment),
-                            adjustment: _previewAdjustment,
-                            initialValue: Duration.zero,
-                            value: _previewValue,
-                            onChanged: (Duration? newValue) {
-                              setState(() {
-                                _previewValue = newValue ?? Duration.zero;
-                              });
-                            },
-                            highlighting: false,
-                          ),
-                        ),
-                      ),
-                    ),
-                    previewLabel(context),
-                  ],
+              CollapsibleAdjustmentPreview(
+                child: Card(
+                  child: SetDurationAdjustmentWidget(
+                    key: ValueKey(_previewAdjustment),
+                    adjustment: _previewAdjustment,
+                    initialValue: Duration.zero,
+                    value: _previewValue,
+                    onChanged: (Duration? newValue) {
+                      setState(() {
+                        _previewValue = newValue ?? Duration.zero;
+                      });
+                    },
+                    highlighting: false,
+                  ),
                 ),
               ),
             ],

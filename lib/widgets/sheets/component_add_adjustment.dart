@@ -127,7 +127,7 @@ void showComponentAddAdjustmentBottomSheet({
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                       child: Text(
-                        "Pre-filled Templates",
+                        componentType != null ? "Suggested for ${componentType.label}" : "Pre-filled Templates",
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
@@ -162,10 +162,7 @@ void showComponentAddAdjustmentBottomSheet({
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.0),
-                      child: Divider(),
-                    ),
+                    const Divider(height: 16),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                       child: Text(
@@ -181,7 +178,7 @@ void showComponentAddAdjustmentBottomSheet({
                     ListTile(
                       leading: Icon(NumericalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
                       title: const Text("Numerical Adjustment"),
-                      subtitle: const Text("Pressure (psi), Length, Weight", style: TextStyle(fontSize: 12)),
+                      subtitle: const Text("Pressure (psi/bar), Length, Angle, Weight", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
@@ -191,7 +188,7 @@ void showComponentAddAdjustmentBottomSheet({
                     ListTile(
                       leading: Icon(StepAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
                       title: const Text("Step Adjustment"),
-                      subtitle: const Text("Rebound clicks, Spacers, Increments", style: TextStyle(fontSize: 12)),
+                      subtitle: const Text("Rebound/Compression clicks, Spacers, Increments", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
@@ -201,7 +198,7 @@ void showComponentAddAdjustmentBottomSheet({
                     ListTile(
                       leading: Icon(CategoricalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
                       title: const Text("Categorical Adjustment"),
-                      subtitle: const Text("Compound, Brand, Style, Mode", style: TextStyle(fontSize: 12)),
+                      subtitle: const Text("Tire Compound (soft/hard), Brand, Style, Mode", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
@@ -233,7 +230,7 @@ void showComponentAddAdjustmentBottomSheet({
                       ListTile(
                         leading: Icon(DurationAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
                         title: const Text("Duration Adjustment"),
-                        subtitle: const Text("", style: TextStyle(fontSize: 12)),  //TODO
+                        subtitle: const Text("Time Span", style: TextStyle(fontSize: 12)),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                         onTap: () async {
                           Navigator.pop(context); // Close sheet first

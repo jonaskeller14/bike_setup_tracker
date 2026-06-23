@@ -266,35 +266,21 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
                   ),
                 ),
               ),
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.sizeOf(context).height * 0.5,
-                ),
-                child: Stack(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(border: Border(top: BorderSide(color: Theme.of(context).primaryColor)), color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
-                      child: SingleChildScrollView(
-                        padding: EdgeInsetsGeometry.fromLTRB(16, 32, 16, 16 + MediaQuery.of(context).padding.bottom),
-                        child: Card(
-                          child: SetBooleanAdjustmentWidget(
-                            key: ValueKey(_previewAdjustment),
-                            adjustment: _previewAdjustment,
-                            initialValue: false,
-                            value: _previewValue,
-                            onChanged: (bool? newValue) {
-                              unawaited(HapticFeedback.lightImpact());
-                              setState(() {
-                                _previewValue = newValue ?? false;
-                              });
-                            },
-                            highlighting: false,
-                          ),
-                        ),
-                      ),
-                    ),
-                    previewLabel(context),
-                  ],
+              CollapsibleAdjustmentPreview(
+                child: Card(
+                  child: SetBooleanAdjustmentWidget(
+                    key: ValueKey(_previewAdjustment),
+                    adjustment: _previewAdjustment,
+                    initialValue: false,
+                    value: _previewValue,
+                    onChanged: (bool? newValue) {
+                      unawaited(HapticFeedback.lightImpact());
+                      setState(() {
+                        _previewValue = newValue ?? false;
+                      });
+                    },
+                    highlighting: false,
+                  ),
                 ),
               ),
             ],

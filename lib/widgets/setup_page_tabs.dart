@@ -68,19 +68,6 @@ class _SetupTabScaffold extends StatelessWidget {
   }
 }
 
-Widget _buildEmptyPlaceholder(BuildContext context, String message) {
-  return SizedBox(
-    height: 100,
-    child: Center(
-      child: Text(
-        message,
-        textAlign: TextAlign.center,
-        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-      ),
-    ),
-  );
-}
-
 class SetupBikeTab extends StatefulWidget {
   final String bike;
   final List<Component> bikeComponents;
@@ -197,7 +184,7 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
   Widget build(BuildContext context) {
     return _SetupTabScaffold(
       scrollKey: 'tab1_bike',
-      showLegend: widget.bikeComponents.isNotEmpty,
+      showLegend: widget.bikeComponents.isNotEmpty || widget.danglingBikeAdjustmentValues.isNotEmpty,
       children: [
         if (widget.bikeComponents.isEmpty) ...[
           _buildEmptyComponentsPlaceholder(context, widget.bike),
@@ -313,14 +300,60 @@ class SetupPersonTab extends StatelessWidget {
     required this.onDanglingRemove,
   });
 
+  Widget _buildEmptyPersonPlaceholder(BuildContext context) {
+    return CustomPaint(
+      painter: DashedBorderPainter(
+        color: Theme.of(context).colorScheme.outlineVariant,
+        strokeWidth: 1.5,
+        dashWidth: 6,
+        dashSpace: 4,
+        borderRadius: 12,
+      ),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Person.iconData,
+              size: 32,
+              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "No person linked",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              "No person linked to this bike. \nExit and edit bike to link a person.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final person = persons[personId];
     return _SetupTabScaffold(
       scrollKey: 'tab2_person',
+      showLegend: person != null || danglingPersonAdjustmentValues.isNotEmpty,
       children: [
         if (person == null)
-          _buildEmptyPlaceholder(context, 'No person linked to this bike. \nExit and edit bike to link a person.')
+          _buildEmptyPersonPlaceholder(context)
         else
           Card(
             margin: const EdgeInsets.symmetric(vertical: 4),
@@ -351,7 +384,8 @@ class SetupPersonTab extends StatelessWidget {
               ],
             ),
           ),
-        if (danglingPersonAdjustmentValues.isNotEmpty)
+        if (danglingPersonAdjustmentValues.isNotEmpty) ...[
+          const Divider(height: 50),
           Opacity(
             opacity: 0.4,
             child: Card(
@@ -384,6 +418,7 @@ class SetupPersonTab extends StatelessWidget {
               ),
             ),
           ),
+        ],
       ],
     );
   }

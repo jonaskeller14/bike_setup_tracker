@@ -54,13 +54,12 @@ Future<void> showFilterSheet({
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const SheetSectionTitle(title: "Bike"),
-                    appRepository.bikes.isEmpty 
-                        ? Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 32),
-                          child: Center(
-                            child: Text("No bikes yet", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5))),
-                          ),
-                        )
+                    appRepository.bikes.isEmpty
+                        ? const SheetFilterEmptyHint(
+                            icon: Bike.iconData,
+                            title: "No bikes yet",
+                            hint: "Add a bike to filter this list by bike.",
+                          )
                         : Wrap(
                             spacing: 6,
                             children: appRepository.bikes.values.map((bike) => FilterChip(
@@ -82,11 +81,10 @@ Future<void> showFilterSheet({
                     if (enableSetupTagFilter) ...[
                       const SheetSectionTitle(title: "Setup Tags"),
                       appRepository.setupTags.isEmpty
-                          ? Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 32),
-                              child: Center(
-                                child: Text("No tags yet. Add/Edit a Setup to add a tag.", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5))),
-                              ),
+                          ? const SheetFilterEmptyHint(
+                              icon: Icons.tag,
+                              title: "No setup tags yet",
+                              hint: "Add/Edit a Setup to add tags.",
                             )
                           : Wrap(
                               spacing: 6,
@@ -134,11 +132,10 @@ Future<void> showFilterSheet({
                     if (enableTaskRuleTagFilter) ...[
                       const SheetSectionTitle(title: "Task Tags"),
                       appRepository.taskRuleTags.isEmpty
-                          ? Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 32),
-                              child: Center(
-                                child: Text("No tags yet. Add/Edit a Task Rule to add a tag.", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5))),
-                              ),
+                          ? const SheetFilterEmptyHint(
+                              icon: Icons.tag,
+                              title: "No task tags yet",
+                              hint: "Add/Edit a Task Rule to add tags.",
                             )
                           : Wrap(
                               spacing: 6,

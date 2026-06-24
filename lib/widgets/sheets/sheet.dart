@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../dashed_border_painter.dart';
 
 Text sheetTitle(BuildContext context, String title) {
   return Text(
@@ -45,4 +46,56 @@ IconButton sheetBackButton(BuildContext context, {required VoidCallback onPresse
     onPressed: onPressed,
     icon: const BackButtonIcon(), 
   );
+}
+
+class SheetFilterEmptyHint extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String? hint;
+
+  const SheetFilterEmptyHint({
+    super.key,
+    required this.icon,
+    required this.title,
+    this.hint,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    return CustomPaint(
+      painter: DashedBorderPainter(
+        color: colors.outlineVariant,
+        strokeWidth: 1.5,
+        dashWidth: 6,
+        dashSpace: 4,
+        borderRadius: 12,
+      ),
+      child: ListTile(
+        leading: Icon(
+          icon,
+          size: 24,
+          color: colors.onSurfaceVariant.withValues(alpha: 0.5),
+        ),
+        title: Text(
+          title,
+          style: textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: colors.onSurfaceVariant.withValues(alpha: 0.8),
+          ),
+        ),
+        subtitle: hint != null
+            ? Text(
+                hint!,
+                style: textTheme.bodySmall?.copyWith(
+                  color: colors.onSurfaceVariant.withValues(alpha: 0.5),
+                ),
+              )
+            : null,
+        dense: true,
+        visualDensity: VisualDensity.compact,
+      ),
+    );
+  }
 }

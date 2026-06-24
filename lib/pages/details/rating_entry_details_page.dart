@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
-import '../../models/context/context_weather.dart';
+import '../../models/bike.dart';
 import '../../models/rating_entry.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/rating_score_service.dart';
 import '../../utils/rating_entry_actions.dart';
+import '../../widgets/items/context_location_card.dart';
+import '../../widgets/items/context_weather_card.dart';
 import '../../widgets/sheets/sheet.dart';
 
 class RatingEntryDetailsPage extends StatelessWidget {
@@ -41,23 +43,22 @@ class RatingEntryDetailsContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
-    final entry = appRepository.ratingEntries[ratingEntryId];
+    final ratingEntry = appRepository.ratingEntries[ratingEntryId];
 
-    if (entry == null) {
+    if (ratingEntry == null) {
       return const Center(
         heightFactor: 4,
         child: Text("Rating not found."),
       );
     }
 
-    final breakdown = appRepository.entryBreakdown(entry);
-    final scheme = Theme.of(context).colorScheme;
+    final breakdown = appRepository.entryBreakdown(ratingEntry);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _header(context, entry: entry, appSettings: appSettings),
+        _header(context, entry: ratingEntry, appSettings: appSettings),
         const Divider(height: 1),
         Flexible(
           child: SingleChildScrollView(
@@ -65,25 +66,9 @@ class RatingEntryDetailsContent extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _scoreCard(context, entry: entry, breakdown: breakdown),
+                _scoreCard(context, ratingEntry: ratingEntry, breakdown: breakdown),
                 const SizedBox(height: 12),
-                _contextCard(context, entry: entry, appSettings: appSettings),
-                if (entry.notes != null && entry.notes!.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  Card.outlined(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.notes, size: 18, color: scheme.onSurfaceVariant),
-                          const SizedBox(width: 8),
-                          Expanded(child: Text(entry.notes!)),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                ..._contextSection(context, entry: ratingEntry),
               ],
             ),
           ),
@@ -129,8 +114,8 @@ class RatingEntryDetailsContent extends StatelessWidget {
     );
   }
 
-  Widget _scoreCard(BuildContext context, {required RatingEntry entry, required EntryScoreBreakdown breakdown}) {
-    final scheme = Theme.of(context).colorScheme;
+  Widget _scoreCard(BuildContext context, {required RatingEntry ratingEntry, required EntryScoreBreakdown breakdown}) {
+    final colorScheme = Theme.of(context).colorScheme;
     final score = breakdown.score;
     final avg = score?.weightedAvg;
 
@@ -146,13 +131,13 @@ class RatingEntryDetailsContent extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
-                    color: avg == null ? scheme.surfaceContainerHighest : scheme.primaryContainer,
+                    color: avg == null ? colorScheme.surfaceContainerHighest : colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Text(
                     avg == null ? "– / 10" : "${avg.toStringAsFixed(1)} / 10",
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: avg == null ? scheme.onSurfaceVariant : scheme.onPrimaryContainer,
+                      color: avg == null ? colorScheme.onSurfaceVariant : colorScheme.onPrimaryContainer,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -163,7 +148,7 @@ class RatingEntryDetailsContent extends StatelessWidget {
                     score == null
                         ? "No scored metrics answered"
                         : "Score · ${score.answeredScored} of ${score.totalScored} metrics rated",
-                    style: TextStyle(color: scheme.onSurfaceVariant),
+                    style: TextStyle(color: colorScheme.onSurfaceVariant),
                   ),
                 ),
                 Tooltip(
@@ -171,9 +156,9 @@ class RatingEntryDetailsContent extends StatelessWidget {
                   showDuration: const Duration(seconds: 30),
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   padding: const EdgeInsets.all(12),
-                  textStyle: TextStyle(color: scheme.onInverseSurface, fontSize: 13, height: 1.4),
+                  textStyle: TextStyle(color: colorScheme.onInverseSurface, fontSize: 13, height: 1.4),
                   message: _calculationExplainer(breakdown),
-                  child: Icon(Icons.info_outline, size: 18, color: scheme.onSurfaceVariant),
+                  child: Icon(Icons.info_outline, size: 18, color: colorScheme.onSurfaceVariant),
                 ),
               ],
             ),
@@ -284,65 +269,59 @@ class RatingEntryDetailsContent extends StatelessWidget {
     );
   }
 
-  Widget _contextCard(BuildContext context, {required RatingEntry entry, required AppSettings appSettings}) {
+  List<Widget> _contextSection(BuildContext context, {required RatingEntry entry}) {
     final appRepository = context.watch<AppRepository>();
-    final scheme = Theme.of(context).colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
 
     final resolvedId = appRepository.resolveSetupId(bikeId: entry.bike, atUtc: entry.dateTimeUTC);
     final resolvedSetup = resolvedId == null ? null : appRepository.setups[resolvedId];
-    final bikeName = appRepository.bikes[entry.bike]?.name ?? "Unknown bike";
+    final bike = appRepository.bikes[entry.bike];
     final drift = resolvedId != entry.setupId;
+    final originalSetup = appRepository.setups[entry.setupId];
 
-    final weather = entry.weather;
-    final place = entry.place;
-
-    return Card.outlined(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
+    return [
+      if (entry.notes != null && entry.notes!.isNotEmpty)
+        Card.outlined(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: ListTile(
+            leading: const Icon(Icons.notes),
+            titleAlignment: ListTileTitleAlignment.titleHeight,
+            title: SelectableText(entry.notes!),
+            dense: true,
+          ),
+        ),
+      ContextLocationCard(position: entry.position, place: entry.place, displayName: entry.displayName),
+      ContextWeatherCard(weather: entry.weather),
+      Card.outlined(
+        margin: const EdgeInsets.symmetric(vertical: 4),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            _contextRow(context, Icons.directions_bike, bikeName),
-            _contextRow(
-              context,
-              Icons.tune,
-              resolvedSetup != null ? "Setup: ${resolvedSetup.displayName}" : "No resolved setup",
+            ListTile(
+              leading: Icon(Bike.iconData, color: bike == null ? colorScheme.error : null),
+              title: Text(
+                bike?.name ?? "BIKE NOT FOUND",
+                style: bike == null ? TextStyle(color: colorScheme.error) : null,
+              ),
+              dense: true,
             ),
-            if (drift)
-              Padding(
-                padding: const EdgeInsets.only(top: 4, bottom: 4),
-                child: Text(
-                  "Originally linked to a different setup — score follows the current resolution.",
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.tertiary),
-                ),
+            ListTile(
+              leading: Icon(Icons.tune, color: resolvedSetup == null ? colorScheme.error : null),
+              title: Text(
+                resolvedSetup != null ? "Setup: ${resolvedSetup.displayName}" : "SETUP NOT FOUND",
+                style: resolvedSetup == null ? TextStyle(color: colorScheme.error) : null,
               ),
-            if (place != null)
-              _contextRow(context, Icons.location_pin, "${place.locality}, ${place.isoCountryCode}"),
-            if (weather?.currentTemperature != null)
-              _contextRow(
-                context,
-                ContextWeather.currentTemperatureIconData,
-                "${ContextWeather.convertTemperatureFromCelsius(weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}",
-              ),
-            if (weather?.condition != null)
-              _contextRow(context, weather!.condition!.iconData, weather.condition!.value, iconColor: weather.condition!.color),
+              dense: true,
+              subtitle: drift
+                  ? Text(
+                      "Originally linked to ${originalSetup?.displayName ?? 'SETUP NOT FOUND'}",
+                      style: TextStyle(color: colorScheme.error),
+                    )
+                  : null,
+            ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _contextRow(BuildContext context, IconData icon, String text, {Color? iconColor}) {
-    final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        children: [
-          Icon(icon, size: 16, color: iconColor ?? scheme.onSurfaceVariant),
-          const SizedBox(width: 8),
-          Expanded(child: Text(text, maxLines: 1, overflow: TextOverflow.ellipsis)),
-        ],
-      ),
-    );
+    ];
   }
 }

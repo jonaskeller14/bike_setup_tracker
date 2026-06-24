@@ -1,25 +1,19 @@
-import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:intl/intl.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher_string.dart';
-import '../../env/env.dart';
-import '../../icons/weather_icons.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';
-import '../../models/context/context_position.dart';
-import '../../models/context/context_weather.dart';
 import '../../models/person.dart';
+import '../../models/rating_metric.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/setup_actions.dart';
 import '../../widgets/display_adjustment/display_adjustment_list.dart';
 import '../../widgets/display_adjustment/display_dangling_adjustment.dart';
 import '../../widgets/initial_changed_value_legend.dart';
-import '../../widgets/items/rating_entry_list_tile.dart';
+import '../../widgets/items/context_location_card.dart';
+import '../../widgets/items/context_weather_card.dart';
 import '../../widgets/sheets/sheet.dart';
 import '../../widgets/text/section_title.dart';
 
@@ -239,206 +233,8 @@ class SetupDetailsPageContent extends StatelessWidget {
                   ],
                 ),
               ),
-            if (setup.position != null || setup.place != null)
-              Card.outlined(
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                child: ExpansionTile(
-                  dense: true,
-                  shape: const Border(),
-                  collapsedShape: const Border(),
-                  leading: const Icon(Icons.location_city),
-                  title: setup.place == null 
-                      ? const Text("No Address available")
-                      : SelectableText(
-                          "${setup.place!.thoroughfare ?? ''} ${setup.place!.subThoroughfare ?? ''}, "
-                          "${setup.place!.locality ?? ''}, ${setup.place!.isoCountryCode ?? ''}"
-                            .replaceAll(RegExp(r' ,'), '')
-                            .trim(),
-                        ),
-                  children: [
-                    ListTile(
-                      leading: const Icon(Icons.my_location),
-                      title: SelectableText("Latitude/Longitude: ${setup.position?.latitude?.toStringAsFixed(4) ?? '-'}°/${setup.position?.longitude?.toStringAsFixed(4) ?? '-'}°"),
-                      dense: true,
-                      enabled: setup.position?.latitude != null || setup.position?.longitude != null,
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.arrow_upward),
-                      title: SelectableText("Altitude: ${ContextPosition.convertAltitudeFromMeters(setup.position?.altitude, appSettings.altitudeUnit)?.round() ?? "-"} ${appSettings.altitudeUnit}"),
-                      dense: true,
-                      enabled: setup.position?.altitude != null,
-                    ),
-                    if (setup.position?.latitude != null && setup.position?.longitude != null)
-                      SizedBox(
-                        height: 200,
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
-                          child: FlutterMap(
-                            options: MapOptions(
-                              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                              initialCenter: LatLng(setup.position!.latitude!, setup.position!.longitude!),
-                              initialZoom: 13,
-                              minZoom: 3,
-                              onTap: (_, _) async {
-                                final String scheme = Theme.of(context).platform == TargetPlatform.iOS ? 'maps' : 'geo';
-                                await launchUrlString('$scheme:${setup.position!.latitude},${setup.position!.longitude}?q=${setup.position!.latitude},${setup.position!.longitude}(${Uri.encodeComponent(setup.displayName)})');
-                              },
-                              interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
-                            ),
-                            children: [
-                              if (appSettings.useMapBoxTiles && Env.mapboxToken.isNotEmpty)
-                                TileLayer(
-                                  urlTemplate: 'https://api.mapbox.com/styles/v1/mapbox/{style_id}/tiles/256/{z}/{x}/{y}?access_token={access_token}',
-                                  additionalOptions: {
-                                    'access_token': Env.mapboxToken,
-                                    'style_id': Theme.of(context).brightness == Brightness.dark ? 'dark-v11' : 'outdoors-v12',
-                                  },
-                                  userAgentPackageName: 'com.jonaskeller14.bike_setup_tracker',
-                                  tileDisplay: const TileDisplay.fadeIn(),
-                                )
-                              else
-                                TileLayer(
-                                  urlTemplate: 'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
-                                  subdomains: const ['a', 'b', 'c'], // Cyclosm uses subdomains for faster loading
-                                  minZoom: 3,
-                                  userAgentPackageName: 'com.jonaskeller14.bike_setup_tracker',
-                                  tileDisplay: const TileDisplay.fadeIn(),
-                                  tileBuilder: (context, tileWidget, tile) {
-                                    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-                                    return ColorFiltered(
-                                      colorFilter: isDarkMode
-                                          ? const ColorFilter.matrix(<double>[
-                                              -0.2126, -0.7152, -0.0722, 0, 255,
-                                              -0.2126, -0.7152, -0.0722, 0, 255,
-                                              -0.2126, -0.7152, -0.0722, 0, 255,
-                                              0, 0, 0, 1, 0,
-                                            ])
-                                          : const ColorFilter.matrix(<double>[
-                                              0.6, 0.3, 0.1, 0, 0,  // Muted Red
-                                              0.1, 0.8, 0.1, 0, 0,  // Muted Green
-                                              0.1, 0.3, 0.6, 0, 0,  // Muted Blue
-                                              0,   0,   0,   1, 0,  // Alpha (no change)
-                                            ]),
-                                      child: tileWidget,
-                                    );
-                                  },
-                                ),
-                              MarkerLayer(
-                                markers: [
-                                  Marker(
-                                    point: LatLng(setup.position!.latitude!, setup.position!.longitude!),
-                                    width: 40,
-                                    height: 40,
-                                    child: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        ImageFiltered(
-                                          imageFilter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-                                          child: const Icon(Icons.location_pin, size: 40, color: Colors.black38),
-                                        ),
-                                        Icon(
-                                          Icons.location_pin,
-                                          size: 40,
-                                          color: Theme.of(context).colorScheme.primary,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              RichAttributionWidget(
-                                showFlutterMapAttribution: false,
-                                attributions: [
-                                  if (appSettings.useMapBoxTiles && Env.mapboxToken.isNotEmpty) ...[
-                                    LogoSourceAttribution(
-                                      Image.asset(
-                                        'assets/mapbox/mapbox-logo.png',
-                                        height: 24,
-                                      ),
-                                    ),
-                                    TextSourceAttribution(
-                                      'Mapbox',
-                                      onTap: () => launchUrlString('https://www.mapbox.com/about/maps/'),
-                                    ),
-                                    TextSourceAttribution(
-                                      'OpenStreetMap',
-                                      onTap: () => launchUrlString('https://www.openstreetmap.org/copyright'),
-                                    ),
-                                    TextSourceAttribution(
-                                      prependCopyright: false,
-                                      'Improve this map',
-                                      onTap: () => launchUrlString('https://www.mapbox.com/map-feedback/'),
-                                    ),
-                                  ] else ...[
-                                    TextSourceAttribution(
-                                      'OpenStreetMap | Cyclosm',
-                                      onTap: () => launchUrlString('https://openstreetmap.org/copyright'),
-                                    ),
-                                  ]
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                  ],
-                ),
-              ),
-            if (setup.weather != null)
-              Card.outlined(
-                margin: const EdgeInsets.symmetric(vertical: 4),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ExpansionTile(
-                      dense: true,
-                      shape: const Border(),
-                      collapsedShape: const Border(),
-                      leading: Icon(setup.weather?.getIconData() ?? WeatherIcons.na),                 
-                      title: Text("Weather: ${setup.weather?.getWeatherCodeLabel() ?? '-'}"),
-                      children: [
-                        ListTile(
-                          leading: const Icon(ContextWeather.currentTemperatureIconData),
-                          title: SelectableText("Temperature: ${ContextWeather.convertTemperatureFromCelsius(setup.weather?.currentTemperature, appSettings.temperatureUnit)?.round() ?? '-'} ${appSettings.temperatureUnit}"),
-                          dense: true,
-                          enabled: setup.weather?.currentTemperature != null,
-                        ),
-                        ListTile(
-                          leading: const Icon(ContextWeather.dayAccumulatedPrecipitationIconData),
-                          title:  SelectableText("Precipitation: ${ContextWeather.convertPrecipitationFromMm(setup.weather?.dayAccumulatedPrecipitation, appSettings.precipitationUnit)?.round() ?? '-'} ${appSettings.precipitationUnit}"),
-                          dense: true,
-                          enabled: setup.weather?.dayAccumulatedPrecipitation != null,
-                        ),
-                        ListTile(
-                          leading: const Icon(ContextWeather.currentHumidityIconData),
-                          title: SelectableText("Humidity: ${setup.weather?.currentHumidity?.round() ?? '-'} %"),
-                          dense: true,
-                          enabled: setup.weather?.currentHumidity != null,
-                        ),
-                        ListTile(
-                          leading: const Icon(ContextWeather.currentWindSpeedIconData),
-                          title:  SelectableText("Windspeed: ${ContextWeather.convertWindSpeedFromKmh(setup.weather?.currentWindSpeed, appSettings.windSpeedUnit)?.round() ?? '-'} ${appSettings.windSpeedUnit}"),
-                          dense: true,
-                          enabled: setup.weather?.currentWindSpeed != null,
-                        ),
-                        ListTile(
-                          leading: const Icon(ContextWeather.currentSoilMoisture0to7cmIconData),
-                          title:  SelectableText("Soil Moisture: ${setup.weather?.currentSoilMoisture0to7cm?.toStringAsFixed(2) ?? '-'} m³/m³"),
-                          dense: true,
-                          enabled: setup.weather?.currentSoilMoisture0to7cm != null,
-                        ),
-                      ],
-                    ),
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: Icon(setup.weather?.condition?.iconData ?? Icons.question_mark_sharp, color: setup.weather?.condition?.color),
-                      title: SelectableText('Condition: ${setup.weather?.condition?.value ?? "-"}'),
-                      dense: true,
-                      enabled: setup.weather?.condition != null,
-                    ),
-                  ],
-                ),
-              ),
+            ContextLocationCard(position: setup.position, place: setup.place, displayName: setup.displayName),
+            ContextWeatherCard(weather: setup.weather),
             Card.outlined(
                 margin: const EdgeInsets.symmetric(vertical: 4),
                 child: Column(
@@ -493,7 +289,7 @@ class SetupDetailsPageContent extends StatelessWidget {
     final appSettings = context.read<AppSettings>();
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+        padding: const EdgeInsets.only(left: 16, right: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -635,44 +431,118 @@ class SetupDetailsPageContent extends StatelessWidget {
     final appRepository = context.watch<AppRepository>();
     final scheme = Theme.of(context).colorScheme;
 
-    final entries = appRepository.ratingEntriesForSetup(setup.id)
-      ..sort((a, b) => b.dateTimeUTC.compareTo(a.dateTimeUTC));
+    final entryCount = appRepository.ratingEntriesForSetup(setup.id).length;
     final score = appRepository.scoreForSetup(setup.id);
+    final metricScores = appRepository.metricScoresForSetup(setup.id);
+    final allMetrics = appRepository.allRatingMetricsById;
 
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ListTile(
-              dense: true,
-              contentPadding: EdgeInsets.zero,
-              titleAlignment: ListTileTitleAlignment.titleHeight,
-              leading: CircleAvatar(
-                backgroundColor: score == null ? scheme.surfaceContainerHighest : scheme.primaryContainer,
-                child: Text(
-                  score == null ? "–" : score.toStringAsFixed(1),
-                  style: TextStyle(
-                    color: score == null ? scheme.onSurfaceVariant : scheme.onPrimaryContainer,
-                    fontWeight: FontWeight.bold,
-                  ),
+        child: Card.outlined(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: score == null ? scheme.surfaceContainerHighest : scheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Text(
+                        score == null ? "– / 10" : "${score.toStringAsFixed(1)} / 10",
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          color: score == null ? scheme.onSurfaceVariant : scheme.onPrimaryContainer,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        entryCount == 0
+                            ? "No ratings yet"
+                            : "Avg. of $entryCount rating${entryCount == 1 ? '' : 's'}",
+                        style: TextStyle(color: scheme.onSurfaceVariant),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              title: const Text("Setup score", style: TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text(score == null ? "No ratings yet" : "${score.toStringAsFixed(1)} / 10 across ${entries.length} rating${entries.length == 1 ? '' : 's'}"),
+                if (metricScores.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  ...metricScores.entries.map((e) {
+                    final RatingMetric? metric = allMetrics[e.key];
+                    if (metric == null) return const SizedBox.shrink();
+                    final goodness = e.value / 10;
+                    final lowerIsBetter = metric.weight < 0;
+                    final absWeight = metric.weight.abs();
+                    final w = absWeight == absWeight.roundToDouble()
+                        ? absWeight.toStringAsFixed(0)
+                        : absWeight.toStringAsFixed(1);
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  metric.adjustment.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                "${e.value.toStringAsFixed(1)}/10",
+                                style: TextStyle(fontWeight: FontWeight.bold, color: scheme.onSurface),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                decoration: BoxDecoration(
+                                  color: scheme.secondaryContainer,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  "×$w",
+                                  style: TextStyle(color: scheme.onSecondaryContainer, fontSize: 12, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              value: goodness,
+                              minHeight: 6,
+                              backgroundColor: scheme.surfaceContainerHighest,
+                              valueColor: AlwaysStoppedAnimation(scheme.primary),
+                            ),
+                          ),
+                          if (lowerIsBetter)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 2),
+                              child: Text(
+                                "lower is better",
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
+              ],
             ),
-            ...entries.map((entry) => RatingEntryListTile(ratingEntry: entry)),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.tonalIcon(
-                onPressed: () => SetupActions.addRatingEntryForSetup(context, setup: setup),
-                icon: const Icon(Icons.add),
-                label: const Text("Add rating"),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

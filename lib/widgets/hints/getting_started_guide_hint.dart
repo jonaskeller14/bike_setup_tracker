@@ -66,7 +66,7 @@ class GettingStartedGuideHint extends StatelessWidget {
                           children: [
                             Icon(Icons.flag_outlined, size: 14, color: colorScheme.primary),
                             Text(
-                              'GET STARTED',
+                              'STEPS TO GET STARTED',
                               style: textTheme.labelSmall?.copyWith(
                                 color: colorScheme.primary,
                                 fontWeight: FontWeight.bold,

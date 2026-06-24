@@ -2,11 +2,14 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
+import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/bike_actions.dart';
 import '../chips/bike_list_filter_widget.dart';
+import '../empty_state_placeholder.dart';
 import '../hints/garage_list_hint.dart';
+import '../hints/getting_started_guide_hint.dart';
 import '../items/garage_bike_card.dart';
 import '../items/garage_uninstalled_card.dart';
 import '../sheets/installation_sheet.dart';
@@ -44,22 +47,40 @@ class _GarageListState extends State<GarageList> {
   }
 
   Widget _emptyPlaceholder(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const BikeListFilterWidget(),
-          Expanded(
-            child: Center(
-              child: Text(
-                'No bikes yet',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-              ),
+    final showGuide = context.watch<AppSettings>().showGettingStartedGuideHint;
+    if (showGuide) {
+      return const SingleChildScrollView(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BikeListFilterWidget(),
+            SizedBox(height: 8),
+            GettingStartedGuideHint(),
+          ],
+        ),
+      );
+    }
+    return CustomScrollView(
+      slivers: [
+        const SliverPadding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+          sliver: SliverToBoxAdapter(child: BikeListFilterWidget()),
+        ),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: EmptyStatePlaceholder(
+              icon: Bike.iconData,
+              title: 'No bikes yet',
+              subtitle: 'Add your first bike to get started.',
+              actionLabel: 'Add a bike',
+              onAction: () => BikeActions.addBike(context),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -112,6 +133,7 @@ class _GarageListState extends State<GarageList> {
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 8,
               children: [
+                const GettingStartedGuideHint(),
                 if (appRepository.bikes.length >= 2 && appRepository.components.isNotEmpty && appSettings.showGarageListHint)
                   const GarageListHint(),
                 const BikeListFilterWidget(),

@@ -44,9 +44,11 @@ class _HomePageState extends State<HomePage> {
     final appRepository = context.watch<AppRepository>();
     final toDoTaskRulesCount = appRepository.openTaskRules.length;
 
-    final pageIndex = (_currentPageIndex ?? (appSettings.enableGarage ? 1 : 2))
+    final defaultIndex = appRepository.bikes.isEmpty
+        ? 0
+        : (appSettings.enableGarage ? 1 : 2);
+    final pageIndex = (_currentPageIndex ?? defaultIndex)
         .clamp(0, (-1)+ (appSettings.enableGarage ? 1 : 2) + 1 + (appSettings.enablePerson ? 1 : 0) + (appSettings.enableRating ? 1: 0) + (appSettings.enableTask ? 1 : 0));
-    _currentPageIndex = pageIndex;
     return Scaffold(
       appBar: AppBar(
         leading: Padding(

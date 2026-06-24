@@ -1,31 +1,37 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../models/person.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/person_actions.dart';
 import '../chips/person_list_filter_widget.dart';
+import '../empty_state_placeholder.dart';
 import '../items/person_list_card.dart';
 
 class PersonList extends StatelessWidget {
   const PersonList({super.key});
 
   Widget _emptyPlaceholder(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const PersonListFilterWidget(),
-          Expanded(
-            child: Center(
-              child: Text(
-                'No profile yet',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-              ),
+    return CustomScrollView(
+      slivers: [
+        const SliverPadding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+          sliver: SliverToBoxAdapter(child: PersonListFilterWidget()),
+        ),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: EmptyStatePlaceholder(
+              icon: Person.iconData,
+              title: 'No profile yet',
+              subtitle: 'Add a rider profile to link to your setups.',
+              actionLabel: 'Add a profile',
+              onAction: () => PersonActions.addPerson(context),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

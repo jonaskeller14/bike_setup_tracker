@@ -1,31 +1,53 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../models/app_settings.dart';
+import '../../models/bike.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/bike_actions.dart';
 import '../chips/bike_list_filter_widget.dart';
+import '../empty_state_placeholder.dart';
+import '../hints/getting_started_guide_hint.dart';
 import '../items/bike_list_card.dart';
 
 class BikeList extends StatelessWidget {
   const BikeList({super.key});
 
   Widget _emptyPlaceholder(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const BikeListFilterWidget(),
-          Expanded(
-            child: Center(
-              child: Text(
-                'No bikes yet',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-              ),
+    final showGuide = context.watch<AppSettings>().showGettingStartedGuideHint;
+    if (showGuide) {
+      return const SingleChildScrollView(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BikeListFilterWidget(),
+            SizedBox(height: 8),
+            GettingStartedGuideHint(),
+          ],
+        ),
+      );
+    }
+    return CustomScrollView(
+      slivers: [
+        const SliverPadding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+          sliver: SliverToBoxAdapter(child: BikeListFilterWidget()),
+        ),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: EmptyStatePlaceholder(
+              icon: Bike.iconData,
+              title: 'No bikes yet',
+              subtitle: 'Add your first bike to get started.',
+              actionLabel: 'Add a bike',
+              onAction: () => BikeActions.addBike(context),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -59,7 +81,15 @@ class BikeList extends StatelessWidget {
         : ReorderableListView.builder(
             itemCount: bikesList.length,
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
-            header: const BikeListFilterWidget(),
+            header: const Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 8,
+              children: [
+                GettingStartedGuideHint(),
+                BikeListFilterWidget(),
+              ],
+            ),
             proxyDecorator: proxyDecorator,
             onReorderItem: (int oldIndex, int newIndex) => BikeActions.onReorderBikes(context, oldIndex: oldIndex, newIndex: newIndex),
             itemBuilder: (context, index) {

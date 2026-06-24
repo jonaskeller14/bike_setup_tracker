@@ -1,31 +1,37 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../models/rating.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/rating_actions.dart';
 import '../chips/rating_list_filter_widget.dart';
+import '../empty_state_placeholder.dart';
 import '../items/rating_list_card.dart';
 
 class RatingList extends StatelessWidget {
   const RatingList({super.key});
 
   Widget _emptyPlaceholder(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const RatingListFilterWidget(),
-          Expanded(
-            child: Center(
-              child: Text(
-                'No ratings yet',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-              ),
+    return CustomScrollView(
+      slivers: [
+        const SliverPadding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+          sliver: SliverToBoxAdapter(child: RatingListFilterWidget()),
+        ),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: EmptyStatePlaceholder(
+              icon: Rating.iconData,
+              title: 'No ratings yet',
+              subtitle: 'Create a rating template to evaluate your setups.',
+              actionLabel: 'Add a rating',
+              onAction: () => RatingActions.addRating(context),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

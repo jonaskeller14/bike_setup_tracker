@@ -2,7 +2,9 @@ import 'package:bike_setup_tracker/widgets/items/task_rule_list_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../repositories/app_repository.dart';
+import '../../utils/task_actions.dart';
 import '../chips/task_list_filter_widget.dart';
+import '../empty_state_placeholder.dart';
 
 class TaskList extends StatefulWidget {
   const TaskList({super.key});
@@ -15,22 +17,26 @@ class _TaskListState extends State<TaskList> {
   bool _showAllCompleted = false;
 
   Widget _emptyPlaceholder(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const TaskListFilterWidget(),
-          Expanded(
-            child: Center(
-              child: Text(
-                'No tasks yet',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-              ),
+    return CustomScrollView(
+      slivers: [
+        const SliverPadding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+          sliver: SliverToBoxAdapter(child: TaskListFilterWidget()),
+        ),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: EmptyStatePlaceholder(
+              icon: Icons.checklist,
+              title: 'No tasks yet',
+              subtitle: 'Add a task to track service intervals or other bike related todos.',
+              actionLabel: 'Add a task',
+              onAction: () => TaskActions.addTaskRule(context),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

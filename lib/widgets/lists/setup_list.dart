@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
+import '../../models/setup.dart';
 import '../../models/strava/strava_activity.dart';
 import '../../models/timeline_entry.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
+import '../../utils/setup_actions.dart';
 import '../chips/setup_list_filter_widget.dart';
+import '../empty_state_placeholder.dart';
 import '../items/installation_list_tile.dart';
 import '../items/rating_entry_list_tile.dart';
 import '../items/setup_list_card.dart';
@@ -19,22 +22,26 @@ class SetupList extends StatelessWidget {
   const SetupList({super.key});
 
   Widget _emptyPlaceholder(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SetupListFilterWidget(),
-          Expanded(
-            child: Center(
-              child: Text(
-                'No entries yet',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-              ),
+    return CustomScrollView(
+      slivers: [
+        const SliverPadding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+          sliver: SliverToBoxAdapter(child: SetupListFilterWidget()),
+        ),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: EmptyStatePlaceholder(
+              icon: Setup.iconData,
+              title: 'No entries yet',
+              subtitle: 'Record your first setup to start tracking your adjustments.',
+              actionLabel: 'Record a setup',
+              onAction: () => SetupActions.addSetup(context),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

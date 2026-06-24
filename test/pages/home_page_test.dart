@@ -65,20 +65,9 @@ void main() {
     await tester.pumpWidget(createWidgetUnderTest());
     await tester.pump(const Duration(milliseconds: 200));
 
+    // With no bikes (new user), the default tab is Bikes so the user can start setup.
     AppBar appBar = tester.widget(find.byType(AppBar).last);
     Text titleText = appBar.title as Text;
-    expect(titleText.data, contains('Setup History'));
-
-    final bikesDestination = find.descendant(
-      of: find.byType(NavigationBar),
-      matching: find.text('Bikes'),
-    );
-
-    await tester.tap(bikesDestination.first);
-    await tester.pumpAndSettle();
-
-    appBar = tester.widget(find.byType(AppBar).last);
-    titleText = appBar.title as Text;
     expect(titleText.data, contains('Bikes'));
 
     final componentsDestination = find.descendant(
@@ -106,6 +95,30 @@ void main() {
     titleText = appBar.title as Text;
 
     expect(titleText.data, contains('Setup History'));
+  });
+
+  testWidgets('Default tab is Bikes when no bikes exist', (WidgetTester tester) async {
+    // Empty repo → new-user path: land on Bikes so the guide is visible.
+    await tester.pumpWidget(createWidgetUnderTest());
+    await tester.pump(const Duration(milliseconds: 200));
+
+    final AppBar appBar = tester.widget(find.byType(AppBar).last);
+    expect((appBar.title as Text).data, contains('Bikes'));
+  });
+
+  testWidgets('Default tab is Setup History when bikes exist', (WidgetTester tester) async {
+    // Seed a bike before creating the widget. The new AppRepository reads the
+    // same database, so the bike is present on first build.
+    // Note: only bikes.isEmpty controls the default; components are not required.
+    await tester.runAsync(() async {
+      await appRepository.addBike(Bike(name: 'TestBike', person: null));
+    });
+
+    await tester.pumpWidget(createWidgetUnderTest());
+    await _waitForRepositoryUpdate(tester);
+
+    final AppBar appBar = tester.widget(find.byType(AppBar).last);
+    expect((appBar.title as Text).data, contains('Setup History'));
   });
 
   testWidgets('Add Component without Bike', (WidgetTester tester) async {
@@ -180,7 +193,7 @@ void main() {
       findsOneWidget,
     );
 
-    await tester.tap(find.byIcon(Icons.add));
+    await tester.tap(find.widgetWithIcon(FloatingActionButton, Icons.add));
     await tester.pump();
     await tester.pumpAndSettle();
     expect(
@@ -198,7 +211,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 200));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byIcon(Icons.add));
+    await tester.tap(find.widgetWithIcon(FloatingActionButton, Icons.add));
     await tester.pump();
     await tester.pumpAndSettle();
     expect(
@@ -223,7 +236,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 200));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byIcon(Icons.add));
+    await tester.tap(find.widgetWithIcon(FloatingActionButton, Icons.add));
     await tester.pump();
     await tester.pumpAndSettle();
     expect(
@@ -241,7 +254,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 200));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byIcon(Icons.add));
+    await tester.tap(find.widgetWithIcon(FloatingActionButton, Icons.add));
     await tester.pump();
     await tester.pumpAndSettle();
     expect(
@@ -570,10 +583,10 @@ void main() {
     await tester.pumpWidget(createWidgetUnderTest());
     await tester.pump(const Duration(milliseconds: 200));
 
-    // Verify Title is "Setup History" (default tab)
+    // With no bikes (new user), the default tab is Bikes regardless of enableGarage.
     final AppBar appBar = tester.widget(find.byType(AppBar).last);
     final Text titleText = appBar.title as Text;
-    expect(titleText.data, contains('Setup History'));
+    expect(titleText.data, contains('Bikes'));
 
     // Verify NavigationBar has "Bikes" and "Setups" but NOT "Components"
     expect(

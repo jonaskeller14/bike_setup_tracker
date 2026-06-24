@@ -32,6 +32,7 @@ class AppSettings extends ChangeNotifier {
   bool _useMapBoxTiles = false;
   bool _showStravaLinkGearHint = true;
   bool _showGarageListHint = true;
+  bool _showGettingStartedGuideHint = true;
   bool _enableCalendar = false;
   int _firstDayOfWeek = DateTime.monday; // 1 = Monday … 7 = Sunday
 
@@ -71,6 +72,7 @@ class AppSettings extends ChangeNotifier {
   bool get useMapBoxTiles => _useMapBoxTiles;
   bool get showStravaLinkGearHint => _showStravaLinkGearHint;
   bool get showGarageListHint => _showGarageListHint;
+  bool get showGettingStartedGuideHint => _showGettingStartedGuideHint;
   bool get enableCalendar => _enableCalendar;
   int get firstDayOfWeek => _firstDayOfWeek;
 
@@ -266,6 +268,13 @@ class AppSettings extends ChangeNotifier {
     _persistBool('showGarageListHint', newValue);
   }
 
+  set showGettingStartedGuideHint(bool newValue) {
+    if (newValue == _showGettingStartedGuideHint) return;
+    _showGettingStartedGuideHint = newValue;
+    notifyListeners();
+    _persistBool('showGettingStartedGuideHint', newValue);
+  }
+
   set enableCalendar(bool newValue) {
     if (newValue == _enableCalendar) return;
     _enableCalendar = newValue;
@@ -332,6 +341,7 @@ class AppSettings extends ChangeNotifier {
   void showAllHints() {
     showStravaLinkGearHint = true;
     showGarageListHint = true;
+    showGettingStartedGuideHint = true;
   }
 
   void _persistBool(String name, bool value) async {
@@ -385,6 +395,7 @@ class AppSettings extends ChangeNotifier {
       _useMapBoxTiles = prefs.getBool('${_kPrefix}useMapBoxTiles') ?? _useMapBoxTiles;
       _showStravaLinkGearHint = prefs.getBool('${_kPrefix}showStravaLinkGearHint') ?? _showStravaLinkGearHint;
       _showGarageListHint = prefs.getBool('${_kPrefix}showGarageListHint') ?? _showGarageListHint;
+      _showGettingStartedGuideHint = prefs.getBool('${_kPrefix}showGettingStartedGuideHint') ?? _showGettingStartedGuideHint;
       _enableCalendar = prefs.getBool('${_kPrefix}enableCalendar') ?? _enableCalendar;
       _firstDayOfWeek = prefs.getInt('${_kPrefix}firstDayOfWeek') ?? _firstDayOfWeek;
     } catch (e, st) {

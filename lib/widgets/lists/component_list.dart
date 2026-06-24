@@ -1,31 +1,37 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../models/component.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/component_actions.dart';
 import '../chips/component_list_filter_widget.dart';
+import '../empty_state_placeholder.dart';
 import '../items/component_list_card.dart';
 
 class ComponentList extends StatelessWidget {
   const ComponentList({super.key});
 
   Widget _emptyPlaceholder(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const ComponentListFilterWidget(),
-          Expanded(
-            child: Center(
-              child: Text(
-                'No components yet',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-              ),
+    return CustomScrollView(
+      slivers: [
+        const SliverPadding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+          sliver: SliverToBoxAdapter(child: ComponentListFilterWidget()),
+        ),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: EmptyStatePlaceholder(
+              icon: Component.iconData,
+              title: 'No components yet',
+              subtitle: 'Add your first component to track its settings.',
+              actionLabel: 'Add a component',
+              onAction: () => ComponentActions.addComponent(context),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

@@ -110,6 +110,12 @@ class DatabaseMigrationService {
       }
       batch.insertAllOnConflictUpdate(db.ratingMetrics, ratingMetricsToInsert);
 
+      // Rating Entries
+      batch.insertAllOnConflictUpdate(
+        db.ratingEntries,
+        data.ratingEntries.values.map((re) => re.toCompanion()),
+      );
+
       // -----------------------------------------------------------------------
       // Level 3: Events
       // -----------------------------------------------------------------------
@@ -150,6 +156,22 @@ class DatabaseMigrationService {
       }
 
       batch.insertAllOnConflictUpdate(db.setupAdjustmentValues, valuesToInsert);
+
+      // Rating Entry Values
+      final List<RatingEntryValuesCompanion> ratingEntryValuesToInsert = [];
+      for (final ratingEntry in data.ratingEntries.values) {
+        for (final entry in ratingEntry.metricValues.entries) {
+          if (entry.value == null) continue;
+          ratingEntryValuesToInsert.add(
+            RatingEntryValuesCompanion.insert(
+              ratingEntryId: ratingEntry.id,
+              ratingMetricId: entry.key,
+              value: entry.value.toString(),
+            ),
+          );
+        }
+      }
+      batch.insertAllOnConflictUpdate(db.ratingEntryValues, ratingEntryValuesToInsert);
     });
   }
 }

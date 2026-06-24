@@ -125,6 +125,7 @@ class _ShareSheetFlowState extends State<ShareSheetFlow> {
                 components: widget.appRepository.components,
                 setups: widget.appRepository.setups,
                 ratings: widget.appRepository.ratings,
+                ratingEntries: widget.appRepository.ratingEntries,
                 taskRules: widget.appRepository.taskRules,
                 taskEntries: widget.appRepository.taskEntries,
               )
@@ -139,6 +140,7 @@ class _ShareSheetFlowState extends State<ShareSheetFlow> {
               components: widget.appRepository.components,
               setups: widget.appRepository.setups,
               ratings: widget.appRepository.ratings,
+              ratingEntries: widget.appRepository.ratingEntries,
               taskRules: widget.appRepository.taskRules,
               taskEntries: widget.appRepository.taskEntries,
             ),

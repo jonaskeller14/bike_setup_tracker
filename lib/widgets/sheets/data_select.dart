@@ -1,4 +1,3 @@
-import "package:collection/collection.dart";
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 import "../../models/app_settings.dart";
@@ -6,11 +5,20 @@ import "../../models/bike.dart";
 import "../../models/component.dart";
 import "../../models/person.dart";
 import "../../models/rating.dart";
+import "../../models/rating_entry.dart";
 import "../../models/selected_data.dart";
 import "../../models/setup.dart";
 import "../../models/task/task_entry.dart";
 import "../../models/task/task_rule.dart";
 import "../../repositories/app_repository.dart";
+import "../items/data_select_bike.dart";
+import "../items/data_select_component.dart";
+import "../items/data_select_person.dart";
+import "../items/data_select_rating.dart";
+import "../items/data_select_rating_entry.dart";
+import "../items/data_select_setup.dart";
+import "../items/data_select_task_entry.dart";
+import "../items/data_select_task_rule.dart";
 import 'sheet.dart';
 
 Future<SelectedData?> showDataSelectSheet({required BuildContext context, required AppRepository data}) async {
@@ -56,6 +64,7 @@ class _DataSelectFlowState extends State<DataSelectFlow> {
                   components: widget.allData.components,
                   setups: widget.allData.setups,
                   ratings: widget.allData.ratings,
+                  ratingEntries: widget.allData.ratingEntries,
                   taskRules: widget.allData.taskRules,
                   taskEntries: widget.allData.taskEntries,
                 ),
@@ -69,6 +78,7 @@ class _DataSelectFlowState extends State<DataSelectFlow> {
                   components: widget.allData.components,
                   setups: widget.allData.setups,
                   ratings: widget.allData.ratings,
+                  ratingEntries: widget.allData.ratingEntries,
                   taskRules: widget.allData.taskRules,
                   taskEntries: widget.allData.taskEntries,
                 )),
@@ -161,6 +171,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
   late final List<Setup> selectedSetups;
   late final List<Person> selectedPersons;
   late final List<Rating> selectedRatings;
+  late final List<RatingEntry> selectedRatingEntries;
   late final List<TaskRule> selectedTaskRules;
   late final List<TaskEntry> selectedTaskEntries;
 
@@ -173,510 +184,11 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
     selectedSetups = widget.allData.setups.values.toList();
     selectedPersons = widget.allData.persons.values.toList();
     selectedRatings = widget.allData.ratings.values.toList();
+    selectedRatingEntries = widget.allData.ratingEntries.values.toList();
     selectedTaskRules = widget.allData.taskRules.values.toList();
     selectedTaskEntries = widget.allData.taskEntries.values.toList();
   }
 
-  Widget _bikeWidget(Bike bike) {
-    final appSettings = context.read<AppSettings>();
-    final persons = widget.allData.persons;
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4.0),
-      child: CheckboxListTile(
-        secondary: const Icon(Bike.iconData),
-        title: Text(
-          bike.name,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            decoration: bike.isDeleted ? TextDecoration.lineThrough : null,
-          ),
-        ),
-        subtitle: appSettings.enablePerson
-            ? Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 2,
-                children: [
-                  Icon(
-                    bike.person != null ? Person.iconData : Icons.person_off,
-                    size: 13,
-                    color:
-                        bike.person == null || persons.containsKey(bike.person)
-                        ? Theme.of(context).colorScheme.onSurfaceVariant
-                        : Theme.of(context).colorScheme.error,
-                  ),
-                  if (bike.person != null)
-                    Flexible(
-                      child: Text(
-                        persons[bike.person]?.name ?? "PERSON NOT FOUND",
-                        style: TextStyle(
-                          color:
-                              bike.person == null ||
-                                  persons.containsKey(bike.person)
-                              ? Theme.of(context).colorScheme.onSurfaceVariant
-                                    .withValues(alpha: 0.8)
-                              : Theme.of(context).colorScheme.error,
-                          fontSize: 13,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ),
-                ],
-              )
-            : null,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        dense: true,
-        value: selectedBikes.contains(bike),
-        onChanged: (bool? checked) {
-          setState(() {
-            if (checked == true) {
-              selectedBikes.add(bike);
-            } else {
-              selectedBikes.remove(bike);
-            }
-          });
-        },
-      ),
-    );
-  }
-
-  Widget _componentWidget(Component component) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4.0),
-      child: CheckboxListTile(
-        secondary: Icon(component.componentType.getIconData()),
-        title: Text(
-          component.name,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            decoration: component.isDeleted ? TextDecoration.lineThrough : null,
-          ),
-        ),
-        subtitle: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 2,
-          children: [
-            Icon(
-              component.bike != null ? Bike.iconData : Icons.shelves,
-              size: 13,
-              color: component.bike == null || widget.allData.bikes.containsKey(component.bike) 
-                  ? Theme.of(context).colorScheme.onSurfaceVariant
-                  : Theme.of(context).colorScheme.error,
-            ),
-            Flexible(
-              child: Text(
-                component.bike == null
-                    ? "Not installed"
-                    : widget.allData.bikes[component.bike]?.name ?? "BIKE NOT FOUND",
-                style: TextStyle(
-                  color: component.bike == null || widget.allData.bikes.containsKey(component.bike) 
-                      ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                      : Theme.of(context).colorScheme.error,
-                  fontSize: 13,
-                ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-            ),
-          ],
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        dense: true,
-        value: selectedComponents.contains(component),
-        onChanged: (bool? checked) {
-          setState(() {
-            if (checked == true) {
-              selectedComponents.add(component);
-            } else {
-              selectedComponents.remove(component);
-            }
-          });
-        },
-      ),
-    );
-  }
-
-  Widget _setupWidget(Setup setup) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4.0),
-      child: CheckboxListTile(
-        secondary: const Icon(Setup.iconData),
-        title: Text(
-          setup.displayName,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            decoration: setup.isDeleted ? TextDecoration.lineThrough : null,
-          ),
-        ),
-        subtitle: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 2,
-          children: [
-            Icon(Bike.iconData, 
-              size: 13,
-              color: widget.allData.bikes.containsKey(setup.bike)
-                  ? Theme.of(context).colorScheme.onSurfaceVariant
-                  : Theme.of(context).colorScheme.error,
-            ),
-            Flexible(
-              child: Text(
-                widget.allData.bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
-                style: TextStyle(
-                  color: widget.allData.bikes.containsKey(setup.bike)
-                      ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                      : Theme.of(context).colorScheme.error,
-                  fontSize: 13,
-                ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-            ),
-          ],
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        dense: true,
-        value: selectedSetups.contains(setup),
-        onChanged: (bool? checked) {
-          setState(() {
-            if (checked == true) {
-              selectedSetups.add(setup);
-            } else {
-              selectedSetups.remove(setup);
-            }
-          });
-        },
-      ),
-    );
-  }
-
-  Widget _personWidget(Person person) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4.0),
-      child: CheckboxListTile(
-        secondary: const Icon(Person.iconData),
-        title: Text(
-          person.name,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            decoration: person.isDeleted ? TextDecoration.lineThrough : null,
-          ),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        dense: true,
-        value: selectedPersons.contains(person),
-        onChanged: (bool? checked) {
-          setState(() {
-            if (checked == true) {
-              selectedPersons.add(person);
-            } else {
-              selectedPersons.remove(person);
-            }
-          });
-        },
-      ),
-    );
-  }
-
-  Widget _ratingWidget(Rating rating) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4.0),
-      child: CheckboxListTile(
-        secondary: const Icon(Rating.iconData),
-        title: Text(
-          rating.name,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            decoration: rating.isDeleted ? TextDecoration.lineThrough : null,
-          ),
-        ),
-        subtitle: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 2,
-          children: [
-            Icon(
-              switch (rating.filterType) {
-                FilterType.global => Icons.circle_outlined,
-                FilterType.bike => Bike.iconData,
-                FilterType.person => Person.iconData,
-                FilterType.component =>
-                  (widget.allData.components[rating.filter]?.componentType ??
-                          ComponentType.other)
-                      .getIconData(),
-                FilterType.componentType =>
-                  (ComponentType.values.firstWhereOrNull(
-                            (ct) => ct.toString() == rating.filter,
-                          ) ??
-                          ComponentType.other)
-                      .getIconData(),
-              },
-              size: 13,
-              color: switch (rating.filterType) {
-                FilterType.global || FilterType.componentType => Theme.of(
-                  context,
-                ).colorScheme.onSurfaceVariant,
-                FilterType.person =>
-                  widget.allData.persons.containsKey(rating.filter)
-                      ? Theme.of(context).colorScheme.onSurfaceVariant
-                      : Theme.of(context).colorScheme.error,
-                FilterType.bike =>
-                  widget.allData.bikes.containsKey(rating.filter)
-                      ? Theme.of(context).colorScheme.onSurfaceVariant
-                      : Theme.of(context).colorScheme.error,
-                FilterType.component =>
-                  widget.allData.components.containsKey(rating.filter)
-                      ? Theme.of(context).colorScheme.onSurfaceVariant
-                      : Theme.of(context).colorScheme.error,
-              },
-            ),
-            Flexible(
-              child: switch (rating.filterType) {
-                FilterType.global => Text(
-                  "Global",
-                  style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                    fontSize: 13,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-                FilterType.bike => Text(
-                  widget.allData.bikes[rating.filter]?.name ?? "BIKE NOT FOUND",
-                  style: TextStyle(
-                    color: widget.allData.bikes.containsKey(rating.filter)
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                        : Theme.of(context).colorScheme.error,
-                    fontSize: 13,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-                FilterType.person => Text(
-                  widget.allData.persons[rating.filter]?.name ??
-                      "PERSON NOT FOUND",
-                  style: TextStyle(
-                    color: widget.allData.persons.containsKey(rating.filter)
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                        : Theme.of(context).colorScheme.error,
-                    fontSize: 13,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-                FilterType.component => Text(
-                  widget.allData.components[rating.filter]?.name ??
-                      "COMPONENT NOT FOUND",
-                  style: TextStyle(
-                    color: widget.allData.components.containsKey(rating.filter)
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                        : Theme.of(context).colorScheme.error,
-                    fontSize: 13,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-                FilterType.componentType => Text(
-                  ComponentType.values
-                          .firstWhereOrNull(
-                            (ct) => ct.toString() == rating.filter,
-                          )
-                          ?.label ??
-                      "-",
-                  style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                    fontSize: 13,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-              },
-            ),
-          ],
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        dense: true,
-        value: selectedRatings.contains(rating),
-        onChanged: (bool? checked) {
-          setState(() {
-            if (checked == true) {
-              selectedRatings.add(rating);
-            } else {
-              selectedRatings.remove(rating);
-            }
-          });
-        },
-      ),
-    );
-  }
-
-  Widget _taskRuleWidget(TaskRule taskRule) {
-    final component = taskRule.componentId != null
-        ? widget.allData.components[taskRule.componentId]
-        : null;
-    final bike = taskRule.bikeId != null
-        ? widget.allData.bikes[taskRule.bikeId]
-        : (component?.bike != null
-              ? widget.allData.bikes[component!.bike]
-              : null);
-
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4.0),
-      child: CheckboxListTile(
-        secondary: const Icon(Icons.check_box_outline_blank),
-        title: Text(
-          taskRule.name,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            decoration: taskRule.isDeleted ? TextDecoration.lineThrough : null,
-          ),
-        ),
-        subtitle: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 2,
-          children: [
-            if (taskRule.componentId != null) ...[
-              Icon(
-                component?.componentType.getIconData() ?? Icons.grid_view_sharp,
-                size: 13,
-                color: component != null
-                    ? Theme.of(context).colorScheme.onSurfaceVariant
-                    : Theme.of(context).colorScheme.error,
-              ),
-              Flexible(
-                child: Text(
-                  component?.name ?? "COMPONENT NOT FOUND",
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: component != null
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                        : Theme.of(context).colorScheme.error,
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-            ] else if (taskRule.bikeId != null) ...[
-              Icon(
-                Bike.iconData,
-                size: 13,
-                color: bike != null
-                    ? Theme.of(context).colorScheme.onSurfaceVariant
-                    : Theme.of(context).colorScheme.error,
-              ),
-              Flexible(
-                child: Text(
-                  bike?.name ?? "BIKE NOT FOUND",
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: bike != null
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                        : Theme.of(context).colorScheme.error,
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-            ] else ...[
-              Icon(
-                Icons.circle_outlined,
-                size: 13,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-              Flexible(
-                child: Text(
-                  "General Task",
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        dense: true,
-        value: selectedTaskRules.contains(taskRule),
-        onChanged: (bool? checked) {
-          setState(() {
-            if (checked == true) {
-              selectedTaskRules.add(taskRule);
-            } else {
-              selectedTaskRules.remove(taskRule);
-            }
-          });
-        },
-      ),
-    );
-  }
-
-  Widget _taskEntryWidget(TaskEntry taskEntry) {
-    final taskRules = widget.allData.taskRules;
-
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4.0),
-      child: CheckboxListTile(
-        secondary: const Icon(Icons.check_box_outlined),
-        title: Text(
-          taskEntry.name,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            decoration: taskEntry.isDeleted ? TextDecoration.lineThrough : null,
-          ),
-        ),
-        subtitle: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 2,
-          children: [
-            Icon(
-              Icons.check_box_outlined,
-              size: 13,
-              color: taskRules.containsKey(taskEntry.taskRule)
-                  ? Theme.of(context).colorScheme.onSurfaceVariant
-                  : Theme.of(context).colorScheme.error,
-            ),
-            Flexible(
-              child: Text(
-                taskRules[taskEntry.taskRule]?.name ?? "TASK NOT FOUND",
-                style: TextStyle(
-                  color: taskRules.containsKey(taskEntry.taskRule)
-                      ? Theme.of(
-                          context,
-                        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                      : Theme.of(context).colorScheme.error,
-                  fontSize: 13,
-                ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-            ),
-          ],
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        dense: true,
-        value: selectedTaskEntries.contains(taskEntry),
-        onChanged: (bool? checked) {
-          setState(() {
-            if (checked == true) {
-              selectedTaskEntries.add(taskEntry);
-            } else {
-              selectedTaskEntries.remove(taskEntry);
-            }
-          });
-        },
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -739,7 +251,20 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                         }
                       },
                     ),
-                    children: widget.allData.bikes.values.map((b) => _bikeWidget(b)).toList(),
+                    children: widget.allData.bikes.values.map((b) => DataSelectBike(
+                      bike: b,
+                      persons: widget.allData.persons,
+                      isSelected: selectedBikes.contains(b),
+                      onChanged: (checked) {
+                        setState(() { 
+                          if (checked == true) {
+                            selectedBikes.add(b);
+                          } else {
+                            selectedBikes.remove(b);
+                          } 
+                        });
+                      },
+                    )).toList(),
                   ),
                   const SizedBox(height: 16),
                   ExpansionTile(
@@ -762,7 +287,20 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                         }
                       },
                     ),
-                    children: widget.allData.components.values.map((c) => _componentWidget(c)).toList(),
+                    children: widget.allData.components.values.map((c) => DataSelectComponent(
+                      component: c,
+                      bikes: widget.allData.bikes,
+                      isSelected: selectedComponents.contains(c),
+                      onChanged: (checked) {
+                        setState(() {
+                          if (checked == true) {
+                            selectedComponents.add(c);
+                          } else {
+                            selectedComponents.remove(c);
+                          }
+                        });
+                      },
+                    )).toList(),
                   ),
                   const SizedBox(height: 16),
                   ExpansionTile(
@@ -785,7 +323,20 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                         }
                       },
                     ),
-                    children: widget.allData.setups.values.toList().reversed.map((s) => _setupWidget(s)).toList(),
+                    children: widget.allData.setups.values.toList().reversed.map((s) => DataSelectSetup(
+                      setup: s,
+                      bikes: widget.allData.bikes,
+                      isSelected: selectedSetups.contains(s),
+                      onChanged: (checked) {
+                        setState(() {
+                          if (checked == true) {
+                            selectedSetups.add(s);
+                          } else {
+                            selectedSetups.remove(s);
+                          }
+                        });
+                      },
+                    )).toList(),
                   ),
                   if (appSettings.enablePerson || widget.allData.persons.isNotEmpty) ...[
                     const SizedBox(height: 16),
@@ -809,7 +360,19 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                           }
                         },
                       ),
-                      children: widget.allData.persons.values.map((p) => _personWidget(p)).toList(),
+                      children: widget.allData.persons.values.map((p) => DataSelectPerson(
+                        item: p,
+                        isSelected: selectedPersons.contains(p),
+                        onChanged: (checked) {
+                          setState(() {
+                            if (checked == true) {
+                              selectedPersons.add(p);
+                            } else {
+                              selectedPersons.remove(p);
+                            }
+                          });
+                        },
+                      )).toList(),
                     ),
                   ],
                   if (appSettings.enableRating || widget.allData.ratings.isNotEmpty) ...[
@@ -834,7 +397,60 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                           }
                         },
                       ),
-                      children: widget.allData.ratings.values.map((r) => _ratingWidget(r)).toList(),
+                      children: widget.allData.ratings.values.map((r) => DataSelectRating(
+                        item: r,
+                        bikes: widget.allData.bikes,
+                        persons: widget.allData.persons,
+                        components: widget.allData.components,
+                        isSelected: selectedRatings.contains(r),
+                        onChanged: (checked) {
+                          setState(() {
+                            if (checked == true) {
+                              selectedRatings.add(r);
+                            } else {
+                              selectedRatings.remove(r);
+                            }
+                          });
+                        },
+                      )).toList(),
+                    ),
+                  ],
+                  if (appSettings.enableRating || widget.allData.ratingEntries.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    ExpansionTile(
+                      title: Text("Rating Entries (${selectedRatingEntries.length} / ${widget.allData.ratingEntries.length})", style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
+                      shape: const Border(),
+                      collapsedShape: const Border(),
+                      trailing: Checkbox(
+                        tristate: true,
+                        value: selectedRatingEntries.isEmpty && widget.allData.ratingEntries.isNotEmpty
+                            ? false
+                            : (selectedRatingEntries.length == widget.allData.ratingEntries.length ? true : null),
+                        onChanged: (bool? newValue) {
+                          switch (newValue) {
+                            case false: setState(() => selectedRatingEntries.clear());
+                            case true: setState(() {selectedRatingEntries.clear(); selectedRatingEntries.addAll(widget.allData.ratingEntries.values);});
+                            case null: setState(() => selectedRatingEntries.clear());
+                          }
+                        },
+                      ),
+                      children: widget.allData.ratingEntries.values.map((re) => DataSelectRatingEntry(
+                        item: re,
+                        bikes: widget.allData.bikes,
+                        isSelected: selectedRatingEntries.contains(re),
+                        onChanged: (checked) {
+                          setState(() {
+                            if (checked == true) {
+                              selectedRatingEntries.add(re);
+                            } else {
+                              selectedRatingEntries.remove(re);
+                            } 
+                          });
+                        },
+                      )).toList(),
                     ),
                   ],
                   if (appSettings.enableTask || widget.allData.taskRules.isNotEmpty) ... [
@@ -859,7 +475,21 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                           }
                         },
                       ),
-                      children: widget.allData.taskRules.values.map((tr) => _taskRuleWidget(tr)).toList(),
+                      children: widget.allData.taskRules.values.map((tr) => DataSelectTaskRule(
+                        item: tr,
+                        bikes: widget.allData.bikes,
+                        components: widget.allData.components,
+                        isSelected: selectedTaskRules.contains(tr),
+                        onChanged: (checked) {
+                          setState(() {
+                            if (checked == true) {
+                              selectedTaskRules.add(tr);
+                            } else {
+                              selectedTaskRules.remove(tr);
+                            }
+                          });
+                        },
+                      )).toList(),
                     ),
                   ],
                   if (appSettings.enableTask || widget.allData.taskEntries.isNotEmpty) ...[
@@ -884,7 +514,20 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                           }
                         },
                       ),
-                      children: widget.allData.taskEntries.values.map((te) => _taskEntryWidget(te)).toList(),
+                      children: widget.allData.taskEntries.values.map((te) => DataSelectTaskEntry(
+                        item: te,
+                        taskRules: widget.allData.taskRules,
+                        isSelected: selectedTaskEntries.contains(te),
+                        onChanged: (checked) {
+                          setState(() {
+                            if (checked == true) {
+                              selectedTaskEntries.add(te);
+                            } else {
+                              selectedTaskEntries.remove(te);
+                            }
+                          });
+                        },
+                      )).toList(),
                     ),
                   ],
                 ],
@@ -903,6 +546,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                   components: Map.fromEntries(selectedComponents.map((c) => MapEntry(c.id, c))),
                   setups: Map.fromEntries(selectedSetups.map((s) => MapEntry(s.id, s))),
                   ratings: Map.fromEntries(selectedRatings.map((r) => MapEntry(r.id, r))),
+                  ratingEntries: Map.fromEntries(selectedRatingEntries.map((re) => MapEntry(re.id, re))),
                   taskRules: Map.fromEntries(selectedTaskRules.map((tr) => MapEntry(tr.id, tr))),
                   taskEntries: Map.fromEntries(selectedTaskEntries.map((te) => MapEntry(te.id, te))),
                 );

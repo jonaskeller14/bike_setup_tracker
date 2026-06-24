@@ -186,6 +186,7 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
               components: _remoteAllData!.components,
               setups: _remoteAllData!.setups,
               ratings: _remoteAllData!.ratings,
+              ratingEntries: _remoteAllData!.ratingEntries,
               taskRules: _remoteAllData!.taskRules,
               taskEntries: _remoteAllData!.taskEntries,
             ),

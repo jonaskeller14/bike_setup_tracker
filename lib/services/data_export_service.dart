@@ -15,10 +15,11 @@ class DataExportService {
     final setups = await database.setupsDao.getAllSetupsWithValuesBypass();
     final persons = await database.personsDao.getAllPersonsWithDataBypass();
     final ratings = await database.ratingsDao.getAllRatingsWithDataBypass();
-    
+    final ratingEntries = await database.ratingEntriesDao.getAllRatingEntriesWithValuesBypass();
+
     final taskRules = await database.taskDao.getAllRulesBypass();
     final taskEntries = await database.taskDao.getAllEntriesBypass();
-    
+
     final athletes = includeStrava ? await database.stravaDao.getAllAthletesBypass() : <StravaAthleteDb>[];
     final gears = includeStrava ? await database.stravaDao.getAllGearsBypass() : <StravaGearDb>[];
     final activities = includeStrava ? await database.stravaDao.getAllActivitiesBypass() : <StravaActivityDb>[];
@@ -51,6 +52,12 @@ class DataExportService {
           .where((r) => subset == null || subset.ratings.containsKey(r.rating.id))
           .map((r) => r.rating.toModel(
                 metrics: r.metrics.map((m) => m.toModel()).toList(),
+              ).toJson())
+          .toList(),
+      'ratingEntries': ratingEntries
+          .where((re) => subset == null || subset.ratingEntries.containsKey(re.entry.id))
+          .map((re) => re.entry.toModel(
+                values: re.values,
               ).toJson())
           .toList(),
       'taskRules': taskRules.map((tr) => tr.toModel().toJson()).toList(),

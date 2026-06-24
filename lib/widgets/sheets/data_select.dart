@@ -199,6 +199,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
         widget.allData.setups.length +
         widget.allData.persons.length +
         widget.allData.ratings.length +
+        widget.allData.ratingEntries.length +
         widget.allData.taskRules.length +
         widget.allData.taskEntries.length;
     final selectedCount = selectedBikes.length +
@@ -206,6 +207,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
         selectedSetups.length +
         selectedPersons.length +
         selectedRatings.length +
+        selectedRatingEntries.length +
         selectedTaskRules.length +
         selectedTaskEntries.length;
 

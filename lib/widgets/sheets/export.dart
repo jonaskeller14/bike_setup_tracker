@@ -139,9 +139,10 @@ class _ExportSheetFlowState extends State<ExportSheetFlow> {
               components: widget.allData.components,
               setups: widget.allData.setups,
               ratings: widget.allData.ratings,
+              ratingEntries: widget.allData.ratingEntries,
               taskRules: widget.allData.taskRules,
               taskEntries: widget.allData.taskEntries,
-            ), 
+            ),
             onConfirm: (SelectedData selected) => Navigator.of(context).pop(ExportResult(
               exportDestination: ExportDestination.file, 
               selectedData: selected,

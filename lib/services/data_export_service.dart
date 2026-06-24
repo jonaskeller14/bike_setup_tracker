@@ -60,8 +60,14 @@ class DataExportService {
                 values: re.values,
               ).toJson())
           .toList(),
-      'taskRules': taskRules.map((tr) => tr.toModel().toJson()).toList(),
-      'taskEntries': taskEntries.map((te) => te.toModel().toJson()).toList(),
+      'taskRules': taskRules
+          .where((tr) => subset == null || subset.taskRules.containsKey(tr.id))
+          .map((tr) => tr.toModel().toJson())
+          .toList(),
+      'taskEntries': taskEntries
+          .where((te) => subset == null || subset.taskEntries.containsKey(te.id))
+          .map((te) => te.toModel().toJson())
+          .toList(),
       if (includeStrava) ...{
         'stravaAthletes': athletes.map((a) => a.toModel().toJson()).toList(),
         'stravaGears': gears.map((g) => g.toModel().toJson()).toList(),

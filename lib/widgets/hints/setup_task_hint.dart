@@ -65,7 +65,7 @@ class SetupTaskHint extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Keep a bike to-do list',
+                          'Organize your bike tasks',
                           style: textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: colors.onSurface,

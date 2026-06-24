@@ -796,5 +796,49 @@ void main() {
       expect(healed.snapshot, isNotNull);
       expect(healed.toModel().snapshot?.distance, 100000.0); // healed
     });
+
+    test("importing entries with broken component links succeeds with zero stats", () async {
+      // Import data with a task entry that references a non-existent component.
+      // This can happen when components are deleted but task entries survive.
+      const taskRuleId = "rule_1";
+      const componentId = "nonexistent_comp";
+      final entryDate = DateTime.utc(2024, 1, 2);
+
+      final entry = TaskEntry(
+        name: "Task for missing component",
+        taskRule: taskRuleId,
+        componentId: componentId,
+        dateTimeUTC: entryDate,
+        dateTimeLocal: entryDate.toLocal(),
+        snapshot: const ComponentStats(
+          distance: 500000.0, // stale/foreign value
+          elevationGain: 5000.0,
+          movingTime: Duration(hours: 20),
+          elapsedTime: Duration(hours: 25),
+          activityCount: 50,
+        ),
+      );
+
+      final remoteData = SelectedData(
+        taskRules: {taskRuleId: TaskRule(name: "Orphaned Rule", componentId: componentId, tags: const {})},
+        taskEntries: {entry.id: entry},
+      );
+
+      // Import should succeed without crashing ("Bad state: no element").
+      await FileImport.replace(remoteData: remoteData, database: database);
+      await pumpEventQueue();
+
+      // After import, refreshing snapshots should not crash and should default to zero.
+      await repository.refreshTaskEntrySnapshots();
+      await pumpEventQueue();
+
+      // The entry should be in the DB with zero stats (since component doesn't exist).
+      final dbEntries = await database.taskDao.getAllEntriesBypass();
+      final importedEntry = dbEntries.firstWhere((e) => e.id == entry.id).toModel();
+      expect(importedEntry.snapshot, isNotNull);
+      expect(importedEntry.snapshot!.distance, 0.0);
+      expect(importedEntry.snapshot!.elevationGain, 0.0);
+      expect(importedEntry.snapshot!.activityCount, 0);
+    });
   });
 }

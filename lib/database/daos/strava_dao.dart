@@ -241,7 +241,9 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
       ],
     );
 
-    final row = await query.getSingle();
+    final row = await query.getSingleOrNull();
+    if (row == null) return ComponentStats.zero();
+
     return ComponentStats(
       distance: row.read<double>('distance'),
       elevationGain: row.read<double>('elevation'),

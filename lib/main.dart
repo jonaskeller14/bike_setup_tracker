@@ -25,7 +25,6 @@ import 'services/quick_actions_service.dart';
 import 'services/strava_service.dart';
 import 'services/subscription_service.dart';
 import 'theme.dart';
-import 'utils/file_export.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -93,7 +92,7 @@ class LoadingGate extends StatelessWidget {
         debugPrint("Migration inserted data successfully.");
         
         // Save a backup of the final JSON state just in case.
-        await FileExport.saveBackup(context: null, database: appRepository.database);
+        await BackupService.saveBackup(context: null, database: appRepository.database);
       }
       debugPrint("Database migration completed.");
     }

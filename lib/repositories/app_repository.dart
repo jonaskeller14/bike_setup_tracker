@@ -21,9 +21,9 @@ import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
+import '../services/backup_service.dart';
 import '../services/rating_score_service.dart';
 import '../services/setup_resolution_service.dart';
-import '../utils/file_export.dart';
 
 class AppRepository extends ChangeNotifier {
   final AppDatabase database;
@@ -301,7 +301,7 @@ class AppRepository extends ChangeNotifier {
   }
 
   Future<void> initialize() async {
-    FileExport.deleteOldBackups();
+    BackupService.deleteOldBackups();
     unawaited(initialStravaLoad());
   }
 

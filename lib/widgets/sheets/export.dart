@@ -5,6 +5,7 @@ import '../../icons/simple_icons.dart';
 import '../../models/app_settings.dart';
 import '../../models/selected_data.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/backup_service.dart';
 import '../../services/google_drive_service.dart';
 import '../../utils/file_export.dart';
 import 'data_select.dart';
@@ -30,7 +31,7 @@ Future<void> exportData(BuildContext context) async {
       database: context.read<AppDatabase>(),
       selectedData: exportResult.selectedData,
     );
-    case ExportDestination.backup: FileExport.saveBackup(
+    case ExportDestination.backup: BackupService.saveBackup(
       context: context, 
       database: context.read<AppDatabase>(), 
       force: true

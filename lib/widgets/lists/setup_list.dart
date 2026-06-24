@@ -10,6 +10,9 @@ import '../../services/subscription_service.dart';
 import '../../utils/setup_actions.dart';
 import '../chips/setup_list_filter_widget.dart';
 import '../empty_state_placeholder.dart';
+import '../hints/setup_calendar_hint.dart';
+import '../hints/setup_hint_selection.dart';
+import '../hints/setup_task_hint.dart';
 import '../items/installation_list_tile.dart';
 import '../items/rating_entry_list_tile.dart';
 import '../items/setup_list_card.dart';
@@ -104,9 +107,19 @@ class SetupList extends StatelessWidget {
           })
           .map((re) => RatingEntryTimelineEntry(re)),
     ];
-    entries.sort((a, b) => sortAscending 
-        ? a.date.compareTo(b.date) 
+    entries.sort((a, b) => sortAscending
+        ? a.date.compareTo(b.date)
         : b.date.compareTo(a.date));
+
+    final Widget? hint = switch (selectSetupHint(
+      settings: appSettings,
+      setupCount: setupsList.length,
+      stravaActivityCount: stravaActivities.length,
+    )) {
+      SetupHint.task => const SetupTaskHint(),
+      SetupHint.calendar => const SetupCalendarHint(),
+      SetupHint.none => null,
+    };
 
     return entries.isEmpty && !appRepository.isLoadingMoreStrava
         ? _emptyPlaceholder(context)
@@ -115,7 +128,16 @@ class SetupList extends StatelessWidget {
             itemCount: entries.length + 1 + (appRepository.isLoadingMoreStrava ? 1 : 0), // 1 header + optional loader
             itemBuilder: (context, index) {
               if (index == 0) {
-                return const SetupListFilterWidget();
+                if (hint == null) return const SetupListFilterWidget();
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 8,
+                  children: [
+                    hint,
+                    const SetupListFilterWidget(),
+                  ],
+                );
               }
 
               if (index > entries.length) {

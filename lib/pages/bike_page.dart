@@ -148,6 +148,10 @@ class _BikePageState extends State<BikePage> {
         labelText: 'Bike Owner',
         border: const OutlineInputBorder(),
         hintText: "Choose an owner for this bike",
+        helperText: persons.isEmpty
+            ? "You can assign an owner later, as soon as you've created a person."
+            : null,
+        helperMaxLines: 99,
         fillColor: Colors.orange.withValues(alpha: 0.08),
         filled: widget.mode == BikePageMode.edit && _person != _initialPerson,
       ),

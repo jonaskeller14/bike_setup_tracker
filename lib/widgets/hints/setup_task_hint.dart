@@ -3,15 +3,11 @@ import 'package:flutter/widget_previews.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 
-class GarageListHint extends StatelessWidget {
-  static const _tips = [
-    'Drag component icons to reorder, swap them to other bikes, or drop them into Uninstalled.',
-    'Double-tap a component icon to view its setup history, notes, and charts.',
-    'Double-tap a bike card to quickly filter your view and focus on its parts.',
-  ];
-
-  @Preview(name: "GarageListHint", group: "Hints")
-  const GarageListHint({super.key});
+/// Suggestion hint shown in the Setup timeline once the user has recorded at
+/// least one setup, nudging them to turn on Task Management.
+class SetupTaskHint extends StatelessWidget {
+  @Preview(name: "SetupTaskHint", group: "Hints")
+  const SetupTaskHint({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -53,12 +49,12 @@ class GarageListHint extends StatelessWidget {
                           spacing: 6,
                           children: [
                             Icon(
-                              Icons.touch_app_outlined,
+                              Icons.checklist,
                               size: 14,
                               color: colors.tertiary,
                             ),
                             Text(
-                              'TIPS',
+                              'SUGGESTION',
                               style: textTheme.labelSmall?.copyWith(
                                 color: colors.tertiary,
                                 fontWeight: FontWeight.bold,
@@ -69,50 +65,35 @@ class GarageListHint extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Gestures in Garage',
+                          'Keep a bike to-do list',
                           style: textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: colors.onSurface,
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        ..._tips.map(
-                          (tip) => Padding(
-                            padding: const EdgeInsets.only(bottom: 4),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              spacing: 8,
-                              children: [
-                                Container(
-                                  width: 18,
-                                  height: 18,
-                                  decoration: BoxDecoration(
-                                    color: colors.tertiary.withValues(
-                                      alpha: 0.15,
-                                    ),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    '${_tips.indexOf(tip) + 1}',
-                                    style: textTheme.labelSmall?.copyWith(
-                                      color: colors.tertiary,
-                                      fontWeight: FontWeight.bold,
-                                      height: 1.0,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    tip,
-                                    style: textTheme.bodySmall?.copyWith(
-                                      color: colors.onSurfaceVariant,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                        const SizedBox(height: 3),
+                        Text(
+                          'Turn on Task Management to note anything bike related — maintenance, tweaks to try, or trails to ride.',
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colors.onSurfaceVariant,
                           ),
+                        ),
+                        const SizedBox(height: 10),
+                        FilledButton.tonalIcon(
+                          onPressed: () {
+                            final settings = context.read<AppSettings>();
+                            settings.enableTask = true;
+                            settings.hintShownThisSession = true;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                persist: false,
+                                showCloseIcon: true,
+                                content: Text('Task Management enabled'),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.add_task, size: 18),
+                          label: const Text('Turn on Task Management'),
                         ),
                       ],
                     ),
@@ -120,9 +101,9 @@ class GarageListHint extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: () {
-                    final appSettings = context.read<AppSettings>();
-                    appSettings.showGarageListHint = false;
-                    appSettings.hintShownThisSession = true;
+                    final settings = context.read<AppSettings>();
+                    settings.showSetupTaskHint = false;
+                    settings.hintShownThisSession = true;
                   },
                   icon: const Icon(Icons.close, size: 18),
                   color: colors.tertiary,

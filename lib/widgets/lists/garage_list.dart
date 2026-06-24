@@ -134,7 +134,7 @@ class _GarageListState extends State<GarageList> {
               spacing: 8,
               children: [
                 const GettingStartedGuideHint(),
-                if (appRepository.bikes.length >= 2 && appRepository.components.isNotEmpty && appSettings.showGarageListHint)
+                if (appRepository.bikes.length >= 2 && appRepository.components.isNotEmpty && appSettings.showGarageListHint && !appSettings.hintShownThisSession)
                   const GarageListHint(),
                 const BikeListFilterWidget(),
               ],

@@ -33,6 +33,8 @@ class AppSettings extends ChangeNotifier {
   bool _showStravaLinkGearHint = true;
   bool _showGarageListHint = true;
   bool _showGettingStartedGuideHint = true;
+  bool _showSetupTaskHint = true;
+  bool _showSetupCalendarHint = true;
   bool _enableCalendar = false;
   int _firstDayOfWeek = DateTime.monday; // 1 = Monday … 7 = Sunday
 
@@ -45,6 +47,7 @@ class AppSettings extends ChangeNotifier {
   bool _displayShowInstallations = true;
   bool _displayShowTasks = true;
   bool _displayShowRatingEntries = true;
+  bool _hintShownThisSession = false;
 
   bool get showOnboarding => _showOnboarding;
   ThemeMode get themeMode => _themeMode;
@@ -73,6 +76,9 @@ class AppSettings extends ChangeNotifier {
   bool get showStravaLinkGearHint => _showStravaLinkGearHint;
   bool get showGarageListHint => _showGarageListHint;
   bool get showGettingStartedGuideHint => _showGettingStartedGuideHint;
+  bool get showSetupTaskHint => _showSetupTaskHint;
+  bool get showSetupCalendarHint => _showSetupCalendarHint;
+  bool get hintShownThisSession => _hintShownThisSession;
   bool get enableCalendar => _enableCalendar;
   int get firstDayOfWeek => _firstDayOfWeek;
 
@@ -275,6 +281,20 @@ class AppSettings extends ChangeNotifier {
     _persistBool('showGettingStartedGuideHint', newValue);
   }
 
+  set showSetupTaskHint(bool newValue) {
+    if (newValue == _showSetupTaskHint) return;
+    _showSetupTaskHint = newValue;
+    notifyListeners();
+    _persistBool('showSetupTaskHint', newValue);
+  }
+
+  set showSetupCalendarHint(bool newValue) {
+    if (newValue == _showSetupCalendarHint) return;
+    _showSetupCalendarHint = newValue;
+    notifyListeners();
+    _persistBool('showSetupCalendarHint', newValue);
+  }
+
   set enableCalendar(bool newValue) {
     if (newValue == _enableCalendar) return;
     _enableCalendar = newValue;
@@ -290,6 +310,12 @@ class AppSettings extends ChangeNotifier {
   }
 
   // Temporary (in-memory only)
+  set hintShownThisSession(bool newValue) {
+    if (newValue == _hintShownThisSession) return;
+    _hintShownThisSession = newValue;
+    notifyListeners();
+  }
+
   set setupListOnlyChanges(bool newValue) {
     if (newValue == setupListOnlyChanges) return;
     _setupListOnlyChanges = newValue;
@@ -342,6 +368,9 @@ class AppSettings extends ChangeNotifier {
     showStravaLinkGearHint = true;
     showGarageListHint = true;
     showGettingStartedGuideHint = true;
+    showSetupTaskHint = true;
+    showSetupCalendarHint = true;
+    hintShownThisSession = false;
   }
 
   void _persistBool(String name, bool value) async {
@@ -396,6 +425,8 @@ class AppSettings extends ChangeNotifier {
       _showStravaLinkGearHint = prefs.getBool('${_kPrefix}showStravaLinkGearHint') ?? _showStravaLinkGearHint;
       _showGarageListHint = prefs.getBool('${_kPrefix}showGarageListHint') ?? _showGarageListHint;
       _showGettingStartedGuideHint = prefs.getBool('${_kPrefix}showGettingStartedGuideHint') ?? _showGettingStartedGuideHint;
+      _showSetupTaskHint = prefs.getBool('${_kPrefix}showSetupTaskHint') ?? _showSetupTaskHint;
+      _showSetupCalendarHint = prefs.getBool('${_kPrefix}showSetupCalendarHint') ?? _showSetupCalendarHint;
       _enableCalendar = prefs.getBool('${_kPrefix}enableCalendar') ?? _enableCalendar;
       _firstDayOfWeek = prefs.getInt('${_kPrefix}firstDayOfWeek') ?? _firstDayOfWeek;
     } catch (e, st) {

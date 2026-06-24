@@ -45,6 +45,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
   late TextEditingController _maxController;
   late TextEditingController _unitController;
   late AdjustmentCategory _category;
+  late String? _initialUnit;
 
   String? _previewValue;
   late NumericalAdjustment _previewAdjustment;
@@ -62,13 +63,14 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     _maxController.addListener(_changeListener);
     _unitController = TextEditingController(text: widget.adjustment?.unit);
     _unitController.addListener(_changeListener);
+    _initialUnit = widget.adjustment?.unit;
 
-    _category = widget.adjustment?.category 
-        ?? widget.categories.firstOrNull 
+    _category = widget.adjustment?.category
+        ?? widget.categories.firstOrNull
         ?? AdjustmentCategory.component;
 
     _previewAdjustment = widget.adjustment ?? NumericalAdjustment(
-      name: '', 
+      name: '',
       notes: null,
       unit: null,
       category: _category,
@@ -263,10 +265,13 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             ),
                           ],
                           const SizedBox(height: 12),
-                          if (widget.mode == AdjustmentPageMode.edit) ...[
-                            const ListTile(
-                              leading: Icon(Icons.warning),
-                              title: Text('WARNING: Editing Unit will not update existing setup values!'),
+                          if (widget.mode == AdjustmentPageMode.edit && _unitController.text.trim() != (_initialUnit ?? '')) ...[
+                            ListTile(
+                              leading: Icon(Icons.warning, color: Theme.of(context).colorScheme.error),
+                              title: Text(
+                                'WARNING: Editing Unit will not update existing setup values!',
+                                style: TextStyle(color: Theme.of(context).colorScheme.error),
+                              ),
                               dense: true,
                               contentPadding: EdgeInsets.zero,
                             ),

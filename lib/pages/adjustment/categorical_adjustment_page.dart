@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../widgets/dialogs/discard_changes.dart';
@@ -42,6 +43,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
   late TextEditingController _notesController;
   late List<TextEditingController> _optionControllers;
   late AdjustmentCategory _category;
+  late Set<String> _initialOptions;
 
   String? _previewValue;
   late CategoricalAdjustment _previewAdjustment;
@@ -61,9 +63,10 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
     for (final optionController in _optionControllers) {
       optionController.addListener(_changeListener);
     }
+    _initialOptions = widget.adjustment?.options.toSet() ?? {};
 
-    _category = widget.adjustment?.category 
-        ?? widget.categories.firstOrNull 
+    _category = widget.adjustment?.category
+        ?? widget.categories.firstOrNull
         ?? AdjustmentCategory.component;
 
     _previewAdjustment = widget.adjustment ?? CategoricalAdjustment(
@@ -78,12 +81,10 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
 
   void _changeListener() {
     final options = _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet();
-    final initialOptions = widget.adjustment?.options.toSet() ?? {};
-    
-    final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '') || 
+
+    final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '') ||
         _notesController.text.trim() != (widget.adjustment?.notes ?? '') ||
-        options.length != initialOptions.length || 
-        !options.containsAll(initialOptions);
+        !setEquals(_initialOptions, options);
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -311,12 +312,15 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                               ),
                             ],
                           ),
-                          if (widget.mode == AdjustmentPageMode.edit) ...[
-                            const ListTile(
-                              leading: Icon(Icons.warning),
-                              title: Text('WARNING: Renaming an option will not update existing setup values!'),
+                          if (widget.mode == AdjustmentPageMode.edit && !_initialOptions.every((option) => _optionControllers.map((c) => c.text.trim()).contains(option))) ...[
+                            ListTile(
+                              leading: Icon(Icons.warning, color: Theme.of(context).colorScheme.error),
+                              title: Text(
+                                'WARNING: Renaming an option will not update existing setup values!',
+                                style: TextStyle(color: Theme.of(context).colorScheme.error),
+                              ),
                               dense: true,
-                              contentPadding: EdgeInsets.all(0),
+                              contentPadding: EdgeInsets.zero,
                             ),
                             const SizedBox(height: 8),
                           ],

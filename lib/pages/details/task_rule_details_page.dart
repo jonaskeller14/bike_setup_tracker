@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/task_actions.dart';
+import '../../widgets/empty_state_placeholder.dart';
 import '../../widgets/flash_highlight.dart';
 import '../../widgets/items/task_entry_list_item.dart';
 import '../../widgets/task_rule_display_card.dart';
@@ -69,23 +70,6 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
     ));
   }
 
-  Widget _noTaskEntriesPlaceholder(BuildContext context) {
-    return Container(
-      height: 100,
-      padding: const EdgeInsets.all(16),
-      child: Center(
-        child: Text(
-          'No entries yet',
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontStyle: FontStyle.italic,
-            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
@@ -110,10 +94,21 @@ class _TaskRuleDetailsPageContentState extends State<TaskRuleDetailsPageContent>
           ),
           const SizedBox(height: 16),
 
-          const SectionTitle(title: "Entries"),
+          const SectionTitle(
+            title: "Entries",
+            infoText: "The card above is the Task — the rule defining what to do and when it's due. "
+                "Each time you complete it, an entry is logged below. "
+                "A recurring task collects multiple entries, one per completion.",
+          ),
 
           if (taskEntries.isEmpty)
-            _noTaskEntriesPlaceholder(context)
+            EmptyStatePlaceholder(
+              icon: Icons.history,
+              title: 'No entries yet',
+              subtitle: 'Complete this task to log your first entry.',
+              actionLabel: 'Add entry',
+              onAction: () => TaskActions.addTaskEntry(context, taskRule: taskRule),
+            )
           else
             ...taskEntries.reversed.mapIndexed((index, te) {
               // previousSnapshot is the snapshot of the entry that occurred BEFORE this one in time.

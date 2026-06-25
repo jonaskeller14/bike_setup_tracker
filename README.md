@@ -34,16 +34,16 @@ Bike Setup Tracker is the ultimate digital logbook for cyclists, mechanics, and 
 Here are the current development goals and their status:
 
 - [x] Publish for **Android** ➡️ **Live on Play Store**
-- [x] **Cloud sync** (Google Drive) (Android only) ➡️ **Available as an experimental feature since v1.0.6.**
-- [x] **Strava** integration to use activity data as context ➡️ **Available with optional subscription**
+- [x] **Cloud sync** (Google Drive, Android only) ➡️ **Experimental since v1.0.6**
+- [x] **Strava** integration to use activity data as context ➡️ **Optional subscription**
 - [x] Publish for **iOS** ➡️ **Live on App Store**
-- [x] Migration to **drift SQL Database**
-- [x] **Task Manager** for maintenance tracking ➡️ **Available as an opt-in feature (enable in app settings) — recurring task intervals coming soon**
+- [x] Migration to **drift SQL database**
+- [x] **Task Manager** to plan & track service, rides, testing and more ➡️ **Opt-in, now with recurring tasks**
+- [ ] **Setup images** to capture how a configuration looked ➡️ **In development**
+- [ ] **Rating procedure** to distinguish good setups from bad ➡️ **In development**
 - [ ] **Marketing** push to grow the user base ➡️ **Next up**
-- [ ] Add **rider profile** (track body weight, ...) ➡️ **Planned for late summer**
-- [ ] Add a **rating procedure** to systematically distinguish good from bad setups ➡️ **Planned for late summer**
-- [ ] Add **images to setups** to capture how a configuration looked
-- [ ] Add **URLs to bikes and components** (link setup guides, service manuals, ...)
+- [ ] Add a **rider profile** (track body weight, ...) ➡️ **Planned**
+- [ ] Add **URLs to bikes and components** ➡️ **Planned**
 
 I am open for feedback, suggestions, and bug reports—please feel free to open a new issue for any of these.
 

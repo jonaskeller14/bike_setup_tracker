@@ -198,6 +198,7 @@ class FeaturesPage extends StatelessWidget {
                     appSettings.enableTaskInterval = newValue;
                     Navigator.pop(context);
                   },
+                  infoText: "Adds an optional trigger to tasks with a progress bar based on time or, with Strava connected, activity stats like distance, elevation and ride time.",
                 ),
               ),
               if (kDebugMode)
@@ -233,6 +234,7 @@ class FeaturesPage extends StatelessWidget {
                     appSettings.enableCalendar = newValue;
                     Navigator.pop(context);
                   },
+                  infoText: "Adds a calendar view, reachable from the Setup History page via the calendar button next to search and map buttons.",
                 ),
               ),
               if (kDebugMode)

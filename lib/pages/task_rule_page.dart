@@ -10,9 +10,11 @@ import '../models/component.dart';
 import '../models/task/task_rule.dart';
 import '../models/task/task_threshold.dart';
 import '../repositories/app_repository.dart';
+import '../services/subscription_service.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/sheets/app_settings_radio_group.dart';
 import '../widgets/sheets/set_task_rule_tags.dart';
+import '../widgets/sheets/strava.dart';
 import '../widgets/text/section_title.dart';
 
 enum TaskRulePageMode { add, edit, duplicate }
@@ -190,6 +192,96 @@ class _TaskRulePageState extends State<TaskRulePage> {
     _delayValueController.dispose();
 
     super.dispose();
+  }
+
+  static const Set<_ThresholdType> _stravaThresholdTypes = {
+    _ThresholdType.distance,
+    _ThresholdType.elevation,
+    _ThresholdType.movingTime,
+    _ThresholdType.elapsedTime,
+    _ThresholdType.activityCount,
+  };
+
+  List<DropdownMenuItem<_ThresholdType?>> _intervalTypeItems(bool hasStravaEntitlement) {
+    DropdownMenuItem<_ThresholdType?> sectionHeader(String label) {
+      return DropdownMenuItem<_ThresholdType?>(
+        enabled: false,
+        value: null,
+        child: Text(
+          label.toUpperCase(),
+          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2),
+        ),
+      );
+    }
+
+    DropdownMenuItem<_ThresholdType?> typeItem(_ThresholdType type) {
+      final locked = _stravaThresholdTypes.contains(type) && !hasStravaEntitlement;
+      return DropdownMenuItem<_ThresholdType?>(
+        value: type,
+        enabled: !locked,
+        child: Row(
+          spacing: 6,
+          children: [
+            Flexible(
+              child: Text(
+                type.label,
+                overflow: TextOverflow.ellipsis,
+                style: locked ? TextStyle(color: Theme.of(context).disabledColor) : null,
+              ),
+            ),
+            if (locked) Icon(Icons.lock_outline, size: 14, color: Theme.of(context).disabledColor),
+          ],
+        ),
+      );
+    }
+
+    return [
+      typeItem(_ThresholdType.none),
+      sectionHeader("TIME-BASED"),
+      typeItem(_ThresholdType.duration),
+      typeItem(_ThresholdType.dateTime),
+      sectionHeader("ACTIVITY-BASED (STRAVA)"),
+      typeItem(_ThresholdType.distance),
+      typeItem(_ThresholdType.elevation),
+      typeItem(_ThresholdType.movingTime),
+      typeItem(_ThresholdType.elapsedTime),
+      typeItem(_ThresholdType.activityCount),
+    ];
+  }
+
+  Widget _stravaTriggerBanner(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        spacing: 12,
+        children: [
+          Icon(Icons.lock_outline, size: 20, color: colorScheme.onSurfaceVariant),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Activity-based triggers need Strava", style: Theme.of(context).textTheme.labelLarge),
+                const SizedBox(height: 2),
+                Text(
+                  "Distance, elevation, time and ride-count triggers update automatically from your Strava activities.",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+                ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: () => showStravaSheet(context: context),
+            child: const Text("Connect"),
+          ),
+        ],
+      ),
+    );
   }
 
   bool _thresholdNeedsAsset(_ThresholdType type) {
@@ -546,6 +638,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
     final components = appRepository.components;
+    final hasStravaEntitlement = context.watch<SubscriptionService>().hasStravaEntitlement;
 
     return PopScope(
       canPop: !_formHasChanges,
@@ -641,7 +734,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                             spacing: 8,
                             children: [
                               Expanded(
-                                child: DropdownButtonFormField<_ThresholdType>(
+                                child: DropdownButtonFormField<_ThresholdType?>(
                                   initialValue: _intervalType,
                                   isExpanded: true,
                                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -651,7 +744,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                     fillColor: Colors.orange.withValues(alpha: 0.08),
                                     filled: widget.mode == TaskRulePageMode.edit && _intervalType != _getThresholdType(widget.taskRule?.interval),
                                   ),
-                                  items: _ThresholdType.values.map((t) => DropdownMenuItem(value: t, child: Text(t.label))).toList(),
+                                  items: _intervalTypeItems(hasStravaEntitlement),
                                   onChanged: (v) {
                                     if (v != null) {
                                       setState(() => _intervalType = v);
@@ -738,6 +831,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                               },
                             ],
                           ),
+                          if (!hasStravaEntitlement) _stravaTriggerBanner(context),
                           if (_intervalType != _ThresholdType.none && _intervalType != _ThresholdType.dateTime) ...[
                             ListTile(
                               tileColor: widget.mode == TaskRulePageMode.edit && _repeat != (widget.taskRule?.repeat ?? true) ? Colors.orange.withValues(alpha: 0.08) : null,

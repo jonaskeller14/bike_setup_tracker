@@ -6,6 +6,7 @@ import '../../models/adjustment/adjustment.dart';
 import "set_adjustment.dart";
 
 class SetStepAdjustmentWidget extends StatelessWidget {
+  static const int maxRenderedTicks = 50;
   final StepAdjustment adjustment;
   final double? initialValue;
   final double? value;
@@ -47,6 +48,10 @@ class SetStepAdjustmentWidget extends StatelessWidget {
     final sliderDivisions = ((adjustment.max - adjustment.min) / adjustment.step).floor();
     final sliderMax = (adjustment.min + sliderDivisions * adjustment.step).toDouble();
     final sliderInterval = sliderMax - adjustment.min;
+
+    // Cap the rendered ticks
+    final bool showStepTicks = sliderDivisions <= maxRenderedTicks;
+    final int knobTicks = showStepTicks ? sliderDivisions + 1 : maxRenderedTicks + 1;
     
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -108,7 +113,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                         interval: sliderInterval.toDouble(),
                         showTicks: true,
                         stepSize: adjustment.step.toDouble(),
-                        minorTicksPerInterval: sliderDivisions - 1,
+                        minorTicksPerInterval: showStepTicks ? sliderDivisions - 1 : 0,
                         enableTooltip: true,
                         tooltipShape: const SfPaddleTooltipShape(),
                         onChanged: (dynamic newValue) {
@@ -127,7 +132,8 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                       initialValue: initialValue?.toInt(),
                       min: adjustment.min.toDouble(),
                       max: sliderMax,
-                      numberOfTicks: sliderDivisions + 1,
+                      numberOfTicks: knobTicks,
+                      showAllTicks: showStepTicks,
                       clockwise: adjustment.visualization == StepAdjustmentVisualization.sliderWithClockwiseDial,
                       primaryColor: Theme.of(context).colorScheme.primary,
                       onPrimaryColor: Theme.of(context).colorScheme.onPrimary,
@@ -177,7 +183,8 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                         initialValue: initialValue?.toInt(),
                         min: adjustment.min.toDouble(),
                         max: sliderMax,
-                        numberOfTicks: sliderDivisions + 1,
+                        numberOfTicks: knobTicks,
+                        showAllTicks: showStepTicks,
                         clockwise: adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial,
                         primaryColor: Theme.of(context).colorScheme.primary,
                         onPrimaryColor: Theme.of(context).colorScheme.onPrimary,
@@ -263,6 +270,7 @@ class RotaryKnob extends StatelessWidget {
   final Color onPrimaryColor;
   final int numberOfTicks;
   final bool clockwise;
+  final bool showAllTicks;
 
   const RotaryKnob({
     required super.key,
@@ -274,6 +282,7 @@ class RotaryKnob extends StatelessWidget {
     required this.clockwise,
     required this.primaryColor,
     required this.onPrimaryColor,
+    this.showAllTicks = true,
   });
 
   @override
@@ -282,9 +291,15 @@ class RotaryKnob extends StatelessWidget {
     final angleDeg = normalizedValue * 270.0; // in degrees
     final angleRad = angleDeg * (pi / 180.0);
 
-    final int step = ((max - min) / (numberOfTicks - 1)).toInt();
-    final int? initialIndex = initialValue == null ? null : ((initialValue! - min) / step).toInt();
-    
+    // Normalized tick positions (0..1 along the sweep). For huge ranges we draw
+    // only the endpoints; otherwise one tick per division.
+    final List<double> tickFractions = showAllTicks
+        ? List<double>.generate(numberOfTicks, (i) => i / (numberOfTicks - 1))
+        : const [0.0, 1.0];
+    final double? initialFraction = initialValue == null
+        ? null
+        : ((initialValue! - min) / (max - min)).clamp(0.0, 1.0);
+
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: angleRad, end: angleRad),
       duration: const Duration(milliseconds: 100), // Quick, continuous-feeling animation
@@ -293,11 +308,11 @@ class RotaryKnob extends StatelessWidget {
           size: const Size(50, 50),
           painter: KnobPainter(
             rotationRadians: value,
-            initialIndex: initialIndex,
+            tickFractions: tickFractions,
+            initialFraction: initialFraction,
             primaryColor: primaryColor,
             onPrimaryColor: onPrimaryColor,
             tickColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3),
-            numberOfTicks: numberOfTicks,
             clockwise: clockwise,
           ),
         );
@@ -308,20 +323,22 @@ class RotaryKnob extends StatelessWidget {
 
 class KnobPainter extends CustomPainter {
   final double rotationRadians;
-  final int? initialIndex;
+  /// Normalized (0..1) positions of the ticks to draw along the sweep.
+  final List<double> tickFractions;
+  /// Normalized (0..1) position of the initial-value tick, drawn highlighted.
+  final double? initialFraction;
   final Color primaryColor;
   final Color onPrimaryColor;
   final Color tickColor;
-  final int numberOfTicks;
   final bool clockwise;
 
   KnobPainter({
     required this.rotationRadians,
-    required this.initialIndex,
+    required this.tickFractions,
+    required this.initialFraction,
     required this.primaryColor,
     required this.onPrimaryColor,
     required this.tickColor,
-    required this.numberOfTicks,
     required this.clockwise,
   });
 
@@ -335,35 +352,38 @@ class KnobPainter extends CustomPainter {
     final radius = size.width / 2;
     final knobRadius = radius * 0.8;
     final tickRadius = radius * 0.95;
-    
+
     // 1. Draw Ticks
     final tickPaint = Paint()
       ..color = tickColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0
       ..strokeCap = StrokeCap.round;
-    
+
     final initialTickPaint = Paint()
       ..color = primaryColor
       ..style = tickPaint.style
       ..strokeWidth = tickPaint.strokeWidth
       ..strokeCap = tickPaint.strokeCap;
-        
-    for (int i = 0; i < numberOfTicks; i++) {
-      final angle = startAngleRad + sweepAngleRad * (i / (numberOfTicks - 1));
-      
+
+    void drawTick(double fraction, Paint paint) {
+      final angle = startAngleRad + sweepAngleRad * fraction;
       final x1 = center.dx + tickRadius * 0.9 * cos(angle);
       final y1 = center.dy + tickRadius * 0.9 * sin(angle);
       final x2 = center.dx + tickRadius * cos(angle);
       final y2 = center.dy + tickRadius * sin(angle);
-      
-      if (i != initialIndex) {
-        canvas.drawLine(Offset(x1, y1), Offset(x2, y2), tickPaint);
-      } else {
-        canvas.drawLine(Offset(x1, y1), Offset(x2, y2), initialTickPaint);
-      }
+      canvas.drawLine(Offset(x1, y1), Offset(x2, y2), paint);
     }
-    
+
+    for (final fraction in tickFractions) {
+      drawTick(fraction, tickPaint);
+    }
+    // Draw the initial-value tick on top so it stays visible at its exact
+    // position even when the surrounding step ticks are hidden.
+    if (initialFraction != null) {
+      drawTick(initialFraction!, initialTickPaint);
+    }
+
     // -----------------------------------------------------------------
     // START: ROTATING SECTION
     // -----------------------------------------------------------------
@@ -415,7 +435,9 @@ class KnobPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant KnobPainter oldDelegate) {
-    return oldDelegate.rotationRadians != rotationRadians;
+    return oldDelegate.rotationRadians != rotationRadians ||
+        oldDelegate.initialFraction != initialFraction ||
+        oldDelegate.tickFractions.length != tickFractions.length;
   }
 
   Path _createScallopedKnobPath({required Offset center, required double mainRadius, required int numScallops, required double smallCircleRadius, required double radialOffset}) {

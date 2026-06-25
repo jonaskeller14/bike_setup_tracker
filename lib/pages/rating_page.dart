@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/adjustment/adjustment.dart';
-import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/person.dart';
@@ -259,41 +258,6 @@ class _RatingPageState extends State<RatingPage> {
     Navigator.of(context).pop(null);
   }
 
-  String? _validateName(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Name is required';
-    return null;
-  }
-
-  Widget _buildGuideRow(IconData icon, String type, String example) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(icon, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-          const SizedBox(width: 8),
-          Expanded(
-            child: RichText(
-              text: TextSpan(
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13, height: 1.3),
-                children: [
-                  TextSpan(
-                    text: "$type: ", 
-                    style: const TextStyle(fontWeight: FontWeight.bold)
-                  ),
-                  TextSpan(
-                    text: example,
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5), fontStyle: FontStyle.italic)
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _onReorderAdjustments(int oldIndex, int newIndex, {VoidCallback? onChanged}) {
     setState(() {
       final adjustment = _adjustments.removeAt(oldIndex);
@@ -304,80 +268,82 @@ class _RatingPageState extends State<RatingPage> {
   }
 
   Widget _emptyAdjustmentsInfo({String? errorText, VoidCallback? onTap}) {
-    return Column(
-      children: [
-        InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: CustomPaint(
-            painter: DashedBorderPainter(
-              color: errorText != null 
-                  ? Theme.of(context).colorScheme.error 
-                  : Theme.of(context).colorScheme.outlineVariant,
-              strokeWidth: 1.5,
-              dashWidth: 6,
-              dashSpace: 4,
-              borderRadius: 12,
-            ),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    errorText != null ? Icons.warning_amber_rounded : Icons.add_circle_outline, 
-                    size: 32, 
-                    color: errorText != null 
-                        ? Theme.of(context).colorScheme.error 
-                        : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    errorText ?? "No metrics yet",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: errorText != null 
-                          ? Theme.of(context).colorScheme.error 
-                          : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    errorText != null 
-                        ? "Tap here to add the first metric" 
-                        : "Tap 'Add Metric' to define metrics to evaluate setups",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: errorText != null 
-                          ? Theme.of(context).colorScheme.error.withValues(alpha: 0.7) 
-                          : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: CustomPaint(
+        painter: DashedBorderPainter(
+          color: errorText != null 
+              ? Theme.of(context).colorScheme.error 
+              : Theme.of(context).colorScheme.outlineVariant,
+          strokeWidth: 1.5,
+          dashWidth: 6,
+          dashSpace: 4,
+          borderRadius: 12,
         ),
-        const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              _buildGuideRow(NumericalAdjustment.iconData, "Numerical", "How many times did the fork bottom out?"),
-              _buildGuideRow(StepAdjustment.iconData, "Step", "Rate grip or confidence (on 1-10 scale)"),
-              _buildGuideRow(CategoricalAdjustment.iconData, "Categorical", "Rate based on categories (good/bad/acceptable)"),
-              _buildGuideRow(BooleanAdjustment.iconData, "On/Off", "Did the fork bottom out? (Yes/No)"),
-              if (context.read<AppSettings>().enableTextAdjustment)
-                _buildGuideRow(TextAdjustment.iconData, "Text", "General notes about feel or observations"),
-              _buildGuideRow(DurationAdjustment.iconData, "Duration", "Laptime of track xyz"),
+              Icon(
+                errorText != null ? Icons.warning_amber_rounded : Icons.add_circle_outline, 
+                size: 32, 
+                color: errorText != null 
+                    ? Theme.of(context).colorScheme.error 
+                    : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)
+              ),
+              const SizedBox(height: 12),
+              Text(
+                errorText ?? "No metrics yet",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: errorText != null 
+                      ? Theme.of(context).colorScheme.error 
+                      : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                errorText != null 
+                    ? "Tap here to add the first metric" 
+                    : "Tap 'Add Metric' to define metrics to evaluate setups",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: errorText != null 
+                      ? Theme.of(context).colorScheme.error.withValues(alpha: 0.7) 
+                      : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                  fontSize: 13,
+                ),
+              ),
             ],
           ),
         ),
-      ],
+      ),
+    );
+  }
+
+  Widget _nameField() {
+    return TextFormField(
+      controller: _nameController,
+      onFieldSubmitted: (_) => _saveRating(),
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autofocus: widget.mode == RatingPageMode.add,
+      onChanged: (value) => setState(() {}), // see filled/fillColor
+      decoration: InputDecoration(
+        labelText: 'Rating Name',
+        border: const OutlineInputBorder(),
+        hintText: 'Enter rating name',
+        fillColor: Colors.orange.withValues(alpha: 0.08),
+        filled: widget.mode == RatingPageMode.edit && _nameController.text.trim() != widget.rating?.name,
+      ),
+      validator: (String? value) {
+        if (value == null || value.trim().isEmpty) return 'Name is required';
+        return null;
+      },
     );
   }
 
@@ -522,6 +488,23 @@ class _RatingPageState extends State<RatingPage> {
     );
   }
 
+  Widget _notesField() {
+    return TextFormField(
+      controller: _notesController,
+      minLines: 2,
+      maxLines: null,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      onChanged: (value) => setState(() {}), // see filled/fillColor
+      decoration: InputDecoration(
+        labelText: 'Notes (optional)',
+        hintText: 'Describe the rating procedure, guidelines, instructions, ...',
+        border: const OutlineInputBorder(),
+        fillColor: Colors.orange.withValues(alpha: 0.08),
+        filled: widget.mode == RatingPageMode.edit && _notesController.text.trim() != (widget.rating?.notes ?? ""),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
@@ -568,21 +551,7 @@ class _RatingPageState extends State<RatingPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        TextFormField(
-                          controller: _nameController,
-                          onFieldSubmitted: (_) => _saveRating(),
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          autofocus: widget.mode == RatingPageMode.add,
-                          onChanged: (value) => setState(() {}), // see filled/fillColor
-                          decoration: InputDecoration(
-                            labelText: 'Rating Name',
-                            border: const OutlineInputBorder(),
-                            hintText: 'Enter rating name',
-                            fillColor: Colors.orange.withValues(alpha: 0.08),
-                            filled: widget.mode == RatingPageMode.edit && _nameController.text.trim() != widget.rating?.name,
-                          ),
-                          validator: _validateName,
-                        ),
+                        _nameField(),
                         const SizedBox(height: 12),
                         DropdownButtonFormField<_FilterFilterType?>(
                           initialValue: _filterFilterType,
@@ -647,19 +616,7 @@ class _RatingPageState extends State<RatingPage> {
                           maintainState: true,
                           child: Column(
                             children: [
-                              TextFormField(
-                                controller: _notesController,
-                                minLines: 2,
-                                maxLines: null,
-                                autovalidateMode: AutovalidateMode.onUserInteraction,
-                                decoration: InputDecoration(
-                                  labelText: 'Notes (optional)',
-                                  hintText: 'Describe the rating procedure, guidelines, instructions, ...',
-                                  border: const OutlineInputBorder(),
-                                  fillColor: Colors.orange.withValues(alpha: 0.08),
-                                  filled: widget.mode == RatingPageMode.edit && _notesController.text.trim() != (widget.rating?.notes ?? ""),
-                                ),
-                              ),
+                              _notesField(),
                             ],
                           ),
                         ),

@@ -92,7 +92,7 @@ void showRatingAddAdjustmentBottomSheet({
                     ListTile(
                       leading: Icon(NumericalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
                       title: const Text("Numerical Metric"),
-                      subtitle: const Text("Body Weight, Height, Age", style: TextStyle(fontSize: 12)),
+                      subtitle: const Text("How many times did the fork bottom out?", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
@@ -102,7 +102,7 @@ void showRatingAddAdjustmentBottomSheet({
                     ListTile(
                       leading: Icon(StepAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
                       title: const Text("Step Metric"),
-                      subtitle: const Text("Increments", style: TextStyle(fontSize: 12)),
+                      subtitle: const Text("Rate grip or confidence (on 1-10 scale)", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
@@ -112,7 +112,7 @@ void showRatingAddAdjustmentBottomSheet({
                     ListTile(
                       leading: Icon(CategoricalAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
                       title: const Text("Categorical Metric"),
-                      subtitle: const Text("Training status, Riding Gear, Riding style", style: TextStyle(fontSize: 12)),
+                      subtitle: const Text("Rate based on categories (good/bad/acceptable)", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first
@@ -122,7 +122,7 @@ void showRatingAddAdjustmentBottomSheet({
                     ListTile(
                       leading: Icon(BooleanAdjustment.iconData, color: Theme.of(context).colorScheme.primary),
                       title: const Text("On/Off Metric"),
-                      subtitle: const Text("Wearing a backpack?", style: TextStyle(fontSize: 12)),
+                      subtitle: const Text("Did the fork bottom out? (Yes/No)", style: TextStyle(fontSize: 12)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: () async {
                         Navigator.pop(context); // Close sheet first

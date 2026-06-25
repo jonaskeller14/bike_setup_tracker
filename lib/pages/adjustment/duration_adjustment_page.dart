@@ -123,6 +123,20 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
     Navigator.of(context).pop(null);
   }
 
+  void _updatePreview({required Duration? min, required Duration? max}) {
+    final notes = _notesController.text.trim();
+    setState(() {
+      _previewAdjustment = DurationAdjustment(
+        id: _previewAdjustment.id,
+        name: _nameController.text.trim(),
+        notes: notes.isEmpty ? null : notes,
+        unit: _previewAdjustment.unit,
+        min: min,
+        max: max,
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -155,17 +169,10 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                         children: [
                           TextFormField(
                             controller: _nameController,
-                            onChanged: (String newValue) {
-                              setState(() {
-                                _previewAdjustment = DurationAdjustment(
-                                  name: newValue,
-                                  notes: _previewAdjustment.notes,
-                                  unit: _previewAdjustment.unit,
-                                  min: _previewAdjustment.min,
-                                  max: _previewAdjustment.max,
-                                );
-                              });
-                            },
+                            onChanged: (_) => _updatePreview(
+                              min: _previewAdjustment.min,
+                              max: _previewAdjustment.max,
+                            ),
                             textInputAction: TextInputAction.next,
                             onFieldSubmitted: (_) => _saveDurationAdjustment(),
                             autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -210,17 +217,8 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                       adjustment: DurationAdjustment(name: 'Min', notes: null, unit: null, max: _previewAdjustment.max),
                                       value: _previewAdjustment.min,
                                       onChanged: (Duration newValue) {
-                                        setState(() {
-                                          _previewAdjustment = DurationAdjustment(
-                                            id: _previewAdjustment.id,
-                                            name: _previewAdjustment.name,
-                                            notes: _previewAdjustment.notes,
-                                            unit: _previewAdjustment.unit,
-                                            min: newValue,
-                                            max: _previewAdjustment.max,
-                                          );
-                                          _minController.text = Adjustment.formatValue(newValue);
-                                        });
+                                        _minController.text = Adjustment.formatValue(newValue);
+                                        _updatePreview(min: newValue, max: _previewAdjustment.max);
                                       }
                                     );
                                   },
@@ -233,10 +231,8 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                         ? IconButton(
                                             icon: const Icon(Icons.clear),
                                             onPressed: () {
-                                              setState(() {
-                                                _previewAdjustment = _previewAdjustment.copyWith(min: null);
-                                                _minController.clear();
-                                              });
+                                              _minController.clear();
+                                              _updatePreview(min: null, max: _previewAdjustment.max);
                                             },
                                           )
                                         : null,
@@ -257,17 +253,8 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                       adjustment: DurationAdjustment(name: 'Max', notes: null, unit: null, min: _previewAdjustment.min),
                                       value: _previewAdjustment.max,
                                       onChanged: (Duration newValue) {
-                                        setState(() {
-                                          _previewAdjustment = DurationAdjustment(
-                                            id: _previewAdjustment.id,
-                                            name: _previewAdjustment.name,
-                                            notes: _previewAdjustment.notes,
-                                            unit: _previewAdjustment.unit,
-                                            min: _previewAdjustment.min,
-                                            max: newValue,
-                                          );
-                                          _maxController.text = Adjustment.formatValue(newValue);
-                                        });
+                                        _maxController.text = Adjustment.formatValue(newValue);
+                                        _updatePreview(min: _previewAdjustment.min, max: newValue);
                                       }
                                     );
                                   },
@@ -280,10 +267,8 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                         ? IconButton(
                                             icon: const Icon(Icons.clear),
                                             onPressed: () {
-                                              setState(() {
-                                                _previewAdjustment = _previewAdjustment.copyWith(max: null);
-                                                _maxController.clear();
-                                              });
+                                              _maxController.clear();
+                                              _updatePreview(min: _previewAdjustment.min, max: null);
                                             },
                                           )
                                         : null,
@@ -296,17 +281,10 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
                                   controller: _notesController,
                                   minLines: 2,
                                   maxLines: null,
-                                  onChanged: (String? value) {
-                                    setState(() {
-                                      _previewAdjustment = DurationAdjustment(
-                                        name: _nameController.text.trim(),
-                                        notes: (value == null || value.isEmpty) ? null : value,
-                                        unit: _previewAdjustment.unit,
-                                        min: _previewAdjustment.min,
-                                        max: _previewAdjustment.max,
-                                      );
-                                    });
-                                  },
+                                  onChanged: (_) => _updatePreview(
+                                    min: _previewAdjustment.min,
+                                    max: _previewAdjustment.max,
+                                  ),
                                   autovalidateMode: AutovalidateMode.onUserInteraction,
                                   decoration: InputDecoration(
                                     labelText: 'Notes (optional)',

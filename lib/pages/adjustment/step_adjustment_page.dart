@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
@@ -168,6 +167,40 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     return null;
   }
 
+  StepAdjustment _composePreview() {
+    final step = _validateStep(_stepController.text) == null
+        ? int.parse(_stepController.text.trim())
+        : _defaultStep;
+    final min = _validateMin(_minController.text) == null
+        ? int.parse(_minController.text.trim())
+        : _defaultMin;
+    final typedMax = int.tryParse(_maxController.text.trim());
+    final lowestValidMax = min + step;
+    final max = (typedMax != null && typedMax >= lowestValidMax) ? typedMax : lowestValidMax;
+
+    final notes = _notesController.text.trim();
+    return StepAdjustment(
+      id: _previewAdjustment.id,
+      name: _nameController.text.trim(),
+      notes: notes.isEmpty ? null : notes,
+      unit: widget.adjustment?.unit,
+      step: step,
+      min: min,
+      max: max,
+      visualization: visualization,
+    );
+  }
+
+  /// Recomputes the preview from the fields. [resetValue] re-seeds the preview
+  /// value to `min` whenever the range (step/min/max) changes, keeping it within
+  /// the slider's valid bounds.
+  void _updatePreview({bool resetValue = false}) {
+    setState(() {
+      _previewAdjustment = _composePreview();
+      if (resetValue) _previewValue = _previewAdjustment.min.toDouble();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -200,19 +233,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                         children: [
                           TextFormField(
                             controller: _nameController,
-                            onChanged: (String? value) {
-                              setState(() {
-                                _previewAdjustment = StepAdjustment(
-                                  name: value ?? '',
-                                  notes: _previewAdjustment.notes,
-                                  min: _previewAdjustment.min,
-                                  max: _previewAdjustment.max,
-                                  step: _previewAdjustment.step,
-                                  unit: null,
-                                  visualization: _previewAdjustment.visualization,
-                                );
-                              });
-                            },
+                            onChanged: (_) => _updatePreview(),
                             textInputAction: TextInputAction.next,
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             autofocus: widget.mode == AdjustmentPageMode.add,
@@ -240,21 +261,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               filled: widget.mode == AdjustmentPageMode.edit && int.tryParse(_stepController.text.trim()) != widget.adjustment?.step,
                             ),
                             validator: _validateStep,
-                            onChanged: (String value) {
-                              setState(() {
-                                final newStep = _validateStep(value) == null ? int.parse(value) : _defaultStep;
-                                _previewAdjustment = StepAdjustment(
-                                  name: _previewAdjustment.name,
-                                  notes: _previewAdjustment.notes,
-                                  min: _previewAdjustment.min,
-                                  max: math.max(_previewAdjustment.max, _previewAdjustment.min + newStep),
-                                  step: newStep,
-                                  unit: null,
-                                  visualization: _previewAdjustment.visualization,
-                                );
-                                _previewValue = _previewAdjustment.min.toDouble();
-                              });
-                            },
+                            onChanged: (_) => _updatePreview(resetValue: true),
                           ),
                           const SizedBox(height: 12),
                           TextFormField(
@@ -272,21 +279,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               filled: widget.mode == AdjustmentPageMode.edit && int.tryParse(_minController.text.trim()) != widget.adjustment?.min,
                             ),
                             validator: _validateMin,
-                            onChanged: (String value) {
-                              setState(() {
-                                final newMin = _validateMin(value) == null ? int.parse(value) : _defaultMin;
-                                _previewAdjustment = StepAdjustment(
-                                  name: _previewAdjustment.name,
-                                  notes: _previewAdjustment.notes,
-                                  min: math.min(newMin, _previewAdjustment.max - _previewAdjustment.step), 
-                                  max: _previewAdjustment.max, //FIXME: if previously max was set wrong and now with the new min it becomes valid -> it does not update here 
-                                  step: _previewAdjustment.step, 
-                                  unit: null,
-                                  visualization: _previewAdjustment.visualization,
-                                );
-                                _previewValue = _previewAdjustment.min.toDouble();
-                              });
-                            },
+                            onChanged: (_) => _updatePreview(resetValue: true),
                           ),
                           const SizedBox(height: 12),
                           TextFormField(
@@ -304,21 +297,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               filled: widget.mode == AdjustmentPageMode.edit && int.tryParse(_maxController.text.trim()) != widget.adjustment?.max,
                             ),
                             validator: _validateMax,
-                            onChanged: (String value) {
-                              setState(() {
-                                final newMax = _validateMax(value) == null ? int.parse(value) : _previewAdjustment.min + _previewAdjustment.step;
-                                _previewAdjustment = StepAdjustment(
-                                  name: _previewAdjustment.name,
-                                  notes: _previewAdjustment.notes,
-                                  min: _previewAdjustment.min,
-                                  max: math.max(newMax, _previewAdjustment.min + _previewAdjustment.step),
-                                  step: _previewAdjustment.step,
-                                  unit: null,
-                                  visualization: _previewAdjustment.visualization,
-                                );
-                                _previewValue = _previewAdjustment.min.toDouble();
-                              });
-                            },
+                            onChanged: (_) => _updatePreview(resetValue: true),
                           ),
                           Center(
                             child: TextButton.icon(
@@ -385,18 +364,8 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                   }).toList(),
                                   onChanged: (StepAdjustmentVisualization? newVisualization) {
                                     if (newVisualization == null) return;
-                                    setState(() {
-                                      visualization = newVisualization;
-                                      _previewAdjustment = StepAdjustment(
-                                        name: _previewAdjustment.name,
-                                        notes: _previewAdjustment.notes,
-                                        min: _previewAdjustment.min,
-                                        max: _previewAdjustment.max,
-                                        step: _previewAdjustment.step,
-                                        unit: _previewAdjustment.unit,
-                                        visualization: newVisualization,
-                                      );
-                                    });
+                                    visualization = newVisualization;
+                                    _updatePreview();
                                     _changeListener();
                                   },
                                   validator: (value) {
@@ -411,19 +380,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                   controller: _notesController,
                                   minLines: 2,
                                   maxLines: null,
-                                  onChanged: (String? value) {
-                                    setState(() {
-                                      _previewAdjustment = StepAdjustment(
-                                        name: _previewAdjustment.name,
-                                        notes: (value == null || value.isEmpty) ? null : value,
-                                        min: _previewAdjustment.min,
-                                        max: _previewAdjustment.max,
-                                        step: _previewAdjustment.step,
-                                        unit: _previewAdjustment.unit,
-                                        visualization: _previewAdjustment.visualization,
-                                      );
-                                    });
-                                  },
+                                  onChanged: (_) => _updatePreview(),
                                   autovalidateMode: AutovalidateMode.onUserInteraction,
                                   decoration: InputDecoration(
                                     labelText: 'Notes (optional)',

@@ -149,6 +149,33 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     return null;
   }
 
+  NumericalAdjustment _composePreview() {
+    final min = _validateMin(_minController.text) == null
+        ? double.tryParse(_minController.text.trim())
+        : null;
+    final max = _validateMax(_maxController.text) == null
+        ? double.tryParse(_maxController.text.trim())
+        : null;
+
+    final notes = _notesController.text.trim();
+    final unit = _unitController.text.trim();
+    return NumericalAdjustment(
+      id: _previewAdjustment.id,
+      name: _nameController.text.trim(),
+      notes: notes.isEmpty ? null : notes,
+      unit: unit.isEmpty ? null : unit,
+      min: min,
+      max: max,
+    );
+  }
+
+  void _updatePreview({bool resetValue = false}) {
+    setState(() {
+      _previewAdjustment = _composePreview();
+      if (resetValue) _previewValue = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -181,17 +208,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                         children: [
                           TextFormField(
                             controller: _nameController,
-                            onChanged: (String newValue) {
-                              setState(() {
-                                _previewAdjustment = NumericalAdjustment(
-                                  name: newValue,
-                                  notes: _previewAdjustment.notes,
-                                  unit: _unitController.text.trim(),
-                                  min: double.tryParse(_minController.text.trim()),
-                                  max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
-                                );
-                              });
-                            },
+                            onChanged: (_) => _updatePreview(),
                             textInputAction: TextInputAction.next,
                             onFieldSubmitted: (_) => _saveNumericalAdjustment(),
                             autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -231,17 +248,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                               filled: widget.mode == AdjustmentPageMode.edit && _unitController.text.trim() != (widget.adjustment?.unit ?? ""),
                             ),
                             validator: (value) => (value != null && value.length > 10) ? "Too many characters" : null,
-                            onChanged: (String value) {
-                              setState(() {
-                                _previewAdjustment = NumericalAdjustment(
-                                  name: _nameController.text.trim(),
-                                  notes: _previewAdjustment.notes,
-                                  unit: _unitController.text.trim(),
-                                  min: double.tryParse(_minController.text.trim()),
-                                  max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
-                                );
-                              });
-                            },
+                            onChanged: (_) => _updatePreview(),
                           ),
                           Center(
                             child: TextButton.icon(
@@ -278,10 +285,8 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                         ? IconButton(
                                             icon: const Icon(Icons.clear),
                                             onPressed: () {
-                                              setState(() {
-                                                _previewAdjustment = _previewAdjustment.copyWith(min: null);
-                                                _minController.clear();
-                                              });
+                                              _minController.clear();
+                                              _updatePreview(resetValue: true);
                                             },
                                           )
                                         : null,
@@ -289,18 +294,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                     filled: widget.mode == AdjustmentPageMode.edit && (double.tryParse(_minController.text.trim()) ?? double.negativeInfinity) != widget.adjustment?.min,
                                   ),
                                   validator: _validateMin,
-                                  onChanged: (String value) {
-                                    setState(() {
-                                      _previewValue = null;
-                                      _previewAdjustment = NumericalAdjustment(
-                                        name: _nameController.text.trim(),
-                                        notes: _previewAdjustment.notes,
-                                        unit: _unitController.text.trim(),
-                                        min: double.tryParse(_minController.text.trim()),
-                                        max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
-                                      );
-                                    });
-                                  },
+                                  onChanged: (_) => _updatePreview(resetValue: true),
                                 ),
                                 const SizedBox(height: 12),
                                 TextFormField(
@@ -320,10 +314,8 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                         ? IconButton(
                                             icon: const Icon(Icons.clear),
                                             onPressed: () {
-                                              setState(() {
-                                                _previewAdjustment = _previewAdjustment.copyWith(max: null);
-                                                _maxController.clear();
-                                              });
+                                              _maxController.clear();
+                                              _updatePreview(resetValue: true);
                                             },
                                           )
                                         : null,
@@ -331,35 +323,14 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                     filled: widget.mode == AdjustmentPageMode.edit && (double.tryParse(_maxController.text.trim()) ?? double.infinity) != widget.adjustment?.max,
                                   ),
                                   validator: _validateMax,
-                                  onChanged: (String value) {
-                                    setState(() {
-                                      _previewValue = null;
-                                      _previewAdjustment = NumericalAdjustment(
-                                        name: _nameController.text.trim(),
-                                        notes: _previewAdjustment.notes,
-                                        unit: _unitController.text.trim(),
-                                        min: double.tryParse(_minController.text.trim()),
-                                        max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
-                                      );
-                                    });
-                                  },
+                                  onChanged: (_) => _updatePreview(resetValue: true),
                                 ),
                                 const SizedBox(height: 12),
                                 TextFormField(
                                   controller: _notesController,
                                   minLines: 2,
                                   maxLines: null,
-                                  onChanged: (String? value) {
-                                    setState(() {
-                                      _previewAdjustment = NumericalAdjustment(
-                                        name: _nameController.text.trim(),
-                                        notes: (value == null || value.isEmpty) ? null : value,
-                                        unit: _unitController.text.trim(),
-                                        min: double.tryParse(_minController.text.trim()),
-                                        max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
-                                      );
-                                    });
-                                  },
+                                  onChanged: (_) => _updatePreview(),
                                   autovalidateMode: AutovalidateMode.onUserInteraction,
                                   decoration: InputDecoration(
                                     labelText: 'Notes (optional)',

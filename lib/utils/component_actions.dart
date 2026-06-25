@@ -80,10 +80,41 @@ class ComponentActions {
 
   static Future<void> replaceComponent(BuildContext context, {required Component component}) async {
     final appRepository = context.read<AppRepository>();
+    final messenger = ScaffoldMessenger.of(context);
 
-    final replacementDate = await showReplaceComponentSheet(context, component: component);
-    if (replacementDate == null) return;
-    
+    final result = await showReplaceComponentSheet(context, component: component);
+    if (result == null) return;
+
+    final replacementDate = result.replacementDate;
+    final deinstallation = Installation(
+      parent: null,
+      dateTimeUTC: replacementDate.toUtc(),
+      dateTimeLocal: replacementDate.toLocal(),
+    );
+
+    // Swap in an already deinstalled component: install it on the same bike and
+    // retire the current one, both at the replacement date.
+    if (result.existingComponent != null) {
+      final existing = result.existingComponent!;
+      await appRepository.editComponent(existing.copyWith(installations: [
+        ...existing.installations,
+        Installation(parent: component.bike, dateTimeUTC: replacementDate.toUtc(), dateTimeLocal: replacementDate.toLocal()),
+      ]));
+      await appRepository.editComponent(component.copyWith(installations: [
+        ...component.installations,
+        deinstallation,
+      ]));
+
+      messenger.showSnackBar(SnackBar(
+        content: Text("Replaced '${component.name}' with '${existing.name}'."),
+        duration: const Duration(seconds: 5),
+        persist: false,
+        showCloseIcon: true,
+      ));
+      return;
+    }
+
+    // Create a brand-new replacement component, pre-filled from the current one.
     if (!context.mounted) return;
     final newComponent = await Navigator.push<Component>(
       context,
@@ -98,10 +129,10 @@ class ComponentActions {
 
     await appRepository.addComponent(newComponent);
     await appRepository.editComponent(component.copyWith(installations: [
-      ...component.installations, 
-      Installation(parent: null, dateTimeUTC: replacementDate.toUtc(), dateTimeLocal: replacementDate.toLocal())
+      ...component.installations,
+      deinstallation,
     ]));
-  } 
+  }
 
   static Future<void> removeComponent(BuildContext context, {required Component component}) async {
     final appRepository = context.read<AppRepository>();

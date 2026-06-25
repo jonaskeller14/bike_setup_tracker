@@ -4,12 +4,25 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/component.dart';
-import 'sheet.dart';
+import '../../repositories/app_repository.dart';
+import 'sheet_header.dart';
 
-Future<DateTime?> showReplaceComponentSheet(BuildContext context, {
+class ReplaceComponentResult {
+  final DateTime replacementDate;
+  final Component? existingComponent;
+
+  const ReplaceComponentResult({
+    required this.replacementDate,
+    this.existingComponent,
+  });
+}
+
+enum _ReplaceMode { existing, create }
+
+Future<ReplaceComponentResult?> showReplaceComponentSheet(BuildContext context, {
   required Component component,
 }) async {
-  return showModalBottomSheet<DateTime?>(
+  return showModalBottomSheet<ReplaceComponentResult?>(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
@@ -32,6 +45,8 @@ class _ReplaceComponentSheet extends StatefulWidget {
 class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
   final _formKey = GlobalKey<FormState>();
   late DateTime _replaceDate;
+  _ReplaceMode _mode = _ReplaceMode.create;
+  String? _selectedComponentId;
 
   @override
   void initState() {
@@ -41,8 +56,15 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
 
   void _onContinue() {
     if (!_formKey.currentState!.validate()) return;
-    
-    Navigator.pop(context, _replaceDate);
+
+    final existingComponent = _mode == _ReplaceMode.existing
+        ? context.read<AppRepository>().components[_selectedComponentId]
+        : null;
+
+    Navigator.pop(context, ReplaceComponentResult(
+      replacementDate: _replaceDate,
+      existingComponent: existingComponent,
+    ));
   }
 
   Future<DateTime?> _showDateTimePicker(DateTime initialDate) async {
@@ -71,10 +93,50 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
     return null;
   }
 
+  DropdownMenuItem<String> _componentSectionHeader(String label) {
+    return DropdownMenuItem<String>(
+      enabled: false,
+      child: Text(
+        label.toUpperCase(),
+        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1.2),
+      ),
+    );
+  }
+
+  DropdownMenuItem<String> _componentDropdownItem(Component component) {
+    return DropdownMenuItem<String>(
+      value: component.id,
+      child: Row(
+        spacing: 8,
+        children: [
+          Icon(component.componentType.getIconData(), size: 20),
+          Expanded(child: Text(component.name, overflow: TextOverflow.ellipsis)),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    
+    final appRepository = context.watch<AppRepository>();
+    final deinstalledComponents = appRepository.components.values
+        .where((c) => c.id != widget.component.id && c.bike == null)
+        .toList()
+      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+
+    // Keep the selected component in the list even if it stops being
+    // "deinstalled" (e.g. while the sheet animates away after the swap installed
+    // it), so the dropdown always has exactly one item matching its value.
+    final menuComponents = [...deinstalledComponents];
+    final selected = appRepository.components[_selectedComponentId];
+    if (selected != null && !menuComponents.any((c) => c.id == selected.id)) {
+      menuComponents.add(selected);
+    }
+    final sameTypeComponents = menuComponents.where((c) => c.componentType == widget.component.componentType).toList();
+    final otherTypeComponents = menuComponents.where((c) => c.componentType != widget.component.componentType).toList();
+    final showComponentSections = sameTypeComponents.isNotEmpty && otherTypeComponents.isNotEmpty;
+
     return SafeArea(
       child: Form(
         key: _formKey,
@@ -82,16 +144,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  sheetTitle(context, "Replace '${widget.component.name}'"),
-                  sheetCloseButton(context),
-                ],
-              ),
-            ),
+            SheetHeader(title: "Replace '${widget.component.name}'"),
             const SizedBox(height: 16),
             Flexible(
               child: SingleChildScrollView(
@@ -99,20 +152,88 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Text(
-                        "Set the replacement date. This is when the current component will be retired and a new one installed. In the next step, you can configure the new component, which will be pre-filled with details from this one.",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                    SizedBox(
+                      width: double.infinity,
+                      child: SegmentedButton<_ReplaceMode>(
+                        segments: const [
+                          ButtonSegment(
+                            value: _ReplaceMode.existing,
+                            label: Text("Existing"),
+                            icon: Icon(Icons.inventory_2_outlined),
+                          ),
+                          ButtonSegment(
+                            value: _ReplaceMode.create,
+                            label: Text("New"),
+                            icon: Icon(Icons.add),
+                          ),
+                        ],
+                        selected: {_mode},
+                        onSelectionChanged: (selection) {
+                          setState(() => _mode = selection.first);
+                          _formKey.currentState?.validate();
+                        },
                       ),
                     ),
+                    const SizedBox(height: 16),
+                    Text(
+                      switch (_mode) {
+                        _ReplaceMode.existing =>  "Pick an already deinstalled component to install in place of this one, and set the replacement date. This is when the current component is retired and the selected one installed.",
+                        _ReplaceMode.create => "Set the replacement date. This is when the current component will be retired and a new one installed. In the next step, you can configure the new component, which will be pre-filled with details from this one.",
+                      },
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    if (_mode == _ReplaceMode.existing) ...[
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        initialValue: _selectedComponentId,
+                        isExpanded: true,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        decoration: InputDecoration(
+                          labelText: "Replacement Component",
+                          border: const OutlineInputBorder(),
+                          isDense: true,
+                          helperText: deinstalledComponents.isEmpty
+                              ? "No deinstalled components available"
+                              : null,
+                        ),
+                        hint: const Text("Select a component"),
+                        items: [
+                          if (showComponentSections) ...[
+                            _componentSectionHeader(widget.component.componentType.label),
+                            ...sameTypeComponents.map(_componentDropdownItem),
+                            _componentSectionHeader("Other"),
+                            ...otherTypeComponents.map(_componentDropdownItem),
+                          ] else
+                            ...menuComponents.map(_componentDropdownItem),
+                        ],
+                        onChanged: menuComponents.isEmpty
+                            ? null
+                            : (id) => setState(() => _selectedComponentId = id),
+                        validator: (id) {
+                          if (_mode == _ReplaceMode.existing && id == null) {
+                            return "Please select a component";
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+                    const SizedBox(height: 16),
                     FormField<DateTime>(
                       initialValue: _replaceDate,
                       validator: (value) {
                         if (value == null) return null;
-                        final lastInstall = widget.component.installations.map((i) => i.dateTimeUTC).maxOrNull;
+                        DateTime? lastInstall = widget.component.installations.map((i) => i.dateTimeUTC).maxOrNull;
+                        if (_mode == _ReplaceMode.existing && _selectedComponentId != null) {
+                          // The chosen component must not be reinstalled before its own
+                          // last (de)installation, or the timeline would be out of order.
+                          final existingLast = appRepository.components[_selectedComponentId]
+                              ?.installations.map((i) => i.dateTimeUTC).maxOrNull;
+                          if (existingLast != null && (lastInstall == null || existingLast.isAfter(lastInstall))) {
+                            lastInstall = existingLast;
+                          }
+                        }
                         if (lastInstall != null && !value.toUtc().isAfter(lastInstall)) {
                           final formatted = DateFormat("${appSettings.dateFormat} ${appSettings.timeFormat}")
                               .format(lastInstall.toLocal());

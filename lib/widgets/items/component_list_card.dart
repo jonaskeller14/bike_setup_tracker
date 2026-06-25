@@ -182,7 +182,10 @@ class ComponentListCard extends StatelessWidget{
                       }
                     },
                     itemBuilder: (BuildContext context) => _ComponentOptions.values.where((option) {
-                      if (option == _ComponentOptions.replace) return appSettings.enableInstallationTimeline;
+                      if (option == _ComponentOptions.replace) {
+                        return component.bike != null && appSettings.enableInstallationTimeline;
+                      }
+                        
                       return true;
                     }).map((option) {
                       return PopupMenuItem<_ComponentOptions>(

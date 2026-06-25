@@ -756,7 +756,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                   AddressStatus.searching => _loadingIndicator(),
                   AddressStatus.idle || AddressStatus.success || AddressStatus.error => _currentPlace.value != null
                       ? Text("${_currentPlace.value?.locality}, ${_currentPlace.value?.isoCountryCode}") 
-                      : const Text("No GPS Permision"),
+                      : const Text("No GPS Permission"),
                 },
                 LocationStatus.error => switch (_addressService.status) {
                   AddressStatus.searching => _loadingIndicator(),

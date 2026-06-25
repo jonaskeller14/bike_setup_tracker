@@ -273,24 +273,6 @@ class FeaturesPage extends StatelessWidget {
                 ),
               if (kDebugMode)
                 ListTile(
-                  leading: const Icon(SimpleIcons.strava),
-                  title: const Text("Strava"),
-                  subtitle: _offOnOptionWidgets[appSettings.enableStrava] ?? const Text("-"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
-                    context: context,
-                    title: "Strava",
-                    value: appSettings.enableStrava,
-                    optionWidgets: _offOnOptionWidgets,
-                    onChanged: (bool? newValue) {
-                      if (newValue == null) return;
-                      appSettings.enableStrava = newValue;
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-              if (kDebugMode)
-                ListTile(
                   leading: const Icon(Icons.map),
                   title: const Text("MapBox Tiles"),
                   subtitle: _offOnOptionWidgets[appSettings.useMapBoxTiles] ?? const Text("-"),

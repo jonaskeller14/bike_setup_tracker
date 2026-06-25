@@ -32,7 +32,6 @@ void main() {
     appSettings = AppSettings();
     appSettings.showOnboarding = false;
     appSettings.enableGarage = false;
-    appSettings.enableStrava = false;
   });
 
   tearDown(() async {

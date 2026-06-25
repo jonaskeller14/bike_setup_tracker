@@ -21,7 +21,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableRating = false;
   bool _enableSetupTags = false;
   bool _enableTaskTags = false;
-  bool _enableStrava = true;
+  final bool _enableStrava = true;
   bool _enableStravaNotifications = true;
   bool _enableGarage = true;
   bool _enableTask = false;
@@ -195,13 +195,6 @@ class AppSettings extends ChangeNotifier {
     _enableTaskTags = newValue;
     notifyListeners();
     _persistBool('enableTaskTags', newValue);
-  }
-
-  set enableStrava(bool newValue) {
-    if (newValue == _enableStrava) return;
-    _enableStrava = newValue;
-    notifyListeners();
-    _persistBool('enableStrava', newValue);
   }
 
   set enableStravaNotifications(bool newValue) {
@@ -413,7 +406,7 @@ class AppSettings extends ChangeNotifier {
       _enableRating = prefs.getBool('${_kPrefix}enableRating') ?? _enableRating;
       _enableSetupTags = prefs.getBool('${_kPrefix}enableSetupTags') ?? _enableSetupTags;
       _enableTaskTags = prefs.getBool('${_kPrefix}enableTaskTags') ?? _enableTaskTags;
-      _enableStrava = prefs.getBool('${_kPrefix}enableStrava') ?? _enableStrava;
+      // enableStrava should always be true; ignored persisted value
       _enableStravaNotifications = prefs.getBool('${_kPrefix}enableStravaNotifications') ?? _enableStravaNotifications;
       _enableGarage = prefs.getBool('${_kPrefix}enableGarage') ?? _enableGarage;
       _enableTask = prefs.getBool('${_kPrefix}enableTask') ?? _enableTask;

@@ -222,7 +222,7 @@ class Component {
           ],
           notes: json["notes"] as String?,
           adjustments: (json["adjustments"] as List<dynamic>?)
-            ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson, defaultCategory: AdjustmentCategory.component))
+            ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson))
             .toList()
             ?? <Adjustment>[],
           orderIndex: json["orderIndex"] as int? ?? 0,
@@ -249,7 +249,7 @@ class Component {
             .toList() ?? [],
           notes: json["notes"] as String?,
           adjustments: (json["adjustments"] as List<dynamic>?)
-            ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson, defaultCategory: AdjustmentCategory.component))
+            ?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson))
             .toList()
             ?? <Adjustment>[],
           orderIndex: json["orderIndex"] as int? ?? 0,

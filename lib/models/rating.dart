@@ -82,7 +82,7 @@ class Rating {
           ),
           metrics: (json["adjustments"] as List<dynamic>?)
             ?.map((adjustmentJson) => RatingMetric(
-                  adjustment: Adjustment.fromJson(adjustmentJson, defaultCategory: AdjustmentCategory.rating),
+                  adjustment: Adjustment.fromJson(adjustmentJson),
                 ))
             .toList()
             ?? <RatingMetric>[],

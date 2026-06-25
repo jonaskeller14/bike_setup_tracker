@@ -10,7 +10,6 @@ void main() {
       name: 'Test Text',
       notes: 'Some notes',
       unit: 'some unit',
-      category: AdjustmentCategory.component,
     );
 
     TextAdjustment? result;
@@ -23,7 +22,7 @@ void main() {
               result = await Navigator.push<TextAdjustment>(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => TextAdjustmentPage.edit(adjustment: initial, categories: AdjustmentCategory.values.toSet()),
+                  builder: (context) => TextAdjustmentPage.edit(adjustment: initial),
                 ),
               );
             },

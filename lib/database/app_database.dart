@@ -79,7 +79,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.memory() : super(NativeDatabase.memory());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration {
@@ -123,6 +123,12 @@ class AppDatabase extends _$AppDatabase {
           await m.deleteTable(ratingEntries.actualTableName);
           await m.createTable(ratingEntries);
           await m.createTable(ratingEntryValues);
+        }
+        if (from < 7) {
+          // AdjustmentCategory removed — drop the category column from both
+          // adjustments and rating_metrics via schema recreation.
+          await m.alterTable(TableMigration(adjustments));
+          await m.alterTable(TableMigration(ratingMetrics));
         }
       },
     );

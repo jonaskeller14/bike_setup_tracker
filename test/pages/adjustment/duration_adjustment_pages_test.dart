@@ -12,7 +12,6 @@ void main() {
       unit: 'some unit',
       min: const Duration(minutes: 1),
       max: const Duration(minutes: 10),
-      category: AdjustmentCategory.component,
     );
 
     DurationAdjustment? result;
@@ -25,7 +24,7 @@ void main() {
               result = await Navigator.push<DurationAdjustment>(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => DurationAdjustmentPage.edit(adjustment: initial, categories: AdjustmentCategory.values.toSet()),
+                  builder: (context) => DurationAdjustmentPage.edit(adjustment: initial),
                 ),
               );
             },

@@ -60,7 +60,6 @@ class _OnboardingSlide4State extends State<OnboardingSlide4> {
             name: "Rebound",
             notes: null,
             unit: null,
-            category: AdjustmentCategory.component,
             min: 0,
             max: 12,
             step: 1,

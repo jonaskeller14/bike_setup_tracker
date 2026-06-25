@@ -19,7 +19,7 @@ void main() {
             initialValue: initialValue,
             value: value,
             onChanged: (_) {},
-            adjustment: CategoricalAdjustment(name: "CategoricalAdjustment #1", notes: null, unit: null, options: options, category: AdjustmentCategory.component),
+            adjustment: CategoricalAdjustment(name: "CategoricalAdjustment #1", notes: null, unit: null, options: options),
           ),
         ),
       ),

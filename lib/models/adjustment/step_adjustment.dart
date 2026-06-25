@@ -25,7 +25,6 @@ class StepAdjustment extends Adjustment {
     required super.name,
     required super.notes,
     required super.unit,
-    required super.category,
     required this.step,
     required this.min,
     required this.max,
@@ -38,7 +37,6 @@ class StepAdjustment extends Adjustment {
       name: name,
       notes: notes,
       unit: unit,
-      category: category,
       step: step,
       min: min,
       max: max,
@@ -59,7 +57,6 @@ class StepAdjustment extends Adjustment {
     'notes': notes,
     'type': AdjustmentType.step.name,
     'unit': unit,
-    'category': category.toString(),
     'min': min,
     'max': max,
     'step': step,
@@ -75,9 +72,6 @@ class StepAdjustment extends Adjustment {
           name: json['name'],
           notes: json['notes'],
           unit: json['unit'] as String?,
-          category: AdjustmentCategory.values.firstWhere(
-            (e) => e.toString() == json['category'],
-          ),
           step: (json['step'] as num).toInt(),
           min: (json['min'] as num).toInt(),
           max: (json['max'] as num).toInt(),
@@ -107,7 +101,6 @@ class StepAdjustment extends Adjustment {
         name == other.name &&
         notes == other.notes &&
         unit == other.unit &&
-        category == other.category &&
         step == other.step &&
         min == other.min &&
         max == other.max &&
@@ -116,16 +109,6 @@ class StepAdjustment extends Adjustment {
 
   @override
   int get hashCode {
-    return Object.hash(
-      id,
-      name,
-      notes,
-      unit,
-      category,
-      step,
-      min,
-      max,
-      visualization,
-    );
+    return Object.hash(id, name, notes, unit, step, min, max, visualization);
   }
 }

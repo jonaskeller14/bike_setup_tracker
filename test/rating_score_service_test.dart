@@ -7,7 +7,6 @@ StepAdjustment _step({int min = 0, int max = 10}) => StepAdjustment(
       name: 'step',
       notes: null,
       unit: null,
-      category: AdjustmentCategory.rating,
       step: 1,
       min: min,
       max: max,
@@ -18,14 +17,12 @@ BooleanAdjustment _bool() => BooleanAdjustment(
       name: 'bool',
       notes: null,
       unit: null,
-      category: AdjustmentCategory.rating,
     );
 
 NumericalAdjustment _num({double? min, double? max}) => NumericalAdjustment(
       name: 'num',
       notes: null,
       unit: null,
-      category: AdjustmentCategory.rating,
       min: min,
       max: max,
     );
@@ -34,7 +31,6 @@ DurationAdjustment _dur({Duration? min, Duration? max}) => DurationAdjustment(
       name: 'dur',
       notes: null,
       unit: null,
-      category: AdjustmentCategory.rating,
       min: min,
       max: max,
     );
@@ -43,7 +39,6 @@ TextAdjustment _text() => TextAdjustment(
       name: 'text',
       notes: null,
       unit: null,
-      category: AdjustmentCategory.rating,
     );
 
 void main() {

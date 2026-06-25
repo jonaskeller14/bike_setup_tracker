@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../icons/simple_icons.dart';
 import '../../models/app_settings.dart';
+import '../../models/bike.dart';
 import '../../models/person.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
@@ -22,7 +23,8 @@ class PersonDetailsPage extends StatelessWidget {
     if (person == null) return const SizedBox.shrink();
 
     final stravaAthlete = appRepository.stravaAthletes[person.stravaAthlete];
-    
+    final linkedBikes = appRepository.bikes.values.where((b) => b.person == person.id).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -62,12 +64,12 @@ class PersonDetailsPage extends StatelessWidget {
                     child: person.stravaAthlete != null
                         ? Icon(Icons.link, color: appRepository.stravaAthletes.containsKey(person.stravaAthlete) ? null : Theme.of(context).colorScheme.error)
                         : const Icon(Icons.link_off),
-                  ),                
+                  ),
                   title: Text(
                     stravaAthlete != null
-                        ? "${stravaAthlete.firstname} ${stravaAthlete.lastname}" 
-                        : (person.stravaAthlete == null 
-                            ? "No Strava Athlete linked to this person." 
+                        ? "${stravaAthlete.firstname} ${stravaAthlete.lastname}"
+                        : (person.stravaAthlete == null
+                            ? "No Strava Athlete linked to this person."
                             : "STRAVA ATHLETE NOT FOUND"),
                     style: TextStyle(
                       color: person.stravaAthlete == null || stravaAthlete != null
@@ -77,6 +79,19 @@ class PersonDetailsPage extends StatelessWidget {
                   ),
                   dense: true,
                 ),
+              if (linkedBikes.isEmpty)
+                const ListTile(
+                  leading: Icon(Bike.iconData),
+                  title: Text("No bikes linked to this person."),
+                  dense: true,
+                  enabled: false,
+                )
+              else
+                ...linkedBikes.map((bike) => ListTile(
+                  leading: const Icon(Bike.iconData),
+                  title: Text(bike.name),
+                  dense: true,
+                )),
             ],
           ),
         )

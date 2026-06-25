@@ -22,8 +22,7 @@ void main() {
               notes: null,
               unit: null,
               min: const Duration(hours: 1),
-              max: const Duration(hours: 2),
-              category: AdjustmentCategory.component
+              max: const Duration(hours: 2)
             ),
           ),
         ),

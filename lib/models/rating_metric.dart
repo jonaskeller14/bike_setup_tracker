@@ -40,17 +40,13 @@ class RatingMetric {
     'adjustment': adjustment.toJson(),
   };
 
-  factory RatingMetric.fromJson(
-    Map<String, dynamic> json, {
-    AdjustmentCategory defaultCategory = AdjustmentCategory.rating,
-  }) {
+  factory RatingMetric.fromJson(Map<String, dynamic> json) {
     final int? version = json['version'];
     switch (version) {
       case null || 1:
         return RatingMetric(
           adjustment: Adjustment.fromJson(
             json['adjustment'] as Map<String, dynamic>,
-            defaultCategory: defaultCategory,
           ),
           weight: (json['weight'] as num).toDouble(),
         );

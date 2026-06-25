@@ -81,11 +81,10 @@ extension AdjustmentDbMapper on AdjustmentDb {
     payload['name'] = name;
     payload['notes'] = notes;
     payload['unit'] = unit;
-    payload['category'] = category.toString();
     payload['type'] = type.name;
     payload['version'] = payload['version'] ?? 1;
 
-    return Adjustment.fromJson(payload, defaultCategory: category);
+    return Adjustment.fromJson(payload);
   }
 }
 
@@ -127,12 +126,11 @@ extension RatingMetricDbMapper on RatingMetricDb {
     payload['name'] = name;
     payload['notes'] = notes;
     payload['unit'] = unit;
-    payload['category'] = category.toString();
     payload['type'] = type.name;
     payload['version'] = payload['version'] ?? 1;
 
     return RatingMetric(
-      adjustment: Adjustment.fromJson(payload, defaultCategory: category),
+      adjustment: Adjustment.fromJson(payload),
       weight: weight,
     );
   }
@@ -239,7 +237,6 @@ extension AdjustmentMapper on Adjustment {
       name: Value<String>(name),
       notes: Value<String?>(notes),
       unit: Value<String?>(unit),
-      category: Value<AdjustmentCategory>(category),
       type: Value<AdjustmentType>(
         AdjustmentType.values.firstWhere((e) => e.name == typeString),
       ),
@@ -286,7 +283,6 @@ extension RatingMetricMapper on RatingMetric {
       name: Value<String>(adjustment.name),
       notes: Value<String?>(adjustment.notes),
       unit: Value<String?>(adjustment.unit),
-      category: Value<AdjustmentCategory>(adjustment.category),
       type: Value<AdjustmentType>(
         AdjustmentType.values.firstWhere((e) => e.name == typeString),
       ),

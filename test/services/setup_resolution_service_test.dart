@@ -23,7 +23,6 @@ void main() {
         name: 'Pressure',
         notes: null,
         unit: 'psi',
-        category: AdjustmentCategory.component,
       );
 
       reboundAdj = TextAdjustment(
@@ -31,7 +30,6 @@ void main() {
         name: 'Rebound',
         notes: null,
         unit: 'clicks',
-        category: AdjustmentCategory.component,
       );
 
       myBike = Bike(id: 'bike_1', name: 'My Enduro', person: 'person_1');
@@ -395,6 +393,7 @@ void main() {
 
       expect(history[pressureAdj.id], '80');
       expect(history[reboundAdj.id], '7');
+      // Person values are included in historical state for orange/green highlighting in SetupPage.
       expect(history['person_adj_1'], 'val1');
     });
   });

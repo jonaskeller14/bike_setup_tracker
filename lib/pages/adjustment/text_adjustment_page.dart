@@ -7,28 +7,24 @@ import 'adjustment_page.dart';
 class TextAdjustmentPage extends StatefulWidget {
   final TextAdjustment? adjustment;
   final AdjustmentPageMode mode;
-  final Set<AdjustmentCategory> categories;
-  final bool showCategorySelection;
 
   const TextAdjustmentPage._({
     super.key,
     this.adjustment,
     required this.mode,
-    required this.categories,
-    this.showCategorySelection = false,
   });
 
-  factory TextAdjustmentPage.add({Key? key, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
-    TextAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, categories: categories, showCategorySelection: showCategorySelection);
+  factory TextAdjustmentPage.add({Key? key}) =>
+      TextAdjustmentPage._(key: key, mode: AdjustmentPageMode.add);
 
-  factory TextAdjustmentPage.edit({Key? key, required TextAdjustment adjustment, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
-    TextAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, categories: categories, showCategorySelection: showCategorySelection);
+  factory TextAdjustmentPage.edit({Key? key, required TextAdjustment adjustment}) =>
+      TextAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit);
 
-  factory TextAdjustmentPage.duplicate({Key? key, required TextAdjustment adjustment, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
-    TextAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, categories: categories, showCategorySelection: showCategorySelection);
+  factory TextAdjustmentPage.duplicate({Key? key, required TextAdjustment adjustment}) =>
+      TextAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate);
 
-  factory TextAdjustmentPage.template({Key? key, required TextAdjustment adjustment, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
-    TextAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template, categories: categories, showCategorySelection: showCategorySelection);
+  factory TextAdjustmentPage.template({Key? key, required TextAdjustment adjustment}) =>
+      TextAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template);
 
   @override
   State<TextAdjustmentPage> createState() => _TextAdjustmentPageState();
@@ -40,7 +36,6 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
   bool _expanded = false;
   late TextEditingController _nameController;
   late TextEditingController _notesController;
-  late AdjustmentCategory _category;
 
   String _previewValue = '';
   late TextAdjustment _previewAdjustment;
@@ -53,21 +48,16 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
     _notesController = TextEditingController(text: widget.adjustment?.notes);
     _notesController.addListener(_changeListener);
 
-    _category = widget.adjustment?.category 
-        ?? widget.categories.firstOrNull 
-        ?? AdjustmentCategory.component;
-
     _previewAdjustment = widget.adjustment ?? TextAdjustment(
-      name: '', 
+      name: '',
       notes: null,
       unit: null,
-      category: _category,
     );
     if (widget.mode != AdjustmentPageMode.add) _expanded = true;
   }
 
   void _changeListener() {
-    final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '') || 
+    final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '') ||
         _notesController.text.trim() != (widget.adjustment?.notes ?? '');
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -97,10 +87,9 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
     if (!mounted) return;
     Navigator.pop(context, TextAdjustment(
       id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
-      name: name, 
-      notes: notes.isEmpty ? null : notes, 
+      name: name,
+      notes: notes.isEmpty ? null : notes,
       unit: widget.adjustment?.unit,
-      category: _category,
     ));
   }
 
@@ -115,14 +104,14 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope( 
+    return PopScope(
       canPop: !_formHasChanges,
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
         appBar: AppBar(
           title: switch (widget.mode) {
-            AdjustmentPageMode.add || 
-            AdjustmentPageMode.duplicate || 
+            AdjustmentPageMode.add ||
+            AdjustmentPageMode.duplicate ||
             AdjustmentPageMode.template => const Text('Add Text Adjustment'),
             AdjustmentPageMode.edit => const Text('Edit Text Adjustment'),
           },
@@ -151,7 +140,6 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                                   name: value ?? '',
                                   notes: _previewAdjustment.notes,
                                   unit: _previewAdjustment.unit,
-                                  category: _category,
                                 );
                               });
                             },
@@ -167,60 +155,15 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                             ),
                             validator: validateAdjustmentName,
                           ),
-                          if (widget.showCategorySelection && widget.categories.isNotEmpty) ...[
-                            const SizedBox(height: 12),
-                            DropdownButtonFormField<AdjustmentCategory>(
-                              initialValue: _category,
-                              isExpanded: true,
-                              autovalidateMode: AutovalidateMode.onUserInteraction,
-                              decoration: InputDecoration(
-                                labelText: 'Category',
-                                border: const OutlineInputBorder(),
-                                hintText: "Choose a category for this adjustment",
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
-                                filled: widget.mode == AdjustmentPageMode.edit && _category != widget.adjustment!.category
-                              ),
-                              validator: (AdjustmentCategory? newValue) {
-                                if (newValue == null) return "Please select a category";
-                                return null;
-                              },
-                              items: widget.categories.map((category) {
-                                return DropdownMenuItem<AdjustmentCategory>(
-                                  value: category,
-                                  child: Row(
-                                    spacing: 8,
-                                    children: [
-                                      Icon(category.getIconData()),
-                                      Expanded(child: Text(category.value, overflow: TextOverflow.ellipsis))
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                              onChanged: (AdjustmentCategory? newValue) {
-                                if (newValue != null) {
-                                  setState(() {
-                                    _category = newValue;
-                                    _previewAdjustment = TextAdjustment(
-                                      name: _nameController.text.trim(),
-                                      notes: _previewAdjustment.notes,
-                                      unit: _previewAdjustment.unit,
-                                      category: newValue,
-                                    );
-                                  });
-                                  _changeListener();
-                                }
-                              },
-                            ),
-                          ],
                           Center(
                             child: TextButton.icon(
                               onPressed: () => setState(() => _expanded = !_expanded),
-                              icon: Icon(_expanded 
-                                  ? Icons.expand_less 
+                              icon: Icon(_expanded
+                                  ? Icons.expand_less
                                   : Icons.expand_more,
                               ),
-                              label: Text(_expanded 
-                                  ? "Hide Additional Fields" 
+                              label: Text(_expanded
+                                  ? "Hide Additional Fields"
                                   : "Show Additional Fields"
                               ),
                             ),
@@ -237,10 +180,9 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                                   onChanged: (String? value) {
                                     setState(() {
                                       _previewAdjustment = TextAdjustment(
-                                        name: _previewAdjustment.name, 
+                                        name: _previewAdjustment.name,
                                         notes: (value == null || value.isEmpty) ? null : value,
                                         unit: _previewAdjustment.unit,
-                                        category: _category,
                                       );
                                     });
                                   },

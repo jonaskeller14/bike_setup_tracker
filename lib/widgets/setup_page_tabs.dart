@@ -380,6 +380,7 @@ class SetupPersonTab extends StatelessWidget {
                   adjustmentValues: personAdjustmentValues,
                   onAdjustmentValueChanged: onAdjustmentValueChanged,
                   removeFromAdjustmentValues: onRemoveFromAdjustmentValues,
+                  prefillFromInitial: false,
                 ),
               ],
             ),

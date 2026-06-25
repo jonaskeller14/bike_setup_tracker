@@ -144,12 +144,12 @@ class _RatingPageState extends State<RatingPage> {
     final adjustment = await Navigator.push<T>(
       context,
       MaterialPageRoute(builder: (context) => switch(T) {
-        const (BooleanAdjustment)       => BooleanAdjustmentPage.add(categories: const {AdjustmentCategory.rating}),
-        const (CategoricalAdjustment)   => CategoricalAdjustmentPage.add(categories: const {AdjustmentCategory.rating}),
-        const (StepAdjustment)          => StepAdjustmentPage.add(categories: const {AdjustmentCategory.rating}),
-        const (NumericalAdjustment)     => NumericalAdjustmentPage.add(categories: const {AdjustmentCategory.rating}),
-        const (TextAdjustment)          => TextAdjustmentPage.add(categories: const {AdjustmentCategory.rating}),
-        const (DurationAdjustment)      => DurationAdjustmentPage.add(categories: const {AdjustmentCategory.rating}),
+        const (BooleanAdjustment)       => BooleanAdjustmentPage.add(),
+        const (CategoricalAdjustment)   => CategoricalAdjustmentPage.add(),
+        const (StepAdjustment)          => StepAdjustmentPage.add(),
+        const (NumericalAdjustment)     => NumericalAdjustmentPage.add(),
+        const (TextAdjustment)          => TextAdjustmentPage.add(),
+        const (DurationAdjustment)      => DurationAdjustmentPage.add(),
         Type() => throw UnimplementedError(),
       }),
     );
@@ -163,12 +163,12 @@ class _RatingPageState extends State<RatingPage> {
     final newAdjustment = await Navigator.push<Adjustment>(
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment.deepCopy()) {
-        final BooleanAdjustment a     => BooleanAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.rating}),
-        final CategoricalAdjustment a => CategoricalAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.rating}),
-        final StepAdjustment a        => StepAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.rating}),
-        final NumericalAdjustment a   => NumericalAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.rating}),
-        final TextAdjustment a        => TextAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.rating}),
-        final DurationAdjustment a    => DurationAdjustmentPage.template(adjustment: a, categories: const {AdjustmentCategory.rating}),
+        final BooleanAdjustment a     => BooleanAdjustmentPage.template(adjustment: a),
+        final CategoricalAdjustment a => CategoricalAdjustmentPage.template(adjustment: a),
+        final StepAdjustment a        => StepAdjustmentPage.template(adjustment: a),
+        final NumericalAdjustment a   => NumericalAdjustmentPage.template(adjustment: a),
+        final TextAdjustment a        => TextAdjustmentPage.template(adjustment: a),
+        final DurationAdjustment a    => DurationAdjustmentPage.template(adjustment: a),
       }),
     );
     if (newAdjustment == null) return;
@@ -181,12 +181,12 @@ class _RatingPageState extends State<RatingPage> {
     final editedAdjustment = await Navigator.push<Adjustment>(
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment) {
-        final BooleanAdjustment a     => BooleanAdjustmentPage.edit(adjustment: a, categories: const {AdjustmentCategory.rating}),
-        final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a, categories: const {AdjustmentCategory.rating}),
-        final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a, categories: const {AdjustmentCategory.rating}),
-        final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a, categories: const {AdjustmentCategory.rating}),
-        final TextAdjustment a        => TextAdjustmentPage.edit(adjustment: a, categories: const {AdjustmentCategory.rating}),
-        final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a, categories: const {AdjustmentCategory.rating}),
+        final BooleanAdjustment a     => BooleanAdjustmentPage.edit(adjustment: a),
+        final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a),
+        final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a),
+        final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a),
+        final TextAdjustment a        => TextAdjustmentPage.edit(adjustment: a),
+        final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a),
       }),
     );
     if (editedAdjustment == null) return;
@@ -204,12 +204,12 @@ class _RatingPageState extends State<RatingPage> {
     final newAdjustment = await Navigator.push<Adjustment>(
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment.deepCopy()) {
-        final BooleanAdjustment a     => BooleanAdjustmentPage.duplicate(adjustment: a, categories: const {AdjustmentCategory.rating}),
-        final CategoricalAdjustment a => CategoricalAdjustmentPage.duplicate(adjustment: a, categories: const {AdjustmentCategory.rating}),
-        final StepAdjustment a        => StepAdjustmentPage.duplicate(adjustment: a, categories: const {AdjustmentCategory.rating}),
-        final NumericalAdjustment a   => NumericalAdjustmentPage.duplicate(adjustment: a, categories: const {AdjustmentCategory.rating}),
-        final TextAdjustment a        => TextAdjustmentPage.duplicate(adjustment: a, categories: const {AdjustmentCategory.rating}),
-        final DurationAdjustment a    => DurationAdjustmentPage.duplicate(adjustment: a, categories: const {AdjustmentCategory.rating}),
+        final BooleanAdjustment a     => BooleanAdjustmentPage.duplicate(adjustment: a),
+        final CategoricalAdjustment a => CategoricalAdjustmentPage.duplicate(adjustment: a),
+        final StepAdjustment a        => StepAdjustmentPage.duplicate(adjustment: a),
+        final NumericalAdjustment a   => NumericalAdjustmentPage.duplicate(adjustment: a),
+        final TextAdjustment a        => TextAdjustmentPage.duplicate(adjustment: a),
+        final DurationAdjustment a    => DurationAdjustmentPage.duplicate(adjustment: a),
       }),
     );
     if (newAdjustment == null) return;

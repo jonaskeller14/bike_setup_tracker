@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/person.dart';
@@ -70,25 +69,12 @@ class SetupResolutionService {
         }
       }
 
-      // 3.4. Update global state with current setup's recorded values
-      // Bike overrides
+      // 3.4. Update global state with bike and person values from this setup.
+      // This populates previousPersonAdjustmentValues for history display in the list card.
+      // SetupPage uses resolveHistoricalStateAt (bike-only) for pre-population, so person
+      // fields stay blank when adding a new setup.
       globalLastKnownState.addAll(setup.bikeAdjustmentValues);
-
-      // Person overrides (Filtering out transient)
-      if (person != null) {
-        for (final entry in setup.personAdjustmentValues.entries) {
-          final adjId = entry.key;
-          final value = entry.value;
-          final adjustment = person.adjustments.firstWhereOrNull((a) => a.id == adjId);
-          if (adjustment?.category == AdjustmentCategory.nutrition || 
-              adjustment?.category == AdjustmentCategory.equipment) {
-            continue;
-          }
-          globalLastKnownState[adjId] = value;
-        }
-      }
-      // Rating overrides could be added here if needed, but per-setup behavior is requested.
-      // globalLastKnownState.addAll(setup.ratingAdjustmentValues);
+      globalLastKnownState.addAll(setup.personAdjustmentValues);
     }
 
     return (setups: sortedSetups, globalState: globalLastKnownState);
@@ -115,23 +101,8 @@ class SetupResolutionService {
         .sortedBy((s) => s.datetime);
 
     for (final setup in sortedSetups) {
-      // 2. Bike overrides
       globalState.addAll(setup.bikeAdjustmentValues);
-
-      // 3. Person overrides (Filtering out transient categories like nutrition/equipment)
-      final person = persons[setup.person];
-      if (person != null) {
-        for (final entry in setup.personAdjustmentValues.entries) {
-          final adjId = entry.key;
-          final value = entry.value;
-          final adjustment = person.adjustments.firstWhereOrNull((a) => a.id == adjId);
-          if (adjustment?.category == AdjustmentCategory.nutrition || 
-              adjustment?.category == AdjustmentCategory.equipment) {
-            continue;
-          }
-          globalState[adjId] = value;
-        }
-      }
+      globalState.addAll(setup.personAdjustmentValues);
     }
 
     return globalState;

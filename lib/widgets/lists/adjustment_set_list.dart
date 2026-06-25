@@ -15,6 +15,7 @@ class AdjustmentSetList extends StatefulWidget {
   final Map<String, dynamic> adjustmentValues;
   final void Function({required Adjustment adjustment, required dynamic newValue}) onAdjustmentValueChanged;
   final void Function({required Adjustment adjustment}) removeFromAdjustmentValues;
+  final bool prefillFromInitial;
 
   const AdjustmentSetList({
     super.key,
@@ -23,6 +24,7 @@ class AdjustmentSetList extends StatefulWidget {
     required this.adjustmentValues,
     required this.onAdjustmentValueChanged,
     required this.removeFromAdjustmentValues,
+    this.prefillFromInitial = true,
   });
 
   @override
@@ -43,11 +45,13 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
         continue;
       }
 
-      // Step 2: Set from initialAdjustmentValues
-      final initialValue = widget.initialAdjustmentValues[adjustment.id];
-      if (initialValue != null) {
-        _adjustmentValues[adjustment.id] = initialValue;
-        continue;
+      // Step 2: Set from initialAdjustmentValues (skip when pre-fill is disabled)
+      if (widget.prefillFromInitial) {
+        final initialValue = widget.initialAdjustmentValues[adjustment.id];
+        if (initialValue != null) {
+          _adjustmentValues[adjustment.id] = initialValue;
+          continue;
+        }
       }
 
       // Step 3: Set defaults (null, min, false, ...)

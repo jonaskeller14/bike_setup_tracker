@@ -8,7 +8,6 @@ class BooleanAdjustment extends Adjustment {
     required super.name,
     required super.notes,
     required super.unit,
-    required super.category,
   });
 
   @override
@@ -17,7 +16,6 @@ class BooleanAdjustment extends Adjustment {
       name: name,
       notes: notes,
       unit: unit,
-      category: category,
     );
   }
   
@@ -34,7 +32,6 @@ class BooleanAdjustment extends Adjustment {
     'notes': notes,
     'type': AdjustmentType.boolean.name,
     'unit': unit,
-    'category': category.toString(),
   };
 
   factory BooleanAdjustment.fromJson(Map<String, dynamic> json) {
@@ -46,9 +43,6 @@ class BooleanAdjustment extends Adjustment {
           name: json['name'],
           notes: json['notes'],
           unit: json['unit'] as String?,
-          category: AdjustmentCategory.values.firstWhere(
-            (e) => e.toString() == json['category'],
-          ),
         );
       default: throw Exception("Json Version $version of BooleanAdjustment incompatible.");
     }
@@ -70,18 +64,11 @@ class BooleanAdjustment extends Adjustment {
         id == other.id &&
         name == other.name &&
         notes == other.notes &&
-        unit == other.unit &&
-        category == other.category;
+        unit == other.unit;
   }
 
   @override
   int get hashCode {
-    return Object.hash(
-      id,
-      name,
-      notes,
-      unit,
-      category,
-    );
+    return Object.hash(id, name, notes, unit);
   }
 }

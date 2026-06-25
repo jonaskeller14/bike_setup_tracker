@@ -156,7 +156,6 @@ void main() {
         name: "Pressure",
         notes: "",
         unit: "psi",
-        category: AdjustmentCategory.component,
       );
       final bikeWithAdj = bike1.copyWith(id: bike1.id);
       final component = Component(
@@ -275,7 +274,6 @@ void main() {
         name: "Weight",
         notes: "",
         unit: "kg",
-        category: AdjustmentCategory.body,
       );
       final personWithAdj = person1.copyWith(id: person1.id, adjustments: [adjustment]);
 
@@ -328,7 +326,6 @@ void main() {
         name: "Difficulty",
         notes: "",
         unit: "",
-        category: AdjustmentCategory.rating,
       );
       final ratingWithAdj = rating1.copyWith(id: rating1.id, metrics: [RatingMetric(adjustment: adjustment)]);
 

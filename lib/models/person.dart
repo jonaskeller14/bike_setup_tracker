@@ -61,9 +61,7 @@ class Person {
           name: json['name'],
           notes: json['notes'],
           stravaAthlete: json['stravaAthlete'],
-          adjustments: (json["adjustments"] as List<dynamic>?)?.map((adjustmentJson) => Adjustment.fromJson(
-            adjustmentJson, 
-            defaultCategory: AdjustmentCategory.body)).toList() ?? <Adjustment>[],
+          adjustments: (json["adjustments"] as List<dynamic>?)?.map((adjustmentJson) => Adjustment.fromJson(adjustmentJson)).toList() ?? <Adjustment>[],
           orderIndex: json['orderIndex'] as int? ?? 0,
         );
       default: throw Exception("Json Version $version of Person incompatible.");

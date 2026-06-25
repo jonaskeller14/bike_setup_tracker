@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
-import '../../icons/bike_icons.dart';
 
 part 'boolean_adjustment.dart';
 part 'categorical_adjustment.dart';
@@ -10,26 +9,6 @@ part 'duration_adjustment.dart';
 part 'numerical_adjustment.dart';
 part 'step_adjustment.dart';
 part 'text_adjustment.dart';
-
-enum AdjustmentCategory {
-  component('Component'),
-  rating('Rating'),
-  body('Body'),
-  nutrition('Nutrition'),
-  equipment('Equipment');
-
-  final String value;
-  const AdjustmentCategory(this.value);
-  IconData getIconData() {
-    switch (this) {
-      case component: return Icons.grid_view_sharp;
-      case rating: return Icons.star;
-      case body: return Icons.man;
-      case nutrition: return Icons.fastfood;
-      case equipment: return BikeIcons.equipment;
-    }
-  }
-}
 
 enum AdjustmentType {
   boolean,
@@ -45,14 +24,12 @@ sealed class Adjustment {
   final String name;
   final String? notes;
   final String? unit;
-  final AdjustmentCategory category;
 
   Adjustment({
     String? id,
     required this.name,
     required this.notes,
     required this.unit,
-    required this.category,
   }) : id = id ?? const Uuid().v4();
 
   Adjustment deepCopy();
@@ -79,7 +56,7 @@ sealed class Adjustment {
     }
   }
 
-  static Adjustment fromJson(Map<String, dynamic> json, {required AdjustmentCategory defaultCategory}) {
+  static Adjustment fromJson(Map<String, dynamic> json) {
     final int? version = json["version"];
     switch (version) {
       case null || 1:
@@ -88,7 +65,6 @@ sealed class Adjustment {
           (e) => e.name == typeString,
           orElse: () => throw Exception('Unknown adjustment type: $typeString'),
         );
-        json['category'] = json['category'] ?? defaultCategory.toString();
         switch (type) {
           case AdjustmentType.boolean: return BooleanAdjustment.fromJson(json);
           case AdjustmentType.categorical: return CategoricalAdjustment.fromJson(json);
@@ -97,7 +73,7 @@ sealed class Adjustment {
           case AdjustmentType.text: return TextAdjustment.fromJson(json);
           case AdjustmentType.duration: return DurationAdjustment.fromJson(json);
         }
-      default: throw Exception("Json Version $version of Adjustment incompatible."); 
+      default: throw Exception("Json Version $version of Adjustment incompatible.");
     }
   }
 }

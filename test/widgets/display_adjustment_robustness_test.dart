@@ -12,7 +12,6 @@ void main() {
         name: 'Step Adj',
         notes: '',
         unit: 'clicks',
-        category: AdjustmentCategory.component,
         step: 1,
         min: 0,
         max: 10,
@@ -52,7 +51,6 @@ void main() {
         name: 'Num Adj',
         notes: '',
         unit: 'mm',
-        category: AdjustmentCategory.component,
         min: 0,
         max: 100,
       );

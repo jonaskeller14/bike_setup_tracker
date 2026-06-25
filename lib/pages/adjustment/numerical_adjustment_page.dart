@@ -8,28 +8,24 @@ import 'adjustment_page.dart';
 class NumericalAdjustmentPage extends StatefulWidget {
   final NumericalAdjustment? adjustment;
   final AdjustmentPageMode mode;
-  final Set<AdjustmentCategory> categories;
-  final bool showCategorySelection;
 
   const NumericalAdjustmentPage._({
     super.key,
     this.adjustment,
     required this.mode,
-    required this.categories,
-    this.showCategorySelection = false,
   });
 
-  factory NumericalAdjustmentPage.add({Key? key, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
-    NumericalAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, categories: categories, showCategorySelection: showCategorySelection);
+  factory NumericalAdjustmentPage.add({Key? key}) =>
+      NumericalAdjustmentPage._(key: key, mode: AdjustmentPageMode.add);
 
-  factory NumericalAdjustmentPage.edit({Key? key, required NumericalAdjustment adjustment, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
-    NumericalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, categories: categories, showCategorySelection: showCategorySelection);
+  factory NumericalAdjustmentPage.edit({Key? key, required NumericalAdjustment adjustment}) =>
+      NumericalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit);
 
-  factory NumericalAdjustmentPage.duplicate({Key? key, required NumericalAdjustment adjustment, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
-    NumericalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, categories: categories, showCategorySelection: showCategorySelection);
+  factory NumericalAdjustmentPage.duplicate({Key? key, required NumericalAdjustment adjustment}) =>
+      NumericalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate);
 
-  factory NumericalAdjustmentPage.template({Key? key, required NumericalAdjustment adjustment, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
-    NumericalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template, categories: categories, showCategorySelection: showCategorySelection);
+  factory NumericalAdjustmentPage.template({Key? key, required NumericalAdjustment adjustment}) =>
+      NumericalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template);
 
   @override
   State<NumericalAdjustmentPage> createState() => _NumericalAdjustmentPageState();
@@ -44,7 +40,6 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
   late TextEditingController _minController;
   late TextEditingController _maxController;
   late TextEditingController _unitController;
-  late AdjustmentCategory _category;
   late String? _initialUnit;
 
   String? _previewValue;
@@ -65,24 +60,19 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     _unitController.addListener(_changeListener);
     _initialUnit = widget.adjustment?.unit;
 
-    _category = widget.adjustment?.category
-        ?? widget.categories.firstOrNull
-        ?? AdjustmentCategory.component;
-
     _previewAdjustment = widget.adjustment ?? NumericalAdjustment(
       name: '',
       notes: null,
       unit: null,
-      category: _category,
     );
     if (widget.mode != AdjustmentPageMode.add) _expanded = true;
   }
 
   void _changeListener() {
-    final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '') || 
+    final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '') ||
         _notesController.text.trim() != (widget.adjustment?.notes ?? '') ||
-        _unitController.text.trim() != (widget.adjustment?.unit ?? '') || 
-        (double.tryParse(_minController.text.trim()) ?? double.negativeInfinity) != (widget.adjustment?.min ?? double.negativeInfinity) || 
+        _unitController.text.trim() != (widget.adjustment?.unit ?? '') ||
+        (double.tryParse(_minController.text.trim()) ?? double.negativeInfinity) != (widget.adjustment?.min ?? double.negativeInfinity) ||
         (double.tryParse(_maxController.text.trim()) ?? double.infinity) != (widget.adjustment?.max ?? double.infinity);
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -125,12 +115,11 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     if (!mounted) return;
     Navigator.pop(context, NumericalAdjustment(
       id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
-      name: name, 
-      notes: notes.isEmpty ? null : notes, 
-      min: min, 
-      max: max, 
+      name: name,
+      notes: notes.isEmpty ? null : notes,
+      min: min,
+      max: max,
       unit: unit,
-      category: _category,
     ));
   }
 
@@ -162,14 +151,14 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope( 
+    return PopScope(
       canPop: !_formHasChanges,
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
         appBar: AppBar(
           title: switch (widget.mode) {
-            AdjustmentPageMode.add || 
-            AdjustmentPageMode.duplicate || 
+            AdjustmentPageMode.add ||
+            AdjustmentPageMode.duplicate ||
             AdjustmentPageMode.template => const Text('Add Numerical Adjustment'),
             AdjustmentPageMode.edit => const Text('Edit Numerical Adjustment'),
           },
@@ -200,7 +189,6 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                   unit: _unitController.text.trim(),
                                   min: double.tryParse(_minController.text.trim()),
                                   max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
-                                  category: _category,
                                 );
                               });
                             },
@@ -217,53 +205,6 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             ),
                             validator: validateAdjustmentName,
                           ),
-                          if (widget.showCategorySelection && widget.categories.isNotEmpty) ...[
-                            const SizedBox(height: 12),
-                            DropdownButtonFormField<AdjustmentCategory>(
-                              initialValue: _category,
-                              isExpanded: true,
-                              autovalidateMode: AutovalidateMode.onUserInteraction,
-                              decoration: InputDecoration(
-                                labelText: 'Category',
-                                border: const OutlineInputBorder(),
-                                hintText: "Choose a category for this adjustment",
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
-                                filled: widget.mode == AdjustmentPageMode.edit && _category != widget.adjustment!.category
-                              ),
-                              validator: (AdjustmentCategory? newValue) {
-                                if (newValue == null) return "Please select a category";
-                                return null;
-                              },
-                              items: widget.categories.map((category) {
-                                return DropdownMenuItem<AdjustmentCategory>(
-                                  value: category,
-                                  child: Row(
-                                    spacing: 8,
-                                    children: [
-                                      Icon(category.getIconData()),
-                                      Expanded(child: Text(category.value, overflow: TextOverflow.ellipsis))
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                              onChanged: (AdjustmentCategory? newValue) {
-                                if (newValue != null) {
-                                  setState(() {
-                                    _category = newValue;
-                                    _previewAdjustment = NumericalAdjustment(
-                                      name: _nameController.text.trim(),
-                                      notes: _previewAdjustment.notes,
-                                      unit: _unitController.text.trim(),
-                                      min: double.tryParse(_minController.text.trim()),
-                                      max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
-                                      category: newValue,
-                                    );
-                                  });
-                                  _changeListener();
-                                }
-                              },
-                            ),
-                          ],
                           const SizedBox(height: 12),
                           if (widget.mode == AdjustmentPageMode.edit && _unitController.text.trim() != (_initialUnit ?? '')) ...[
                             ListTile(
@@ -295,10 +236,9 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                 _previewAdjustment = NumericalAdjustment(
                                   name: _nameController.text.trim(),
                                   notes: _previewAdjustment.notes,
-                                  unit: _unitController.text.trim(), 
+                                  unit: _unitController.text.trim(),
                                   min: double.tryParse(_minController.text.trim()),
                                   max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
-                                  category: _category,
                                 );
                               });
                             },
@@ -306,12 +246,12 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                           Center(
                             child: TextButton.icon(
                               onPressed: () => setState(() => _expanded = !_expanded),
-                              icon: Icon(_expanded 
-                                  ? Icons.expand_less 
+                              icon: Icon(_expanded
+                                  ? Icons.expand_less
                                   : Icons.expand_more,
                               ),
-                              label: Text(_expanded 
-                                  ? "Hide Additional Fields" 
+                              label: Text(_expanded
+                                  ? "Hide Additional Fields"
                                   : "Show Additional Fields"
                               ),
                             ),
@@ -355,10 +295,9 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                       _previewAdjustment = NumericalAdjustment(
                                         name: _nameController.text.trim(),
                                         notes: _previewAdjustment.notes,
-                                        unit: _unitController.text.trim(), 
+                                        unit: _unitController.text.trim(),
                                         min: double.tryParse(_minController.text.trim()),
                                         max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
-                                        category: _category,
                                       );
                                     });
                                   },
@@ -398,10 +337,9 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                       _previewAdjustment = NumericalAdjustment(
                                         name: _nameController.text.trim(),
                                         notes: _previewAdjustment.notes,
-                                        unit: _unitController.text.trim(), 
+                                        unit: _unitController.text.trim(),
                                         min: double.tryParse(_minController.text.trim()),
                                         max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
-                                        category: _category,
                                       );
                                     });
                                   },
@@ -416,10 +354,9 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                       _previewAdjustment = NumericalAdjustment(
                                         name: _nameController.text.trim(),
                                         notes: (value == null || value.isEmpty) ? null : value,
-                                        unit: _unitController.text.trim(), 
+                                        unit: _unitController.text.trim(),
                                         min: double.tryParse(_minController.text.trim()),
                                         max: _validateMax(_maxController.text.trim()) == null ? double.tryParse(_maxController.text.trim()) : null,
-                                        category: _category,
                                       );
                                     });
                                   },

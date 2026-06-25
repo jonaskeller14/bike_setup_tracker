@@ -63,7 +63,6 @@ void main() {
           name: 'Rebound',
           notes: '',
           unit: 'clicks',
-          category: AdjustmentCategory.component,
           min: 0,
           max: 10,
           step: 1,
@@ -125,7 +124,7 @@ void main() {
   });
 
   testWidgets('show placeholder when no columns are selected', (WidgetTester tester) async {
-    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: 'clicks', category: AdjustmentCategory.component, min: 0, max: 10, step: 1, visualization: StepAdjustmentVisualization.slider);
+    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: 'clicks', min: 0, max: 10, step: 1, visualization: StepAdjustmentVisualization.slider);
     final component = Component(
       id: 'comp1',
       name: 'Test Fork',
@@ -188,7 +187,7 @@ void main() {
 
   testWidgets('sorting setups by name', (WidgetTester tester) async {
     // Component needs an adjustment for setups with that adjustment to be shown
-    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: 'clicks', category: AdjustmentCategory.component, min: 0, max: 10, step: 1, visualization: StepAdjustmentVisualization.slider);
+    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: 'clicks', min: 0, max: 10, step: 1, visualization: StepAdjustmentVisualization.slider);
     final component = Component(
       id: 'comp1',
       name: 'Test Fork',
@@ -249,8 +248,8 @@ void main() {
   });
 
   testWidgets('sortColumn and remove columns so that index >= length', (WidgetTester tester) async {
-    final adjustment1 = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
-    final adjustment2 = StepAdjustment(id: 'adj2', name: 'Compression', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
+    final adjustment1 = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
+    final adjustment2 = StepAdjustment(id: 'adj2', name: 'Compression', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
     
     final component = Component(
       id: 'comp1',
@@ -302,7 +301,7 @@ void main() {
   });
 
   testWidgets('edit Component updates ComponentOverviewPage (remove column, add possible columns, update appbar name)', (WidgetTester tester) async {
-    final adjustmentOld = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
+    final adjustmentOld = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
     
     final component = Component(
       id: 'comp1',
@@ -390,7 +389,7 @@ void main() {
   // ── Row selection ──────────────────────────────────────────────────────────
 
   testWidgets('initially selects the 5 most recent setups', (WidgetTester tester) async {
-    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
+    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
     await tester.runAsync(() async {
       await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
       await appRepository.addComponent(Component(
@@ -428,7 +427,7 @@ void main() {
   });
 
   testWidgets('tapping a selected row deselects it', (WidgetTester tester) async {
-    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
+    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
     await tester.runAsync(() async {
       await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
       await appRepository.addComponent(Component(
@@ -468,7 +467,7 @@ void main() {
   });
 
   testWidgets('tapping an unselected row selects it', (WidgetTester tester) async {
-    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
+    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
     await tester.runAsync(() async {
       await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
       await appRepository.addComponent(Component(
@@ -515,7 +514,7 @@ void main() {
   // ── Chart placeholders ─────────────────────────────────────────────────────
 
   testWidgets('line and radar charts show placeholder when no numerical columns are active', (WidgetTester tester) async {
-    final adjustment = CategoricalAdjustment(id: 'adj1', name: 'Tire Brand', notes: '', unit: null, category: AdjustmentCategory.component, options: {'Brand A', 'Brand B'});
+    final adjustment = CategoricalAdjustment(id: 'adj1', name: 'Tire Brand', notes: '', unit: null, options: {'Brand A', 'Brand B'});
     await tester.runAsync(() async {
       await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
       await appRepository.addComponent(Component(
@@ -543,7 +542,7 @@ void main() {
   });
 
   testWidgets('line and radar charts show placeholder when no setups are selected', (WidgetTester tester) async {
-    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
+    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
     await tester.runAsync(() async {
       await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
       await appRepository.addComponent(Component(
@@ -577,7 +576,7 @@ void main() {
   });
 
   testWidgets('line chart shows placeholder when fewer than 2 setups are selected', (WidgetTester tester) async {
-    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
+    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
     await tester.runAsync(() async {
       await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
       await appRepository.addComponent(Component(
@@ -610,8 +609,8 @@ void main() {
 
   testWidgets('radar chart shows placeholder when fewer than 3 numerical columns are active', (WidgetTester tester) async {
     // 2 numerical columns < 3 required for a radar chart
-    final adj1 = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
-    final adj2 = StepAdjustment(id: 'adj2', name: 'Compression', notes: '', unit: null, category: AdjustmentCategory.component, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
+    final adj1 = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
+    final adj2 = StepAdjustment(id: 'adj2', name: 'Compression', notes: '', unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider);
     await tester.runAsync(() async {
       await appRepository.addBike(Bike(id: 'bike1', name: 'Test Bike', person: null));
       await appRepository.addComponent(Component(

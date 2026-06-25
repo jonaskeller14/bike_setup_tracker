@@ -10,7 +10,6 @@ class CategoricalAdjustment extends Adjustment {
     required super.name,
     required super.notes,
     required super.unit,
-    required super.category,
     required this.options,
   });
 
@@ -20,7 +19,6 @@ class CategoricalAdjustment extends Adjustment {
       name: name,
       notes: notes,
       unit: unit,
-      category: category,
       options: options,
     );
   }
@@ -38,7 +36,6 @@ class CategoricalAdjustment extends Adjustment {
     'notes': notes,
     'type': AdjustmentType.categorical.name,
     'unit': unit,
-    'category': category.toString(),
     'options': options.toList(),
   };
 
@@ -51,9 +48,6 @@ class CategoricalAdjustment extends Adjustment {
           name: json['name'],
           notes: json['notes'],
           unit: json['unit'] as String?,
-          category: AdjustmentCategory.values.firstWhere(
-            (e) => e.toString() == json['category'],
-          ),
           options: Set<String>.from(json['options']),
         );
       default: throw Exception("Json Version $version of CategoricalAdjustment incompatible.");
@@ -77,19 +71,11 @@ class CategoricalAdjustment extends Adjustment {
         name == other.name &&
         notes == other.notes &&
         unit == other.unit &&
-        category == other.category &&
         setEquals(options, other.options);
   }
 
   @override
   int get hashCode {
-    return Object.hash(
-      id,
-      name,
-      notes,
-      unit,
-      category,
-      Object.hashAllUnordered(options),
-    );
+    return Object.hash(id, name, notes, unit, Object.hashAllUnordered(options));
   }
 }

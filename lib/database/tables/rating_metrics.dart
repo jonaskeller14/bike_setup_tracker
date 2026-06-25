@@ -13,7 +13,6 @@ class RatingMetrics extends Table {
   TextColumn get name => text()();
   TextColumn get notes => text().nullable()();
   TextColumn get unit => text().nullable()();
-  TextColumn get category => text().map(const EnumNameConverter(AdjustmentCategory.values))();
   TextColumn get type => textEnum<AdjustmentType>()();
 
   // Subclass-specific properties (min, max, options, …) as a serialized JSON string.

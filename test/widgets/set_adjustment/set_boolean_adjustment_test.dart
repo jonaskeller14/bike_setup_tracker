@@ -17,8 +17,7 @@ void main() {
             adjustment: BooleanAdjustment(
               name: "BooleanAdjustment #1", 
               notes: null,
-              unit: null,
-              category: AdjustmentCategory.component
+              unit: null
             ),
           ),
         ),

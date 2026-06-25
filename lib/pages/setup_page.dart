@@ -171,10 +171,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _personAdjustmentValues.clear();
 
     _bikeAdjustmentValues.addAll(_previousBikeAdjustmentValues);
-    _personAdjustmentValues.addAll(_previousPersonAdjustmentValues); //FIXME: only Body category.
+    // Person fields intentionally not pre-filled from previous history.
+    // _previousPersonAdjustmentValues is used only for orange/green highlighting in the widget.
 
     if (widget.setup != null) {
-      // EDIT SETUP
+      // EDIT / DUPLICATE
       _bikeAdjustmentValues.addAll(_initialBikeAdjustmentValues);
       _personAdjustmentValues.addAll(_initialPersonAdjustmentValues);
     }
@@ -225,9 +226,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
       _initialBikeAdjustmentValues.addAll(_previousBikeAdjustmentValues);
 
       _initialPersonAdjustmentValues.clear();
-      _initialPersonAdjustmentValues.addAll(_previousPersonAdjustmentValues);
     } else {
-      // EDIT SETUP
+      // EDIT / DUPLIATE SETUP
       _initialBikeAdjustmentValues.clear();
       _initialBikeAdjustmentValues.addAll(widget.setup!.bikeAdjustmentValues);
 

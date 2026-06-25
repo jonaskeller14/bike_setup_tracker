@@ -11,7 +11,6 @@ void main() {
       notes: 'Some notes',
       unit: 'some unit',
       options: {'Option 1', 'Option 2'},
-      category: AdjustmentCategory.component,
     );
 
     CategoricalAdjustment? result;
@@ -24,7 +23,7 @@ void main() {
               result = await Navigator.push<CategoricalAdjustment>(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => CategoricalAdjustmentPage.edit(adjustment: initial, categories: AdjustmentCategory.values.toSet()),
+                  builder: (context) => CategoricalAdjustmentPage.edit(adjustment: initial),
                 ),
               );
             },

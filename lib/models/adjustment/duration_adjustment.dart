@@ -11,7 +11,6 @@ class DurationAdjustment extends Adjustment {
     required super.name,
     required super.notes,
     required super.unit,
-    required super.category,
     this.min,
     this.max,
   });
@@ -22,7 +21,6 @@ class DurationAdjustment extends Adjustment {
       name: name,
       notes: notes,
       unit: unit,
-      category: category,
       min: min,
       max: max,
     );
@@ -33,7 +31,6 @@ class DurationAdjustment extends Adjustment {
     Object? name = const _Sentinel(),
     Object? notes = const _Sentinel(),
     Object? unit = const _Sentinel(),
-    Object? category = const _Sentinel(),
     Object? min = const _Sentinel(),
     Object? max = const _Sentinel(),
   }) {
@@ -42,7 +39,6 @@ class DurationAdjustment extends Adjustment {
       name: name is _Sentinel ? this.name : (name as String),
       notes: notes is _Sentinel ? this.notes : (notes as String?),
       unit: unit is _Sentinel ? this.unit : (unit as String?),
-      category: category is _Sentinel ? this.category : (category as AdjustmentCategory),
       min: min is _Sentinel ? this.min : (min as Duration?),
       max: max is _Sentinel ? this.max : (max as Duration?),
     );
@@ -61,7 +57,6 @@ class DurationAdjustment extends Adjustment {
     'notes': notes,
     'type': AdjustmentType.duration.name,
     'unit': unit,
-    'category': category.toString(),
     'min': min?.toString(),
     'max': max?.toString(),
   };
@@ -75,9 +70,6 @@ class DurationAdjustment extends Adjustment {
           name: json['name'],
           notes: json['notes'],
           unit: json['unit'] as String?,
-          category: AdjustmentCategory.values.firstWhere(
-            (e) => e.toString() == json['category'],
-          ),
           min: DurationAdjustment.tryParseDurationString(json["min"]),
           max: DurationAdjustment.tryParseDurationString(json["max"]),
         );
@@ -102,22 +94,13 @@ class DurationAdjustment extends Adjustment {
         name == other.name &&
         notes == other.notes &&
         unit == other.unit &&
-        category == other.category &&
         min == other.min &&
         max == other.max;
   }
 
   @override
   int get hashCode {
-    return Object.hash(
-      id,
-      name,
-      notes,
-      unit,
-      category,
-      min,
-      max,
-    );
+    return Object.hash(id, name, notes, unit, min, max);
   }
 
   static Duration? tryParseDurationString(String? durationString) {

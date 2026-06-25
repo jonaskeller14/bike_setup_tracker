@@ -361,7 +361,6 @@ void main() {
       name: "BooleanAdjustment #1",
       notes: null,
       unit: null,
-      category: AdjustmentCategory.component,
     );
     final component1 = Component(
       name: "Component #1",
@@ -483,7 +482,6 @@ void main() {
       name: "BooleanAdjustment #1",
       notes: null,
       unit: null,
-      category: AdjustmentCategory.component,
     );
     final component1 = Component(
       name: "Component #1",

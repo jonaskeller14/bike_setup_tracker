@@ -3206,15 +3206,6 @@ class $AdjustmentsTable extends Adjustments
     requiredDuringInsert: false,
   );
   @override
-  late final GeneratedColumnWithTypeConverter<AdjustmentCategory, String>
-  category = GeneratedColumn<String>(
-    'category',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  ).withConverter<AdjustmentCategory>($AdjustmentsTable.$convertercategory);
-  @override
   late final GeneratedColumnWithTypeConverter<AdjustmentType, String> type =
       GeneratedColumn<String>(
         'type',
@@ -3243,7 +3234,6 @@ class $AdjustmentsTable extends Adjustments
     name,
     notes,
     unit,
-    category,
     type,
     jsonPayload,
   ];
@@ -3353,12 +3343,6 @@ class $AdjustmentsTable extends Adjustments
         DriftSqlType.string,
         data['${effectivePrefix}unit'],
       ),
-      category: $AdjustmentsTable.$convertercategory.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}category'],
-        )!,
-      ),
       type: $AdjustmentsTable.$convertertype.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
@@ -3377,8 +3361,6 @@ class $AdjustmentsTable extends Adjustments
     return $AdjustmentsTable(attachedDatabase, alias);
   }
 
-  static JsonTypeConverter2<AdjustmentCategory, String, String>
-  $convertercategory = const EnumNameConverter(AdjustmentCategory.values);
   static JsonTypeConverter2<AdjustmentType, String, String> $convertertype =
       const EnumNameConverter<AdjustmentType>(AdjustmentType.values);
 }
@@ -3391,7 +3373,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
   final String name;
   final String? notes;
   final String? unit;
-  final AdjustmentCategory category;
   final AdjustmentType type;
   final String? jsonPayload;
   const AdjustmentDb({
@@ -3402,7 +3383,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
     required this.name,
     this.notes,
     this.unit,
-    required this.category,
     required this.type,
     this.jsonPayload,
   });
@@ -3423,11 +3403,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
     }
     if (!nullToAbsent || unit != null) {
       map['unit'] = Variable<String>(unit);
-    }
-    {
-      map['category'] = Variable<String>(
-        $AdjustmentsTable.$convertercategory.toSql(category),
-      );
     }
     {
       map['type'] = Variable<String>(
@@ -3455,7 +3430,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
           ? const Value.absent()
           : Value(notes),
       unit: unit == null && nullToAbsent ? const Value.absent() : Value(unit),
-      category: Value(category),
       type: Value(type),
       jsonPayload: jsonPayload == null && nullToAbsent
           ? const Value.absent()
@@ -3476,9 +3450,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
       name: serializer.fromJson<String>(json['name']),
       notes: serializer.fromJson<String?>(json['notes']),
       unit: serializer.fromJson<String?>(json['unit']),
-      category: $AdjustmentsTable.$convertercategory.fromJson(
-        serializer.fromJson<String>(json['category']),
-      ),
       type: $AdjustmentsTable.$convertertype.fromJson(
         serializer.fromJson<String>(json['type']),
       ),
@@ -3496,9 +3467,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
       'name': serializer.toJson<String>(name),
       'notes': serializer.toJson<String?>(notes),
       'unit': serializer.toJson<String?>(unit),
-      'category': serializer.toJson<String>(
-        $AdjustmentsTable.$convertercategory.toJson(category),
-      ),
       'type': serializer.toJson<String>(
         $AdjustmentsTable.$convertertype.toJson(type),
       ),
@@ -3514,7 +3482,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
     String? name,
     Value<String?> notes = const Value.absent(),
     Value<String?> unit = const Value.absent(),
-    AdjustmentCategory? category,
     AdjustmentType? type,
     Value<String?> jsonPayload = const Value.absent(),
   }) => AdjustmentDb(
@@ -3525,7 +3492,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
     name: name ?? this.name,
     notes: notes.present ? notes.value : this.notes,
     unit: unit.present ? unit.value : this.unit,
-    category: category ?? this.category,
     type: type ?? this.type,
     jsonPayload: jsonPayload.present ? jsonPayload.value : this.jsonPayload,
   );
@@ -3542,7 +3508,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
       name: data.name.present ? data.name.value : this.name,
       notes: data.notes.present ? data.notes.value : this.notes,
       unit: data.unit.present ? data.unit.value : this.unit,
-      category: data.category.present ? data.category.value : this.category,
       type: data.type.present ? data.type.value : this.type,
       jsonPayload: data.jsonPayload.present
           ? data.jsonPayload.value
@@ -3560,7 +3525,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
           ..write('name: $name, ')
           ..write('notes: $notes, ')
           ..write('unit: $unit, ')
-          ..write('category: $category, ')
           ..write('type: $type, ')
           ..write('jsonPayload: $jsonPayload')
           ..write(')'))
@@ -3576,7 +3540,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
     name,
     notes,
     unit,
-    category,
     type,
     jsonPayload,
   );
@@ -3591,7 +3554,6 @@ class AdjustmentDb extends DataClass implements Insertable<AdjustmentDb> {
           other.name == this.name &&
           other.notes == this.notes &&
           other.unit == this.unit &&
-          other.category == this.category &&
           other.type == this.type &&
           other.jsonPayload == this.jsonPayload);
 }
@@ -3604,7 +3566,6 @@ class AdjustmentsCompanion extends UpdateCompanion<AdjustmentDb> {
   final Value<String> name;
   final Value<String?> notes;
   final Value<String?> unit;
-  final Value<AdjustmentCategory> category;
   final Value<AdjustmentType> type;
   final Value<String?> jsonPayload;
   final Value<int> rowid;
@@ -3616,7 +3577,6 @@ class AdjustmentsCompanion extends UpdateCompanion<AdjustmentDb> {
     this.name = const Value.absent(),
     this.notes = const Value.absent(),
     this.unit = const Value.absent(),
-    this.category = const Value.absent(),
     this.type = const Value.absent(),
     this.jsonPayload = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -3629,14 +3589,12 @@ class AdjustmentsCompanion extends UpdateCompanion<AdjustmentDb> {
     required String name,
     this.notes = const Value.absent(),
     this.unit = const Value.absent(),
-    required AdjustmentCategory category,
     required AdjustmentType type,
     this.jsonPayload = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        orderIndex = Value(orderIndex),
        name = Value(name),
-       category = Value(category),
        type = Value(type);
   static Insertable<AdjustmentDb> custom({
     Expression<String>? id,
@@ -3646,7 +3604,6 @@ class AdjustmentsCompanion extends UpdateCompanion<AdjustmentDb> {
     Expression<String>? name,
     Expression<String>? notes,
     Expression<String>? unit,
-    Expression<String>? category,
     Expression<String>? type,
     Expression<String>? jsonPayload,
     Expression<int>? rowid,
@@ -3659,7 +3616,6 @@ class AdjustmentsCompanion extends UpdateCompanion<AdjustmentDb> {
       if (name != null) 'name': name,
       if (notes != null) 'notes': notes,
       if (unit != null) 'unit': unit,
-      if (category != null) 'category': category,
       if (type != null) 'type': type,
       if (jsonPayload != null) 'json_payload': jsonPayload,
       if (rowid != null) 'rowid': rowid,
@@ -3674,7 +3630,6 @@ class AdjustmentsCompanion extends UpdateCompanion<AdjustmentDb> {
     Value<String>? name,
     Value<String?>? notes,
     Value<String?>? unit,
-    Value<AdjustmentCategory>? category,
     Value<AdjustmentType>? type,
     Value<String?>? jsonPayload,
     Value<int>? rowid,
@@ -3687,7 +3642,6 @@ class AdjustmentsCompanion extends UpdateCompanion<AdjustmentDb> {
       name: name ?? this.name,
       notes: notes ?? this.notes,
       unit: unit ?? this.unit,
-      category: category ?? this.category,
       type: type ?? this.type,
       jsonPayload: jsonPayload ?? this.jsonPayload,
       rowid: rowid ?? this.rowid,
@@ -3718,11 +3672,6 @@ class AdjustmentsCompanion extends UpdateCompanion<AdjustmentDb> {
     if (unit.present) {
       map['unit'] = Variable<String>(unit.value);
     }
-    if (category.present) {
-      map['category'] = Variable<String>(
-        $AdjustmentsTable.$convertercategory.toSql(category.value),
-      );
-    }
     if (type.present) {
       map['type'] = Variable<String>(
         $AdjustmentsTable.$convertertype.toSql(type.value),
@@ -3747,7 +3696,6 @@ class AdjustmentsCompanion extends UpdateCompanion<AdjustmentDb> {
           ..write('name: $name, ')
           ..write('notes: $notes, ')
           ..write('unit: $unit, ')
-          ..write('category: $category, ')
           ..write('type: $type, ')
           ..write('jsonPayload: $jsonPayload, ')
           ..write('rowid: $rowid')
@@ -5773,15 +5721,6 @@ class $RatingMetricsTable extends RatingMetrics
     requiredDuringInsert: false,
   );
   @override
-  late final GeneratedColumnWithTypeConverter<AdjustmentCategory, String>
-  category = GeneratedColumn<String>(
-    'category',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  ).withConverter<AdjustmentCategory>($RatingMetricsTable.$convertercategory);
-  @override
   late final GeneratedColumnWithTypeConverter<AdjustmentType, String> type =
       GeneratedColumn<String>(
         'type',
@@ -5810,7 +5749,6 @@ class $RatingMetricsTable extends RatingMetrics
     name,
     notes,
     unit,
-    category,
     type,
     jsonPayload,
   ];
@@ -5919,12 +5857,6 @@ class $RatingMetricsTable extends RatingMetrics
         DriftSqlType.string,
         data['${effectivePrefix}unit'],
       ),
-      category: $RatingMetricsTable.$convertercategory.fromSql(
-        attachedDatabase.typeMapping.read(
-          DriftSqlType.string,
-          data['${effectivePrefix}category'],
-        )!,
-      ),
       type: $RatingMetricsTable.$convertertype.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
@@ -5943,8 +5875,6 @@ class $RatingMetricsTable extends RatingMetrics
     return $RatingMetricsTable(attachedDatabase, alias);
   }
 
-  static JsonTypeConverter2<AdjustmentCategory, String, String>
-  $convertercategory = const EnumNameConverter(AdjustmentCategory.values);
   static JsonTypeConverter2<AdjustmentType, String, String> $convertertype =
       const EnumNameConverter<AdjustmentType>(AdjustmentType.values);
 }
@@ -5957,7 +5887,6 @@ class RatingMetricDb extends DataClass implements Insertable<RatingMetricDb> {
   final String name;
   final String? notes;
   final String? unit;
-  final AdjustmentCategory category;
   final AdjustmentType type;
   final String? jsonPayload;
   const RatingMetricDb({
@@ -5968,7 +5897,6 @@ class RatingMetricDb extends DataClass implements Insertable<RatingMetricDb> {
     required this.name,
     this.notes,
     this.unit,
-    required this.category,
     required this.type,
     this.jsonPayload,
   });
@@ -5985,11 +5913,6 @@ class RatingMetricDb extends DataClass implements Insertable<RatingMetricDb> {
     }
     if (!nullToAbsent || unit != null) {
       map['unit'] = Variable<String>(unit);
-    }
-    {
-      map['category'] = Variable<String>(
-        $RatingMetricsTable.$convertercategory.toSql(category),
-      );
     }
     {
       map['type'] = Variable<String>(
@@ -6013,7 +5936,6 @@ class RatingMetricDb extends DataClass implements Insertable<RatingMetricDb> {
           ? const Value.absent()
           : Value(notes),
       unit: unit == null && nullToAbsent ? const Value.absent() : Value(unit),
-      category: Value(category),
       type: Value(type),
       jsonPayload: jsonPayload == null && nullToAbsent
           ? const Value.absent()
@@ -6034,9 +5956,6 @@ class RatingMetricDb extends DataClass implements Insertable<RatingMetricDb> {
       name: serializer.fromJson<String>(json['name']),
       notes: serializer.fromJson<String?>(json['notes']),
       unit: serializer.fromJson<String?>(json['unit']),
-      category: $RatingMetricsTable.$convertercategory.fromJson(
-        serializer.fromJson<String>(json['category']),
-      ),
       type: $RatingMetricsTable.$convertertype.fromJson(
         serializer.fromJson<String>(json['type']),
       ),
@@ -6054,9 +5973,6 @@ class RatingMetricDb extends DataClass implements Insertable<RatingMetricDb> {
       'name': serializer.toJson<String>(name),
       'notes': serializer.toJson<String?>(notes),
       'unit': serializer.toJson<String?>(unit),
-      'category': serializer.toJson<String>(
-        $RatingMetricsTable.$convertercategory.toJson(category),
-      ),
       'type': serializer.toJson<String>(
         $RatingMetricsTable.$convertertype.toJson(type),
       ),
@@ -6072,7 +5988,6 @@ class RatingMetricDb extends DataClass implements Insertable<RatingMetricDb> {
     String? name,
     Value<String?> notes = const Value.absent(),
     Value<String?> unit = const Value.absent(),
-    AdjustmentCategory? category,
     AdjustmentType? type,
     Value<String?> jsonPayload = const Value.absent(),
   }) => RatingMetricDb(
@@ -6083,7 +5998,6 @@ class RatingMetricDb extends DataClass implements Insertable<RatingMetricDb> {
     name: name ?? this.name,
     notes: notes.present ? notes.value : this.notes,
     unit: unit.present ? unit.value : this.unit,
-    category: category ?? this.category,
     type: type ?? this.type,
     jsonPayload: jsonPayload.present ? jsonPayload.value : this.jsonPayload,
   );
@@ -6098,7 +6012,6 @@ class RatingMetricDb extends DataClass implements Insertable<RatingMetricDb> {
       name: data.name.present ? data.name.value : this.name,
       notes: data.notes.present ? data.notes.value : this.notes,
       unit: data.unit.present ? data.unit.value : this.unit,
-      category: data.category.present ? data.category.value : this.category,
       type: data.type.present ? data.type.value : this.type,
       jsonPayload: data.jsonPayload.present
           ? data.jsonPayload.value
@@ -6116,7 +6029,6 @@ class RatingMetricDb extends DataClass implements Insertable<RatingMetricDb> {
           ..write('name: $name, ')
           ..write('notes: $notes, ')
           ..write('unit: $unit, ')
-          ..write('category: $category, ')
           ..write('type: $type, ')
           ..write('jsonPayload: $jsonPayload')
           ..write(')'))
@@ -6132,7 +6044,6 @@ class RatingMetricDb extends DataClass implements Insertable<RatingMetricDb> {
     name,
     notes,
     unit,
-    category,
     type,
     jsonPayload,
   );
@@ -6147,7 +6058,6 @@ class RatingMetricDb extends DataClass implements Insertable<RatingMetricDb> {
           other.name == this.name &&
           other.notes == this.notes &&
           other.unit == this.unit &&
-          other.category == this.category &&
           other.type == this.type &&
           other.jsonPayload == this.jsonPayload);
 }
@@ -6160,7 +6070,6 @@ class RatingMetricsCompanion extends UpdateCompanion<RatingMetricDb> {
   final Value<String> name;
   final Value<String?> notes;
   final Value<String?> unit;
-  final Value<AdjustmentCategory> category;
   final Value<AdjustmentType> type;
   final Value<String?> jsonPayload;
   final Value<int> rowid;
@@ -6172,7 +6081,6 @@ class RatingMetricsCompanion extends UpdateCompanion<RatingMetricDb> {
     this.name = const Value.absent(),
     this.notes = const Value.absent(),
     this.unit = const Value.absent(),
-    this.category = const Value.absent(),
     this.type = const Value.absent(),
     this.jsonPayload = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -6185,7 +6093,6 @@ class RatingMetricsCompanion extends UpdateCompanion<RatingMetricDb> {
     required String name,
     this.notes = const Value.absent(),
     this.unit = const Value.absent(),
-    required AdjustmentCategory category,
     required AdjustmentType type,
     this.jsonPayload = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -6193,7 +6100,6 @@ class RatingMetricsCompanion extends UpdateCompanion<RatingMetricDb> {
        ratingId = Value(ratingId),
        orderIndex = Value(orderIndex),
        name = Value(name),
-       category = Value(category),
        type = Value(type);
   static Insertable<RatingMetricDb> custom({
     Expression<String>? id,
@@ -6203,7 +6109,6 @@ class RatingMetricsCompanion extends UpdateCompanion<RatingMetricDb> {
     Expression<String>? name,
     Expression<String>? notes,
     Expression<String>? unit,
-    Expression<String>? category,
     Expression<String>? type,
     Expression<String>? jsonPayload,
     Expression<int>? rowid,
@@ -6216,7 +6121,6 @@ class RatingMetricsCompanion extends UpdateCompanion<RatingMetricDb> {
       if (name != null) 'name': name,
       if (notes != null) 'notes': notes,
       if (unit != null) 'unit': unit,
-      if (category != null) 'category': category,
       if (type != null) 'type': type,
       if (jsonPayload != null) 'json_payload': jsonPayload,
       if (rowid != null) 'rowid': rowid,
@@ -6231,7 +6135,6 @@ class RatingMetricsCompanion extends UpdateCompanion<RatingMetricDb> {
     Value<String>? name,
     Value<String?>? notes,
     Value<String?>? unit,
-    Value<AdjustmentCategory>? category,
     Value<AdjustmentType>? type,
     Value<String?>? jsonPayload,
     Value<int>? rowid,
@@ -6244,7 +6147,6 @@ class RatingMetricsCompanion extends UpdateCompanion<RatingMetricDb> {
       name: name ?? this.name,
       notes: notes ?? this.notes,
       unit: unit ?? this.unit,
-      category: category ?? this.category,
       type: type ?? this.type,
       jsonPayload: jsonPayload ?? this.jsonPayload,
       rowid: rowid ?? this.rowid,
@@ -6275,11 +6177,6 @@ class RatingMetricsCompanion extends UpdateCompanion<RatingMetricDb> {
     if (unit.present) {
       map['unit'] = Variable<String>(unit.value);
     }
-    if (category.present) {
-      map['category'] = Variable<String>(
-        $RatingMetricsTable.$convertercategory.toSql(category.value),
-      );
-    }
     if (type.present) {
       map['type'] = Variable<String>(
         $RatingMetricsTable.$convertertype.toSql(type.value),
@@ -6304,7 +6201,6 @@ class RatingMetricsCompanion extends UpdateCompanion<RatingMetricDb> {
           ..write('name: $name, ')
           ..write('notes: $notes, ')
           ..write('unit: $unit, ')
-          ..write('category: $category, ')
           ..write('type: $type, ')
           ..write('jsonPayload: $jsonPayload, ')
           ..write('rowid: $rowid')
@@ -12053,7 +11949,6 @@ typedef $$AdjustmentsTableCreateCompanionBuilder =
       required String name,
       Value<String?> notes,
       Value<String?> unit,
-      required AdjustmentCategory category,
       required AdjustmentType type,
       Value<String?> jsonPayload,
       Value<int> rowid,
@@ -12067,7 +11962,6 @@ typedef $$AdjustmentsTableUpdateCompanionBuilder =
       Value<String> name,
       Value<String?> notes,
       Value<String?> unit,
-      Value<AdjustmentCategory> category,
       Value<AdjustmentType> type,
       Value<String?> jsonPayload,
       Value<int> rowid,
@@ -12169,12 +12063,6 @@ class $$AdjustmentsTableFilterComposer
   ColumnFilters<String> get unit => $composableBuilder(
     column: $table.unit,
     builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<AdjustmentCategory, AdjustmentCategory, String>
-  get category => $composableBuilder(
-    column: $table.category,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnWithTypeConverterFilters<AdjustmentType, AdjustmentType, String>
@@ -12295,11 +12183,6 @@ class $$AdjustmentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get category => $composableBuilder(
-    column: $table.category,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<String> get type => $composableBuilder(
     column: $table.type,
     builder: (column) => ColumnOrderings(column),
@@ -12382,9 +12265,6 @@ class $$AdjustmentsTableAnnotationComposer
 
   GeneratedColumn<String> get unit =>
       $composableBuilder(column: $table.unit, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<AdjustmentCategory, String> get category =>
-      $composableBuilder(column: $table.category, builder: (column) => column);
 
   GeneratedColumnWithTypeConverter<AdjustmentType, String> get type =>
       $composableBuilder(column: $table.type, builder: (column) => column);
@@ -12506,7 +12386,6 @@ class $$AdjustmentsTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<String?> unit = const Value.absent(),
-                Value<AdjustmentCategory> category = const Value.absent(),
                 Value<AdjustmentType> type = const Value.absent(),
                 Value<String?> jsonPayload = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -12518,7 +12397,6 @@ class $$AdjustmentsTableTableManager
                 name: name,
                 notes: notes,
                 unit: unit,
-                category: category,
                 type: type,
                 jsonPayload: jsonPayload,
                 rowid: rowid,
@@ -12532,7 +12410,6 @@ class $$AdjustmentsTableTableManager
                 required String name,
                 Value<String?> notes = const Value.absent(),
                 Value<String?> unit = const Value.absent(),
-                required AdjustmentCategory category,
                 required AdjustmentType type,
                 Value<String?> jsonPayload = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -12544,7 +12421,6 @@ class $$AdjustmentsTableTableManager
                 name: name,
                 notes: notes,
                 unit: unit,
-                category: category,
                 type: type,
                 jsonPayload: jsonPayload,
                 rowid: rowid,
@@ -14536,7 +14412,6 @@ typedef $$RatingMetricsTableCreateCompanionBuilder =
       required String name,
       Value<String?> notes,
       Value<String?> unit,
-      required AdjustmentCategory category,
       required AdjustmentType type,
       Value<String?> jsonPayload,
       Value<int> rowid,
@@ -14550,7 +14425,6 @@ typedef $$RatingMetricsTableUpdateCompanionBuilder =
       Value<String> name,
       Value<String?> notes,
       Value<String?> unit,
-      Value<AdjustmentCategory> category,
       Value<AdjustmentType> type,
       Value<String?> jsonPayload,
       Value<int> rowid,
@@ -14640,12 +14514,6 @@ class $$RatingMetricsTableFilterComposer
   ColumnFilters<String> get unit => $composableBuilder(
     column: $table.unit,
     builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnWithTypeConverterFilters<AdjustmentCategory, AdjustmentCategory, String>
-  get category => $composableBuilder(
-    column: $table.category,
-    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnWithTypeConverterFilters<AdjustmentType, AdjustmentType, String>
@@ -14747,11 +14615,6 @@ class $$RatingMetricsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get category => $composableBuilder(
-    column: $table.category,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<String> get type => $composableBuilder(
     column: $table.type,
     builder: (column) => ColumnOrderings(column),
@@ -14814,9 +14677,6 @@ class $$RatingMetricsTableAnnotationComposer
 
   GeneratedColumn<String> get unit =>
       $composableBuilder(column: $table.unit, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<AdjustmentCategory, String> get category =>
-      $composableBuilder(column: $table.category, builder: (column) => column);
 
   GeneratedColumnWithTypeConverter<AdjustmentType, String> get type =>
       $composableBuilder(column: $table.type, builder: (column) => column);
@@ -14911,7 +14771,6 @@ class $$RatingMetricsTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<String?> unit = const Value.absent(),
-                Value<AdjustmentCategory> category = const Value.absent(),
                 Value<AdjustmentType> type = const Value.absent(),
                 Value<String?> jsonPayload = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -14923,7 +14782,6 @@ class $$RatingMetricsTableTableManager
                 name: name,
                 notes: notes,
                 unit: unit,
-                category: category,
                 type: type,
                 jsonPayload: jsonPayload,
                 rowid: rowid,
@@ -14937,7 +14795,6 @@ class $$RatingMetricsTableTableManager
                 required String name,
                 Value<String?> notes = const Value.absent(),
                 Value<String?> unit = const Value.absent(),
-                required AdjustmentCategory category,
                 required AdjustmentType type,
                 Value<String?> jsonPayload = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -14949,7 +14806,6 @@ class $$RatingMetricsTableTableManager
                 name: name,
                 notes: notes,
                 unit: unit,
-                category: category,
                 type: type,
                 jsonPayload: jsonPayload,
                 rowid: rowid,

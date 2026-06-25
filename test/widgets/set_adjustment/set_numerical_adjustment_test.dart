@@ -23,7 +23,6 @@ void main() {
               unit: null,
               min: -1,
               max: 1,
-              category: AdjustmentCategory.component,
             ),
           ),
         ),

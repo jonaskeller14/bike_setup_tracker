@@ -87,7 +87,7 @@ void main() {
         componentType: ComponentType.fork,
         installations: [],
         adjustments: [
-          BooleanAdjustment(name: 'Lockout', notes: '', unit: '', category: AdjustmentCategory.component),
+          BooleanAdjustment(name: 'Lockout', notes: '', unit: ''),
         ],
       ).copyWithNewInstallation(bike.id);
 

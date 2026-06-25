@@ -20,8 +20,7 @@ void main() {
             adjustment: TextAdjustment(
               name: "TextAdjustment #1", 
               notes: null, 
-              unit: null, 
-              category: AdjustmentCategory.component
+              unit: null
             ),
           ),
         ),

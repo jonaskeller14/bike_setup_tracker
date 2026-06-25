@@ -21,8 +21,7 @@ void main() {
             adjustment: StepAdjustment(
               name: "StepAdjustment #1", 
               notes: null, 
-              unit: null, 
-              category: AdjustmentCategory.component,
+              unit: null,
               step: 1,
               min: 5,
               max: 10,

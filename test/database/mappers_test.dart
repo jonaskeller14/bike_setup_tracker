@@ -49,7 +49,7 @@ void main() {
         id: 'person1',
         name: 'Jonas',
         adjustments: [
-          NumericalAdjustment(id: 'adj1', name: 'Weight', notes: '', unit: 'kg', category: AdjustmentCategory.body),
+          NumericalAdjustment(id: 'adj1', name: 'Weight', notes: '', unit: 'kg'),
         ],
         isDeleted: false,
         lastModified: DateTime(2023, 1, 1).toUtc(),
@@ -69,7 +69,7 @@ void main() {
         orderIndex: 0,
       );
       final model = data.toModel(adjustments: [
-        NumericalAdjustment(id: 'adj1', name: 'Weight', notes: '', unit: 'kg', category: AdjustmentCategory.body),
+        NumericalAdjustment(id: 'adj1', name: 'Weight', notes: '', unit: 'kg'),
       ]);
       expect(model.id, 'person1');
       expect(model.name, 'Jonas');
@@ -83,7 +83,7 @@ void main() {
         componentType: ComponentType.fork,
         installations: [Installation.sinceBeginning(parent: 'bike1')],
         adjustments: [
-          StepAdjustment(id: 'adj2', name: 'Rebound', notes: '', unit: 'clicks', category: AdjustmentCategory.component, min: 0, max: 20, step: 1, visualization: StepAdjustmentVisualization.slider),
+          StepAdjustment(id: 'adj2', name: 'Rebound', notes: '', unit: 'clicks', min: 0, max: 20, step: 1, visualization: StepAdjustmentVisualization.slider),
         ],
         isDeleted: false,
         lastModified: DateTime(2023, 1, 1).toUtc(),
@@ -111,7 +111,7 @@ void main() {
       );
       final model = data.toModel(
         adjustments: [
-          StepAdjustment(id: 'adj2', name: 'Rebound', notes: '', unit: 'clicks', category: AdjustmentCategory.component, min: 0, max: 20, step: 1, visualization: StepAdjustmentVisualization.slider),
+          StepAdjustment(id: 'adj2', name: 'Rebound', notes: '', unit: 'clicks', min: 0, max: 20, step: 1, visualization: StepAdjustmentVisualization.slider),
         ],
         installations: [Installation.sinceBeginning(parent: 'bike1')],
       );
@@ -175,7 +175,6 @@ void main() {
       final stepAdj = const AdjustmentDb(
         id: 'adj_step',
         name: 'Step Adj',
-        category: AdjustmentCategory.component,
         type: AdjustmentType.step,
         orderIndex: 0,
         componentId: 'c1',
@@ -184,7 +183,6 @@ void main() {
       final numericalAdj = const AdjustmentDb(
         id: 'adj_num',
         name: 'Num Adj',
-        category: AdjustmentCategory.component,
         type: AdjustmentType.numerical,
         orderIndex: 1,
         componentId: 'c1',
@@ -214,7 +212,6 @@ void main() {
         final data = const AdjustmentDb(
           id: 'adj1',
           name: 'Pressure',
-          category: AdjustmentCategory.component,
           type: AdjustmentType.numerical,
           unit: 'psi',
           orderIndex: 0,

@@ -28,8 +28,6 @@ class Adjustments extends Table {
   TextColumn get name => text()();
   TextColumn get notes => text().nullable()();
   TextColumn get unit => text().nullable()();
-  TextColumn get category =>
-      text().map(const EnumNameConverter(AdjustmentCategory.values))();
 
   // Stores "numerical", "boolean", "categorical" etc to instantiate the correct subclass
   TextColumn get type => textEnum<AdjustmentType>()();

@@ -14,28 +14,24 @@ const StepAdjustmentVisualization _defaultVisualization = StepAdjustmentVisualiz
 class StepAdjustmentPage extends StatefulWidget {
   final StepAdjustment? adjustment;
   final AdjustmentPageMode mode;
-  final Set<AdjustmentCategory> categories;
-  final bool showCategorySelection;
 
   const StepAdjustmentPage._({
     super.key,
     this.adjustment,
     required this.mode,
-    required this.categories,
-    this.showCategorySelection = false,
   });
 
-  factory StepAdjustmentPage.add({Key? key, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
-    StepAdjustmentPage._(key: key, mode: AdjustmentPageMode.add, categories: categories, showCategorySelection: showCategorySelection);
+  factory StepAdjustmentPage.add({Key? key}) =>
+      StepAdjustmentPage._(key: key, mode: AdjustmentPageMode.add);
 
-  factory StepAdjustmentPage.edit({Key? key, required StepAdjustment adjustment, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
-    StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit, categories: categories, showCategorySelection: showCategorySelection);
+  factory StepAdjustmentPage.edit({Key? key, required StepAdjustment adjustment}) =>
+      StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit);
 
-  factory StepAdjustmentPage.duplicate({Key? key, required StepAdjustment adjustment, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
-    StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate, categories: categories, showCategorySelection: showCategorySelection);
+  factory StepAdjustmentPage.duplicate({Key? key, required StepAdjustment adjustment}) =>
+      StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate);
 
-  factory StepAdjustmentPage.template({Key? key, required StepAdjustment adjustment, required Set<AdjustmentCategory> categories, bool showCategorySelection = false}) => 
-    StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template, categories: categories, showCategorySelection: showCategorySelection);
+  factory StepAdjustmentPage.template({Key? key, required StepAdjustment adjustment}) =>
+      StepAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.template);
 
   @override
   State<StepAdjustmentPage> createState() => _StepAdjustmentPageState();
@@ -53,7 +49,6 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
   late StepAdjustmentVisualization visualization;
 
   late double _previewValue;
-  late AdjustmentCategory _category;
   late StepAdjustment _previewAdjustment;
 
   @override
@@ -71,20 +66,14 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     _maxController.addListener(_changeListener);
     visualization = widget.adjustment?.visualization ?? _defaultVisualization;
 
-
-    _category = widget.adjustment?.category 
-        ?? widget.categories.firstOrNull 
-        ?? AdjustmentCategory.component;
-
     _previewAdjustment = widget.adjustment ?? StepAdjustment(
       name: '',
       notes: null,
       unit: null,
-      step: _defaultStep, 
+      step: _defaultStep,
       min: _defaultMin,
       max: 5,
       visualization: _defaultVisualization,
-      category: _category,
     );
     _previewValue = _previewAdjustment.min.toDouble();
     if (widget.mode != AdjustmentPageMode.add) _expanded = true;
@@ -135,14 +124,13 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
     if (!mounted) return;
     Navigator.pop(context, StepAdjustment(
       id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
-      name: name, 
-      notes: notes.isEmpty ? null : notes, 
-      unit: widget.adjustment?.unit, 
-      step: step, 
-      min: min, max: 
-      max, 
+      name: name,
+      notes: notes.isEmpty ? null : notes,
+      unit: widget.adjustment?.unit,
+      step: step,
+      min: min,
+      max: max,
       visualization: visualization,
-      category: _category,
     ));
   }
 
@@ -182,14 +170,14 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope( 
+    return PopScope(
       canPop: !_formHasChanges,
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
         appBar: AppBar(
           title: switch (widget.mode) {
-            AdjustmentPageMode.add || 
-            AdjustmentPageMode.duplicate || 
+            AdjustmentPageMode.add ||
+            AdjustmentPageMode.duplicate ||
             AdjustmentPageMode.template => const Text('Add Step Adjustment'),
             AdjustmentPageMode.edit => const Text('Edit Step Adjustment'),
           },
@@ -215,14 +203,13 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             onChanged: (String? value) {
                               setState(() {
                                 _previewAdjustment = StepAdjustment(
-                                  name: value ?? '', 
+                                  name: value ?? '',
                                   notes: _previewAdjustment.notes,
-                                  min: _previewAdjustment.min, 
-                                  max: _previewAdjustment.max, 
-                                  step: _previewAdjustment.step, 
+                                  min: _previewAdjustment.min,
+                                  max: _previewAdjustment.max,
+                                  step: _previewAdjustment.step,
                                   unit: null,
                                   visualization: _previewAdjustment.visualization,
-                                  category: _category,
                                 );
                               });
                             },
@@ -238,55 +225,6 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             ),
                             validator: validateAdjustmentName,
                           ),
-                          if (widget.showCategorySelection && widget.categories.isNotEmpty) ...[
-                            const SizedBox(height: 12),
-                            DropdownButtonFormField<AdjustmentCategory>(
-                              initialValue: _category,
-                              isExpanded: true,
-                              autovalidateMode: AutovalidateMode.onUserInteraction,
-                              decoration: InputDecoration(
-                                labelText: 'Category',
-                                border: const OutlineInputBorder(),
-                                hintText: "Choose a category for this adjustment",
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
-                                filled: widget.mode == AdjustmentPageMode.edit && _category != widget.adjustment!.category
-                              ),
-                              validator: (AdjustmentCategory? newValue) {
-                                if (newValue == null) return "Please select a category";
-                                return null;
-                              },
-                              items: widget.categories.map((category) {
-                                return DropdownMenuItem<AdjustmentCategory>(
-                                  value: category,
-                                  child: Row(
-                                    spacing: 8,
-                                    children: [
-                                      Icon(category.getIconData()),
-                                      Expanded(child: Text(category.value, overflow: TextOverflow.ellipsis))
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                              onChanged: (AdjustmentCategory? newValue) {
-                                if (newValue != null) {
-                                  setState(() {
-                                    _category = newValue;
-                                    _previewAdjustment = StepAdjustment(
-                                      name: _nameController.text.trim(),
-                                      notes: _previewAdjustment.notes,
-                                      min: _previewAdjustment.min,
-                                      max: _previewAdjustment.max,
-                                      step: _previewAdjustment.step,
-                                      unit: null,
-                                      visualization: visualization,
-                                      category: newValue,
-                                    );
-                                  });
-                                  _changeListener();
-                                }
-                              },
-                            ),
-                          ],
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: _stepController,
@@ -306,14 +244,13 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               setState(() {
                                 final newStep = _validateStep(value) == null ? int.parse(value) : _defaultStep;
                                 _previewAdjustment = StepAdjustment(
-                                  name: _previewAdjustment.name, 
+                                  name: _previewAdjustment.name,
                                   notes: _previewAdjustment.notes,
-                                  min: _previewAdjustment.min, 
-                                  max: math.max(_previewAdjustment.max, _previewAdjustment.min + newStep), 
-                                  step: newStep, 
+                                  min: _previewAdjustment.min,
+                                  max: math.max(_previewAdjustment.max, _previewAdjustment.min + newStep),
+                                  step: newStep,
                                   unit: null,
                                   visualization: _previewAdjustment.visualization,
-                                  category: _category,
                                 );
                                 _previewValue = _previewAdjustment.min.toDouble();
                               });
@@ -339,14 +276,13 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               setState(() {
                                 final newMin = _validateMin(value) == null ? int.parse(value) : _defaultMin;
                                 _previewAdjustment = StepAdjustment(
-                                  name: _previewAdjustment.name, 
+                                  name: _previewAdjustment.name,
                                   notes: _previewAdjustment.notes,
                                   min: math.min(newMin, _previewAdjustment.max - _previewAdjustment.step), 
                                   max: _previewAdjustment.max, //FIXME: if previously max was set wrong and now with the new min it becomes valid -> it does not update here 
                                   step: _previewAdjustment.step, 
                                   unit: null,
                                   visualization: _previewAdjustment.visualization,
-                                  category: _category,
                                 );
                                 _previewValue = _previewAdjustment.min.toDouble();
                               });
@@ -370,16 +306,15 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             validator: _validateMax,
                             onChanged: (String value) {
                               setState(() {
-                                final newMax = _validateMax(value) == null ? int.parse(value) : _previewAdjustment.min+_previewAdjustment.step;
+                                final newMax = _validateMax(value) == null ? int.parse(value) : _previewAdjustment.min + _previewAdjustment.step;
                                 _previewAdjustment = StepAdjustment(
-                                  name: _previewAdjustment.name, 
+                                  name: _previewAdjustment.name,
                                   notes: _previewAdjustment.notes,
-                                  min: _previewAdjustment.min, 
-                                  max: math.max(newMax, _previewAdjustment.min + _previewAdjustment.step), 
-                                  step: _previewAdjustment.step, 
+                                  min: _previewAdjustment.min,
+                                  max: math.max(newMax, _previewAdjustment.min + _previewAdjustment.step),
+                                  step: _previewAdjustment.step,
                                   unit: null,
                                   visualization: _previewAdjustment.visualization,
-                                  category: _category,
                                 );
                                 _previewValue = _previewAdjustment.min.toDouble();
                               });
@@ -388,12 +323,12 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                           Center(
                             child: TextButton.icon(
                               onPressed: () => setState(() => _expanded = !_expanded),
-                              icon: Icon(_expanded 
-                                  ? Icons.expand_less 
+                              icon: Icon(_expanded
+                                  ? Icons.expand_less
                                   : Icons.expand_more,
                               ),
-                              label: Text(_expanded 
-                                  ? "Hide Additional Fields" 
+                              label: Text(_expanded
+                                  ? "Hide Additional Fields"
                                   : "Show Additional Fields"
                               ),
                             ),
@@ -424,21 +359,21 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                         children: [
                                           if (v == StepAdjustmentVisualization.slider)
                                             const Icon(Icons.linear_scale),
-                                          if (v == StepAdjustmentVisualization.sliderWithClockwiseDial) ... [
+                                          if (v == StepAdjustmentVisualization.sliderWithClockwiseDial) ...[
                                             const Icon(Icons.linear_scale),
                                             const Icon(Icons.rotate_right),
                                           ],
-                                          if (v == StepAdjustmentVisualization.sliderWithCounterclockwiseDial) ... [
+                                          if (v == StepAdjustmentVisualization.sliderWithCounterclockwiseDial) ...[
                                             const Icon(Icons.linear_scale),
                                             const Icon(Icons.rotate_left),
                                           ],
                                           if (v == StepAdjustmentVisualization.minusButtonValuePlusButton)
                                             const Icon(Icons.exposure_plus_1),
-                                          if (v == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial) ... [
+                                          if (v == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial) ...[
                                             const Icon(Icons.exposure_plus_1),
                                             const Icon(Icons.rotate_right),
                                           ],
-                                          if (v == StepAdjustmentVisualization.minusButtonValuePlusButtonCounterclockwiseDial) ... [
+                                          if (v == StepAdjustmentVisualization.minusButtonValuePlusButtonCounterclockwiseDial) ...[
                                             const Icon(Icons.exposure_plus_1),
                                             const Icon(Icons.rotate_left),
                                           ],
@@ -453,14 +388,13 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                     setState(() {
                                       visualization = newVisualization;
                                       _previewAdjustment = StepAdjustment(
-                                        name: _previewAdjustment.name, 
+                                        name: _previewAdjustment.name,
                                         notes: _previewAdjustment.notes,
-                                        min: _previewAdjustment.min, 
-                                        max: _previewAdjustment.max, 
-                                        step: _previewAdjustment.step, 
+                                        min: _previewAdjustment.min,
+                                        max: _previewAdjustment.max,
+                                        step: _previewAdjustment.step,
                                         unit: _previewAdjustment.unit,
                                         visualization: newVisualization,
-                                        category: _category,
                                       );
                                     });
                                     _changeListener();
@@ -480,14 +414,13 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                   onChanged: (String? value) {
                                     setState(() {
                                       _previewAdjustment = StepAdjustment(
-                                        name: _previewAdjustment.name, 
+                                        name: _previewAdjustment.name,
                                         notes: (value == null || value.isEmpty) ? null : value,
-                                        min: _previewAdjustment.min, 
-                                        max: _previewAdjustment.max, 
-                                        step: _previewAdjustment.step, 
+                                        min: _previewAdjustment.min,
+                                        max: _previewAdjustment.max,
+                                        step: _previewAdjustment.step,
                                         unit: _previewAdjustment.unit,
                                         visualization: _previewAdjustment.visualization,
-                                        category: _category,
                                       );
                                     });
                                   },

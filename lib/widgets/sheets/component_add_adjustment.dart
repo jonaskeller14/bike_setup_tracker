@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/component.dart';
-import 'sheet.dart';
+import 'sheet_header.dart';
 
 final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
   ComponentType.frame: [
@@ -114,10 +114,7 @@ void showComponentAddAdjustmentBottomSheet({
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: sheetTitle(context, "Add Adjustment"),
-            ),
+            const SheetHeader(title: "Add Adjustment", showClose: false),
             const SizedBox(height: 16),
             Flexible(
               child: SingleChildScrollView(

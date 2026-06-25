@@ -9,7 +9,7 @@ import '../../models/selected_data.dart';
 import '../../services/google_drive_service.dart';
 import '../../utils/backup.dart';
 import '../../utils/file_import.dart';
-import 'sheet.dart';
+import 'sheet_header.dart';
 
 class BackupSheetContent extends StatefulWidget {
   final Function(SelectedData) onRestore;
@@ -118,17 +118,9 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (widget.onBack != null)
-                  sheetBackButton(context, onPressed: widget.onBack!),
-                sheetTitle(context, 'Import Backup'),
-                sheetCloseButton(context),
-              ],
-            ),
+          SheetHeader(
+            title: 'Import Backup',
+            onBack: widget.onBack,
           ),
           const SizedBox(height: 16),
           Flexible(

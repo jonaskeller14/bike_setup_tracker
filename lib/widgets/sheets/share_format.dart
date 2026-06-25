@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'sheet.dart';
+import 'sheet_header.dart';
 
 class SelectShareFormatSheetContent extends StatelessWidget {
   final VoidCallback onJson;
@@ -24,17 +24,9 @@ class SelectShareFormatSheetContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (onBack != null)
-                  sheetBackButton(context, onPressed: onBack!),
-                sheetTitle(context, 'Share Format'),
-                sheetCloseButton(context),
-              ],
-            ),
+          SheetHeader(
+            title: 'Share Format',
+            onBack: onBack,
           ),
           const SizedBox(height: 16),
           Flexible(

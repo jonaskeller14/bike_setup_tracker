@@ -8,7 +8,7 @@ import '../../services/location_service.dart';
 import '../../services/weather_service.dart';
 import '../../utils/url.dart';
 import '../dialogs/discard_changes.dart';
-import 'sheet.dart';
+import 'sheet_header.dart';
 
 Future<ContextWeather?> showSetWeatherSheet({
   required BuildContext context,
@@ -134,7 +134,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
           canPop: false,
           onPopInvokedWithResult: _handlePopInvoked,
           child: Padding(
-            padding: EdgeInsets.only(left: 16, right: 16, bottom: 16 + MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(bottom: 16 + MediaQuery.of(context).viewInsets.bottom),
             child: SafeArea(
               child: Form(
                 key: _formKey,
@@ -142,16 +142,11 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        sheetTitle(context, 'Weather Context'),
-                        sheetCloseButton(context),
-                      ],
-                    ),
+                    const SheetHeader(title: 'Weather Context'),
                     const SizedBox(height: 16),
                     Flexible(
                       child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           mainAxisSize: MainAxisSize.min,
@@ -390,33 +385,36 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      spacing: 8,
-                      children: [ 
-                        Flexible(
-                          flex: 2,
-                          fit: FlexFit.tight,
-                          child: OutlinedButton.icon(
-                            onPressed: enableUpdate ? updateWeather : null,
-                            icon: widget.weatherService.status is WeatherSearching
-                                ? const SizedBox(
-                                    height: 16,
-                                    width: 16,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
-                                  ) 
-                                : const Icon(Icons.sync),
-                            label: const Text("Update Weather by Location"),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        spacing: 8,
+                        children: [
+                          Flexible(
+                            flex: 2,
+                            fit: FlexFit.tight,
+                            child: OutlinedButton.icon(
+                              onPressed: enableUpdate ? updateWeather : null,
+                              icon: widget.weatherService.status is WeatherSearching
+                                  ? const SizedBox(
+                                      height: 16,
+                                      width: 16,
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    )
+                                  : const Icon(Icons.sync),
+                              label: const Text("Update Weather by Location"),
+                            ),
                           ),
-                        ),
-                        Flexible(
-                          flex: 1,
-                          fit: FlexFit.tight,
-                          child: FilledButton(
-                            onPressed: _currentWeather == widget.currentWeather ? null : _save,
-                            child: const Text("Save"),
+                          Flexible(
+                            flex: 1,
+                            fit: FlexFit.tight,
+                            child: FilledButton(
+                              onPressed: _currentWeather == widget.currentWeather ? null : _save,
+                              child: const Text("Save"),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),

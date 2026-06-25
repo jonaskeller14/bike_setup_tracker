@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../repositories/app_repository.dart';
-import 'sheet.dart';
+import 'sheet_header.dart';
 
 Future<void> showSetSetupTagsSheet({
   required BuildContext context, 
@@ -81,16 +81,7 @@ class _SetSetupTagsSheetContentState extends State<SetSetupTagsSheetContent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                sheetTitle(context, 'Add Tags'),
-                sheetCloseButton(context),
-              ],
-            ),
-          ),
+          const SheetHeader(title: 'Add Tags'),
           const ListTile(
             leading: Icon(Icons.info_outline),
             title: Text("Use tags to group and organize your setups. For example, to categorize by specific test sessions, tracks, or terrains."),

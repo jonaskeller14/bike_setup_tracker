@@ -7,7 +7,7 @@ import '../../utils/file_import.dart';
 import 'backup.dart';
 import 'data_select.dart';
 import 'import_merge_overwrite.dart';
-import 'sheet.dart';
+import 'sheet_header.dart';
 
 Future<void> importData(BuildContext context) async {
   final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -241,16 +241,7 @@ class _SelectImportSourceSheetContentState extends State<SelectImportSourceSheet
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                sheetTitle(context, 'Import Data'),
-                sheetCloseButton(context),
-              ],
-            ),
-          ),
+          const SheetHeader(title: 'Import Data'),
           const SizedBox(height: 16),
           Flexible(
             child: SingleChildScrollView(

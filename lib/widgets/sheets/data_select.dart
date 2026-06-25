@@ -19,7 +19,7 @@ import "../items/data_select_rating_entry.dart";
 import "../items/data_select_setup.dart";
 import "../items/data_select_task_entry.dart";
 import "../items/data_select_task_rule.dart";
-import 'sheet.dart';
+import 'sheet_header.dart';
 
 Future<SelectedData?> showDataSelectSheet({required BuildContext context, required AppRepository data}) async {
   return showModalBottomSheet<SelectedData?>(
@@ -107,17 +107,9 @@ class SelectDataMethodSheetContent extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (onBack != null)
-                  sheetBackButton(context, onPressed: onBack!),
-                sheetTitle(context, 'Select Data'),
-                sheetCloseButton(context),
-              ],
-            ),
+          SheetHeader(
+            title: 'Select Data',
+            onBack: onBack,
           ),
           const SizedBox(height: 16),
           Flexible(
@@ -216,16 +208,9 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                sheetBackButton(context, onPressed: widget.onBack),
-                sheetTitle(context, 'Select Data Items'),
-                sheetCloseButton(context),
-              ],
-            ),
+          SheetHeader(
+            title: 'Select Data Items',
+            onBack: widget.onBack,
           ),
           const SizedBox(height: 16),
           Flexible(

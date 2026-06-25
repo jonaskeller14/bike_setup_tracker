@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/app_info.dart';
 import '../../utils/url.dart';
-import 'strava_dashboard.dart';
+import 'sheet.dart';
 
 class StravaPaywall extends StatefulWidget {
   const StravaPaywall({super.key});

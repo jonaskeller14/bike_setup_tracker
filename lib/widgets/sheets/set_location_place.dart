@@ -10,7 +10,7 @@ import '../../services/address_service.dart';
 import '../../services/elevation_service.dart';
 import '../../services/location_service.dart';
 import '../dialogs/discard_changes.dart';
-import 'sheet.dart';
+import 'sheet_header.dart';
 
 class LocationAndPlace {
   final LocationData? location;
@@ -210,7 +210,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
           canPop: false,
           onPopInvokedWithResult: _handlePopInvoked,
           child: Padding(
-            padding: EdgeInsets.only(left: 16, right: 16, bottom: 16 + MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(bottom: 16 + MediaQuery.of(context).viewInsets.bottom),
             child: SafeArea(
               child: Form(
                 key: _formKey,
@@ -218,16 +218,11 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        sheetTitle(context, 'Location Context'),
-                        sheetCloseButton(context),
-                      ],
-                    ),
+                    const SheetHeader(title: 'Location Context'),
                     const SizedBox(height: 16),
                     Flexible(
                       child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -409,36 +404,38 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                       )
                     ),
                     const SizedBox(height: 16),
-                    
-                    Row(
-                      spacing: 8,
-                      children: [ 
-                        Flexible(
-                          flex: 2,
-                          fit: FlexFit.tight,
-                          child: OutlinedButton.icon(
-                            onPressed: enableUpdate ? _updateLocationPlace : null,
-                            icon: widget.locationService.status == LocationStatus.searching || widget.addressService.status == AddressStatus.searching 
-                                ? const SizedBox(
-                                    height: 16,
-                                    width: 16,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
-                                  ) 
-                                : const Icon(Icons.my_location),
-                            label: const Text("Find Location via GPS"),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        spacing: 8,
+                        children: [
+                          Flexible(
+                            flex: 2,
+                            fit: FlexFit.tight,
+                            child: OutlinedButton.icon(
+                              onPressed: enableUpdate ? _updateLocationPlace : null,
+                              icon: widget.locationService.status == LocationStatus.searching || widget.addressService.status == AddressStatus.searching
+                                  ? const SizedBox(
+                                      height: 16,
+                                      width: 16,
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    )
+                                  : const Icon(Icons.my_location),
+                              label: const Text("Find Location via GPS"),
+                            ),
                           ),
-                        ),
-                        Flexible(
-                          flex: 1,
-                          fit: FlexFit.tight,
-                          child: FilledButton(
-                            onPressed: ContextPlace.equal(widget.currentPlace, _currentPlace) && ContextPosition.equal(widget.currentLocation, _currentLocation)
-                                ? null
-                                : _save,
-                            child: const Text("Save"),
+                          Flexible(
+                            flex: 1,
+                            fit: FlexFit.tight,
+                            child: FilledButton(
+                              onPressed: ContextPlace.equal(widget.currentPlace, _currentPlace) && ContextPosition.equal(widget.currentLocation, _currentLocation)
+                                  ? null
+                                  : _save,
+                              child: const Text("Save"),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),

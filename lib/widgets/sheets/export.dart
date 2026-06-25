@@ -9,7 +9,7 @@ import '../../services/backup_service.dart';
 import '../../services/google_drive_service.dart';
 import '../../utils/file_export.dart';
 import 'data_select.dart';
-import 'sheet.dart';
+import 'sheet_header.dart';
 
 Future<void> exportData(BuildContext context) async {
   final ExportResult? exportResult = await showModalBottomSheet<ExportResult?>(
@@ -175,16 +175,7 @@ class SelectExportDestinationSheetContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                sheetTitle(context, 'Export Data'),
-                sheetCloseButton(context),
-              ],
-            ),
-          ),
+          const SheetHeader(title: 'Export Data'),
           const SizedBox(height: 16),
           Flexible(
             child: SingleChildScrollView(

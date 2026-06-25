@@ -5,7 +5,7 @@ import '../../models/component.dart';
 import '../../models/installation.dart';
 import '../../repositories/app_repository.dart';
 import '../set_installation_timeline.dart';
-import 'sheet.dart';
+import 'sheet_header.dart';
 
 Future<void> showAddInstallationSheet(BuildContext context, {
   required Component component, 
@@ -144,18 +144,9 @@ class _InstallationSheetState extends State<InstallationSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Icon(widget.component.componentType.getIconData()),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: sheetTitle(context, widget.component.name),
-                  ),
-                  sheetCloseButton(context),
-                ],
-              ),
+            SheetHeader(
+              title: widget.component.name,
+              leadingIcon: Icon(widget.component.componentType.getIconData()),
             ),
             const SizedBox(height: 16),
             Flexible(

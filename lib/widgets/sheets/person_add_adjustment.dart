@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
-import 'sheet.dart';
+import 'sheet_header.dart';
 
  final List<Adjustment> _adjustmentPresets = [
   NumericalAdjustment(name: 'Riding weight', unit: 'kg', min: 0.0, notes: "Weight including all gear (helmet, shoes, hydration pack)."), 
@@ -25,10 +25,7 @@ void showPersonAddAdjustmentBottomSheet({
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: sheetTitle(context, "Add Attribute"),
-            ),
+            const SheetHeader(title: "Add Attribute", showClose: false),
             const SizedBox(height: 16),
             Flexible(
               child: SingleChildScrollView(

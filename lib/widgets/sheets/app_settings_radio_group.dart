@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'sheet.dart';
+import 'sheet_header.dart';
 
 Future<void> appSettingsRadioGroupSheet<T>({
   required BuildContext context,
@@ -24,16 +24,7 @@ Future<void> appSettingsRadioGroupSheet<T>({
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      sheetTitle(context, title),
-                      sheetCloseButton(context),
-                    ],
-                  ),
-                ),
+                SheetHeader(title: title),
                 const SizedBox(height: 16),
                 if (infoText != null)
                   ListTile(

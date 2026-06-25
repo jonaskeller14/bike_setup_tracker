@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../icons/simple_icons.dart';
 import '../../models/app_settings.dart';
 import '../../services/google_drive_service.dart';
-import 'sheet.dart';
+import 'sheet_header.dart';
 
 Future<void> showGoogleDriveSheet({required BuildContext context}) async {
   return showModalBottomSheet<void>(
@@ -26,96 +26,91 @@ class GoogleDriveSheet extends StatelessWidget {
     final isSyncing = googleDriveService.status == GoogleDriveServiceStatus.syncing;
 
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SheetHeader(
+            title: 'Google Drive Sync',
+            leadingIcon: Icon(SimpleIcons.googledrive, color: Theme.of(context).colorScheme.onSurface),
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _accountListTile(context),
+                        if (isSignedIn)
+                          _buildSyncInfoSection(context, googleDriveService),
+                        if (googleDriveService.errorMessage.isNotEmpty)
+                          ListTile(
+                            leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
+                            title: SelectableText(googleDriveService.errorMessage, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                            dense: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
                 Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  spacing: 6,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  spacing: 16,
                   children: [
-                    Icon(SimpleIcons.googledrive, color: Theme.of(context).colorScheme.onSurface),
-                    sheetTitle(context, 'Google Drive Sync'),
+                    if (isSignedIn) ...[
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.logout),
+                        onPressed: !isSyncing ? () async {
+                          await googleDriveService.signOut();
+                        } : null,
+                        label: const Text("Sign out"),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: FilledButton.icon(
+                            onPressed: !isSyncing ? () async {
+                              await googleDriveService.interactiveSync();
+                            } : null,
+                            icon: isSyncing ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ) : const Icon(Icons.sync),
+                            label: const Text("Sync"),
+                          ),
+                        ),
+                      ),
+                    ] else ...[
+                      Expanded(
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: FilledButton.icon(
+                            onPressed: !isSyncing ? () async {
+                              await googleDriveService.interactiveSignIn();
+                            } : null,
+                            icon: const Icon(Icons.login),
+                            label: const Text("Sign in to Google Drive"),
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
-                sheetCloseButton(context),
               ],
             ),
-            const SizedBox(height: 16),
-            Flexible(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _accountListTile(context),
-                    if (isSignedIn) 
-                      _buildSyncInfoSection(context, googleDriveService),
-                    if (googleDriveService.errorMessage.isNotEmpty)
-                      ListTile(
-                        leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
-                        title: SelectableText(googleDriveService.errorMessage, style: TextStyle(color: Theme.of(context).colorScheme.error)),
-                        dense: true,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              spacing: 16,
-              children: [
-                if (isSignedIn) ...[
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.logout),
-                    onPressed: !isSyncing ? () async {
-                      await googleDriveService.signOut();
-                    } : null,
-                    label: const Text("Sign out"),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: !isSyncing ? () async {
-                          await googleDriveService.interactiveSync();
-                        } : null,
-                        icon: isSyncing ? const SizedBox(
-                          height: 16,
-                          width: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ) : const Icon(Icons.sync),
-                        label: const Text("Sync"),
-                      ),
-                    ),
-                  ),
-                ] else ...[
-                  Expanded(
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: !isSyncing ? () async {
-                          await googleDriveService.interactiveSignIn();
-                        } : null,
-                        icon: const Icon(Icons.login),
-                        label: const Text("Sign in to Google Drive"),
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -13,7 +13,7 @@ import '../hints/strava_gear_link_hint.dart';
 import '../hints/strava_no_gears_hint.dart';
 import '../items/strava_list_tile.dart';
 import '../text/sheet_section_title.dart';
-import 'sheet.dart';
+import 'sheet_header.dart';
 
 class StravaDashboardSheet extends StatefulWidget {
   const StravaDashboardSheet({super.key});
@@ -37,164 +37,168 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
     );
     
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const StravaSheetHeader(),
-            const SizedBox(height: 16),
-            Flexible(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    switch (stravaService.state) {
-                      StravaSyncing() => _busyTile(context, label: "Syncing..."),
-                      StravaDisconnecting() => _busyTile(context, label: "Disconnecting..."),
-                      StravaFailed(:final message) => StravaErrorTile(message: message),
-                      _ => const SizedBox.shrink(),
-                    },
-                    const SizedBox(height: 8),
-                    
-                    if (athletes.isEmpty)
-                      _emptyAthletePlaceholder(context),
-                    ...athletes.map((a) => _athleteListTile(context, stravaAthletes: a)),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SheetHeader(
+            title: 'Strava Sync',
+            leadingIcon: Icon(SimpleIcons.strava, color: Color(0xFFFC4C02)),
+          ),
+          const SizedBox(height: 16),
+          Flexible(
+            child: SingleChildScrollView(
+              padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  switch (stravaService.state) {
+                    StravaSyncing() => _busyTile(context, label: "Syncing..."),
+                    StravaDisconnecting() => _busyTile(context, label: "Disconnecting..."),
+                    StravaFailed(:final message) => StravaErrorTile(message: message),
+                    _ => const SizedBox.shrink(),
+                  },
+                  const SizedBox(height: 8),
+                  
+                  if (athletes.isEmpty)
+                    _emptyAthletePlaceholder(context),
+                  ...athletes.map((a) => _athleteListTile(context, stravaAthletes: a)),
 
-                    if (stravaService.isConnected)
-                      _buildSyncInfoSection(context, stravaService: stravaService, appSettings: appSettings),
-                    
-                    if (gears.isEmpty && stravaService.isConnected) ...[
-                      const Divider(),
-                      const StravaNoGearsHint(),
-                    ] else if (gears.isNotEmpty) ...[
-                      const Divider(),
-                      const SheetSectionTitle(title: "Strava Gear:"),
-                      if (hasUnlinkedGears && appSettings.showStravaLinkGearHint) ...[
-                        const StravaGearLinkHint(),
-                        const SizedBox(height: 4),
-                      ],
-                      Wrap(
-                        alignment: WrapAlignment.start,
-                        spacing: 4,
-                        runSpacing: 4,
-                        children: gears.map((g) {
-                          final linkedBikes = appRepository.bikes.values.where((b) => b.stravaGear == g.id);
-                          final unlinkedBikes = appRepository.bikes.values.where((b) => b.stravaGear == null).toList();
+                  if (stravaService.isConnected)
+                    _buildSyncInfoSection(context, stravaService: stravaService, appSettings: appSettings),
+                  
+                  if (gears.isEmpty && stravaService.isConnected) ...[
+                    const Divider(),
+                    const StravaNoGearsHint(),
+                  ] else if (gears.isNotEmpty) ...[
+                    const Divider(),
+                    const SheetSectionTitle(title: "Strava Gear:"),
+                    if (hasUnlinkedGears && appSettings.showStravaLinkGearHint) ...[
+                      const StravaGearLinkHint(),
+                      const SizedBox(height: 4),
+                    ],
+                    Wrap(
+                      alignment: WrapAlignment.start,
+                      spacing: 4,
+                      runSpacing: 4,
+                      children: gears.map((g) {
+                        final linkedBikes = appRepository.bikes.values.where((b) => b.stravaGear == g.id);
+                        final unlinkedBikes = appRepository.bikes.values.where((b) => b.stravaGear == null).toList();
 
-                          final Widget chip = Chip(
-                            avatar: linkedBikes.isEmpty
-                                ? Icon(Icons.link_off, color: Theme.of(context).colorScheme.error)
-                                : const Icon(Icons.link),
-                            label: Text(g.name),
-                          );
+                        final Widget chip = Chip(
+                          avatar: linkedBikes.isEmpty
+                              ? Icon(Icons.link_off, color: Theme.of(context).colorScheme.error)
+                              : const Icon(Icons.link),
+                          label: Text(g.name),
+                        );
 
-                          return PopupMenuButton<_StravaGearMenuOption>(
-                            tooltip: "Bike Options",
-                            onSelected: (_StravaGearMenuOption option) async {
-                              switch (option) {
-                                case _LinkToBike():
-                                  final updatedBike = option.bike.copyWith(stravaGear: g.id);
-                                  await context.read<AppRepository>().editBike(updatedBike);
-                                case _AddNewBike():
-                                  final newBike = Bike(
-                                    name: g.name,
-                                    person: null,
-                                    stravaGear: g.id,
-                                  );
-                                  await context.read<AppRepository>().addBike(newBike);
-                                case _UnlinkBike():
-                                  final updatedBike = option.bike.copyWith(stravaGear: null);
-                                  await context.read<AppRepository>().editBike(updatedBike);
-                              }
-                            },
-                            itemBuilder: (BuildContext context) {
-                              return [
-                                if (linkedBikes.isNotEmpty) ...[
-                                  ...linkedBikes.map((Bike linkedBike) {
-                                    return PopupMenuItem<_StravaGearMenuOption>(
-                                      value: _UnlinkBike(linkedBike),
-                                      child: Row(
-                                        spacing: 8,
-                                        children: [
-                                          const Icon(Icons.link_off),
-                                          Expanded(child: Text("Unlink Bike '${linkedBike.name}'", overflow: TextOverflow.ellipsis)),
-                                        ],
-                                      ),
-                                    );
-                                  })
-                                ]
-                                else ... [
-                                  if (unlinkedBikes.isNotEmpty) ...[
-                                    ...unlinkedBikes.map((Bike bike) {
-                                      return PopupMenuItem<_StravaGearMenuOption>(
-                                        value: _LinkToBike(bike),
-                                        child: Row(
-                                          spacing: 8,
-                                          children: [
-                                            const Icon(Icons.link),
-                                            Expanded(child: Text("Link to '${bike.name}'", overflow: TextOverflow.ellipsis)),
-                                          ],
-                                        ),
-                                      );
-                                    }),
-                                    const PopupMenuDivider(),
-                                  ],
-                                  const PopupMenuItem<_StravaGearMenuOption>(
-                                    value: _AddNewBike(),
+                        return PopupMenuButton<_StravaGearMenuOption>(
+                          tooltip: "Bike Options",
+                          onSelected: (_StravaGearMenuOption option) async {
+                            switch (option) {
+                              case _LinkToBike():
+                                final updatedBike = option.bike.copyWith(stravaGear: g.id);
+                                await context.read<AppRepository>().editBike(updatedBike);
+                              case _AddNewBike():
+                                final newBike = Bike(
+                                  name: g.name,
+                                  person: null,
+                                  stravaGear: g.id,
+                                );
+                                await context.read<AppRepository>().addBike(newBike);
+                              case _UnlinkBike():
+                                final updatedBike = option.bike.copyWith(stravaGear: null);
+                                await context.read<AppRepository>().editBike(updatedBike);
+                            }
+                          },
+                          itemBuilder: (BuildContext context) {
+                            return [
+                              if (linkedBikes.isNotEmpty) ...[
+                                ...linkedBikes.map((Bike linkedBike) {
+                                  return PopupMenuItem<_StravaGearMenuOption>(
+                                    value: _UnlinkBike(linkedBike),
                                     child: Row(
                                       spacing: 8,
                                       children: [
-                                        Icon(Icons.add),
-                                        Text("Add as new Bike"),
+                                        const Icon(Icons.link_off),
+                                        Expanded(child: Text("Unlink Bike '${linkedBike.name}'", overflow: TextOverflow.ellipsis)),
                                       ],
                                     ),
+                                  );
+                                })
+                              ]
+                              else ... [
+                                if (unlinkedBikes.isNotEmpty) ...[
+                                  ...unlinkedBikes.map((Bike bike) {
+                                    return PopupMenuItem<_StravaGearMenuOption>(
+                                      value: _LinkToBike(bike),
+                                      child: Row(
+                                        spacing: 8,
+                                        children: [
+                                          const Icon(Icons.link),
+                                          Expanded(child: Text("Link to '${bike.name}'", overflow: TextOverflow.ellipsis)),
+                                        ],
+                                      ),
+                                    );
+                                  }),
+                                  const PopupMenuDivider(),
+                                ],
+                                const PopupMenuItem<_StravaGearMenuOption>(
+                                  value: _AddNewBike(),
+                                  child: Row(
+                                    spacing: 8,
+                                    children: [
+                                      Icon(Icons.add),
+                                      Text("Add as new Bike"),
+                                    ],
                                   ),
-                                ]
-                              ];
-                            },
-                            child: chip,
-                          );
-                        }).toList(),
-                      ),
-                    ],
-                    
-                    FutureBuilder<List<StravaActivity>>(
-                      future: appRepository.latestStravaActivities,
-                      builder: (context, snapshot) {
-                        final latestActivities = snapshot.data ?? [];
-                        if (latestActivities.isNotEmpty) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Divider(),
-                              const SheetSectionTitle(title: "Latest Synced Activities:"),
-                              ...latestActivities.map((activity) => StravaListTile(
-                                stravaActivity: activity,
-                                contentPadding: EdgeInsets.zero,
-                              )),
-                            ],
-                          );
-                        } else if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator()));
-                        } else {
-                          return const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(32),
-                              child: Text("No activities synced yet.", style: TextStyle(fontStyle: FontStyle.italic)),
-                            ),
-                          );
-                        }
-                      },
+                                ),
+                              ]
+                            ];
+                          },
+                          child: chip,
+                        );
+                      }).toList(),
                     ),
                   ],
-                ),
-              )
+                  
+                  FutureBuilder<List<StravaActivity>>(
+                    future: appRepository.latestStravaActivities,
+                    builder: (context, snapshot) {
+                      final latestActivities = snapshot.data ?? [];
+                      if (latestActivities.isNotEmpty) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Divider(),
+                            const SheetSectionTitle(title: "Latest Synced Activities:"),
+                            ...latestActivities.map((activity) => StravaListTile(
+                              stravaActivity: activity,
+                              contentPadding: EdgeInsets.zero,
+                            )),
+                          ],
+                        );
+                      } else if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator()));
+                      } else {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(32),
+                            child: Text("No activities synced yet.", style: TextStyle(fontStyle: FontStyle.italic)),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
-            Row(
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               spacing: 16,
               children: [
@@ -273,8 +277,8 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                 ],
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -452,25 +456,3 @@ class _UnlinkBike extends _StravaGearMenuOption {
   const _UnlinkBike(this.bike);
 }
 
-class StravaSheetHeader extends StatelessWidget {
-  const StravaSheetHeader({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          spacing: 6,
-          children: [
-            const Icon(SimpleIcons.strava, color: Color(0xFFFC4C02)), // Strava Brand Orange
-            sheetTitle(context, 'Strava Sync'),
-          ],
-        ),
-        sheetCloseButton(context),
-      ],
-    );
-  }
-}

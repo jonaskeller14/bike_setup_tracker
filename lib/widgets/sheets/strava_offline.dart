@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/strava_service.dart';
-import 'strava_dashboard.dart';
+import 'sheet.dart';
 
 class StravaOfflineNotice extends StatefulWidget {
   const StravaOfflineNotice({super.key});

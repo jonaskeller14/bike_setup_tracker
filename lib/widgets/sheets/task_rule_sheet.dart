@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../pages/details/task_rule_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/task_actions.dart';
-import 'sheet.dart';
+import 'sheet_header.dart';
 
 Future<void> showTaskRuleSheet(BuildContext context, {required String taskRuleId, String? highlightTaskEntryId}) async {
   return showModalBottomSheet<void>(
@@ -21,20 +21,9 @@ Future<void> showTaskRuleSheet(BuildContext context, {required String taskRuleId
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: sheetTitle(context, taskRule?.name ?? "-"),
-                  ),
-                  sheetEditButton(context, onPressed: () async {
-                    if (taskRule == null) return;
-                    await TaskActions.editTaskRule(context, taskRule: taskRule);
-                  }),
-                  sheetCloseButton(context),
-                ],
-              ),
+            SheetHeader(
+              title: taskRule?.name ?? "-",
+              onEdit: taskRule != null ? () => TaskActions.editTaskRule(context, taskRule: taskRule) : null,
             ),
             const SizedBox(height: 16),
             Flexible(

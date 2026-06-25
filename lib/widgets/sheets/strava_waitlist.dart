@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'strava_dashboard.dart';
+import 'sheet.dart';
 
 class StravaWaitlist extends StatelessWidget {
   const StravaWaitlist({super.key});

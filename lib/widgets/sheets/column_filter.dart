@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../utils/table_column.dart';
 import '../text/sheet_section_title.dart';
-import 'sheet.dart';
+import 'sheet_header.dart';
 
 Future<void> showColumnFilterSheet({
   required BuildContext context,
@@ -23,16 +23,7 @@ Future<void> showColumnFilterSheet({
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      sheetTitle(context, 'Column Select'),
-                      sheetCloseButton(context),
-                    ],
-                  ),
-                ),
+                const SheetHeader(title: 'Column Select'),
                 const SizedBox(height: 16),
                 Flexible(
                   child: SingleChildScrollView(

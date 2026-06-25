@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
-import 'sheet.dart';
+import 'sheet_header.dart';
 
 final List<Adjustment> _adjustmentPresets = [
   StepAdjustment(name: "Grip", notes: "Rate grip on 1-10 scale", unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.slider),
@@ -39,10 +39,7 @@ void showRatingAddAdjustmentBottomSheet({
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: sheetTitle(context, "Add Metric"),
-            ),
+            const SheetHeader(title: "Add Metric", showClose: false),
             const SizedBox(height: 16),
             Flexible(
               child: SingleChildScrollView(

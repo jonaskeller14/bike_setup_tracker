@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'sheet.dart';
+import 'sheet_header.dart';
 
 class SelectImportMethodSheetContent extends StatelessWidget {
   final VoidCallback onOverwrite;
@@ -22,16 +22,9 @@ class SelectImportMethodSheetContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                sheetBackButton(context, onPressed: onBack),
-                sheetTitle(context, 'Import Data'),
-                sheetCloseButton(context),
-              ],
-            ),
+          SheetHeader(
+            title: 'Import Data',
+            onBack: onBack,
           ),
           const SizedBox(height: 16),
           Flexible(

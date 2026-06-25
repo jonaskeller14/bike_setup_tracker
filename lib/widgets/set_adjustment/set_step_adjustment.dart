@@ -34,6 +34,19 @@ class SetStepAdjustmentWidget extends StatelessWidget {
     onChangedEnd(value!+adjustment.step);
   }
 
+  void onLongPressedMinusButton() {
+    final minValue = adjustment.min.toDouble();
+    onChanged(minValue);
+    onChangedEnd(minValue);
+  }
+
+  void onLongPressedPlusButton() {
+    final divisions = ((adjustment.max - adjustment.min) / adjustment.step).floor();
+    final maxValue = (adjustment.min + divisions * adjustment.step).toDouble();
+    onChanged(maxValue);
+    onChangedEnd(maxValue);
+  }
+
   @override
   Widget build(BuildContext context) {
     bool isChanged = false;
@@ -75,7 +88,7 @@ class SetStepAdjustmentWidget extends StatelessWidget {
           ),
           if (value == null)
             Flexible(
-              flex: 2,
+              flex: 3,
               child: Align(
                 alignment: Alignment.centerRight,
                 child: OutlinedButton(
@@ -86,96 +99,139 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                   child: const Text("Set value"),
                 ),
               ),
-            ),
-          if (value != null && (adjustment.visualization == StepAdjustmentVisualization.slider || adjustment.visualization == StepAdjustmentVisualization.sliderWithClockwiseDial || adjustment.visualization == StepAdjustmentVisualization.sliderWithCounterclockwiseDial))
+            )
+          else
             Flexible(
               flex: 3,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Expanded(
-                    child: SfSliderTheme(
-                      data: const SfSliderThemeData(
-                        thumbRadius: 15,
-                        overlayRadius: 0,
-                        tooltipTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,)
-                      ),    
-                      child: SfSlider(
-                        min: adjustment.min.toDouble(),
-                        max: sliderMax,
-                        value: value,
-                        thumbShape: CustomValueThumbShape(
-                          primaryColor: Theme.of(context).colorScheme.primary,
-                          onPrimaryColor: Theme.of(context).colorScheme.onPrimary,
+              child: switch (adjustment.visualization) {
+                StepAdjustmentVisualization.slider ||
+                StepAdjustmentVisualization.sliderWithClockwiseDial ||
+                StepAdjustmentVisualization.sliderWithCounterclockwiseDial => Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Expanded(
+                      child: SfSliderTheme(
+                        data: const SfSliderThemeData(
+                          thumbRadius: 15,
+                          overlayRadius: 0,
+                          tooltipTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,)
                         ),
-                        showLabels: true,
-                        interval: sliderInterval.toDouble(),
-                        showTicks: true,
-                        stepSize: adjustment.step.toDouble(),
-                        minorTicksPerInterval: showStepTicks ? sliderDivisions - 1 : 0,
-                        enableTooltip: true,
-                        tooltipShape: const SfPaddleTooltipShape(),
-                        onChanged: (dynamic newValue) {
-                          onChanged(newValue);
-                        },
-                        onChangeEnd: (dynamic newValue) {
-                          onChangedEnd(newValue);
-                        },
+                        child: SfSlider(
+                          min: adjustment.min.toDouble(),
+                          max: sliderMax,
+                          value: value,
+                          thumbShape: CustomValueThumbShape(
+                            primaryColor: Theme.of(context).colorScheme.primary,
+                            onPrimaryColor: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                          showLabels: true,
+                          interval: sliderInterval.toDouble(),
+                          showTicks: true,
+                          stepSize: adjustment.step.toDouble(),
+                          minorTicksPerInterval: showStepTicks ? sliderDivisions - 1 : 0,
+                          enableTooltip: true,
+                          tooltipShape: const SfPaddleTooltipShape(),
+                          onChanged: (dynamic newValue) {
+                            onChanged(newValue);
+                          },
+                          onChangeEnd: (dynamic newValue) {
+                            onChangedEnd(newValue);
+                          },
+                        ),
                       ),
                     ),
-                  ),
-                  if (adjustment.visualization == StepAdjustmentVisualization.sliderWithClockwiseDial || adjustment.visualization == StepAdjustmentVisualization.sliderWithCounterclockwiseDial)
-                    RotaryKnob(
-                      key: const ValueKey('RotaryKnob'),
-                      value: value!,
-                      initialValue: initialValue?.toInt(),
-                      min: adjustment.min.toDouble(),
-                      max: sliderMax,
-                      numberOfTicks: knobTicks,
-                      showAllTicks: showStepTicks,
-                      clockwise: adjustment.visualization == StepAdjustmentVisualization.sliderWithClockwiseDial,
-                      primaryColor: Theme.of(context).colorScheme.primary,
-                      onPrimaryColor: Theme.of(context).colorScheme.onPrimary,
-                    ),
-                  if (isInitial)
-                    IconButton(
-                      onPressed: () {onChanged(null); onChangedEnd(null);}, 
-                      icon: const Icon(Icons.replay),
-                      visualDensity: VisualDensity.compact,
-                    ),
-                ],
-              ),
-            ),
-          if (value != null && (adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButton || adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial || adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonCounterclockwiseDial))
-            Flexible(
-              flex: 3,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
+                    if (adjustment.visualization == StepAdjustmentVisualization.sliderWithClockwiseDial || adjustment.visualization == StepAdjustmentVisualization.sliderWithCounterclockwiseDial)
+                      RotaryKnob(
+                        key: const ValueKey('RotaryKnob'),
+                        value: value!,
+                        initialValue: initialValue?.toInt(),
+                        min: adjustment.min.toDouble(),
+                        max: sliderMax,
+                        numberOfTicks: knobTicks,
+                        showAllTicks: showStepTicks,
+                        clockwise: adjustment.visualization == StepAdjustmentVisualization.sliderWithClockwiseDial,
+                        primaryColor: Theme.of(context).colorScheme.primary,
+                        onPrimaryColor: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                    if (isInitial)
+                      IconButton(
+                        onPressed: () {onChanged(null); onChangedEnd(null);},
+                        icon: const Icon(Icons.replay),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                  ],
+                ),
+                StepAdjustmentVisualization.minusButtonValuePlusButton => Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
                   children: [
                     FilledButton(
                       onPressed: value! - adjustment.step >= adjustment.min ? onPressedMinusButton : null,
+                      onLongPress: value! - adjustment.step >= adjustment.min ? onLongPressedMinusButton : null,
                       style: FilledButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        minimumSize: const Size(48, 36), 
+                        minimumSize: const Size(48, 36),
                       ),
                       child: Text("- ${adjustment.step}"),
                     ),
-                    const SizedBox(width: 6),
-                    Text(value!.toInt().toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace')),
-                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            value!.toInt().toString(),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                          ),
+                        ),
+                      ),
+                    ),
                     FilledButton(
                       onPressed: value! + adjustment.step <= adjustment.max ? onPressedPlusButton : null,
+                      onLongPress: value! + adjustment.step <= adjustment.max ? onLongPressedPlusButton : null,
                       style: FilledButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        minimumSize: const Size(48, 36), 
+                        minimumSize: const Size(48, 36),
                       ),
                       child: Text("+ ${adjustment.step}"),
                     ),
-                    if (adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial || adjustment.visualization == StepAdjustmentVisualization.minusButtonValuePlusButtonCounterclockwiseDial) ...[
+                    if (isInitial)
+                      IconButton(
+                        onPressed: () {onChanged(null); onChangedEnd(null);},
+                        icon: const Icon(Icons.replay),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                  ],
+                ),
+                StepAdjustmentVisualization.minusButtonValuePlusButtonClockwiseDial ||
+                StepAdjustmentVisualization.minusButtonValuePlusButtonCounterclockwiseDial => SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FilledButton(
+                        onPressed: value! - adjustment.step >= adjustment.min ? onPressedMinusButton : null,
+                        onLongPress: value! - adjustment.step >= adjustment.min ? onLongPressedMinusButton : null,
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          minimumSize: const Size(48, 36),
+                        ),
+                        child: Text("- ${adjustment.step}"),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(value!.toInt().toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace')),
+                      const SizedBox(width: 6),
+                      FilledButton(
+                        onPressed: value! + adjustment.step <= adjustment.max ? onPressedPlusButton : null,
+                        onLongPress: value! + adjustment.step <= adjustment.max ? onLongPressedPlusButton : null,
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          minimumSize: const Size(48, 36),
+                        ),
+                        child: Text("+ ${adjustment.step}"),
+                      ),
                       const SizedBox(width: 6),
                       RotaryKnob(
                         key: const ValueKey('RotaryKnob'),
@@ -189,17 +245,16 @@ class SetStepAdjustmentWidget extends StatelessWidget {
                         primaryColor: Theme.of(context).colorScheme.primary,
                         onPrimaryColor: Theme.of(context).colorScheme.onPrimary,
                       ),
+                      if (isInitial)
+                        IconButton(
+                          onPressed: () {onChanged(null); onChangedEnd(null);},
+                          icon: const Icon(Icons.replay),
+                          visualDensity: VisualDensity.compact,
+                        ),
                     ],
-                    if (isInitial) ...[
-                      IconButton(
-                        onPressed: () {onChanged(null); onChangedEnd(null);}, 
-                        icon: const Icon(Icons.replay),
-                        visualDensity: VisualDensity.compact,
-                      ),
-                    ],
-                  ],
+                  ),
                 ),
-              ),
+              },
             ),
         ],
       ),

@@ -18,6 +18,7 @@ import '../utils/rating_actions.dart';
 import '../utils/rating_entry_actions.dart';
 import '../utils/setup_actions.dart';
 import '../utils/task_actions.dart';
+import '../widgets/empty_state_placeholder.dart';
 
 class TrashPage extends StatelessWidget{
   const TrashPage({super.key});
@@ -69,8 +70,7 @@ class TrashPage extends StatelessWidget{
         bottom: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
+          children: [
             const ListTile(
               leading: Icon(Icons.info_outline),
               title: Text('Items in the Trash are permanently deleted after 30 days. The Trash is emptied automatically.'),
@@ -78,13 +78,20 @@ class TrashPage extends StatelessWidget{
             ),
             Expanded(
               child: deletedCombined.isEmpty
-                  ? Center(
-                      child: Text(
-                        "Empty Trash",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                  ? const CustomScrollView(
+                      slivers: [
+                        SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: Padding(
+                            padding: EdgeInsets.all(16),
+                            child: EmptyStatePlaceholder(
+                              icon: Icons.delete_outline,
+                              title: 'Trash is empty',
+                              subtitle: 'Deleted items will appear here.',
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     )
                   : ListView.builder(
                       padding: const EdgeInsets.all(16.0),

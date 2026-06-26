@@ -7,13 +7,20 @@ import '../../models/component.dart';
 import '../../repositories/app_repository.dart';
 import 'sheet_header.dart';
 
-class ReplaceComponentResult {
+sealed class ReplaceComponentResult {
   final DateTime replacementDate;
-  final Component? existingComponent;
+  const ReplaceComponentResult({required this.replacementDate});
+}
 
-  const ReplaceComponentResult({
-    required this.replacementDate,
-    this.existingComponent,
+class ReplaceComponentNewResult extends ReplaceComponentResult {
+  const ReplaceComponentNewResult({required super.replacementDate});
+}
+
+class ReplaceComponentExistingResult extends ReplaceComponentResult {
+  final Component existingComponent;
+  const ReplaceComponentExistingResult({
+    required super.replacementDate,
+    required this.existingComponent,
   });
 }
 
@@ -57,14 +64,17 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
   void _onContinue() {
     if (!_formKey.currentState!.validate()) return;
 
-    final existingComponent = _mode == _ReplaceMode.existing
-        ? context.read<AppRepository>().components[_selectedComponentId]
-        : null;
+    final ReplaceComponentResult result = switch (_mode) {
+      _ReplaceMode.existing => ReplaceComponentExistingResult(
+        replacementDate: _replaceDate,
+        existingComponent: context.read<AppRepository>().components[_selectedComponentId]!,
+      ),
+      _ReplaceMode.create => ReplaceComponentNewResult(
+        replacementDate: _replaceDate,
+      ),
+    };
 
-    Navigator.pop(context, ReplaceComponentResult(
-      replacementDate: _replaceDate,
-      existingComponent: existingComponent,
-    ));
+    Navigator.pop(context, result);
   }
 
   Future<DateTime?> _showDateTimePicker(DateTime initialDate) async {

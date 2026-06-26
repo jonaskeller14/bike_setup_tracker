@@ -13,6 +13,7 @@ import '../hints/strava_gear_link_hint.dart';
 import '../hints/strava_no_gears_hint.dart';
 import '../items/strava_list_tile.dart';
 import '../text/sheet_section_title.dart';
+import 'sheet.dart';
 import 'sheet_header.dart';
 
 class StravaDashboardSheet extends StatefulWidget {
@@ -182,11 +183,10 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                       } else if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator()));
                       } else {
-                        return const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(32),
-                            child: Text("No activities synced yet.", style: TextStyle(fontStyle: FontStyle.italic)),
-                          ),
+                        return const SheetFilterEmptyHint(
+                          icon: Icons.directions_bike,
+                          title: "No activities synced yet.",
+                          hint: "Connect Strava and sync your rides to see activities here.",
                         );
                       }
                     },

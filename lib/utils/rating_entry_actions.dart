@@ -17,6 +17,18 @@ class RatingEntryActions {
     await appRepository.editRatingEntry(edited);
   }
 
+  static Future<void> duplicateRatingEntry(BuildContext context, {required RatingEntry ratingEntry}) async {
+    final appRepository = context.read<AppRepository>();
+
+    final newRatingEntry = await Navigator.push<RatingEntry>(
+      context,
+      MaterialPageRoute(builder: (context) => RatingEntryPage.duplicate(ratingEntry: ratingEntry.deepCopy())),
+    );
+    if (newRatingEntry == null) return;
+
+    await appRepository.addRatingEntry(newRatingEntry);
+  }
+
   static Future<void> removeRatingEntry(BuildContext context, {required RatingEntry ratingEntry}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);

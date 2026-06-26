@@ -74,7 +74,7 @@ class RatingActions {
     await appRepository.restoreRatings([rating]);
 
     messenger.showSnackBar(SnackBar(
-      content: Text("Rating '${rating.name}' moved to trash."),
+      content: Text("Rating '${rating.name}' restored from trash."),
       duration: const Duration(seconds: 5),
       persist: false,
       showCloseIcon: true,

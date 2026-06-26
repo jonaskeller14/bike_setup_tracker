@@ -125,6 +125,8 @@ class RatingEntryListTile extends StatelessWidget {
           switch (option) {
             case _RatingEntryOption.edit:
               await RatingEntryActions.editRatingEntry(context, ratingEntry: ratingEntry);
+            case _RatingEntryOption.duplicate:
+              await RatingEntryActions.duplicateRatingEntry(context, ratingEntry: ratingEntry);
             case _RatingEntryOption.remove:
               await RatingEntryActions.removeRatingEntry(context, ratingEntry: ratingEntry);
           }
@@ -148,6 +150,7 @@ class RatingEntryListTile extends StatelessWidget {
 
 enum _RatingEntryOption {
   edit("Edit", Icons.edit),
+  duplicate("Duplicate", Icons.copy),
   remove("Remove", Icons.delete);
 
   final String label;

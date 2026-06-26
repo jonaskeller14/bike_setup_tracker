@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
+import '../items/adjustment_properties.dart';
 import 'sheet_header.dart';
 
  final List<Adjustment> _adjustmentPresets = [
@@ -48,7 +49,7 @@ void showPersonAddAdjustmentBottomSheet({
                       ..._adjustmentPresets.map((adjustmentPreset) => ListTile(
                         leading: Icon(adjustmentPreset.getIconData()),
                         title: Text(adjustmentPreset.name),
-                        subtitle: Text(adjustmentPreset.getProperties(), style: const TextStyle(fontSize: 12)),
+                        subtitle: AdjustmentProperties(adjustmentPreset, singleLine: true, compact: true),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                         onTap: () async {
                           Navigator.pop(context);

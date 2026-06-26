@@ -36,7 +36,6 @@ sealed class Adjustment {
   bool isValidValue(dynamic value);
   Map<String, dynamic> toJson();
   IconData getIconData();
-  String getProperties();
 
   String unitSuffix() {
     return unit == null ? "" : " $unit";

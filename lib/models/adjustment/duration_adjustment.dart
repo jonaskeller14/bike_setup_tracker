@@ -81,11 +81,6 @@ class DurationAdjustment extends Adjustment {
   IconData getIconData() => DurationAdjustment.iconData;
 
   @override
-  String getProperties() {
-    return "Range ${min == null ? '-∞' : Adjustment.formatValue(min)}..${max == null ? '∞' : Adjustment.formatValue(max)}";
-  }
-
-  @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         other is DurationAdjustment &&

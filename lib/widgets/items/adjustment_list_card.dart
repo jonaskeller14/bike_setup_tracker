@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
+import 'adjustment_properties.dart';
 
 class AdjustmentListCard extends StatelessWidget {
   final Adjustment adjustment;
@@ -25,10 +26,11 @@ class AdjustmentListCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       key: ValueKey(adjustment.id),
-      color: initialAdjustments != null && initialAdjustments![adjustment.id] != adjustment 
-          ? Color.lerp(Theme.of(context).colorScheme.surface, Colors.orange, 0.08) 
+      color: initialAdjustments != null && initialAdjustments![adjustment.id] != adjustment
+          ? Color.lerp(Theme.of(context).colorScheme.surface, Colors.orange, 0.08)
           : null,
       child: ListTile(
+        titleAlignment: ListTileTitleAlignment.titleHeight,
         leading: Icon(adjustment.getIconData()),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -41,60 +43,27 @@ class AdjustmentListCard extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 3), // tweak to match font size
-                  child: Icon(Icons.info_outline, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                ),
-                const SizedBox(width: 2),
-                Expanded(
-                  child: Text(
-                    adjustment.getProperties(),
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            if (adjustment.unit != null)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(Icons.straighten, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  const SizedBox(width: 2),
-                  Expanded(
-                    child: Text(
-                      "Unit: ${adjustment.unit}",
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            if (adjustment.notes != null)
+            const SizedBox(height: 4),
+            AdjustmentProperties(adjustment),
+            if (adjustment.notes != null) ...[
+              const SizedBox(height: 6),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 3), // tweak to match font size
+                    padding: const EdgeInsets.only(top: 2), // tweak to match font size
                     child: Icon(
                       Icons.notes,
-                      size: 13,
+                      size: 14,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(width: 2),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       adjustment.notes!,
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontSize: 13,
                       ),
                       maxLines: 2,
@@ -103,6 +72,7 @@ class AdjustmentListCard extends StatelessWidget {
                   ),
                 ],
               ),
+            ],
           ],
         ),
         trailing: Row(

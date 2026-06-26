@@ -244,6 +244,16 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                               labelText: 'Unit (optional)',
                               hintText: 'Enter unit (e.g., mm, psi)',
                               border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.straighten),
+                              suffixIcon: _unitController.text.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(Icons.clear),
+                                      onPressed: () {
+                                        _unitController.clear();
+                                        _updatePreview(resetValue: false);
+                                      },
+                                    )
+                                  : null,
                               fillColor: Colors.orange.withValues(alpha: 0.08),
                               filled: widget.mode == AdjustmentPageMode.edit && _unitController.text.trim() != (widget.adjustment?.unit ?? ""),
                             ),

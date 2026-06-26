@@ -82,11 +82,6 @@ class NumericalAdjustment extends Adjustment {
   IconData getIconData() => NumericalAdjustment.iconData;
 
   @override
-  String getProperties() {
-    return "Range ${min == double.negativeInfinity ? '-∞' : Adjustment.formatValue(min)}..${max == double.infinity ? '∞' : Adjustment.formatValue(max)}";
-  }
-
-  @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         other is NumericalAdjustment &&

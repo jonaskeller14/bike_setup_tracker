@@ -88,11 +88,6 @@ class StepAdjustment extends Adjustment {
   IconData getIconData() => StepAdjustment.iconData;
 
   @override
-  String getProperties() {
-    return "Range ${Adjustment.formatValue(min)}..${Adjustment.formatValue(max)}, Step $step";
-  }
-
-  @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         other is StepAdjustment &&

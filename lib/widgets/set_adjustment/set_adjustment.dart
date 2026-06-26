@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
+import '../items/adjustment_properties.dart';
 
 Widget nameNotesSetAdjustmentWidget({required BuildContext context, required Adjustment adjustment, required Color? highlightColor}) {
   return Expanded(
@@ -31,24 +32,9 @@ Widget nameNotesSetAdjustmentWidget({required BuildContext context, required Adj
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 3), // tweak to match font size
-                          child: Icon(Icons.info_outline, size: 13, color: Theme.of(context).colorScheme.onSecondary),
-                        ),
-                        const SizedBox(width: 2),
-                        Expanded(
-                          child: Text(
-                            adjustment.getProperties(),
-                            style: TextStyle(color: Theme.of(context).colorScheme.onSecondary, fontSize: 13),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
+                    AdjustmentProperties(
+                      adjustment,
+                      color: Theme.of(context).colorScheme.onSecondary,
                     ),
                     if (adjustment.notes != null)
                       Row(

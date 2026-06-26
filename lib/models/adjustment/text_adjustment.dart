@@ -52,11 +52,6 @@ class TextAdjustment extends Adjustment {
   IconData getIconData() => TextAdjustment.iconData;
 
   @override
-  String getProperties() {
-    return "Text";
-  }
-
-  @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         other is TextAdjustment &&

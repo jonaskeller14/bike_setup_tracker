@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/component.dart';
+import '../items/adjustment_properties.dart';
 import 'sheet_header.dart';
 
 final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
@@ -14,18 +15,18 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
     BooleanAdjustment(name: "Lockout", unit: null, notes: "Is the lockout lever enabled?"),
     NumericalAdjustment(name: "Pressure", unit: "psi", min: 0, notes: "Fork air pressure"),
     NumericalAdjustment(name: "SAG", unit: "%", min: 0, max: 100, notes: "Sag is how much your fork compresses under your body weight (including riding gear) in a static riding position. SAG is a good metric for initial setup. Recommended ranges by discipline: XC: 15%, Trail: 15-20%, Enduro: 20%, Downhill: 20-25%."),
-    StepAdjustment(name: "Rebound", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Rebound clicks (0-20)"),
-    StepAdjustment(name: "Compression", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Compression clicks (0-20)"),
-    StepAdjustment(name: "Volume Spacers", unit: "pcs", step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.minusButtonValuePlusButton, notes: "Number of volume spacers installed in the air spring"),
+    StepAdjustment(name: "Rebound", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Rebound clicks"),
+    StepAdjustment(name: "Compression", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Compression clicks"),
+    StepAdjustment(name: "Volume Spacers", unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.minusButtonValuePlusButton, notes: "Number of volume spacers installed in the air spring"),
   ],
   ComponentType.shock: [
     BooleanAdjustment(name: "Lockout", unit: null, notes: "Is the lockout lever enabled?"),
     NumericalAdjustment(name: "Pressure", unit: "psi", min: 0, notes: "Shock air pressure"),
     NumericalAdjustment(name: "Spring Rate", unit: "lbs", min: 0, notes: "Coil spring rate"),
     NumericalAdjustment(name: "SAG", unit: "%", min: 0, max: 100, notes: "Sag is how much your shock compresses under your body weight (including riding gear) in a static riding position. SAG is a good metric for initial setup. Recommended ranges by discipline: XC: 20-25%, Trail: 25-30%, Enduro: 30%, Downhill: 30-35%."),
-    StepAdjustment(name: "Rebound", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Rebound clicks (0-20)"),
-    StepAdjustment(name: "Compression", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Compression clicks (0-20)"),
-    StepAdjustment(name: "Volume Spacers", unit: "pcs", step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.minusButtonValuePlusButton, notes: "Number of volume spacers installed in the air spring"),
+    StepAdjustment(name: "Rebound", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Rebound clicks"),
+    StepAdjustment(name: "Compression", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Compression clicks"),
+    StepAdjustment(name: "Volume Spacers", unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.minusButtonValuePlusButton, notes: "Number of volume spacers installed in the air spring"),
   ],
   ComponentType.cockpit: [
     NumericalAdjustment(name: "Bar Roll", unit: "°", notes: "Angle of handlebars in degrees"),
@@ -35,7 +36,7 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
   ComponentType.stem: [
     NumericalAdjustment(name: "Stem Length", unit: "mm", min: 0, notes: "Measured center-to-center from the fork steerer tube to the handlebar clamp."),
     NumericalAdjustment(name: "Stem Angle", unit: "°", notes: "Angle of the stem relative to the steering column"),
-    StepAdjustment(name: "Stack Spacers", unit: "mm", step: 5, min: 0, max: 100, visualization: StepAdjustmentVisualization.minusButtonValuePlusButton, notes: "Height of spacers under the stem"),
+    StepAdjustment(name: "Stack Spacers", unit: null, step: 5, min: 0, max: 100, visualization: StepAdjustmentVisualization.minusButtonValuePlusButton, notes: "Height of spacers under the stem"),
   ],
   ComponentType.grip: [
     NumericalAdjustment(name: "Rotation", unit: "°", notes: "Rotation angle for ergonomic or asymmetric grips"),
@@ -145,7 +146,7 @@ void showComponentAddAdjustmentBottomSheet({
                         ..._adjustmentPresets[componentType]!.map((adjustmentPreset) => ListTile(
                           leading: Icon(adjustmentPreset.getIconData()),
                           title: Text(adjustmentPreset.name),
-                          subtitle: Text(adjustmentPreset.getProperties(), style: const TextStyle(fontSize: 12)),
+                          subtitle: AdjustmentProperties(adjustmentPreset, singleLine: true, compact: true),
                           trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                           onTap: () async {
                             Navigator.pop(context);

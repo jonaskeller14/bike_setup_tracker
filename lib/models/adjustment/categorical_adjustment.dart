@@ -58,11 +58,6 @@ class CategoricalAdjustment extends Adjustment {
   IconData getIconData() => CategoricalAdjustment.iconData;
 
   @override
-  String getProperties() {
-    return options.join('/');
-  }
-
-  @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         other is CategoricalAdjustment &&

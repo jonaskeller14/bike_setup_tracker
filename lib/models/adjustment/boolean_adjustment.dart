@@ -52,11 +52,6 @@ class BooleanAdjustment extends Adjustment {
   IconData getIconData() => BooleanAdjustment.iconData;
 
   @override
-  String getProperties() {
-    return "On/Off";
-  }
-
-  @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         other is BooleanAdjustment &&

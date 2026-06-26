@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
+import '../../models/bike.dart';
 import '../../models/rating_entry.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/rating_entry_actions.dart';
@@ -12,10 +13,40 @@ class RatingEntryListTile extends StatelessWidget {
 
   const RatingEntryListTile({super.key, required this.ratingEntry});
 
+  Widget _buildStatItem(BuildContext context, String iconText, String text, {bool secondary = false}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 2,
+      children: [
+        Text(
+          iconText,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+            color: secondary 
+                ? Theme.of(context).colorScheme.onSecondaryContainer
+                : Theme.of(context).colorScheme.onPrimaryContainer,
+          ),
+        ),
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+            color: secondary 
+                ? Theme.of(context).colorScheme.onSecondaryContainer
+                : Theme.of(context).colorScheme.onPrimaryContainer,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final appRepository = context.watch<AppRepository>();
+    final bikes = appRepository.bikes;
     final appSettings = context.watch<AppSettings>();
     final score = appRepository.entryScore(ratingEntry);
 
@@ -26,8 +57,7 @@ class RatingEntryListTile extends StatelessWidget {
       dense: true,
       visualDensity: VisualDensity.compact,
       titleAlignment: ListTileTitleAlignment.titleHeight,
-      contentPadding: const EdgeInsets.only(left: 16, right: 16),
-      leading: const Icon(RatingEntry.iconData),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
       title: Text(ratingEntry.displayName),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,26 +103,47 @@ class RatingEntryListTile extends StatelessWidget {
           ),
           Row(
             mainAxisSize: MainAxisSize.min,
-            spacing: 16,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            spacing: 2,
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 4,
-                children: [
-                  Text("Ø", style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
-                  Text(avgText, style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
-                ],
+              Icon(
+                Bike.iconData,
+                size: 12, 
+                color: bikes.containsKey(ratingEntry.bike) 
+                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                    : Theme.of(context).colorScheme.error,
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 4,
-                children: [
-                  Text("Σ", style: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontWeight: FontWeight.bold)),
-                  Text(sumText, style: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontWeight: FontWeight.normal)),
-                ],
+              Flexible(
+                child: Text(
+                  bikes[ratingEntry.bike]?.name ?? "BIKE NOT FOUND",
+                  style: TextStyle(
+                    color: bikes.containsKey(ratingEntry.bike)
+                        ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                        : Theme.of(context).colorScheme.error, 
+                    fontSize: 12,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
               ),
             ],
           ),
+          if (ratingEntry.place != null)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: 2,
+              children: [
+                Icon(Icons.location_pin, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                Flexible(
+                  child: Text(
+                    "${ratingEntry.place?.locality}, ${ratingEntry.place?.isoCountryCode}",
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           if (ratingEntry.notes != null && ratingEntry.notes!.isNotEmpty)
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,6 +168,22 @@ class RatingEntryListTile extends StatelessWidget {
                 ),
               ],
             ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+            decoration: BoxDecoration(
+              color: colorScheme.primaryContainer.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 2,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                _buildStatItem(context, "Ø", avgText),
+                _buildStatItem(context, "Σ", sumText, secondary: true),
+              ],
+            ),
+          ),
         ],
       ),
       onTap: () => showRatingEntryDetailsSheet(context: context, ratingEntry: ratingEntry),

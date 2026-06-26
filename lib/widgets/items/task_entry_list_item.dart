@@ -48,6 +48,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
@@ -66,7 +67,10 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
     }
 
     return ListTile(
+      dense: true,
+      visualDensity: VisualDensity.compact,
       titleAlignment: ListTileTitleAlignment.top,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
       title: Text(taskEntry.name),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +89,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                   Text(
                     DateFormat(appSettings.dateFormat).format(taskEntry.dateTimeLocal),
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                       fontSize: 12,
                     ),
                   ),
@@ -96,12 +100,12 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 spacing: 2,
                 children: [
-                  Icon(Icons.access_time, size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  Icon(Icons.access_time, size: 12, color: colorScheme.onSurfaceVariant),
                   Flexible(
                     child: Text(
                       DateFormat(appSettings.timeFormat).format(taskEntry.dateTimeLocal),
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                         fontSize: 12,
                       ),
                     ),
@@ -119,16 +123,16 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                 Icons.check_box_outlined,
                 size: 12, 
                 color: taskRules.containsKey(taskEntry.taskRule) 
-                    ? Theme.of(context).colorScheme.onSurfaceVariant
-                    : Theme.of(context).colorScheme.error,
+                    ? colorScheme.onSurfaceVariant
+                    : colorScheme.error,
               ),
               Flexible(
                 child: Text(
                   taskRules[taskEntry.taskRule]?.name ?? "TASK NOT FOUND",
                   style: TextStyle(
                     color: taskRules.containsKey(taskEntry.taskRule)
-                        ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                        : Theme.of(context).colorScheme.error, 
+                        ? colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                        : colorScheme.error, 
                     fontSize: 12,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -146,13 +150,13 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                 Icon(
                   Icons.warning_amber_rounded,
                   size: 12, 
-                  color: Theme.of(context).colorScheme.error,
+                  color: colorScheme.error,
                 ),
                 Flexible(
                   child: Text(
                     "Linked to $entryContextName",
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.error, 
+                      color: colorScheme.error, 
                       fontSize: 12,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -170,7 +174,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                   child: Icon(
                     Icons.notes,
                     size: 12,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(width: 2),
@@ -178,7 +182,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                   child: Text(
                     taskEntry.notes!,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                       fontSize: 12,
                     ),
                   ),
@@ -203,7 +207,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.5),
+                      color: colorScheme.primaryContainer.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Wrap(
@@ -216,7 +220,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
+                            color: colorScheme.primary,
                           ),
                         ),
                         _buildStatItem(context, Icons.route, '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(stats.distance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}'),
@@ -232,7 +236,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
           ],
         ],
       ),
-      contentPadding: const EdgeInsets.only(left: 16, right: 16),
+      onTap: widget.onTap,
       trailing: PopupMenuButton<_TaskEntryListCardPopupMenuButtonOptions>(
         onSelected: (_TaskEntryListCardPopupMenuButtonOptions value) async {
           switch (value) {
@@ -242,37 +246,28 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
               await TaskActions.removeTaskEntry(context, taskEntry: taskEntry);
           }
         },
-        itemBuilder: (BuildContext context) => <PopupMenuEntry<_TaskEntryListCardPopupMenuButtonOptions>>[
-          const PopupMenuItem<_TaskEntryListCardPopupMenuButtonOptions>(
-            value: _TaskEntryListCardPopupMenuButtonOptions.edit,
+        itemBuilder: (BuildContext context) => _TaskEntryListCardPopupMenuButtonOptions.values.map((option) {
+          return PopupMenuItem<_TaskEntryListCardPopupMenuButtonOptions>(
+            value: option,
             child: Row(
               spacing: 10,
               children: [
-                Icon(Icons.edit, size: 20),
-                Text('Edit'),
+                Icon(option.iconData, size: 20),
+                Text(option.label),
               ],
-            )
-          ),
-          const PopupMenuItem<_TaskEntryListCardPopupMenuButtonOptions>(
-            value: _TaskEntryListCardPopupMenuButtonOptions.remove,
-            child: Row(
-              spacing: 10,
-              children: [
-                Icon(Icons.delete, size: 20),
-                Text('Remove'),
-              ],
-            )
-          ),
-        ],
+            ),
+          );
+        }).toList(),
       ),
-      dense: true,
-      visualDensity: VisualDensity.compact,
-      onTap: widget.onTap,
     );
   }
 }
 
 enum _TaskEntryListCardPopupMenuButtonOptions {
-  edit,
-  remove,
+  edit("Edit", Icons.edit),
+  remove("Remove", Icons.delete);
+
+  final String label;
+  final IconData iconData;
+  const _TaskEntryListCardPopupMenuButtonOptions(this.label, this.iconData);
 }

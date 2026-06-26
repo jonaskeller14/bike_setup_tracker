@@ -19,6 +19,22 @@ class SheetHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Title only (no icon, no back button): center the title
+    if (onBack == null && leadingIcon == null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            Expanded(
+              child: Center(child: sheetTitle(context, title)),
+            ),
+            if (onEdit != null) sheetEditButton(context, onPressed: onEdit!),
+            if (showClose) sheetCloseButton(context),
+          ],
+        ),
+      );
+    }
+
     // No back button: icon + title flush left, buttons flush right
     if (onBack == null) {
       return Padding(

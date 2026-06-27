@@ -197,7 +197,7 @@ class SelectExportDestinationSheetContent extends StatelessWidget {
                     ),
                   if (context.read<AppSettings>().enableSetupImages)
                     ListTile(
-                      leading: Icon(Icons.photo_library_outlined, color: Theme.of(context).colorScheme.primary),
+                      leading: Icon(Icons.photo_library, color: Theme.of(context).colorScheme.primary),
                       title: const Text("Export Image Bundle"),
                       subtitle: const Text("Export data and images as a ZIP bundle"),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),

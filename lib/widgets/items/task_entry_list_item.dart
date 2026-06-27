@@ -66,6 +66,8 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
       entryContextName = "General Task";
     }
 
+    final taskRule = taskRules[taskEntry.taskRule];
+
     return ListTile(
       dense: true,
       visualDensity: VisualDensity.compact,
@@ -128,7 +130,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
               ),
               Flexible(
                 child: Text(
-                  taskRules[taskEntry.taskRule]?.name ?? "TASK NOT FOUND",
+                  taskRule?.name ?? "TASK NOT FOUND",
                   style: TextStyle(
                     color: taskRules.containsKey(taskEntry.taskRule)
                         ? colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
@@ -242,22 +244,25 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
           switch (value) {
             case _TaskEntryListCardPopupMenuButtonOptions.edit:
               await TaskActions.editTaskEntry(context, taskEntry: taskEntry);
+            case _TaskEntryListCardPopupMenuButtonOptions.dupliate:
+              await TaskActions.duplicateTaskEntry(context, taskEntry: taskEntry);
             case _TaskEntryListCardPopupMenuButtonOptions.remove:
               await TaskActions.removeTaskEntry(context, taskEntry: taskEntry);
           }
         },
-        itemBuilder: (BuildContext context) => _TaskEntryListCardPopupMenuButtonOptions.values.map((option) {
-          return PopupMenuItem<_TaskEntryListCardPopupMenuButtonOptions>(
-            value: option,
-            child: Row(
-              spacing: 10,
-              children: [
-                Icon(option.iconData, size: 20),
-                Text(option.label),
-              ],
-            ),
-          );
-        }).toList(),
+        itemBuilder: (BuildContext context) => _TaskEntryListCardPopupMenuButtonOptions.values
+            .where((option) => option != _TaskEntryListCardPopupMenuButtonOptions.dupliate || (taskRule != null && taskRule.interval != null))
+            .map((option) => PopupMenuItem<_TaskEntryListCardPopupMenuButtonOptions>(
+              value: option,
+              child: Row(
+                spacing: 10,
+                children: [
+                  Icon(option.iconData, size: 20),
+                  Text(option.label),
+                ],
+              ),
+            ))
+            .toList(),
       ),
     );
   }
@@ -265,6 +270,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
 
 enum _TaskEntryListCardPopupMenuButtonOptions {
   edit("Edit", Icons.edit),
+  dupliate("Duplicate", Icons.copy),
   remove("Remove", Icons.delete);
 
   final String label;

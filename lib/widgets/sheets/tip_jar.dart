@@ -163,7 +163,7 @@ class _ThankYou extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.only(top: 24),
+      padding: const EdgeInsets.only(top: 24, bottom: 16),
       child: Column(
         children: [
           Container(

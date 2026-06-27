@@ -216,47 +216,58 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   Future<void> _onTap(CalendarTapDetails details, List<TimelineEntry> entries) async {
-    // Tapping a day (month cell or day header) drills into the Day view.
-    if (details.targetElement == CalendarElement.calendarCell ||
-        details.targetElement == CalendarElement.viewHeader) {
-      final date = details.date;
-      if (date != null && _controller.view != CalendarView.day) {
+    switch (details.targetElement) {
+      case CalendarElement.viewHeader:
+        final date = details.date;
+        if (date == null) return;
+        if (_selectedView == _CalendarView.threeDay) {
+          setState(() => _controller.displayDate = _displayDateForDay(date, entries));
+        } else if (_selectedView != _CalendarView.day) {
+          setState(() {
+            _returnView = _selectedView;
+            _selectedView = _CalendarView.day;
+            _controller.view = CalendarView.day;
+            _controller.displayDate = _displayDateForDay(date, entries);
+          });
+        }
+      case CalendarElement.calendarCell:
+        if (_selectedView != _CalendarView.month) return;
+        final date = details.date;
+        if (date == null) return;
         setState(() {
           _returnView = _selectedView;
           _selectedView = _CalendarView.day;
           _controller.view = CalendarView.day;
           _controller.displayDate = _displayDateForDay(date, entries);
         });
-      }
-      return;
-    }
+      case CalendarElement.appointment:
+        final appointments = details.appointments;
+        if (appointments == null || appointments.isEmpty) return;
+        final entry = appointments.first;
+        if (entry is! TimelineEntry) return;
 
-    if (details.targetElement != CalendarElement.appointment) return;
-    final appointments = details.appointments;
-    if (appointments == null || appointments.isEmpty) return;
-    final entry = appointments.first;
-    if (entry is! TimelineEntry) return;
-
-    switch (entry) {
-      case SetupEntry():
-        await showSetupDetailsSheet(context: context, setup: entry.setup);
-      case StravaEntry():
-        await showStravaActivitySheet(context: context, stravaActivity: entry.activity);
-      case TaskTimeLineEntry():
-        await showTaskRuleSheet(
-          context,
-          taskRuleId: entry.taskEntry.taskRule,
-          highlightTaskEntryId: entry.taskEntry.id,
-        );
-      case InstallationEntry():
-        await showEditInstallationSheet(
-          context,
-          component: entry.componentInstallation.component,
-          editEntry: entry.componentInstallation,
-        );
-      case RatingEntryTimelineEntry():
-        await showRatingEntryDetailsSheet(context: context, ratingEntry: entry.ratingEntry);
-    }
+        switch (entry) {
+          case SetupEntry():
+            await showSetupDetailsSheet(context: context, setup: entry.setup);
+          case StravaEntry():
+            await showStravaActivitySheet(context: context, stravaActivity: entry.activity);
+          case TaskTimeLineEntry():
+            await showTaskRuleSheet(
+              context,
+              taskRuleId: entry.taskEntry.taskRule,
+              highlightTaskEntryId: entry.taskEntry.id,
+            );
+          case InstallationEntry():
+            await showEditInstallationSheet(
+              context,
+              component: entry.componentInstallation.component,
+              editEntry: entry.componentInstallation,
+            );
+          case RatingEntryTimelineEntry():
+            await showRatingEntryDetailsSheet(context: context, ratingEntry: entry.ratingEntry);
+        }
+      default: return;
+    }    
   }
 
   Future<void> _onDragEnd(AppointmentDragEndDetails details) async {

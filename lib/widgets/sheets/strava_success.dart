@@ -128,6 +128,7 @@ class StravaSuccess extends StatelessWidget {
               ),
               child: const Text('Connect later'),
             ),
+            const SizedBox(height: 16),
           ],
         ),
       ),

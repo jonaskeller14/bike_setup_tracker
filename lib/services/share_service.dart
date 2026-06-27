@@ -6,7 +6,7 @@ class ShareService {
   static Future<void> shareFile({
     required BuildContext context,
     required String filePath,
-    required String text,
+    String? text,
     String? errorMessage,
   }) async {
     final fileName = p.basename(filePath);
@@ -18,7 +18,7 @@ class ShareService {
     try {
       await SharePlus.instance.share(
         ShareParams(
-          text: text,
+          text: text?.isEmpty ?? true ? null : text,
           files: [XFile(filePath)],
           fileNameOverrides: [fileName],
           sharePositionOrigin: box != null ? box.localToGlobal(Offset.zero) & box.size : null,

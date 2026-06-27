@@ -16,15 +16,19 @@ import '../models/person.dart';
 import '../models/setup.dart';
 import '../models/strava/strava_activity.dart';
 import '../repositories/app_repository.dart';
+import 'package:image_picker/image_picker.dart';
 import '../services/address_service.dart';
+import '../services/image_storage_service.dart';
 import '../services/location_service.dart';
 import '../services/setup_resolution_service.dart';
 import '../services/weather_service.dart';
 import '../widgets/dialogs/confirmation.dart';
 import '../widgets/dialogs/discard_changes.dart';
+import '../widgets/image_strip.dart';
 import '../widgets/setup_page_tabs.dart';
 import '../widgets/sheets/app_settings_radio_group.dart';
 import '../widgets/sheets/set_location_place.dart';
+import '../widgets/sheets/pick_image_source.dart';
 import '../widgets/sheets/set_setup_tags.dart';
 import '../widgets/sheets/set_weather.dart';
 import '../widgets/soil_moisture_legend_table.dart';
@@ -95,6 +99,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   late String? _person;
   late String? _initialPerson;
 
+  List<String> _images = [];
+  List<String> _initialImages = [];
+  String? _imagesDirPath;
+
   late DateTime _selectedDateTimeUtc;
   late DateTime _initialDateTimeUtc;
   late DateTime _selectedDateTimeLocal;
@@ -140,6 +148,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final appRepository = context.read<AppRepository>();
     _tags.addAll(widget.setup?.tags ?? appRepository.selectedSetupTags);
     _initialTags = _tags;
+
+    _images = List.from(widget.setup?.images ?? []);
+    _initialImages = List.from(_images);
+    unawaited(_initImagesDir());
 
     final bikes = appRepository.bikes;
     _initialBike = widget.setup?.bike ?? widget.initialBike?.id ?? appRepository.filteredBikes.keys.firstOrNull ?? '';
@@ -339,6 +351,50 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _changeListener();
   }
 
+  Future<void> _initImagesDir() async {
+    final path = await ImageStorageService().getImagesPath();
+    if (!mounted) return;
+    setState(() => _imagesDirPath = path);
+  }
+
+  void _onImagesAdded(List<String> newFilenames) {
+    setState(() => _images.addAll(newFilenames));
+    _changeListener();
+  }
+
+  Future<void> _addImages() async {
+    final picker = ImagePicker();
+    final source = await showPickImageSourceSheet(context);
+    if (source == null) return;
+    final service = ImageStorageService();
+    if (source == ImageSource.camera) {
+      final picked = await picker.pickImage(source: ImageSource.camera);
+      if (picked == null) return;
+      _onImagesAdded([await service.importImage(picked)]);
+    } else {
+      final picked = await picker.pickMultiImage();
+      if (picked.isEmpty) return;
+      final filenames = <String>[];
+      for (final x in picked) {
+        filenames.add(await service.importImage(x));
+      }
+      _onImagesAdded(filenames);
+    }
+  }
+
+  void _onImageRemoved(int index) {
+    setState(() => _images.removeAt(index));
+    _changeListener();
+  }
+
+  void _onImageReorder(int oldIndex, int newIndex) {
+    setState(() {
+      final item = _images.removeAt(oldIndex);
+      _images.insert(newIndex, item);
+    });
+    _changeListener();
+  }
+
   void _changeListener() {
     const equality = DeepCollectionEquality();
 
@@ -356,7 +412,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         _person != _initialPerson ||
 
         !equality.equals(_bikeAdjustmentValues, _initialBikeAdjustmentValues) ||
-        !equality.equals(_personAdjustmentValues, _initialPersonAdjustmentValues);
+        !equality.equals(_personAdjustmentValues, _initialPersonAdjustmentValues) ||
+        !listEquals(_images, _initialImages);
 
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -575,6 +632,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         position: _currentLocation.value,
         place: _currentPlace.value,
         weather: _currentWeather.value,
+        images: _images,
       ),
     );
   }
@@ -865,6 +923,12 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 },
               ),
             ],
+            if (appSettings.enableSetupImages && _imagesDirPath != null)
+              ActionChip(
+                avatar: const Icon(Icons.add_photo_alternate_outlined),
+                label: const Text('Image'),
+                onPressed: _addImages,
+              ),
           ],
         );
       }
@@ -954,6 +1018,16 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                           _notesTextFormField(),
                           const SizedBox(height: 12),
                           _wrap(),
+                          if (context.read<AppSettings>().enableSetupImages && _imagesDirPath != null && _images.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            ImageStrip(
+                              images: _images,
+                              imagesDir: _imagesDirPath!,
+                              mode: ImageStripMode.edit,
+                              onRemove: _onImageRemoved,
+                              onReorder: _onImageReorder,
+                            ),
+                          ],
                           const SizedBox(height: 12),
                           _bikeField(bikes: bikes),
                           const SizedBox(height: 12),

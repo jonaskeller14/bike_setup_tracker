@@ -221,7 +221,7 @@ class SetupListCard extends StatelessWidget {
                     ),
                   ],
                 ),
-              if (appSettings.enableSetupTags) 
+              if (appSettings.enableSetupTags)
                 ...setup.tags.map((tag) {
                   return Row(
                     mainAxisSize: MainAxisSize.min,
@@ -239,7 +239,21 @@ class SetupListCard extends StatelessWidget {
                       ),
                     ],
                   );
-                })
+                }),
+              if (appSettings.enableSetupImages && setup.images.isNotEmpty)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 2,
+                  children: [
+                    Icon(Icons.photo_library_outlined, size: 13,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    Text('${setup.images.length}',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                            fontSize: 13)),
+                  ],
+                ),
             ],
           ),
           if (setup.notes != null && setup.notes!.isNotEmpty)

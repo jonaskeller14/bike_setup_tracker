@@ -5,6 +5,7 @@ import '../models/setup.dart';
 import '../pages/rating_entry_page.dart';
 import '../pages/setup_page.dart';
 import '../repositories/app_repository.dart';
+import '../services/image_storage_service.dart';
 import '../services/share_service.dart';
 import 'bike_actions.dart';
 import 'component_actions.dart';
@@ -56,6 +57,7 @@ class SetupActions {
 
   static Future<void> editSetup(BuildContext context, {required Setup setup}) async {
     final appRepository = context.read<AppRepository>();
+    final originalImages = List<String>.from(setup.images);
 
     final editedSetup = await Navigator.push<Setup>(
       context,
@@ -64,16 +66,37 @@ class SetupActions {
     if (editedSetup == null) return;
 
     await appRepository.editSetup(editedSetup);
+
+    // Delete images that the user removed during editing.
+    final removedImages = originalImages.where((f) => !editedSetup.images.contains(f));
+    await ImageStorageService().deleteImages(removedImages);
   }
 
   static Future<void> duplicateSetup(BuildContext context, {required Setup setup}) async {
     final appRepository = context.read<AppRepository>();
-    
+    final deepCopied = setup.deepCopy();
+
+    // Copy each photo file so the duplicate owns its own files.
+    final service = ImageStorageService();
+    final copiedImages = <String>[];
+    for (final filename in deepCopied.images) {
+      copiedImages.add(await service.copyExisting(filename));
+    }
+    final setupWithCopiedImages = deepCopied.copyWith(images: copiedImages);
+
+    if (!context.mounted) {
+      await service.deleteImages(copiedImages);
+      return;
+    }
+
     final newSetup = await Navigator.push<Setup>(
       context,
-      MaterialPageRoute(builder: (context) => SetupPage.duplicate(setup: setup.deepCopy())),
+      MaterialPageRoute(builder: (context) => SetupPage.duplicate(setup: setupWithCopiedImages)),
     );
-    if (newSetup == null) return;
+    if (newSetup == null) {
+      await service.deleteImages(copiedImages);
+      return;
+    }
 
     await appRepository.addSetup(newSetup);
   }

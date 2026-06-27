@@ -275,6 +275,28 @@ class FeaturesPage extends StatelessWidget {
                 ),
               if (kDebugMode)
                 ListTile(
+                  leading: const Icon(Icons.photo_library_outlined),
+                  title: const Text("Setup Images"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableSetupImages] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Setup Images",
+                    value: appSettings.enableSetupImages,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettings.enableSetupImages = newValue;
+                      Navigator.pop(context);
+                    },
+                    infoText: 'Attach images to setups. WARNING: images are stored only on this '
+                        'device. They are NOT included in cloud/Drive backups and will be lost on '
+                        'reinstall or when restoring from a backup. Use "Export Images" to move them '
+                        'to a new device.',
+                  ),
+                ),
+              if (kDebugMode)
+                ListTile(
                   leading: const Icon(Icons.map),
                   title: const Text("MapBox Tiles"),
                   subtitle: _offOnOptionWidgets[appSettings.useMapBoxTiles] ?? const Text("-"),

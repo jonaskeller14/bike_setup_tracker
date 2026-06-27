@@ -8,9 +8,11 @@ import '../../models/person.dart';
 import '../../models/rating_metric.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/image_storage_service.dart';
 import '../../utils/setup_actions.dart';
 import '../../widgets/display_adjustment/display_adjustment_list.dart';
 import '../../widgets/display_adjustment/display_dangling_adjustment.dart';
+import '../../widgets/image_strip.dart';
 import '../../widgets/initial_changed_value_legend.dart';
 import '../../widgets/items/context_location_card.dart';
 import '../../widgets/items/context_weather_card.dart';
@@ -210,6 +212,20 @@ class SetupDetailsPageContent extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (appSettings.enableSetupImages && setup.images.isNotEmpty)
+              FutureBuilder<String>(
+                future: ImageStorageService().getImagesPath(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: ImageStrip(
+                      images: setup.images,
+                      imagesDir: snapshot.data!,
+                    ),
+                  );
+                },
+              ),
             if (setup.notes != null || (setup.tags.isNotEmpty && appSettings.enableSetupTags))
               Card.outlined(
                 margin: const EdgeInsets.symmetric(vertical: 4),

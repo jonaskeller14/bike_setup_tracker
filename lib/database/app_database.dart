@@ -15,6 +15,7 @@ import 'converters/local_floating_datetime_converter.dart';
 import 'converters/location_data_converter.dart';
 import 'converters/placemark_converter.dart';
 import 'converters/string_list_converter.dart';
+import 'converters/string_list_ordered_converter.dart';
 import 'converters/utc_datetime_converter.dart';
 import 'converters/weather_converter.dart';
 import 'daos/bikes_dao.dart';
@@ -79,7 +80,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.memory() : super(NativeDatabase.memory());
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration {
@@ -129,6 +130,9 @@ class AppDatabase extends _$AppDatabase {
           // adjustments and rating_metrics via schema recreation.
           await m.alterTable(TableMigration(adjustments));
           await m.alterTable(TableMigration(ratingMetrics));
+        }
+        if (from < 8) {
+          await m.addColumn(setups, setups.images);
         }
       },
     );

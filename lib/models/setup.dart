@@ -24,6 +24,7 @@ class Setup {
   final LocationData? position;
   final geo.Placemark? place;
   final ContextWeather? weather;
+  final List<String> images;
 
   // Transient values resolved at runtime
   bool isCurrent = false;
@@ -51,13 +52,15 @@ class Setup {
     this.place,
     this.position,
     this.weather,
+    List<String>? images,
   }) : id = id ?? const Uuid().v4(),
+       images = images ?? const [],
        isDeleted = isDeleted ?? false,
        datetime = datetime.toUtc(),
        lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
 
   Map<String, dynamic> toJson() => {
-    'version': 5,
+    'version': 6,
     'id': id,
     "isDeleted": isDeleted,
     "lastModified": lastModified.toUtc().toIso8601String(),
@@ -73,12 +76,13 @@ class Setup {
     'position': position != null ? ContextPosition.toJson(position!) : null,
     'place': place != null ? ContextPlace.toJson(place!) : null,
     'weather': weather?.toJson(),
+    'images': images,
   };
 
   factory Setup.fromJson({required Map<String, dynamic> json}) {
     final int? version = json["version"];
     switch (version) {
-      case null || 1 || 2 || 3 || 4 || 5:
+      case null || 1 || 2 || 3 || 4 || 5 || 6:
         return Setup(
           id: json['id'],
           isDeleted: json["isDeleted"],
@@ -95,6 +99,7 @@ class Setup {
           position: json['position'] != null ? ContextPosition.fromJson(json['position']) : null,
           place: json['place'] != null ? ContextPlace.fromJson(json['place']) : null,
           weather: json['weather'] != null ? ContextWeather.fromJson(json['weather']) : null,
+          images: (json['images'] as List?)?.map((e) => e as String).toList() ?? <String>[],
         );
       default: throw Exception("Json Version $version of Setup incompatible.");
     }
@@ -127,7 +132,9 @@ class Setup {
   }
 
   Setup deepCopy() {
-    // Used for Setup restore --> Duplication with current Date, remove pos/place/weather
+    // Used for Setup restore --> Duplication with current Date, remove pos/place/weather.
+    // Callers are responsible for copying image files via ImageStorageService.copyExisting
+    // for each filename in the returned setup's images list before persisting.
     final now = DateTime.now();
 
     return Setup(
@@ -143,6 +150,7 @@ class Setup {
       person: person,
       bikeAdjustmentValues: Map.from(bikeAdjustmentValues),
       personAdjustmentValues: Map.from(personAdjustmentValues),
+      images: List.from(images),
     )..previousBikeAdjustmentValues = Map.from(previousBikeAdjustmentValues)
      ..previousPersonAdjustmentValues = Map.from(previousPersonAdjustmentValues);
   }
@@ -163,6 +171,7 @@ class Setup {
     Object? position = const _Sentinel(),
     Object? place = const _Sentinel(),
     Object? weather = const _Sentinel(),
+    Object? images = const _Sentinel(),
     Object? isCurrent = const _Sentinel(),
     Object? previousBikeAdjustmentValues = const _Sentinel(),
     Object? previousPersonAdjustmentValues = const _Sentinel(),
@@ -185,22 +194,22 @@ class Setup {
           : (notes as String?),
       datetime: datetime is _Sentinel
           ? this.datetime
-          : (datetime as DateTime), 
+          : (datetime as DateTime),
       datetimeLocal: datetimeLocal is _Sentinel
           ? this.datetimeLocal
-          : (datetimeLocal as DateTime), 
+          : (datetimeLocal as DateTime),
       tags: tags is _Sentinel
           ? this.tags
-          : (tags as Set<String>), 
+          : (tags as Set<String>),
       bike: bike is _Sentinel
           ? this.bike
-          : (bike as String), 
+          : (bike as String),
       person: person is _Sentinel
           ? this.person
           : (person as String?),
       bikeAdjustmentValues: bikeAdjustmentValues is _Sentinel
           ? this.bikeAdjustmentValues
-          : (bikeAdjustmentValues as Map<String, dynamic>), 
+          : (bikeAdjustmentValues as Map<String, dynamic>),
       personAdjustmentValues: personAdjustmentValues is _Sentinel
           ? this.personAdjustmentValues
           : (personAdjustmentValues as Map<String, dynamic>),
@@ -213,6 +222,9 @@ class Setup {
       weather: weather is _Sentinel
           ? this.weather
           : (weather as ContextWeather?),
+      images: images is _Sentinel
+          ? this.images
+          : (images as List<String>),
     )..isCurrent = isCurrent is _Sentinel
           ? this.isCurrent
           : (isCurrent as bool)
@@ -243,7 +255,8 @@ class Setup {
         mapEquals(personAdjustmentValues, other.personAdjustmentValues) &&
         ContextPosition.equal(position, other.position) &&
         ContextPlace.equal(place, other.place) &&
-        weather == other.weather;
+        weather == other.weather &&
+        listEquals(images, other.images);
   }
 
   @override
@@ -264,6 +277,7 @@ class Setup {
       position,
       place,
       weather,
+      Object.hashAll(images),
     ]);
   }
 }

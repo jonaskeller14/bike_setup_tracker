@@ -4189,6 +4189,16 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
         requiredDuringInsert: true,
       ).withConverter<Set<String>>($SetupsTable.$convertertags);
   @override
+  late final GeneratedColumnWithTypeConverter<List<String>, String> images =
+      GeneratedColumn<String>(
+        'images',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('[]'),
+      ).withConverter<List<String>>($SetupsTable.$converterimages);
+  @override
   late final GeneratedColumnWithTypeConverter<LocationData?, String> position =
       GeneratedColumn<String>(
         'position',
@@ -4227,6 +4237,7 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
     datetimeLocal,
     notes,
     tags,
+    images,
     position,
     place,
     weather,
@@ -4337,6 +4348,12 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
           data['${effectivePrefix}tags'],
         )!,
       ),
+      images: $SetupsTable.$converterimages.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}images'],
+        )!,
+      ),
       position: $SetupsTable.$converterpositionn.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
@@ -4371,6 +4388,8 @@ class $SetupsTable extends Setups with TableInfo<$SetupsTable, SetupDb> {
       const LocalFloatingDateTimeConverter();
   static TypeConverter<Set<String>, String> $convertertags =
       const StringListConverter();
+  static TypeConverter<List<String>, String> $converterimages =
+      const StringListOrderedConverter();
   static TypeConverter<LocationData, String> $converterposition =
       const LocationDataConverter();
   static TypeConverter<LocationData?, String?> $converterpositionn =
@@ -4396,6 +4415,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
   final DateTime datetimeLocal;
   final String? notes;
   final Set<String> tags;
+  final List<String> images;
   final LocationData? position;
   final geo.Placemark? place;
   final ContextWeather? weather;
@@ -4410,6 +4430,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     required this.datetimeLocal,
     this.notes,
     required this.tags,
+    required this.images,
     this.position,
     this.place,
     this.weather,
@@ -4447,6 +4468,11 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     {
       map['tags'] = Variable<String>($SetupsTable.$convertertags.toSql(tags));
     }
+    {
+      map['images'] = Variable<String>(
+        $SetupsTable.$converterimages.toSql(images),
+      );
+    }
     if (!nullToAbsent || position != null) {
       map['position'] = Variable<String>(
         $SetupsTable.$converterpositionn.toSql(position),
@@ -4481,6 +4507,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           ? const Value.absent()
           : Value(notes),
       tags: Value(tags),
+      images: Value(images),
       position: position == null && nullToAbsent
           ? const Value.absent()
           : Value(position),
@@ -4509,6 +4536,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       datetimeLocal: serializer.fromJson<DateTime>(json['datetimeLocal']),
       notes: serializer.fromJson<String?>(json['notes']),
       tags: serializer.fromJson<Set<String>>(json['tags']),
+      images: serializer.fromJson<List<String>>(json['images']),
       position: serializer.fromJson<LocationData?>(json['position']),
       place: serializer.fromJson<geo.Placemark?>(json['place']),
       weather: serializer.fromJson<ContextWeather?>(json['weather']),
@@ -4528,6 +4556,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
       'datetimeLocal': serializer.toJson<DateTime>(datetimeLocal),
       'notes': serializer.toJson<String?>(notes),
       'tags': serializer.toJson<Set<String>>(tags),
+      'images': serializer.toJson<List<String>>(images),
       'position': serializer.toJson<LocationData?>(position),
       'place': serializer.toJson<geo.Placemark?>(place),
       'weather': serializer.toJson<ContextWeather?>(weather),
@@ -4545,6 +4574,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     DateTime? datetimeLocal,
     Value<String?> notes = const Value.absent(),
     Set<String>? tags,
+    List<String>? images,
     Value<LocationData?> position = const Value.absent(),
     Value<geo.Placemark?> place = const Value.absent(),
     Value<ContextWeather?> weather = const Value.absent(),
@@ -4559,6 +4589,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     datetimeLocal: datetimeLocal ?? this.datetimeLocal,
     notes: notes.present ? notes.value : this.notes,
     tags: tags ?? this.tags,
+    images: images ?? this.images,
     position: position.present ? position.value : this.position,
     place: place.present ? place.value : this.place,
     weather: weather.present ? weather.value : this.weather,
@@ -4579,6 +4610,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           : this.datetimeLocal,
       notes: data.notes.present ? data.notes.value : this.notes,
       tags: data.tags.present ? data.tags.value : this.tags,
+      images: data.images.present ? data.images.value : this.images,
       position: data.position.present ? data.position.value : this.position,
       place: data.place.present ? data.place.value : this.place,
       weather: data.weather.present ? data.weather.value : this.weather,
@@ -4598,6 +4630,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           ..write('datetimeLocal: $datetimeLocal, ')
           ..write('notes: $notes, ')
           ..write('tags: $tags, ')
+          ..write('images: $images, ')
           ..write('position: $position, ')
           ..write('place: $place, ')
           ..write('weather: $weather')
@@ -4617,6 +4650,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
     datetimeLocal,
     notes,
     tags,
+    images,
     position,
     place,
     weather,
@@ -4635,6 +4669,7 @@ class SetupDb extends DataClass implements Insertable<SetupDb> {
           other.datetimeLocal == this.datetimeLocal &&
           other.notes == this.notes &&
           other.tags == this.tags &&
+          other.images == this.images &&
           other.position == this.position &&
           other.place == this.place &&
           other.weather == this.weather);
@@ -4651,6 +4686,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
   final Value<DateTime> datetimeLocal;
   final Value<String?> notes;
   final Value<Set<String>> tags;
+  final Value<List<String>> images;
   final Value<LocationData?> position;
   final Value<geo.Placemark?> place;
   final Value<ContextWeather?> weather;
@@ -4666,6 +4702,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     this.datetimeLocal = const Value.absent(),
     this.notes = const Value.absent(),
     this.tags = const Value.absent(),
+    this.images = const Value.absent(),
     this.position = const Value.absent(),
     this.place = const Value.absent(),
     this.weather = const Value.absent(),
@@ -4682,6 +4719,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     required DateTime datetimeLocal,
     this.notes = const Value.absent(),
     required Set<String> tags,
+    this.images = const Value.absent(),
     this.position = const Value.absent(),
     this.place = const Value.absent(),
     this.weather = const Value.absent(),
@@ -4703,6 +4741,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     Expression<DateTime>? datetimeLocal,
     Expression<String>? notes,
     Expression<String>? tags,
+    Expression<String>? images,
     Expression<String>? position,
     Expression<String>? place,
     Expression<String>? weather,
@@ -4719,6 +4758,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
       if (datetimeLocal != null) 'datetime_local': datetimeLocal,
       if (notes != null) 'notes': notes,
       if (tags != null) 'tags': tags,
+      if (images != null) 'images': images,
       if (position != null) 'position': position,
       if (place != null) 'place': place,
       if (weather != null) 'weather': weather,
@@ -4737,6 +4777,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
     Value<DateTime>? datetimeLocal,
     Value<String?>? notes,
     Value<Set<String>>? tags,
+    Value<List<String>>? images,
     Value<LocationData?>? position,
     Value<geo.Placemark?>? place,
     Value<ContextWeather?>? weather,
@@ -4753,6 +4794,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
       datetimeLocal: datetimeLocal ?? this.datetimeLocal,
       notes: notes ?? this.notes,
       tags: tags ?? this.tags,
+      images: images ?? this.images,
       position: position ?? this.position,
       place: place ?? this.place,
       weather: weather ?? this.weather,
@@ -4801,6 +4843,11 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
         $SetupsTable.$convertertags.toSql(tags.value),
       );
     }
+    if (images.present) {
+      map['images'] = Variable<String>(
+        $SetupsTable.$converterimages.toSql(images.value),
+      );
+    }
     if (position.present) {
       map['position'] = Variable<String>(
         $SetupsTable.$converterpositionn.toSql(position.value),
@@ -4835,6 +4882,7 @@ class SetupsCompanion extends UpdateCompanion<SetupDb> {
           ..write('datetimeLocal: $datetimeLocal, ')
           ..write('notes: $notes, ')
           ..write('tags: $tags, ')
+          ..write('images: $images, ')
           ..write('position: $position, ')
           ..write('place: $place, ')
           ..write('weather: $weather, ')
@@ -12883,6 +12931,7 @@ typedef $$SetupsTableCreateCompanionBuilder =
       required DateTime datetimeLocal,
       Value<String?> notes,
       required Set<String> tags,
+      Value<List<String>> images,
       Value<LocationData?> position,
       Value<geo.Placemark?> place,
       Value<ContextWeather?> weather,
@@ -12900,6 +12949,7 @@ typedef $$SetupsTableUpdateCompanionBuilder =
       Value<DateTime> datetimeLocal,
       Value<String?> notes,
       Value<Set<String>> tags,
+      Value<List<String>> images,
       Value<LocationData?> position,
       Value<geo.Placemark?> place,
       Value<ContextWeather?> weather,
@@ -13040,6 +13090,12 @@ class $$SetupsTableFilterComposer
         column: $table.tags,
         builder: (column) => ColumnWithTypeConverterFilters(column),
       );
+
+  ColumnWithTypeConverterFilters<List<String>, List<String>, String>
+  get images => $composableBuilder(
+    column: $table.images,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
 
   ColumnWithTypeConverterFilters<LocationData?, LocationData, String>
   get position => $composableBuilder(
@@ -13206,6 +13262,11 @@ class $$SetupsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get images => $composableBuilder(
+    column: $table.images,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get position => $composableBuilder(
     column: $table.position,
     builder: (column) => ColumnOrderings(column),
@@ -13306,6 +13367,9 @@ class $$SetupsTableAnnotationComposer
 
   GeneratedColumnWithTypeConverter<Set<String>, String> get tags =>
       $composableBuilder(column: $table.tags, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<List<String>, String> get images =>
+      $composableBuilder(column: $table.images, builder: (column) => column);
 
   GeneratedColumnWithTypeConverter<LocationData?, String> get position =>
       $composableBuilder(column: $table.position, builder: (column) => column);
@@ -13457,6 +13521,7 @@ class $$SetupsTableTableManager
                 Value<DateTime> datetimeLocal = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<Set<String>> tags = const Value.absent(),
+                Value<List<String>> images = const Value.absent(),
                 Value<LocationData?> position = const Value.absent(),
                 Value<geo.Placemark?> place = const Value.absent(),
                 Value<ContextWeather?> weather = const Value.absent(),
@@ -13472,6 +13537,7 @@ class $$SetupsTableTableManager
                 datetimeLocal: datetimeLocal,
                 notes: notes,
                 tags: tags,
+                images: images,
                 position: position,
                 place: place,
                 weather: weather,
@@ -13489,6 +13555,7 @@ class $$SetupsTableTableManager
                 required DateTime datetimeLocal,
                 Value<String?> notes = const Value.absent(),
                 required Set<String> tags,
+                Value<List<String>> images = const Value.absent(),
                 Value<LocationData?> position = const Value.absent(),
                 Value<geo.Placemark?> place = const Value.absent(),
                 Value<ContextWeather?> weather = const Value.absent(),
@@ -13504,6 +13571,7 @@ class $$SetupsTableTableManager
                 datetimeLocal: datetimeLocal,
                 notes: notes,
                 tags: tags,
+                images: images,
                 position: position,
                 place: place,
                 weather: weather,

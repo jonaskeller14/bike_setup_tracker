@@ -101,7 +101,7 @@ void main() {
 
       expect(completed, isTrue);
       expect(result, isNotNull);
-      expect(result!.existingComponent, isNull);
+      expect(result, isA<ReplaceComponentNewResult>());
     });
 
     testWidgets('"Existing" mode returns the selected deinstalled component', (tester) async {
@@ -122,8 +122,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(result, isNotNull);
-      expect(result!.existingComponent, isNotNull);
-      expect(result!.existingComponent!.id, 'c2');
+      expect(result, isA<ReplaceComponentExistingResult>());
+      expect((result as ReplaceComponentExistingResult).existingComponent.id, 'c2');
     });
 
     testWidgets('"Existing" mode blocks continue until a component is selected', (tester) async {

@@ -6,6 +6,7 @@ import '../../widgets/items/adjustment_list_card.dart';
 class AdjustmentEditList extends StatelessWidget {
   final List<Adjustment> adjustments;
   final Map<String, Adjustment>? initialAdjustments;
+  final Map<String, double>? metricWeights;
   final void Function(Adjustment adjustment) editAdjustment;
   final void Function(Adjustment adjustment) duplicateAdjustment;
   final void Function(Adjustment adjustment) removeAdjustment;
@@ -15,6 +16,7 @@ class AdjustmentEditList extends StatelessWidget {
     super.key,
     required this.adjustments,
     required this.initialAdjustments,
+    this.metricWeights,
     required this.editAdjustment,
     required this.duplicateAdjustment,
     required this.removeAdjustment,
@@ -36,6 +38,7 @@ class AdjustmentEditList extends StatelessWidget {
               adjustment: adjustments[index],
               index: index,
               elevation: elevation,
+              metricWeight: metricWeights?[adjustments[index].id],
               editAdjustment: editAdjustment,
               duplicateAdjustment: duplicateAdjustment,
               removeAdjustment: removeAdjustment,
@@ -56,10 +59,11 @@ class AdjustmentEditList extends StatelessWidget {
         final adjustment = adjustments[index];
         return AdjustmentListCard(
           key: ValueKey(adjustment.id),
-          adjustment: adjustment, 
-          index: index, 
-          editAdjustment: editAdjustment, 
-          duplicateAdjustment: duplicateAdjustment, 
+          adjustment: adjustment,
+          index: index,
+          metricWeight: metricWeights?[adjustment.id],
+          editAdjustment: editAdjustment,
+          duplicateAdjustment: duplicateAdjustment,
           removeAdjustment: removeAdjustment
         );
       },

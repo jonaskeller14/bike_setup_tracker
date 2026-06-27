@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../icons/simple_icons.dart';
@@ -83,8 +84,7 @@ class _PersonPageState extends State<PersonPage> {
     final hasChanges = _nameController.text.trim() != (widget.person?.name ?? '') ||
         _notesController.text.trim() != (widget.person?.notes ?? '') ||
         _stravaAthlete != _initialStravaAthlete ||
-        _initialAdjustments.length != _adjustments.length || 
-        _adjustments.asMap().entries.any((entry) => entry.value != _initialAdjustments[entry.key]);
+        !listEquals(_adjustments, _initialAdjustments);
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;

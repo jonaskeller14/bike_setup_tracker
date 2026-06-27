@@ -256,6 +256,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                             decoration: InputDecoration(
                               labelText: 'Step',
                               hintText: 'Enter step value',
+                              prefixIcon: const Icon(StepAdjustment.iconData),
                               border: const OutlineInputBorder(),
                               fillColor: Colors.orange.withValues(alpha: 0.08),
                               filled: widget.mode == AdjustmentPageMode.edit && int.tryParse(_stepController.text.trim()) != widget.adjustment?.step,

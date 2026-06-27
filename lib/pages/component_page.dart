@@ -124,8 +124,7 @@ class _ComponentPageState extends State<ComponentPage> {
         _notesController.text.trim() != (widget.component?.notes ?? '') ||
         _componentType != _initialComponentType ||
         !listEquals(_installations, _initialInstallations) ||
-        _initialAdjustments.length != _adjustments.length || 
-        _adjustments.asMap().entries.any((entry) => entry.value != _initialAdjustments[entry.key]);
+        !listEquals(_adjustments, _initialAdjustments);
 
     if (_formHasChanges != hasChanges) {
       setState(() {

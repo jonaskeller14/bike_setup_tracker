@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 
-enum AdjustmentPageMode {
+enum MetricPageMode {
   add,
   edit,
   duplicate,
   template,
 }
 
-String? validateAdjustmentName(String? value) {
+String? validateMetricName(String? value) {
   if (value == null || value.trim().isEmpty) return 'Name is required';
   return null;
 }
 
-class CollapsibleAdjustmentPreview extends StatefulWidget {
+class CollapsibleMetricPreview extends StatefulWidget {
   final Widget child;
 
-  const CollapsibleAdjustmentPreview({super.key, required this.child});
+  const CollapsibleMetricPreview({super.key, required this.child});
 
   @override
-  State<CollapsibleAdjustmentPreview> createState() => _CollapsibleAdjustmentPreviewState();
+  State<CollapsibleMetricPreview> createState() => _CollapsibleMetricPreviewState();
 }
 
-class _CollapsibleAdjustmentPreviewState extends State<CollapsibleAdjustmentPreview> {
+class _CollapsibleMetricPreviewState extends State<CollapsibleMetricPreview> {
   bool _expanded = false;
 
   @override

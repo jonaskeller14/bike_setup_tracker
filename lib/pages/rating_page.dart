@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/adjustment/adjustment.dart';
@@ -12,12 +13,12 @@ import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/lists/adjustment_edit_list.dart';
 import '../widgets/sheets/rating_add_adjustment.dart';
 import '../widgets/text/section_title.dart';
-import 'adjustment/boolean_adjustment_page.dart';
-import 'adjustment/categorical_adjustment_page.dart';
-import 'adjustment/duration_adjustment_page.dart';
-import 'adjustment/numerical_adjustment_page.dart';
-import 'adjustment/step_adjustment_page.dart';
-import 'adjustment/text_adjustment_page.dart';
+import 'metric/boolean_metric_page.dart';
+import 'metric/categorical_metric_page.dart';
+import 'metric/duration_metric_page.dart';
+import 'metric/numerical_metric_page.dart';
+import 'metric/step_metric_page.dart';
+import 'metric/text_metric_page.dart';
 
 enum RatingPageMode {
   add,
@@ -88,9 +89,8 @@ class _RatingPageState extends State<RatingPage> {
   bool _formHasChanges = false;
   bool _expanded = false;
 
-  late List<Adjustment> _adjustments;
-  late List<Adjustment> _initialAdjustments;
-  final Map<String, double> _metricWeights = {};
+  late List<RatingMetric> _metrics;
+  late List<RatingMetric> _initialMetrics;
   late _FilterFilterType _filterFilterType;
   late _FilterFilterType _initialFilterFilterType;
 
@@ -99,14 +99,11 @@ class _RatingPageState extends State<RatingPage> {
     super.initState();
     _nameController = TextEditingController(text: widget.rating?.name);
     _nameController.addListener(_changeListener);
-    _adjustments = widget.rating == null
+    _metrics = widget.rating == null
         ? []
-        : List.from(widget.rating!.metrics.map((m) => m.adjustment));
-    for (final m in widget.rating?.metrics ?? const []) {
-      _metricWeights[m.id] = m.weight;
-    }
-    _initialAdjustments = List.from(_adjustments);
-    
+        : List.from(widget.rating!.metrics);
+    _initialMetrics = List.from(_metrics);
+
 
     _initialFilterFilterType = _FilterFilterType(
       widget.rating?.filter,
@@ -122,8 +119,7 @@ class _RatingPageState extends State<RatingPage> {
     final hasChanges = _nameController.text.trim() != (widget.rating?.name ?? '') ||
         _notesController.text.trim() != (widget.rating?.notes ?? '') ||
         _filterFilterType != _initialFilterFilterType ||
-        _initialAdjustments.length != _adjustments.length || 
-        _adjustments.asMap().entries.any((entry) => entry.value != _initialAdjustments[entry.key]);
+        !listEquals(_metrics, _initialMetrics);
     if (_formHasChanges != hasChanges) {
       setState(() {
         _formHasChanges = hasChanges;
@@ -140,86 +136,91 @@ class _RatingPageState extends State<RatingPage> {
     super.dispose();
   }
 
-  Future<void> _addAdjustment<T extends Adjustment>({VoidCallback? onChanged}) async {
-    final adjustment = await Navigator.push<T>(
+  Future<void> _addMetric<T extends Adjustment>({VoidCallback? onChanged}) async {
+    final metric = await Navigator.push<RatingMetric>(
       context,
-      MaterialPageRoute(builder: (context) => switch(T) {
-        const (BooleanAdjustment)       => BooleanAdjustmentPage.add(),
-        const (CategoricalAdjustment)   => CategoricalAdjustmentPage.add(),
-        const (StepAdjustment)          => StepAdjustmentPage.add(),
-        const (NumericalAdjustment)     => NumericalAdjustmentPage.add(),
-        const (TextAdjustment)          => TextAdjustmentPage.add(),
-        const (DurationAdjustment)      => DurationAdjustmentPage.add(),
+      MaterialPageRoute(builder: (context) => switch (T) {
+        const (BooleanAdjustment)     => BooleanMetricPage.add(),
+        const (CategoricalAdjustment) => CategoricalMetricPage.add(),
+        const (StepAdjustment)        => StepMetricPage.add(),
+        const (NumericalAdjustment)   => NumericalMetricPage.add(),
+        const (TextAdjustment)        => TextMetricPage.add(),
+        const (DurationAdjustment)    => DurationMetricPage.add(),
         Type() => throw UnimplementedError(),
       }),
     );
-    if (adjustment == null) return;
-    setState(() => _adjustments.add(adjustment));
+    if (metric == null) return;
+    setState(() => _metrics.add(metric));
     _changeListener();
     onChanged?.call();
   }
 
-  Future<void> _addAdjustmentFromPreset(Adjustment adjustment, {VoidCallback? onChanged}) async {
-    final newAdjustment = await Navigator.push<Adjustment>(
+  Future<void> _addMetricFromPreset(Adjustment adjustment, {VoidCallback? onChanged}) async {
+    final seed = RatingMetric(
+      adjustment: adjustment.deepCopy(),
+      weight: adjustment is DurationAdjustment ? -1.0 : 1.0,
+    );
+    final newMetric = await Navigator.push<RatingMetric>(
       context,
-      MaterialPageRoute(builder: (context) => switch (adjustment.deepCopy()) {
-        final BooleanAdjustment a     => BooleanAdjustmentPage.template(adjustment: a),
-        final CategoricalAdjustment a => CategoricalAdjustmentPage.template(adjustment: a),
-        final StepAdjustment a        => StepAdjustmentPage.template(adjustment: a),
-        final NumericalAdjustment a   => NumericalAdjustmentPage.template(adjustment: a),
-        final TextAdjustment a        => TextAdjustmentPage.template(adjustment: a),
-        final DurationAdjustment a    => DurationAdjustmentPage.template(adjustment: a),
+      MaterialPageRoute(builder: (context) => switch (seed.adjustment) {
+        BooleanAdjustment()     => BooleanMetricPage.template(metric: seed),
+        CategoricalAdjustment() => CategoricalMetricPage.template(metric: seed),
+        StepAdjustment()        => StepMetricPage.template(metric: seed),
+        NumericalAdjustment()   => NumericalMetricPage.template(metric: seed),
+        TextAdjustment()        => TextMetricPage.template(metric: seed),
+        DurationAdjustment()    => DurationMetricPage.template(metric: seed),
       }),
     );
-    if (newAdjustment == null) return;
-    setState(() => _adjustments.add(newAdjustment));
+    if (newMetric == null) return;
+    setState(() => _metrics.add(newMetric));
     _changeListener();
     onChanged?.call();
   }
 
-  Future<void> _editAdjustment(Adjustment adjustment, {VoidCallback? onChanged}) async {
-    final editedAdjustment = await Navigator.push<Adjustment>(
+  Future<void> _editMetric(RatingMetric metric, {VoidCallback? onChanged}) async {
+    final editedMetric = await Navigator.push<RatingMetric>(
       context,
-      MaterialPageRoute(builder: (context) => switch (adjustment) {
-        final BooleanAdjustment a     => BooleanAdjustmentPage.edit(adjustment: a),
-        final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a),
-        final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a),
-        final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a),
-        final TextAdjustment a        => TextAdjustmentPage.edit(adjustment: a),
-        final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a),
+      MaterialPageRoute(builder: (context) => switch (metric.adjustment) {
+        BooleanAdjustment()     => BooleanMetricPage.edit(metric: metric),
+        CategoricalAdjustment() => CategoricalMetricPage.edit(metric: metric),
+        StepAdjustment()        => StepMetricPage.edit(metric: metric),
+        NumericalAdjustment()   => NumericalMetricPage.edit(metric: metric),
+        TextAdjustment()        => TextMetricPage.edit(metric: metric),
+        DurationAdjustment()    => DurationMetricPage.edit(metric: metric),
       }),
     );
-    if (editedAdjustment == null) return;
+    if (editedMetric == null) return;
     setState(() {
-      final index = _adjustments.indexOf(adjustment);
+      final index = _metrics.indexOf(metric);
       if (index != -1) {
-        _adjustments[index] = editedAdjustment;
+        _metrics[index] = editedMetric;
       }
     });
     _changeListener();
     onChanged?.call();
   }
 
-  Future<void> _duplicateAdjustment(Adjustment adjustment, {VoidCallback? onChanged}) async {
-    final newAdjustment = await Navigator.push<Adjustment>(
+  Future<void> _duplicateMetric(RatingMetric metric, {VoidCallback? onChanged}) async {
+    final seed = metric.deepCopy();
+    final newMetric = await Navigator.push<RatingMetric>(
       context,
-      MaterialPageRoute(builder: (context) => switch (adjustment.deepCopy()) {
-        final BooleanAdjustment a     => BooleanAdjustmentPage.duplicate(adjustment: a),
-        final CategoricalAdjustment a => CategoricalAdjustmentPage.duplicate(adjustment: a),
-        final StepAdjustment a        => StepAdjustmentPage.duplicate(adjustment: a),
-        final NumericalAdjustment a   => NumericalAdjustmentPage.duplicate(adjustment: a),
-        final TextAdjustment a        => TextAdjustmentPage.duplicate(adjustment: a),
-        final DurationAdjustment a    => DurationAdjustmentPage.duplicate(adjustment: a),
+      MaterialPageRoute(builder: (context) => switch (seed.adjustment) {
+        BooleanAdjustment()     => BooleanMetricPage.duplicate(metric: seed),
+        CategoricalAdjustment() => CategoricalMetricPage.duplicate(metric: seed),
+        StepAdjustment()        => StepMetricPage.duplicate(metric: seed),
+        NumericalAdjustment()   => NumericalMetricPage.duplicate(metric: seed),
+        TextAdjustment()        => TextMetricPage.duplicate(metric: seed),
+        DurationAdjustment()    => DurationMetricPage.duplicate(metric: seed),
       }),
     );
-    if (newAdjustment == null) return;
-    setState(() => _adjustments.add(newAdjustment));
+    if (newMetric == null) return;
+    setState(() => _metrics.add(newMetric));
     _changeListener();
     onChanged?.call();
   }
 
-  Future<void> removeAdjustment(Adjustment adjustment, {VoidCallback? onChanged}) async {
-    setState(() => _adjustments.remove(adjustment));
+  Future<void> removeMetric(RatingMetric metric, {VoidCallback? onChanged}) async {
+    setState(() => _metrics.remove(metric));
     _changeListener();
     onChanged?.call();
   }
@@ -240,11 +241,7 @@ class _RatingPageState extends State<RatingPage> {
       notes: notes.isEmpty ? null : notes,
       filter: _filterFilterType.filter,
       filterType: _filterFilterType.filterType,
-      metrics: _adjustments
-          .map((a) => _metricWeights.containsKey(a.id)
-              ? RatingMetric(adjustment: a, weight: _metricWeights[a.id]!)
-              : RatingMetric(adjustment: a))
-          .toList(),
+      metrics: List.from(_metrics),
       orderIndex: widget.rating?.orderIndex ?? 0,
     ));
   }
@@ -258,10 +255,10 @@ class _RatingPageState extends State<RatingPage> {
     Navigator.of(context).pop(null);
   }
 
-  void _onReorderAdjustments(int oldIndex, int newIndex, {VoidCallback? onChanged}) {
+  void _onReorderMetrics(int oldIndex, int newIndex, {VoidCallback? onChanged}) {
     setState(() {
-      final adjustment = _adjustments.removeAt(oldIndex);
-      _adjustments.insert(newIndex, adjustment);
+      final metric = _metrics.removeAt(oldIndex);
+      _metrics.insert(newIndex, metric);
     });
     _changeListener();
     onChanged?.call();
@@ -627,37 +624,38 @@ class _RatingPageState extends State<RatingPage> {
                   const SectionTitle(title: "Metrics"),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                    child: FormField<List<Adjustment>>(
-                      initialValue: _adjustments,
-                      validator: (_) { // Evaluate _adjustments for robustness
-                        if (_adjustments.isEmpty) {
+                    child: FormField<List<RatingMetric>>(
+                      initialValue: _metrics,
+                      validator: (_) { // Evaluate _metrics for robustness
+                        if (_metrics.isEmpty) {
                           return 'You need to add at least one metric';
                         }
                         return null;
                       },
                       autovalidateMode: AutovalidateMode.onUserInteraction,
-                      builder: (FormFieldState<List<Adjustment>> field) {
-                        void notify() => field.didChange(List.from(_adjustments));
+                      builder: (FormFieldState<List<RatingMetric>> field) {
+                        void notify() => field.didChange(List.from(_metrics));
 
                         void showAddBottomSheet() => showRatingAddAdjustmentBottomSheet(
                           context: context,
-                          addAdjustmentFromPreset: (a) => _addAdjustmentFromPreset(a, onChanged: notify),
-                          addAdjustment: <T extends Adjustment>() => _addAdjustment<T>(onChanged: notify),
+                          addAdjustmentFromPreset: (a) => _addMetricFromPreset(a, onChanged: notify),
+                          addAdjustment: <T extends Adjustment>() => _addMetric<T>(onChanged: notify),
                         );
 
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _adjustments.isNotEmpty
+                            _metrics.isNotEmpty
                                 ? AdjustmentEditList(
-                                    adjustments: _adjustments,
+                                    adjustments: _metrics.map((m) => m.adjustment).toList(),
+                                    metricWeights: {for (final m in _metrics) m.id: m.weight},
                                     initialAdjustments: widget.mode == RatingPageMode.edit
-                                        ? Map.fromEntries(widget.rating!.metrics.map((m) => MapEntry(m.id, m.adjustment)))
+                                        ? {for (final m in widget.rating!.metrics) m.id: m.adjustment}
                                         : null,
-                                    editAdjustment: (a) => _editAdjustment(a, onChanged: notify),
-                                    duplicateAdjustment: (a) => _duplicateAdjustment(a, onChanged: notify),
-                                    removeAdjustment: (a) => removeAdjustment(a, onChanged: notify),
-                                    onReorderAdjustments: (oldIndex, newIndex) => _onReorderAdjustments(oldIndex, newIndex, onChanged: notify),
+                                    editAdjustment: (a) => _editMetric(_metrics.firstWhere((m) => m.id == a.id), onChanged: notify),
+                                    duplicateAdjustment: (a) => _duplicateMetric(_metrics.firstWhere((m) => m.id == a.id), onChanged: notify),
+                                    removeAdjustment: (a) => removeMetric(_metrics.firstWhere((m) => m.id == a.id), onChanged: notify),
+                                    onReorderAdjustments: (oldIndex, newIndex) => _onReorderMetrics(oldIndex, newIndex, onChanged: notify),
                                   )
                                 : _emptyAdjustmentsInfo(
                                     errorText: field.errorText,
@@ -672,7 +670,7 @@ class _RatingPageState extends State<RatingPage> {
                                 label: const Text("Add Metric"),
                               ),
                             ),
-                            if (field.hasError && _adjustments.isNotEmpty)
+                            if (field.hasError && _metrics.isNotEmpty)
                               Padding(
                                 padding: const EdgeInsets.only(top: 8.0, left: 12.0),
                                 child: Text(

@@ -10,6 +10,7 @@ class AdjustmentListCard extends StatelessWidget {
   final void Function(Adjustment adjustment) duplicateAdjustment;
   final void Function(Adjustment adjustment) removeAdjustment;
   final Map<String, Adjustment>? initialAdjustments;
+  final double? metricWeight;
 
   const AdjustmentListCard({
     super.key,
@@ -20,7 +21,49 @@ class AdjustmentListCard extends StatelessWidget {
     required this.duplicateAdjustment,
     required this.removeAdjustment,
     this.initialAdjustments,
+    this.metricWeight,
   });
+
+  bool get _isScored =>
+      adjustment is StepAdjustment ||
+      adjustment is NumericalAdjustment ||
+      adjustment is DurationAdjustment ||
+      adjustment is BooleanAdjustment;
+
+  Widget _weightChip(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    final weight = metricWeight!;
+
+    if (!_isScored || weight == 0) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          "not scored",
+          style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.w500),
+        ),
+      );
+    }
+
+    final abs = weight.abs();
+    final w = abs == abs.roundToDouble() ? abs.toStringAsFixed(0) : abs.toStringAsFixed(1);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+      decoration: BoxDecoration(
+        color: scheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        "×$w",
+        style: TextStyle(color: scheme.onSecondaryContainer, fontSize: 12, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,9 +79,19 @@ class AdjustmentListCard extends StatelessWidget {
           horizontal: 16,
           vertical: 8,
         ),
-        title: Text(
-          adjustment.name,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                adjustment.name,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            if (metricWeight != null) ...[
+              const SizedBox(width: 8),
+              _weightChip(context),
+            ],
+          ],
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

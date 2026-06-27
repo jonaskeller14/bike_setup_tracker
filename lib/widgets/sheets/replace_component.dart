@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/component.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/subscription_service.dart';
 import 'sheet_header.dart';
 
 sealed class ReplaceComponentResult {
@@ -113,7 +114,22 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
     );
   }
 
+  Widget _componentSelectedDisplay(Component component) {
+    return Row(
+      spacing: 8,
+      children: [
+        Icon(component.componentType.getIconData(), size: 20),
+        Expanded(child: Text(component.name, overflow: TextOverflow.ellipsis)),
+      ],
+    );
+  }
+
   DropdownMenuItem<String> _componentDropdownItem(Component component) {
+    final cs = Theme.of(context).colorScheme;
+    final appSettings = context.read<AppSettings>();
+    final showStrava = appSettings.enableStrava &&
+        context.read<SubscriptionService>().hasStravaEntitlement;
+
     return DropdownMenuItem<String>(
       value: component.id,
       child: Row(
@@ -121,6 +137,33 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
         children: [
           Icon(component.componentType.getIconData(), size: 20),
           Expanded(child: Text(component.name, overflow: TextOverflow.ellipsis)),
+          if (showStrava)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  spacing: 2,
+                  children: [
+                    Icon(Icons.route, size: 11, color: cs.onSurfaceVariant),
+                    Text(
+                      '${NumberFormat.decimalPattern().format(AppSettings.convertDistanceFromMeters(component.totalDistance, appSettings.distanceUnit)!.round())} ${appSettings.distanceUnit}',
+                      style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 2,
+                  children: [
+                    Icon(Icons.timer_outlined, size: 11, color: cs.onSurfaceVariant),
+                    Text(
+                      '${component.totalMovingTime.inHours}h ${component.totalMovingTime.inMinutes.remainder(60)}m',
+                      style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
+                    ),
+                  ],
+                ),
+              ],
+            ),
         ],
       ),
     );
@@ -209,6 +252,15 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                               : null,
                         ),
                         hint: const Text("Select a component"),
+                        selectedItemBuilder: (_) => [
+                          if (showComponentSections) ...[
+                            const SizedBox.shrink(),
+                            ...sameTypeComponents.map(_componentSelectedDisplay),
+                            const SizedBox.shrink(),
+                            ...otherTypeComponents.map(_componentSelectedDisplay),
+                          ] else
+                            ...menuComponents.map(_componentSelectedDisplay),
+                        ],
                         items: [
                           if (showComponentSections) ...[
                             _componentSectionHeader(widget.component.componentType.label),

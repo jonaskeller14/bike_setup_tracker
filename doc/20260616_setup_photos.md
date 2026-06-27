@@ -60,7 +60,7 @@ image UI** so the user understands images are local-only.
 | §4 DB table + migration | ✅ Done | `images` column in `setups` table; schema v7 migration; `StringListOrderedConverter`; mappers updated |
 | §5 UI — strip + viewer | ✅ Done | `ImageStrip`, `ImageViewer`; "Add image" chip in the Wrap; strip below Wrap (no add tile in strip); long-press reorder; `proxyDecorator` for clean drag ghost |
 | §6 File lifecycle / orphan cleanup | ⚠️ Partial | Edit-save orphan cleanup ✅; copy-on-duplicate ✅; hard-delete/purge NOT done; startup sweep NOT done |
-| §7 Export — ZIP bundle | ❌ Not done | |
+| §7 Export — ZIP bundle | ✅ Done | `ImageStorageService.exportBundle()` / `importBundle()`; UI in export/import sheets |
 | §8 Reordering | ✅ Done | `ReorderableDelayedDragStartListener`; `proxyDecorator` |
 | §9 File summary | ✅ Done | See below |
 | §10 Implementation order | ✅ Done (except §7 items) | |
@@ -396,7 +396,7 @@ clean rounded square with 4dp elevation during drag — no item spacing or squar
 7. ✅ Wire into `setup_page.dart` (add/edit/save) — all behind `enableSetupImages`.
 8. ✅ Wire into `setup_details_page.dart` (view) + `setup_list_card.dart` (icon+count).
 9. ⚠️ Orphan cleanup on save-edit ✅ + copy-on-duplicate ✅; hard-delete/purge ❌; startup sweep ❌.
-10. ❌ ZIP export/import (§7A).
+10. ✅ ZIP export/import (§7A) — UI in export/import sheets, integrated with selection flow.
 11. ✅ Manual test: toggle flag on/off; add (gallery+camera); reorder; remove; full-screen;
     restart app. ⚠️ Remaining: delete & purge setup; delete a file on disk → placeholder;
     export bundle → import → links resolve; verify v1–v4 backups load as empty.
@@ -476,7 +476,7 @@ e.g. a photo of the cockpit, saddle-rail position, flip-chip, cable routing, tok
 |---|---|---|
 | Q1 | **Images + daily backup** — are image files included in (or excluded from) the automatic daily JSON backup? | The DB backup is JSON-only; the `images/` dir is currently **not** included. Need to decide: warn the user more prominently, or bundle images alongside the backup ZIP. |
 | Q2 | **Hard-delete after 30-day trash threshold** — when a soft-deleted Setup is permanently purged, are its image files also deleted? | Not yet implemented (§6 ❌). Risk: orphaned files accumulate silently on disk. |
-| Q3 | **Export images** — §7 ZIP bundle export/import is not implemented yet. | Users currently have no way to transfer images to a new device or include them in a backup restore. |
+| Q3 | **Export images** — §7 ZIP bundle export/import implemented. | ✅ Users can now export/import images and data via ZIP bundle in export/import sheets. |
 | Q4 | **Unit tests** — no tests cover the new image functionality. | Candidates: `ImageStorageService` (import, copy, delete, exists), `StringListOrderedConverter` (round-trip), `Setup` model (images field in `fromJson`/`toJson`/`copyWith`/`==`), `setup_actions.dart` orphan-cleanup logic. |
 
 ---

@@ -1,8 +1,15 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:archive/archive_io.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
+import '../database/app_database.dart';
+import '../models/selected_data.dart';
+import '../services/data_export_service.dart';
 
 class ImageStorageService {
   static const String _imagesDir = 'images';
@@ -64,4 +71,128 @@ class ImageStorageService {
       } catch (_) {}
     }
   }
+
+  Future<File> exportBundle(AppDatabase database, {SelectedData? selectedData}) async {
+    final exportData = await DataExportService.backupDatabaseToJson(database, subset: selectedData);
+    final jsonString = const JsonEncoder.withIndent('  ').convert(exportData);
+
+    final tempDir = await getTemporaryDirectory();
+    final timestamp = _timestamp();
+    final zipPath = p.join(tempDir.path, '${timestamp}_bike_setup_bundle.zip');
+
+    final jsonTempFile = File(p.join(tempDir.path, 'data.json'));
+    await jsonTempFile.writeAsString(jsonString);
+
+    // When a subset is requested, only include images referenced by those setups.
+    final Set<String>? allowedFilenames =
+        selectedData?.setups.values.expand((s) => s.images).toSet();
+
+    final encoder = ZipFileEncoder();
+    encoder.create(zipPath);
+    encoder.addFile(jsonTempFile, 'data.json');
+
+    final imagesDir = Directory(await _imagesPath());
+    if (imagesDir.existsSync()) {
+      await for (final entity in imagesDir.list()) {
+        if (entity is File) {
+          final filename = p.basename(entity.path);
+          if (allowedFilenames == null || allowedFilenames.contains(filename)) {
+            encoder.addFile(entity, 'images/$filename');
+          }
+        }
+      }
+    }
+
+    encoder.close();
+    await jsonTempFile.delete();
+
+    return File(zipPath);
+  }
+
+  Future<ImportBundleResult> importBundle() async {
+    final picked = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['zip'],
+    );
+    if (picked == null || picked.files.isEmpty) {
+      return ImportBundleResult.cancelled();
+    }
+
+    try {
+      final pickedFile = picked.files.single;
+      final Uint8List bytes;
+      if (pickedFile.path != null) {
+        bytes = await File(pickedFile.path!).readAsBytes();
+      } else if (pickedFile.bytes != null) {
+        bytes = pickedFile.bytes!;
+      } else {
+        return ImportBundleResult.failure('Cannot read selected file.');
+      }
+      final archive = ZipDecoder().decodeBytes(bytes);
+
+      await ensureDir();
+      final imagesPath = await _imagesPath();
+      String? jsonString;
+      int imageCount = 0;
+
+      for (final file in archive) {
+        if (!file.isFile) continue;
+
+        if (file.name == 'data.json') {
+          jsonString = utf8.decode(file.content as Uint8List);
+        } else if (file.name.startsWith('images/')) {
+          final filename = p.basename(file.name);
+          if (filename.isEmpty) continue;
+          final dest = File(p.join(imagesPath, filename));
+          await dest.writeAsBytes(file.content as Uint8List);
+          imageCount++;
+        }
+      }
+
+      if (jsonString == null) {
+        return ImportBundleResult.failure('No data.json found in bundle.');
+      }
+
+      final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
+      return ImportBundleResult.success(SelectedData.fromJson(jsonData), imageCount);
+    } catch (e) {
+      return ImportBundleResult.failure('Import failed: $e');
+    }
+  }
+
+  static String _timestamp() {
+    final now = DateTime.now();
+    return '${now.year.toString().padLeft(4, '0')}'
+        '${now.month.toString().padLeft(2, '0')}'
+        '${now.day.toString().padLeft(2, '0')}_'
+        '${now.hour.toString().padLeft(2, '0')}'
+        '${now.minute.toString().padLeft(2, '0')}'
+        '${now.second.toString().padLeft(2, '0')}';
+  }
+}
+
+class ImportBundleResult {
+  final SelectedData? data;
+  final String? errorMessage;
+  final bool isError;
+  final bool isCancelled;
+  final int imageCount;
+
+  ImportBundleResult.success(this.data, this.imageCount)
+      : errorMessage = null,
+        isError = false,
+        isCancelled = false;
+
+  ImportBundleResult.failure(this.errorMessage)
+      : data = null,
+        isError = true,
+        isCancelled = false,
+        imageCount = 0;
+
+  ImportBundleResult.cancelled()
+      : data = null,
+        errorMessage = null,
+        isError = false,
+        isCancelled = true,
+        imageCount = 0;
 }

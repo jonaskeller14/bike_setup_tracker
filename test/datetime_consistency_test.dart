@@ -60,6 +60,7 @@ void main() {
         datetime: localTime.toUtc(), // Simulate UtcDateTimeConverter
         datetimeLocal: localTime,
         tags: {},
+        images: const [],
       );
 
       final model = setupDb.toModel();

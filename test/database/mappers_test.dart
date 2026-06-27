@@ -151,6 +151,7 @@ void main() {
         personId: 'person1',
         isDeleted: false,
         lastModified: DateTime(2023, 1, 1).toUtc(),
+        images: const [],
       );
       
       final model = data.toModel();
@@ -170,6 +171,7 @@ void main() {
         datetime: DateTime.now().toUtc(),
         datetimeLocal: DateTime.now(),
         tags: {},
+        images: const [],
       );
 
       final stepAdj = const AdjustmentDb(

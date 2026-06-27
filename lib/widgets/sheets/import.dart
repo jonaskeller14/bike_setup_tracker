@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../database/app_database.dart';
+import '../../models/app_settings.dart';
 import '../../models/selected_data.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/image_storage_service.dart';
 import '../../utils/file_import.dart';
 import 'backup.dart';
 import 'data_select.dart';
@@ -274,8 +276,24 @@ class _SelectImportSourceSheetContentState extends State<SelectImportSourceSheet
                     title: const Text("Restore Backup"),
                     subtitle: const Text("Restore local or cloud Backup"),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                    onTap: widget.onBackup
+                    onTap: widget.onBackup,
                   ),
+                  if (context.read<AppSettings>().enableSetupImages)
+                    ListTile(
+                      leading: Icon(Icons.photo_library_outlined, color: Theme.of(context).colorScheme.primary),
+                      title: const Text("Import Image Bundle"),
+                      subtitle: const Text("Restore data and images from a ZIP bundle"),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                      onTap: () async {
+                        final result = await ImageStorageService().importBundle();
+                        if (result.isCancelled) return;
+                        if (result.isError) {
+                          setState(() => _filePickingError = result.errorMessage);
+                        } else {
+                          widget.onFile(result.data!);
+                        }
+                      },
+                    ),
                 ],
               ),
             ),

@@ -32,13 +32,18 @@ Future<void> exportData(BuildContext context) async {
       selectedData: exportResult.selectedData,
     );
     case ExportDestination.backup: BackupService.saveBackup(
-      context: context, 
-      database: context.read<AppDatabase>(), 
+      context: context,
+      database: context.read<AppDatabase>(),
       force: true
     );
     case ExportDestination.googleDriveBackup: context.read<GoogleDriveService>().saveBackup(
-      context: context, 
+      context: context,
       force: true
+    );
+    case ExportDestination.imageBundle: FileExport.downloadImageBundle(
+      context: context,
+      database: context.read<AppDatabase>(),
+      selectedData: exportResult.selectedData,
     );
   }
 }
@@ -47,6 +52,7 @@ enum ExportDestination {
   file,
   backup,
   googleDriveBackup,
+  imageBundle,
 }
 
 class ExportResult {
@@ -71,83 +77,66 @@ class ExportSheetFlow extends StatefulWidget {
 
 class _ExportSheetFlowState extends State<ExportSheetFlow> {
   ExportSheetFlowSteps _step = ExportSheetFlowSteps.step1SelectDestination;
+  ExportDestination _destination = ExportDestination.file;
+
+  SelectedData get _allData => SelectedData(
+    persons: widget.allData.persons,
+    bikes: widget.allData.bikes,
+    components: widget.allData.components,
+    setups: widget.allData.setups,
+    ratings: widget.allData.ratings,
+    ratingEntries: widget.allData.ratingEntries,
+    taskRules: widget.allData.taskRules,
+    taskEntries: widget.allData.taskEntries,
+  );
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: _step == ExportSheetFlowSteps.step1SelectDestination, 
+      canPop: _step == ExportSheetFlowSteps.step1SelectDestination,
       onPopInvokedWithResult: (didPop, result) {
-        if (didPop) return;  // If the pop already happened (Step One), do nothing.
+        if (didPop) return;
         switch (_step) {
           case ExportSheetFlowSteps.step1SelectDestination: return;
           case ExportSheetFlowSteps.step2SelectDataMethod: setState(() => _step = ExportSheetFlowSteps.step1SelectDestination);
-          case ExportSheetFlowSteps.step3SelectDataItems:setState(() => _step = ExportSheetFlowSteps.step2SelectDataMethod);
+          case ExportSheetFlowSteps.step3SelectDataItems: setState(() => _step = ExportSheetFlowSteps.step2SelectDataMethod);
         }
       },
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         child: switch (_step) {
           ExportSheetFlowSteps.step1SelectDestination => SelectExportDestinationSheetContent(
-            onFile: () => setState(() => _step = ExportSheetFlowSteps.step2SelectDataMethod),
+            onFile: () {
+              _destination = ExportDestination.file;
+              setState(() => _step = ExportSheetFlowSteps.step2SelectDataMethod);
+            },
             onBackup: () => Navigator.of(context).pop(ExportResult(
-              exportDestination: ExportDestination.backup, 
-              selectedData: SelectedData(
-                  persons: widget.allData.persons,
-                  bikes: widget.allData.bikes,
-                  components: widget.allData.components,
-                  setups: widget.allData.setups,
-                  ratings: widget.allData.ratings,
-                  ratingEntries: widget.allData.ratingEntries,
-                  taskRules: widget.allData.taskRules,
-                  taskEntries: widget.allData.taskEntries,
-              ),
+              exportDestination: ExportDestination.backup,
+              selectedData: _allData,
             )),
             onGoogleDriveBackup: () => Navigator.of(context).pop(ExportResult(
-              exportDestination: ExportDestination.googleDriveBackup, 
-              selectedData: SelectedData(
-                  persons: widget.allData.persons,
-                  bikes: widget.allData.bikes,
-                  components: widget.allData.components,
-                  setups: widget.allData.setups,
-                  ratings: widget.allData.ratings,
-                  ratingEntries: widget.allData.ratingEntries,
-                  taskRules: widget.allData.taskRules,
-                  taskEntries: widget.allData.taskEntries,
-              ),
+              exportDestination: ExportDestination.googleDriveBackup,
+              selectedData: _allData,
             )),
+            onImageBundle: () {
+              _destination = ExportDestination.imageBundle;
+              setState(() => _step = ExportSheetFlowSteps.step2SelectDataMethod);
+            },
           ),
           ExportSheetFlowSteps.step2SelectDataMethod => SelectDataMethodSheetContent(
             onAllSelected: () => Navigator.of(context).pop(ExportResult(
-              exportDestination: ExportDestination.file, 
-              selectedData: SelectedData(
-                  persons: widget.allData.persons,
-                  bikes: widget.allData.bikes,
-                  components: widget.allData.components,
-                  setups: widget.allData.setups,
-                  ratings: widget.allData.ratings,
-                  ratingEntries: widget.allData.ratingEntries,
-                  taskRules: widget.allData.taskRules,
-                  taskEntries: widget.allData.taskEntries,
-              ),
-            )), 
+              exportDestination: _destination,
+              selectedData: _allData,
+            )),
             onManualSelected: () => setState(() => _step = ExportSheetFlowSteps.step3SelectDataItems),
             onBack: () => setState(() => _step = ExportSheetFlowSteps.step1SelectDestination),
           ),
           ExportSheetFlowSteps.step3SelectDataItems => SelectDataItemsSheetContent(
-            allData: SelectedData(
-              persons: widget.allData.persons,
-              bikes: widget.allData.bikes,
-              components: widget.allData.components,
-              setups: widget.allData.setups,
-              ratings: widget.allData.ratings,
-              ratingEntries: widget.allData.ratingEntries,
-              taskRules: widget.allData.taskRules,
-              taskEntries: widget.allData.taskEntries,
-            ),
+            allData: _allData,
             onConfirm: (SelectedData selected) => Navigator.of(context).pop(ExportResult(
-              exportDestination: ExportDestination.file, 
+              exportDestination: _destination,
               selectedData: selected,
-            )),  
+            )),
             onBack: () => setState(() => _step = ExportSheetFlowSteps.step2SelectDataMethod),
           ),
         },
@@ -160,12 +149,14 @@ class SelectExportDestinationSheetContent extends StatelessWidget {
   final VoidCallback onFile;
   final VoidCallback onBackup;
   final VoidCallback onGoogleDriveBackup;
+  final VoidCallback onImageBundle;
 
   const SelectExportDestinationSheetContent({
-    super.key, 
-    required this.onFile, 
-    required this.onBackup, 
-    required this.onGoogleDriveBackup
+    super.key,
+    required this.onFile,
+    required this.onBackup,
+    required this.onGoogleDriveBackup,
+    required this.onImageBundle,
   });
 
   @override
@@ -203,7 +194,15 @@ class SelectExportDestinationSheetContent extends StatelessWidget {
                       subtitle: const Text("Save current state as Backup in Google Drive"),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                       onTap: onGoogleDriveBackup,
-                  ),
+                    ),
+                  if (context.read<AppSettings>().enableSetupImages)
+                    ListTile(
+                      leading: Icon(Icons.photo_library_outlined, color: Theme.of(context).colorScheme.primary),
+                      title: const Text("Export Image Bundle"),
+                      subtitle: const Text("Export data and images as a ZIP bundle"),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                      onTap: onImageBundle,
+                    ),
                 ],
               ),
             ),

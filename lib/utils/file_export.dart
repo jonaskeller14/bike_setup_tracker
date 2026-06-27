@@ -8,6 +8,7 @@ import '../database/app_database.dart';
 import '../models/app_settings.dart';
 import '../models/selected_data.dart';
 import '../services/data_export_service.dart';
+import '../services/image_storage_service.dart';
 import '../services/share_service.dart';
 import 'to_spreadsheet.dart';
 
@@ -56,6 +57,64 @@ class FileExport {
         ),
       );
     });
+  }
+
+  static Future<void> downloadImageBundle({
+    required BuildContext context,
+    required AppDatabase database,
+    SelectedData? selectedData,
+  }) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final errorContainerColor = Theme.of(context).colorScheme.errorContainer;
+    final onErrorContainerColor = Theme.of(context).colorScheme.onErrorContainer;
+
+    _downloadImageBundle(database: database, selectedData: selectedData).then((result) {
+      final isSuccess = result != null && (Platform.isIOS || result.path != null);
+      if (!isSuccess) {
+        scaffoldMessenger.showSnackBar(SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          closeIconColor: onErrorContainerColor,
+          content: Text('Export failed', style: TextStyle(color: onErrorContainerColor)),
+          backgroundColor: errorContainerColor,
+        ));
+      } else {
+        scaffoldMessenger.showSnackBar(SnackBar(
+          persist: false,
+          showCloseIcon: true,
+          content: Text('Saved to: ${result.path ?? 'Unknown location'}'),
+        ));
+      }
+    }).catchError((e, st) {
+      debugPrint('Export failed: $e\n$st');
+      scaffoldMessenger.showSnackBar(SnackBar(
+        persist: false,
+        showCloseIcon: true,
+        closeIconColor: onErrorContainerColor,
+        content: Text('Export failed: $e', style: TextStyle(color: onErrorContainerColor)),
+        backgroundColor: errorContainerColor,
+      ));
+    });
+  }
+
+  static Future<FileSaveResult?> _downloadImageBundle({
+    required AppDatabase database,
+    SelectedData? selectedData,
+  }) async {
+    try {
+      final file = await ImageStorageService().exportBundle(database, selectedData: selectedData);
+      final bytes = await file.readAsBytes();
+      final result = await FileSaveDirectory.instance.saveFile(
+        fileName: file.uri.pathSegments.last,
+        fileBytes: bytes,
+        location: SaveLocation.downloads,
+        openAfterSave: false,
+      );
+      return result;
+    } catch (e, st) {
+      debugPrint('Error while exporting image bundle: $e\n$st');
+      return null;
+    }
   }
 
   static Future<void> exportLatestBackup(BuildContext context) async {

@@ -111,6 +111,9 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
           images: widget.images,
           imagesDir: widget.imagesDir,
           initialIndex: index,
+          onDelete: widget.onRemove != null
+              ? (deletedIndex) => widget.onRemove?.call(deletedIndex)
+              : null,
         ),
       ),
     ));

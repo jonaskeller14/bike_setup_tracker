@@ -6,12 +6,14 @@ class ImageViewer extends StatefulWidget {
   final List<String> images;
   final String imagesDir;
   final int initialIndex;
+  final void Function(int index)? onDelete;
 
   const ImageViewer({
     super.key,
     required this.images,
     required this.imagesDir,
     this.initialIndex = 0,
+    this.onDelete,
   });
 
   @override
@@ -21,11 +23,13 @@ class ImageViewer extends StatefulWidget {
 class _ImageViewerState extends State<ImageViewer> {
   late PageController _pageController;
   late int _currentIndex;
+  late List<String> _images;
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
+    _images = List.from(widget.images);
     _pageController = PageController(initialPage: _currentIndex);
   }
 
@@ -36,7 +40,23 @@ class _ImageViewerState extends State<ImageViewer> {
   }
 
   String get _currentFilePath =>
-      '${widget.imagesDir}${Platform.pathSeparator}${widget.images[_currentIndex]}';
+      '${widget.imagesDir}${Platform.pathSeparator}${_images[_currentIndex]}';
+
+  void _delete() {
+    final index = _currentIndex;
+    widget.onDelete?.call(index);
+    if (_images.length == 1) {
+      Navigator.of(context).pop();
+      return;
+    }
+    setState(() {
+      _images.removeAt(index);
+      if (_currentIndex >= _images.length) {
+        _currentIndex = _images.length - 1;
+        _pageController.jumpToPage(_currentIndex);
+      }
+    });
+  }
 
   Future<void> _share(BuildContext context) async {
     final file = File(_currentFilePath);
@@ -51,10 +71,15 @@ class _ImageViewerState extends State<ImageViewer> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
-        title: widget.images.length > 1
-            ? Text('${_currentIndex + 1} / ${widget.images.length}')
+        title: _images.length > 1
+            ? Text('${_currentIndex + 1} / ${_images.length}')
             : null,
         actions: [
+          if (widget.onDelete != null)
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              onPressed: _delete,
+            ),
           IconButton(
             icon: const Icon(Icons.share),
             onPressed: () => _share(context),
@@ -63,11 +88,11 @@ class _ImageViewerState extends State<ImageViewer> {
       ),
       body: PageView.builder(
         controller: _pageController,
-        itemCount: widget.images.length,
+        itemCount: _images.length,
         onPageChanged: (index) => setState(() => _currentIndex = index),
         itemBuilder: (context, index) {
           final file = File(
-            '${widget.imagesDir}${Platform.pathSeparator}${widget.images[index]}',
+            '${widget.imagesDir}${Platform.pathSeparator}${_images[index]}',
           );
           return InteractiveViewer(
             minScale: 0.5,

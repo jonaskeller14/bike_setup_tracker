@@ -79,6 +79,12 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
   AppDatabase.memory() : super(NativeDatabase.memory());
 
+  /// Opens the database over an arbitrary [executor]. Used by migration tests
+  /// that need to seed a database at an older schema version (on a file they
+  /// control) and then re-open it to exercise the real upgrade path.
+  @visibleForTesting
+  AppDatabase.forTesting(super.executor);
+
   @override
   int get schemaVersion => 8;
 
@@ -101,7 +107,12 @@ class AppDatabase extends _$AppDatabase {
           // Setup.name became nullable. Recreate the table to drop the NOT NULL
           // constraint, then clear out the legacy auto-generated placeholder so
           // those setups fall back to the (localizable) UI placeholder instead.
-          await m.alterTable(TableMigration(setups));
+          //
+          // This recreation rebuilds setups from the *current* schema, which
+          // now includes `images` (added in v8). Pre-v4 rows have no such
+          // column, so flag it as a new column — Drift fills it from its
+          // default instead of trying to copy it out of the old table.
+          await m.alterTable(TableMigration(setups, newColumns: [setups.images]));
           await customStatement("UPDATE setups SET name = NULL WHERE name = 'Unnamed Setup'");
         }
         if (from < 5) {
@@ -132,10 +143,20 @@ class AppDatabase extends _$AppDatabase {
           await m.alterTable(TableMigration(ratingMetrics));
         }
         if (from < 8) {
-          await m.addColumn(setups, setups.images);
+          // Upgrades that crossed the v4 boundary already gained `images` when
+          // the setups table was recreated above; only add it when missing so
+          // we don't hit a duplicate-column error.
+          if (!await _columnExists('setups', 'images')) {
+            await m.addColumn(setups, setups.images);
+          }
         }
       },
     );
+  }
+
+  Future<bool> _columnExists(String table, String column) async {
+    final rows = await customSelect('PRAGMA table_info($table)').get();
+    return rows.any((r) => r.read<String>('name') == column);
   }
 
   @visibleForTesting

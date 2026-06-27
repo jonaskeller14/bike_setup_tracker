@@ -6,6 +6,7 @@ import '../../icons/simple_icons.dart';
 import '../../models/app_settings.dart';
 import '../../utils/app_info.dart';
 import '../../utils/url.dart';
+import '../../widgets/sheets/tip_jar.dart';
 import '../../widgets/text/section_title.dart';
 import 'faq_page.dart';
 
@@ -66,6 +67,13 @@ class HelpPage extends StatelessWidget {
 
               const Divider(),
               const SectionTitle(title: 'Contact & Feedback'),
+              ListTile(
+                leading: const Icon(Icons.local_cafe_outlined),
+                title: const Text('Buy me a coffee'),
+                subtitle: const Text('Support development with a small tip.'),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => showTipJarSheet(context: context),
+              ),
               ListTile(
                 leading: const Icon(Icons.star_outline),
                 title: const Text('Rate this app'),

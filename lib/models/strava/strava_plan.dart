@@ -49,6 +49,9 @@ enum StravaPlan {
   /// the same product id and differ only by base plan tag.
   String get storeProductId => Platform.isIOS ? iosProductId : androidProductId;
 
+  static bool isStravaProductId(String id) =>
+      id == androidProductId || values.any((p) => p.iosProductId == id);
+
   static StravaPlan? fromIosProductId(String id) {
     return values.firstWhereOrNull((p) => p.iosProductId == id);
   }

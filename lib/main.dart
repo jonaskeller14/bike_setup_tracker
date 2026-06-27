@@ -24,6 +24,7 @@ import 'services/notification_service.dart';
 import 'services/quick_actions_service.dart';
 import 'services/strava_service.dart';
 import 'services/subscription_service.dart';
+import 'services/tip_service.dart';
 import 'theme.dart';
 
 @pragma('vm:entry-point')
@@ -153,6 +154,14 @@ class LoadingGate extends StatelessWidget {
                 update: (context, settings, subscriptionService) {
                   unawaited(subscriptionService!.initialize(enableStrava: settings.enableStrava));
                   return subscriptionService;
+                },
+              ),
+              ChangeNotifierProvider<TipService>(
+                lazy: false,
+                create: (context) {
+                  final tipService = TipService();
+                  unawaited(tipService.initialize());
+                  return tipService;
                 },
               ),
             ],

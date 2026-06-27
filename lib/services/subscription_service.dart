@@ -373,6 +373,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> _onPurchaseUpdate(List<PurchaseDetails> purchases) async {
     for (final pd in purchases) {
+      if (!StravaPlan.isStravaProductId(pd.productID)) continue;
       debugPrint('SubscriptionService _onPurchaseUpdate: ${pd.productID} → ${pd.status} (source=${pd.verificationData.source})');
       bool granted = false;
       switch (pd.status) {

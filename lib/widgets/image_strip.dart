@@ -8,7 +8,7 @@ import 'sheets/pick_image_source.dart';
 
 enum ImageStripMode { view, edit }
 
-class ImageStrip extends StatelessWidget {
+class ImageStrip extends StatefulWidget {
   final List<String> images;
   final String imagesDir;
   final ImageStripMode mode;
@@ -26,13 +26,90 @@ class ImageStrip extends StatelessWidget {
     this.onAdd,
   });
 
+  @override
+  State<ImageStrip> createState() => _ImageStripState();
+}
+
+class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
+  final Map<String, AnimationController> _enterControllers = {};
+  final Map<String, AnimationController> _exitControllers = {};
+
+  @override
+  void didUpdateWidget(ImageStrip oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldSet = oldWidget.images.toSet();
+    for (final filename in widget.images) {
+      if (!oldSet.contains(filename) && !_enterControllers.containsKey(filename)) {
+        final ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 280));
+        _enterControllers[filename] = ctrl;
+        unawaited(ctrl.forward().then((_) {
+          if (mounted) setState(() => _enterControllers.remove(filename)?.dispose());
+        }));
+      }
+    }
+    // Clean up exit controllers for items removed from widget.images
+    final newSet = widget.images.toSet();
+    for (final f in _exitControllers.keys.where((f) => !newSet.contains(f)).toList()) {
+      _exitControllers.remove(f)?.dispose();
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final ctrl in _enterControllers.values) { ctrl.dispose(); }
+    for (final ctrl in _exitControllers.values) { ctrl.dispose(); }
+    super.dispose();
+  }
+
+  void _handleRemove(String filename) {
+    if (widget.onRemove == null || _exitControllers.containsKey(filename)) return;
+    final ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+      value: 1.0,
+    );
+    setState(() => _exitControllers[filename] = ctrl);
+    unawaited(ctrl.reverse().then((_) {
+      if (!mounted) return;
+      final index = widget.images.indexOf(filename);
+      if (index != -1) widget.onRemove?.call(index);
+    }));
+  }
+
+  Widget _animatedItem(String filename, Widget child) {
+    final exitCtrl = _exitControllers[filename];
+    final enterCtrl = _enterControllers[filename];
+
+    if (exitCtrl != null) {
+      final curved = CurvedAnimation(parent: exitCtrl, curve: Curves.easeIn);
+      return FadeTransition(
+        opacity: curved,
+        child: ScaleTransition(
+          scale: Tween(begin: 0.7, end: 1.0).animate(curved),
+          child: child,
+        ),
+      );
+    }
+    if (enterCtrl != null) {
+      final curved = CurvedAnimation(parent: enterCtrl, curve: Curves.easeOutCubic);
+      return FadeTransition(
+        opacity: curved,
+        child: ScaleTransition(
+          scale: Tween(begin: 0.7, end: 1.0).animate(curved),
+          child: child,
+        ),
+      );
+    }
+    return child;
+  }
+
   void _openViewer(BuildContext context, int index) {
     unawaited(Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => ImageViewer(
-          images: images,
-          imagesDir: imagesDir,
+          images: widget.images,
+          imagesDir: widget.imagesDir,
           initialIndex: index,
         ),
       ),
@@ -49,7 +126,7 @@ class ImageStrip extends StatelessWidget {
       final picked = await picker.pickImage(source: ImageSource.camera);
       if (picked == null) return;
       final filename = await service.importImage(picked);
-      onAdd?.call([filename]);
+      widget.onAdd?.call([filename]);
     } else {
       final picked = await picker.pickMultiImage();
       if (picked.isEmpty) return;
@@ -57,7 +134,7 @@ class ImageStrip extends StatelessWidget {
       for (final x in picked) {
         filenames.add(await service.importImage(x));
       }
-      onAdd?.call(filenames);
+      widget.onAdd?.call(filenames);
     }
   }
 
@@ -71,7 +148,7 @@ class ImageStrip extends StatelessWidget {
   }
 
   Widget _thumbnail(BuildContext context, String filename, int index) {
-    final file = File('$imagesDir${Platform.pathSeparator}$filename');
+    final file = File('${widget.imagesDir}${Platform.pathSeparator}$filename');
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -87,19 +164,26 @@ class ImageStrip extends StatelessWidget {
             ),
           ),
         ),
-        if (mode == ImageStripMode.edit)
+        if (widget.mode == ImageStripMode.edit)
           Positioned(
-            top: 2,
-            right: 2,
+            top: 0,
+            right: 0,
             child: GestureDetector(
-              onTap: () => onRemove?.call(index),
+              onTap: () => _handleRemove(filename),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.circular(12),
+                  color: Theme.of(context).colorScheme.inverseSurface,
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(8),
+                    bottomLeft: Radius.circular(8),
+                  ),
                 ),
-                padding: const EdgeInsets.all(2),
-                child: const Icon(Icons.close, size: 16, color: Colors.white),
+                padding: const EdgeInsets.all(5),
+                child: Icon(
+                  Icons.close_rounded,
+                  size: 14,
+                  color: Theme.of(context).colorScheme.onInverseSurface,
+                ),
               ),
             ),
           ),
@@ -112,26 +196,48 @@ class ImageStrip extends StatelessWidget {
     const double tileSize = 80;
     const double spacing = 8;
 
-    if (images.isEmpty && mode == ImageStripMode.view) return const SizedBox.shrink();
+    if (widget.images.isEmpty && widget.mode == ImageStripMode.view) return const SizedBox.shrink();
 
-    if (mode == ImageStripMode.edit) {
+    if (widget.mode == ImageStripMode.edit) {
       Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
-        // Rebuild the thumbnail without the item's right-side spacing so the drag
-        // ghost is a clean square with rounded corners and a subtle elevation.
-        final file = File('$imagesDir${Platform.pathSeparator}${images[index]}');
+        final file = File('${widget.imagesDir}${Platform.pathSeparator}${widget.images[index]}');
         return SizedBox(
           width: tileSize,
           height: tileSize,
-          child: Material(
-            elevation: 4,
-            borderRadius: BorderRadius.circular(8),
-            clipBehavior: Clip.antiAlias,
-            child: Image.file(
-              file,
-              fit: BoxFit.cover,
-              cacheWidth: 300,
-              errorBuilder: (_, _, _) => _placeholder(context),
-            ),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Material(
+                elevation: 4,
+                borderRadius: BorderRadius.circular(8),
+                clipBehavior: Clip.antiAlias,
+                child: Image.file(
+                  file,
+                  fit: BoxFit.cover,
+                  cacheWidth: 300,
+                  errorBuilder: (_, _, _) => _placeholder(context),
+                ),
+              ),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.inverseSurface,
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(8),
+                      bottomLeft: Radius.circular(8),
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(5),
+                  child: Icon(
+                    Icons.close_rounded,
+                    size: 14,
+                    color: Theme.of(context).colorScheme.onInverseSurface,
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       }
@@ -143,14 +249,14 @@ class ImageStrip extends StatelessWidget {
           buildDefaultDragHandles: false,
           proxyDecorator: proxyDecorator,
           onReorderItem: (oldIndex, newIndex) {
-            onReorder?.call(oldIndex, newIndex);
+            widget.onReorder?.call(oldIndex, newIndex);
           },
-          itemCount: images.length + (onAdd != null ? 1 : 0),
+          itemCount: widget.images.length + (widget.onAdd != null ? 1 : 0),
           itemBuilder: (context, index) {
-            if (onAdd != null && index == images.length) {
+            if (widget.onAdd != null && index == widget.images.length) {
               return Padding(
                 key: const ValueKey('add_button'),
-                padding: EdgeInsets.only(left: images.isEmpty ? 0 : spacing),
+                padding: EdgeInsets.only(left: widget.images.isEmpty ? 0 : spacing),
                 child: GestureDetector(
                   onTap: () => _pickImages(context),
                   child: Container(
@@ -180,15 +286,19 @@ class ImageStrip extends StatelessWidget {
                 ),
               );
             }
+            final filename = widget.images[index];
             return ReorderableDelayedDragStartListener(
-              key: ValueKey(images[index]),
+              key: ValueKey(filename),
               index: index,
               child: Padding(
                 padding: const EdgeInsets.only(right: spacing),
-                child: SizedBox(
-                  width: tileSize,
-                  height: tileSize,
-                  child: _thumbnail(context, images[index], index),
+                child: _animatedItem(
+                  filename,
+                  SizedBox(
+                    width: tileSize,
+                    height: tileSize,
+                    child: _thumbnail(context, filename, index),
+                  ),
                 ),
               ),
             );
@@ -202,13 +312,17 @@ class ImageStrip extends StatelessWidget {
       height: tileSize,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: images.length,
+        itemCount: widget.images.length,
         separatorBuilder: (_, _) => const SizedBox(width: spacing),
         itemBuilder: (context, index) {
-          return SizedBox(
-            width: tileSize,
-            height: tileSize,
-            child: _thumbnail(context, images[index], index),
+          final filename = widget.images[index];
+          return _animatedItem(
+            filename,
+            SizedBox(
+              width: tileSize,
+              height: tileSize,
+              child: _thumbnail(context, filename, index),
+            ),
           );
         },
       ),

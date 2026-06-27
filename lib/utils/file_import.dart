@@ -11,6 +11,7 @@ import '../models/selected_data.dart';
 import '../models/setup.dart';
 import '../services/data_export_service.dart';
 import '../services/database_migration_service.dart';
+import '../services/image_storage_service.dart';
 import '../utils/backup.dart';
 
 class FileImport {
@@ -103,8 +104,9 @@ class FileImport {
   }
 
   static Future<void> replace({required SelectedData remoteData, required AppDatabase database}) async {
-    cleanupIsDeleted(data: remoteData);
+    final purgedImages = cleanupIsDeleted(data: remoteData);
     await _importDataToDb(database, remoteData);
+    await ImageStorageService().deleteImages(purgedImages);
   }
 
   static Future<void> overwrite({required SelectedData remoteData, required AppDatabase database}) async {
@@ -114,10 +116,13 @@ class FileImport {
 
     // 2. Perform merge in memory
     _overwriteInternal(remoteData: remoteData, localData: localData);
-    cleanupIsDeleted(data: localData);
+    final purgedImages = cleanupIsDeleted(data: localData);
 
     // 3. Write merged state back to DB
     await _importDataToDb(database, localData);
+
+    // 4. Delete images of purged setups (after the DB write succeeds).
+    await ImageStorageService().deleteImages(purgedImages);
   }
 
   static Future<void> merge({
@@ -130,10 +135,13 @@ class FileImport {
 
     // 2. Perform merge in memory
     _mergeInternal(remoteData: remoteData, localData: localData);
-    cleanupIsDeleted(data: localData);
+    final purgedImages = cleanupIsDeleted(data: localData);
 
     // 3. Write merged state back to DB
     await _importDataToDb(database, localData);
+
+    // 4. Delete images of purged setups (after the DB write succeeds).
+    await ImageStorageService().deleteImages(purgedImages);
   }
 
   static Future<void> _importDataToDb(AppDatabase database, SelectedData dataToImport) async {
@@ -318,7 +326,7 @@ class FileImport {
     }
   }
 
-  static void cleanupIsDeleted({required SelectedData data}) {
+  static List<String> cleanupIsDeleted({required SelectedData data}) {
     final thirtyDays = const Duration(days: 30);
     final deleteDateTime = DateTime.now().toUtc().subtract(thirtyDays);
 
@@ -327,9 +335,20 @@ class FileImport {
     data.ratingEntries.removeWhere((_, re) => re.isDeleted && re.lastModified.isBefore(deleteDateTime));
     data.bikes.removeWhere((_, b) => b.isDeleted && b.lastModified.isBefore(deleteDateTime));
     data.components.removeWhere((_, c) => c.isDeleted && c.lastModified.isBefore(deleteDateTime));
-    data.setups.removeWhere((_, s) => s.isDeleted && s.lastModified.isBefore(deleteDateTime));
+
+    final purgedSetupImages = <String>[];
+    data.setups.removeWhere((_, s) {
+      final purge = s.isDeleted && s.lastModified.isBefore(deleteDateTime);
+      if (purge) purgedSetupImages.addAll(s.images);
+      return purge;
+    });
+
     data.taskRules.removeWhere((_, tr) => tr.isDeleted && tr.lastModified.isBefore(deleteDateTime));
     data.taskEntries.removeWhere((_, te) => te.isDeleted && te.lastModified.isBefore(deleteDateTime));
+
+    // Never delete a file a surviving setup still references.
+    final stillReferenced = data.setups.values.expand((s) => s.images).toSet();
+    return purgedSetupImages.where((f) => !stillReferenced.contains(f)).toList();
   }
 }
 

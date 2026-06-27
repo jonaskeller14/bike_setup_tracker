@@ -8,6 +8,7 @@ import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../repositories/app_repository.dart';
 import '../../widgets/sheets/app_settings_radio_group.dart';
+import '../../widgets/text/section_title.dart';
 
 class FeaturesPage extends StatelessWidget {
   const FeaturesPage({super.key});
@@ -33,25 +34,7 @@ class FeaturesPage extends StatelessWidget {
                 title: Text('Enable these to add specific functionality to your workflow. Keep them disabled to maintain a simpler interface.'),
                 dense: true,
               ),
-              if (Platform.isAndroid)
-                ListTile(
-                  leading: const Icon(SimpleIcons.googledrive),
-                  title: const Text("Google Drive Sync"),
-                  subtitle: _offOnOptionWidgets[appSettings.enableGoogleDrive] ?? const Text("-"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
-                    context: context,
-                    title: "Google Drive Sync",
-                    value: appSettings.enableGoogleDrive,
-                    optionWidgets: _offOnOptionWidgets,
-                    onChanged: (bool? newValue) {
-                      if (newValue == null) return;
-                      appSettings.enableGoogleDrive = newValue;
-                      Navigator.pop(context);
-                    },
-                    infoText: 'Sync your data across devices and keep secure backups in your Google Drive. Your data is stored privately in your own account; we never have access to it.',
-                  ),
-                ),
+              const SectionTitle(title: 'Bikes & Components'),
               ListTile(
                 leading: const Icon(Bike.iconData),
                 title: const Text("Garage"),
@@ -70,6 +53,28 @@ class FeaturesPage extends StatelessWidget {
                   infoText: 'Enables the Garage layout which focuses on Bikes and their installed Components. If disabled, the app uses a more traditional list-based interface.',
                 ),
               ),
+              ListTile(
+                leading: const Icon(Icons.checklist),
+                title: const Text("Installation Timeline"),
+                subtitle: _offOnOptionWidgets[appSettings.enableInstallationTimeline] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<bool>(
+                  context: context,
+                  title: "Installation Timeline",
+                  value: appSettings.enableInstallationTimeline,
+                  optionWidgets: _offOnOptionWidgets,
+                  onChanged: (bool? newValue) {
+                    if (newValue == null) return;
+                    appSettings.enableInstallationTimeline = newValue;
+                    Navigator.pop(context);
+                  },
+                  infoText: 'By default, Components are linked to a Bike. '
+                  'When this setting is enabled, you can track exactly when a component was installed and deinstalled. '
+                  'This allows you to deinstall components and move them between different bikes without losing track of their history, usage, or setups.',
+                ),
+              ),
+              const Divider(),
+              const SectionTitle(title: 'Setups'),
               ListTile(
                 leading: const Icon(TextAdjustment.iconData),
                 title: const Text("Text Adjustment"),
@@ -107,26 +112,30 @@ class FeaturesPage extends StatelessWidget {
                   infoText: 'Adds the option to add tags to Setups',
                 ),
               ),
-              ListTile(
-                leading: const Icon(Icons.checklist),
-                title: const Text("Installation Timeline"),
-                subtitle: _offOnOptionWidgets[appSettings.enableInstallationTimeline] ?? const Text("-"),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => appSettingsRadioGroupSheet<bool>(
-                  context: context,
-                  title: "Installation Timeline",
-                  value: appSettings.enableInstallationTimeline,
-                  optionWidgets: _offOnOptionWidgets,
-                  onChanged: (bool? newValue) {
-                    if (newValue == null) return;
-                    appSettings.enableInstallationTimeline = newValue;
-                    Navigator.pop(context);
-                  },
-                  infoText: 'By default, Components are linked to a Bike. '
-                  'When this setting is enabled, you can track exactly when a component was installed and deinstalled. '
-                  'This allows you to deinstall components and move them between different bikes without losing track of their history, usage, or setups.',
+              if (kDebugMode)
+                ListTile(
+                  leading: const Icon(Icons.photo_library_outlined),
+                  title: const Text("Setup Images"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableSetupImages] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Setup Images",
+                    value: appSettings.enableSetupImages,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettings.enableSetupImages = newValue;
+                      Navigator.pop(context);
+                    },
+                    infoText: 'Attach images to setups. WARNING: images are stored only on this '
+                        'device. They are NOT included in cloud/Drive backups and will be lost on '
+                        'reinstall or when restoring from a backup. Use "Export Images" to move them '
+                        'to a new device.',
+                  ),
                 ),
-              ),
+              const Divider(),
+              const SectionTitle(title: 'Tasks'),
               ListTile(
                 leading: const Icon(Icons.checklist),
                 title: const Text("Tasks"),
@@ -219,6 +228,27 @@ class FeaturesPage extends StatelessWidget {
                     },
                   ),
                 ),
+              const Divider(),
+              const SectionTitle(title: 'Other'),
+              if (Platform.isAndroid)
+                ListTile(
+                  leading: const Icon(SimpleIcons.googledrive),
+                  title: const Text("Google Drive Sync"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableGoogleDrive] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Google Drive Sync",
+                    value: appSettings.enableGoogleDrive,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettings.enableGoogleDrive = newValue;
+                      Navigator.pop(context);
+                    },
+                    infoText: 'Sync your data across devices and keep secure backups in your Google Drive. Your data is stored privately in your own account; we never have access to it.',
+                  ),
+                ),
               ListTile(
                 leading: const Icon(Icons.calendar_month_outlined),
                 title: const Text("Calendar"),
@@ -271,28 +301,6 @@ class FeaturesPage extends StatelessWidget {
                       appSettings.enableRating = newValue;
                       Navigator.pop(context);
                     },
-                  ),
-                ),
-              if (kDebugMode)
-                ListTile(
-                  leading: const Icon(Icons.photo_library_outlined),
-                  title: const Text("Setup Images"),
-                  subtitle: _offOnOptionWidgets[appSettings.enableSetupImages] ?? const Text("-"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
-                    context: context,
-                    title: "Setup Images",
-                    value: appSettings.enableSetupImages,
-                    optionWidgets: _offOnOptionWidgets,
-                    onChanged: (bool? newValue) {
-                      if (newValue == null) return;
-                      appSettings.enableSetupImages = newValue;
-                      Navigator.pop(context);
-                    },
-                    infoText: 'Attach images to setups. WARNING: images are stored only on this '
-                        'device. They are NOT included in cloud/Drive backups and will be lost on '
-                        'reinstall or when restoring from a backup. Use "Export Images" to move them '
-                        'to a new device.',
                   ),
                 ),
               if (kDebugMode)

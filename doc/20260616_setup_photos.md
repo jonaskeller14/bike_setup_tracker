@@ -25,11 +25,14 @@ either alone or both — see §12.
 | Feature gating | **Debug-only flag** `enableSetupImages` on `AppSettings`, default `false`, toggle visible only when `kDebugMode`. Not in production builds yet. |
 | Storage strategy | **On-device only** — image files in the app documents directory, DB stores only filenames. Not auto-included in JSON backup / Google Drive sync. |
 | Quantity / quality | **Unlimited images, original quality** — no cap, no compression. |
+| Thumbnails | **Decode-downscaling + built-in cache, no separate thumbnail files** — `Image.file(file, cacheWidth: 300)` in the strip; full quality in the viewer. |
 | Missing files | Show an **error placeholder** tile when a referenced file no longer exists (e.g. after reinstall/restore). |
 | Reordering | **Included** — long-press to start drag. |
 | List tiles | Show a small **image icon + count** when a setup has ≥1 image. **No preview** thumbnail in the list. |
 | Where shown | Setup add/edit page + setup detail view (full-screen viewer); icon+count in list rows. |
-| Export/transfer | See §7 — recommendation: **ZIP bundle**. |
+| "Add image" placement | **`ActionChip` in the `_wrap()` Wrap** as the last item, not a tile inside `ImageStrip` (see Deviation note below). |
+| Export/transfer | **ZIP bundle** — see §7. |
+| Future portability | base64-in-JSON or Firebase Storage remain future options; the filename column stays unchanged either way. |
 
 ### Consequence of "on-device only" — surfaced to the user in-app
 
@@ -54,18 +57,18 @@ image UI** so the user understands images are local-only.
 | Section | Status | Notes |
 |---|---|---|
 | §0 Feature flag + debug toggle | ✅ Done | `enableSetupImages` in `AppSettings`; debug toggle in `features_page.dart` |
-| §1 ImageStorageService | ✅ Done | `lib/services/image_storage_service.dart`; added `getImagesPath()` public helper |
-| §2 Packages + permissions | ✅ Done | `image_picker ^1.1.2`, `archive ^3.6.1` (downgraded from ^4.0.2 due to `excel` conflict); iOS `Info.plist` reworded |
+| §1 ImageStorageService | ✅ Done | `lib/services/image_storage_service.dart`; `getImagesPath()` public helper |
+| §2 Packages + permissions | ✅ Done | `image_picker ^1.1.2`, `archive ^3.6.1` (pinned to ^3 due to `excel` conflict); iOS `Info.plist` reworded |
 | §3 Setup model | ✅ Done | `Setup.images` field; JSON v5; `copyWith`, `==`, `hashCode`, `deepCopy` |
-| §4 DB table + migration | ✅ Done | `images` column in `setups` table; schema v7 migration; `StringListOrderedConverter`; mappers updated |
-| §5 UI — strip + viewer | ✅ Done | `ImageStrip`, `ImageViewer`; "Add image" chip in the Wrap; strip below Wrap (no add tile in strip); long-press reorder; `proxyDecorator` for clean drag ghost |
-| §6 File lifecycle / orphan cleanup | ⚠️ Partial | Edit-save orphan cleanup ✅; copy-on-duplicate ✅; hard-delete/purge NOT done; startup sweep NOT done |
+| §4 DB table + migration | ✅ Done | `images` column on `setups`; schema v7 migration; `StringListOrderedConverter`; mappers |
+| §5 UI — strip + viewer | ✅ Done | `ImageStrip`, `ImageViewer`; "Add image" chip in the Wrap; long-press reorder |
+| §6 File lifecycle / cleanup | ⚠️ Partial | Edit-save orphan cleanup, copy-on-duplicate, hard-delete/30-day purge ✅; **startup sweep ❌** (§10) |
 | §7 Export — ZIP bundle | ✅ Done | `ImageStorageService.exportBundle()` / `importBundle()`; UI in export/import sheets |
-| §8 Reordering | ✅ Done | `ReorderableDelayedDragStartListener`; `proxyDecorator` |
-| §9 File summary | ✅ Done | See below |
-| §10 Implementation order | ✅ Done (except §7 items) | |
-| §11 App Store / Play Store | ✅ Done | iOS strings reworded; Android no manifest changes |
+| §8 Reordering | ✅ Done | `ReorderableDelayedDragStartListener` + `proxyDecorator` |
+| §11 Store compliance | ⚠️ Partial | iOS/Android config done; **pre-production checklist ❌** (§10) |
 | §12 Phase 2 ImageAdjustment | ❌ Future | Not started |
+
+Everything outstanding is consolidated in **§10 Remaining work**.
 
 ### Deviation from original plan — UI placement (§5)
 
@@ -312,44 +315,41 @@ if (appSettings.enableSetupImages && setup.images.isNotEmpty)
 
 ## 6. File lifecycle & orphan cleanup
 
-Setups use **soft-delete** — do **not** delete files on soft delete.
+Setups use **soft-delete** — do **not** delete files on soft delete. The file is deleted
+only when the setup is *permanently* gone.
 
-- ✅ **Edit, image removed + saved** → after save, `SetupActions.editSetup` deletes files in
-  `originalImages` but not in `editedSetup.images`.
-- ✅ **Duplicate** → `copyExisting` each file to a new filename; deletes copies if user cancels.
-- ❌ **Hard delete / purge** — not yet implemented.
-- ❌ **Startup sweep** — not yet implemented.
-
----
-
-## 7. Export for device transfer — ZIP vs base64 JSON (effort)
-
-**❌ Not yet implemented.**
-
-Goal: let a user move their images (which are otherwise local-only) to a new device.
-
-### Option A — ZIP bundle (recommended)
-
-Bundle the JSON export **and** the whole `images/` folder into one `.zip`, shared via
-`share_plus`; import picks a `.zip`, restores the JSON, and unzips images into
-`images/`.
-
-- **Work:** `ImageBundleExportService` to build/import the zip; two buttons ("Export Full
-  Bundle", "Import Bundle"); reuse `ShareService` / `file_picker`.
-- `archive ^3.6.1` already in `pubspec.yaml`.
-
-### Option B — base64 embedded in JSON
-
-Inline each image as base64 in the export JSON (opt-in flag only, never in automatic backup).
-
-### Recommendation
-
-**Option A (ZIP bundle)** — efficient, clean, covers all object types at once. **Default
-plan.**
+- ✅ **Edit, image removed + saved** → after save, `SetupActions.editSetup` deletes files
+  in `originalImages` but not in `editedSetup.images`.
+- ✅ **Duplicate** → `copyExisting` each file to a new filename; deletes the copies if the
+  user cancels.
+- ✅ **Hard delete / 30-day purge** → `FileImport.cleanupIsDeleted` returns the image
+  filenames of setups it purges (>30 days soft-deleted), and `replace`/`overwrite`/`merge`
+  delete them via `ImageStorageService.deleteImages` after the DB import succeeds. Images
+  thus follow the **identical 30-day trash lifecycle** as their setup. A guard skips any
+  file still referenced by a surviving setup.
+- ❌ **Startup sweep** — not implemented; see §10. Would reclaim files orphaned by a full
+  `replace` or app reinstall (distinct from the 30-day-purge path above).
 
 ---
 
-## 8. Reordering (done)
+## 7. Export for device transfer — ZIP bundle
+
+Images are local-only, so users need a way to move them to a new device. Implemented as a
+**ZIP bundle**:
+
+- `ImageStorageService.exportBundle()` zips the JSON export **plus** the `images/` folder
+  (filtered to the selected setups' images when exporting a subset), shared via
+  `share_plus`.
+- `importBundle()` picks a `.zip`, restores the JSON, and unzips images into `images/`.
+- UI lives in the export/import sheets; uses `archive ^3.6.1` (already in `pubspec.yaml`).
+
+*Alternative not taken — base64 embedded in JSON:* simpler, but bloats every export and
+re-encodes on each backup. The ZIP bundle is more efficient and covers all object types
+at once.
+
+---
+
+## 8. Reordering
 
 `ImageStrip` in edit mode uses `ReorderableListView` with
 `ReorderableDelayedDragStartListener` (requires long-press before drag starts, so normal
@@ -358,77 +358,63 @@ clean rounded square with 4dp elevation during drag — no item spacing or squar
 
 ---
 
-## 9. Touched files summary
+## 9. Touched files
 
-**New**
-- `lib/services/image_storage_service.dart` ✅
-- `lib/widgets/image_strip.dart` ✅
-- `lib/widgets/image_viewer.dart` ✅
-- `lib/database/converters/string_list_ordered_converter.dart` ✅
-- `lib/services/image_bundle_export_service.dart` ❌ (§7, not yet)
+**New** (all under `lib/`):
+- `services/image_storage_service.dart` — file I/O + ZIP export/import
+- `widgets/image_strip.dart`, `widgets/image_viewer.dart`
+- `database/converters/string_list_ordered_converter.dart`
 
-**Modified**
-- `pubspec.yaml` ✅ — `image_picker`, `archive`
-- `ios/Runner/Info.plist` ✅ — reworded camera/gallery purpose strings
-- `lib/models/app_settings.dart` ✅ — `enableSetupImages` flag
-- `lib/pages/settings/features_page.dart` ✅ — debug-only toggle with local-only warning
-- `lib/models/setup.dart` ✅ — `images` field, json v5, copyWith, ==, hashCode, deepCopy
-- `lib/database/tables/setups.dart` ✅ — `images` column
-- `lib/database/app_database.dart` ✅ — schemaVersion 7 + `onUpgrade` addColumn
-- `lib/database/mappers.dart` ✅ — `toCompanion` + `toModel` include `images`
-- `lib/pages/setup_page.dart` ✅ — image state, picker, strip, reorder, save wiring
-- `lib/pages/details/setup_details_page.dart` ✅ — view-only strip + viewer
-- `lib/widgets/items/setup_list_card.dart` ✅ — image icon + count
-- `lib/utils/setup_actions.dart` ✅ — edit orphan cleanup + copy-on-duplicate
+**Modified:**
+- `pubspec.yaml` — `image_picker`, `archive`
+- `ios/Runner/Info.plist` — reworded camera/gallery purpose strings
+- `models/app_settings.dart` — `enableSetupImages` flag
+- `pages/settings/features_page.dart` — debug-only toggle with local-only warning
+- `models/setup.dart` — `images` field, json v5, copyWith, ==, hashCode, deepCopy
+- `database/tables/setups.dart` — `images` column
+- `database/app_database.dart` — schemaVersion 7 + `onUpgrade` addColumn
+- `database/mappers.dart` — `toCompanion` + `toModel` include `images`
+- `pages/setup_page.dart` — image state, picker, strip, reorder, save wiring
+- `pages/details/setup_details_page.dart` — view-only strip + viewer
+- `widgets/items/setup_list_card.dart` — image icon + count
+- `utils/setup_actions.dart` — edit orphan cleanup + copy-on-duplicate
+- `utils/file_import.dart` — 30-day purge deletes purged setups' image files (§6)
 
-**Regenerate**: `flutter pub run build_runner build` (done; `app_database.g.dart` up to date).
+Run `flutter pub run build_runner build` after any model/table change.
 
 ---
 
-## 10. Suggested implementation order
+## 10. Remaining work
 
-1. ✅ `AppSettings.enableSetupImages` + debug toggle in `features_page.dart` (with warning).
-2. ✅ `pubspec.yaml` deps + platform permission config; `flutter pub get`.
-3. ✅ Table column + ordered converter + schemaVersion 7 migration → `build_runner build`.
-4. ✅ `Setup` model (field, json v5, copyWith, equality, deepCopy) + mappers.
-5. ✅ `ImageStorageService` (generic, shared `images/`).
-6. ✅ `ImageStrip` (incl. reorder + missing-file placeholder) + `ImageViewer`.
-7. ✅ Wire into `setup_page.dart` (add/edit/save) — all behind `enableSetupImages`.
-8. ✅ Wire into `setup_details_page.dart` (view) + `setup_list_card.dart` (icon+count).
-9. ⚠️ Orphan cleanup on save-edit ✅ + copy-on-duplicate ✅; hard-delete/purge ❌; startup sweep ❌.
-10. ✅ ZIP export/import (§7A) — UI in export/import sheets, integrated with selection flow.
-11. ✅ Manual test: toggle flag on/off; add (gallery+camera); reorder; remove; full-screen;
-    restart app. ⚠️ Remaining: delete & purge setup; delete a file on disk → placeholder;
-    export bundle → import → links resolve; verify v1–v4 backups load as empty.
+- **Startup orphan sweep (§6)** — reclaim files orphaned by a full `replace` or app
+  reinstall. (The 30-day-purge path is done.)
+- **Daily-backup decision** — images are excluded from the automatic JSON/Drive backup.
+  Decide whether to warn the user more prominently or bundle images alongside the backup.
+- **Unit tests** — `file_import` purge tests done; still want coverage for
+  `ImageStorageService` (import/copy/delete/exists), `StringListOrderedConverter`
+  round-trip, `Setup` images (de)serialization / `copyWith` / `==`, and `setup_actions`
+  orphan cleanup.
+- **Manual tests remaining** — delete a file on disk → placeholder renders; export bundle
+  → import on a clean install → links resolve; verify v1–v4 backups load as empty.
+- **Before production** — add a local-storage clause to the privacy policy; re-confirm
+  Apple App Privacy + Play Data-safety still say images **not collected**; re-verify age
+  rating stays 0+; **remove the `kDebugMode` gate**.
+
+---
 
 ## 11. App Store & Play Store compliance
 
-The app is worldwide, **age 0+**. Summary: **no new store-console "entitlements" needed,
-privacy declarations up to date, age rating stays 0+.**
+App is worldwide, **age 0+**. No new store-console entitlements, no new privacy
+declarations, age rating unchanged. (Pre-production action items live in §10.)
 
-### iOS — App Store Connect / Info.plist
+- **iOS** — Info.plist `NSCameraUsageDescription` / `NSPhotoLibraryUsageDescription`
+  reworded for capture + attachment. Images stored on-device only, never collected → no
+  new privacy-nutrition entry. `image_picker` ships its own `PrivacyInfo.xcprivacy`
+  manifest. `ITSAppUsesNonExemptEncryption` unchanged.
+- **Android** — no manifest changes: Photo Picker (no `READ_MEDIA_IMAGES`) + system camera
+  intent (no `CAMERA`). Data-safety form unchanged (on-device, not collected).
 
-- ✅ **Info.plist purpose strings fixed** — reworded to describe actual capture + attachment.
-- **No App Store Connect toggle** needed.
-- **Privacy nutrition label:** images stored only on device, never collected → no new
-  "Data Collected" entry required.
-- **Privacy manifest (`PrivacyInfo.xcprivacy`):** `image_picker` ships its own manifest.
-- **Encryption (`ITSAppUsesNonExemptEncryption`):** unchanged.
-
-### Android — Google Play Console
-
-- ✅ **No manifest changes** — `image_picker` uses Photo Picker (no `READ_MEDIA_IMAGES`)
-  and system camera intent (no `CAMERA` permission).
-- **Data safety form:** images stay on-device, not collected → no change.
-
-### Action checklist before shipping to production
-
-1. ✅ Reword the two iOS `UsageDescription` strings.
-2. ✅ Confirm Android manifest stays free of `READ_MEDIA_IMAGES` / `CAMERA`.
-3. ❌ Update the privacy policy with local-storage clause.
-4. ❌ Re-confirm Apple App Privacy + Play Data safety still say images **not collected**.
-5. ❌ Leave age rating at 0+; re-verify IARC/Apple questionnaires.
-6. Remove `kDebugMode` gate when ready to ship.
+---
 
 ## 12. Phase 2 (outlook): `ImageAdjustment` type — reusing Phase-1 infrastructure
 
@@ -449,7 +435,7 @@ e.g. a photo of the cockpit, saddle-rail position, flip-chip, cable routing, tok
 - **Shared `images/` store** + `ImageStorageService` — object-agnostic on purpose.
 - **`ImageStrip` / `ImageViewer`** — already generic (`List<String>` + edit callbacks).
 - **Missing-file placeholder, `cacheWidth` thumbnails, reorder** — all reused.
-- **ZIP bundle export/import** — archives the whole `images/` folder, covers B automatically.
+- **ZIP bundle export/import** — archives the whole `images/` folder.
 - **Permissions / store compliance (§11)** — identical; already done once.
 
 ### What Phase 2 adds (the extra work, kept isolated)
@@ -467,26 +453,3 @@ e.g. a photo of the cockpit, saddle-rail position, flip-chip, cable routing, tok
 - Only shared code is the **generic image substrate** (`ImageStorageService`,
   `ImageStrip`/`ImageViewer`, ZIP bundle).
 - Phase 1 names everything generically so Phase 2 is purely additive.
-
----
-
-## 13. Open questions / TODOs
-
-| # | Question / Task | Notes |
-|---|---|---|
-| Q1 | **Images + daily backup** — are image files included in (or excluded from) the automatic daily JSON backup? | The DB backup is JSON-only; the `images/` dir is currently **not** included. Need to decide: warn the user more prominently, or bundle images alongside the backup ZIP. |
-| Q2 | **Hard-delete after 30-day trash threshold** — when a soft-deleted Setup is permanently purged, are its image files also deleted? | Not yet implemented (§6 ❌). Risk: orphaned files accumulate silently on disk. |
-| Q3 | **Export images** — §7 ZIP bundle export/import implemented. | ✅ Users can now export/import images and data via ZIP bundle in export/import sheets. |
-| Q4 | **Unit tests** — no tests cover the new image functionality. | Candidates: `ImageStorageService` (import, copy, delete, exists), `StringListOrderedConverter` (round-trip), `Setup` model (images field in `fromJson`/`toJson`/`copyWith`/`==`), `setup_actions.dart` orphan-cleanup logic. |
-
----
-
-## 14. Resolved decisions / future work
-
-- **Placement of the toggle — DECIDED:** `features_page.dart`, wrapped in `if (kDebugMode)`.
-- **Thumbnail performance — DECIDED: decode-downscaling + built-in cache; NO separate
-  thumbnail files.** `Image.file(file, cacheWidth: 300)` in the strip; full quality in viewer.
-- **UI placement of "Add image" — DECIDED:** `ActionChip` in the `_wrap()` Wrap as last item,
-  not an extra tile inside `ImageStrip`. Strip only handles reorder + remove.
-- **Portability without manual export** — base64-in-JSON or Firebase Storage remain
-  future options; the filename column stays unchanged.

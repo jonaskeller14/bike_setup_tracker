@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/selected_data.dart';
+import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/utils/file_import.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -45,6 +46,28 @@ void main() {
       isDeleted: isDeleted,
       componentType: ComponentType.other,
       installations: [],
+    );
+  }
+
+  Setup createSetup({
+    required String id,
+    DateTime? lastModified,
+    bool? isDeleted,
+    List<String> images = const [],
+  }) {
+    final now = DateTime.now();
+    return Setup(
+      id: id,
+      lastModified: lastModified,
+      isDeleted: isDeleted,
+      datetime: now,
+      datetimeLocal: now,
+      tags: <String>{},
+      bike: 'b1',
+      person: null,
+      bikeAdjustmentValues: {},
+      personAdjustmentValues: {},
+      images: images,
     );
   }
 
@@ -183,6 +206,43 @@ void main() {
       final bikesInDb = await database.select(database.bikes).get();
       expect(bikesInDb, hasLength(1));
       expect(bikesInDb.first.id, 'recent');
+    });
+
+    test('cleanupIsDeleted - returns images of purged setups only', () {
+      final oldDate = DateTime.now().toUtc().subtract(const Duration(days: 31));
+      final recentDate = DateTime.now().toUtc().subtract(const Duration(days: 1));
+
+      final data = SelectedData(setups: {
+        'old': createSetup(id: 'old', isDeleted: true, lastModified: oldDate, images: ['a.jpg']),
+        'recent': createSetup(id: 'recent', isDeleted: true, lastModified: recentDate, images: ['b.jpg']),
+        'active': createSetup(id: 'active', images: ['c.jpg']),
+      });
+
+      final purged = FileImport.cleanupIsDeleted(data: data);
+
+      // Only the >30-day-deleted setup's image is returned for deletion.
+      expect(purged, ['a.jpg']);
+      expect(purged, isNot(contains('b.jpg')));
+      expect(purged, isNot(contains('c.jpg')));
+
+      // The purged setup is dropped; the others survive.
+      expect(data.setups.keys, containsAll(['recent', 'active']));
+      expect(data.setups.containsKey('old'), isFalse);
+    });
+
+    test('cleanupIsDeleted - keeps a file still referenced by a surviving setup', () {
+      final oldDate = DateTime.now().toUtc().subtract(const Duration(days: 31));
+
+      final data = SelectedData(setups: {
+        'old': createSetup(id: 'old', isDeleted: true, lastModified: oldDate, images: ['x.jpg']),
+        'active': createSetup(id: 'active', images: ['x.jpg']),
+      });
+
+      final purged = FileImport.cleanupIsDeleted(data: data);
+
+      // x.jpg is still referenced by the active setup → must not be deleted.
+      expect(purged, isNot(contains('x.jpg')));
+      expect(purged, isEmpty);
     });
   });
 }

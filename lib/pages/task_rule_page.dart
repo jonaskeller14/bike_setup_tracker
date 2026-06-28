@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
+import '../models/task/task_association.dart';
 import '../models/task/task_rule.dart';
 import '../models/task/task_threshold.dart';
 import '../repositories/app_repository.dart';
@@ -42,23 +43,6 @@ class TaskRulePage extends StatefulWidget {
   State<TaskRulePage> createState() => _TaskRulePageState();
 }
 
-class _TaskAssociation {
-  final String? componentId;
-  final String? bikeId;
-
-  const _TaskAssociation({this.componentId, this.bikeId});
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is _TaskAssociation &&
-          componentId == other.componentId &&
-          bikeId == other.bikeId;
-
-  @override
-  int get hashCode => componentId.hashCode ^ bikeId.hashCode;
-}
-
 enum _ThresholdType {
   none('None'),
   distance('Distance'),
@@ -82,8 +66,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
   TaskPriority _priority = TaskPriority.medium;
   Set<String> _tags = {};
   Set<String> _initialTags = {};
-  late _TaskAssociation _association;
-  late _TaskAssociation _initialAssociation;
+  late TaskAssociation _association;
+  late TaskAssociation _initialAssociation;
   
   _ThresholdType _intervalType = _ThresholdType.none;
   _ThresholdType _delayType = _ThresholdType.none;
@@ -102,7 +86,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     _notesController = TextEditingController(text: widget.taskRule?.notes);
     _notesController.addListener(_changeListener);
 
-    _association = _TaskAssociation(
+    _association = TaskAssociation.fromIds(
       componentId: widget.taskRule?.componentId,
       bikeId: widget.taskRule?.bikeId,
     );
@@ -421,9 +405,9 @@ class _TaskRulePageState extends State<TaskRulePage> {
     Navigator.of(context).pop(null);
   }
 
-  DropdownMenuItem<_TaskAssociation> _dropdownMenuItemNone() {
-    return const DropdownMenuItem<_TaskAssociation>(
-      value: _TaskAssociation(),
+  DropdownMenuItem<TaskAssociation> _dropdownMenuItemNone() {
+    return const DropdownMenuItem<TaskAssociation>(
+      value: GeneralTaskAssociation(),
       child: Row(
         spacing: 8,
         children: [
@@ -434,9 +418,9 @@ class _TaskRulePageState extends State<TaskRulePage> {
     );
   }
 
-  DropdownMenuItem<_TaskAssociation> _dropdownMenuItemBike(Bike bike) {
-    return DropdownMenuItem<_TaskAssociation>(
-      value: _TaskAssociation(bikeId: bike.id),
+  DropdownMenuItem<TaskAssociation> _dropdownMenuItemBike(Bike bike) {
+    return DropdownMenuItem<TaskAssociation>(
+      value: BikeTaskAssociation(bike.id),
       child: Row(
         spacing: 8,
         children: [
@@ -447,9 +431,9 @@ class _TaskRulePageState extends State<TaskRulePage> {
     );
   }
 
-  DropdownMenuItem<_TaskAssociation> _dropdownMenuItemComponent(Component component, Map<String, Bike> bikes) {
-    return DropdownMenuItem<_TaskAssociation>(
-      value: _TaskAssociation(componentId: component.id),
+  DropdownMenuItem<TaskAssociation> _dropdownMenuItemComponent(Component component, Map<String, Bike> bikes) {
+    return DropdownMenuItem<TaskAssociation>(
+      value: ComponentTaskAssociation(component.id),
       child: Row(
         spacing: 8,
         children: [
@@ -495,26 +479,32 @@ class _TaskRulePageState extends State<TaskRulePage> {
     );
   }
 
-  DropdownMenuItem<_TaskAssociation> _dropdownMenuItemMissing(_TaskAssociation association) {
-    String label = "ENTRY NOT FOUND";
-    IconData icon = Icons.help_outline_rounded;
-    
-    if (association.bikeId != null) {
-      label = "BIKE NOT FOUND";
+  DropdownMenuItem<TaskAssociation> _dropdownMenuItemMissing(TaskAssociation association, {String? label}) {
+    final String resolvedLabel;
+    final IconData icon;
+
+    if (label != null) {
+      resolvedLabel = label;
+      icon = association.bikeId != null ? Bike.iconData : Icons.grid_view_sharp;
+    } else if (association.bikeId != null) {
+      resolvedLabel = "BIKE NOT FOUND";
       icon = Bike.iconData;
     } else if (association.componentId != null) {
-      label = "COMPONENT NOT FOUND";
+      resolvedLabel = "COMPONENT NOT FOUND";
       icon = Icons.grid_view_sharp;
+    } else {
+      resolvedLabel = "ENTRY NOT FOUND";
+      icon = Icons.help_outline_rounded;
     }
 
-    return DropdownMenuItem<_TaskAssociation>(
+    return DropdownMenuItem<TaskAssociation>(
       value: association,
       child: Row(
         spacing: 8,
         children: [
           Icon(icon, color: Theme.of(context).colorScheme.error),
           Text(
-            label,
+            resolvedLabel,
             style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
         ],
@@ -522,8 +512,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
     );
   }
 
-  DropdownMenuItem<_TaskAssociation?> _dropdownMenuSection(String label) {
-    return DropdownMenuItem<_TaskAssociation?>(
+  DropdownMenuItem<TaskAssociation?> _dropdownMenuSection(String label) {
+    return DropdownMenuItem<TaskAssociation?>(
       enabled: false,
       child: Text(
         label,
@@ -674,7 +664,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                         const SizedBox(height: 12),
                         _wrap(),
                         const SizedBox(height: 12),
-                        DropdownButtonFormField<_TaskAssociation?>(
+                        DropdownButtonFormField<TaskAssociation?>(
                           initialValue: _association,
                           isExpanded: true,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -689,18 +679,27 @@ class _TaskRulePageState extends State<TaskRulePage> {
                             _dropdownMenuSection("BIKES"),
                             ...bikes.values.map((b) => _dropdownMenuItemBike(b)),
                             ...[
-                              if (_association.bikeId != null && !bikes.containsKey(_association.bikeId))
+                              if (_association is BikeTaskAssociation && !bikes.containsKey(_association.bikeId))
                                 _dropdownMenuItemMissing(_association),
                             ],
                             _dropdownMenuSection("COMPONENTS"),
                             ...(() {
-                              final sorted = components.values.toList()
+                              final sorted = components.values
+                                  .where((c) => !c.isArchived)
+                                  .toList()
                                 ..sort((a, b) => (a.bike ?? "").compareTo(b.bike ?? ""));
                               return sorted.map((c) => _dropdownMenuItemComponent(c, bikes));
                             })(),
                             ...[
-                              if (_association.componentId != null && !components.containsKey(_association.componentId))
+                              if (_association is ComponentTaskAssociation && !components.containsKey(_association.componentId))
                                 _dropdownMenuItemMissing(_association),
+                              if (_association is ComponentTaskAssociation &&
+                                  components.containsKey(_association.componentId) &&
+                                  components[_association.componentId]!.isArchived)
+                                _dropdownMenuItemMissing(
+                                  _association,
+                                  label: "COMPONENT ARCHIVED",
+                                ),
                             ],
                           ],
                           onChanged: (v) {
@@ -709,8 +708,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
                               _changeListener();
                             }
                           },
-                          validator: (v) {
-                            if (_needsAsset && (v == null || (v.bikeId == null && v.componentId == null))) {
+                          validator: (TaskAssociation? ta) {
+                            if (_needsAsset && (ta == null || ta is GeneralTaskAssociation)) {
                               return 'The selected trigger needs a linked Bike or Component';
                             }
                             return null;

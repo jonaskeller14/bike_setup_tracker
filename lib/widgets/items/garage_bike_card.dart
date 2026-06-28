@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
 import '../../icons/simple_icons.dart';
@@ -71,6 +73,43 @@ class GarageBikeCard extends StatelessWidget{
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _dragHintToBikeWidget(BuildContext context) {
+    final color = Theme.of(context).colorScheme.primary;
+    return CustomPaint(
+      painter: DashedBorderPainter(
+        color: color.withValues(alpha: 0.4),
+        strokeWidth: 1.5,
+        dashWidth: 6,
+        dashSpace: 4,
+        borderRadius: 12,
+      ),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 60, minWidth: double.infinity),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 8,
+          children: [
+            Icon(Icons.add_circle_outline, size: 18, color: color.withValues(alpha: 0.6)),
+            Flexible(
+              child: Text(
+                "Drag here to install on ${bike.name}",
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: color.withValues(alpha: 0.7),
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -247,15 +286,19 @@ class GarageBikeCard extends StatelessWidget{
                             (draggedComp != null &&
                                 draggedComp.bike != bike.id),
                       );
+                  final bool isPassiveDropZone =
+                      draggedComp != null &&
+                      draggedComp.bike != bike.id &&
+                      !showDropZone;
 
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
                     child: Stack(
                       children: [
                         Opacity(
-                          opacity: showDropZone ? 0.0 : 1.0,
+                          opacity: (showDropZone || isPassiveDropZone) ? 0.0 : 1.0,
                           child: IgnorePointer(
-                            ignoring: showDropZone,
+                            ignoring: showDropZone || isPassiveDropZone,
                             child: ReorderableWrap(
                               onReorder: (int oldIndex, int newIndex) => context.read<AppRepository>().reorderComponent(
                                 oldIndex: oldIndex,
@@ -320,6 +363,8 @@ class GarageBikeCard extends StatelessWidget{
                             ),
                           ),
                         ),
+                        if (isPassiveDropZone)
+                          Positioned.fill(child: _dragHintToBikeWidget(context)),
                         if (showDropZone)
                           Positioned.fill(child: _releaseToBikeWidget(context)),
                       ],
@@ -354,7 +399,9 @@ class GarageBikeCard extends StatelessWidget{
       ),
       onWillAcceptWithDetails: (details) {
         final draggedComp = draggedComponentNotifier.value;
-        return draggedComp != null && draggedComp.bike != bike.id;
+        final willAccept = draggedComp != null && draggedComp.bike != bike.id;
+        if (willAccept) unawaited(HapticFeedback.lightImpact());
+        return willAccept;
       },
       onAcceptWithDetails: (details) {
         onAcceptWithDetails(newBike: bike.id);

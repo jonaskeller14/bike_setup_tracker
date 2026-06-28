@@ -53,8 +53,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
 
   void _addEntry() {
     setState(() {
-      _installations.add(Installation(
-        parent: null,
+      _installations.add(Deinstallation(
         dateTimeUTC: DateTime.now().toUtc(),
         dateTimeLocal: DateTime.now(),
       ));
@@ -124,11 +123,14 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
           final current = _installations[i];
 
           if (i < _installations.length - 1) {
+            if (current is Archival) {
+              return 'Archival can only be the last entry in the timeline';
+            }
             final next = _installations[i + 1];
-            if (current.parent == null && next.parent == null) {
+            if (current is Deinstallation && next is Deinstallation) {
               return 'Cannot have consecutive deinstallations';
             }
-            if (current.parent != null && current.parent == next.parent) {
+            if (current is BikeInstallation && next is BikeInstallation && current.bikeId == next.bikeId) {
               return 'Cannot have consecutive installations on the same bike';
             }
           }
@@ -202,7 +204,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                             (originalInstallation == null || installation.dateTimeUTC != originalInstallation.dateTimeUTC);
 
                         final bool bikeChanged = _originalInstallations != null &&
-                            (originalInstallation == null || installation.parent != originalInstallation.parent);
+                            (originalInstallation == null || installation.parentType != originalInstallation.parentType || installation.parent != originalInstallation.parent);
                         
                         final bool isEditable = widget.isEntryEditable?.call(installation) ?? true;
                         
@@ -296,11 +298,10 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              // Bike selection
                               Expanded(
                                 flex: 1,
-                                child: DropdownButtonFormField<String?>(
-                                  initialValue: installation.parent,
+                                child: DropdownButtonFormField<Installation>(
+                                  initialValue: installation,
                                   hint: const Text('Select Bike'),
                                   isExpanded: true,
                                   decoration: InputDecoration(
@@ -310,8 +311,13 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                     fillColor: Colors.orange.withValues(alpha: 0.08),
                                   ),
                                   items: [
-                                    DropdownMenuItem<String?>(
-                                      value: null,
+                                    DropdownMenuItem<Installation>(
+                                      value: Deinstallation(
+                                        id: installation.id,
+                                        componentId: installation.componentId,
+                                        dateTimeUTC: installation.dateTimeUTC,
+                                        dateTimeLocal: installation.dateTimeLocal,
+                                      ),
                                       child: Row(
                                         spacing: 8,
                                         children: [
@@ -320,8 +326,29 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                         ],
                                       ),
                                     ),
-                                    ...bikes.values.map((bike) => DropdownMenuItem<String?>(
-                                          value: bike.id,
+                                    DropdownMenuItem<Installation>(
+                                      value: Archival(
+                                        id: installation.id,
+                                        componentId: installation.componentId,
+                                        dateTimeUTC: installation.dateTimeUTC,
+                                        dateTimeLocal: installation.dateTimeLocal,
+                                      ),
+                                      child: Row(
+                                        spacing: 8,
+                                        children: [
+                                          Icon(Icons.inventory_2_outlined, size: 20, color: !isEditable ? theme.disabledColor : null),
+                                          Expanded(child: Text('ARCHIVED', overflow: TextOverflow.ellipsis, style: TextStyle(color: !isEditable ? theme.disabledColor : null))),
+                                        ],
+                                      ),
+                                    ),
+                                    ...bikes.values.map((bike) => DropdownMenuItem<Installation>(
+                                          value: BikeInstallation(
+                                            bikeId: bike.id,
+                                            id: installation.id,
+                                            componentId: installation.componentId,
+                                            dateTimeUTC: installation.dateTimeUTC,
+                                            dateTimeLocal: installation.dateTimeLocal,
+                                          ),
                                           child: Row(
                                             spacing: 8,
                                             children: [
@@ -330,9 +357,9 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                             ],
                                           ),
                                         )),
-                                    if (installation.parent != null && !bikes.containsKey(installation.parent))
-                                      DropdownMenuItem<String?>(
-                                        value: installation.parent,
+                                    if (installation is BikeInstallation && !bikes.containsKey(installation.parent))
+                                      DropdownMenuItem<Installation>(
+                                        value: installation,
                                         child: Row(
                                           spacing: 8,
                                           children: [
@@ -348,9 +375,12 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                         ),
                                       ),
                                   ],
-                                  onChanged: !isEditable ? null : (val) {
-                                    _updateEntry(index, installation.copyWith(parent: val));
-                                  },
+                                  onChanged: !isEditable
+                                      ? null
+                                      : (Installation? newInstallation) {
+                                          if (newInstallation == null) return;
+                                          _updateEntry(index, newInstallation);
+                                        },
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -367,18 +397,29 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                       },
                       indicatorBuilder: (context, index) {
                         final installation = _installations[index];
-                        return OutlinedDotIndicator(
-                          borderWidth: 2.5,
-                          color: installation.parent != null ? colorScheme.primary : colorScheme.outline,
-                          child: installation.parent == null ? Icon(Icons.close, size: 10, color: colorScheme.outline) : null,
-                        );
+                        return switch (installation) {
+                          BikeInstallation _ => OutlinedDotIndicator(
+                              borderWidth: 2.5,
+                              color: colorScheme.primary,
+                            ),
+                          Deinstallation _ => OutlinedDotIndicator(
+                              borderWidth: 2.5,
+                              color: colorScheme.outline,
+                              child: Icon(Icons.close, size: 10, color: colorScheme.outline),
+                            ),
+                          Archival _ => OutlinedDotIndicator(
+                              borderWidth: 2.5,
+                              color: colorScheme.outline,
+                              child: Icon(Icons.close, size: 10, color: colorScheme.outline),
+                            ),
+                        };
                       },
                       connectorBuilder: (context, index, type) {
                         final installation = _installations[index];
-                        if (installation.parent == null) {
-                          return DashedLineConnector(color: colorScheme.outline);
-                        }
-                        return SolidLineConnector(color: colorScheme.primary.withValues(alpha: 0.6));
+                        return switch (installation) {
+                          BikeInstallation() => SolidLineConnector(color: colorScheme.primary.withValues(alpha: 0.6)),
+                          Deinstallation() || Archival() => DashedLineConnector(color: colorScheme.outline),
+                        };
                       },
                     ),
                   ),

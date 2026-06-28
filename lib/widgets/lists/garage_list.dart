@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';
+import '../../models/installation.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/bike_actions.dart';
 import '../chips/bike_list_filter_widget.dart';
@@ -15,9 +16,7 @@ import '../items/garage_uninstalled_card.dart';
 import '../sheets/installation_sheet.dart';
 
 class GarageList extends StatefulWidget {
-  const GarageList({
-    super.key,
-  });
+  const GarageList({super.key});
 
   @override
   State<GarageList> createState() => _GarageListState();
@@ -35,12 +34,88 @@ class _GarageListState extends State<GarageList> {
 
     await Future.microtask(() async {
       if (!mounted) return;
+
+      if (component.isArchived) {
+        final isSimple = !appSettings.enableInstallationTimeline;
+
+        // Strip the trailing Archival to recover the pre-archive state.
+        final unarchived = component.copyWith(
+          installations: List<Installation>.from(component.installations)
+            ..removeAt(component.installations.lastIndexWhere((i) => i is Archival)),
+        );
+
+        if (newBike == null) {
+          // → deinstalled
+          if (isSimple) {
+            // Single-entry mode: swap the Archival for a Deinstallation.
+            final now = DateTime.now();
+            await appRepository.editComponent(
+              component.copyWith(installations: [
+                Deinstallation(dateTimeUTC: now.toUtc(), dateTimeLocal: now, componentId: component.id),
+              ]),
+            );
+          } else if (unarchived.bike != null) {
+            // Timeline: was on a bike before archiving — append an explicit deinstall.
+            final now = DateTime.now();
+            await appRepository.editComponent(
+              unarchived.copyWith(installations: [
+                ...unarchived.installations,
+                Deinstallation(dateTimeUTC: now.toUtc(), dateTimeLocal: now, componentId: component.id),
+              ]),
+            );
+          } else {
+            // Timeline: was already deinstalled before archiving — just drop the Archival.
+            await appRepository.editComponent(unarchived);
+          }
+        } else {
+          // → bike
+          final hasHistory = unarchived.installations.length > 1 ||
+              (unarchived.installations.isNotEmpty &&
+                  unarchived.installations.first.dateTimeUTC.millisecondsSinceEpoch > 0);
+          if (!isSimple || hasHistory) {
+            showAddInstallationSheet(context, component: unarchived, targetBikeId: newBike);
+          } else {
+            await appRepository.editComponent(unarchived.copyWithNewInstallation(newBike));
+          }
+        }
+
+        _draggedComponentNotifier.value = null;
+        return;
+      }
+
+      // Standard (non-archived) install / deinstall flow.
       final isComplexInstallation = component.installations.length > 1 ||
           (component.installations.isNotEmpty && component.installations.first.dateTimeUTC.millisecondsSinceEpoch > 0);
       if (appSettings.enableInstallationTimeline || isComplexInstallation) {
         showAddInstallationSheet(context, component: component, targetBikeId: newBike);
       } else {
         appRepository.editComponent(component.copyWithNewInstallation(newBike));
+      }
+      _draggedComponentNotifier.value = null;
+    });
+  }
+
+  void _onArchiveAccept() async {
+    if (_draggedComponentNotifier.value == null) return;
+    final component = _draggedComponentNotifier.value!;
+    final appRepository = context.read<AppRepository>();
+    final appSettings = context.read<AppSettings>();
+
+    await Future.microtask(() async {
+      if (!mounted) return;
+      if (appSettings.enableInstallationTimeline) {
+        await appRepository.archiveComponent(component);
+      } else {
+        final now = DateTime.now();
+        await appRepository.editComponent(
+          component.copyWith(installations: [
+            Archival(
+              componentId: component.id,
+              dateTimeUTC: now.toUtc(),
+              dateTimeLocal: now,
+            ),
+          ]),
+        );
       }
       _draggedComponentNotifier.value = null;
     });
@@ -86,8 +161,8 @@ class _GarageListState extends State<GarageList> {
 
   void _onPressedComponent(Component component) {
     setState(() {
-      _componentToShowDetails = _componentToShowDetails == component.id 
-          ? null 
+      _componentToShowDetails = _componentToShowDetails == component.id
+          ? null
           : component.id;
     });
   }
@@ -127,14 +202,22 @@ class _GarageListState extends State<GarageList> {
         ? _emptyPlaceholder(context)
         : ReorderableListView.builder(
             itemCount: bikesList.length,
-            padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
+            padding: const EdgeInsets.only(
+              left: 16,
+              top: 16,
+              right: 16,
+              bottom: 16 + 100,
+            ),
             header: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 8,
               children: [
                 const GettingStartedGuideHint(),
-                if (appRepository.bikes.length >= 2 && appRepository.components.isNotEmpty && appSettings.showGarageListHint && !appSettings.hintShownThisSession)
+                if (appRepository.bikes.length >= 2 &&
+                    appRepository.components.isNotEmpty &&
+                    appSettings.showGarageListHint &&
+                    !appSettings.hintShownThisSession)
                   const GarageListHint(),
                 const BikeListFilterWidget(),
               ],
@@ -144,9 +227,10 @@ class _GarageListState extends State<GarageList> {
               children: [
                 const Divider(height: 50),
                 GarageUninstalledCard(
-                  componentToShowDetails: _componentToShowDetails, 
+                  componentToShowDetails: _componentToShowDetails,
                   onPressedComponent: _onPressedComponent,
                   onAcceptWithDetails: _onAcceptWithDetails,
+                  onArchiveAccept: _onArchiveAccept,
                   setDraggedComponent: (Component? c) => _draggedComponentNotifier.value = c,
                   draggedComponentNotifier: _draggedComponentNotifier,
                 ),

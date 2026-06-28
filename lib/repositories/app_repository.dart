@@ -1191,22 +1191,12 @@ class AppRepository extends ChangeNotifier {
     );
   }
 
-  Future<void> unarchiveComponent(Component component, {DateTime? at}) async {
-    var when = at ?? DateTime.now();
-    final latestUtc = component.installations
-        .map((i) => i.dateTimeUTC)
-        .fold<DateTime?>(null, (m, d) => m == null || d.isAfter(m) ? d : m);
-    if (latestUtc != null && !when.toUtc().isAfter(latestUtc)) {
-      when = latestUtc.add(const Duration(seconds: 1)).toLocal();
-    }
-    final event = Deinstallation(
-      componentId: component.id,
-      dateTimeUTC: when.toUtc(),
-      dateTimeLocal: when,
-    );
-    await editComponent(
-      component.copyWith(installations: [...component.installations, event]),
-    );
+  Future<void> unarchiveComponent(Component component) async {
+    final updated = List<Installation>.from(component.installations);
+    final idx = updated.lastIndexWhere((i) => i is Archival);
+    if (idx == -1) return;
+    updated.removeAt(idx);
+    await editComponent(component.copyWith(installations: updated));
   }
 
   Future<void> editRating(Rating rating) async {

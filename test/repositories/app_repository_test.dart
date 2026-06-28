@@ -633,7 +633,7 @@ void main() {
       expect(repository.archivedComponents[component1.id]!.isArchived, isTrue);
     });
 
-    test("unarchiveComponent is append-only — Archival event preserved in history", () async {
+    test("unarchiveComponent removes the Archival event and restores prior state", () async {
       await repository.addBike(bike1);
       await repository.addComponent(component1);
       await pumpEventQueue();
@@ -642,29 +642,22 @@ void main() {
       await repository.archiveComponent(comp);
       await pumpEventQueue();
 
+      expect(repository.archivedComponents.containsKey(component1.id), isTrue);
+
       final archived = repository.archivedComponents[component1.id]!;
       await repository.unarchiveComponent(archived);
       await pumpEventQueue();
 
-      // No longer archived — not in archivedComponents (reads _components directly).
+      // No longer archived.
       expect(repository.archivedComponents.containsKey(component1.id), isFalse);
 
-      // State is correct in the full component cache.
+      // Archival event has been removed — state is restored to before archiving.
       final unarchived = repository.components[component1.id]!;
       expect(unarchived.isArchived, isFalse);
-      expect(unarchived.isDeinstalled, isTrue);
+      expect(unarchived.installations.whereType<Archival>(), isEmpty);
 
-      // Archival event still in the timeline (append-only).
-      expect(
-        unarchived.installations.whereType<Archival>().isNotEmpty,
-        isTrue,
-        reason: 'Archival event must not be removed — history is immutable',
-      );
-      expect(
-        unarchived.installations.whereType<Deinstallation>().isNotEmpty,
-        isTrue,
-        reason: 'unarchive appends a Deinstallation event',
-      );
+      // component1 started with sinceBeginning(bike1) → restored to on-bike.
+      expect(unarchived.bike, bike1.id);
     });
 
     test("task rule for archived component is hidden from filteredOpenTaskRules", () async {

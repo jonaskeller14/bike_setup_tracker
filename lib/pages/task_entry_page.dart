@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
+import '../models/task/task_association.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../repositories/app_repository.dart';
@@ -33,23 +34,6 @@ class TaskEntryPage extends StatefulWidget {
   State<TaskEntryPage> createState() => _TaskEntryPageState();
 }
 
-class _TaskAssociation {
-  final String? componentId;
-  final String? bikeId;
-
-  const _TaskAssociation({this.componentId, this.bikeId});
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is _TaskAssociation &&
-          componentId == other.componentId &&
-          bikeId == other.bikeId;
-
-  @override
-  int get hashCode => componentId.hashCode ^ bikeId.hashCode;
-}
-
 class _TaskEntryPageState extends State<TaskEntryPage> {
   late String _initialName;
   late TextEditingController _nameController;
@@ -61,8 +45,8 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
   late DateTime _selectedDateTimeLocal;
   late DateTime _initialDateTimeLocal;
 
-  late _TaskAssociation _association;
-  late _TaskAssociation _initialAssociation;
+  late TaskAssociation _association;
+  late TaskAssociation _initialAssociation;
 
   final _formKey = GlobalKey<FormState>();
   bool _formHasChanges = false;
@@ -86,7 +70,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     _selectedDateTimeUtc = widget.taskEntry?.dateTimeUTC ?? _selectedDateTimeLocal.toUtc();
     _initialDateTimeUtc = _selectedDateTimeUtc;
 
-    _association = _TaskAssociation(
+    _association = TaskAssociation.fromIds(
       componentId: widget.taskEntry?.componentId ?? (widget.mode == TaskEntryPageMode.add ? widget.taskRule.componentId : null),
       bikeId: widget.taskEntry?.bikeId ?? (widget.mode == TaskEntryPageMode.add ? widget.taskRule.bikeId : null),
     );
@@ -229,18 +213,16 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     return null;
   }
 
-  String _describeAssociation(_TaskAssociation association, Map<String, Bike> bikes, Map<String, Component> components) {
-    if (association.componentId != null) {
-      return components[association.componentId]?.name ?? "a deleted component";
-    }
-    if (association.bikeId != null) {
-      return bikes[association.bikeId]?.name ?? "a deleted bike";
-    }
-    return "a general task";
+  String _describeAssociation(TaskAssociation association, Map<String, Bike> bikes, Map<String, Component> components) {
+    return switch (association) {
+      ComponentTaskAssociation(:final id) => components[id]?.name ?? "a deleted component",
+      BikeTaskAssociation(:final id) => bikes[id]?.name ?? "a deleted bike",
+      GeneralTaskAssociation() => "a general task",
+    };
   }
 
   String? _linkMismatchWarning(Map<String, Bike> bikes, Map<String, Component> components) {
-    final ruleAssociation = _TaskAssociation(
+    final ruleAssociation = TaskAssociation.fromIds(
       componentId: widget.taskRule.componentId,
       bikeId: widget.taskRule.bikeId,
     );
@@ -248,9 +230,9 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     return 'WARNING: Differs from the task rule, which is linked to ${_describeAssociation(ruleAssociation, bikes, components)}.';
   }
 
-  DropdownMenuItem<_TaskAssociation> _dropdownMenuItemNone() {
-    return const DropdownMenuItem<_TaskAssociation>(
-      value: _TaskAssociation(),
+  DropdownMenuItem<TaskAssociation> _dropdownMenuItemNone() {
+    return const DropdownMenuItem<TaskAssociation>(
+      value: GeneralTaskAssociation(),
       child: Row(
         spacing: 8,
         children: [
@@ -261,9 +243,9 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     );
   }
 
-  DropdownMenuItem<_TaskAssociation> _dropdownMenuItemBike(Bike bike) {
-    return DropdownMenuItem<_TaskAssociation>(
-      value: _TaskAssociation(bikeId: bike.id),
+  DropdownMenuItem<TaskAssociation> _dropdownMenuItemBike(Bike bike) {
+    return DropdownMenuItem<TaskAssociation>(
+      value: BikeTaskAssociation(bike.id),
       child: Row(
         spacing: 8,
         children: [
@@ -274,9 +256,9 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     );
   }
 
-  DropdownMenuItem<_TaskAssociation> _dropdownMenuItemComponent(Component component, Map<String, Bike> bikes) {
-    return DropdownMenuItem<_TaskAssociation>(
-      value: _TaskAssociation(componentId: component.id),
+  DropdownMenuItem<TaskAssociation> _dropdownMenuItemComponent(Component component, Map<String, Bike> bikes) {
+    return DropdownMenuItem<TaskAssociation>(
+      value: ComponentTaskAssociation(component.id),
       child: Row(
         spacing: 8,
         children: [
@@ -322,26 +304,32 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     );
   }
 
-  DropdownMenuItem<_TaskAssociation> _dropdownMenuItemMissing(_TaskAssociation association) {
-    String label = "ENTRY NOT FOUND";
-    IconData icon = Icons.help_outline_rounded;
-    
-    if (association.bikeId != null) {
-      label = "BIKE NOT FOUND";
+  DropdownMenuItem<TaskAssociation> _dropdownMenuItemMissing(TaskAssociation association, {String? label}) {
+    final String resolvedLabel;
+    final IconData icon;
+
+    if (label != null) {
+      resolvedLabel = label;
+      icon = association.bikeId != null ? Bike.iconData : Icons.grid_view_sharp;
+    } else if (association.bikeId != null) {
+      resolvedLabel = "BIKE NOT FOUND";
       icon = Bike.iconData;
     } else if (association.componentId != null) {
-      label = "COMPONENT NOT FOUND";
+      resolvedLabel = "COMPONENT NOT FOUND";
       icon = Icons.grid_view_sharp;
+    } else {
+      resolvedLabel = "ENTRY NOT FOUND";
+      icon = Icons.help_outline_rounded;
     }
 
-    return DropdownMenuItem<_TaskAssociation>(
+    return DropdownMenuItem<TaskAssociation>(
       value: association,
       child: Row(
         spacing: 8,
         children: [
           Icon(icon, color: Theme.of(context).colorScheme.error),
           Text(
-            label,
+            resolvedLabel,
             style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
         ],
@@ -349,8 +337,8 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     );
   }
 
-  DropdownMenuItem<_TaskAssociation?> _dropdownMenuSection(String label) {
-    return DropdownMenuItem<_TaskAssociation?>(
+  DropdownMenuItem<TaskAssociation?> _dropdownMenuSection(String label) {
+    return DropdownMenuItem<TaskAssociation?>(
       enabled: false,
       child: Text(
         label,
@@ -424,7 +412,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                   ),
                   if (widget.mode == TaskEntryPageMode.edit) ...[
                     const SizedBox(height: 12),
-                    DropdownButtonFormField<_TaskAssociation?>(
+                    DropdownButtonFormField<TaskAssociation?>(
                       initialValue: _association,
                       isExpanded: true,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -442,18 +430,27 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                         _dropdownMenuSection("BIKES"),
                         ...bikes.values.map((b) => _dropdownMenuItemBike(b)),
                         ...[
-                          if (_association.bikeId != null && !bikes.containsKey(_association.bikeId))
+                          if (_association is BikeTaskAssociation && !bikes.containsKey(_association.bikeId))
                             _dropdownMenuItemMissing(_association),
                         ],
                         _dropdownMenuSection("COMPONENTS"),
                         ...(() {
-                          final sorted = components.values.toList()
+                          final sorted = components.values
+                              .where((c) => !c.isArchived)
+                              .toList()
                             ..sort((a, b) => (a.bike ?? "").compareTo(b.bike ?? ""));
                           return sorted.map((c) => _dropdownMenuItemComponent(c, bikes));
                         })(),
                         ...[
-                          if (_association.componentId != null && !components.containsKey(_association.componentId))
+                          if (_association is ComponentTaskAssociation && !components.containsKey(_association.componentId))
                             _dropdownMenuItemMissing(_association),
+                          if (_association is ComponentTaskAssociation &&
+                              components.containsKey(_association.componentId) &&
+                              components[_association.componentId]!.isArchived)
+                            _dropdownMenuItemMissing(
+                              _association,
+                              label: "COMPONENT ARCHIVED",
+                            ),
                         ],
                       ],
                       onChanged: (v) {

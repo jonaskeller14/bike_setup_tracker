@@ -1,4 +1,3 @@
-import 'package:uuid/uuid.dart';
 import '../database/app_database.dart';
 import '../database/mappers.dart';
 import '../models/adjustment/adjustment.dart';
@@ -63,10 +62,9 @@ class DatabaseMigrationService {
       for (final component in data.components.values) {
         for (final installation in component.installations) {
           installationsToInsert.add(
-            installation.toCompanion(
-              id: const Uuid().v4(), // generate an ID as legacy didn't have one
-              componentId: component.id,
-            ),
+            // The model already carries a (synthesised) id from fromJson; just
+            // normalise the owning componentId.
+            installation.copyWith(componentId: component.id).toCompanion(),
           );
         }
       }

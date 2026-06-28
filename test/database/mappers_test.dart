@@ -228,6 +228,144 @@ void main() {
       });
     });
 
+    group('Installation DB mapper', () {
+      final utc = DateTime.utc(2024, 6, 1, 12);
+      final local = DateTime(2024, 6, 1, 12);
+
+      test('parentType=bike with parent yields BikeInstallation', () {
+        final db = InstallationDb(
+          id: 'i1',
+          componentId: 'c1',
+          parent: 'b1',
+          parentType: InstallationParentType.bike,
+          dateTimeUTC: utc,
+          dateTimeLocal: local,
+        );
+        final model = db.toModel();
+        expect(model, isA<BikeInstallation>());
+        expect((model as BikeInstallation).bikeId, 'b1');
+        expect(model.id, 'i1');
+        expect(model.componentId, 'c1');
+      });
+
+      test('parentType=none yields Deinstallation', () {
+        final db = InstallationDb(
+          id: 'i2',
+          componentId: 'c1',
+          parent: null,
+          parentType: InstallationParentType.none,
+          dateTimeUTC: utc,
+          dateTimeLocal: local,
+        );
+        expect(db.toModel(), isA<Deinstallation>());
+      });
+
+      test('parentType=archived yields Archival', () {
+        final db = InstallationDb(
+          id: 'i3',
+          componentId: 'c1',
+          parent: null,
+          parentType: InstallationParentType.archived,
+          dateTimeUTC: utc,
+          dateTimeLocal: local,
+        );
+        expect(db.toModel(), isA<Archival>());
+      });
+
+      test('parentType=bike with null parent falls back to Deinstallation', () {
+        // Defensive: a corrupted row with parentType=bike but no parent id.
+        final db = InstallationDb(
+          id: 'i4',
+          componentId: 'c1',
+          parent: null,
+          parentType: InstallationParentType.bike,
+          dateTimeUTC: utc,
+          dateTimeLocal: local,
+        );
+        expect(db.toModel(), isA<Deinstallation>());
+      });
+    });
+
+    group('Installation JSON round-trip', () {
+      final utc = DateTime.utc(2024, 6, 1, 12);
+      final local = DateTime(2024, 6, 1, 12);
+
+      test('BikeInstallation round-trips', () {
+        final original = BikeInstallation(
+          id: 'i1',
+          componentId: 'c1',
+          bikeId: 'b1',
+          dateTimeUTC: utc,
+          dateTimeLocal: local,
+        );
+        final json = original.toJson();
+        expect(json['type'], 'bike');
+        expect(json['parent'], 'b1');
+
+        final restored = Installation.fromJson(json);
+        expect(restored, isA<BikeInstallation>());
+        expect((restored as BikeInstallation).bikeId, 'b1');
+        expect(restored.id, 'i1');
+      });
+
+      test('Deinstallation round-trips', () {
+        final original = Deinstallation(
+          id: 'i2',
+          componentId: 'c1',
+          dateTimeUTC: utc,
+          dateTimeLocal: local,
+        );
+        final json = original.toJson();
+        expect(json['type'], 'none');
+        expect(json['parent'], isNull);
+
+        final restored = Installation.fromJson(json);
+        expect(restored, isA<Deinstallation>());
+      });
+
+      test('Archival round-trips', () {
+        final original = Archival(
+          id: 'i3',
+          componentId: 'c1',
+          dateTimeUTC: utc,
+          dateTimeLocal: local,
+        );
+        final json = original.toJson();
+        expect(json['type'], 'archived');
+        expect(json['parent'], isNull);
+
+        final restored = Installation.fromJson(json);
+        expect(restored, isA<Archival>());
+        expect(restored.id, 'i3');
+      });
+
+      test('legacy JSON without type field: non-null parent → BikeInstallation', () {
+        final json = <String, dynamic>{
+          'id': 'i4',
+          'componentId': 'c1',
+          'parent': 'b1',
+          'dateTimeUTC': utc.toIso8601String(),
+          'dateTimeLocal': local.toIso8601String(),
+          // no 'type' key — simulates a backup from an old app version
+        };
+        final result = Installation.fromJson(json);
+        expect(result, isA<BikeInstallation>());
+        expect((result as BikeInstallation).bikeId, 'b1');
+      });
+
+      test('legacy JSON without type field: null parent → Deinstallation', () {
+        final json = <String, dynamic>{
+          'id': 'i5',
+          'componentId': 'c1',
+          'parent': null,
+          'dateTimeUTC': utc.toIso8601String(),
+          'dateTimeLocal': local.toIso8601String(),
+        };
+        final result = Installation.fromJson(json);
+        expect(result, isA<Deinstallation>());
+      });
+    });
+
     test('StravaAthlete Mapping', () {
       final athlete = StravaAthlete(
         id: 123,

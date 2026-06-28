@@ -65,11 +65,17 @@ extension ComponentDbMapper on ComponentDb {
 
 extension InstallationDbMapper on InstallationDb {
   Installation toModel() {
-    return Installation(
-      parent: parent,
-      dateTimeUTC: _toUtcSafe(dateTimeUTC, 'Installation.dateTimeUTC'),
-      dateTimeLocal: dateTimeLocal,
-    );
+    final utc = _toUtcSafe(dateTimeUTC, 'Installation.dateTimeUTC');
+    return switch (parentType) {
+      // Defensive: a 'bike' row with no parent is treated as deinstalled.
+      InstallationParentType.bike => parent == null
+          ? Deinstallation(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal)
+          : BikeInstallation(id: id, componentId: componentId, bikeId: parent!, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
+      InstallationParentType.none =>
+        Deinstallation(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
+      InstallationParentType.archived =>
+        Archival(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
+    };
   }
 }
 
@@ -210,14 +216,12 @@ extension ComponentMapper on Component {
 }
 
 extension InstallationMapper on Installation {
-  InstallationsCompanion toCompanion({
-    required String id,
-    required String componentId,
-  }) {
+  InstallationsCompanion toCompanion() {
     return InstallationsCompanion(
       id: Value(id),
       componentId: Value(componentId),
       parent: Value<String?>(parent),
+      parentType: Value(parentType),
       dateTimeUTC: Value(dateTimeUTC),
       dateTimeLocal: Value(dateTimeLocal),
     );

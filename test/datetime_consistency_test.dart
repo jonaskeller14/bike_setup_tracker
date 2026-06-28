@@ -73,7 +73,8 @@ void main() {
       final installationDb = InstallationDb(
         id: '1',
         componentId: 'comp1',
-        dateTimeUTC: DateTime.now().toUtc(), // Simulate UtcDateTimeConverter
+        parentType: InstallationParentType.bike,
+        dateTimeUTC: DateTime.now().toUtc(),
         dateTimeLocal: DateTime.now(),
       );
 

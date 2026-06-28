@@ -1,48 +1,185 @@
-class Installation {
-  final String? parent;
+import 'package:uuid/uuid.dart';
+
+enum InstallationParentType { bike, none, archived }
+
+sealed class Installation {
+  final String id;
+  final String componentId; // Normalised at persist time
   final DateTime dateTimeUTC;
   final DateTime dateTimeLocal;
 
-  Installation({
-    required this.parent,
+  Installation._({
+    String? id,
+    String? componentId,
     required DateTime dateTimeUTC,
     required this.dateTimeLocal,
-  }) : dateTimeUTC = dateTimeUTC.toUtc();
+  })  : id = id ?? const Uuid().v4(),
+        componentId = componentId ?? '',
+        dateTimeUTC = dateTimeUTC.toUtc();
 
-  Installation.sinceBeginning({required this.parent})
-      : dateTimeUTC = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
-        dateTimeLocal = DateTime.fromMillisecondsSinceEpoch(0, isUtc: false);
+  String? get parent => switch (this) {
+        BikeInstallation(:final bikeId) => bikeId,
+        _ => null,
+      };
 
-  Installation copyWith({
-    Object? parent = const _Sentinel(),
-    Object? dateTimeUTC = const _Sentinel(),
-    Object? dateTimeLocal = const _Sentinel(),
+  InstallationParentType get parentType => switch (this) {
+        BikeInstallation _ => InstallationParentType.bike,
+        Deinstallation _ => InstallationParentType.none,
+        Archival _ => InstallationParentType.archived,
+      };
+
+  bool get isFromBeginning => dateTimeUTC.millisecondsSinceEpoch == 0;
+
+  factory Installation({
+    String? parent,
+    String? id,
+    String? componentId,
+    required DateTime dateTimeUTC,
+    required DateTime dateTimeLocal,
+  }) {
+    return parent == null
+        ? Deinstallation(
+            id: id,
+            componentId: componentId,
+            dateTimeUTC: dateTimeUTC,
+            dateTimeLocal: dateTimeLocal,
+          )
+        : BikeInstallation(
+            bikeId: parent,
+            id: id,
+            componentId: componentId,
+            dateTimeUTC: dateTimeUTC,
+            dateTimeLocal: dateTimeLocal,
+          );
+  }
+
+  factory Installation.sinceBeginning({
+    String? parent,
+    String? id,
+    String? componentId,
   }) {
     return Installation(
-      parent: parent is _Sentinel 
-          ? this.parent 
-          : (parent as String?),
-      dateTimeUTC: dateTimeUTC is _Sentinel 
-          ? this.dateTimeUTC 
-          : (dateTimeUTC as DateTime),
-      dateTimeLocal: dateTimeLocal is _Sentinel 
-          ? this.dateTimeLocal 
-          : (dateTimeLocal as DateTime),
+      parent: parent,
+      id: id,
+      componentId: componentId,
+      dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+      dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0, isUtc: false),
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'parent': parent,
-    'dateTimeUTC': dateTimeUTC.toUtc().toIso8601String(),
-    'dateTimeLocal': dateTimeLocal.toIso8601String(),
-  };
+  /// When [parent] is provided the event is *retargeted* (subtype chosen by
+  /// null-ness — this intentionally drops [Archival], since giving it a target
+  /// means it is installed/deinstalled again). Otherwise the subtype is
+  /// preserved and only id/componentId/dates change.
+  Installation copyWith({
+    Object? parent = const _Sentinel(),
+    Object? id = const _Sentinel(),
+    Object? componentId = const _Sentinel(),
+    Object? dateTimeUTC = const _Sentinel(),
+    Object? dateTimeLocal = const _Sentinel(),
+  }) {
+    final newId = id is _Sentinel ? this.id : id as String?;
+    final newComponentId = componentId is _Sentinel
+        ? this.componentId
+        : componentId as String?;
+    final newDateUtc = dateTimeUTC is _Sentinel
+        ? this.dateTimeUTC
+        : dateTimeUTC as DateTime;
+    final newDateLocal = dateTimeLocal is _Sentinel
+        ? this.dateTimeLocal
+        : dateTimeLocal as DateTime;
 
-  factory Installation.fromJson(Map<String, dynamic> json) {
-    return Installation(
-      parent: json['parent'] as String?,
-      dateTimeUTC: DateTime.parse(json['dateTimeUTC'] as String).toUtc(),
-      dateTimeLocal: DateTime.parse(json['dateTimeLocal'] as String).copyWith(isUtc: false),
+    if (parent is! _Sentinel) {
+      return Installation(
+        parent: parent as String?,
+        id: newId,
+        componentId: newComponentId,
+        dateTimeUTC: newDateUtc,
+        dateTimeLocal: newDateLocal,
+      );
+    }
+
+    return switch (this) {
+      BikeInstallation(:final bikeId) => BikeInstallation(
+          bikeId: bikeId,
+          id: newId,
+          componentId: newComponentId,
+          dateTimeUTC: newDateUtc,
+          dateTimeLocal: newDateLocal,
+        ),
+      Deinstallation _ => Deinstallation(
+          id: newId,
+          componentId: newComponentId,
+          dateTimeUTC: newDateUtc,
+          dateTimeLocal: newDateLocal,
+        ),
+      Archival _ => Archival(
+          id: newId,
+          componentId: newComponentId,
+          dateTimeUTC: newDateUtc,
+          dateTimeLocal: newDateLocal,
+        ),
+    };
+  }
+
+  Map<String, dynamic> toJson() => {
+        'type': parentType.name,
+        'id': id,
+        'componentId': componentId,
+        'parent': parent,
+        'dateTimeUTC': dateTimeUTC.toUtc().toIso8601String(),
+        'dateTimeLocal': dateTimeLocal.toIso8601String(),
+      };
+
+  /// Accepts both the new shape (with `type`) and the legacy shape (only
+  /// `parent`). [componentId] is used as a fallback for legacy payloads that
+  /// don't carry it.
+  factory Installation.fromJson(
+    Map<String, dynamic> json, {
+    String? componentId,
+  }) {
+    final id = json['id'] as String?;
+    final cid = json['componentId'] as String? ?? componentId;
+    final dateTimeUTC = DateTime.parse(json['dateTimeUTC'] as String).toUtc();
+    final dateTimeLocal = DateTime.parse(json['dateTimeLocal'] as String).copyWith(isUtc: false);
+    final typeName = json['type'] as String?;
+
+    if (typeName == null) {
+      // Legacy shape: only `parent` (bike id) or null (deinstalled).
+      return Installation(
+        parent: json['parent'] as String?,
+        id: id,
+        componentId: cid,
+        dateTimeUTC: dateTimeUTC,
+        dateTimeLocal: dateTimeLocal,
+      );
+    }
+
+    final type = InstallationParentType.values.firstWhere(
+      (e) => e.name == typeName,
+      orElse: () => InstallationParentType.none,
     );
+    return switch (type) {
+      InstallationParentType.bike => Installation(
+          parent: json['parent'] as String?,
+          id: id,
+          componentId: cid,
+          dateTimeUTC: dateTimeUTC,
+          dateTimeLocal: dateTimeLocal,
+        ),
+      InstallationParentType.none => Deinstallation(
+          id: id,
+          componentId: cid,
+          dateTimeUTC: dateTimeUTC,
+          dateTimeLocal: dateTimeLocal,
+        ),
+      InstallationParentType.archived => Archival(
+          id: id,
+          componentId: cid,
+          dateTimeUTC: dateTimeUTC,
+          dateTimeLocal: dateTimeLocal,
+        ),
+    };
   }
 
   @override
@@ -50,19 +187,45 @@ class Installation {
     return identical(this, other) ||
         other is Installation &&
         runtimeType == other.runtimeType &&
+        id == other.id &&
+        componentId == other.componentId &&
         parent == other.parent &&
         dateTimeUTC == other.dateTimeUTC &&
         dateTimeLocal == other.dateTimeLocal;
   }
 
   @override
-  int get hashCode {
-    return Object.hash(
-      parent, 
-      dateTimeUTC, 
-      dateTimeLocal
-    );
-  }
+  int get hashCode => Object.hash(runtimeType, id, componentId, parent, dateTimeUTC, dateTimeLocal);
+}
+
+class BikeInstallation extends Installation {
+  final String bikeId;
+
+  BikeInstallation({
+    required this.bikeId,
+    super.id,
+    super.componentId,
+    required super.dateTimeUTC,
+    required super.dateTimeLocal,
+  }) : super._();
+}
+
+class Deinstallation extends Installation {
+  Deinstallation({
+    super.id,
+    super.componentId,
+    required super.dateTimeUTC,
+    required super.dateTimeLocal,
+  }) : super._();
+}
+
+class Archival extends Installation {
+  Archival({
+    super.id,
+    super.componentId,
+    required super.dateTimeUTC,
+    required super.dateTimeLocal,
+  }) : super._();
 }
 
 class _Sentinel {

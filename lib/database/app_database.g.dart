@@ -3743,6 +3743,19 @@ class $InstallationsTable extends Installations
     requiredDuringInsert: false,
   );
   @override
+  late final GeneratedColumnWithTypeConverter<InstallationParentType, String>
+  parentType =
+      GeneratedColumn<String>(
+        'parent_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('bike'),
+      ).withConverter<InstallationParentType>(
+        $InstallationsTable.$converterparentType,
+      );
+  @override
   late final GeneratedColumnWithTypeConverter<DateTime, DateTime> dateTimeUTC =
       GeneratedColumn<DateTime>(
         'date_time_u_t_c',
@@ -3765,6 +3778,7 @@ class $InstallationsTable extends Installations
     id,
     componentId,
     parent,
+    parentType,
     dateTimeUTC,
     dateTimeLocal,
   ];
@@ -3823,6 +3837,12 @@ class $InstallationsTable extends Installations
         DriftSqlType.string,
         data['${effectivePrefix}parent'],
       ),
+      parentType: $InstallationsTable.$converterparentType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}parent_type'],
+        )!,
+      ),
       dateTimeUTC: $InstallationsTable.$converterdateTimeUTC.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime,
@@ -3843,6 +3863,8 @@ class $InstallationsTable extends Installations
     return $InstallationsTable(attachedDatabase, alias);
   }
 
+  static JsonTypeConverter2<InstallationParentType, String, String>
+  $converterparentType = const EnumNameConverter(InstallationParentType.values);
   static TypeConverter<DateTime, DateTime> $converterdateTimeUTC =
       const UtcDateTimeConverter();
   static TypeConverter<DateTime, DateTime> $converterdateTimeLocal =
@@ -3853,12 +3875,14 @@ class InstallationDb extends DataClass implements Insertable<InstallationDb> {
   final String id;
   final String componentId;
   final String? parent;
+  final InstallationParentType parentType;
   final DateTime dateTimeUTC;
   final DateTime dateTimeLocal;
   const InstallationDb({
     required this.id,
     required this.componentId,
     this.parent,
+    required this.parentType,
     required this.dateTimeUTC,
     required this.dateTimeLocal,
   });
@@ -3869,6 +3893,11 @@ class InstallationDb extends DataClass implements Insertable<InstallationDb> {
     map['component_id'] = Variable<String>(componentId);
     if (!nullToAbsent || parent != null) {
       map['parent'] = Variable<String>(parent);
+    }
+    {
+      map['parent_type'] = Variable<String>(
+        $InstallationsTable.$converterparentType.toSql(parentType),
+      );
     }
     {
       map['date_time_u_t_c'] = Variable<DateTime>(
@@ -3890,6 +3919,7 @@ class InstallationDb extends DataClass implements Insertable<InstallationDb> {
       parent: parent == null && nullToAbsent
           ? const Value.absent()
           : Value(parent),
+      parentType: Value(parentType),
       dateTimeUTC: Value(dateTimeUTC),
       dateTimeLocal: Value(dateTimeLocal),
     );
@@ -3904,6 +3934,9 @@ class InstallationDb extends DataClass implements Insertable<InstallationDb> {
       id: serializer.fromJson<String>(json['id']),
       componentId: serializer.fromJson<String>(json['componentId']),
       parent: serializer.fromJson<String?>(json['parent']),
+      parentType: $InstallationsTable.$converterparentType.fromJson(
+        serializer.fromJson<String>(json['parentType']),
+      ),
       dateTimeUTC: serializer.fromJson<DateTime>(json['dateTimeUTC']),
       dateTimeLocal: serializer.fromJson<DateTime>(json['dateTimeLocal']),
     );
@@ -3915,6 +3948,9 @@ class InstallationDb extends DataClass implements Insertable<InstallationDb> {
       'id': serializer.toJson<String>(id),
       'componentId': serializer.toJson<String>(componentId),
       'parent': serializer.toJson<String?>(parent),
+      'parentType': serializer.toJson<String>(
+        $InstallationsTable.$converterparentType.toJson(parentType),
+      ),
       'dateTimeUTC': serializer.toJson<DateTime>(dateTimeUTC),
       'dateTimeLocal': serializer.toJson<DateTime>(dateTimeLocal),
     };
@@ -3924,12 +3960,14 @@ class InstallationDb extends DataClass implements Insertable<InstallationDb> {
     String? id,
     String? componentId,
     Value<String?> parent = const Value.absent(),
+    InstallationParentType? parentType,
     DateTime? dateTimeUTC,
     DateTime? dateTimeLocal,
   }) => InstallationDb(
     id: id ?? this.id,
     componentId: componentId ?? this.componentId,
     parent: parent.present ? parent.value : this.parent,
+    parentType: parentType ?? this.parentType,
     dateTimeUTC: dateTimeUTC ?? this.dateTimeUTC,
     dateTimeLocal: dateTimeLocal ?? this.dateTimeLocal,
   );
@@ -3940,6 +3978,9 @@ class InstallationDb extends DataClass implements Insertable<InstallationDb> {
           ? data.componentId.value
           : this.componentId,
       parent: data.parent.present ? data.parent.value : this.parent,
+      parentType: data.parentType.present
+          ? data.parentType.value
+          : this.parentType,
       dateTimeUTC: data.dateTimeUTC.present
           ? data.dateTimeUTC.value
           : this.dateTimeUTC,
@@ -3955,6 +3996,7 @@ class InstallationDb extends DataClass implements Insertable<InstallationDb> {
           ..write('id: $id, ')
           ..write('componentId: $componentId, ')
           ..write('parent: $parent, ')
+          ..write('parentType: $parentType, ')
           ..write('dateTimeUTC: $dateTimeUTC, ')
           ..write('dateTimeLocal: $dateTimeLocal')
           ..write(')'))
@@ -3962,8 +4004,14 @@ class InstallationDb extends DataClass implements Insertable<InstallationDb> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, componentId, parent, dateTimeUTC, dateTimeLocal);
+  int get hashCode => Object.hash(
+    id,
+    componentId,
+    parent,
+    parentType,
+    dateTimeUTC,
+    dateTimeLocal,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3971,6 +4019,7 @@ class InstallationDb extends DataClass implements Insertable<InstallationDb> {
           other.id == this.id &&
           other.componentId == this.componentId &&
           other.parent == this.parent &&
+          other.parentType == this.parentType &&
           other.dateTimeUTC == this.dateTimeUTC &&
           other.dateTimeLocal == this.dateTimeLocal);
 }
@@ -3979,6 +4028,7 @@ class InstallationsCompanion extends UpdateCompanion<InstallationDb> {
   final Value<String> id;
   final Value<String> componentId;
   final Value<String?> parent;
+  final Value<InstallationParentType> parentType;
   final Value<DateTime> dateTimeUTC;
   final Value<DateTime> dateTimeLocal;
   final Value<int> rowid;
@@ -3986,6 +4036,7 @@ class InstallationsCompanion extends UpdateCompanion<InstallationDb> {
     this.id = const Value.absent(),
     this.componentId = const Value.absent(),
     this.parent = const Value.absent(),
+    this.parentType = const Value.absent(),
     this.dateTimeUTC = const Value.absent(),
     this.dateTimeLocal = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -3994,6 +4045,7 @@ class InstallationsCompanion extends UpdateCompanion<InstallationDb> {
     required String id,
     required String componentId,
     this.parent = const Value.absent(),
+    this.parentType = const Value.absent(),
     required DateTime dateTimeUTC,
     required DateTime dateTimeLocal,
     this.rowid = const Value.absent(),
@@ -4005,6 +4057,7 @@ class InstallationsCompanion extends UpdateCompanion<InstallationDb> {
     Expression<String>? id,
     Expression<String>? componentId,
     Expression<String>? parent,
+    Expression<String>? parentType,
     Expression<DateTime>? dateTimeUTC,
     Expression<DateTime>? dateTimeLocal,
     Expression<int>? rowid,
@@ -4013,6 +4066,7 @@ class InstallationsCompanion extends UpdateCompanion<InstallationDb> {
       if (id != null) 'id': id,
       if (componentId != null) 'component_id': componentId,
       if (parent != null) 'parent': parent,
+      if (parentType != null) 'parent_type': parentType,
       if (dateTimeUTC != null) 'date_time_u_t_c': dateTimeUTC,
       if (dateTimeLocal != null) 'date_time_local': dateTimeLocal,
       if (rowid != null) 'rowid': rowid,
@@ -4023,6 +4077,7 @@ class InstallationsCompanion extends UpdateCompanion<InstallationDb> {
     Value<String>? id,
     Value<String>? componentId,
     Value<String?>? parent,
+    Value<InstallationParentType>? parentType,
     Value<DateTime>? dateTimeUTC,
     Value<DateTime>? dateTimeLocal,
     Value<int>? rowid,
@@ -4031,6 +4086,7 @@ class InstallationsCompanion extends UpdateCompanion<InstallationDb> {
       id: id ?? this.id,
       componentId: componentId ?? this.componentId,
       parent: parent ?? this.parent,
+      parentType: parentType ?? this.parentType,
       dateTimeUTC: dateTimeUTC ?? this.dateTimeUTC,
       dateTimeLocal: dateTimeLocal ?? this.dateTimeLocal,
       rowid: rowid ?? this.rowid,
@@ -4048,6 +4104,11 @@ class InstallationsCompanion extends UpdateCompanion<InstallationDb> {
     }
     if (parent.present) {
       map['parent'] = Variable<String>(parent.value);
+    }
+    if (parentType.present) {
+      map['parent_type'] = Variable<String>(
+        $InstallationsTable.$converterparentType.toSql(parentType.value),
+      );
     }
     if (dateTimeUTC.present) {
       map['date_time_u_t_c'] = Variable<DateTime>(
@@ -4071,6 +4132,7 @@ class InstallationsCompanion extends UpdateCompanion<InstallationDb> {
           ..write('id: $id, ')
           ..write('componentId: $componentId, ')
           ..write('parent: $parent, ')
+          ..write('parentType: $parentType, ')
           ..write('dateTimeUTC: $dateTimeUTC, ')
           ..write('dateTimeLocal: $dateTimeLocal, ')
           ..write('rowid: $rowid')
@@ -12595,6 +12657,7 @@ typedef $$InstallationsTableCreateCompanionBuilder =
       required String id,
       required String componentId,
       Value<String?> parent,
+      Value<InstallationParentType> parentType,
       required DateTime dateTimeUTC,
       required DateTime dateTimeLocal,
       Value<int> rowid,
@@ -12604,6 +12667,7 @@ typedef $$InstallationsTableUpdateCompanionBuilder =
       Value<String> id,
       Value<String> componentId,
       Value<String?> parent,
+      Value<InstallationParentType> parentType,
       Value<DateTime> dateTimeUTC,
       Value<DateTime> dateTimeLocal,
       Value<int> rowid,
@@ -12652,6 +12716,16 @@ class $$InstallationsTableFilterComposer
   ColumnFilters<String> get parent => $composableBuilder(
     column: $table.parent,
     builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<
+    InstallationParentType,
+    InstallationParentType,
+    String
+  >
+  get parentType => $composableBuilder(
+    column: $table.parentType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnWithTypeConverterFilters<DateTime, DateTime, DateTime>
@@ -12709,6 +12783,11 @@ class $$InstallationsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get parentType => $composableBuilder(
+    column: $table.parentType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get dateTimeUTC => $composableBuilder(
     column: $table.dateTimeUTC,
     builder: (column) => ColumnOrderings(column),
@@ -12757,6 +12836,12 @@ class $$InstallationsTableAnnotationComposer
 
   GeneratedColumn<String> get parent =>
       $composableBuilder(column: $table.parent, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<InstallationParentType, String>
+  get parentType => $composableBuilder(
+    column: $table.parentType,
+    builder: (column) => column,
+  );
 
   GeneratedColumnWithTypeConverter<DateTime, DateTime> get dateTimeUTC =>
       $composableBuilder(
@@ -12825,6 +12910,7 @@ class $$InstallationsTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> componentId = const Value.absent(),
                 Value<String?> parent = const Value.absent(),
+                Value<InstallationParentType> parentType = const Value.absent(),
                 Value<DateTime> dateTimeUTC = const Value.absent(),
                 Value<DateTime> dateTimeLocal = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -12832,6 +12918,7 @@ class $$InstallationsTableTableManager
                 id: id,
                 componentId: componentId,
                 parent: parent,
+                parentType: parentType,
                 dateTimeUTC: dateTimeUTC,
                 dateTimeLocal: dateTimeLocal,
                 rowid: rowid,
@@ -12841,6 +12928,7 @@ class $$InstallationsTableTableManager
                 required String id,
                 required String componentId,
                 Value<String?> parent = const Value.absent(),
+                Value<InstallationParentType> parentType = const Value.absent(),
                 required DateTime dateTimeUTC,
                 required DateTime dateTimeLocal,
                 Value<int> rowid = const Value.absent(),
@@ -12848,6 +12936,7 @@ class $$InstallationsTableTableManager
                 id: id,
                 componentId: componentId,
                 parent: parent,
+                parentType: parentType,
                 dateTimeUTC: dateTimeUTC,
                 dateTimeLocal: dateTimeLocal,
                 rowid: rowid,

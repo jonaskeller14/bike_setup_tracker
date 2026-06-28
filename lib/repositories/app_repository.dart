@@ -259,6 +259,10 @@ class AppRepository extends ChangeNotifier {
   Map<String, Person> get filteredPersons => _filteredPersons;
   Map<String, Rating> get filteredRatings => _filteredRatings;
   Map<String, Component> get filteredComponents => _filteredComponents;
+  Map<String, Component> get archivedComponents => {
+        for (final entry in _components.entries)
+          if (entry.value.isArchived) entry.key: entry.value
+      };
   Map<String, Setup> get filteredSetups => _filteredSetups;
   Map<String, RatingEntry> get filteredRatingEntries => _filteredRatingEntries;
   Map<String, TaskRule> get filteredTaskRules => _filteredTaskRules;
@@ -509,9 +513,10 @@ class AppRepository extends ChangeNotifier {
   }
 
   void _filterComponents() {
-    _filteredComponents = selectedBike == null
-        ? components
-        : Map.fromEntries(components.entries.where((entry) => entry.value.bike == selectedBike));
+    _filteredComponents = Map.fromEntries(components.entries.where((entry) {
+      if (entry.value.isArchived) return false;
+      return selectedBike == null || entry.value.bike == selectedBike;
+    }));
   }
 
   void _filterSetups() {
@@ -564,6 +569,8 @@ class AppRepository extends ChangeNotifier {
         
         // 3. Component-linked Tasks
         if (rule.componentId != null) {
+          // Hide rules linked to archived (retired/sold) components.
+          if (_components[rule.componentId]?.isArchived ?? false) return false;
           return _filteredComponents.containsKey(rule.componentId);
         }
         
@@ -1115,8 +1122,10 @@ class AppRepository extends ChangeNotifier {
       adjustmentsList: updated.adjustments.asMap().entries.map((entry) => 
         entry.value.toCompanion(componentId: updated.id, orderIndex: entry.key)
       ).toList(),
-      installationsList: updated.installations.map((inst) => 
-        inst.toCompanion(id: const Uuid().v4(), componentId: updated.id)
+      installationsList: updated.installations.map((inst) =>
+        // A brand-new component: every installation is a new row, so assign
+        // fresh stable ids (avoids PK collisions when duplicating components).
+        inst.copyWith(id: const Uuid().v4(), componentId: updated.id).toCompanion()
       ).toList(),
     );
   }
@@ -1161,11 +1170,43 @@ class AppRepository extends ChangeNotifier {
         entry.value.toCompanion(componentId: updated.id, orderIndex: entry.key)
       ).toList(),
       installationsList: updated.installations.map((inst) =>
-        inst.toCompanion(id: const Uuid().v4(), componentId: updated.id)
+        // Preserve the stable installation ids across edits; only normalise the
+        // owning componentId.
+        inst.copyWith(componentId: updated.id).toCompanion()
       ).toList(),
     );
 
     if (statsInputsChanged) await refreshTaskEntrySnapshots();
+  }
+
+  Future<void> archiveComponent(Component component, {DateTime? at}) async {
+    final when = at ?? DateTime.now();
+    final event = Archival(
+      componentId: component.id,
+      dateTimeUTC: when.toUtc(),
+      dateTimeLocal: when,
+    );
+    await editComponent(
+      component.copyWith(installations: [...component.installations, event]),
+    );
+  }
+
+  Future<void> unarchiveComponent(Component component, {DateTime? at}) async {
+    var when = at ?? DateTime.now();
+    final latestUtc = component.installations
+        .map((i) => i.dateTimeUTC)
+        .fold<DateTime?>(null, (m, d) => m == null || d.isAfter(m) ? d : m);
+    if (latestUtc != null && !when.toUtc().isAfter(latestUtc)) {
+      when = latestUtc.add(const Duration(seconds: 1)).toLocal();
+    }
+    final event = Deinstallation(
+      componentId: component.id,
+      dateTimeUTC: when.toUtc(),
+      dateTimeLocal: when,
+    );
+    await editComponent(
+      component.copyWith(installations: [...component.installations, event]),
+    );
   }
 
   Future<void> editRating(Rating rating) async {
@@ -1354,6 +1395,25 @@ class ComponentInstallation {
     this.isInitial = false,
   });
 
-  String get label => "${isInitial ? 'Added' : (installation.parent != null ? 'Installed' : 'Deinstalled')} ${component.name}";
-  String get shortLabel => "${isInitial ? '+' : (installation.parent != null ? '>' : '<')} ${component.name}";
+  String get label {
+    final verb = isInitial
+        ? 'Added'
+        : installation is Archival
+            ? 'Archived'
+            : installation.parent != null
+                ? 'Installed'
+                : 'Deinstalled';
+    return "$verb ${component.name}";
+  }
+
+  String get shortLabel {
+    final symbol = isInitial
+        ? '+'
+        : installation is Archival
+            ? 'x'
+            : installation.parent != null
+                ? '>'
+                : '<';
+    return "$symbol ${component.name}";
+  }
 }

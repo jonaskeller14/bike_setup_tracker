@@ -50,6 +50,16 @@ class Component {
     return result?.parent;
   }
 
+  Installation? get latestInstallation {
+    if (installations.isEmpty) return null;
+    return installations.reduce(
+      (a, b) => a.dateTimeUTC.isAfter(b.dateTimeUTC) ? a : b,
+    );
+  }
+
+  bool get isArchived => latestInstallation is Archival;
+  bool get isDeinstalled => latestInstallation is Deinstallation;
+
   static const IconData iconData = Icons.grid_view_sharp;
 
   Component({
@@ -101,7 +111,7 @@ class Component {
   Component copyWithNewInstallation(String? newBike) {
     return copyWith(
       installations: [
-        Installation.sinceBeginning(parent: newBike)
+        Installation.sinceBeginning(parent: newBike, componentId: id)
       ],
     );
   }
@@ -218,7 +228,7 @@ class Component {
           name: json['name'] as String,
           componentType: ComponentType.fromString(json['componentType']),
           installations: [
-            Installation.sinceBeginning(parent: bike)
+            Installation.sinceBeginning(parent: bike, componentId: json["id"] as String)
           ],
           notes: json["notes"] as String?,
           adjustments: (json["adjustments"] as List<dynamic>?)
@@ -245,7 +255,7 @@ class Component {
           name: json['name'] as String,
           componentType: ComponentType.fromString(json['componentType']),
           installations: (json["installations"] as List<dynamic>?)
-            ?.map((i) => Installation.fromJson(i))
+            ?.map((i) => Installation.fromJson(i, componentId: json["id"] as String))
             .toList() ?? [],
           notes: json["notes"] as String?,
           adjustments: (json["adjustments"] as List<dynamic>?)

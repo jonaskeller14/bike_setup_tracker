@@ -64,6 +64,70 @@ void main() {
       expect(component.bikeAt(t3), 'bike_2', reason: 'After t2');
     });
 
+    test('isArchived true when latest installation is Archival', () {
+      final now = DateTime.now().toUtc();
+      final component = Component(
+        name: 'Test Component',
+        componentType: ComponentType.other,
+        installations: [
+          Installation.sinceBeginning(parent: 'bike_1'),
+          Archival(dateTimeUTC: now, dateTimeLocal: now.toLocal()),
+        ],
+      );
+      expect(component.isArchived, isTrue);
+      expect(component.isDeinstalled, isFalse);
+    });
+
+    test('isDeinstalled true when latest installation is Deinstallation', () {
+      final now = DateTime.now().toUtc();
+      final component = Component(
+        name: 'Test Component',
+        componentType: ComponentType.other,
+        installations: [
+          Installation.sinceBeginning(parent: 'bike_1'),
+          Deinstallation(dateTimeUTC: now, dateTimeLocal: now.toLocal()),
+        ],
+      );
+      expect(component.isDeinstalled, isTrue);
+      expect(component.isArchived, isFalse);
+    });
+
+    test('isArchived and isDeinstalled false when currently installed', () {
+      final component = Component(
+        name: 'Test Component',
+        componentType: ComponentType.other,
+        installations: [Installation.sinceBeginning(parent: 'bike_1')],
+      );
+      expect(component.isArchived, isFalse);
+      expect(component.isDeinstalled, isFalse);
+    });
+
+    test('bikeAt returns null after Archival event', () {
+      final t1 = DateTime(2024, 1, 1, 10).toUtc();
+      final t2 = DateTime(2024, 1, 1, 12).toUtc();
+      final after = DateTime(2024, 1, 1, 14).toUtc();
+
+      final component = Component(
+        name: 'Test Component',
+        componentType: ComponentType.other,
+        installations: [
+          Installation(
+            parent: 'bike_1',
+            dateTimeUTC: t1,
+            dateTimeLocal: t1.toLocal(),
+          ),
+          Archival(dateTimeUTC: t2, dateTimeLocal: t2.toLocal()),
+        ],
+      );
+
+      expect(component.bikeAt(t1), 'bike_1');
+      expect(
+        component.bikeAt(after),
+        isNull,
+        reason: 'Archival has no parent — component is not on a bike after archival',
+      );
+    });
+
     test('bikeAt handles unsorted installations list', () {
       final t1 = DateTime(2024, 1, 1, 10).toUtc();
       final t2 = DateTime(2024, 1, 1, 12).toUtc();

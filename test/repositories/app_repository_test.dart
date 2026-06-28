@@ -593,4 +593,99 @@ void main() {
       expect(repository.openTaskRulesStatusType, TaskStatusType.upcoming);
     });
   });
+
+  group("AppRepository - Archive", () {
+    late AppDatabase database;
+    late AppRepository repository;
+    final bike1 = Bike(name: "Bike #1", person: null);
+    late Component component1;
+
+    setUp(() async {
+      database = AppDatabase.memory();
+      repository = AppRepository(database);
+      await pumpEventQueue();
+      component1 = Component(
+        name: "C1",
+        installations: [Installation.sinceBeginning(parent: bike1.id)],
+        componentType: ComponentType.fork,
+        adjustments: [],
+      );
+    });
+
+    tearDown(() async {
+      await database.close();
+    });
+
+    test("archiveComponent removes from filteredComponents and adds to archivedComponents", () async {
+      await repository.addBike(bike1);
+      await repository.addComponent(component1);
+      await pumpEventQueue();
+
+      expect(repository.filteredComponents.containsKey(component1.id), isTrue);
+      expect(repository.archivedComponents.containsKey(component1.id), isFalse);
+
+      final comp = repository.components[component1.id]!;
+      await repository.archiveComponent(comp);
+      await pumpEventQueue();
+
+      expect(repository.filteredComponents.containsKey(component1.id), isFalse);
+      expect(repository.archivedComponents.containsKey(component1.id), isTrue);
+      expect(repository.archivedComponents[component1.id]!.isArchived, isTrue);
+    });
+
+    test("unarchiveComponent is append-only — Archival event preserved in history", () async {
+      await repository.addBike(bike1);
+      await repository.addComponent(component1);
+      await pumpEventQueue();
+
+      final comp = repository.components[component1.id]!;
+      await repository.archiveComponent(comp);
+      await pumpEventQueue();
+
+      final archived = repository.archivedComponents[component1.id]!;
+      await repository.unarchiveComponent(archived);
+      await pumpEventQueue();
+
+      // No longer archived — not in archivedComponents (reads _components directly).
+      expect(repository.archivedComponents.containsKey(component1.id), isFalse);
+
+      // State is correct in the full component cache.
+      final unarchived = repository.components[component1.id]!;
+      expect(unarchived.isArchived, isFalse);
+      expect(unarchived.isDeinstalled, isTrue);
+
+      // Archival event still in the timeline (append-only).
+      expect(
+        unarchived.installations.whereType<Archival>().isNotEmpty,
+        isTrue,
+        reason: 'Archival event must not be removed — history is immutable',
+      );
+      expect(
+        unarchived.installations.whereType<Deinstallation>().isNotEmpty,
+        isTrue,
+        reason: 'unarchive appends a Deinstallation event',
+      );
+    });
+
+    test("task rule for archived component is hidden from filteredOpenTaskRules", () async {
+      final rule = TaskRule(
+        name: "Rule 1",
+        componentId: component1.id,
+        tags: const {},
+      );
+
+      await repository.addBike(bike1);
+      await repository.addComponent(component1);
+      await repository.addTaskRule(rule);
+      await pumpEventQueue();
+
+      expect(repository.filteredOpenTaskRules.containsKey(rule.id), isTrue);
+
+      final comp = repository.components[component1.id]!;
+      await repository.archiveComponent(comp);
+      await pumpEventQueue();
+
+      expect(repository.filteredOpenTaskRules.containsKey(rule.id), isFalse);
+    });
+  });
 }

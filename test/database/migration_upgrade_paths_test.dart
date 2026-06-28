@@ -28,13 +28,17 @@ void main() {
     if (tempDir.existsSync()) await tempDir.delete(recursive: true);
   });
 
-  // Reshapes a freshly-created (v8) database back to [version] by undoing every
+  // Reshapes a freshly-created (v9) database back to [version] by undoing every
   // structural change introduced after it, newest-first. This lets us drive the
   // real `onUpgrade` from any historical version without hand-writing each full
   // schema. v4 (setups.name NOT NULL -> nullable), v6 (rating_entries reshape)
   // and v2 (data-only) need no structural undo — their steps rewrite/recreate
   // the affected tables regardless of the starting column shape.
   Future<void> reshapeToVersion(AppDatabase db, int version) async {
+    if (version < 9) {
+      // v9 added installations.parent_type.
+      await db.customStatement('ALTER TABLE installations DROP COLUMN parent_type');
+    }
     if (version < 8) {
       // v8 added setups.images.
       await db.customStatement('ALTER TABLE setups DROP COLUMN images');
@@ -71,6 +75,18 @@ void main() {
     );
   }
 
+  // Seeds a single installation row (on a bike) via raw SQL. The reshaped
+  // schema for versions < 9 lacks `parent_type`, so we omit it here; the v9
+  // migration step is expected to add the column with the correct default.
+  Future<void> seedInstallation(AppDatabase db) async {
+    const epochSeconds = 1700000000;
+    await db.customStatement(
+      'INSERT INTO installations '
+      '(id, component_id, parent, date_time_u_t_c, date_time_local) '
+      "VALUES ('i1', 'c1', 'b1', $epochSeconds, $epochSeconds)",
+    );
+  }
+
   // Builds a db file seeded at [startVersion] and re-opens it so drift runs the
   // real upgrade to the current schema. Returns the upgraded database.
   Future<AppDatabase> migrateFrom(int startVersion) async {
@@ -83,6 +99,7 @@ void main() {
     await seed.customStatement('PRAGMA foreign_keys = OFF');
     await reshapeToVersion(seed, startVersion);
     await seedSetup(seed);
+    await seedInstallation(seed);
     await seed.customStatement('PRAGMA user_version = $startVersion');
     await seed.close();
 
@@ -98,10 +115,10 @@ void main() {
   }
 
   group('onUpgrade from every prior version to the current schema', () {
-    // Covers the full range of jump sizes: the v7 case is a single step, the
+    // Covers the full range of jump sizes: the v8 case is a single step, the
     // v1 case crosses every TableMigration in the strategy.
-    for (final startVersion in [1, 2, 3, 4, 5, 6, 7]) {
-      test('v$startVersion -> current completes and preserves the setup row', () async {
+    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8]) {
+      test('v$startVersion -> current completes and preserves seed rows', () async {
         final db = await migrateFrom(startVersion);
         addTearDown(db.close);
 
@@ -111,6 +128,20 @@ void main() {
           contains('images'),
           reason: 'images column missing after v$startVersion upgrade',
         );
+
+        // The installations table ends up with the v9 `parent_type` column.
+        expect(
+          await columnNames(db, 'installations'),
+          contains('parent_type'),
+          reason: 'parent_type column missing after v$startVersion upgrade',
+        );
+
+        // The seeded installation row (parent='b1') got the 'bike' default.
+        final instRows = await db.customSelect(
+          "SELECT parent_type FROM installations WHERE id = 'i1'",
+        ).get();
+        expect(instRows, hasLength(1));
+        expect(instRows.single.read<String>('parent_type'), 'bike');
 
         // The seeded row survived the migration.
         final rows = await db.customSelect('SELECT id, name, images FROM setups').get();

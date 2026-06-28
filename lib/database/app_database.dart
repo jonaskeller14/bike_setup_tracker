@@ -7,6 +7,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component.dart';
+import '../models/installation.dart';
 import '../models/rating.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/task/task_rule.dart';
@@ -86,7 +87,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration {
@@ -149,6 +150,16 @@ class AppDatabase extends _$AppDatabase {
           if (!await _columnExists('setups', 'images')) {
             await m.addColumn(setups, setups.images);
           }
+        }
+        if (from < 9) {
+          // Component archiving: installations gain a `parentType` discriminator
+          // ('bike' | 'none' | 'archived'). Existing rows default to 'bike'; a
+          // null `parent` always meant deinstalled, so backfill those to 'none'.
+          // No rows are archived yet.
+          await m.addColumn(installations, installations.parentType);
+          await customStatement(
+            "UPDATE installations SET parent_type = 'none' WHERE parent IS NULL",
+          );
         }
       },
     );

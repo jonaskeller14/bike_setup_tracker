@@ -314,14 +314,14 @@ void main() {
 
       // Check first entry (index 0)
       // The dropdown for the first entry should be disabled (onChanged is null)
-      final firstDropdown = tester.widget<DropdownButtonFormField<String?>>(
-        find.byType(DropdownButtonFormField<String?>).first
+      final firstDropdown = tester.widget<DropdownButtonFormField<Installation>>(
+        find.byType(DropdownButtonFormField<Installation>).first
       );
       expect(firstDropdown.onChanged, isNull);
 
       // Check second entry (index 1)
-      final secondDropdown = tester.widget<DropdownButtonFormField<String?>>(
-        find.byType(DropdownButtonFormField<String?>).at(1)
+      final secondDropdown = tester.widget<DropdownButtonFormField<Installation>>(
+        find.byType(DropdownButtonFormField<Installation>).at(1)
       );
       expect(secondDropdown.onChanged, isNotNull);
 

@@ -2,15 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'adjustment/adjustment.dart';
+import 'rating_association.dart';
 import 'rating_metric.dart';
-
-enum FilterType {
-  person,
-  bike,
-  component,
-  componentType,
-  global, // always apply rating
-}
 
 class Rating {
   final String id;

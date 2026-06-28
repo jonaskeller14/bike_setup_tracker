@@ -595,12 +595,15 @@ class _ComponentPageState extends State<ComponentPage> {
       },
       items: [
         ...bikes.values.map((b) {
+          final matchingInstallation = lastInstallation is BikeInstallation && lastInstallation.bikeId == b.id
+              ? lastInstallation
+              : BikeInstallation(
+                  bikeId: b.id,
+                  dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+                  dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0, isUtc: false),
+                );
           return DropdownMenuItem<Installation?>(
-            value: BikeInstallation(
-              bikeId: b.id,
-              dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
-              dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0, isUtc: false),
-            ),
+            value: matchingInstallation,
             child: Row(
               spacing: 8,
               children: [
@@ -611,7 +614,7 @@ class _ComponentPageState extends State<ComponentPage> {
           );
         }),
         DropdownMenuItem<Installation?>(
-          value: Deinstallation(
+          value: lastInstallation is Deinstallation ? lastInstallation : Deinstallation(
             dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
             dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0, isUtc: false),
           ),
@@ -625,7 +628,7 @@ class _ComponentPageState extends State<ComponentPage> {
         ),
         if (widget.mode != ComponentPageMode.add)
           DropdownMenuItem<Installation?>(
-            value: Archival(
+            value: lastInstallation is Archival ? lastInstallation : Archival(
               dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
               dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0, isUtc: false),
             ),

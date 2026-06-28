@@ -4,6 +4,7 @@ import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../models/person.dart';
 import '../../models/rating.dart';
+import '../../models/rating_association.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/rating_actions.dart';
 

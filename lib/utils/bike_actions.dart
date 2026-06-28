@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
-import '../models/rating.dart';
+import '../models/rating_association.dart';
 import '../pages/bike_page.dart';
 import '../repositories/app_repository.dart';
 

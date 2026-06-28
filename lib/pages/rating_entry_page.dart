@@ -14,6 +14,7 @@ import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
+import '../models/rating_association.dart';
 import '../models/rating_entry.dart';
 import '../models/rating_metric.dart';
 import '../repositories/app_repository.dart';

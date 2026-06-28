@@ -1,10 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-
 import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../models/person.dart';
 import '../../models/rating.dart';
+import '../../models/rating_association.dart';
 
 class DataSelectRating extends StatelessWidget {
   final Rating item;

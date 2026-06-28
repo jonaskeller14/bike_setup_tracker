@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/app_settings.dart';
 import '../models/person.dart';
-import '../models/rating.dart';
+import '../models/rating_association.dart';
 import '../pages/person_page.dart';
 import '../repositories/app_repository.dart';
 

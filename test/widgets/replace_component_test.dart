@@ -2,6 +2,7 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/widgets/sheets/replace_component.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,6 +11,11 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockAppRepository extends Mock implements AppRepository {}
+
+class MockSubscriptionService extends Mock implements SubscriptionService {
+  @override
+  bool get hasStravaEntitlement => false;
+}
 
 void main() {
   late MockAppRepository mockRepository;
@@ -63,6 +69,7 @@ void main() {
       providers: [
         ChangeNotifierProvider.value(value: appSettings),
         ChangeNotifierProvider<AppRepository>.value(value: mockRepository),
+        ChangeNotifierProvider<SubscriptionService>.value(value: MockSubscriptionService()),
       ],
       child: MaterialApp(
         home: Scaffold(

@@ -492,11 +492,11 @@ class GarageUninstalledCard extends StatelessWidget {
                                     : ReorderableWrap(
                                         key: ValueKey(archivedComponents),
                                         onReorder: (int oldIndex, int newIndex) {
-                                          context.read<AppRepository>().reorderComponent(
+                                          unawaited(context.read<AppRepository>().reorderComponent(
                                             oldIndex: oldIndex,
                                             newIndex: newIndex,
                                             filteredComponentsList: archivedComponents.values.toList(),
-                                          );
+                                          ));
                                         },
                                         onReorderStarted: (int index) =>
                                             setDraggedComponent(

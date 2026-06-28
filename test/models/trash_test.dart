@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/rating.dart';
+import 'package:bike_setup_tracker/models/rating_association.dart';
 import 'package:bike_setup_tracker/models/rating_entry.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';

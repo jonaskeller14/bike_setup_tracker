@@ -12,6 +12,7 @@ import '../models/component_stats.dart';
 import '../models/installation.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
+import '../models/rating_association.dart';
 import '../models/rating_entry.dart';
 import '../models/rating_metric.dart';
 import '../models/selected_data.dart';

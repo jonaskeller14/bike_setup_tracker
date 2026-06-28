@@ -6,6 +6,7 @@ import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
+import '../models/rating_association.dart';
 import '../models/rating_metric.dart';
 import '../repositories/app_repository.dart';
 import '../widgets/dashed_border_painter.dart';
@@ -45,42 +46,6 @@ class RatingPage extends StatefulWidget {
   State<RatingPage> createState() => _RatingPageState();
 }
 
-class _FilterFilterType {
-  final String? filter;
-  final FilterType filterType;
-
-  const _FilterFilterType(this.filter, this.filterType);
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is _FilterFilterType &&
-          filter == other.filter &&
-          filterType == other.filterType;
-
-  @override
-  int get hashCode => filter.hashCode ^ filterType.hashCode;
-}
-
-class _FilterFilterTypeBike extends _FilterFilterType {
-  final Bike bike;
-  const _FilterFilterTypeBike(super.filter, super.filterType, this.bike);
-}
-
-class _FilterFilterTypeComponent extends _FilterFilterType {
-  final Component component;
-  const _FilterFilterTypeComponent(super.filter, super.filterType, this.component);
-}
-
-class _FilterFilterTypeComponentType extends _FilterFilterType {
-  final ComponentType componentType;
-  const _FilterFilterTypeComponentType(super.filter, super.filterType, this.componentType);
-}
-
-class _FilterFilterTypePerson extends _FilterFilterType {
-  final Person person;
-  const _FilterFilterTypePerson(super.filter, super.filterType, this.person);
-}
 
 class _RatingPageState extends State<RatingPage> {
   late TextEditingController _nameController;
@@ -91,8 +56,8 @@ class _RatingPageState extends State<RatingPage> {
 
   late List<RatingMetric> _metrics;
   late List<RatingMetric> _initialMetrics;
-  late _FilterFilterType _filterFilterType;
-  late _FilterFilterType _initialFilterFilterType;
+  late RatingAssociation _ratingAssociation;
+  late RatingAssociation _initialRatingAssociation;
 
   @override
   void initState() {
@@ -104,12 +69,13 @@ class _RatingPageState extends State<RatingPage> {
         : List.from(widget.rating!.metrics);
     _initialMetrics = List.from(_metrics);
 
-
-    _initialFilterFilterType = _FilterFilterType(
-      widget.rating?.filter,
-      widget.rating?.filterType ?? FilterType.global,
+    _initialRatingAssociation = RatingAssociation.fromIds(
+      componentId: widget.rating?.filterType == FilterType.component ? widget.rating?.filter : null,
+      bikeId: widget.rating?.filterType == FilterType.bike ? widget.rating?.filter : null,
+      personId: widget.rating?.filterType == FilterType.person ? widget.rating?.filter : null,
+      componentTypeStr: widget.rating?.filterType == FilterType.componentType ? widget.rating?.filter : null,
     );
-    _filterFilterType = _initialFilterFilterType;
+    _ratingAssociation = _initialRatingAssociation;
     _notesController = TextEditingController(text: widget.rating?.notes);
     _notesController.addListener(_changeListener);
     if (widget.mode != RatingPageMode.add) _expanded = true;
@@ -118,7 +84,7 @@ class _RatingPageState extends State<RatingPage> {
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != (widget.rating?.name ?? '') ||
         _notesController.text.trim() != (widget.rating?.notes ?? '') ||
-        _filterFilterType != _initialFilterFilterType ||
+        _ratingAssociation != _initialRatingAssociation ||
         !listEquals(_metrics, _initialMetrics);
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -230,17 +196,17 @@ class _RatingPageState extends State<RatingPage> {
       setState(() => _expanded = true);
       return;
     }
-    
+
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
     _formHasChanges = false;
-    
+
     Navigator.pop(context, Rating(
-      id: widget.mode == RatingPageMode.edit ? widget.rating?.id : null, 
+      id: widget.mode == RatingPageMode.edit ? widget.rating?.id : null,
       name: name,
       notes: notes.isEmpty ? null : notes,
-      filter: _filterFilterType.filter,
-      filterType: _filterFilterType.filterType,
+      filter: _ratingAssociation.filter,
+      filterType: _ratingAssociation.filterType,
       metrics: List.from(_metrics),
       orderIndex: widget.rating?.orderIndex ?? 0,
     ));
@@ -344,31 +310,31 @@ class _RatingPageState extends State<RatingPage> {
     );
   }
 
-  DropdownMenuItem<_FilterFilterType> _invalidFilterDropdownMenuItem(_FilterFilterType fft) {
-    return DropdownMenuItem<_FilterFilterType>(
-      value: fft,
+  DropdownMenuItem<RatingAssociation> _invalidFilterDropdownMenuItem(RatingAssociation ra) {
+    return DropdownMenuItem<RatingAssociation>(
+      value: ra,
       child: Row(
         spacing: 8,
         children: [
           Icon(
-            switch (fft.filterType) {
+            switch (ra.filterType) {
               FilterType.bike => Bike.iconData,
               FilterType.component => ComponentType.other.getIconData(),
               FilterType.componentType => ComponentType.other.getIconData(),
               FilterType.person => Person.iconData,
               FilterType.global => Icons.error,
-            }, 
+            },
             color: Theme.of(context).colorScheme.error
           ),
           Expanded(child: Text(
-            switch (fft.filterType) {
+            switch (ra.filterType) {
               FilterType.bike => "BIKE NOT FOUND",
               FilterType.component => "COMPONENT NOT FOUND",
               FilterType.componentType => "COMPONENTTYPE NOT FOUND",
               FilterType.person => "PERSON NOT FOUND",
               FilterType.global => "OBJECT NOT FOUND",
             },
-            overflow: TextOverflow.ellipsis, 
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(color: Theme.of(context).colorScheme.error),
           ))
         ],
@@ -376,8 +342,8 @@ class _RatingPageState extends State<RatingPage> {
     );
   }
 
-  DropdownMenuItem<_FilterFilterType?> _dropdownMenuSection(String label) {
-    return DropdownMenuItem<_FilterFilterType?>(
+  DropdownMenuItem<RatingAssociation?> _dropdownMenuSection(String label) {
+    return DropdownMenuItem<RatingAssociation?>(
       enabled: false,
       child: Text(
         label,
@@ -386,9 +352,9 @@ class _RatingPageState extends State<RatingPage> {
     );
   }
 
-  DropdownMenuItem<_FilterFilterType> _dropdownMenuItemGlobal(_FilterFilterType fft) {
-    return DropdownMenuItem<_FilterFilterType>(
-      value: fft,
+  DropdownMenuItem<RatingAssociation> _dropdownMenuItemGlobal(GlobalRatingAssociation gra) {
+    return DropdownMenuItem<RatingAssociation>(
+      value: gra,
       child: const Row(
         spacing: 8,
         children: [
@@ -399,48 +365,64 @@ class _RatingPageState extends State<RatingPage> {
     );
   }
 
-  DropdownMenuItem<_FilterFilterType> _dropdownMenuItemBike(_FilterFilterTypeBike fftb) {
-    return DropdownMenuItem<_FilterFilterType>(
-      value: fftb,
+  DropdownMenuItem<RatingAssociation> _dropdownMenuItemBike(
+    BikeRatingAssociation bra,
+    Map<String, Bike> bikes,
+  ) {
+    final bike = bikes[bra.bikeId];
+    if (bike == null) return _invalidFilterDropdownMenuItem(bra);
+
+    return DropdownMenuItem<RatingAssociation>(
+      value: bra,
       child: Row(
         spacing: 8,
         children: [
           const Icon(Bike.iconData),
-          Expanded(child: Text(fftb.bike.name, overflow: TextOverflow.ellipsis)),
+          Expanded(child: Text(bike.name, overflow: TextOverflow.ellipsis)),
         ],
       ),
     );
   }
 
-  DropdownMenuItem<_FilterFilterType> _dropdownMenuItemComponentType(_FilterFilterTypeComponentType fftct) {
-    return DropdownMenuItem<_FilterFilterType>(
-      value: fftct,
+  DropdownMenuItem<RatingAssociation> _dropdownMenuItemComponentType(
+    ComponentTypeRatingAssociation ctra,
+  ) {
+    final componentType = ComponentType.values.firstWhere(
+      (ct) => ct.toString() == ctra.componentTypeStr,
+      orElse: () => ComponentType.frame,
+    );
+    return DropdownMenuItem<RatingAssociation>(
+      value: ctra,
       child: Row(
         spacing: 8,
         children: [
-          Icon(fftct.componentType.getIconData()),
-          Expanded(child: Text(fftct.componentType.label, overflow: TextOverflow.ellipsis))
+          Icon(componentType.getIconData()),
+          Expanded(child: Text(componentType.label, overflow: TextOverflow.ellipsis))
         ],
       ),
     );
   }
 
-  DropdownMenuItem<_FilterFilterType> _dropdownMenuItemComponent(_FilterFilterTypeComponent fftc) {
-    final appRepository = context.watch<AppRepository>();
-    final bikes = appRepository.bikes;
+  DropdownMenuItem<RatingAssociation> _dropdownMenuItemComponent(
+    ComponentRatingAssociation cra,
+    Map<String, Bike> bikes,
+    Map<String, Component> components,
+  ) {
+    final component = components[cra.componentId];
+    if (component == null) return _invalidFilterDropdownMenuItem(cra);
 
-    return DropdownMenuItem<_FilterFilterType>(
-      value: fftc,
+    return DropdownMenuItem<RatingAssociation>(
+      value: cra,
       child: Row(
         spacing: 8,
         children: [
           Flexible(
-            fit: FlexFit.tight, 
+            fit: FlexFit.tight,
             child: Row(
               spacing: 8,
               children: [
-                Icon(fftc.component.componentType.getIconData()),
-                Expanded(child: Text(fftc.component.name, overflow: TextOverflow.ellipsis)),
+                Icon(component.componentType.getIconData()),
+                Expanded(child: Text(component.name, overflow: TextOverflow.ellipsis)),
               ],
             ),
           ),
@@ -450,18 +432,18 @@ class _RatingPageState extends State<RatingPage> {
               spacing: 8,
               children: [
                 Icon(
-                  fftc.component.bike != null ? Bike.iconData : Icons.shelves,
-                  color: fftc.component.bike == null || bikes.containsKey(fftc.component.bike) 
+                  component.bike != null ? Bike.iconData : Icons.shelves,
+                  color: component.bike == null || bikes.containsKey(component.bike)
                       ? null
                       : Theme.of(context).colorScheme.error,
-                ), 
+                ),
                 Expanded(child: Text(
-                  fftc.component.bike == null
+                  component.bike == null
                       ? "Not installed"
-                      : bikes[fftc.component.bike]?.name ?? "BIKE NOT FOUND",
-                  style: fftc.component.bike == null || bikes.containsKey(fftc.component.bike) 
-                      ? null 
-                      : TextStyle(color: Theme.of(context).colorScheme.error), 
+                      : bikes[component.bike]?.name ?? "BIKE NOT FOUND",
+                  style: component.bike == null || bikes.containsKey(component.bike)
+                      ? null
+                      : TextStyle(color: Theme.of(context).colorScheme.error),
                   overflow: TextOverflow.ellipsis
                 )),
               ],
@@ -472,14 +454,20 @@ class _RatingPageState extends State<RatingPage> {
     );
   }
 
-  DropdownMenuItem<_FilterFilterType> _dropdownMenuItemPerson(_FilterFilterTypePerson fftp) {
-    return DropdownMenuItem<_FilterFilterType>(
-      value: fftp,
+  DropdownMenuItem<RatingAssociation> _dropdownMenuItemPerson(
+    PersonRatingAssociation pra,
+    Map<String, Person> persons,
+  ) {
+    final person = persons[pra.personId];
+    if (person == null) return _invalidFilterDropdownMenuItem(pra);
+
+    return DropdownMenuItem<RatingAssociation>(
+      value: pra,
       child: Row(
         spacing: 8,
         children: [
           const Icon(Person.iconData),
-          Expanded(child: Text(fftp.person.name, overflow: TextOverflow.ellipsis))
+          Expanded(child: Text(person.name, overflow: TextOverflow.ellipsis))
         ],
       ),
     );
@@ -502,6 +490,62 @@ class _RatingPageState extends State<RatingPage> {
     );
   }
 
+  List<DropdownMenuItem<RatingAssociation?>> _buildFilterDropdownItems(
+    List<RatingAssociation> filterOptions,
+    Map<String, Bike> bikes,
+    Map<String, Person> persons,
+    Map<String, Component> components,
+  ) {
+    final items = <DropdownMenuItem<RatingAssociation?>>[];
+
+    // Global
+    items.add(_dropdownMenuSection("Global"));
+    if (!filterOptions.contains(_ratingAssociation) && _ratingAssociation.filterType == FilterType.global) {
+      items.add(_invalidFilterDropdownMenuItem(_ratingAssociation));
+    }
+    items.addAll(
+      filterOptions.whereType<GlobalRatingAssociation>().map((gra) => _dropdownMenuItemGlobal(gra)),
+    );
+
+    // Bikes
+    items.add(_dropdownMenuSection("Bikes"));
+    if (!filterOptions.contains(_ratingAssociation) && _ratingAssociation.filterType == FilterType.bike) {
+      items.add(_invalidFilterDropdownMenuItem(_ratingAssociation));
+    }
+    items.addAll(
+      filterOptions.whereType<BikeRatingAssociation>().map((bra) => _dropdownMenuItemBike(bra, bikes)),
+    );
+
+    // Component Types
+    items.add(_dropdownMenuSection("Component Types"));
+    if (!filterOptions.contains(_ratingAssociation) && _ratingAssociation.filterType == FilterType.componentType) {
+      items.add(_invalidFilterDropdownMenuItem(_ratingAssociation));
+    }
+    items.addAll(
+      filterOptions.whereType<ComponentTypeRatingAssociation>().map((ctra) => _dropdownMenuItemComponentType(ctra)),
+    );
+
+    // Components
+    items.add(_dropdownMenuSection("Components"));
+    if (!filterOptions.contains(_ratingAssociation) && _ratingAssociation.filterType == FilterType.component) {
+      items.add(_invalidFilterDropdownMenuItem(_ratingAssociation));
+    }
+    items.addAll(
+      filterOptions.whereType<ComponentRatingAssociation>().map((cra) => _dropdownMenuItemComponent(cra, bikes, components)),
+    );
+
+    // Persons
+    items.add(_dropdownMenuSection("Persons"));
+    if (!filterOptions.contains(_ratingAssociation) && _ratingAssociation.filterType == FilterType.person) {
+      items.add(_invalidFilterDropdownMenuItem(_ratingAssociation));
+    }
+    items.addAll(
+      filterOptions.whereType<PersonRatingAssociation>().map((pra) => _dropdownMenuItemPerson(pra, persons)),
+    );
+
+    return items;
+  }
+
   @override
   Widget build(BuildContext context) {
     final appRepository = context.watch<AppRepository>();
@@ -509,19 +553,25 @@ class _RatingPageState extends State<RatingPage> {
     final persons = appRepository.persons;
     final components = appRepository.components;
 
-    final List<_FilterFilterType> filterOptions = [
-      const _FilterFilterType(null, FilterType.global),
-      ...bikes.values.map((b) => _FilterFilterTypeBike(b.id, FilterType.bike, b)),
-      ...ComponentType.values.map((ct) => _FilterFilterTypeComponentType(ct.toString(), FilterType.componentType, ct)),
+    final preSelectedComponentId = (_ratingAssociation is ComponentRatingAssociation)
+        ? (_ratingAssociation as ComponentRatingAssociation).componentId
+        : null;
+
+    final List<RatingAssociation> filterOptions = [
+      const GlobalRatingAssociation(),
+      ...bikes.values.map((b) => BikeRatingAssociation(b.id)),
+      ...ComponentType.values.map((ct) => ComponentTypeRatingAssociation(ct.toString())),
       ...(() {
-        final sortedComponents = components.values.toList()
+        final sortedComponents = components.values
+          .where((c) => !c.isArchived || c.id == preSelectedComponentId)
+          .toList()
           ..sort((a, b) => (a.bike ?? "").compareTo(b.bike ?? ""));
-        return sortedComponents.map((c) => _FilterFilterTypeComponent(c.id, FilterType.component, c));
+        return sortedComponents.map((c) => ComponentRatingAssociation(c.id));
       })(),
-      ...persons.values.map((p) => _FilterFilterTypePerson(p.id, FilterType.person, p)),
+      ...persons.values.map((p) => PersonRatingAssociation(p.id)),
     ];
 
-    return PopScope( 
+    return PopScope(
       canPop: !_formHasChanges,
       onPopInvokedWithResult: _handlePopInvoked,
       child: Scaffold(
@@ -550,8 +600,8 @@ class _RatingPageState extends State<RatingPage> {
                       children: [
                         _nameField(),
                         const SizedBox(height: 12),
-                        DropdownButtonFormField<_FilterFilterType?>(
-                          initialValue: _filterFilterType,
+                        DropdownButtonFormField<RatingAssociation?>(
+                          initialValue: _ratingAssociation,
                           isExpanded: true,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           decoration: InputDecoration(
@@ -559,39 +609,20 @@ class _RatingPageState extends State<RatingPage> {
                             border: const OutlineInputBorder(),
                             hintText: "Choose an object which the filter should be applied for",
                             fillColor: Colors.orange.withValues(alpha: 0.08),
-                            filled: widget.mode == RatingPageMode.edit && _filterFilterType.filter != widget.rating?.filter,
+                            filled: widget.mode == RatingPageMode.edit && _ratingAssociation.filter != widget.rating?.filter,
                           ),
-                          validator: (_FilterFilterType? newValue) {
-                            if (!filterOptions.contains(newValue)) return "Invalid Filter.";
+                          validator: (RatingAssociation? newValue) {
+                            if (newValue == null || !filterOptions.contains(newValue)) return "Invalid Filter.";
                             return null;
                           },
-                          items: [
-                            if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.global)
-                              _invalidFilterDropdownMenuItem(_filterFilterType),
-                            ...filterOptions.where((fo) => fo.filterType == FilterType.global).map((fft) => _dropdownMenuItemGlobal(fft)),
-
-                            _dropdownMenuSection("Bikes"),
-                            if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.bike)
-                              _invalidFilterDropdownMenuItem(_filterFilterType),
-                            ...filterOptions.whereType<_FilterFilterTypeBike>().map((fftb) => _dropdownMenuItemBike(fftb)),
-
-                            _dropdownMenuSection("Component Types"),
-                            if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.componentType)
-                              _invalidFilterDropdownMenuItem(_filterFilterType),
-                            ...filterOptions.whereType<_FilterFilterTypeComponentType>().map((fftct) => _dropdownMenuItemComponentType(fftct)),
-
-                            _dropdownMenuSection("Components"),
-                            if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.component)
-                              _invalidFilterDropdownMenuItem(_filterFilterType),
-                            ...filterOptions.whereType<_FilterFilterTypeComponent>().map((fftc) => _dropdownMenuItemComponent(fftc)),
-
-                            _dropdownMenuSection("Persons"),
-                            if (!filterOptions.contains(_filterFilterType) && _filterFilterType.filterType == FilterType.person)
-                              _invalidFilterDropdownMenuItem(_filterFilterType),
-                            ...filterOptions.whereType<_FilterFilterTypePerson>().map((fftp) => _dropdownMenuItemPerson(fftp)),
-                          ],
-                          onChanged: (_FilterFilterType? newValue) {
-                            setState(() => _filterFilterType = newValue ?? const _FilterFilterType(null, FilterType.global));
+                          items: _buildFilterDropdownItems(
+                            filterOptions,
+                            bikes,
+                            persons,
+                            components,
+                          ),
+                          onChanged: (RatingAssociation? newValue) {
+                            setState(() => _ratingAssociation = newValue ?? const GlobalRatingAssociation());
                             _changeListener();
                           },
                         ),

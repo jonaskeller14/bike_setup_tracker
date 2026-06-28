@@ -124,11 +124,8 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
     );
   }
 
-  DropdownMenuItem<String> _componentDropdownItem(Component component) {
+  DropdownMenuItem<String> _componentDropdownItem(Component component, {required bool showStrava, required AppSettings appSettings}) {
     final cs = Theme.of(context).colorScheme;
-    final appSettings = context.read<AppSettings>();
-    final showStrava = appSettings.enableStrava &&
-        context.read<SubscriptionService>().hasStravaEntitlement;
 
     return DropdownMenuItem<String>(
       value: component.id,
@@ -173,6 +170,9 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
+    final subscriptionService = context.watch<SubscriptionService>();
+    final showStrava = appSettings.enableStrava && subscriptionService.hasStravaEntitlement;
+
     final deinstalledComponents = appRepository.components.values
         .where((c) => c.id != widget.component.id && c.bike == null)
         .toList()
@@ -264,11 +264,11 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                         items: [
                           if (showComponentSections) ...[
                             _componentSectionHeader(widget.component.componentType.label),
-                            ...sameTypeComponents.map(_componentDropdownItem),
+                            ...sameTypeComponents.map((c) => _componentDropdownItem(c, showStrava: showStrava, appSettings: appSettings)),
                             _componentSectionHeader("Other"),
-                            ...otherTypeComponents.map(_componentDropdownItem),
+                            ...otherTypeComponents.map((c) => _componentDropdownItem(c, showStrava: showStrava, appSettings: appSettings)),
                           ] else
-                            ...menuComponents.map(_componentDropdownItem),
+                            ...menuComponents.map((c) => _componentDropdownItem(c, showStrava: showStrava, appSettings: appSettings)),
                         ],
                         onChanged: menuComponents.isEmpty
                             ? null

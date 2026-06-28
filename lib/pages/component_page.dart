@@ -574,37 +574,48 @@ class _ComponentPageState extends State<ComponentPage> {
   }
 
   Widget _bikesDropdownField({required Map<String, Bike> bikes}) {
-    return DropdownButtonFormField<String?>(
-      initialValue: _installations.lastOrNull?.parent,
+    final lastInstallation = _installations.lastOrNull;
+    return DropdownButtonFormField<Installation?>(
+      initialValue: lastInstallation,
       isExpanded: true,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
         labelText: 'Bike',
         border: const OutlineInputBorder(),
         hintText: "Choose a bike for this component",
-        helperText: _installations.lastOrNull?.parent == null ? "WARNING: Select Bike to install Component." : null,
+        helperText: lastInstallation?.parentType == InstallationParentType.none ? "WARNING: Select Bike to install Component." : null,
         fillColor: Colors.orange.withValues(alpha: 0.08),
-        filled: widget.mode == ComponentPageMode.edit && _installations.lastOrNull?.parent != _initialInstallations.lastOrNull?.parent,
+        filled: widget.mode == ComponentPageMode.edit && lastInstallation != _initialInstallations.lastOrNull,
       ),
-      validator: (String? newBike) {
-        if (newBike is String && !bikes.containsKey(newBike)) return "Please select valid bike";
+      validator: (Installation? newInstallation) {
+        if (newInstallation is BikeInstallation && !bikes.containsKey(newInstallation.bikeId)) {
+          return "Please select valid bike";
+        }
         return null;
       },
-      items: bikes.values.map((b) {
-        return DropdownMenuItem<String?>(
-          value: b.id,
-          child: Row(
-            spacing: 8,
-            children: [
-              const Icon(Bike.iconData),
-              Expanded(child: Text(b.name, overflow: TextOverflow.ellipsis))
-            ],
+      items: [
+        ...bikes.values.map((b) {
+          return DropdownMenuItem<Installation?>(
+            value: BikeInstallation(
+              bikeId: b.id,
+              dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+              dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0, isUtc: false),
+            ),
+            child: Row(
+              spacing: 8,
+              children: [
+                const Icon(Bike.iconData),
+                Expanded(child: Text(b.name, overflow: TextOverflow.ellipsis))
+              ],
+            ),
+          );
+        }),
+        DropdownMenuItem<Installation?>(
+          value: Deinstallation(
+            dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+            dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0, isUtc: false),
           ),
-        );
-      }).toList() + [
-        const DropdownMenuItem<String?>(
-          value: null,
-          child: Row(
+          child: const Row(
             spacing: 8,
             children: [
               Icon(Icons.shelves),
@@ -612,20 +623,41 @@ class _ComponentPageState extends State<ComponentPage> {
             ],
           ),
         ),
-        if (_installations.lastOrNull?.parent != null && !bikes.containsKey(_installations.lastOrNull?.parent))
-          DropdownMenuItem<String?>(
-            value: _installations.lastOrNull?.parent,
+        if (widget.mode != ComponentPageMode.add)
+          DropdownMenuItem<Installation?>(
+            value: Archival(
+              dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+              dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0, isUtc: false),
+            ),
+            child: const Row(
+              spacing: 8,
+              children: [
+                Icon(Icons.inventory_2_outlined),
+                Expanded(child: Text("ARCHIVED", overflow: TextOverflow.ellipsis))
+              ],
+            ),
+          ),
+        if (lastInstallation is BikeInstallation && !bikes.containsKey(lastInstallation.bikeId))
+          DropdownMenuItem<Installation?>(
+            value: lastInstallation,
             child: Row(
               spacing: 8,
               children: [
                 Icon(Bike.iconData, color: Theme.of(context).colorScheme.error),
-                Expanded(child: Text("BIKE NOT FOUND", overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.error)))
+                Expanded(
+                  child: Text(
+                    "BIKE NOT FOUND",
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: Theme.of(context).colorScheme.error),
+                  ),
+                )
               ],
             ),
           ),
       ],
-      onChanged: (String? newBike) {
-        setState(() => _installations = [Installation.sinceBeginning(parent: newBike)]);
+      onChanged: (Installation? newInstallation) {
+        if (newInstallation == null) return;
+        setState(() => _installations = [newInstallation.copyWith()]);
         _changeListener();
       },
     );

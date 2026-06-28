@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
+import '../../models/installation.dart';
 import '../../repositories/app_repository.dart';
 
 class InstallationListTile extends StatelessWidget {
@@ -21,12 +22,11 @@ class InstallationListTile extends StatelessWidget {
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
 
-    final originBikeName = componentInstallation.originParent == null 
-        ? "Archive" 
-        : (bikes[componentInstallation.originParent]?.name ?? "BIKE NOT FOUND");
-    final targetBikeName = componentInstallation.installation.parent == null 
-        ? "Archive" 
-        : (bikes[componentInstallation.installation.parent]?.name ?? "BIKE NOT FOUND");
+    final originParentType = componentInstallation.originParentType ?? InstallationParentType.none;
+    final targetParentType = componentInstallation.installation.parentType;
+
+    final originBikeName = bikes[componentInstallation.originParent]?.name ?? "BIKE NOT FOUND";
+    final targetBikeName = bikes[componentInstallation.installation.parent]?.name ?? "BIKE NOT FOUND";
 
     final isOriginError = componentInstallation.originParent != null && !bikes.containsKey(componentInstallation.originParent);
     final isTargetError = componentInstallation.installation.parent != null && !bikes.containsKey(componentInstallation.installation.parent);
@@ -81,8 +81,8 @@ class InstallationListTile extends StatelessWidget {
               if (!componentInstallation.isInitial) ...[
                 Flexible(
                   child: _CompactBikeLabel(
-                    name: originBikeName,
-                    isDeinstalled: componentInstallation.originParent == null,
+                    parentType: originParentType,
+                    bikeName: originBikeName,
                     isError: isOriginError,
                   ),
                 ),
@@ -98,8 +98,8 @@ class InstallationListTile extends StatelessWidget {
               ],
               Flexible(
                 child: _CompactBikeLabel(
-                  name: targetBikeName,
-                  isDeinstalled: componentInstallation.installation.parent == null,
+                  parentType: targetParentType,
+                  bikeName: targetBikeName,
                   isError: isTargetError,
                 ),
               ),
@@ -114,15 +114,27 @@ class InstallationListTile extends StatelessWidget {
 }
 
 class _CompactBikeLabel extends StatelessWidget {
-  final String name;
-  final bool isDeinstalled;
+  final InstallationParentType parentType;
+  final String bikeName;
   final bool isError;
 
   const _CompactBikeLabel({
-    required this.name,
-    required this.isDeinstalled,
+    required this.parentType,
+    required this.bikeName,
     this.isError = false,
   });
+
+  IconData get _icon => switch (parentType) {
+        InstallationParentType.bike => Bike.iconData,
+        InstallationParentType.none => Icons.shelves,
+        InstallationParentType.archived => Icons.inventory_2_outlined,
+      };
+
+  String get _label => switch (parentType) {
+        InstallationParentType.bike => bikeName,
+        InstallationParentType.none => 'Deinstalled',
+        InstallationParentType.archived => 'Archive',
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -131,13 +143,13 @@ class _CompactBikeLabel extends StatelessWidget {
       spacing: 4,
       children: [
         Icon(
-          isDeinstalled ? Icons.shelves : Bike.iconData,
+          _icon,
           size: 12,
           color: isError ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurfaceVariant,
         ),
         Flexible(
           child: Text(
-            name,
+            _label,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: isError 

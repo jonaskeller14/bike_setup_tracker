@@ -139,7 +139,7 @@ void main() {
           componentType: ComponentType.fork,
           installations: [
             Installation.sinceBeginning(parent: 'b1'),
-            Installation(parent: null, dateTimeUTC: now.toUtc(), dateTimeLocal: now),
+            Archival(dateTimeUTC: now.toUtc(), dateTimeLocal: now),
           ],
           adjustments: [],
         );
@@ -155,9 +155,9 @@ void main() {
       });
 
       testWidgets('bike to archive: shows Archive label for target', (WidgetTester tester) async {
-        // component.bike = 'b1', targetBikeId = null → archive
+        // component.bike = 'b1', archiving → target is an Archival
         await tester.pumpWidget(createWidgetUnderTest(
-          InstallationSheet.add(component: component, targetBikeId: null),
+          InstallationSheet.add(component: component, targetBikeId: null, isArchiving: true),
         ));
         await tester.pumpAndSettle();
 
@@ -213,6 +213,7 @@ void main() {
           component: component,
           installation: installation,
           originParent: 'b1',
+          originParentType: InstallationParentType.bike,
           isInitial: false,
         );
 
@@ -257,6 +258,7 @@ void main() {
           component: component,
           installation: installation,
           originParent: 'b1',
+          originParentType: InstallationParentType.bike,
           isInitial: false,
         );
 
@@ -281,6 +283,7 @@ void main() {
           component: component,
           installation: installation,
           originParent: 'b_missing',
+          originParentType: InstallationParentType.bike,
           isInitial: false,
         );
 

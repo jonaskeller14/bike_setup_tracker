@@ -8,18 +8,20 @@ import '../set_installation_timeline.dart';
 import 'sheet_header.dart';
 
 Future<void> showAddInstallationSheet(BuildContext context, {
-  required Component component, 
-  required String? targetBikeId
+  required Component component,
+  required String? targetBikeId,
+  bool isArchiving = false,
 }) async {
   return showModalBottomSheet<void>(
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
-    context: context, 
+    context: context,
     builder: (context) {
       return InstallationSheet.add(
         component: component,
         targetBikeId: targetBikeId,
+        isArchiving: isArchiving,
       );
     },
   );
@@ -47,19 +49,22 @@ class InstallationSheet extends StatefulWidget {
   final Component component;
   final String? targetBikeId;
   final ComponentInstallation? editEntry;
+  final bool isArchiving;
 
   const InstallationSheet._({
     super.key,
     required this.component,
     this.targetBikeId,
     this.editEntry,
+    this.isArchiving = false,
   });
 
   factory InstallationSheet.add({
     Key? key,
     required Component component,
     required String? targetBikeId,
-  }) => InstallationSheet._(key: key, component: component, targetBikeId: targetBikeId);
+    bool isArchiving = false,
+  }) => InstallationSheet._(key: key, component: component, targetBikeId: targetBikeId, isArchiving: isArchiving);
 
   factory InstallationSheet.edit({
     Key? key,
@@ -85,13 +90,10 @@ class _InstallationSheetState extends State<InstallationSheet> {
     if (widget.editEntry != null) {
       _editableInstallation = widget.editEntry!.installation;
     } else {
-      // Add the new installation entry
       final now = DateTime.now();
-      _editableInstallation = Installation(
-        parent: widget.targetBikeId,
-        dateTimeUTC: now.toUtc(),
-        dateTimeLocal: now,
-      );
+      _editableInstallation = widget.isArchiving
+          ? Archival(dateTimeUTC: now.toUtc(), dateTimeLocal: now)
+          : Installation(parent: widget.targetBikeId, dateTimeUTC: now.toUtc(), dateTimeLocal: now);
       _installations.add(_editableInstallation);
     }
   }
@@ -121,18 +123,27 @@ class _InstallationSheetState extends State<InstallationSheet> {
     final bikes = appRepository.bikes;
     final theme = Theme.of(context);
     
-    final originBikeId = widget.editEntry != null 
-        ? widget.editEntry!.originParent 
-        : widget.component.bike;
-        
-    final targetBikeId = widget.editEntry != null
-        ? widget.editEntry!.installation.parent
-        : widget.targetBikeId;
-        
+    // Origin is the state before this event. In edit mode that is the entry's
+    // recorded origin; in add mode it is the component's latest installation.
+    final originInstallation = widget.editEntry == null
+        ? widget.component.latestInstallation
+        : null;
+    final originParentType = widget.editEntry != null
+        ? widget.editEntry!.originParentType
+        : originInstallation?.parentType;
+    final originBikeId = widget.editEntry != null
+        ? widget.editEntry!.originParent
+        : originInstallation?.parent;
+
+    // Target is derived from the actual installation subtype being edited, so
+    // Deinstallation vs Archival are never confused.
+    final targetParentType = _editableInstallation.parentType;
+    final targetBikeId = _editableInstallation.parent;
+
     final originBikeNotFound = originBikeId != null && bikes[originBikeId] == null;
     final targetBikeNotFound = targetBikeId != null && bikes[targetBikeId] == null;
-    final originBikeName = originBikeId == null ? "Archive" : (bikes[originBikeId]?.name ?? "BIKE NOT FOUND");
-    final targetBikeName = targetBikeId == null ? "Archive" : (bikes[targetBikeId]?.name ?? "BIKE NOT FOUND");
+    final originBikeName = bikes[originBikeId]?.name ?? "BIKE NOT FOUND";
+    final targetBikeName = bikes[targetBikeId]?.name ?? "BIKE NOT FOUND";
     final isInitialInstallation = widget.editEntry != null
         ? widget.editEntry!.isInitial
         : widget.component.installations.isEmpty;
@@ -171,8 +182,8 @@ class _InstallationSheetState extends State<InstallationSheet> {
                             if (!isInitialInstallation)
                               Expanded(
                                 child: _BikePreview(
-                                  name: originBikeName,
-                                  isDeinstalled: originBikeId == null,
+                                  parentType: originParentType ?? InstallationParentType.none,
+                                  bikeName: originBikeName,
                                   isError: originBikeNotFound,
                                 ),
                               ),
@@ -182,8 +193,8 @@ class _InstallationSheetState extends State<InstallationSheet> {
                             ),
                             Expanded(
                               child: _BikePreview(
-                                name: targetBikeName,
-                                isDeinstalled: targetBikeId == null,
+                                parentType: targetParentType,
+                                bikeName: targetBikeName,
                                 isError: targetBikeNotFound,
                               ),
                             ),
@@ -226,15 +237,27 @@ class _InstallationSheetState extends State<InstallationSheet> {
 }
 
 class _BikePreview extends StatelessWidget {
-  final String name;
-  final bool isDeinstalled;
+  final InstallationParentType parentType;
+  final String bikeName;
   final bool isError;
 
   const _BikePreview({
-    required this.name,
-    required this.isDeinstalled,
+    required this.parentType,
+    required this.bikeName,
     this.isError = false,
   });
+
+  IconData get _icon => switch (parentType) {
+        InstallationParentType.bike => Bike.iconData,
+        InstallationParentType.none => Icons.shelves,
+        InstallationParentType.archived => Icons.inventory_2_outlined,
+      };
+
+  String get _label => switch (parentType) {
+        InstallationParentType.bike => bikeName,
+        InstallationParentType.none => 'Deinstalled',
+        InstallationParentType.archived => 'Archive',
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -244,12 +267,12 @@ class _BikePreview extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
-          isDeinstalled ? Icons.shelves : Bike.iconData,
+          _icon,
           color: color,
         ),
         const SizedBox(height: 4),
         Text(
-          name,
+          _label,
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
           maxLines: 2,

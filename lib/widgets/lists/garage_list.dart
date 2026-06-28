@@ -55,14 +55,8 @@ class _GarageListState extends State<GarageList> {
               ]),
             );
           } else if (unarchived.bike != null) {
-            // Timeline: was on a bike before archiving — append an explicit deinstall.
-            final now = DateTime.now();
-            await appRepository.editComponent(
-              unarchived.copyWith(installations: [
-                ...unarchived.installations,
-                Deinstallation(dateTimeUTC: now.toUtc(), dateTimeLocal: now, componentId: component.id),
-              ]),
-            );
+            // Timeline: was on a bike before archiving — open sheet to confirm deinstall date.
+            showAddInstallationSheet(context, component: unarchived, targetBikeId: null);
           } else {
             // Timeline: was already deinstalled before archiving — just drop the Archival.
             await appRepository.editComponent(unarchived);
@@ -104,7 +98,7 @@ class _GarageListState extends State<GarageList> {
     await Future.microtask(() async {
       if (!mounted) return;
       if (appSettings.enableInstallationTimeline) {
-        await appRepository.archiveComponent(component);
+        showAddInstallationSheet(context, component: component, targetBikeId: null, isArchiving: true);
       } else {
         final now = DateTime.now();
         await appRepository.editComponent(

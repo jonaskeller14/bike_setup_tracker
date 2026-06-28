@@ -642,11 +642,12 @@ class AppRepository extends ChangeNotifier {
         final previousInstallation = i > 0 ? sorted[i-1] : null;
         final originParent = previousInstallation?.parent;
         final isInitial = i == 0;
-        
+
         final ci = ComponentInstallation(
           component: component,
           installation: installation,
           originParent: originParent,
+          originParentType: previousInstallation?.parentType,
           isInitial: isInitial,
         );
         
@@ -1377,34 +1378,36 @@ class ComponentInstallation {
   final Component component;
   final Installation installation;
   final String? originParent;
+  final InstallationParentType? originParentType;
   final bool isInitial;
 
   ComponentInstallation({
     required this.component,
     required this.installation,
     this.originParent,
+    this.originParentType,
     this.isInitial = false,
   });
 
   String get label {
     final verb = isInitial
         ? 'Added'
-        : installation is Archival
-            ? 'Archived'
-            : installation.parent != null
-                ? 'Installed'
-                : 'Deinstalled';
+        : switch (installation.parentType) {
+            InstallationParentType.bike => 'Installed',
+            InstallationParentType.none => 'Deinstalled',
+            InstallationParentType.archived => 'Archived',
+          };
     return "$verb ${component.name}";
   }
 
   String get shortLabel {
     final symbol = isInitial
         ? '+'
-        : installation is Archival
-            ? 'x'
-            : installation.parent != null
-                ? '>'
-                : '<';
+        : switch (installation.parentType) {
+            InstallationParentType.bike => '>',
+            InstallationParentType.none => '<',
+            InstallationParentType.archived => 'x',
+          };
     return "$symbol ${component.name}";
   }
 }

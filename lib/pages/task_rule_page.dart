@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
+import '../models/installation.dart';
 import '../models/task/task_association.dart';
 import '../models/task/task_rule.dart';
 import '../models/task/task_threshold.dart';
@@ -431,7 +432,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     );
   }
 
-  DropdownMenuItem<TaskAssociation> _dropdownMenuItemComponent(Component component, Map<String, Bike> bikes, {bool archived = false}) {
+  DropdownMenuItem<TaskAssociation> _dropdownMenuItemComponent(Component component, Map<String, Bike> bikes) {
     return DropdownMenuItem<TaskAssociation>(
       value: ComponentTaskAssociation(component.id),
       child: Row(
@@ -451,41 +452,37 @@ class _TaskRulePageState extends State<TaskRulePage> {
           ),
           Flexible(
             fit: FlexFit.tight,
-            child: archived
-                ? const Row(
-                    spacing: 8,
-                    children: [
-                      Icon(Icons.archive_outlined),
-                      Expanded(
-                        child: Text(
-                          "ARCHIVED",
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  )
-                : Row(
-                    spacing: 8,
-                    children: [
-                      Icon(
-                        component.bike != null ? Bike.iconData : Icons.shelves,
-                        color: component.bike == null || bikes.containsKey(component.bike)
-                            ? null
-                            : Theme.of(context).colorScheme.error,
-                      ),
-                      Expanded(
-                        child: Text(
-                          component.bike == null
-                              ? "Not installed"
-                              : bikes[component.bike]?.name ?? "BIKE NOT FOUND",
-                          style: component.bike == null || bikes.containsKey(component.bike)
-                              ? null
-                              : TextStyle(color: Theme.of(context).colorScheme.error),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
+            child: Row(
+              spacing: 8,
+              children: [
+                Icon(
+                  switch (component.latestInstallation) {
+                    Archival() => Icons.inventory_2_outlined,
+                    BikeInstallation() => Bike.iconData,
+                    Deinstallation() || null => Icons.shelves,
+                  },
+                  color: switch (component.latestInstallation) {
+                    BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
+                    _ => null,
+                  },
+                ),
+                Expanded(
+                  child: Text(
+                    switch (component.latestInstallation) {
+                      Archival() => "Archived",
+                      BikeInstallation(:final bikeId) => bikes[bikeId]?.name ?? "BIKE NOT FOUND",
+                      Deinstallation() || null => "Not installed",
+                    },
+                    style: switch (component.latestInstallation) {
+                      BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) =>
+                          TextStyle(color: Theme.of(context).colorScheme.error),
+                      _ => null,
+                    },
+                    overflow: TextOverflow.ellipsis,
                   ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -716,7 +713,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                       .toList();
                               return [
                                 ...nonArchived.map((c) => _dropdownMenuItemComponent(c, bikes)),
-                                ...archivedPreselected.map((c) => _dropdownMenuItemComponent(c, bikes, archived: true)),
+                                ...archivedPreselected.map((c) => _dropdownMenuItemComponent(c, bikes)),
                               ];
                             })(),
                             ...[

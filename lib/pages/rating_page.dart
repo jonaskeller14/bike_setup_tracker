@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
+import '../models/installation.dart';
 import '../models/person.dart';
 import '../models/rating.dart';
 import '../models/rating_association.dart';
@@ -432,18 +433,26 @@ class _RatingPageState extends State<RatingPage> {
               spacing: 8,
               children: [
                 Icon(
-                  component.bike != null ? Bike.iconData : Icons.shelves,
-                  color: component.bike == null || bikes.containsKey(component.bike)
-                      ? null
-                      : Theme.of(context).colorScheme.error,
+                  switch (component.latestInstallation) {
+                    Archival() => Icons.inventory_2_outlined,
+                    BikeInstallation() => Bike.iconData,
+                    Deinstallation() || null => Icons.shelves,
+                  },
+                  color: switch (component.latestInstallation) {
+                    BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
+                    _ => null,
+                  },
                 ),
                 Expanded(child: Text(
-                  component.bike == null
-                      ? "Not installed"
-                      : bikes[component.bike]?.name ?? "BIKE NOT FOUND",
-                  style: component.bike == null || bikes.containsKey(component.bike)
-                      ? null
-                      : TextStyle(color: Theme.of(context).colorScheme.error),
+                  switch (component.latestInstallation) {
+                    Archival() => "Archived",
+                    BikeInstallation(:final bikeId) => bikes[bikeId]?.name ?? "BIKE NOT FOUND",
+                    Deinstallation() || null => "Not installed",
+                  },
+                  style: switch (component.latestInstallation) {
+                    BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => TextStyle(color: Theme.of(context).colorScheme.error),
+                    _ => null,
+                  },
                   overflow: TextOverflow.ellipsis
                 )),
               ],

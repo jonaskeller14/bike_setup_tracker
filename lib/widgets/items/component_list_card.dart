@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/component.dart';
+import '../../models/installation.dart';
 import '../../pages/details/component_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
@@ -82,23 +83,29 @@ class ComponentListCard extends StatelessWidget{
                         mainAxisSize: MainAxisSize.min,
                         spacing: 2,
                         children: [
-                          Icon(component.bike != null 
-                              ? Bike.iconData 
-                              : Icons.shelves, 
-                            size: 13, 
-                            color: component.bike == null || bikes.containsKey(component.bike) 
-                                ? Theme.of(context).colorScheme.onSurfaceVariant
-                                : Theme.of(context).colorScheme.error,
+                          Icon(switch (component.latestInstallation) {
+                              Archival() => Icons.inventory_2_outlined,
+                              BikeInstallation() => Bike.iconData,
+                              Deinstallation() || null => Icons.shelves,
+                            },
+                            size: 13,
+                            color: switch (component.latestInstallation) {
+                              BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
+                              _ => Theme.of(context).colorScheme.onSurfaceVariant,
+                            },
                           ),
                           Flexible(
                             child: Text(
-                              component.bike == null 
-                                  ? "Not installed" 
-                                  : bikes[component.bike]?.name ?? "BIKE NOT FOUND",
+                              switch (component.latestInstallation) {
+                                Archival() => "Archived",
+                                BikeInstallation(:final bikeId) => bikes[bikeId]?.name ?? "BIKE NOT FOUND",
+                                Deinstallation() || null => "Not installed",
+                              },
                               style: TextStyle(
-                                color: component.bike == null || bikes.containsKey(component.bike) 
-                                    ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                                    : Theme.of(context).colorScheme.error,
+                                color: switch (component.latestInstallation) {
+                                  BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
+                                  _ => Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                },
                                 fontSize: 13,
                               ),
                               overflow: TextOverflow.ellipsis,

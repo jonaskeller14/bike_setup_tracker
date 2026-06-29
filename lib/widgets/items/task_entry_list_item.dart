@@ -251,7 +251,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
           }
         },
         itemBuilder: (BuildContext context) => _TaskEntryListCardPopupMenuButtonOptions.values
-            .where((option) => option != _TaskEntryListCardPopupMenuButtonOptions.dupliate || (taskRule != null && taskRule.interval != null))
+            .where((option) => option != _TaskEntryListCardPopupMenuButtonOptions.dupliate || (taskRule != null && (taskRule.interval != null && taskRule.repeat)))
             .map((option) => PopupMenuItem<_TaskEntryListCardPopupMenuButtonOptions>(
               value: option,
               child: Row(

@@ -431,7 +431,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
     );
   }
 
-  DropdownMenuItem<TaskAssociation> _dropdownMenuItemComponent(Component component, Map<String, Bike> bikes) {
+  DropdownMenuItem<TaskAssociation> _dropdownMenuItemComponent(Component component, Map<String, Bike> bikes, {bool archived = false}) {
     return DropdownMenuItem<TaskAssociation>(
       value: ComponentTaskAssociation(component.id),
       child: Row(
@@ -451,28 +451,41 @@ class _TaskRulePageState extends State<TaskRulePage> {
           ),
           Flexible(
             fit: FlexFit.tight,
-            child: Row(
-              spacing: 8,
-              children: [
-                Icon(
-                  component.bike != null ? Bike.iconData : Icons.shelves,
-                  color: component.bike == null || bikes.containsKey(component.bike)
-                      ? null
-                      : Theme.of(context).colorScheme.error,
-                ),
-                Expanded(
-                  child: Text(
-                    component.bike == null
-                        ? "Not installed"
-                        : bikes[component.bike]?.name ?? "BIKE NOT FOUND",
-                    style: component.bike == null || bikes.containsKey(component.bike)
-                        ? null
-                        : TextStyle(color: Theme.of(context).colorScheme.error),
-                    overflow: TextOverflow.ellipsis,
+            child: archived
+                ? const Row(
+                    spacing: 8,
+                    children: [
+                      Icon(Icons.archive_outlined),
+                      Expanded(
+                        child: Text(
+                          "ARCHIVED",
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  )
+                : Row(
+                    spacing: 8,
+                    children: [
+                      Icon(
+                        component.bike != null ? Bike.iconData : Icons.shelves,
+                        color: component.bike == null || bikes.containsKey(component.bike)
+                            ? null
+                            : Theme.of(context).colorScheme.error,
+                      ),
+                      Expanded(
+                        child: Text(
+                          component.bike == null
+                              ? "Not installed"
+                              : bikes[component.bike]?.name ?? "BIKE NOT FOUND",
+                          style: component.bike == null || bikes.containsKey(component.bike)
+                              ? null
+                              : TextStyle(color: Theme.of(context).colorScheme.error),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
@@ -673,6 +686,12 @@ class _TaskRulePageState extends State<TaskRulePage> {
                             border: const OutlineInputBorder(),
                             fillColor: Colors.orange.withValues(alpha: 0.08),
                             filled: widget.mode == TaskRulePageMode.edit && _association != _initialAssociation,
+                            helperText: (_association is ComponentTaskAssociation &&
+                                    components[_association.componentId]?.isArchived == true)
+                                ? 'WARNING: Tasks of archived components are hidden in the task list.'
+                                : null,
+                            helperMaxLines: 3,
+                            helperStyle: TextStyle(color: Theme.of(context).colorScheme.error),
                           ),
                           items: [
                             _dropdownMenuItemNone(),
@@ -684,22 +703,25 @@ class _TaskRulePageState extends State<TaskRulePage> {
                             ],
                             _dropdownMenuSection("COMPONENTS"),
                             ...(() {
-                              final sorted = components.values
+                              final nonArchived = components.values
                                   .where((c) => !c.isArchived)
                                   .toList()
                                 ..sort((a, b) => (a.bike ?? "").compareTo(b.bike ?? ""));
-                              return sorted.map((c) => _dropdownMenuItemComponent(c, bikes));
+                              final archivedPreselected = widget.mode == TaskRulePageMode.add
+                                  ? <Component>[]
+                                  : components.values
+                                      .where((c) => c.isArchived &&
+                                          _initialAssociation is ComponentTaskAssociation &&
+                                          _initialAssociation.componentId == c.id)
+                                      .toList();
+                              return [
+                                ...nonArchived.map((c) => _dropdownMenuItemComponent(c, bikes)),
+                                ...archivedPreselected.map((c) => _dropdownMenuItemComponent(c, bikes, archived: true)),
+                              ];
                             })(),
                             ...[
                               if (_association is ComponentTaskAssociation && !components.containsKey(_association.componentId))
                                 _dropdownMenuItemMissing(_association),
-                              if (_association is ComponentTaskAssociation &&
-                                  components.containsKey(_association.componentId) &&
-                                  components[_association.componentId]!.isArchived)
-                                _dropdownMenuItemMissing(
-                                  _association,
-                                  label: "COMPONENT ARCHIVED",
-                                ),
                             ],
                           ],
                           onChanged: (v) {

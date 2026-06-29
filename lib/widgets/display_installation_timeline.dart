@@ -83,9 +83,11 @@ class DisplayInstallationTimeline extends StatelessWidget {
                 borderWidth: 2.5,
                 color: colorScheme.secondary,
                 backgroundColor: colorScheme.surface,
-                child: item.installation.parent == null
-                    ? Icon(Icons.close, size: 10, color: colorScheme.secondary)
-                    : null,
+                child: switch (item.installation) {
+                  BikeInstallation() => null,
+                  Deinstallation() => Icon(Icons.close, size: 10, color: colorScheme.secondary),
+                  Archival() => Icon(Icons.close, size: 10, color: colorScheme.secondary),
+                },
               ),
             _TaskItem() => SizedBox(
                 width: 15,
@@ -126,9 +128,11 @@ class _InstallationContents extends StatelessWidget {
     final textTheme = theme.textTheme;
 
     final bikes = context.read<AppRepository>().bikes;
-    final bikeName = installation.parent != null
-        ? bikes[installation.parent]?.name ?? 'BIKE NOT FOUND'
-        : 'Deinstalled';
+    final bikeName = switch (installation) {
+      BikeInstallation() => bikes[installation.parent]?.name ?? 'BIKE NOT FOUND',
+      Deinstallation() => 'Deinstalled',
+      Archival() => 'Archived',
+    };
     final dateStr = installation.dateTimeUTC.millisecondsSinceEpoch == 0
         ? 'From beginning'
         : "${DateFormat(appSettings.dateFormat).format(installation.dateTimeLocal)} • ${DateFormat(appSettings.timeFormat).format(installation.dateTimeLocal)}";
@@ -142,13 +146,13 @@ class _InstallationContents extends StatelessWidget {
           Text(
             bikeName,
             style: textTheme.titleMedium?.copyWith(
-              fontWeight:
-                  installation.parent != null ? FontWeight.bold : FontWeight.normal,
-              color: installation.parent != null
-                  ? bikes[installation.parent]?.name == null
-                      ? colorScheme.error
-                      : colorScheme.onSurface
-                  : colorScheme.onSurfaceVariant,
+              fontWeight: installation is BikeInstallation ? FontWeight.bold : FontWeight.normal,
+              color: switch (installation) {
+                BikeInstallation() => bikes[installation.parent]?.name == null
+                    ? colorScheme.error
+                    : colorScheme.onSurface,
+                Deinstallation() || Archival() => colorScheme.onSurfaceVariant,
+              },
             ),
           ),
           Text(

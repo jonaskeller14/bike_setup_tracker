@@ -43,6 +43,17 @@
             },
             "group": "build",
             "problemMatcher": []
+        },
+        {
+            "label": "Build Runner: Generate .g Files (Drift, Envied)",
+            "type": "shell",
+            "command": "flutter pub run build_runner build",
+            "problemMatcher": [],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
         }
     ]
 }

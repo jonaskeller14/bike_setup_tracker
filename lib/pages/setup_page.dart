@@ -837,7 +837,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 WeatherSuccess() => Text(_currentWeather.value?.getWeatherCodeLabel() ?? "-"),
                 WeatherError() => const Text("Weather Error"),
               },
-              backgroundColor: widget.mode == SetupPageMode.edit && _currentWeather.value != widget.setup?.weather ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.mode == SetupPageMode.edit && _currentWeather.value?.copyWith(condition: widget.setup?.weather?.condition) != widget.setup?.weather ? Colors.orange.withValues(alpha: 0.08) : null,
               onPressed: _locationService.status == LocationStatus.searching || _weatherService.status is WeatherSearching
                   ? null
                   : () async {

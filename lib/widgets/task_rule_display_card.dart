@@ -223,7 +223,17 @@ class TaskRuleDisplayCard extends StatelessWidget {
                           ],
                         ),
                       if (taskRule.delay != null && taskRule.delay!.isPositive)
-                        Icon(Icons.history, size: 13, color: Colors.orange.withValues(alpha: 0.8)),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: 2,
+                          children: [
+                            Icon(Icons.history, size: 13, color: Colors.orange.withValues(alpha: 0.8)),
+                            Text(
+                              '+${taskRule.delay!.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
+                              style: TextStyle(color: Colors.orange.withValues(alpha: 0.8), fontSize: 13),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                   if (showStatus && !isCompleted && taskRule.interval != null)

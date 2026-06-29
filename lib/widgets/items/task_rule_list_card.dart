@@ -209,7 +209,6 @@ class TaskRuleListCard extends StatelessWidget {
               if (taskRule.notes != null && taskRule.notes!.isNotEmpty)
                 _notesWidget(context, taskRule: taskRule),
               Row(
-                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 spacing: 8,
                 children: [
@@ -229,7 +228,22 @@ class TaskRuleListCard extends StatelessWidget {
                       ],
                     ),
                   if (taskRule.delay != null && taskRule.delay!.isPositive)
-                    Icon(Icons.history, size: 13, color: Colors.orange.withValues(alpha: 0.8)),
+                    Flexible(
+                      child: Row(
+                        spacing: 2,
+                        children: [
+                          Icon(Icons.history, size: 13, color: Colors.orange.withValues(alpha: 0.8)),
+                          Expanded(
+                            child: Text(
+                              '+${taskRule.delay!.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
+                              style: TextStyle(color: Colors.orange.withValues(alpha: 0.8), fontSize: 13),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                 ],
               ),
               if (!isCompleted && taskRule.interval != null) ...[

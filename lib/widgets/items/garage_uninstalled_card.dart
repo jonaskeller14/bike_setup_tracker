@@ -11,7 +11,7 @@ import '../dashed_border_painter.dart';
 import 'component_list_card.dart';
 import 'garage_component_icon_card.dart';
 
-class GarageUninstalledCard extends StatelessWidget {
+class GarageUninstalledCard extends StatefulWidget {
   final String? componentToShowDetails;
   final void Function(Component) onPressedComponent;
   final void Function({required String? newBike}) onAcceptWithDetails;
@@ -28,6 +28,15 @@ class GarageUninstalledCard extends StatelessWidget {
     required this.setDraggedComponent,
     required this.draggedComponentNotifier,
   });
+
+  @override
+  State<GarageUninstalledCard> createState() => _GarageUninstalledCardState();
+}
+
+class _GarageUninstalledCardState extends State<GarageUninstalledCard>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
 
   Widget _releaseToDeinstallWidget(
     BuildContext context, {
@@ -271,6 +280,7 @@ class GarageUninstalledCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final appRepository = context.watch<AppRepository>();
 
     final deinstalledComponents = Map.fromEntries(
@@ -301,18 +311,18 @@ class GarageUninstalledCard extends StatelessWidget {
           ),
           DragTarget<Object>(
             onWillAcceptWithDetails: (details) {
-              final d = draggedComponentNotifier.value;
+              final d = widget.draggedComponentNotifier.value;
               final willAccept = d != null && (d.bike != null || d.isArchived);
               if (willAccept) unawaited(HapticFeedback.lightImpact());
               return willAccept;
             },
             onAcceptWithDetails: (details) {
-              onAcceptWithDetails(newBike: null);
-              setDraggedComponent(null);
+              widget.onAcceptWithDetails(newBike: null);
+              widget.setDraggedComponent(null);
             },
             builder: (context, candidateItems, rejectedItems) {
               return ValueListenableBuilder<Component?>(
-                valueListenable: draggedComponentNotifier,
+                valueListenable: widget.draggedComponentNotifier,
                 builder: (context, draggedComp, child) {
                   final bool showDropZone =
                       candidateItems.isNotEmpty &&
@@ -343,6 +353,8 @@ class GarageUninstalledCard extends StatelessWidget {
                                 ? _dragHereToDeinstall(context)
                                 : ReorderableWrap(
                                     key: ValueKey(deinstalledComponents),
+                                    scrollPhysics: const NeverScrollableScrollPhysics(),
+                                    ignorePrimaryScrollController: true,
                                     onReorder: (int oldIndex, int newIndex) =>
                                         context
                                             .read<AppRepository>()
@@ -354,11 +366,11 @@ class GarageUninstalledCard extends StatelessWidget {
                                                       .toList(),
                                             ),
                                     onReorderStarted: (index) =>
-                                        setDraggedComponent(
+                                        widget.setDraggedComponent(
                                           deinstalledComponents.values
                                               .toList()[index],
                                         ),
-                                    onNoReorder: (index) => setDraggedComponent(null),
+                                    onNoReorder: (index) => widget.setDraggedComponent(null),
                                     footer: Container(
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(12),
@@ -385,7 +397,7 @@ class GarageUninstalledCard extends StatelessWidget {
                                     children: deinstalledComponents.values
                                         .map(
                                           (component) => GestureDetector(
-                                            onTap: () => onPressedComponent(component),
+                                            onTap: () => widget.onPressedComponent(component),
                                             onDoubleTap: () async {
                                               await Navigator.push<void>(
                                                 context,
@@ -397,7 +409,7 @@ class GarageUninstalledCard extends StatelessWidget {
                                             child: GarageComponentIconCard(
                                               component: component,
                                               componentToShowDetails:
-                                                  componentToShowDetails,
+                                                  widget.componentToShowDetails,
                                             ),
                                           ),
                                         )
@@ -421,21 +433,21 @@ class GarageUninstalledCard extends StatelessWidget {
           ),
 
           // ── Detail card for selected deinstalled component ───────────
-          if (componentToShowDetails != null && deinstalledComponents.keys.contains(componentToShowDetails))
+          if (widget.componentToShowDetails != null && deinstalledComponents.keys.contains(widget.componentToShowDetails))
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
               child: LongPressDraggable<Component>(
-                data: deinstalledComponents[componentToShowDetails]!,
-                onDragStarted: () => draggedComponentNotifier.value = deinstalledComponents[componentToShowDetails],
-                onDragEnd: (_) => draggedComponentNotifier.value = null,
-                onDraggableCanceled: (_, _) => draggedComponentNotifier.value = null,
+                data: deinstalledComponents[widget.componentToShowDetails]!,
+                onDragStarted: () => widget.draggedComponentNotifier.value = deinstalledComponents[widget.componentToShowDetails],
+                onDragEnd: (_) => widget.draggedComponentNotifier.value = null,
+                onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
                 dragAnchorStrategy: pointerDragAnchorStrategy,
                 feedback: GarageComponentIconCard(
-                  component: deinstalledComponents[componentToShowDetails]!,
-                  componentToShowDetails: componentToShowDetails,
+                  component: deinstalledComponents[widget.componentToShowDetails]!,
+                  componentToShowDetails: widget.componentToShowDetails,
                 ),
                 child: ComponentListCard(
-                  component: deinstalledComponents[componentToShowDetails]!,
+                  component: deinstalledComponents[widget.componentToShowDetails]!,
                   index: null,
                   color: Theme.of(context).colorScheme.tertiaryContainer,
                   showCurrentAdjustmentValues: false,
@@ -445,7 +457,7 @@ class GarageUninstalledCard extends StatelessWidget {
 
           // ── Archived section ─────────────────────────────────────────
           ValueListenableBuilder<Component?>(
-            valueListenable: draggedComponentNotifier,
+            valueListenable: widget.draggedComponentNotifier,
             builder: (context, draggedComp, child) {
               final isDraggingNonArchived =
                   draggedComp != null && !draggedComp.isArchived;
@@ -491,6 +503,8 @@ class GarageUninstalledCard extends StatelessWidget {
                                     ? _dragHereToArchive(context)
                                     : ReorderableWrap(
                                         key: ValueKey(archivedComponents),
+                                        scrollPhysics: const NeverScrollableScrollPhysics(),
+                                        ignorePrimaryScrollController: true,
                                         onReorder: (int oldIndex, int newIndex) {
                                           unawaited(context.read<AppRepository>().reorderComponent(
                                             oldIndex: oldIndex,
@@ -499,17 +513,17 @@ class GarageUninstalledCard extends StatelessWidget {
                                           ));
                                         },
                                         onReorderStarted: (int index) =>
-                                            setDraggedComponent(
+                                            widget.setDraggedComponent(
                                               archivedComponents.values
                                                   .toList()[index],
                                             ),
                                         onNoReorder: (int index) =>
-                                            setDraggedComponent(null),
+                                            widget.setDraggedComponent(null),
                                         spacing: 8,
                                         runSpacing: 8,
                                         children: archivedComponents.values.map((component) {
                                           return GestureDetector(
-                                            onTap: () => onPressedComponent(component),
+                                            onTap: () => widget.onPressedComponent(component),
                                             onDoubleTap: () async {
                                               await Navigator.push<void>(
                                                 context,
@@ -523,7 +537,7 @@ class GarageUninstalledCard extends StatelessWidget {
                                             },
                                             child: GarageComponentIconCard(
                                               component: component,
-                                              componentToShowDetails: componentToShowDetails,
+                                              componentToShowDetails: widget.componentToShowDetails,
                                             ),
                                           );
                                         }).toList(),
@@ -543,32 +557,32 @@ class GarageUninstalledCard extends StatelessWidget {
                   );
                 },
                 onWillAcceptWithDetails: (details) {
-                  final d = draggedComponentNotifier.value;
+                  final d = widget.draggedComponentNotifier.value;
                   final willAccept = d != null && !d.isArchived;
                   if (willAccept) unawaited(HapticFeedback.lightImpact());
                   return willAccept;
                 },
-                onAcceptWithDetails: (details) => onArchiveAccept(),
+                onAcceptWithDetails: (details) => widget.onArchiveAccept(),
               );
             },
           ),
 
           // ── Detail card for selected archived component ──────────────
-          if (componentToShowDetails != null && archivedComponents.keys.contains(componentToShowDetails))
+          if (widget.componentToShowDetails != null && archivedComponents.keys.contains(widget.componentToShowDetails))
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
               child: LongPressDraggable<Component>(
-                data: archivedComponents[componentToShowDetails]!,
-                onDragStarted: () => draggedComponentNotifier.value = archivedComponents[componentToShowDetails],
-                onDragEnd: (_) => draggedComponentNotifier.value = null,
-                onDraggableCanceled: (_, _) => draggedComponentNotifier.value = null,
+                data: archivedComponents[widget.componentToShowDetails]!,
+                onDragStarted: () => widget.draggedComponentNotifier.value = archivedComponents[widget.componentToShowDetails],
+                onDragEnd: (_) => widget.draggedComponentNotifier.value = null,
+                onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
                 dragAnchorStrategy: pointerDragAnchorStrategy,
                 feedback: GarageComponentIconCard(
-                  component: archivedComponents[componentToShowDetails]!,
-                  componentToShowDetails: componentToShowDetails,
+                  component: archivedComponents[widget.componentToShowDetails]!,
+                  componentToShowDetails: widget.componentToShowDetails,
                 ),
                 child: ComponentListCard(
-                  component: archivedComponents[componentToShowDetails]!,
+                  component: archivedComponents[widget.componentToShowDetails]!,
                   index: null,
                   color: Theme.of(context).colorScheme.tertiaryContainer,
                   showCurrentAdjustmentValues: false,

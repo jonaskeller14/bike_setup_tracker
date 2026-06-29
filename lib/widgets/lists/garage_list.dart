@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +26,51 @@ class GarageList extends StatefulWidget {
 class _GarageListState extends State<GarageList> {
   String? _componentToShowDetails;
   final ValueNotifier<Component?> _draggedComponentNotifier = ValueNotifier<Component?>(null);
+  final ScrollController _scrollController = ScrollController();
+  Timer? _scrollTimer;
+  double _scrollDelta = 0;
+
+  static const double _edgeZone = 100.0;
+  static const double _maxScrollSpeed = 18.0;
+
+  @override
+  void dispose() {
+    _scrollTimer?.cancel();
+    _scrollController.dispose();
+    _draggedComponentNotifier.dispose();
+    super.dispose();
+  }
+
+  void _onPointerMove(PointerMoveEvent event) {
+    if (_draggedComponentNotifier.value == null) {
+      _stopEdgeScroll();
+      return;
+    }
+    final screenHeight = MediaQuery.of(context).size.height;
+    final dy = event.position.dy;
+
+    if (dy < _edgeZone) {
+      _scrollDelta = -_maxScrollSpeed * (1 - dy / _edgeZone);
+    } else if (dy > screenHeight - _edgeZone) {
+      _scrollDelta = _maxScrollSpeed * (1 - (screenHeight - dy) / _edgeZone);
+    } else {
+      _stopEdgeScroll();
+      return;
+    }
+
+    _scrollTimer ??= Timer.periodic(const Duration(milliseconds: 16), (_) {
+      if (!_scrollController.hasClients || _scrollController.positions.length != 1) return;
+      final pos = _scrollController.position;
+      final next = (pos.pixels + _scrollDelta).clamp(pos.minScrollExtent, pos.maxScrollExtent);
+      _scrollController.jumpTo(next);
+    });
+  }
+
+  void _stopEdgeScroll() {
+    _scrollTimer?.cancel();
+    _scrollTimer = null;
+    _scrollDelta = 0;
+  }
 
   void _onAcceptWithDetails({String? newBike}) async {
     if (_draggedComponentNotifier.value == null) return;
@@ -194,57 +240,63 @@ class _GarageListState extends State<GarageList> {
 
     return bikesList.isEmpty
         ? _emptyPlaceholder(context)
-        : ReorderableListView.builder(
-            itemCount: bikesList.length,
-            padding: const EdgeInsets.only(
-              left: 16,
-              top: 16,
-              right: 16,
-              bottom: 16 + 100,
-            ),
-            header: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 8,
-              children: [
-                const GettingStartedGuideHint(),
-                if (appRepository.bikes.length >= 2 &&
-                    appRepository.components.isNotEmpty &&
-                    appSettings.showGarageListHint &&
-                    !appSettings.hintShownThisSession)
-                  const GarageListHint(),
-                const BikeListFilterWidget(),
-              ],
-            ),
-            footer: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Divider(height: 50),
-                GarageUninstalledCard(
+        : Listener(
+            onPointerMove: _onPointerMove,
+            onPointerUp: (_) => _stopEdgeScroll(),
+            onPointerCancel: (_) => _stopEdgeScroll(),
+            child: ReorderableListView.builder(
+              scrollController: _scrollController,
+              itemCount: bikesList.length,
+              padding: const EdgeInsets.only(
+                left: 16,
+                top: 16,
+                right: 16,
+                bottom: 16 + 100,
+              ),
+              header: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 8,
+                children: [
+                  const GettingStartedGuideHint(),
+                  if (appRepository.bikes.length >= 2 &&
+                      appRepository.components.isNotEmpty &&
+                      appSettings.showGarageListHint &&
+                      !appSettings.hintShownThisSession)
+                    const GarageListHint(),
+                  const BikeListFilterWidget(),
+                ],
+              ),
+              footer: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Divider(height: 50),
+                  GarageUninstalledCard(
+                    componentToShowDetails: _componentToShowDetails,
+                    onPressedComponent: _onPressedComponent,
+                    onAcceptWithDetails: _onAcceptWithDetails,
+                    onArchiveAccept: _onArchiveAccept,
+                    setDraggedComponent: (Component? c) => _draggedComponentNotifier.value = c,
+                    draggedComponentNotifier: _draggedComponentNotifier,
+                  ),
+                ],
+              ),
+              proxyDecorator: proxyDecorator,
+              onReorderItem: (int oldIndex, int newIndex) => BikeActions.onReorderBikes(context, oldIndex: oldIndex, newIndex: newIndex),
+              itemBuilder: (context, index) {
+                final bike = bikesList[index];
+                return GarageBikeCard(
+                  key: ValueKey(bike.id),
+                  bike: bike,
+                  index: index,
                   componentToShowDetails: _componentToShowDetails,
                   onPressedComponent: _onPressedComponent,
                   onAcceptWithDetails: _onAcceptWithDetails,
-                  onArchiveAccept: _onArchiveAccept,
                   setDraggedComponent: (Component? c) => _draggedComponentNotifier.value = c,
                   draggedComponentNotifier: _draggedComponentNotifier,
-                ),
-              ],
+                );
+              },
             ),
-            proxyDecorator: proxyDecorator,
-            onReorderItem: (int oldIndex, int newIndex) => BikeActions.onReorderBikes(context, oldIndex: oldIndex, newIndex: newIndex),
-            itemBuilder: (context, index) {
-              final bike = bikesList[index];
-              return GarageBikeCard(
-                key: ValueKey(bike.id),
-                bike: bike,
-                index: index,
-                componentToShowDetails: _componentToShowDetails,
-                onPressedComponent: _onPressedComponent,
-                onAcceptWithDetails: _onAcceptWithDetails,
-                setDraggedComponent: (Component? c) => _draggedComponentNotifier.value = c,
-                draggedComponentNotifier: _draggedComponentNotifier,
-              );
-            },
           );
   }
 }

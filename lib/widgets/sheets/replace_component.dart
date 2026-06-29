@@ -174,7 +174,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
     final showStrava = appSettings.enableStrava && subscriptionService.hasStravaEntitlement;
 
     final deinstalledComponents = appRepository.components.values
-        .where((c) => c.id != widget.component.id && c.bike == null)
+        .where((c) => c.id != widget.component.id && c.bike == null && !c.isArchived)
         .toList()
       ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 

@@ -111,20 +111,24 @@ class TipService extends ChangeNotifier {
 
   Future<void> _onPurchaseUpdate(List<PurchaseDetails> purchases) async {
     for (final pd in purchases) {
-      if (!TipProduct.isTipProductId(pd.productID)) continue;
-
       debugPrint('TipService _onPurchaseUpdate: ${pd.productID} → ${pd.status}');
+
+      // On iOS a canceled/failed purchase can arrive with an empty productID,
+      // so the terminal states must clear our busy spinner regardless of the
+      // id — tips are the only purchases this service ever initiates. The
+      // success path stays gated to recognised tip products.
       switch (pd.status) {
         case PurchaseStatus.pending:
-          _setBusy(true);
+          if (TipProduct.isTipProductId(pd.productID)) _setBusy(true);
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
-          _isBusy = false;
-          _errorMessage = null;
-          _justTipped = true;
-          notifyListeners();
+          if (TipProduct.isTipProductId(pd.productID)) {
+            _isBusy = false;
+            _errorMessage = null;
+            _justTipped = true;
+            notifyListeners();
+          }
         case PurchaseStatus.error:
-          _setBusy(false);
           _setError('Tip purchase failed: ${pd.error?.message ?? 'unknown'}');
         case PurchaseStatus.canceled:
           _setBusy(false);

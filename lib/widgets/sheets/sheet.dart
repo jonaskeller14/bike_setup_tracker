@@ -48,30 +48,6 @@ IconButton sheetBackButton(BuildContext context, {required VoidCallback onPresse
   );
 }
 
-class StravaSheetHeader extends StatelessWidget {
-  const StravaSheetHeader({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          spacing: 6,
-          children: [
-            // Strava Brand Orange
-            const Icon(Icons.cloud_off, color: Color(0xFFFC4C02)),
-            sheetTitle(context, 'Strava'),
-          ],
-        ),
-        sheetCloseButton(context),
-      ],
-    );
-  }
-}
-
 class SheetFilterEmptyHint extends StatelessWidget {
   final IconData icon;
   final String title;

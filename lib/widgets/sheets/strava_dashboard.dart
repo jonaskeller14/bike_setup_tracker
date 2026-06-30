@@ -278,7 +278,6 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
         ],
       ),
     );

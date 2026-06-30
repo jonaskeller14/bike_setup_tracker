@@ -143,26 +143,34 @@ class FAQPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Frequently asked Questions')),
-      body: SafeArea(
-        bottom: false,
-        child: SingleChildScrollView(
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: faqSections.entries.map((faqSection) => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SectionTitle(title: faqSection.key),
-                ...faqSection.value.entries.map((faq) => ListTile(
-                  title: SelectableText(faq.key, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: SelectableText(faq.value),
-                  dense: true,
+      body: CustomScrollView(
+        slivers: [
+          SliverSafeArea(
+            top: false,
+            sliver: SliverMainAxisGroup(
+              slivers: [
+                ...faqSections.entries.map((faqSection) => SliverMainAxisGroup(
+                  slivers: [
+                    PinnedHeaderSliver(
+                      child: Container(
+                        color: Theme.of(context).colorScheme.surface,
+                        child: SectionTitle(title: faqSection.key),
+                      ),
+                    ),
+                    SliverList.list(
+                      children: faqSection.value.entries.map((faq) => ListTile(
+                        title: SelectableText(faq.key, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: SelectableText(faq.value),
+                        dense: true,
+                      )).toList(),
+                    ),
+                    const SliverToBoxAdapter(child: Divider()),
+                  ],
                 )),
-                const Divider(),
               ],
-            )).toList(),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

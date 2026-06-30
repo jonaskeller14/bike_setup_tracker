@@ -337,11 +337,14 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                             child: ReorderableWrap(
                               scrollPhysics: const NeverScrollableScrollPhysics(),
                               ignorePrimaryScrollController: true,
-                              onReorder: (int oldIndex, int newIndex) => context.read<AppRepository>().reorderComponent(
-                                oldIndex: oldIndex,
-                                newIndex: newIndex,
-                                filteredComponentsList: bikeComponents.values.toList(),
-                              ),
+                              onReorder: (int oldIndex, int newIndex) async {
+                                await context.read<AppRepository>().reorderComponent(
+                                  oldIndex: oldIndex,
+                                  newIndex: newIndex,
+                                  filteredComponentsList: bikeComponents.values.toList(),
+                                );
+                                widget.setDraggedComponent(null);
+                              },
                               onReorderStarted: (index) => widget.setDraggedComponent(bikeComponents.values.toList()[index]),
                               onNoReorder: (index) => widget.setDraggedComponent(null),
                               runSpacing: 8,

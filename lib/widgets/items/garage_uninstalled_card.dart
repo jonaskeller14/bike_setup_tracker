@@ -357,16 +357,14 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                                     key: ValueKey(deinstalledComponents),
                                     scrollPhysics: const NeverScrollableScrollPhysics(),
                                     ignorePrimaryScrollController: true,
-                                    onReorder: (int oldIndex, int newIndex) =>
-                                        context
-                                            .read<AppRepository>()
-                                            .reorderComponent(
-                                              oldIndex: oldIndex,
-                                              newIndex: newIndex,
-                                              filteredComponentsList:
-                                                  deinstalledComponents.values
-                                                      .toList(),
-                                            ),
+                                    onReorder: (int oldIndex, int newIndex) async {
+                                      await context.read<AppRepository>().reorderComponent(
+                                        oldIndex: oldIndex,
+                                        newIndex: newIndex,
+                                        filteredComponentsList: deinstalledComponents.values.toList(),
+                                      );
+                                      widget.setDraggedComponent(null);
+                                    },  
                                     onReorderStarted: (index) =>
                                         widget.setDraggedComponent(
                                           deinstalledComponents.values
@@ -513,20 +511,18 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                                         key: ValueKey(archivedComponents),
                                         scrollPhysics: const NeverScrollableScrollPhysics(),
                                         ignorePrimaryScrollController: true,
-                                        onReorder: (int oldIndex, int newIndex) {
-                                          unawaited(context.read<AppRepository>().reorderComponent(
+                                        onReorder: (int oldIndex, int newIndex) async {
+                                          await context.read<AppRepository>().reorderComponent(
                                             oldIndex: oldIndex,
                                             newIndex: newIndex,
                                             filteredComponentsList: archivedComponents.values.toList(),
-                                          ));
+                                          );
+                                          widget.setDraggedComponent(null);
                                         },
-                                        onReorderStarted: (int index) =>
-                                            widget.setDraggedComponent(
-                                              archivedComponents.values
-                                                  .toList()[index],
-                                            ),
-                                        onNoReorder: (int index) =>
-                                            widget.setDraggedComponent(null),
+                                        onReorderStarted: (int index) => widget.setDraggedComponent(
+                                          archivedComponents.values.toList()[index],
+                                        ),
+                                        onNoReorder: (int index) => widget.setDraggedComponent(null),
                                         spacing: 8,
                                         runSpacing: 8,
                                         children: archivedComponents.values.map((component) {

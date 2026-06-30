@@ -28,6 +28,7 @@ class AppSettings extends ChangeNotifier {
   bool _enableTaskPriority = true;
   bool _enableTaskInterval = false;
   bool _enableTaskDelay = false;
+  bool _enableGarageTaskIndicator = false;
   bool _enableInstallationTimeline = false;
   bool _useMapBoxTiles = false;
   bool _showStravaLinkGearHint = true;
@@ -72,6 +73,7 @@ class AppSettings extends ChangeNotifier {
   bool get enableTaskPriority => _enableTaskPriority;
   bool get enableTaskInterval => _enableTaskInterval;
   bool get enableTaskDelay => _enableTaskDelay;
+  bool get enableGarageTaskIndicator => _enableGarageTaskIndicator;
   bool get enableInstallationTimeline => _enableInstallationTimeline;
   bool get useMapBoxTiles => _useMapBoxTiles;
   bool get showStravaLinkGearHint => _showStravaLinkGearHint;
@@ -248,6 +250,13 @@ class AppSettings extends ChangeNotifier {
     _persistBool('enableTaskDelay', newValue);
   }
 
+  set enableGarageTaskIndicator(bool newValue) {
+    if (newValue == _enableGarageTaskIndicator) return;
+    _enableGarageTaskIndicator = newValue;
+    notifyListeners();
+    _persistBool('enableGarageTaskIndicator', newValue);
+  }
+
   set useMapBoxTiles(bool newValue) {
     if (newValue == _useMapBoxTiles) return;
     _useMapBoxTiles = newValue;
@@ -422,6 +431,7 @@ class AppSettings extends ChangeNotifier {
       _enableTaskPriority = prefs.getBool('${_kPrefix}enableTaskPriority') ?? _enableTaskPriority;
       _enableTaskInterval = prefs.getBool('${_kPrefix}enableTaskInterval') ?? _enableTaskInterval;
       _enableTaskDelay = prefs.getBool('${_kPrefix}enableTaskDelay') ?? _enableTaskDelay;
+      _enableGarageTaskIndicator = prefs.getBool('${_kPrefix}enableGarageTaskIndicator') ?? _enableGarageTaskIndicator;
       _enableInstallationTimeline = prefs.getBool('${_kPrefix}enableInstallationTimeline') ?? _enableInstallationTimeline;
       _useMapBoxTiles = prefs.getBool('${_kPrefix}useMapBoxTiles') ?? _useMapBoxTiles;
       _showStravaLinkGearHint = prefs.getBool('${_kPrefix}showStravaLinkGearHint') ?? _showStravaLinkGearHint;

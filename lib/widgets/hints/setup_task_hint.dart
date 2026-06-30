@@ -93,7 +93,7 @@ class SetupTaskHint extends StatelessWidget {
                             );
                           },
                           icon: const Icon(Icons.add_task, size: 18),
-                          label: const Text('Turn on Task Management'),
+                          label: const Text('Activate Tasks'),
                         ),
                       ],
                     ),

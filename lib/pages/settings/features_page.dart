@@ -212,6 +212,25 @@ class FeaturesPage extends StatelessWidget {
               ),
               if (kDebugMode)
                 ListTile(
+                  leading: const Icon(Icons.adjust),
+                  title: const Text("Garage Task Indicator"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableGarageTaskIndicator] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Garage Task Indicator",
+                    value: appSettings.enableGarageTaskIndicator,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettings.enableGarageTaskIndicator = newValue;
+                      Navigator.pop(context);
+                    },
+                    infoText: 'Shows a colored status dot on component icons in the Garage when they have open tasks.',
+                  ),
+                ),
+              if (kDebugMode)
+                ListTile(
                   leading: const Icon(Icons.more_time_rounded),
                   title: const Text("Task Delay"),
                   subtitle: _offOnOptionWidgets[appSettings.enableTaskDelay] ?? const Text("-"),

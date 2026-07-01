@@ -6,7 +6,6 @@ import '../../models/bike.dart';
 import '../../models/component.dart';
 import '../../models/component_stats.dart';
 import '../../models/person.dart';
-import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/bike_actions.dart';
@@ -109,26 +108,7 @@ class BikeDetailsPage extends StatelessWidget {
                 const Divider(height: 1),
 
               if (appSettings.enableTask) ...[
-                () {
-                  final openTasks = appRepository.taskRules.values.where((rule) {
-                    if (rule.bikeId == bikeId) return true;
-                    if (rule.componentId != null) {
-                      final component = appRepository.components[rule.componentId];
-                      return component?.bike == bikeId;
-                    }
-                    return false;
-                  }).map((rule) => TaskRuleWithStatus(rule: rule, status: appRepository.getTaskRuleStatus(rule)))
-                  .where((t) => t.status.type != TaskStatusType.completed).toList();
-
-                  openTasks.sort((a, b) {
-                    if (a.status.type != b.status.type) {
-                      return b.status.type.index.compareTo(a.status.type.index);
-                    }
-                    return b.status.progress.compareTo(a.status.progress);
-                  });
-
-                  return OpenTasksTile(openTasks: openTasks, repository: appRepository);
-                }(),
+                OpenTasksTile(openTasks: appRepository.openTaskRulesForBike(bikeId), appRepository: appRepository),
                 const Divider(height: 1),
               ],
 

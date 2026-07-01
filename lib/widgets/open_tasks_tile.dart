@@ -5,46 +5,18 @@ import 'items/task_rule_list_card.dart';
 
 class OpenTasksTile extends StatelessWidget {
   final List<TaskRuleWithStatus> openTasks;
-  final AppRepository repository;
+  final AppRepository appRepository;
 
   const OpenTasksTile({
     super.key,
     required this.openTasks,
-    required this.repository,
+    required this.appRepository,
   });
-
-  static TaskStatusType getAggregatedStatus(Iterable<TaskRule> rules, AppRepository repository) {
-    if (rules.isEmpty) return TaskStatusType.completed;
-
-    bool hasDue = false;
-    bool hasUpcoming = false;
-
-    for (final rule in rules) {
-      final status = repository.getTaskRuleStatus(rule);
-      switch (status.type) {
-        case TaskStatusType.overdue:
-          return TaskStatusType.overdue;
-        case TaskStatusType.due:
-          hasDue = true;
-        case TaskStatusType.upcoming:
-          hasUpcoming = true;
-        case TaskStatusType.completed:
-          break;
-      }
-    }
-
-    if (hasDue) return TaskStatusType.due;
-    if (hasUpcoming) return TaskStatusType.upcoming;
-    return TaskStatusType.completed;
-  }
 
   @override
   Widget build(BuildContext context) {
     final count = openTasks.length;
-    final aggregatedStatus = getAggregatedStatus(
-      openTasks.map((t) => t.rule).toList(),
-      repository,
-    );
+    final aggregatedStatus = appRepository.getAggregatedTaskStatus(openTasks.map((t) => t.rule));
     final isEnabled = count > 0;
 
     return ExpansionTile(

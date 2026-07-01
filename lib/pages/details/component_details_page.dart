@@ -11,7 +11,6 @@ import '../../models/bike.dart';
 import '../../models/component_stats.dart';
 import '../../models/context/context_weather.dart';
 import '../../models/setup.dart';
-import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../theme.dart';
@@ -989,22 +988,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               ],
 
               if (appSettings.enableTask) ...[
-                () {
-                  final openTasks = appRepository.taskRules.values.where((rule) {
-                    if (rule.componentId != widget.componentId) return false;
-                    final status = appRepository.getTaskRuleStatus(rule);
-                    return status.type != TaskStatusType.completed;
-                  }).map((rule) => TaskRuleWithStatus(rule: rule, status: appRepository.getTaskRuleStatus(rule))).toList();
-
-                  openTasks.sort((a, b) {
-                    if (a.status.type != b.status.type) {
-                      return b.status.type.index.compareTo(a.status.type.index);
-                    }
-                    return b.status.progress.compareTo(a.status.progress);
-                  });
-
-                  return OpenTasksTile(openTasks: openTasks, repository: appRepository);
-                }(),
+                OpenTasksTile(openTasks: appRepository.openTaskRulesForComponent(widget.componentId), appRepository: appRepository),
                 const Divider(height: 1),
               ],
 

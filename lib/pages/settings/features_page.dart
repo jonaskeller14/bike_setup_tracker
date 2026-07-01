@@ -155,6 +155,7 @@ class FeaturesPage extends StatelessWidget {
                 ),
               ),
               ListTile(
+                enabled: appSettings.enableTask,
                 leading: const Icon(Icons.tag),
                 title: const Text("Task Tags"),
                 subtitle: _offOnOptionWidgets[appSettings.enableTaskTags] ?? const Text("-"),
@@ -174,6 +175,7 @@ class FeaturesPage extends StatelessWidget {
                 ),
               ),
               ListTile(
+                enabled: appSettings.enableTask,
                 leading: const Icon(Icons.traffic),
                 title: const Text("Task Priority"),
                 subtitle: _offOnOptionWidgets[appSettings.enableTaskPriority] ?? const Text("-"),
@@ -193,6 +195,7 @@ class FeaturesPage extends StatelessWidget {
                 ),
               ),
               ListTile(
+                enabled: appSettings.enableTask,
                 leading: const Icon(Icons.timer),
                 title: const Text("Task Interval"),
                 subtitle: _offOnOptionWidgets[appSettings.enableTaskInterval] ?? const Text("-"),
@@ -212,6 +215,7 @@ class FeaturesPage extends StatelessWidget {
               ),
               if (kDebugMode)
                 ListTile(
+                  enabled: appSettings.enableTask && appSettings.enableGarage,
                   leading: const Icon(Icons.adjust),
                   title: const Text("Garage Task Indicator"),
                   subtitle: _offOnOptionWidgets[appSettings.enableGarageTaskIndicator] ?? const Text("-"),
@@ -231,6 +235,7 @@ class FeaturesPage extends StatelessWidget {
                 ),
               if (kDebugMode)
                 ListTile(
+                  enabled: appSettings.enableTask,
                   leading: const Icon(Icons.more_time_rounded),
                   title: const Text("Task Delay"),
                   subtitle: _offOnOptionWidgets[appSettings.enableTaskDelay] ?? const Text("-"),

@@ -4,7 +4,6 @@ import '../../models/app_settings.dart';
 import '../../models/component.dart';
 import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
-import '../open_tasks_tile.dart';
 
 class GarageComponentIconCard extends StatelessWidget {
   final Component component;
@@ -20,14 +19,7 @@ class GarageComponentIconCard extends StatelessWidget {
 
     TaskStatusType? indicatorStatus;
     if (appSettings.enableTask && appSettings.enableGarageTaskIndicator) {
-      final appRepository = context.watch<AppRepository>();
-      final openRules = appRepository.taskRules.values
-          .where((rule) => rule.componentId == component.id)
-          .where((rule) => appRepository.getTaskRuleStatus(rule).type != TaskStatusType.completed)
-          .toList();
-      if (openRules.isNotEmpty) {
-        indicatorStatus = OpenTasksTile.getAggregatedStatus(openRules, appRepository);
-      }
+      indicatorStatus = context.watch<AppRepository>().componentTaskIndicatorStatus(component.id);
     }
 
     return Stack(

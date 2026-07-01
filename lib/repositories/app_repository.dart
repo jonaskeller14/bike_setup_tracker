@@ -206,10 +206,10 @@ class AppRepository extends ChangeNotifier {
   Map<String, TaskRule> _filteredOpenTaskRules = {};
   List<ComponentInstallation> _filteredInstallations = [];
 
-  List<TaskRuleWithStatus> get openTaskRules {
-    final statusRules = _filteredTaskRules.values.map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule)));
+  List<TaskRuleWithStatus> _openTaskRulesWithStatus(Iterable<TaskRule> rules) {
+    final statusRules = rules.map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule)));
     final toDo = statusRules.where((tr) => tr.status.type != TaskStatusType.completed).toList();
-    
+
     // Sort open Tasks: Status (Overdue > Due > Upcoming), then by progress, then by Priority (Critical > High > Medium > Low)
     toDo.sort((a, b) {
       if (a.status.type.index != b.status.type.index) {
@@ -223,14 +223,32 @@ class AppRepository extends ChangeNotifier {
     });
     return toDo;
   }
-  
-  TaskStatusType get openTaskRulesStatusType {
-    if (_filteredTaskRules.isEmpty) return TaskStatusType.completed;
+
+  List<TaskRuleWithStatus> get openTaskRules => _openTaskRulesWithStatus(_filteredTaskRules.values);
+
+  /// Open (non-completed) task rules for a bike, including rules attached to its components.
+  List<TaskRuleWithStatus> openTaskRulesForBike(String bikeId) {
+    final rules = _taskRules.values.where((rule) {
+      if (rule.bikeId == bikeId) return true;
+      if (rule.componentId != null) return _components[rule.componentId]?.bike == bikeId;
+      return false;
+    });
+    return _openTaskRulesWithStatus(rules);
+  }
+
+  /// Open (non-completed) task rules for a single component.
+  List<TaskRuleWithStatus> openTaskRulesForComponent(String componentId) {
+    return _openTaskRulesWithStatus(_taskRules.values.where((rule) => rule.componentId == componentId));
+  }
+
+  /// Aggregates the worst status across [rules]: any overdue wins, else any due, else any upcoming, else completed.
+  TaskStatusType getAggregatedTaskStatus(Iterable<TaskRule> rules) {
+    if (rules.isEmpty) return TaskStatusType.completed;
 
     bool hasDue = false;
     bool hasUpcoming = false;
 
-    for (final rule in _filteredTaskRules.values) {
+    for (final rule in rules) {
       final status = getTaskRuleStatus(rule);
       switch (status.type) {
         case TaskStatusType.overdue:
@@ -247,6 +265,15 @@ class AppRepository extends ChangeNotifier {
     if (hasDue) return TaskStatusType.due;
     if (hasUpcoming) return TaskStatusType.upcoming;
     return TaskStatusType.completed;
+  }
+
+  TaskStatusType get openTaskRulesStatusType => getAggregatedTaskStatus(_filteredTaskRules.values);
+
+  /// Worst status among a component's open task rules, or null if it has none.
+  TaskStatusType? componentTaskIndicatorStatus(String componentId) {
+    final openRules = openTaskRulesForComponent(componentId);
+    if (openRules.isEmpty) return null;
+    return getAggregatedTaskStatus(openRules.map((t) => t.rule));
   }
 
   List<TaskRuleWithStatus> get completedTaskRules {

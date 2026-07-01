@@ -8,8 +8,8 @@ import '../models/person.dart';
 import '../models/strava/strava_athlete.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
-import '../widgets/dashed_border_painter.dart';
 import '../widgets/dialogs/discard_changes.dart';
+import '../widgets/empty_state_placeholder2.dart';
 import '../widgets/lists/adjustment_edit_list.dart';
 import '../widgets/sheets/person_add_adjustment.dart';
 import '../widgets/text/section_title.dart';
@@ -222,65 +222,6 @@ class _PersonPageState extends State<PersonPage> {
     onChanged?.call();
   }
 
-  Widget _emptyAdjustmentsInfo({String? errorText, VoidCallback? onTap}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: CustomPaint(
-        painter: DashedBorderPainter(
-          color: errorText != null 
-              ? Theme.of(context).colorScheme.error 
-              : Theme.of(context).colorScheme.outlineVariant,
-          strokeWidth: 1.5,
-          dashWidth: 6,
-          dashSpace: 4,
-          borderRadius: 12,
-        ),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                errorText != null ? Icons.warning_amber_rounded : Icons.add_circle_outline, 
-                size: 32, 
-                color: errorText != null 
-                    ? Theme.of(context).colorScheme.error 
-                    : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)
-              ),
-              const SizedBox(height: 12),
-              Text(
-                errorText ?? "No attributes yet",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: errorText != null 
-                      ? Theme.of(context).colorScheme.error 
-                      : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                errorText != null 
-                    ? "Tap here to add the first attribute" 
-                    : "Tap 'Add Attribute' to define parameters for this person",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: errorText != null 
-                      ? Theme.of(context).colorScheme.error.withValues(alpha: 0.7) 
-                      : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-                  fontSize: 13,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _nameField() {
     return TextFormField(
       controller: _nameController,
@@ -473,8 +414,11 @@ class _PersonPageState extends State<PersonPage> {
                                     removeAdjustment: (a) => removeAdjustment(a, onChanged: notify),
                                     onReorderAdjustments: (int oldIndex, int newIndex) => _onReorderAdjustments(oldIndex, newIndex, onChanged: notify),
                                   )
-                                : _emptyAdjustmentsInfo(
-                                    errorText: field.errorText,
+                                : EmptyStatePlaceholder2(
+                                    title: "No attributes yet",
+                                    errorTitle: field.errorText,
+                                    subtitle: "Tap 'Add Attribute' to define parameters for this person",
+                                    errorSubtitle: "Tap here to add the first attribute",
                                     onTap: showAddBottomSheet,
                                   ),
                             const SizedBox(height: 8),

@@ -10,8 +10,8 @@ import '../models/rating.dart';
 import '../models/rating_association.dart';
 import '../models/rating_metric.dart';
 import '../repositories/app_repository.dart';
-import '../widgets/dashed_border_painter.dart';
 import '../widgets/dialogs/discard_changes.dart';
+import '../widgets/empty_state_placeholder2.dart';
 import '../widgets/lists/adjustment_edit_list.dart';
 import '../widgets/sheets/rating_add_adjustment.dart';
 import '../widgets/text/section_title.dart';
@@ -229,65 +229,6 @@ class _RatingPageState extends State<RatingPage> {
     });
     _changeListener();
     onChanged?.call();
-  }
-
-  Widget _emptyAdjustmentsInfo({String? errorText, VoidCallback? onTap}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: CustomPaint(
-        painter: DashedBorderPainter(
-          color: errorText != null 
-              ? Theme.of(context).colorScheme.error 
-              : Theme.of(context).colorScheme.outlineVariant,
-          strokeWidth: 1.5,
-          dashWidth: 6,
-          dashSpace: 4,
-          borderRadius: 12,
-        ),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                errorText != null ? Icons.warning_amber_rounded : Icons.add_circle_outline, 
-                size: 32, 
-                color: errorText != null 
-                    ? Theme.of(context).colorScheme.error 
-                    : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)
-              ),
-              const SizedBox(height: 12),
-              Text(
-                errorText ?? "No metrics yet",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: errorText != null 
-                      ? Theme.of(context).colorScheme.error 
-                      : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                errorText != null 
-                    ? "Tap here to add the first metric" 
-                    : "Tap 'Add Metric' to define metrics to evaluate setups",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: errorText != null 
-                      ? Theme.of(context).colorScheme.error.withValues(alpha: 0.7) 
-                      : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-                  fontSize: 13,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _nameField() {
@@ -697,8 +638,11 @@ class _RatingPageState extends State<RatingPage> {
                                     removeAdjustment: (a) => removeMetric(_metrics.firstWhere((m) => m.id == a.id), onChanged: notify),
                                     onReorderAdjustments: (oldIndex, newIndex) => _onReorderMetrics(oldIndex, newIndex, onChanged: notify),
                                   )
-                                : _emptyAdjustmentsInfo(
-                                    errorText: field.errorText,
+                                : EmptyStatePlaceholder2(
+                                    title: "No metrics yet",
+                                    errorTitle: field.errorText,
+                                    subtitle: "Tap 'Add Metric' to define metrics to evaluate setups",
+                                    errorSubtitle: "Tap here to add the first metric", 
                                     onTap: showAddBottomSheet,
                                   ),
                             const SizedBox(height: 8),

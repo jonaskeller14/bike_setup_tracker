@@ -11,8 +11,8 @@ import '../models/context/context_position.dart';
 import '../models/installation.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
-import '../widgets/dashed_border_painter.dart';
 import '../widgets/dialogs/discard_changes.dart';
+import '../widgets/empty_state_placeholder2.dart';
 import '../widgets/lists/adjustment_edit_list.dart';
 import '../widgets/set_installation_timeline.dart';
 import '../widgets/sheets/component_add_adjustment.dart';
@@ -283,65 +283,6 @@ class _ComponentPageState extends State<ComponentPage> {
     });
     _changeListener();
     onChanged?.call();
-  }
-
-  Widget _emptyAdjustmentsInfo({String? errorText, VoidCallback? onTap}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: CustomPaint(
-        painter: DashedBorderPainter(
-          color: errorText != null 
-              ? Theme.of(context).colorScheme.error 
-              : Theme.of(context).colorScheme.outlineVariant,
-          strokeWidth: 1.5,
-          dashWidth: 6,
-          dashSpace: 4,
-          borderRadius: 12,
-        ),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                errorText != null ? Icons.warning_amber_rounded : Icons.add_circle_outline, 
-                size: 32, 
-                color: errorText != null 
-                    ? Theme.of(context).colorScheme.error 
-                    : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)
-              ),
-              const SizedBox(height: 12),
-              Text(
-                errorText ?? "No adjustments yet",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: errorText != null 
-                      ? Theme.of(context).colorScheme.error 
-                      : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                errorText != null 
-                    ? "Tap here to add the first adjustment" 
-                    : "Tap 'Add Adjustment' to define settings for this component",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: errorText != null 
-                      ? Theme.of(context).colorScheme.error.withValues(alpha: 0.7) 
-                      : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-                  fontSize: 13,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _nameField() {
@@ -783,8 +724,11 @@ class _ComponentPageState extends State<ComponentPage> {
                                     removeAdjustment: (a) => removeAdjustment(a, onChanged: notify),
                                     onReorderAdjustments: (int oldIndex, int newIndex) => _onReorderAdjustments(oldIndex, newIndex, onChanged: notify),
                                   )
-                                : _emptyAdjustmentsInfo(
-                                    errorText: field.errorText,
+                                : EmptyStatePlaceholder2(
+                                    title: "No adjustments yet",
+                                    errorTitle: field.errorText,
+                                    subtitle: "Tap 'Add Adjustment' to define settings for this component",
+                                    errorSubtitle: "Tap here to add the first adjustment",
                                     onTap: showAddBottomSheet,
                                   ),
                             const SizedBox(height: 8),

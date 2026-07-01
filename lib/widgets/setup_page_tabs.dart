@@ -5,8 +5,8 @@ import '../models/adjustment/adjustment.dart';
 import '../models/component.dart';
 import '../models/person.dart';
 import '../utils/component_actions.dart';
-import 'dashed_border_painter.dart';
 import 'display_adjustment/display_dangling_adjustment.dart';
+import 'empty_state_placeholder2.dart';
 import 'initial_changed_value_legend.dart';
 import 'lists/adjustment_set_list.dart';
 
@@ -124,51 +124,11 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        InkWell(
-          onTap: () => ComponentActions.addComponent(context, initialBike: bike),
-          borderRadius: BorderRadius.circular(12),
-          child: CustomPaint(
-            painter: DashedBorderPainter(
-              color: Theme.of(context).colorScheme.outlineVariant,
-              strokeWidth: 1.5,
-              dashWidth: 6,
-              dashSpace: 4,
-              borderRadius: 12,
-            ),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Component.iconData,
-                    size: 32,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    "No components yet",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "Add a component to this bike to start tracking adjustments",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        EmptyStatePlaceholder2(
+          iconData: Component.iconData,
+          title: "No components yet",
+          subtitle: "Add a component to this bike to start tracking adjustments",
+          onTap: () => ComponentActions.addComponent(context, initialBike: bike)
         ),
         const SizedBox(height: 8),
         FilledButton.icon(
@@ -300,51 +260,6 @@ class SetupPersonTab extends StatelessWidget {
     required this.onDanglingRemove,
   });
 
-  Widget _buildEmptyPersonPlaceholder(BuildContext context) {
-    return CustomPaint(
-      painter: DashedBorderPainter(
-        color: Theme.of(context).colorScheme.outlineVariant,
-        strokeWidth: 1.5,
-        dashWidth: 6,
-        dashSpace: 4,
-        borderRadius: 12,
-      ),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Person.iconData,
-              size: 32,
-              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              "No person linked",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              "No person linked to this bike. \nExit and edit bike to link a person.",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-                fontSize: 13,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final person = persons[personId];
@@ -353,7 +268,11 @@ class SetupPersonTab extends StatelessWidget {
       showLegend: person != null || danglingPersonAdjustmentValues.isNotEmpty,
       children: [
         if (person == null)
-          _buildEmptyPersonPlaceholder(context)
+          const EmptyStatePlaceholder2(
+            iconData: Person.iconData,
+            title: "No person linked",
+            subtitle: "No person linked to this bike. \nExit and edit bike to link a person.",
+          )
         else
           Card(
             margin: const EdgeInsets.symmetric(vertical: 4),

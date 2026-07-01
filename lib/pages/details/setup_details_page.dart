@@ -12,6 +12,7 @@ import '../../services/image_storage_service.dart';
 import '../../utils/setup_actions.dart';
 import '../../widgets/display_adjustment/display_adjustment_list.dart';
 import '../../widgets/display_adjustment/display_dangling_adjustment.dart';
+import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/image_strip.dart';
 import '../../widgets/initial_changed_value_legend.dart';
 import '../../widgets/items/context_location_card.dart';
@@ -310,14 +311,10 @@ class SetupDetailsPageContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (bikeComponents.isEmpty)
-              SizedBox(
-                height: 50,
-                child: Center(
-                  child: Text(
-                    'No components available.',
-                    style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                  ),
-                ),
+              const EmptyStatePlaceholder2(
+                iconData: Component.iconData,
+                title: "No components yet",
+                subtitle: "Add a component to this bike to start tracking adjustments",
               )
             else
               ...bikeComponents.map((bikeComponent) {

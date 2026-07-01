@@ -212,7 +212,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                           ButtonSegment(
                             value: _ReplaceMode.existing,
                             label: Text("Existing"),
-                            icon: Icon(Icons.inventory_2_outlined),
+                            icon: Icon(Icons.shelves),
                           ),
                           ButtonSegment(
                             value: _ReplaceMode.create,

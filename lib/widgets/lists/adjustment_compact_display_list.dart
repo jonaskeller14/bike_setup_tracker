@@ -231,6 +231,7 @@ class _AdjustmentTableRow extends StatelessWidget {
                 ),
                 if (item.notes != null)
                   Row(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
@@ -242,7 +243,7 @@ class _AdjustmentTableRow extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 2),
-                      Expanded(
+                      Flexible(
                         child: Text(
                           item.notes!,
                           style: TextStyle(

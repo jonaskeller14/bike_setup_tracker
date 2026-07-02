@@ -38,6 +38,7 @@ Widget nameNotesSetAdjustmentWidget({required BuildContext context, required Adj
                     ),
                     if (adjustment.notes != null)
                       Row(
+                        mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
@@ -49,7 +50,7 @@ Widget nameNotesSetAdjustmentWidget({required BuildContext context, required Adj
                             ),
                           ),
                           const SizedBox(width: 2),
-                          Expanded(
+                          Flexible(
                             child: Text(
                               adjustment.notes!,
                               style: TextStyle(

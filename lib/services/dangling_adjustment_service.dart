@@ -1,6 +1,8 @@
+import 'package:collection/collection.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component.dart';
 import '../models/person.dart';
+import '../models/setup.dart';
 
 class DanglingComponentGroup {
   final Component component;
@@ -30,7 +32,63 @@ class DanglingPersonSplit {
   const DanglingPersonSplit({required this.groups, required this.deletedValues});
 }
 
+class SetupAdjustmentBreakdown {
+  final List<Component> components;
+  final DanglingComponentSplit componentSplit;
+  final Person? person;
+  final DanglingPersonSplit personSplit;
+
+  const SetupAdjustmentBreakdown({
+    required this.components,
+    required this.componentSplit,
+    required this.person,
+    required this.personSplit,
+  });
+
+  List<Component> get danglingComponents => componentSplit.groups.map((g) => g.component).toList();
+  List<Person> get danglingPersons => personSplit.groups.map((g) => g.person).toList();
+}
+
 class DanglingAdjustmentService {
+  static SetupAdjustmentBreakdown analyzeSetup({
+    required Setup setup,
+    required Iterable<Component> components,
+    required Iterable<Person> persons,
+  }) {
+    final List<Component> bikeComponents = components
+        .where((c) => c.bikeAt(setup.datetimeLocal.toUtc()) == setup.bike)
+        .toList();
+
+    final Map<String, dynamic> danglingBikeValues = Map.from(setup.bikeAdjustmentValues);
+    for (final component in bikeComponents) {
+      for (final adjustment in component.adjustments) {
+        danglingBikeValues.remove(adjustment.id);
+      }
+    }
+    final componentSplit = splitComponents(
+      danglingValues: danglingBikeValues,
+      components: components,
+    );
+
+    final person = persons.firstWhereOrNull((p) => p.id == setup.person);
+
+    final Map<String, dynamic> danglingPersonValues = Map.from(setup.personAdjustmentValues);
+    for (final adjustment in person?.adjustments ?? const <Adjustment>[]) {
+      danglingPersonValues.remove(adjustment.id);
+    }
+    final personSplit = splitPersons(
+      danglingValues: danglingPersonValues,
+      persons: persons,
+    );
+
+    return SetupAdjustmentBreakdown(
+      components: bikeComponents,
+      componentSplit: componentSplit,
+      person: person,
+      personSplit: personSplit,
+    );
+  }
+
   static DanglingComponentSplit splitComponents({
     required Map<String, dynamic> danglingValues,
     required Iterable<Component> components,

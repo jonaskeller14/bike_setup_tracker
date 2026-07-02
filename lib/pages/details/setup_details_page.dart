@@ -630,28 +630,16 @@ class SetupDetailsPageContent extends StatelessWidget {
     final components = appRepository.components;
 
     final Bike? bike = bikes[setup.bike];
-    final Iterable<Component> bikeComponents = components.values.where((c) => c.bikeAt(setup.datetimeLocal.toUtc()) == setup.bike);
-    final Person? person = persons[setup.person];
 
-    final Map<String, dynamic> danglingBikeAdjustmentValues = Map.from(setup.bikeAdjustmentValues);
-    for (final bikeComponent in bikeComponents) {
-      for (final bikeComponentAdj in bikeComponent.adjustments) {
-        danglingBikeAdjustmentValues.remove(bikeComponentAdj.id);
-      }
-    }
-    final componentSplit = DanglingAdjustmentService.splitComponents(
-      danglingValues: danglingBikeAdjustmentValues,
+    final breakdown = DanglingAdjustmentService.analyzeSetup(
+      setup: setup,
       components: components.values,
-    );
-
-    final Map<String, dynamic> danglingPersonAdjustmentValues = Map.from(setup.personAdjustmentValues);
-    for (final personAdj in (person?.adjustments ?? [])) {
-      danglingPersonAdjustmentValues.remove(personAdj.id);
-    }
-    final personSplit = DanglingAdjustmentService.splitPersons(
-      danglingValues: danglingPersonAdjustmentValues,
       persons: persons.values,
     );
+    final Iterable<Component> bikeComponents = breakdown.components;
+    final Person? person = breakdown.person;
+    final componentSplit = breakdown.componentSplit;
+    final personSplit = breakdown.personSplit;
 
     return CustomScrollView(
       slivers: [

@@ -7,6 +7,7 @@ import '../../models/context/context_weather.dart';
 import '../../models/rating_entry.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/dangling_adjustment_service.dart';
 import '../../utils/setup_actions.dart';
 import '../lists/adjustment_compact_display_list.dart';
 
@@ -29,7 +30,14 @@ class SetupListCard extends StatefulWidget {
 }
 
 class _SetupListCardState extends State<SetupListCard> {
-  bool _displayOnlyChanges = true;  //TODO: should be false for Setup.isCurrent == true
+  late bool _displayOnlyChanges;
+
+  @override
+  void initState() {
+    super.initState();
+    final setup = context.read<AppRepository>().setups[widget.setupId];
+    _displayOnlyChanges = !(setup?.isCurrent ?? false);
+  }
 
   Widget _setupCardCurrentLabel(BuildContext context) {
     return Positioned(
@@ -78,7 +86,7 @@ class _SetupListCardState extends State<SetupListCard> {
     );
   }
 
-  Widget _setupListTile(BuildContext context, Setup setup) {
+  Widget _setupListTile(BuildContext context, Setup setup, AdjustmentCompactSummary summary) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
@@ -334,18 +342,17 @@ class _SetupListCardState extends State<SetupListCard> {
                     }).toList();
                   },
                 ),
-                ExpandIcon(  
-                  //FIXME: only show this if setup has (valid) values,
-                  //FIXME: only enable button of difference between displayONlyChanges and displayAll
-                  isExpanded: !_displayOnlyChanges,
-                  color: PopupMenuTheme.of(context).iconColor ?? IconTheme.of(context).color,
-                  expandedColor: Theme.of(context).colorScheme.primary,
-                  onPressed: (bool expanded) {
-                    setState(() {
-                      _displayOnlyChanges = expanded;
-                    });
-                  },
-                )
+                if (summary.collapsedHidesSomething)
+                  ExpandIcon(
+                    isExpanded: !_displayOnlyChanges,
+                    color: PopupMenuTheme.of(context).iconColor ?? IconTheme.of(context).color,
+                    expandedColor: Theme.of(context).colorScheme.primary,
+                    onPressed: (bool expanded) {
+                      setState(() {
+                        _displayOnlyChanges = expanded;
+                      });
+                    },
+                  )
               ],
             ),
           ],
@@ -359,10 +366,34 @@ class _SetupListCardState extends State<SetupListCard> {
     final appRepository = context.watch<AppRepository>();
     final appSettings = context.watch<AppSettings>();
     final setups = appRepository.setups;
-    final components = appRepository.components;
-    final persons = appRepository.persons;
     final setup = setups[widget.setupId];
     if (setup == null) return const SizedBox.shrink();
+
+    final breakdown = DanglingAdjustmentService.analyzeSetup(
+      setup: setup,
+      components: appRepository.components.values,
+      persons: appRepository.persons.values,
+    );
+    final adjustmentValues = {
+      ...setup.bikeAdjustmentValues,
+      ...setup.personAdjustmentValues,
+    };
+    final previousAdjustmentValues = {
+      ...setup.previousBikeAdjustmentValues,
+      ...setup.previousPersonAdjustmentValues,
+    };
+    final displayPerson = widget.displayPersonAdjustmentValues && appSettings.enablePerson;
+
+    final summary = AdjustmentCompactDisplayList.summarize(
+      components: breakdown.components,
+      persons: breakdown.person != null ? [breakdown.person!] : const [],
+      danglingComponents: breakdown.danglingComponents,
+      danglingPersons: breakdown.danglingPersons,
+      adjustmentValues: adjustmentValues,
+      previousAdjustmentValues: previousAdjustmentValues,
+      displayBikeAdjustmentValues: widget.displayBikeAdjustmentValues,
+      displayPersonAdjustmentValues: displayPerson,
+    );
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
@@ -382,7 +413,7 @@ class _SetupListCardState extends State<SetupListCard> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _setupListTile(context, setup),
+                _setupListTile(context, setup, summary),
                 AnimatedSize(
                   duration: const Duration(milliseconds: 400),
                   curve: Curves.easeInOut,
@@ -390,18 +421,17 @@ class _SetupListCardState extends State<SetupListCard> {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     child: AdjustmentCompactDisplayList(
-                      components: components.values,
-                      persons: persons.values,
-                      adjustmentValues: {for (var e in setup.personAdjustmentValues.entries) e.key: e.value, for (var e in setup.bikeAdjustmentValues.entries) e.key: e.value},
-                      previousAdjustmentValues: {
-                        for (var e in setup.previousBikeAdjustmentValues.entries) e.key: e.value,
-                        for (var e in setup.previousPersonAdjustmentValues.entries) e.key: e.value,
-                      },
+                      components: breakdown.components,
+                      persons: breakdown.person != null ? [breakdown.person!] : const [],
+                      danglingComponents: breakdown.danglingComponents,
+                      danglingPersons: breakdown.danglingPersons,
+                      adjustmentValues: adjustmentValues,
+                      previousAdjustmentValues: previousAdjustmentValues,
                       showRowIcons: true,
                       highlightInitialValues: true,
                       displayOnlyChanges: _displayOnlyChanges,
                       displayBikeAdjustmentValues: widget.displayBikeAdjustmentValues,
-                      displayPersonAdjustmentValues: widget.displayPersonAdjustmentValues && appSettings.enablePerson,
+                      displayPersonAdjustmentValues: displayPerson,
                     ),
                   ),
                 ),

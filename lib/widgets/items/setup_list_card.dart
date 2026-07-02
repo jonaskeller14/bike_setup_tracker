@@ -10,10 +10,9 @@ import '../../repositories/app_repository.dart';
 import '../../utils/setup_actions.dart';
 import '../lists/adjustment_compact_display_list.dart';
 
-class SetupListCard extends StatelessWidget {
+class SetupListCard extends StatefulWidget {
   final String setupId;
   final void Function()? onTap;
-  final bool displayOnlyChanges;
   final bool displayBikeAdjustmentValues;
   final bool displayPersonAdjustmentValues;
 
@@ -21,10 +20,16 @@ class SetupListCard extends StatelessWidget {
     super.key,
     required this.setupId,
     required this.onTap,
-    required this.displayOnlyChanges,
     required this.displayBikeAdjustmentValues,
     required this.displayPersonAdjustmentValues,
   });
+
+  @override
+  State<SetupListCard> createState() => _SetupListCardState();
+}
+
+class _SetupListCardState extends State<SetupListCard> {
+  bool _displayOnlyChanges = true;  //TODO: should be false for Setup.isCurrent == true
 
   Widget _setupCardCurrentLabel(BuildContext context) {
     return Positioned(
@@ -73,7 +78,7 @@ class SetupListCard extends StatelessWidget {
     );
   }
 
-  ListTile _setupListTile(BuildContext context, Setup setup) {
+  Widget _setupListTile(BuildContext context, Setup setup) {
     final appSettings = context.watch<AppSettings>();
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
@@ -81,243 +86,270 @@ class SetupListCard extends StatelessWidget {
         ? appRepository.scoreForSetup(setup.id)
         : null;
 
-    return ListTile(
-      contentPadding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-      minTileHeight: 0,
-      titleAlignment: ListTileTitleAlignment.top,
-      title: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 8,
-        children: [
-          Expanded(
-            child: Text(
-              setup.displayName,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 3,
-            ),
-          ),
-          if (score != null)
-            _scoreBadge(context, score),
-        ],
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            alignment: WrapAlignment.start,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 4,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 2,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 8,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.calendar_month, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  Text(
-                    DateFormat(appSettings.dateFormat).format(setup.datetimeLocal),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                      fontSize: 13,
-                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 8,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          setup.displayName,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 3,
+                        ),
+                      ),
+                      if (score != null)
+                        _scoreBadge(context, score),
+                    ],
                   ),
-                ],
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 2,
-                children: [
-                  Icon(Icons.access_time, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  Flexible(
-                    child: Text(
-                      DateFormat(appSettings.timeFormat).format(setup.datetimeLocal),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                        fontSize: 13,
+                  Wrap(
+                    alignment: WrapAlignment.start,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 4,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        spacing: 2,
+                        children: [
+                          Icon(Icons.calendar_month, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          Text(
+                            DateFormat(appSettings.dateFormat).format(setup.datetimeLocal),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        spacing: 2,
+                        children: [
+                          Icon(Icons.access_time, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          Flexible(
+                            child: Text(
+                              DateFormat(appSettings.timeFormat).format(setup.datetimeLocal),
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ],
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: 2,
-            children: [
-              Icon(
-                Bike.iconData,
-                size: 13, 
-                color: bikes.containsKey(setup.bike) 
-                    ? Theme.of(context).colorScheme.onSurfaceVariant
-                    : Theme.of(context).colorScheme.error,
-              ),
-              Flexible(
-                child: Text(
-                  bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
-                  style: TextStyle(
-                    color: bikes.containsKey(setup.bike)
-                        ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
-                        : Theme.of(context).colorScheme.error, 
-                    fontSize: 13,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-              ),
-            ],
-          ),
-          Wrap(
-            alignment: WrapAlignment.start,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 4,
-            children: [
-              if (setup.place != null) ... [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  spacing: 2,
-                  children: [
-                    Icon(Icons.location_pin, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                    Flexible(
-                      child: Text(
-                        "${setup.place?.locality}, ${setup.place?.isoCountryCode}",
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-              if (setup.weather?.currentTemperature != null) ... [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  spacing: 2,
-                  children: [
-                    Icon(ContextWeather.currentTemperatureIconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                    Flexible(
-                      child: Text(
-                        "${ContextWeather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}",
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                      ),
-                    ),
-                  ],
-                )
-              ],
-              if (setup.weather?.condition != null)
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  spacing: 2,
-                  children: [
-                    Icon(setup.weather?.condition?.iconData ?? Icons.question_mark, size: 13, color: setup.weather?.condition?.color),
-                    Flexible(
-                      child: Text(
-                        setup.weather?.condition?.value ?? "-",
-                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                      ),
-                    ),
-                  ],
-                ),
-              if (appSettings.enableSetupTags)
-                ...setup.tags.map((tag) {
-                  return Row(
+                  Row(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     spacing: 2,
                     children: [
-                      Icon(Icons.tag, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      Icon(
+                        Bike.iconData,
+                        size: 13,
+                        color: bikes.containsKey(setup.bike)
+                            ? Theme.of(context).colorScheme.onSurfaceVariant
+                            : Theme.of(context).colorScheme.error,
+                      ),
                       Flexible(
                         child: Text(
-                          tag,
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
-                          maxLines: 1,
+                          bikes[setup.bike]?.name ?? "BIKE NOT FOUND",
+                          style: TextStyle(
+                            color: bikes.containsKey(setup.bike)
+                                ? Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                                : Theme.of(context).colorScheme.error,
+                            fontSize: 13,
+                          ),
                           overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                       ),
                     ],
-                  );
-                }),
-              if (appSettings.enableSetupImages && setup.images.isNotEmpty)
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  spacing: 2,
-                  children: [
-                    Icon(Icons.photo_library_outlined, size: 13,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant),
-                    Text('${setup.images.length}',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                            fontSize: 13)),
-                  ],
-                ),
-            ],
-          ),
-          if (setup.notes != null && setup.notes!.isNotEmpty)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 3), // tweak to match font size
-                  child: Icon(
-                    Icons.notes,
-                    size: 13,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
-                ),
-                const SizedBox(width: 2),
-                Expanded(
-                  child: Text(
-                    setup.notes!,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                      fontSize: 13,
+                  Wrap(
+                    alignment: WrapAlignment.start,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 4,
+                    children: [
+                      if (setup.place != null) ... [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          spacing: 2,
+                          children: [
+                            Icon(Icons.location_pin, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            Flexible(
+                              child: Text(
+                                "${setup.place?.locality}, ${setup.place?.isoCountryCode}",
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                      if (setup.weather?.currentTemperature != null) ... [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          spacing: 2,
+                          children: [
+                            Icon(ContextWeather.currentTemperatureIconData, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            Flexible(
+                              child: Text(
+                                "${ContextWeather.convertTemperatureFromCelsius(setup.weather!.currentTemperature!, appSettings.temperatureUnit)?.round()} ${appSettings.temperatureUnit}",
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                      if (setup.weather?.condition != null)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          spacing: 2,
+                          children: [
+                            Icon(setup.weather?.condition?.iconData ?? Icons.question_mark, size: 13, color: setup.weather?.condition?.color),
+                            Flexible(
+                              child: Text(
+                                setup.weather?.condition?.value ?? "-",
+                                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                              ),
+                            ),
+                          ],
+                        ),
+                      if (appSettings.enableSetupTags)
+                        ...setup.tags.map((tag) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            spacing: 2,
+                            children: [
+                              Icon(Icons.tag, size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              Flexible(
+                                child: Text(
+                                  tag,
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontSize: 13),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          );
+                        }),
+                      if (appSettings.enableSetupImages && setup.images.isNotEmpty)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          spacing: 2,
+                          children: [
+                            Icon(Icons.photo_library_outlined, size: 13,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            Text('${setup.images.length}',
+                                style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                    fontSize: 13)),
+                          ],
+                        ),
+                    ],
+                  ),
+                  if (setup.notes != null && setup.notes!.isNotEmpty)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 3),
+                          child: Icon(
+                            Icons.notes,
+                            size: 13,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(width: 2),
+                        Expanded(
+                          child: Text(
+                            setup.notes!,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-              ],
-            ),
-        ],
-      ),
-      trailing: PopupMenuButton<_SetupOptions>(
-        onSelected: (_SetupOptions value) async {
-          switch (value) {
-            case _SetupOptions.edit:
-              await SetupActions.editSetup(context, setup: setup);
-            case _SetupOptions.share:
-              await SetupActions.shareSetup(context, setup: setup);
-            case _SetupOptions.restore:
-              await SetupActions.duplicateSetup(context, setup: setup);
-            case _SetupOptions.addRating:
-              await SetupActions.addRatingEntryForSetup(context, setup: setup);
-            case _SetupOptions.remove:
-              await SetupActions.removeSetup(context, setup: setup);
-          }
-        },
-        itemBuilder: (BuildContext context) {
-          return _SetupOptions.values.where((option) {
-            if (!appSettings.enableRating && (option == _SetupOptions.addRating)) return false;
-            return true;
-          }).map((option) {
-            return PopupMenuItem<_SetupOptions>(
-              value: option,
-              child: Row(
-                spacing: 10,
-                children: [
-                  Icon(option.iconData, size: 20),
-                  Text(option.label),
                 ],
               ),
-            );
-          }).toList();
-        },
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                PopupMenuButton<_SetupOptions>(
+                  onSelected: (_SetupOptions value) async {
+                    switch (value) {
+                      case _SetupOptions.edit:
+                        await SetupActions.editSetup(context, setup: setup);
+                      case _SetupOptions.share:
+                        await SetupActions.shareSetup(context, setup: setup);
+                      case _SetupOptions.restore:
+                        await SetupActions.duplicateSetup(context, setup: setup);
+                      case _SetupOptions.addRating:
+                        await SetupActions.addRatingEntryForSetup(context, setup: setup);
+                      case _SetupOptions.remove:
+                        await SetupActions.removeSetup(context, setup: setup);
+                    }
+                  },
+                  itemBuilder: (BuildContext context) {
+                    return _SetupOptions.values.where((option) {
+                      if (!appSettings.enableRating && (option == _SetupOptions.addRating)) return false;
+                      return true;
+                    }).map((option) {
+                      return PopupMenuItem<_SetupOptions>(
+                        value: option,
+                        child: Row(
+                          spacing: 10,
+                          children: [
+                            Icon(option.iconData, size: 20),
+                            Text(option.label),
+                          ],
+                        ),
+                      );
+                    }).toList();
+                  },
+                ),
+                ExpandIcon(  
+                  //FIXME: only show this if setup has (valid) values,
+                  //FIXME: only enable button of difference between displayONlyChanges and displayAll
+                  isExpanded: !_displayOnlyChanges,
+                  color: PopupMenuTheme.of(context).iconColor ?? IconTheme.of(context).color,
+                  expandedColor: Theme.of(context).colorScheme.primary,
+                  onPressed: (bool expanded) {
+                    setState(() {
+                      _displayOnlyChanges = expanded;
+                    });
+                  },
+                )
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -329,12 +361,12 @@ class SetupListCard extends StatelessWidget {
     final setups = appRepository.setups;
     final components = appRepository.components;
     final persons = appRepository.persons;
-    final setup = setups[setupId];
+    final setup = setups[widget.setupId];
     if (setup == null) return const SizedBox.shrink();
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
-      shape: setup.isCurrent 
+      shape: setup.isCurrent
           ? RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(
@@ -344,28 +376,33 @@ class SetupListCard extends StatelessWidget {
           : null,
       clipBehavior: Clip.antiAlias, // Borderradius for InkWell,
       child: InkWell(
-        onTap: onTap,
+        onTap: widget.onTap,
         child: Stack(
-          children: [ 
+          children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _setupListTile(context, setup),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
-                  child: AdjustmentCompactDisplayList(
-                    components: components.values,
-                    persons: persons.values,
-                    adjustmentValues: {for (var e in setup.personAdjustmentValues.entries) e.key: e.value, for (var e in setup.bikeAdjustmentValues.entries) e.key: e.value},
-                    previousAdjustmentValues: {
-                      for (var e in setup.previousBikeAdjustmentValues.entries) e.key: e.value,
-                      for (var e in setup.previousPersonAdjustmentValues.entries) e.key: e.value,
-                    },
-                    showRowIcons: true,
-                    highlightInitialValues: true,
-                    displayOnlyChanges: displayOnlyChanges,
-                    displayBikeAdjustmentValues: displayBikeAdjustmentValues,
-                    displayPersonAdjustmentValues: displayPersonAdjustmentValues && appSettings.enablePerson,
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeInOut,
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: AdjustmentCompactDisplayList(
+                      components: components.values,
+                      persons: persons.values,
+                      adjustmentValues: {for (var e in setup.personAdjustmentValues.entries) e.key: e.value, for (var e in setup.bikeAdjustmentValues.entries) e.key: e.value},
+                      previousAdjustmentValues: {
+                        for (var e in setup.previousBikeAdjustmentValues.entries) e.key: e.value,
+                        for (var e in setup.previousPersonAdjustmentValues.entries) e.key: e.value,
+                      },
+                      showRowIcons: true,
+                      highlightInitialValues: true,
+                      displayOnlyChanges: _displayOnlyChanges,
+                      displayBikeAdjustmentValues: widget.displayBikeAdjustmentValues,
+                      displayPersonAdjustmentValues: widget.displayPersonAdjustmentValues && appSettings.enablePerson,
+                    ),
                   ),
                 ),
               ],

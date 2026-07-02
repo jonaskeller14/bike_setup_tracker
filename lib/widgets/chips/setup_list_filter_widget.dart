@@ -28,7 +28,6 @@ class SetupListFilterWidget extends StatelessWidget {
           FilterSheetChip(
             enableSetupTagFilter: appSettings.enableSetupTags,
             showTimelineVisibility: true,
-            showOnlyChangesSection: true,
             showByCategorySection: true,
           ),
         ],

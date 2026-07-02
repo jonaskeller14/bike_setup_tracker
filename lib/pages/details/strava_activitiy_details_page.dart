@@ -284,7 +284,6 @@ class StravaActivitiyPageContent extends StatelessWidget {
                     ...uniqueSetups.map((setup) {
                       return SetupListCard(
                         setupId: setup.id,
-                        displayOnlyChanges: false,
                         displayBikeAdjustmentValues: true,
                         displayPersonAdjustmentValues: true,
                         onTap: null,

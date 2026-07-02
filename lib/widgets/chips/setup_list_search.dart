@@ -105,8 +105,7 @@ class SetupListSearch extends StatelessWidget {
                     initialSetup: entry.setup,
                   )));
                 },
-                displayOnlyChanges: appSettings.setupListOnlyChanges, 
-                displayBikeAdjustmentValues:appSettings.setupListBikeAdjustmentValues, 
+                displayBikeAdjustmentValues:appSettings.setupListBikeAdjustmentValues,
                 displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues,
               );
             case StravaEntry():

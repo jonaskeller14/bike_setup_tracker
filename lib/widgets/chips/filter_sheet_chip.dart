@@ -14,7 +14,6 @@ class FilterSheetChip extends StatelessWidget {
   final bool enableSetupTagFilter;
   final bool showMapVisibility;
   final bool showTimelineVisibility;
-  final bool showOnlyChangesSection;
   final bool showByCategorySection;
 
   const FilterSheetChip({
@@ -22,7 +21,6 @@ class FilterSheetChip extends StatelessWidget {
     required this.enableSetupTagFilter,
     this.showMapVisibility = false,
     this.showTimelineVisibility = false,
-    this.showOnlyChangesSection = false,
     this.showByCategorySection = false,
   });
 
@@ -40,11 +38,10 @@ class FilterSheetChip extends StatelessWidget {
             (showTimelineVisibility && appSettings.enableTask && !appSettings.displayShowTasks) ||
             (showTimelineVisibility && appSettings.enableInstallationTimeline && !appSettings.displayShowInstallations) ||
             (appSettings.enableRating && !appSettings.displayShowRatingEntries));
-    final bool onlyChangesActive = showOnlyChangesSection && appSettings.setupListOnlyChanges;
     final bool byCategoryActive = showByCategorySection &&
         (!appSettings.setupListBikeAdjustmentValues ||
             (appSettings.enablePerson && !appSettings.setupListPersonAdjustmentValues));
-    final bool displayActive = visibilityActive || onlyChangesActive || byCategoryActive;
+    final bool displayActive = visibilityActive || byCategoryActive;
 
     void resetDisplay() {
       if (showMapVisibility || showTimelineVisibility) {
@@ -56,7 +53,6 @@ class FilterSheetChip extends StatelessWidget {
         appSettings.displayShowTasks = true;
         appSettings.displayShowInstallations = true;
       }
-      if (showOnlyChangesSection) appSettings.setupListOnlyChanges = false;
       if (showByCategorySection) {
         appSettings.setupListBikeAdjustmentValues = true;
         appSettings.setupListPersonAdjustmentValues = true;
@@ -70,7 +66,6 @@ class FilterSheetChip extends StatelessWidget {
     final bool bikeOnly = !enableSetupTagFilter &&
         !showMapVisibility &&
         !showTimelineVisibility &&
-        !showOnlyChangesSection &&
         !showByCategorySection;
 
     final bool bikeSelected = appRepository.selectedBike != null;
@@ -113,7 +108,6 @@ class FilterSheetChip extends StatelessWidget {
           enableTaskPriorityFilter: false,
           showMapVisibility: showMapVisibility,
           showTimelineVisibility: showTimelineVisibility,
-          showOnlyChangesSection: showOnlyChangesSection,
           showByCategorySection: showByCategorySection,
         );
       },

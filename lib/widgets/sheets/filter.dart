@@ -17,7 +17,6 @@ Future<void> showFilterSheet({
   required bool enableTaskPriorityFilter,
   bool showMapVisibility = false,
   bool showTimelineVisibility = false,
-  bool showOnlyChangesSection = false,
   bool showByCategorySection = false,
 }) async {
   return showModalBottomSheet<void>(
@@ -244,24 +243,6 @@ Future<void> showFilterSheet({
                                   ? () => appSettings.displayShowRatingEntries = false
                                   : null,
                             ),
-                        ],
-                      ),
-                    ],
-                    if (showOnlyChangesSection) ...[
-                      const SheetSectionTitle(title: "Setups"),
-                      Wrap(
-                        spacing: 6,
-                        children: [
-                          FilterChip(
-                            label: const Text("Display Only Changes"),
-                            showCheckmark: false,
-                            selected: appSettings.setupListOnlyChanges,
-                            onSelected: (bool selected) => appSettings.setupListOnlyChanges = selected,
-                            tooltip: "Show only changed values",
-                            onDeleted: appSettings.setupListOnlyChanges
-                                ? () => appSettings.setupListOnlyChanges = false
-                                : null,
-                          ),
                         ],
                       ),
                     ],

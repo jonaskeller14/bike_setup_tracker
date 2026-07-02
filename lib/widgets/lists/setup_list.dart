@@ -185,7 +185,6 @@ class SetupList extends StatelessWidget {
                         initialSetup: setup,
                       )));
                     },
-                    displayOnlyChanges: appSettings.setupListOnlyChanges,
                     displayBikeAdjustmentValues: appSettings.setupListBikeAdjustmentValues,
                     displayPersonAdjustmentValues: appSettings.setupListPersonAdjustmentValues,
                   );

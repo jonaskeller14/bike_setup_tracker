@@ -28,13 +28,17 @@ void main() {
     if (tempDir.existsSync()) await tempDir.delete(recursive: true);
   });
 
-  // Reshapes a freshly-created (v9) database back to [version] by undoing every
+  // Reshapes a freshly-created (v10) database back to [version] by undoing every
   // structural change introduced after it, newest-first. This lets us drive the
   // real `onUpgrade` from any historical version without hand-writing each full
   // schema. v4 (setups.name NOT NULL -> nullable), v6 (rating_entries reshape)
   // and v2 (data-only) need no structural undo — their steps rewrite/recreate
   // the affected tables regardless of the starting column shape.
   Future<void> reshapeToVersion(AppDatabase db, int version) async {
+    if (version < 10) {
+      // v10 added strava_activities.workout_type.
+      await db.customStatement('ALTER TABLE strava_activities DROP COLUMN workout_type');
+    }
     if (version < 9) {
       // v9 added installations.parent_type.
       await db.customStatement('ALTER TABLE installations DROP COLUMN parent_type');
@@ -115,9 +119,9 @@ void main() {
   }
 
   group('onUpgrade from every prior version to the current schema', () {
-    // Covers the full range of jump sizes: the v8 case is a single step, the
+    // Covers the full range of jump sizes: the v9 case is a single step, the
     // v1 case crosses every TableMigration in the strategy.
-    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8]) {
+    for (final startVersion in [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
       test('v$startVersion -> current completes and preserves seed rows', () async {
         final db = await migrateFrom(startVersion);
         addTearDown(db.close);
@@ -134,6 +138,13 @@ void main() {
           await columnNames(db, 'installations'),
           contains('parent_type'),
           reason: 'parent_type column missing after v$startVersion upgrade',
+        );
+
+        // The strava_activities table ends up with the v10 `workout_type` column.
+        expect(
+          await columnNames(db, 'strava_activities'),
+          contains('workout_type'),
+          reason: 'workout_type column missing after v$startVersion upgrade',
         );
 
         // The seeded installation row (parent='b1') got the 'bike' default.

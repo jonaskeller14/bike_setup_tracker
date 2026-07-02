@@ -87,7 +87,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration {
@@ -160,6 +160,11 @@ class AppDatabase extends _$AppDatabase {
           await customStatement(
             "UPDATE installations SET parent_type = 'none' WHERE parent IS NULL",
           );
+        }
+        if (from < 10) {
+          // Strava activities gain `workoutType` (Strava's sub-classification,
+          // e.g. Race/Workout for rides). Existing rows have no such data.
+          await m.addColumn(stravaActivities, stravaActivities.workoutType);
         }
       },
     );

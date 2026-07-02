@@ -205,6 +205,7 @@ async function saveActivityToBatch(activity, athleteId, batch = null) {
       totalElevationGain: activity.total_elevation_gain,
       movingTime: activity.moving_time,
       elapsedTime: activity.elapsed_time,
+      workoutType: activity.workout_type ?? null,
     };
   }
 

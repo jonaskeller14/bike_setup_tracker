@@ -7470,6 +7470,17 @@ class $StravaActivitiesTable extends StravaActivities
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _workoutTypeMeta = const VerificationMeta(
+    'workoutType',
+  );
+  @override
+  late final GeneratedColumn<int> workoutType = GeneratedColumn<int>(
+    'workout_type',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -7486,6 +7497,7 @@ class $StravaActivitiesTable extends StravaActivities
     totalElevationGain,
     movingTime,
     elapsedTime,
+    workoutType,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -7570,6 +7582,15 @@ class $StravaActivitiesTable extends StravaActivities
     } else if (isInserting) {
       context.missing(_elapsedTimeMeta);
     }
+    if (data.containsKey('workout_type')) {
+      context.handle(
+        _workoutTypeMeta,
+        workoutType.isAcceptableOrUnknown(
+          data['workout_type']!,
+          _workoutTypeMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -7643,6 +7664,10 @@ class $StravaActivitiesTable extends StravaActivities
         DriftSqlType.int,
         data['${effectivePrefix}elapsed_time'],
       )!,
+      workoutType: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}workout_type'],
+      ),
     );
   }
 
@@ -7677,6 +7702,7 @@ class StravaActivityDb extends DataClass
   final double? totalElevationGain;
   final int movingTime;
   final int elapsedTime;
+  final int? workoutType;
   const StravaActivityDb({
     required this.id,
     required this.lastModified,
@@ -7692,6 +7718,7 @@ class StravaActivityDb extends DataClass
     this.totalElevationGain,
     required this.movingTime,
     required this.elapsedTime,
+    this.workoutType,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -7736,6 +7763,9 @@ class StravaActivityDb extends DataClass
     }
     map['moving_time'] = Variable<int>(movingTime);
     map['elapsed_time'] = Variable<int>(elapsedTime);
+    if (!nullToAbsent || workoutType != null) {
+      map['workout_type'] = Variable<int>(workoutType);
+    }
     return map;
   }
 
@@ -7765,6 +7795,9 @@ class StravaActivityDb extends DataClass
           : Value(totalElevationGain),
       movingTime: Value(movingTime),
       elapsedTime: Value(elapsedTime),
+      workoutType: workoutType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(workoutType),
     );
   }
 
@@ -7792,6 +7825,7 @@ class StravaActivityDb extends DataClass
       ),
       movingTime: serializer.fromJson<int>(json['movingTime']),
       elapsedTime: serializer.fromJson<int>(json['elapsedTime']),
+      workoutType: serializer.fromJson<int?>(json['workoutType']),
     );
   }
   @override
@@ -7814,6 +7848,7 @@ class StravaActivityDb extends DataClass
       'totalElevationGain': serializer.toJson<double?>(totalElevationGain),
       'movingTime': serializer.toJson<int>(movingTime),
       'elapsedTime': serializer.toJson<int>(elapsedTime),
+      'workoutType': serializer.toJson<int?>(workoutType),
     };
   }
 
@@ -7832,6 +7867,7 @@ class StravaActivityDb extends DataClass
     Value<double?> totalElevationGain = const Value.absent(),
     int? movingTime,
     int? elapsedTime,
+    Value<int?> workoutType = const Value.absent(),
   }) => StravaActivityDb(
     id: id ?? this.id,
     lastModified: lastModified ?? this.lastModified,
@@ -7849,6 +7885,7 @@ class StravaActivityDb extends DataClass
         : this.totalElevationGain,
     movingTime: movingTime ?? this.movingTime,
     elapsedTime: elapsedTime ?? this.elapsedTime,
+    workoutType: workoutType.present ? workoutType.value : this.workoutType,
   );
   StravaActivityDb copyWithCompanion(StravaActivitiesCompanion data) {
     return StravaActivityDb(
@@ -7876,6 +7913,9 @@ class StravaActivityDb extends DataClass
       elapsedTime: data.elapsedTime.present
           ? data.elapsedTime.value
           : this.elapsedTime,
+      workoutType: data.workoutType.present
+          ? data.workoutType.value
+          : this.workoutType,
     );
   }
 
@@ -7895,7 +7935,8 @@ class StravaActivityDb extends DataClass
           ..write('distance: $distance, ')
           ..write('totalElevationGain: $totalElevationGain, ')
           ..write('movingTime: $movingTime, ')
-          ..write('elapsedTime: $elapsedTime')
+          ..write('elapsedTime: $elapsedTime, ')
+          ..write('workoutType: $workoutType')
           ..write(')'))
         .toString();
   }
@@ -7916,6 +7957,7 @@ class StravaActivityDb extends DataClass
     totalElevationGain,
     movingTime,
     elapsedTime,
+    workoutType,
   );
   @override
   bool operator ==(Object other) =>
@@ -7934,7 +7976,8 @@ class StravaActivityDb extends DataClass
           other.distance == this.distance &&
           other.totalElevationGain == this.totalElevationGain &&
           other.movingTime == this.movingTime &&
-          other.elapsedTime == this.elapsedTime);
+          other.elapsedTime == this.elapsedTime &&
+          other.workoutType == this.workoutType);
 }
 
 class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
@@ -7952,6 +7995,7 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
   final Value<double?> totalElevationGain;
   final Value<int> movingTime;
   final Value<int> elapsedTime;
+  final Value<int?> workoutType;
   const StravaActivitiesCompanion({
     this.id = const Value.absent(),
     this.lastModified = const Value.absent(),
@@ -7967,6 +8011,7 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
     this.totalElevationGain = const Value.absent(),
     this.movingTime = const Value.absent(),
     this.elapsedTime = const Value.absent(),
+    this.workoutType = const Value.absent(),
   });
   StravaActivitiesCompanion.insert({
     this.id = const Value.absent(),
@@ -7983,6 +8028,7 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
     this.totalElevationGain = const Value.absent(),
     required int movingTime,
     required int elapsedTime,
+    this.workoutType = const Value.absent(),
   }) : lastModified = Value(lastModified),
        name = Value(name),
        athlete = Value(athlete),
@@ -8006,6 +8052,7 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
     Expression<double>? totalElevationGain,
     Expression<int>? movingTime,
     Expression<int>? elapsedTime,
+    Expression<int>? workoutType,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -8023,6 +8070,7 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
         'total_elevation_gain': totalElevationGain,
       if (movingTime != null) 'moving_time': movingTime,
       if (elapsedTime != null) 'elapsed_time': elapsedTime,
+      if (workoutType != null) 'workout_type': workoutType,
     });
   }
 
@@ -8041,6 +8089,7 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
     Value<double?>? totalElevationGain,
     Value<int>? movingTime,
     Value<int>? elapsedTime,
+    Value<int?>? workoutType,
   }) {
     return StravaActivitiesCompanion(
       id: id ?? this.id,
@@ -8057,6 +8106,7 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
       totalElevationGain: totalElevationGain ?? this.totalElevationGain,
       movingTime: movingTime ?? this.movingTime,
       elapsedTime: elapsedTime ?? this.elapsedTime,
+      workoutType: workoutType ?? this.workoutType,
     );
   }
 
@@ -8115,6 +8165,9 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
     if (elapsedTime.present) {
       map['elapsed_time'] = Variable<int>(elapsedTime.value);
     }
+    if (workoutType.present) {
+      map['workout_type'] = Variable<int>(workoutType.value);
+    }
     return map;
   }
 
@@ -8134,7 +8187,8 @@ class StravaActivitiesCompanion extends UpdateCompanion<StravaActivityDb> {
           ..write('distance: $distance, ')
           ..write('totalElevationGain: $totalElevationGain, ')
           ..write('movingTime: $movingTime, ')
-          ..write('elapsedTime: $elapsedTime')
+          ..write('elapsedTime: $elapsedTime, ')
+          ..write('workoutType: $workoutType')
           ..write(')'))
         .toString();
   }
@@ -16131,6 +16185,7 @@ typedef $$StravaActivitiesTableCreateCompanionBuilder =
       Value<double?> totalElevationGain,
       required int movingTime,
       required int elapsedTime,
+      Value<int?> workoutType,
     });
 typedef $$StravaActivitiesTableUpdateCompanionBuilder =
     StravaActivitiesCompanion Function({
@@ -16148,6 +16203,7 @@ typedef $$StravaActivitiesTableUpdateCompanionBuilder =
       Value<double?> totalElevationGain,
       Value<int> movingTime,
       Value<int> elapsedTime,
+      Value<int?> workoutType,
     });
 
 class $$StravaActivitiesTableFilterComposer
@@ -16232,6 +16288,11 @@ class $$StravaActivitiesTableFilterComposer
     column: $table.elapsedTime,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<int> get workoutType => $composableBuilder(
+    column: $table.workoutType,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$StravaActivitiesTableOrderingComposer
@@ -16312,6 +16373,11 @@ class $$StravaActivitiesTableOrderingComposer
     column: $table.elapsedTime,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get workoutType => $composableBuilder(
+    column: $table.workoutType,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$StravaActivitiesTableAnnotationComposer
@@ -16376,6 +16442,11 @@ class $$StravaActivitiesTableAnnotationComposer
     column: $table.elapsedTime,
     builder: (column) => column,
   );
+
+  GeneratedColumn<int> get workoutType => $composableBuilder(
+    column: $table.workoutType,
+    builder: (column) => column,
+  );
 }
 
 class $$StravaActivitiesTableTableManager
@@ -16429,6 +16500,7 @@ class $$StravaActivitiesTableTableManager
                 Value<double?> totalElevationGain = const Value.absent(),
                 Value<int> movingTime = const Value.absent(),
                 Value<int> elapsedTime = const Value.absent(),
+                Value<int?> workoutType = const Value.absent(),
               }) => StravaActivitiesCompanion(
                 id: id,
                 lastModified: lastModified,
@@ -16444,6 +16516,7 @@ class $$StravaActivitiesTableTableManager
                 totalElevationGain: totalElevationGain,
                 movingTime: movingTime,
                 elapsedTime: elapsedTime,
+                workoutType: workoutType,
               ),
           createCompanionCallback:
               ({
@@ -16461,6 +16534,7 @@ class $$StravaActivitiesTableTableManager
                 Value<double?> totalElevationGain = const Value.absent(),
                 required int movingTime,
                 required int elapsedTime,
+                Value<int?> workoutType = const Value.absent(),
               }) => StravaActivitiesCompanion.insert(
                 id: id,
                 lastModified: lastModified,
@@ -16476,6 +16550,7 @@ class $$StravaActivitiesTableTableManager
                 totalElevationGain: totalElevationGain,
                 movingTime: movingTime,
                 elapsedTime: elapsedTime,
+                workoutType: workoutType,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

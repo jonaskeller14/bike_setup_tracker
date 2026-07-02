@@ -540,6 +540,7 @@ extension StravaActivityDbMapper on StravaActivityDb {
       totalElevationGain: totalElevationGain,
       movingTime: Duration(seconds: movingTime),
       elapsedTime: Duration(seconds: elapsedTime),
+      workoutType: workoutType,
     );
   }
 }
@@ -584,6 +585,7 @@ extension StravaActivityMapper on StravaActivity {
       totalElevationGain: Value<double?>(totalElevationGain),
       movingTime: Value<int>(movingTime.inSeconds),
       elapsedTime: Value<int>(elapsedTime.inSeconds),
+      workoutType: Value<int?>(workoutType),
     );
   }
 }

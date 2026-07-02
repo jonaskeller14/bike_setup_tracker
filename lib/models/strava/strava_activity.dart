@@ -19,6 +19,7 @@ class StravaActivity {
   final double? totalElevationGain;
   final Duration movingTime;
   final Duration elapsedTime;
+  final int? workoutType;  // 10=None, 11=Race, 12=Workout
 
   StravaActivity({
     required this.id,
@@ -35,6 +36,7 @@ class StravaActivity {
     required this.totalElevationGain,
     required this.movingTime,
     required this.elapsedTime,
+    this.workoutType,
   }): lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc(),
       startDate = startDate.toUtc();
 
@@ -53,6 +55,7 @@ class StravaActivity {
     'totalElevationGain': totalElevationGain,
     'movingTime': movingTime.inSeconds,
     'elapsedTime': elapsedTime.inSeconds,
+    'workoutType': workoutType,
   };
 
   factory StravaActivity.fromJson(Map<String, dynamic> json) {
@@ -74,6 +77,7 @@ class StravaActivity {
           totalElevationGain: (json['totalElevationGain'] as num?)?.toDouble(),
           movingTime: Duration(seconds: json['movingTime'] as int),
           elapsedTime: Duration(seconds: json['elapsedTime'] as int),
+          workoutType: (json['workoutType'] as num?)?.toInt(),
         );
       default: throw Exception("Json Version $version of StravaActivitiy incompatible.");
     }
@@ -98,6 +102,7 @@ class StravaActivity {
           totalElevationGain: (json['totalElevationGain'] as num?)?.toDouble(),
           movingTime: Duration(seconds: json['movingTime'] as int),
           elapsedTime: Duration(seconds: json['elapsedTime'] as int),
+          workoutType: (json['workoutType'] as num?)?.toInt(),
         );
       default: throw Exception("Json Version $version of StravaActivitiy incompatible.");
     }
@@ -121,9 +126,10 @@ class StravaActivity {
         distance == other.distance &&
         totalElevationGain == other.totalElevationGain &&
         movingTime == other.movingTime &&
-        elapsedTime == other.elapsedTime;
+        elapsedTime == other.elapsedTime &&
+        workoutType == other.workoutType;
   }
-  
+
   @override
   int get hashCode {
     return Object.hash(
@@ -141,6 +147,7 @@ class StravaActivity {
       totalElevationGain,
       movingTime,
       elapsedTime,
+      workoutType,
     );
   }
 }

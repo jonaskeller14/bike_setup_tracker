@@ -7,6 +7,8 @@ class DisplayCategoricalAdjustmentWidget extends StatelessWidget {
   final String? initialValue;
   final String? value;
   final bool highlighting;
+  final bool isError;
+  final VoidCallback? onRemove;
 
   const DisplayCategoricalAdjustmentWidget({
     required super.key,
@@ -14,6 +16,8 @@ class DisplayCategoricalAdjustmentWidget extends StatelessWidget {
     required this.initialValue,
     required this.value,
     this.highlighting = true,
+    this.isError = false,
+    this.onRemove,
   });
 
   @override
@@ -25,6 +29,11 @@ class DisplayCategoricalAdjustmentWidget extends StatelessWidget {
       isChanged = value != null && initialValue != value;
       isInitial = initialValue == null;
       highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
+    }
+    if (isError) {
+      isChanged = false;
+      isInitial = true;
+      highlightColor = Theme.of(context).colorScheme.error;
     }
     
     return Container(
@@ -82,6 +91,11 @@ class DisplayCategoricalAdjustmentWidget extends StatelessWidget {
               ],
             ),
           ),
+          if (onRemove != null)
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: onRemove,
+            ),
         ],
       ),
     );

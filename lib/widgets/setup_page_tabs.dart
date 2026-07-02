@@ -4,11 +4,129 @@ import 'package:intl/intl.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/component.dart';
 import '../models/person.dart';
+import '../services/dangling_adjustment_service.dart';
 import '../utils/component_actions.dart';
+import 'display_adjustment/display_adjustment_list.dart';
 import 'display_adjustment/display_dangling_adjustment.dart';
 import 'empty_state_placeholder2.dart';
 import 'initial_changed_value_legend.dart';
 import 'lists/adjustment_set_list.dart';
+
+Widget _errorBadgeDot(BuildContext context, {double size = 9}) {
+  final scheme = Theme.of(context).colorScheme;
+  return Container(
+    padding: const EdgeInsets.all(1.5),
+    decoration: BoxDecoration(
+      color: scheme.surface,
+      shape: BoxShape.circle,
+      border: Border.all(color: scheme.error, width: 1),
+    ),
+    child: Icon(Icons.error, size: size, color: scheme.error),
+  );
+}
+
+Widget _danglingComponentCard(BuildContext context, {
+  required DanglingComponentGroup group,
+  required Map<String, dynamic> adjustmentValues,
+  required Map<String, dynamic> initialAdjustmentValues,
+  required void Function(String) onRemove,
+}) {
+  final scheme = Theme.of(context).colorScheme;
+  return Card(
+    margin: const EdgeInsets.symmetric(vertical: 4),
+    clipBehavior: Clip.antiAlias,
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ListTile(
+          leading: Badge(
+            label: _errorBadgeDot(context),
+            backgroundColor: Colors.transparent,
+            largeSize: 20,
+            child: Icon(group.component.componentType.getIconData(), color: scheme.error),
+          ),
+          title: Text(group.component.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
+          subtitle: Text("Component was not installed at setup time", style: TextStyle(color: scheme.error)),
+          tileColor: scheme.errorContainer,
+        ),
+        AdjustmentDisplayList(
+          adjustments: group.adjustments,
+          initialAdjustmentValues: initialAdjustmentValues,
+          adjustmentValues: adjustmentValues,
+          isError: true,
+          onRemove: onRemove,
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _danglingPersonCard(BuildContext context, {
+  required DanglingPersonGroup group,
+  required Map<String, dynamic> adjustmentValues,
+  required Map<String, dynamic> initialAdjustmentValues,
+  required void Function(String) onRemove,
+}) {
+  final scheme = Theme.of(context).colorScheme;
+  return Card(
+    margin: const EdgeInsets.symmetric(vertical: 4),
+    clipBehavior: Clip.antiAlias,
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ListTile(
+          leading: Badge(
+            label: _errorBadgeDot(context),
+            backgroundColor: Colors.transparent,
+            largeSize: 20,
+            child: Icon(Person.iconData, color: scheme.error),
+          ),
+          title: Text(group.person.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
+          subtitle: Text("Person is not linked to this setup", style: TextStyle(color: scheme.error)),
+          tileColor: scheme.errorContainer,
+        ),
+        AdjustmentDisplayList(
+          adjustments: group.adjustments,
+          initialAdjustmentValues: initialAdjustmentValues,
+          adjustmentValues: adjustmentValues,
+          isError: true,
+          onRemove: onRemove,
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _danglingValuesCard(BuildContext context, {
+  required Map<String, dynamic> values,
+  required String title,
+  required String cause,
+  required void Function(String) onRemove,
+}) {
+  final scheme = Theme.of(context).colorScheme;
+  return Card(
+    margin: const EdgeInsets.symmetric(vertical: 4),
+    clipBehavior: Clip.antiAlias,
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ListTile(
+          leading: Icon(Icons.error_outline, color: scheme.error),
+          title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
+          subtitle: Text(cause, style: TextStyle(color: scheme.error)),
+          tileColor: scheme.errorContainer,
+        ),
+        ...values.entries.map((danglingAdjustmentValue) {
+          return DisplayDanglingAdjustmentWidget(
+            name: danglingAdjustmentValue.key,
+            value: danglingAdjustmentValue.value,
+            onRemove: () => onRemove(danglingAdjustmentValue.key),
+          );
+        }),
+      ],
+    ),
+  );
+}
 
 class TabContentWrapper extends StatefulWidget {
   final Widget child;
@@ -71,6 +189,7 @@ class _SetupTabScaffold extends StatelessWidget {
 class SetupBikeTab extends StatefulWidget {
   final String bike;
   final List<Component> bikeComponents;
+  final Map<String, Component> allComponents;
   final Map<String, dynamic> bikeAdjustmentValues;
   final Map<String, dynamic> previousBikeAdjustmentValues;
   final Map<String, dynamic> initialBikeAdjustmentValues;
@@ -83,6 +202,7 @@ class SetupBikeTab extends StatefulWidget {
     super.key,
     required this.bike,
     required this.bikeComponents,
+    required this.allComponents,
     required this.bikeAdjustmentValues,
     required this.previousBikeAdjustmentValues,
     required this.initialBikeAdjustmentValues,
@@ -142,6 +262,11 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
 
   @override
   Widget build(BuildContext context) {
+    final componentSplit = DanglingAdjustmentService.splitComponents(
+      danglingValues: widget.danglingBikeAdjustmentValues,
+      components: widget.allComponents.values,
+    );
+
     return _SetupTabScaffold(
       scrollKey: 'tab1_bike',
       showLegend: widget.bikeComponents.isNotEmpty || widget.danglingBikeAdjustmentValues.isNotEmpty,
@@ -194,40 +319,23 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
             ),
           ),
         ],
-        if (widget.danglingBikeAdjustmentValues.isNotEmpty) ...[
+        if (componentSplit.groups.isNotEmpty || componentSplit.deletedValues.isNotEmpty) ...[
           const Divider(height: 50),
-          Opacity(
-            opacity: 0.4,
-            child: Card(
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    title: const Text("Dangling Adjustment Values", style: TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text(Intl.plural(
-                      widget.danglingBikeAdjustmentValues.length,
-                      one: "1 adjustment value found that is not associated with this bike. Cannot be edited.",
-                      other: "${widget.danglingBikeAdjustmentValues.length} adjustment values found that are not associated with this bike. Cannot be edited.",
-                    )),
-                    leading: const Icon(Icons.question_mark),
-                    tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  ),
-                  ...widget.danglingBikeAdjustmentValues.entries.map((danglingAdjustmentValue) {
-                    return DisplayDanglingAdjustmentWidget(
-                      name: danglingAdjustmentValue.key,
-                      initialValue: widget.initialBikeAdjustmentValues[danglingAdjustmentValue.key],
-                      value: danglingAdjustmentValue.value,
-                      onRemove: () {
-                        widget.onDanglingRemove(danglingAdjustmentValue.key);
-                      },
-                    );
-                  }),
-                ],
-              ),
+          ...componentSplit.groups.map((group) => _danglingComponentCard(
+            context,
+            group: group,
+            adjustmentValues: widget.bikeAdjustmentValues,
+            initialAdjustmentValues: widget.previousBikeAdjustmentValues,
+            onRemove: widget.onDanglingRemove,
+          )),
+          if (componentSplit.deletedValues.isNotEmpty)
+            _danglingValuesCard(
+              context,
+              values: componentSplit.deletedValues,
+              title: "Dangling Adjustment Values",
+              cause: "Component with adjustment was deleted",
+              onRemove: widget.onDanglingRemove,
             ),
-          ),
         ],
       ],
     );
@@ -263,6 +371,12 @@ class SetupPersonTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final person = persons[personId];
+
+    final personSplit = DanglingAdjustmentService.splitPersons(
+      danglingValues: danglingPersonAdjustmentValues,
+      persons: persons.values,
+    );
+
     return _SetupTabScaffold(
       scrollKey: 'tab2_person',
       showLegend: person != null || danglingPersonAdjustmentValues.isNotEmpty,
@@ -304,40 +418,23 @@ class SetupPersonTab extends StatelessWidget {
               ],
             ),
           ),
-        if (danglingPersonAdjustmentValues.isNotEmpty) ...[
+        if (personSplit.groups.isNotEmpty || personSplit.deletedValues.isNotEmpty) ...[
           const Divider(height: 50),
-          Opacity(
-            opacity: 0.4,
-            child: Card(
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    title: const Text("Dangling Attribute Values", style: TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text(Intl.plural(
-                      danglingPersonAdjustmentValues.length,
-                      one: "1 attribute value found that is not associated with this person. Cannot be edited.",
-                      other: "${danglingPersonAdjustmentValues.length} attribute values found that are not associated with this person. Cannot be edited.",
-                    )),
-                    leading: const Icon(Icons.question_mark),
-                    tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  ),
-                  ...danglingPersonAdjustmentValues.entries.map((danglingAdjustmentValue) {
-                    return DisplayDanglingAdjustmentWidget(
-                      name: danglingAdjustmentValue.key,
-                      initialValue: initialPersonAdjustmentValues[danglingAdjustmentValue.key],
-                      value: danglingAdjustmentValue.value,
-                      onRemove: () {
-                        onDanglingRemove(danglingAdjustmentValue.key);
-                      },
-                    );
-                  }),
-                ],
-              ),
+          ...personSplit.groups.map((group) => _danglingPersonCard(
+            context,
+            group: group,
+            adjustmentValues: personAdjustmentValues,
+            initialAdjustmentValues: previousPersonAdjustmentValues,
+            onRemove: onDanglingRemove,
+          )),
+          if (personSplit.deletedValues.isNotEmpty)
+            _danglingValuesCard(
+              context,
+              values: personSplit.deletedValues,
+              title: "Dangling Attribute Values",
+              cause: "Attribute was deleted",
+              onRemove: onDanglingRemove,
             ),
-          ),
         ],
       ],
     );

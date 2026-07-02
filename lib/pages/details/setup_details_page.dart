@@ -8,6 +8,7 @@ import '../../models/person.dart';
 import '../../models/rating_metric.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/dangling_adjustment_service.dart';
 import '../../services/image_storage_service.dart';
 import '../../utils/setup_actions.dart';
 import '../../widgets/display_adjustment/display_adjustment_list.dart';
@@ -296,12 +297,115 @@ class SetupDetailsPageContent extends StatelessWidget {
     );
   }
 
+  Widget _errorBadgeDot(BuildContext context, {double size = 9}) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(1.5),
+      decoration: BoxDecoration(
+        color: scheme.error,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(Icons.error, size: size, color: scheme.errorContainer),
+    );
+  }
+
+  Widget _danglingComponentCard(BuildContext context, {required Setup setup, required DanglingComponentGroup group}) {
+    final scheme = Theme.of(context).colorScheme;
+    return Card.outlined(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: Badge(
+              label: _errorBadgeDot(context),
+              backgroundColor: Colors.transparent,
+              largeSize: 20,
+              child: Icon(group.component.componentType.getIconData(), color: scheme.error),
+            ),
+            title: Text(group.component.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
+            subtitle: Text("Component was not installed at setup time", style: TextStyle(color: scheme.error)),
+            tileColor: scheme.errorContainer,
+          ),
+          AdjustmentDisplayList(
+            adjustments: group.adjustments,
+            initialAdjustmentValues: setup.previousBikeAdjustmentValues,
+            adjustmentValues: setup.bikeAdjustmentValues,
+            isError: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _danglingPersonCard(BuildContext context, {required Setup setup, required DanglingPersonGroup group}) {
+    final scheme = Theme.of(context).colorScheme;
+    return Card.outlined(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: Badge(
+              label: _errorBadgeDot(context),
+              backgroundColor: Colors.transparent,
+              largeSize: 20,
+              child: Icon(Person.iconData, color: scheme.error),
+            ),
+            title: Text(group.person.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
+            subtitle: Text("Person is not linked to this setup", style: TextStyle(color: scheme.error)),
+            tileColor: scheme.errorContainer,
+          ),
+          AdjustmentDisplayList(
+            adjustments: group.adjustments,
+            initialAdjustmentValues: setup.previousPersonAdjustmentValues,
+            adjustmentValues: setup.personAdjustmentValues,
+            isError: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _danglingValuesCard(BuildContext context, {
+    required Map<String, dynamic> values,
+    required String title,
+    required String cause,
+  }) {
+    final scheme = Theme.of(context).colorScheme;
+    return Card.outlined(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: Icon(Icons.error_outline, color: scheme.error),
+            title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
+            subtitle: Text(cause, style: TextStyle(color: scheme.error)),
+            tileColor: scheme.errorContainer,
+          ),
+          ...values.entries.map((danglingAdjustmentValue) {
+            return DisplayDanglingAdjustmentWidget(
+              name: danglingAdjustmentValue.key,
+              value: danglingAdjustmentValue.value,
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
   SliverToBoxAdapter _valueSection(BuildContext context, {
     required Setup setup,
     required Iterable<Component> bikeComponents,
     required Person? person,
-    required Map<String, dynamic> danglingBikeAdjustmentValues,
-    required Map<String, dynamic> danglingPersonAdjustmentValues,
+    required List<DanglingComponentGroup> danglingComponentGroups,
+    required Map<String, dynamic> danglingDeletedBikeAdjustmentValues,
+    required List<DanglingPersonGroup> danglingPersonGroups,
+    required Map<String, dynamic> danglingDeletedPersonAdjustmentValues,
   }) {
     final appSettings = context.read<AppSettings>();
     return SliverToBoxAdapter(
@@ -345,35 +449,13 @@ class SetupDetailsPageContent extends StatelessWidget {
                   ),
                 );
               }),
-            if (danglingBikeAdjustmentValues.isNotEmpty)
-              Opacity(
-                opacity: 0.4,
-                child: Card.outlined(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ListTile(
-                        title: const Text("Dangling Adjustment Values", style: TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text(Intl.plural(
-                          danglingBikeAdjustmentValues.length, 
-                          one: "1 adjustment value found that is not associated with this bike.",
-                          other: "${danglingBikeAdjustmentValues.length} adjustment values found that are not associated with this bike.",
-                        )),
-                        leading: const Icon(Icons.question_mark),
-                        tileColor: Theme.of(context).colorScheme.outlineVariant,
-                      ),
-                      ...danglingBikeAdjustmentValues.entries.map((danglingAdjustmentValue) {
-                        return DisplayDanglingAdjustmentWidget(
-                          name: danglingAdjustmentValue.key, 
-                          initialValue: setup.previousBikeAdjustmentValues[danglingAdjustmentValue.key], 
-                          value: danglingAdjustmentValue.value
-                        );
-                      }),
-                    ],
-                  ),
-                ),
+            ...danglingComponentGroups.map((group) => _danglingComponentCard(context, setup: setup, group: group)),
+            if (danglingDeletedBikeAdjustmentValues.isNotEmpty)
+              _danglingValuesCard(
+                context,
+                values: danglingDeletedBikeAdjustmentValues,
+                title: "Dangling Adjustment Values",
+                cause: "Component with adjustment was deleted",
               ),
             if (appSettings.enablePerson) ...[
               if (person != null)
@@ -403,35 +485,13 @@ class SetupDetailsPageContent extends StatelessWidget {
                     ],
                   ),
                 ),
-              if (danglingPersonAdjustmentValues.isNotEmpty)
-                Opacity(
-                  opacity: 0.4,
-                  child: Card.outlined(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    clipBehavior: Clip.antiAlias,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          title: const Text("Dangling Attribute Values", style: TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Text(Intl.plural(
-                            danglingPersonAdjustmentValues.length, 
-                            one: "1 attribute value found that is not associated with this person.",
-                            other: "${danglingPersonAdjustmentValues.length} attribute values found that are not associated with this person.",
-                          )),
-                          leading: const Icon(Icons.question_mark),
-                          tileColor: Theme.of(context).colorScheme.outlineVariant,
-                        ),
-                        ...danglingPersonAdjustmentValues.entries.map((danglingAdjustmentValue) {
-                          return DisplayDanglingAdjustmentWidget(
-                            name: danglingAdjustmentValue.key, 
-                            initialValue: setup.previousPersonAdjustmentValues[danglingAdjustmentValue.key], 
-                            value: danglingAdjustmentValue.value,
-                          );
-                        }),
-                      ],
-                    ),
-                  ),
+              ...danglingPersonGroups.map((group) => _danglingPersonCard(context, setup: setup, group: group)),
+              if (danglingDeletedPersonAdjustmentValues.isNotEmpty)
+                _danglingValuesCard(
+                  context,
+                  values: danglingDeletedPersonAdjustmentValues,
+                  title: "Dangling Attribute Values",
+                  cause: "Attribute was deleted",
                 ),
             ],
           ],
@@ -579,11 +639,19 @@ class SetupDetailsPageContent extends StatelessWidget {
         danglingBikeAdjustmentValues.remove(bikeComponentAdj.id);
       }
     }
+    final componentSplit = DanglingAdjustmentService.splitComponents(
+      danglingValues: danglingBikeAdjustmentValues,
+      components: components.values,
+    );
 
     final Map<String, dynamic> danglingPersonAdjustmentValues = Map.from(setup.personAdjustmentValues);
     for (final personAdj in (person?.adjustments ?? [])) {
       danglingPersonAdjustmentValues.remove(personAdj.id);
     }
+    final personSplit = DanglingAdjustmentService.splitPersons(
+      danglingValues: danglingPersonAdjustmentValues,
+      persons: persons.values,
+    );
 
     return CustomScrollView(
       slivers: [
@@ -607,8 +675,10 @@ class SetupDetailsPageContent extends StatelessWidget {
                     setup: setup,
                     person: person,
                     bikeComponents: bikeComponents,
-                    danglingBikeAdjustmentValues: danglingBikeAdjustmentValues,
-                    danglingPersonAdjustmentValues: danglingPersonAdjustmentValues,
+                    danglingComponentGroups: componentSplit.groups,
+                    danglingDeletedBikeAdjustmentValues: componentSplit.deletedValues,
+                    danglingPersonGroups: personSplit.groups,
+                    danglingDeletedPersonAdjustmentValues: personSplit.deletedValues,
                   ),
                   _legend(context),
                 ]

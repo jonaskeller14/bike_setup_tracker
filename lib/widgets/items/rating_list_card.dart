@@ -70,6 +70,8 @@ class RatingListCard extends StatelessWidget {
               title: Text(
                 rating.name,
                 style: Theme.of(context).textTheme.titleMedium,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 3,
               ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

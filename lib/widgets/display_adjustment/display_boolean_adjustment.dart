@@ -7,6 +7,8 @@ class DisplayBooleanAdjustmentWidget extends StatelessWidget {
   final bool? initialValue;
   final bool? value;
   final bool highlighting;
+  final bool isError;
+  final VoidCallback? onRemove;
 
   const DisplayBooleanAdjustmentWidget({
     required super.key,
@@ -14,6 +16,8 @@ class DisplayBooleanAdjustmentWidget extends StatelessWidget {
     required this.initialValue,
     required this.value,
     this.highlighting = true,
+    this.isError = false,
+    this.onRemove,
   });
 
   @override
@@ -25,6 +29,11 @@ class DisplayBooleanAdjustmentWidget extends StatelessWidget {
       isChanged = value != null && initialValue != value;
       isInitial = initialValue == null;
       highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
+    }
+    if (isError) {
+      isChanged = false;
+      isInitial = true;
+      highlightColor = Theme.of(context).colorScheme.error;
     }
     
     return Container(
@@ -43,40 +52,47 @@ class DisplayBooleanAdjustmentWidget extends StatelessWidget {
               ],
             ),
           ),
-          Column(
-            children: [
-              SelectableText.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: Adjustment.formatValue(value),
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: highlightColor,
+          Flexible(
+            child: Column(
+              children: [
+                SelectableText.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: Adjustment.formatValue(value),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: highlightColor,
+                        ),
                       ),
-                    ),
-                    TextSpan(
-                      text: adjustment.unitSuffix(),
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: highlightColor,
-                      ),                    ),
-                  ],
-                ),
-              ),
-              if (!isInitial && isChanged)
-                Opacity(
-                  opacity: 0.7,
-                  child: Text(
-                    Adjustment.formatValue(initialValue) + adjustment.unitSuffix(),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.lineThrough,
-                      decorationThickness: 2,
-                    ),
+                      TextSpan(
+                        text: adjustment.unitSuffix(),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: highlightColor,
+                        ),                    ),
+                    ],
                   ),
                 ),
-            ],
+                if (!isInitial && isChanged)
+                  Opacity(
+                    opacity: 0.7,
+                    child: Text(
+                      Adjustment.formatValue(initialValue) + adjustment.unitSuffix(),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.lineThrough,
+                        decorationThickness: 2,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
+          if (onRemove != null)
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: onRemove,
+            ),
         ],
       ),
     );

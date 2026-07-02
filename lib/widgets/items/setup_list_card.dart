@@ -86,6 +86,7 @@ class SetupListCard extends StatelessWidget {
       minTileHeight: 0,
       titleAlignment: ListTileTitleAlignment.top,
       title: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 8,
         children: [
           Expanded(
@@ -93,6 +94,7 @@ class SetupListCard extends StatelessWidget {
               setup.displayName,
               style: const TextStyle(fontWeight: FontWeight.bold),
               overflow: TextOverflow.ellipsis,
+              maxLines: 3,
             ),
           ),
           if (score != null)

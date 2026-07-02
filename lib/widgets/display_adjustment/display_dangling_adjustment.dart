@@ -4,30 +4,19 @@ import "../set_adjustment/set_adjustment.dart";
 
 class DisplayDanglingAdjustmentWidget extends StatelessWidget {
   final String name;
-  final dynamic initialValue;
   final dynamic value;
-  final bool highlighting;
   final VoidCallback? onRemove;
 
   const DisplayDanglingAdjustmentWidget({
     super.key,
     required this.name,
-    required this.initialValue,
     required this.value,
-    this.highlighting = true,
     this.onRemove,
   });
 
   @override
   Widget build(BuildContext context) {
-    bool isChanged = false;
-    bool isInitial = false;
-    Color? highlightColor;
-    if (highlighting) {
-      isChanged = value != null && initialValue != value;
-      isInitial = initialValue == null;
-      highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
-    }
+    final highlightColor = Theme.of(context).colorScheme.error;
     
     return Container(
       padding: const EdgeInsets.all(16),
@@ -57,18 +46,6 @@ class DisplayDanglingAdjustmentWidget extends StatelessWidget {
                     color: highlightColor,
                   ),
                 ),
-                if (!isInitial && isChanged)
-                  Opacity(
-                    opacity: 0.7,
-                    child: Text(
-                      Adjustment.formatValue(initialValue),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.lineThrough,
-                        decorationThickness: 2,
-                      ),
-                    ),
-                  ),
               ],
             ),
           ),

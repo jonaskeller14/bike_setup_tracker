@@ -1052,16 +1052,20 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                   SetupBikeTab(
                     bike: _bike,
                     bikeComponents: bikeComponents,
+                    allComponents: appRepository.components,
                     bikeAdjustmentValues: _bikeAdjustmentValues,
                     previousBikeAdjustmentValues: _previousBikeAdjustmentValues,
                     initialBikeAdjustmentValues: _initialBikeAdjustmentValues,
                     danglingBikeAdjustmentValues: _danglingBikeAdjustmentValues,
                     onAdjustmentValueChanged: _onBikeAdjustmentValueChanged,
                     onRemoveFromAdjustmentValues: _removeFromBikeAdjustmentValues,
-                    onDanglingRemove: (id) => setState(() {
-                      _danglingBikeAdjustmentValues.remove(id);
-                      _bikeAdjustmentValues.remove(id);
-                    }),
+                    onDanglingRemove: (id) {
+                      setState(() {
+                        _danglingBikeAdjustmentValues.remove(id);
+                        _bikeAdjustmentValues.remove(id);
+                      });
+                      _changeListener();
+                    },
                   ),
                   if (context.read<AppSettings>().enablePerson)
                     SetupPersonTab(
@@ -1074,10 +1078,13 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                       onAdjustmentValueChanged: _onPersonAdjustmentValueChanged,
                       onRemoveFromAdjustmentValues: _removeFromPersonAdjustmentValues,
                       changeListener: _changeListener,
-                      onDanglingRemove: (id) => setState(() {
-                        _danglingPersonAdjustmentValues.remove(id);
-                        _personAdjustmentValues.remove(id);
-                      }),
+                      onDanglingRemove: (id) {
+                        setState(() {
+                          _danglingPersonAdjustmentValues.remove(id);
+                          _personAdjustmentValues.remove(id);
+                        });
+                        _changeListener();
+                      },
                     ),
                 ],
               ),

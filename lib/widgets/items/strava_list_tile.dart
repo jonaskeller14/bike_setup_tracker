@@ -21,7 +21,7 @@ class StravaListTile extends StatelessWidget {
     final appSettings = context.watch<AppSettings>();
     
     return ListTile(
-      title: Text(stravaActivity.name),
+      title: Text(stravaActivity.name, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

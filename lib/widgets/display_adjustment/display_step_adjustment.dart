@@ -7,6 +7,8 @@ class DisplayStepAdjustmentWidget extends StatelessWidget {
   final num? initialValue;
   final num? value;
   final bool highlighting;
+  final bool isError;
+  final VoidCallback? onRemove;
 
   const DisplayStepAdjustmentWidget({
     required super.key,
@@ -14,6 +16,8 @@ class DisplayStepAdjustmentWidget extends StatelessWidget {
     required this.initialValue,
     required this.value,
     this.highlighting = true,
+    this.isError = false,
+    this.onRemove,
   });
 
   @override
@@ -25,6 +29,11 @@ class DisplayStepAdjustmentWidget extends StatelessWidget {
       isChanged = value != null && initialValue != value;
       isInitial = initialValue == null;
       highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
+    }
+    if (isError) {
+      isChanged = false;
+      isInitial = true;
+      highlightColor = Theme.of(context).colorScheme.error;
     }
     
     return Container(
@@ -43,52 +52,61 @@ class DisplayStepAdjustmentWidget extends StatelessWidget {
               ],
             )
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              SelectableText.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: Adjustment.formatValue(value),
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                SelectableText.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: Adjustment.formatValue(value),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontFamily: 'monospace',
+                          fontWeight: FontWeight.bold,
+                          color: highlightColor,
+                          fontFeatures: [const FontFeature.tabularFigures()],
+                        ),
+                      ),
+                      TextSpan(
+                        text: adjustment.unitSuffix(),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: highlightColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (!isInitial && isChanged)
+                  Opacity(
+                    opacity: 0.7,
+                    child: Text(
+                      Adjustment.formatValue(initialValue) + adjustment.unitSuffix(),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontFamily: 'monospace',
                         fontWeight: FontWeight.bold,
-                        color: highlightColor,
+                        decoration: TextDecoration.lineThrough,
+                        decorationThickness: 2,
                         fontFeatures: [const FontFeature.tabularFigures()],
                       ),
                     ),
-                    TextSpan(
-                      text: adjustment.unitSuffix(),
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: highlightColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (!isInitial && isChanged)
-                Opacity(
-                  opacity: 0.7,
-                  child: Text(
-                    Adjustment.formatValue(initialValue) + adjustment.unitSuffix(),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontFamily: 'monospace',
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.lineThrough,
-                      decorationThickness: 2,
-                      fontFeatures: [const FontFeature.tabularFigures()],
-                    ),
+                  ),
+                Text(
+                  "[${Adjustment.formatValue(adjustment.min)}..${Adjustment.formatValue(adjustment.max)}]",
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: isError
+                        ? highlightColor
+                        : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                   ),
                 ),
-              Text(
-                "[${Adjustment.formatValue(adjustment.min)}..${Adjustment.formatValue(adjustment.max)}]",
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
+          if (onRemove != null)
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: onRemove,
+            ),
         ],
       ),
     );

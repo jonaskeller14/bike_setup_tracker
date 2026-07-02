@@ -11,12 +11,16 @@ class AdjustmentDisplayList extends StatelessWidget {
   final List<Adjustment> adjustments;
   final Map<String, dynamic> initialAdjustmentValues;
   final Map<String, dynamic> adjustmentValues;
+  final bool isError;
+  final void Function(String adjustmentId)? onRemove;
 
   const AdjustmentDisplayList({
     super.key,
     required this.adjustments,
     required this.initialAdjustmentValues,
     required this.adjustmentValues,
+    this.isError = false,
+    this.onRemove,
   });
 
   @override
@@ -27,13 +31,16 @@ class AdjustmentDisplayList extends StatelessWidget {
         final adjustment = adjustments[index];
         final dynamic initialValue = initialAdjustmentValues[adjustment.id];
         final dynamic value = adjustmentValues[adjustment.id];
+        final VoidCallback? onRemoveAdjustment = onRemove == null ? null : () => onRemove!(adjustment.id);
         switch (adjustment) {
-          case BooleanAdjustment(): 
+          case BooleanAdjustment():
             return DisplayBooleanAdjustmentWidget(
               key: ValueKey(adjustment),
               adjustment: adjustment,
               initialValue: initialValue,
               value: value,
+              isError: isError,
+              onRemove: onRemoveAdjustment,
             );
           case NumericalAdjustment():
             return DisplayNumericalAdjustmentWidget(
@@ -41,34 +48,44 @@ class AdjustmentDisplayList extends StatelessWidget {
               adjustment: adjustment,
               initialValue: initialValue,
               value: value,
+              isError: isError,
+              onRemove: onRemoveAdjustment,
             );
           case StepAdjustment():
             return DisplayStepAdjustmentWidget(
-              key: ValueKey(adjustment), 
+              key: ValueKey(adjustment),
               adjustment: adjustment,
               initialValue: initialValue,
-              value: value, 
+              value: value,
+              isError: isError,
+              onRemove: onRemoveAdjustment,
             );
           case CategoricalAdjustment():
             return DisplayCategoricalAdjustmentWidget(
-              key: ValueKey(adjustment), 
-              adjustment: adjustment, 
+              key: ValueKey(adjustment),
+              adjustment: adjustment,
               initialValue: initialValue,
               value: value,
+              isError: isError,
+              onRemove: onRemoveAdjustment,
             );
           case TextAdjustment():
             return DisplayTextAdjustmentWidget(
-              key: ValueKey(adjustment), 
-              adjustment: adjustment, 
+              key: ValueKey(adjustment),
+              adjustment: adjustment,
               initialValue: initialValue,
               value: value,
+              isError: isError,
+              onRemove: onRemoveAdjustment,
             );
           case DurationAdjustment():
             return DisplayDurationAdjustmentWidget(
               key: ValueKey(adjustment),
               adjustment: adjustment,
               initialValue: initialValue,
-              value: value, 
+              value: value,
+              isError: isError,
+              onRemove: onRemoveAdjustment,
             );
         }
       }),

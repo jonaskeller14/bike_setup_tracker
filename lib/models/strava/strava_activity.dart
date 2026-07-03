@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 part 'strava_sportType.dart';
+part 'strava_workout_type.dart';
 
 class StravaActivity {
   final int id;
@@ -39,6 +40,8 @@ class StravaActivity {
     this.workoutType,
   }): lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc(),
       startDate = startDate.toUtc();
+
+  StravaWorkoutType get workout => StravaWorkoutType.fromRaw(workoutType);
 
   Map<String, dynamic> toJson() => {
     'id': id,

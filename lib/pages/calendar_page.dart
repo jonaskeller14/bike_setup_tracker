@@ -32,7 +32,9 @@ const double kCalendarMonthCellMinHeight = 95;
 
 IconData calendarIconFor(TimelineEntry entry) => switch (entry) {
       SetupEntry() => Setup.iconData,
-      StravaEntry() => SimpleIcons.strava,
+      StravaEntry() => entry.activity.workout.isNotable
+          ? entry.activity.workout.icon
+          : SimpleIcons.strava,
       TaskTimeLineEntry() => Icons.check_box_outlined,
       InstallationEntry() => entry.componentInstallation.component.componentType.getIconData(),
       RatingEntryTimelineEntry() => RatingEntry.iconData,

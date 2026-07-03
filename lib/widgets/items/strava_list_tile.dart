@@ -64,19 +64,46 @@ class StravaListTile extends StatelessWidget {
               ),
             ],
           ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: 2,
+          Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 2,
             children: [
-              Icon(stravaActivity.sportType.getIconData(), size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
-              Text(
-                stravaActivity.sportType.label,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                  fontSize: 12,
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                spacing: 2,
+                children: [
+                  Icon(stravaActivity.sportType.getIconData(), size: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  Text(
+                    stravaActivity.sportType.label,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
               ),
+              if (stravaActivity.workout.isNotable)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: 2,
+                  children: [
+                    Icon(
+                      stravaActivity.workout.icon,
+                      size: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    Text(
+                      stravaActivity.workout.label,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
             ],
           ),
         ],

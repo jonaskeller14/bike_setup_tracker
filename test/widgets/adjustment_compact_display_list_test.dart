@@ -6,12 +6,14 @@ import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/services/dangling_adjustment_service.dart';
 import 'package:bike_setup_tracker/services/setup_resolution_service.dart';
+import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/lists/adjustment_compact_display_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// A fixed scheme so we can assert against the exact themed error colour.
 final ColorScheme _scheme = ColorScheme.fromSeed(seedColor: Colors.blue);
+final ValueHighlightColors _highlights = ValueHighlightColors.light;
 
 void main() {
   // --- Fixture -------------------------------------------------------------
@@ -63,7 +65,15 @@ void main() {
 
   // --- Helpers -------------------------------------------------------------
   Widget harness(Widget child) => MaterialApp(
-        theme: ThemeData(colorScheme: _scheme),
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: _scheme,
+          textTheme: const TextTheme(
+            headlineLarge: TextStyle(fontWeight: FontWeight.bold),
+            titleLarge: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          extensions: const [ValueHighlightColors.light],
+        ),
         home: Scaffold(body: SingleChildScrollView(child: child)),
       );
 
@@ -154,11 +164,11 @@ void main() {
       expect(find.text('999'), findsNothing);
 
       // Highlight colours.
-      expect(valueColor(tester, '80'), Colors.orange, reason: 'changed'); // orange
-      expect(valueColor(tester, '5'), Colors.green, reason: 'initial'); // green
-      expect(valueColor(tester, '3'), isNull, reason: 'unchanged -> default'); // black
-      expect(valueColor(tester, '30'), _scheme.error, reason: 'dangling'); // red
-      expect(valueColor(tester, '70'), Colors.orange, reason: 'person changed'); // orange
+      expect(valueColor(tester, '80'), _highlights.changed, reason: 'changed');
+      expect(valueColor(tester, '5'), _highlights.initial, reason: 'initial');
+      expect(valueColor(tester, '3'), isNull, reason: 'unchanged -> default');
+      expect(valueColor(tester, '30'), _scheme.error, reason: 'dangling');
+      expect(valueColor(tester, '70'), _highlights.changed, reason: 'person changed');
     });
 
     testWidgets('dangling component icon is red, normal component icon is not', (tester) async {
@@ -196,8 +206,8 @@ void main() {
       expect(find.text('999'), findsNothing);
 
       // Colours of surviving values are unchanged.
-      expect(valueColor(tester, '80'), Colors.orange);
-      expect(valueColor(tester, '5'), Colors.green);
+      expect(valueColor(tester, '80'), _highlights.changed);
+      expect(valueColor(tester, '5'), _highlights.initial);
     });
   });
 
@@ -233,10 +243,10 @@ void main() {
       ).setups;
 
       await tester.pumpWidget(compactFor(resolved['s1']!, displayOnlyChanges: false));
-      expect(valueColor(tester, '80'), Colors.green, reason: 's1 has no previous -> initial');
+      expect(valueColor(tester, '80'), _highlights.initial, reason: 's1 has no previous -> initial');
 
       await tester.pumpWidget(compactFor(resolved['s2']!, displayOnlyChanges: false));
-      expect(valueColor(tester, '85'), Colors.orange, reason: 's2 changed from 80');
+      expect(valueColor(tester, '85'), _highlights.changed, reason: 's2 changed from 80');
 
       await tester.pumpWidget(compactFor(resolved['s3']!, displayOnlyChanges: false));
       expect(valueColor(tester, '85'), isNull, reason: 's3 unchanged from s2');

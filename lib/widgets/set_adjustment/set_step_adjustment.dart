@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import '../../models/adjustment/adjustment.dart';
+import '../../theme.dart';
 import "set_adjustment.dart";
 
 class SetStepAdjustmentWidget extends StatelessWidget {
@@ -52,10 +53,11 @@ class SetStepAdjustmentWidget extends StatelessWidget {
     bool isChanged = false;
     bool isInitial = false;
     Color? highlightColor;
+    final highlights = Theme.of(context).extension<ValueHighlightColors>();
     if (highlighting) {
       isChanged = initialValue != value;
       isInitial = initialValue == null;
-      highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
+      highlightColor = isChanged ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange) : null;
     }
 
     final sliderDivisions = ((adjustment.max - adjustment.min) / adjustment.step).floor();

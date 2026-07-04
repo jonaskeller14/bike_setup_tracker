@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
+import '../../theme.dart';
 import "set_adjustment.dart";
 
 class SetCategoricalAdjustmentWidget extends StatelessWidget {
@@ -22,11 +23,12 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     late bool isChanged;
     late bool isInitial;
-    late Color? highlightColor; 
+    late Color? highlightColor;
+    final highlights = Theme.of(context).extension<ValueHighlightColors>();
     if (highlighting) {
       isChanged = initialValue != value;
       isInitial = initialValue == null;
-      highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
+      highlightColor = isChanged ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange) : null;
     } else {
       isChanged = false;
       isInitial = false;
@@ -77,9 +79,9 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
                         height: 12,
                         decoration: BoxDecoration(
                           color: highlighting && option != value
-                              ? (initialValue != option) 
-                                  ? ((initialValue == null) 
-                                      ? Colors.green : Colors.orange).withValues(alpha: 0.16)
+                              ? (initialValue != option)
+                                  ? ((initialValue == null)
+                                      ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange).withValues(alpha: 0.16)
                                       : null
                               : null,
                           shape: BoxShape.circle,

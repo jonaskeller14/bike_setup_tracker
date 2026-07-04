@@ -1093,12 +1093,13 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                                 TableColumnSection.personAttributes => setup.previousPersonAdjustmentValues[column.label],
                                 _ => null,
                               };
-             
+
                               Color? highlightColor;
                               if (_highlighting) {
                                 final bool isChanged = value != null && initialValue != value;
                                 final bool isInitial = initialValue == null;
-                                highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
+                                final highlights = Theme.of(context).extension<ValueHighlightColors>();
+                                highlightColor = isChanged ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange) : null;
                               }
         
                               return DataCell(

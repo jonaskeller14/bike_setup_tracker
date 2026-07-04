@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
+import '../theme.dart';
 
 class InitialChangedValueLegend extends StatelessWidget {
   @Preview(name: "InitialChangedValueLegend")
@@ -25,6 +26,7 @@ class InitialChangedValueLegend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final highlights = Theme.of(context).extension<ValueHighlightColors>();
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Center(
@@ -34,12 +36,12 @@ class InitialChangedValueLegend extends StatelessWidget {
           children: <Widget>[
             _buildLegendItem(
               context,
-              Colors.green.withValues(alpha: 1),
+              highlights?.initial ?? Colors.green,
               'Initial Value',
             ),
             _buildLegendItem(
               context,
-              Colors.orange.withValues(alpha: 1),
+              highlights?.changed ?? Colors.orange,
               'Changed Value',
             ),
           ],

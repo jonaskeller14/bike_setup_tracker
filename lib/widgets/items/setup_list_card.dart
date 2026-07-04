@@ -419,7 +419,7 @@ class _SetupListCardState extends State<SetupListCard> {
                   curve: Curves.easeInOut,
                   alignment: Alignment.topCenter,
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    padding: const EdgeInsets.only(bottom: 8),
                     child: AdjustmentCompactDisplayList(
                       components: breakdown.components,
                       persons: breakdown.person != null ? [breakdown.person!] : const [],

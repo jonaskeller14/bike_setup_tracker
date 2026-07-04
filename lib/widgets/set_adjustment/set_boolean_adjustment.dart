@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
+import '../../theme.dart';
 import "set_adjustment.dart";
 
 class SetBooleanAdjustmentWidget extends StatelessWidget {
@@ -23,10 +24,11 @@ class SetBooleanAdjustmentWidget extends StatelessWidget {
     bool isChanged = false;
     bool isInitial = false;
     Color? highlightColor;
+    final highlights = Theme.of(context).extension<ValueHighlightColors>();
     if (highlighting) {
       isChanged = initialValue != value;
       isInitial = initialValue == null;
-      highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
+      highlightColor = isChanged ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange) : null;
     }
 
     return Container(

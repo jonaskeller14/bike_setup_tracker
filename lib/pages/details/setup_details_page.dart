@@ -16,6 +16,7 @@ import '../../widgets/display_adjustment/display_dangling_adjustment.dart';
 import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/image_strip.dart';
 import '../../widgets/initial_changed_value_legend.dart';
+import '../../widgets/items/card_header_tile.dart';
 import '../../widgets/items/context_location_card.dart';
 import '../../widgets/items/context_weather_card.dart';
 import '../../widgets/sheets/sheet.dart';
@@ -317,16 +318,18 @@ class SetupDetailsPageContent extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ListTile(
-            leading: Badge(
-              label: _errorBadgeDot(context),
-              backgroundColor: Colors.transparent,
-              largeSize: 20,
-              child: Icon(group.component.componentType.getIconData(), color: scheme.error),
+          CardHeaderTile(
+            color: scheme.errorContainer,
+            child: ListTile(
+              leading: Badge(
+                label: _errorBadgeDot(context),
+                backgroundColor: Colors.transparent,
+                largeSize: 20,
+                child: Icon(group.component.componentType.getIconData(), color: scheme.error),
+              ),
+              title: Text(group.component.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
+              subtitle: Text("Component was not installed at setup time", style: TextStyle(color: scheme.error)),
             ),
-            title: Text(group.component.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
-            subtitle: Text("Component was not installed at setup time", style: TextStyle(color: scheme.error)),
-            tileColor: scheme.errorContainer,
           ),
           AdjustmentDisplayList(
             adjustments: group.adjustments,
@@ -347,16 +350,18 @@ class SetupDetailsPageContent extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ListTile(
-            leading: Badge(
-              label: _errorBadgeDot(context),
-              backgroundColor: Colors.transparent,
-              largeSize: 20,
-              child: Icon(Person.iconData, color: scheme.error),
+          CardHeaderTile(
+            color: scheme.errorContainer,
+            child: ListTile(
+              leading: Badge(
+                label: _errorBadgeDot(context),
+                backgroundColor: Colors.transparent,
+                largeSize: 20,
+                child: Icon(Person.iconData, color: scheme.error),
+              ),
+              title: Text(group.person.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
+              subtitle: Text("Person is not linked to this setup", style: TextStyle(color: scheme.error)),
             ),
-            title: Text(group.person.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
-            subtitle: Text("Person is not linked to this setup", style: TextStyle(color: scheme.error)),
-            tileColor: scheme.errorContainer,
           ),
           AdjustmentDisplayList(
             adjustments: group.adjustments,
@@ -381,11 +386,13 @@ class SetupDetailsPageContent extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ListTile(
-            leading: Icon(Icons.error_outline, color: scheme.error),
-            title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
-            subtitle: Text(cause, style: TextStyle(color: scheme.error)),
-            tileColor: scheme.errorContainer,
+          CardHeaderTile(
+            color: scheme.errorContainer,
+            child: ListTile(
+              leading: Icon(Icons.error_outline, color: scheme.error),
+              title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
+              subtitle: Text(cause, style: TextStyle(color: scheme.error)),
+            ),
           ),
           ...values.entries.map((danglingAdjustmentValue) {
             return DisplayDanglingAdjustmentWidget(
@@ -428,17 +435,19 @@ class SetupDetailsPageContent extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      ListTile(
-                        title: SelectableText(bikeComponent.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text(Intl.plural(
-                          bikeComponent.adjustments.length,
-                          zero: "No adjustments yet.",
-                          one: "1 adjustment",
-                          other: '${bikeComponent.adjustments.length} adjustments',
-                        )),
-                        leading: Icon(bikeComponent.componentType.getIconData()),
-                        enabled: bikeComponent.adjustments.isNotEmpty,
-                        tileColor: Theme.of(context).colorScheme.outlineVariant,
+                      CardHeaderTile(
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                        child: ListTile(
+                          title: SelectableText(bikeComponent.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text(Intl.plural(
+                            bikeComponent.adjustments.length,
+                            zero: "No adjustments yet.",
+                            one: "1 adjustment",
+                            other: '${bikeComponent.adjustments.length} adjustments',
+                          )),
+                          leading: Icon(bikeComponent.componentType.getIconData()),
+                          enabled: bikeComponent.adjustments.isNotEmpty,
+                        ),
                       ),
                       AdjustmentDisplayList(
                         adjustments: bikeComponent.adjustments,
@@ -465,17 +474,19 @@ class SetupDetailsPageContent extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      ListTile(
-                        title: SelectableText(person.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text(Intl.plural(
-                          person.adjustments.length,
-                          zero: "No attributes yet.",
-                          one: "1 attribute",
-                          other: '${person.adjustments.length} attributes',
-                        )),
-                        leading: const Icon(Person.iconData),
-                        enabled: person.adjustments.isNotEmpty,
-                        tileColor: Theme.of(context).colorScheme.outlineVariant,
+                      CardHeaderTile(
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                        child: ListTile(
+                          title: SelectableText(person.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text(Intl.plural(
+                            person.adjustments.length,
+                            zero: "No attributes yet.",
+                            one: "1 attribute",
+                            other: '${person.adjustments.length} attributes',
+                          )),
+                          leading: const Icon(Person.iconData),
+                          enabled: person.adjustments.isNotEmpty,
+                        ),
                       ),
                       AdjustmentDisplayList(
                         adjustments: person.adjustments,

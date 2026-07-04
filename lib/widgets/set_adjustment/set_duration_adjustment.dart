@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
+import '../../theme.dart';
 import '../sheets/set_duration.dart';
 import "set_adjustment.dart";
 
@@ -23,11 +24,12 @@ class SetDurationAdjustmentWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     late bool isChanged;
     late bool isInitial;
-    late Color? highlightColor; 
+    late Color? highlightColor;
+    final highlights = Theme.of(context).extension<ValueHighlightColors>();
     if (highlighting) {
       isChanged = value == null ? false : initialValue != value;
       isInitial = initialValue == null;
-      highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
+      highlightColor = isChanged ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange) : null;
     } else {
       isChanged = false;
       isInitial = false;

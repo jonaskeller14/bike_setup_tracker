@@ -212,7 +212,7 @@ class ComponentListCard extends StatelessWidget{
             ),
             if (showCurrentAdjustmentValues)
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
+                padding: const EdgeInsets.only(bottom: 8),
                 child: AdjustmentCompactDisplayList(
                   components: [component],
                   adjustmentValues: appRepository.currentAdjustmentValues,

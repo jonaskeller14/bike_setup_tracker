@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/component.dart';
 import '../../models/person.dart';
+import '../../theme.dart';
 
 class AdjustmentCompactSummary {
   final bool hasContent;
@@ -14,6 +15,12 @@ class AdjustmentCompactSummary {
 }
 
 class AdjustmentCompactDisplayList extends StatelessWidget {
+  static const double _contentInset = 16;
+  static const double _errorBorderWidth = 1;
+  static const double _errorContentPadding = 6;
+  static const double _rowIndent = _errorBorderWidth + _errorContentPadding;
+  static const double _outerPadding = _contentInset - _rowIndent;
+
   final Iterable<Component> components;
   final Iterable<Person> persons;
   final Iterable<Component> danglingComponents;
@@ -157,33 +164,45 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
       missingValuesPlaceholder: missingValuesPlaceholder,
     );
 
-    final columnChildren = [
-      for (final resolved in resolvedItems)
-        _AdjustmentTableRow(
+    if (resolvedItems.isEmpty) return const SizedBox.shrink();
+
+    final normalItems = resolvedItems.where((r) => !r.item.isError).toList();
+    final errorItems = resolvedItems.where((r) => r.item.isError).toList();
+
+    Widget buildRow(_ResolvedItem resolved) => _AdjustmentTableRow(
           item: resolved.item,
           entries: resolved.visibleEntries,
           previousAdjustmentValues: resolved.previousValues,
           showRowIcons: showRowIcons,
           highlightInitialValues: highlightInitialValues,
-        ),
-    ];
+        );
 
-    final horizontalDivider = const Divider(
-      height: 6,
-      thickness: 1,
-      indent: 0,
-      endIndent: 0,
-    );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (var i = 0; i < columnChildren.length; i++) ...[
-          columnChildren[i],
-          if (i < columnChildren.length - 1) horizontalDivider,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: _outerPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        spacing: 3,
+        children: [
+          if (normalItems.isNotEmpty)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var i = 0; i < normalItems.length; i++) ...[
+                  buildRow(normalItems[i]),
+                  if (i < normalItems.length - 1)
+                    Divider(
+                      height: 1,
+                      thickness: 1.3,
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
+                ],
+              ],
+            ),
+          ...errorItems.map(buildRow),
         ],
-      ],
+      ),
     );
   }
 }
@@ -205,12 +224,13 @@ class _AdjustmentTableRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dividerColor = Theme.of(context).colorScheme.outline.withValues(alpha: 0.5);
+    final scheme = Theme.of(context).colorScheme;
+    final dividerColor = scheme.outlineVariant;
 
-    return Row(
+    final content = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.max,
+      mainAxisSize: MainAxisSize.min,
       spacing: 6,
       children: [
         if (showRowIcons)
@@ -224,7 +244,7 @@ class _AdjustmentTableRow extends StatelessWidget {
                 Text(
                   item.name,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSecondary,
+                    color: Theme.of(context).colorScheme.onInverseSurface,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
@@ -239,7 +259,7 @@ class _AdjustmentTableRow extends StatelessWidget {
                         child: Icon(
                           Icons.notes,
                           size: 13,
-                          color: Theme.of(context).colorScheme.onSecondary,
+                          color: Theme.of(context).colorScheme.onInverseSurface,
                         ),
                       ),
                       const SizedBox(width: 2),
@@ -247,7 +267,7 @@ class _AdjustmentTableRow extends StatelessWidget {
                         child: Text(
                           item.notes!,
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSecondary,
+                            color: Theme.of(context).colorScheme.onInverseSurface,
                             fontSize: 13,
                           ),
                         ),
@@ -283,16 +303,33 @@ class _AdjustmentTableRow extends StatelessWidget {
                   ),
               ],
             ),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: item.buildIcon(context),
+            child: Container(
+              width: 30,
+              height: 30,
+              margin: const EdgeInsets.only(top: 2),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: item.isError
+                    ? scheme.errorContainer
+                    : scheme.onSurface.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: IconTheme.merge(
+                data: IconThemeData(
+                  size: 18,
+                  color: item.isError ? scheme.onErrorContainer : scheme.onSurfaceVariant,
+                ),
+                child: item.buildIcon(context),
+              ),
             ),
           ),
-        Expanded(
+        Flexible(
           child: LayoutBuilder(
             builder: (context, constraints) {
               return Wrap(
                 alignment: WrapAlignment.start,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                runSpacing: 2,
                 children: [
                   for (var i = 0; i < entries.length; i++) ...[
                     _AdjustmentTableCell(
@@ -315,6 +352,31 @@ class _AdjustmentTableRow extends StatelessWidget {
         )
       ],
     );
+
+    if (item.isError) {
+      return Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AdjustmentCompactDisplayList._errorContentPadding,
+          vertical: 3,
+        ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            width: AdjustmentCompactDisplayList._errorBorderWidth,
+            color: scheme.error.withValues(alpha: 0.5),
+          ),
+        ),
+        child: content,
+      );
+    } else {
+      return Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AdjustmentCompactDisplayList._rowIndent,
+          vertical: 3,
+        ),
+        child: content,
+      );
+    }
   }
 }
 
@@ -355,7 +417,7 @@ class _AdjustmentTableCell extends StatelessWidget {
                   TextSpan(
                     text: adjustment.name,
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSecondary,
+                      color: Theme.of(context).colorScheme.onInverseSurface,
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
@@ -364,7 +426,7 @@ class _AdjustmentTableCell extends StatelessWidget {
                     TextSpan(
                       text: "  [${Adjustment.formatValue((adjustment as StepAdjustment).min)}..${Adjustment.formatValue((adjustment as StepAdjustment).max)}]",
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSecondary.withValues(alpha: 0.7),
+                        color: Theme.of(context).colorScheme.onInverseSurface.withValues(alpha: 0.7),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -377,14 +439,14 @@ class _AdjustmentTableCell extends StatelessWidget {
                   TextSpan(
                     text: Adjustment.formatValue(value),
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: (highlightInitialValues ? highlightColor : null) ?? Theme.of(context).colorScheme.onSecondary,
+                      color: (highlightInitialValues ? highlightColor : null) ?? Theme.of(context).colorScheme.onInverseSurface,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   TextSpan(
                     text: adjustment.unitSuffix(),
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onSecondary,
+                      color: Theme.of(context).colorScheme.onInverseSurface,
                     ),
                   ),
                 ]
@@ -394,10 +456,10 @@ class _AdjustmentTableCell extends StatelessWidget {
               Text(
                 Adjustment.formatValue(previousValue) + adjustment.unitSuffix(),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSecondary.withValues(alpha: 0.7),
+                  color: Theme.of(context).colorScheme.onInverseSurface.withValues(alpha: 0.7),
                   decoration: TextDecoration.lineThrough,
                   decorationThickness: 2,
-                  decorationColor: Theme.of(context).colorScheme.onSecondary.withValues(alpha: 0.7),
+                  decorationColor: Theme.of(context).colorScheme.onInverseSurface.withValues(alpha: 0.7),
                 ),
               ),
           ],
@@ -409,9 +471,14 @@ class _AdjustmentTableCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool valueHasChanged = previousValue == null ? false : value != previousValue;
     final bool valueIsInitial = previousValue == null;
+    final highlights = Theme.of(context).extension<ValueHighlightColors>();
     final Color? highlightColor = isError
         ? Theme.of(context).colorScheme.error
-        : (highlightInitialValues ? (valueIsInitial ? Colors.green : (valueHasChanged ? Colors.orange : null)) : null);
+        : (highlightInitialValues
+            ? (valueIsInitial
+                ? (highlights?.initial ?? Colors.green)
+                : (valueHasChanged ? (highlights?.changed ?? Colors.orange) : null))
+            : null);
 
     final String valueText = Adjustment.formatValue(value);
     String changeText = "";
@@ -455,9 +522,9 @@ class _AdjustmentTableCell extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
                 color: highlightColor,
+                fontFeatures: const [FontFeature.tabularFigures()],
               ),
               maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
           if (valueHasChanged) ...[
@@ -468,12 +535,12 @@ class _AdjustmentTableCell extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                  fontFeatures: const [FontFeature.tabularFigures()],
                   decoration: changeDecoration,
                   decorationThickness: 2,
                   decorationColor: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                 ),
                 maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -499,9 +566,11 @@ class _AdjustmentTableCell extends StatelessWidget {
           Text(
             adjustment.name,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: isError ? Theme.of(context).colorScheme.error : null,
+              color: isError
+                  ? Theme.of(context).colorScheme.error
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
+              letterSpacing: 0,
             ),
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -536,7 +605,7 @@ class _VerticalDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 1,
-      height: 40,
+      height: 28,
       color: color,
     );
   }
@@ -578,7 +647,7 @@ Tooltip _infoTooltip({
     preferBelow: false,
     showDuration: const Duration(seconds: 5),
     decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.onSecondaryContainer,
+      color: Theme.of(context).colorScheme.inverseSurface,
       borderRadius: BorderRadius.circular(8),
       boxShadow: [BoxShadow(color: Theme.of(context).colorScheme.shadow, blurRadius: 4, offset: const Offset(0, 2))],
     ),

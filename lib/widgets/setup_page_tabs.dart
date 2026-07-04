@@ -10,6 +10,7 @@ import 'display_adjustment/display_adjustment_list.dart';
 import 'display_adjustment/display_dangling_adjustment.dart';
 import 'empty_state_placeholder2.dart';
 import 'initial_changed_value_legend.dart';
+import 'items/card_header_tile.dart';
 import 'lists/adjustment_set_list.dart';
 
 Widget _errorBadgeDot(BuildContext context, {double size = 9}) {
@@ -38,16 +39,18 @@ Widget _danglingComponentCard(BuildContext context, {
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ListTile(
-          leading: Badge(
-            label: _errorBadgeDot(context),
-            backgroundColor: Colors.transparent,
-            largeSize: 20,
-            child: Icon(group.component.componentType.getIconData(), color: scheme.error),
+        CardHeaderTile(
+          color: scheme.errorContainer,
+          child: ListTile(
+            leading: Badge(
+              label: _errorBadgeDot(context),
+              backgroundColor: Colors.transparent,
+              largeSize: 20,
+              child: Icon(group.component.componentType.getIconData(), color: scheme.error),
+            ),
+            title: Text(group.component.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
+            subtitle: Text("Component was not installed at setup time", style: TextStyle(color: scheme.error)),
           ),
-          title: Text(group.component.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
-          subtitle: Text("Component was not installed at setup time", style: TextStyle(color: scheme.error)),
-          tileColor: scheme.errorContainer,
         ),
         AdjustmentDisplayList(
           adjustments: group.adjustments,
@@ -74,16 +77,18 @@ Widget _danglingPersonCard(BuildContext context, {
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ListTile(
-          leading: Badge(
-            label: _errorBadgeDot(context),
-            backgroundColor: Colors.transparent,
-            largeSize: 20,
-            child: Icon(Person.iconData, color: scheme.error),
+        CardHeaderTile(
+          color: scheme.errorContainer,
+          child: ListTile(
+            leading: Badge(
+              label: _errorBadgeDot(context),
+              backgroundColor: Colors.transparent,
+              largeSize: 20,
+              child: Icon(Person.iconData, color: scheme.error),
+            ),
+            title: Text(group.person.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
+            subtitle: Text("Person is not linked to this setup", style: TextStyle(color: scheme.error)),
           ),
-          title: Text(group.person.name, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
-          subtitle: Text("Person is not linked to this setup", style: TextStyle(color: scheme.error)),
-          tileColor: scheme.errorContainer,
         ),
         AdjustmentDisplayList(
           adjustments: group.adjustments,
@@ -110,11 +115,13 @@ Widget _danglingValuesCard(BuildContext context, {
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ListTile(
-          leading: Icon(Icons.error_outline, color: scheme.error),
-          title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
-          subtitle: Text(cause, style: TextStyle(color: scheme.error)),
-          tileColor: scheme.errorContainer,
+        CardHeaderTile(
+          color: scheme.errorContainer,
+          child: ListTile(
+            leading: Icon(Icons.error_outline, color: scheme.error),
+            title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: scheme.error)),
+            subtitle: Text(cause, style: TextStyle(color: scheme.error)),
+          ),
         ),
         ...values.entries.map((danglingAdjustmentValue) {
           return DisplayDanglingAdjustmentWidget(
@@ -281,23 +288,25 @@ class _SetupBikeTabState extends State<SetupBikeTab> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ListTile(
-                    title: Text(bikeComponent.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Text(Intl.plural(
-                      bikeComponent.adjustments.length,
-                      zero: "No adjustments yet.",
-                      one: "1 adjustment",
-                      other: '${bikeComponent.adjustments.length} adjustments',
-                    )),
-                    leading: Icon(bikeComponent.componentType.getIconData()),
-                    enabled: bikeComponent.adjustments.isNotEmpty,
-                    trailing: _initiallyEmptyComponentIds.contains(bikeComponent.id)
-                        ? IconButton(
-                            onPressed: () => ComponentActions.addAdjustmentForComponent(context, component: bikeComponent),
-                            icon: const Icon(Icons.add),
-                          )
-                        : null,
-                    tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  CardHeaderTile(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    child: ListTile(
+                      title: Text(bikeComponent.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(Intl.plural(
+                        bikeComponent.adjustments.length,
+                        zero: "No adjustments yet.",
+                        one: "1 adjustment",
+                        other: '${bikeComponent.adjustments.length} adjustments',
+                      )),
+                      leading: Icon(bikeComponent.componentType.getIconData()),
+                      enabled: bikeComponent.adjustments.isNotEmpty,
+                      trailing: _initiallyEmptyComponentIds.contains(bikeComponent.id)
+                          ? IconButton(
+                              onPressed: () => ComponentActions.addAdjustmentForComponent(context, component: bikeComponent),
+                              icon: const Icon(Icons.add),
+                            )
+                          : null,
+                    ),
                   ),
                   AdjustmentSetList(
                     key: ValueKey(Object.hash(bikeComponent.id, Object.hashAll(widget.previousBikeAdjustmentValues.values))),
@@ -394,17 +403,19 @@ class SetupPersonTab extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ListTile(
-                  title: Text(person.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text(Intl.plural(
-                    person.adjustments.length,
-                    zero: "No attributes yet.",
-                    one: "1 attribute",
-                    other: '${person.adjustments.length} attributes',
-                  )),
-                  leading: const Icon(Person.iconData),
-                  enabled: person.adjustments.isNotEmpty,
-                  tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                CardHeaderTile(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  child: ListTile(
+                    title: Text(person.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text(Intl.plural(
+                      person.adjustments.length,
+                      zero: "No attributes yet.",
+                      one: "1 attribute",
+                      other: '${person.adjustments.length} attributes',
+                    )),
+                    leading: const Icon(Person.iconData),
+                    enabled: person.adjustments.isNotEmpty,
+                  ),
                 ),
                 AdjustmentSetList(
                   key: ValueKey(Object.hash(personId, Object.hashAll(previousPersonAdjustmentValues.values))),

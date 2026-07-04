@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
+import '../../theme.dart';
 import "../set_adjustment/set_adjustment.dart";
 
 class DisplayStepAdjustmentWidget extends StatelessWidget {
@@ -25,10 +26,11 @@ class DisplayStepAdjustmentWidget extends StatelessWidget {
     bool isChanged = false;
     bool isInitial = false;
     Color? highlightColor;
+    final highlights = Theme.of(context).extension<ValueHighlightColors>();
     if (highlighting) {
       isChanged = value != null && initialValue != value;
       isInitial = initialValue == null;
-      highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
+      highlightColor = isChanged ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange) : null;
     }
     if (isError) {
       isChanged = false;

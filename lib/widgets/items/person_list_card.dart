@@ -128,7 +128,7 @@ class PersonListCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
+              padding: const EdgeInsets.only(bottom: 8),
               child: AdjustmentCompactDisplayList(
                 persons: [person],
                 adjustmentValues: appRepository.currentAdjustmentValues,

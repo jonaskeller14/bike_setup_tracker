@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
+import '../../theme.dart';
 import "set_adjustment.dart";
 
 class SetNumericalAdjustmentWidget extends StatefulWidget {
@@ -58,11 +59,12 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
     final double? parsedValue = double.tryParse(widget.value ?? '');
     late bool isChanged;
     late bool isInitial;
-    late Color? highlightColor; 
+    late Color? highlightColor;
+    final highlights = Theme.of(context).extension<ValueHighlightColors>();
     if (widget.highlighting) {
       isChanged = parsedValue == null ? false : widget.initialValue != parsedValue;
       isInitial = widget.initialValue == null;
-      highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
+      highlightColor = isChanged ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange) : null;
     } else {
       isChanged = false;
       isInitial = false;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
+import '../../theme.dart';
 import "set_adjustment.dart";
 
 class SetTextAdjustmentWidget extends StatefulWidget {
@@ -57,11 +58,12 @@ class _SetTextAdjustmentWidgetState extends State<SetTextAdjustmentWidget> {
     final String? parsedValue = _controller.text.trim().isEmpty ? null : _controller.text.trim();
     late bool isChanged;
     late bool isInitial;
-    late Color? highlightColor; 
+    late Color? highlightColor;
+    final highlights = Theme.of(context).extension<ValueHighlightColors>();
     if (widget.highlighting) {
       isChanged = widget.initialValue != parsedValue;
       isInitial = widget.initialValue == null;
-      highlightColor = isChanged ? (isInitial ? Colors.green : Colors.orange) : null;
+      highlightColor = isChanged ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange) : null;
     } else {
       isChanged = false;
       isInitial = false;

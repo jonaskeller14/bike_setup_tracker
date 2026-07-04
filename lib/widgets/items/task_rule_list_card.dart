@@ -8,6 +8,7 @@ import '../../models/component.dart';
 import '../../models/task/task_rule.dart';
 import '../../pages/details/task_rule_details_page.dart';
 import '../../repositories/app_repository.dart';
+import '../../theme.dart';
 import '../../utils/task_actions.dart';
 
 class TaskRuleListCard extends StatelessWidget {
@@ -232,11 +233,11 @@ class TaskRuleListCard extends StatelessWidget {
                       child: Row(
                         spacing: 2,
                         children: [
-                          Icon(Icons.history, size: 13, color: Colors.orange.withValues(alpha: 0.8)),
+                          Icon(Icons.history, size: 13, color: Theme.of(context).extension<ValueHighlightColors>()!.changed),
                           Expanded(
                             child: Text(
                               '+${taskRule.delay!.toDisplayValue(distanceUnit: appSettings.distanceUnit, altitudeUnit: appSettings.altitudeUnit, dateFormat: appSettings.dateFormat)}',
-                              style: TextStyle(color: Colors.orange.withValues(alpha: 0.8), fontSize: 13),
+                              style: TextStyle(color: Theme.of(context).extension<ValueHighlightColors>()!.changed, fontSize: 13),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),

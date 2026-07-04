@@ -65,6 +65,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
   final TextEditingController _longitudeController = TextEditingController();
   final TextEditingController _altitudeController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
+  final FocusNode _addressFocusNode = FocusNode();
   String? _addressTextFieldErrorText;
 
   final ElevationService _elevationService = ElevationService();
@@ -79,6 +80,15 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
     _currentLocation = widget.currentLocation;
     _currentPlace = widget.currentPlace;
     _setFieldsFromLocationPlace();
+
+    _addressFocusNode.addListener(() {
+      if (_addressFocusNode.hasFocus) {
+        _addressController.selection = TextSelection(
+          baseOffset: 0,
+          extentOffset: _addressController.text.length,
+        );
+      }
+    });
   }
 
   void _setFieldsFromLocationPlace() {
@@ -171,6 +181,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
     _longitudeController.dispose();
     _altitudeController.dispose();
     _addressController.dispose();
+    _addressFocusNode.dispose();
     super.dispose();
   }
 
@@ -377,6 +388,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                               enabled: enableFields,
                               textInputAction: TextInputAction.search,
                               controller: _addressController,
+                              focusNode: _addressFocusNode,
                               autovalidateMode: AutovalidateMode.onUserInteraction,
                               maxLines: null,
                               decoration: InputDecoration(

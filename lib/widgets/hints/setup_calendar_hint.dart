@@ -88,7 +88,9 @@ class SetupCalendarHint extends StatelessWidget {
                               const SnackBar(
                                 persist: false,
                                 showCloseIcon: true,
-                                content: Text('Calendar enabled'),
+                                content: Text(
+                                  'Calendar enabled — find it next to the search button on the Setups tab',
+                                ),
                               ),
                             );
                           },

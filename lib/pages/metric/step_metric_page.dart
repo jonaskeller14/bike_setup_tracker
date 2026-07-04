@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/rating_metric.dart';
+import '../../theme.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/metric_weight_field.dart';
 import '../../widgets/set_adjustment/set_step_adjustment.dart';
@@ -292,7 +293,7 @@ class _StepMetricPageState extends State<StepMetricPage> {
                                   labelText: 'Metric Name',
                                   hintText: 'Enter Metric Name',
                                   border: const OutlineInputBorder(),
-                                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                                  fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                   filled: widget.mode == MetricPageMode.edit && _nameController.text.trim() != _initialAdj?.name,
                                 ),
                                 validator: validateMetricName,
@@ -309,7 +310,7 @@ class _StepMetricPageState extends State<StepMetricPage> {
                                   hintText: 'Enter step value',
                                   border: const OutlineInputBorder(),
                                   prefixIcon: const Icon(StepAdjustment.iconData),
-                                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                                  fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                   filled: widget.mode == MetricPageMode.edit && int.tryParse(_stepController.text.trim()) != _initialAdj?.step,
                                 ),
                                 validator: _validateStep,
@@ -327,7 +328,7 @@ class _StepMetricPageState extends State<StepMetricPage> {
                                   hintText: 'Enter minimum value',
                                   border: const OutlineInputBorder(),
                                   prefixIcon: const Icon(Icons.vertical_align_bottom),
-                                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                                  fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                   filled: widget.mode == MetricPageMode.edit && int.tryParse(_minController.text.trim()) != _initialAdj?.min,
                                 ),
                                 validator: _validateMin,
@@ -345,7 +346,7 @@ class _StepMetricPageState extends State<StepMetricPage> {
                                   hintText: 'Enter maximum value',
                                   border: const OutlineInputBorder(),
                                   prefixIcon: const Icon(Icons.vertical_align_top),
-                                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                                  fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                   filled: widget.mode == MetricPageMode.edit && int.tryParse(_maxController.text.trim()) != _initialAdj?.max,
                                 ),
                                 validator: _validateMax,
@@ -378,7 +379,7 @@ class _StepMetricPageState extends State<StepMetricPage> {
                                         labelText: 'Visualization',
                                         border: const OutlineInputBorder(),
                                         hintText: "Choose a visualization for this metric",
-                                        fillColor: Colors.orange.withValues(alpha: 0.08),
+                                        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                         filled: widget.mode == MetricPageMode.edit && visualization != _initialVisualization,
                                       ),
                                       items: _metricVisualizations.map((v) {
@@ -423,7 +424,7 @@ class _StepMetricPageState extends State<StepMetricPage> {
                                         hintText: 'Enter measuring procedure/instrument/...',
                                         helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
                                         border: const OutlineInputBorder(),
-                                        fillColor: Colors.orange.withValues(alpha: 0.08),
+                                        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                         filled: widget.mode == MetricPageMode.edit && _notesController.text.trim() != (_initialAdj?.notes ?? ""),
                                       ),
                                     ),

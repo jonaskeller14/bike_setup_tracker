@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/rating_metric.dart';
+import '../../theme.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/metric_weight_field.dart';
 import '../../widgets/set_adjustment/set_text_adjustment.dart';
@@ -168,7 +169,7 @@ class _TextMetricPageState extends State<TextMetricPage> {
                                   labelText: 'Metric Name',
                                   hintText: 'Enter Metric Name',
                                   border: const OutlineInputBorder(),
-                                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                                  fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                   filled: widget.mode == MetricPageMode.edit && _nameController.text.trim() != _initialAdj?.name,
                                 ),
                                 validator: validateMetricName,
@@ -211,7 +212,7 @@ class _TextMetricPageState extends State<TextMetricPage> {
                                         hintText: 'Enter measuring procedure/instrument/...',
                                         helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
                                         border: const OutlineInputBorder(),
-                                        fillColor: Colors.orange.withValues(alpha: 0.08),
+                                        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                         filled: widget.mode == MetricPageMode.edit && _notesController.text.trim() != (_initialAdj?.notes ?? ""),
                                       ),
                                     ),

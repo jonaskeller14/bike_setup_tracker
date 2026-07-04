@@ -7,6 +7,7 @@ import '../models/person.dart';
 import '../models/strava/strava_gear.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
+import '../theme.dart';
 import '../widgets/dialogs/discard_changes.dart';
 
 enum BikePageMode {
@@ -127,7 +128,7 @@ class _BikePageState extends State<BikePage> {
         labelText: 'Bike Name',
         border: const OutlineInputBorder(),
         hintText: 'Enter bike name',
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == BikePageMode.edit && _nameController.text.trim() != widget.bike?.name,
       ),
       validator: (String? value) {
@@ -152,7 +153,7 @@ class _BikePageState extends State<BikePage> {
             ? "You can assign an owner later, as soon as you've created a person."
             : null,
         helperMaxLines: 99,
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == BikePageMode.edit && _person != _initialPerson,
       ),
       validator: (String? newPerson) {
@@ -201,7 +202,7 @@ class _BikePageState extends State<BikePage> {
         labelText: 'Notes (optional)',
         hintText: 'Enter Bike brand, model, size, year, costs, ...',
         border: const OutlineInputBorder(),
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == BikePageMode.edit && _notesController.text.trim() != (widget.bike?.notes ?? ""),
       ),
     );
@@ -219,7 +220,7 @@ class _BikePageState extends State<BikePage> {
         helperText: existingBikes.values.any((b) => b.id != widget.bike?.id && b.stravaGear != null && b.stravaGear == _stravaGear)
             ? "WARNING: Strava Gear already assigned to another Bike"
             : null,
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == BikePageMode.edit && _stravaGear != _initialStravaGear,
       ),
       validator: (String? newStravaGear) {

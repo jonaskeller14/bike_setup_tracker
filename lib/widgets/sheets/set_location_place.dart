@@ -9,6 +9,7 @@ import '../../models/context/context_position.dart';
 import '../../services/address_service.dart';
 import '../../services/elevation_service.dart';
 import '../../services/location_service.dart';
+import '../../theme.dart';
 import '../dialogs/discard_changes.dart';
 import 'sheet_header.dart';
 
@@ -283,7 +284,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                                 isDense: true,
                                 hintText: 'Latitude',
                                 suffixText: "°",
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: _currentLocation?.latitude != widget.currentLocation?.latitude,
                                 icon: const Icon(Icons.my_location),
                               ),
@@ -316,7 +317,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                                 isDense: true,
                                 hintText: 'Longitude',
                                 suffixText: "°",
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: _currentLocation?.longitude != widget.currentLocation?.longitude,
                                 icon: const Icon(Icons.my_location, color: Colors.transparent), // Placeholder
                               ),
@@ -349,7 +350,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                                 isDense: true,
                                 hintText: 'Altitude',
                                 suffixText: appSettings.altitudeUnit,
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: _currentLocation?.altitude != widget.currentLocation?.altitude,
                                 icon: const Icon(Icons.arrow_upward),
                               ),
@@ -403,7 +404,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                                   onPressed: () => _searchAddress(), 
                                   icon: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
                                 ),
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: !ContextPlace.equal(widget.currentPlace, _currentPlace),
                               ),
                               validator: null,

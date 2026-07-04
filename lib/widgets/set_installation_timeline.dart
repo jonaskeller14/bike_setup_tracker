@@ -6,6 +6,7 @@ import '../models/app_settings.dart';
 import '../models/bike.dart';
 import '../models/installation.dart';
 import '../repositories/app_repository.dart';
+import '../theme.dart';
 import 'text/section_title.dart';
 
 class SetInstallationTimeline extends StatefulWidget {
@@ -227,7 +228,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                       border: const OutlineInputBorder(),
                                       isDense: true,
                                       filled: dateChanged,
-                                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                                      fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                     ),
                                     child: PopupMenuButton<String>(
                                       padding: EdgeInsets.zero,
@@ -308,7 +309,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                     border: const OutlineInputBorder(),
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
                                     filled: bikeChanged,
-                                    fillColor: Colors.orange.withValues(alpha: 0.08),
+                                    fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                   ),
                                   items: [
                                     DropdownMenuItem<Installation>(

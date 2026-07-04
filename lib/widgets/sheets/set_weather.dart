@@ -6,6 +6,7 @@ import '../../models/app_settings.dart';
 import '../../models/context/context_weather.dart';
 import '../../services/location_service.dart';
 import '../../services/weather_service.dart';
+import '../../theme.dart';
 import '../../utils/url.dart';
 import '../dialogs/discard_changes.dart';
 import 'sheet_header.dart';
@@ -174,7 +175,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                                 labelText: 'Weather Code',
                                 border: const OutlineInputBorder(),
                                 hintText: "Choose Weather Code",
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: widget.currentWeather?.currentWeatherCode != _currentWeather?.currentWeatherCode,
                                 icon: const Icon(Icons.sunny, size: 16),
                               ),
@@ -219,7 +220,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                                 isDense: true,
                                 hintText: 'Temperature',
                                 suffixText: appSettings.temperatureUnit,
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: _currentWeather?.currentTemperature != widget.currentWeather?.currentTemperature,
                                 icon: const Icon(ContextWeather.currentTemperatureIconData),
                               ),
@@ -250,7 +251,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                                 isDense: true,
                                 hintText: 'Precipitation',
                                 suffixText: appSettings.precipitationUnit,
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: widget.currentWeather?.dayAccumulatedPrecipitation != _currentWeather?.dayAccumulatedPrecipitation,
                                 icon: const Icon(ContextWeather.dayAccumulatedPrecipitationIconData),
                               ),
@@ -282,7 +283,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                                 isDense: true,
                                 hintText: 'Humidity',
                                 suffixText: '%',
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: widget.currentWeather?.currentHumidity != _currentWeather?.currentHumidity,
                                 icon: const Icon(ContextWeather.currentHumidityIconData),
                               ),
@@ -314,7 +315,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                                 isDense: true,
                                 hintText: 'Wind Speed',
                                 suffixText: appSettings.windSpeedUnit,
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: widget.currentWeather?.currentWindSpeed != _currentWeather?.currentWindSpeed,
                                 icon: const Icon(ContextWeather.currentWindSpeedIconData),
                               ),
@@ -346,7 +347,7 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
                                 isDense: true,
                                 hintText: 'Soil Moisture',
                                 suffixText: 'm³/m³',
-                                fillColor: Colors.orange.withValues(alpha: 0.08),
+                                fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                 filled: widget.currentWeather?.currentSoilMoisture0to7cm != _currentWeather?.currentSoilMoisture0to7cm,
                                 icon: const Icon(ContextWeather.currentSoilMoisture0to7cmIconData),
                               ),

@@ -11,6 +11,7 @@ import '../models/context/context_position.dart';
 import '../models/installation.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
+import '../theme.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/empty_state_placeholder2.dart';
 import '../widgets/lists/adjustment_edit_list.dart';
@@ -296,7 +297,7 @@ class _ComponentPageState extends State<ComponentPage> {
         labelText: 'Component Name',
         border: const OutlineInputBorder(),
         hintText: 'Enter component name',
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == ComponentPageMode.edit && _nameController.text.trim() != widget.component?.name,
       ),
       validator: (String? value) {
@@ -323,7 +324,7 @@ class _ComponentPageState extends State<ComponentPage> {
                 other: "WARNING: There are $existingComponentsCount ${_componentType?.label}-Components already installed on this bike.",
               )
             : null,
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == ComponentPageMode.edit && _componentType != widget.component?.componentType,
       ),
       items: () {
@@ -387,7 +388,7 @@ class _ComponentPageState extends State<ComponentPage> {
         labelText: 'Notes (optional)',
         hintText: 'Enter brand, model, serial number, costs, ...',
         border: const OutlineInputBorder(),
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == ComponentPageMode.edit && _notesController.text.trim() != (widget.component?.notes ?? ""),
       ),
     );
@@ -417,7 +418,7 @@ class _ComponentPageState extends State<ComponentPage> {
                   border: const OutlineInputBorder(),
                   visualDensity: VisualDensity.compact,
                   suffixText: appSettings.distanceUnit,
-                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                  fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                   filled: widget.mode == ComponentPageMode.edit && double.tryParse(_initialDistanceController.text.trim()) != AppSettings.convertDistanceFromMeters(widget.component!.initialDistance, appSettings.distanceUnit),
                 ),
                 validator: (String? newValue) {
@@ -442,7 +443,7 @@ class _ComponentPageState extends State<ComponentPage> {
                   border: const OutlineInputBorder(),
                   visualDensity: VisualDensity.compact,
                   suffixText: appSettings.altitudeUnit,
-                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                  fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                   filled: widget.mode == ComponentPageMode.edit && double.tryParse(_initialElevationGainController.text.trim()) != AppSettings.convertElevationFromMeters(widget.component!.initialElevationGain, appSettings.altitudeUnit),
                 ),
                 validator: (String? newValue) {
@@ -472,7 +473,7 @@ class _ComponentPageState extends State<ComponentPage> {
                   border: const OutlineInputBorder(),
                   visualDensity: VisualDensity.compact,
                   suffixText: "h",
-                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                  fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                   filled: widget.mode == ComponentPageMode.edit && int.tryParse(_initialMovingTimeController.text.trim()) != widget.component?.initialMovingTime.inHours,
                 ),
                 validator: (String? newValue) {
@@ -497,7 +498,7 @@ class _ComponentPageState extends State<ComponentPage> {
                   border: const OutlineInputBorder(),
                   visualDensity: VisualDensity.compact,
                   suffixText: "h",
-                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                  fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                   filled: widget.mode == ComponentPageMode.edit && int.tryParse(_initialElapsedTimeController.text.trim()) != widget.component?.initialElapsedTime.inHours,
                 ),
                 validator: (String? newValue) {
@@ -525,7 +526,7 @@ class _ComponentPageState extends State<ComponentPage> {
         border: const OutlineInputBorder(),
         hintText: "Choose a bike for this component",
         helperText: lastInstallation?.parentType == InstallationParentType.none ? "WARNING: Select Bike to install Component." : null,
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == ComponentPageMode.edit && lastInstallation != _initialInstallations.lastOrNull,
       ),
       validator: (Installation? newInstallation) {

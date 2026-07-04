@@ -22,6 +22,7 @@ import '../services/address_service.dart';
 import '../services/location_service.dart';
 import '../services/rating_score_service.dart';
 import '../services/weather_service.dart';
+import '../theme.dart';
 import '../widgets/dialogs/confirmation.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/lists/adjustment_set_list.dart';
@@ -505,7 +506,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
         labelText: 'Rating Name',
         border: const OutlineInputBorder(),
         hintText: 'Enter rating name (optional)',
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == RatingEntryPageMode.edit && _nameController.text.trim() != (widget.ratingEntry?.name ?? ''),
       ),
     );
@@ -522,7 +523,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
         labelText: 'Notes (optional)',
         border: const OutlineInputBorder(),
         hintText: 'Add notes (optional)',
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == RatingEntryPageMode.edit && (_notesController.text.trim() != (widget.ratingEntry?.notes ?? '')),
       ),
     );
@@ -547,17 +548,17 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
             ActionChip(
               avatar: const Icon(Icons.calendar_month),
               label: Text(DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal)),
-              backgroundColor: widget.mode == RatingEntryPageMode.edit && (_selectedDateTimeUtc.year != _initialDateTimeUtc.year || _selectedDateTimeUtc.month != _initialDateTimeUtc.month || _selectedDateTimeUtc.day != _initialDateTimeUtc.day) ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.mode == RatingEntryPageMode.edit && (_selectedDateTimeUtc.year != _initialDateTimeUtc.year || _selectedDateTimeUtc.month != _initialDateTimeUtc.month || _selectedDateTimeUtc.day != _initialDateTimeUtc.day) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
               onPressed: _pickDate,
             ),
             ActionChip(
               avatar: const Icon(Icons.access_time),
               label: Text(DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal)),
-              backgroundColor: widget.mode == RatingEntryPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute) ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.mode == RatingEntryPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
               onPressed: _pickTime,
             ),
             ActionChip(
-              backgroundColor: widget.mode == RatingEntryPageMode.edit && (!ContextPosition.equal(_currentLocation.value, widget.ratingEntry?.position) || !ContextPlace.equal(_currentPlace.value, widget.ratingEntry?.place)) ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.mode == RatingEntryPageMode.edit && (!ContextPosition.equal(_currentLocation.value, widget.ratingEntry?.position) || !ContextPlace.equal(_currentPlace.value, widget.ratingEntry?.place)) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
               onPressed: _locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching
                   ? null
                   : () async {
@@ -644,7 +645,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
                 WeatherSuccess() => Text(_currentWeather.value?.getWeatherCodeLabel() ?? "-"),
                 WeatherError() => const Text("Weather Error"),
               },
-              backgroundColor: widget.mode == RatingEntryPageMode.edit && _currentWeather.value != widget.ratingEntry?.weather ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.mode == RatingEntryPageMode.edit && _currentWeather.value != widget.ratingEntry?.weather ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
               onPressed: _locationService.status == LocationStatus.searching || _weatherService.status is WeatherSearching
                   ? null
                   : () async {
@@ -667,7 +668,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
               label: _weatherService.status is WeatherSearching
                   ? _loadingIndicator()
                   : Text(_currentWeather.value?.condition?.value ?? "-"),
-              backgroundColor: widget.mode == RatingEntryPageMode.edit && _currentWeather.value?.condition != widget.ratingEntry?.weather?.condition ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.mode == RatingEntryPageMode.edit && _currentWeather.value?.condition != widget.ratingEntry?.weather?.condition ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
               onPressed: _locationService.status == LocationStatus.searching || _weatherService.status is WeatherSearching
                   ? null
                   : () => appSettingsRadioGroupSheet<Condition?>(
@@ -714,7 +715,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
         labelText: 'Bike',
         border: const OutlineInputBorder(),
         hintText: "Choose a bike for this rating",
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == RatingEntryPageMode.edit && _bike != widget.ratingEntry?.bike,
       ),
       validator: (String? newBike) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/rating_metric.dart';
+import '../../theme.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/metric_weight_field.dart';
 import '../../widgets/set_adjustment/set_numerical_adjustment.dart';
@@ -240,7 +241,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
                                   labelText: 'Metric Name',
                                   hintText: 'Enter Metric Name',
                                   border: const OutlineInputBorder(),
-                                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                                  fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                   filled: widget.mode == MetricPageMode.edit && _nameController.text.trim() != _initialAdj?.name,
                                 ),
                                 validator: validateMetricName,
@@ -259,7 +260,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
                                   hintText: 'Enter minimum value',
                                   border: const OutlineInputBorder(),
                                   prefixIcon: const Icon(Icons.vertical_align_bottom),
-                                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                                  fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                   filled: widget.mode == MetricPageMode.edit && (double.tryParse(_minController.text.trim()) ?? double.negativeInfinity) != _initialAdj?.min,
                                 ),
                                 validator: _validateMin,
@@ -279,7 +280,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
                                   hintText: 'Enter maximum value',
                                   border: const OutlineInputBorder(),
                                   prefixIcon: const Icon(Icons.vertical_align_top),
-                                  fillColor: Colors.orange.withValues(alpha: 0.08),
+                                  fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                   filled: widget.mode == MetricPageMode.edit && (double.tryParse(_maxController.text.trim()) ?? double.infinity) != _initialAdj?.max,
                                 ),
                                 validator: _validateMax,
@@ -324,7 +325,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
                                         hintText: 'Enter unit (e.g., mm, psi)',
                                         border: const OutlineInputBorder(),
                                         prefixIcon: const Icon(Icons.straighten),
-                                        fillColor: Colors.orange.withValues(alpha: 0.08),
+                                        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                         filled: widget.mode == MetricPageMode.edit && _unitController.text.trim() != (_initialAdj?.unit ?? ""),
                                       ),
                                       validator: (value) => (value != null && value.length > 10) ? "Too many characters" : null,
@@ -342,7 +343,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
                                         hintText: 'Enter measuring procedure/instrument/...',
                                         helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
                                         border: const OutlineInputBorder(),
-                                        fillColor: Colors.orange.withValues(alpha: 0.08),
+                                        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                         filled: widget.mode == MetricPageMode.edit && _notesController.text.trim() != (_initialAdj?.notes ?? ""),
                                       ),
                                     ),

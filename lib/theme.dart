@@ -5,6 +5,9 @@ class ValueHighlightColors extends ThemeExtension<ValueHighlightColors> {
 
   const ValueHighlightColors({required this.changed, required this.initial});
 
+  Color get changedFill => changed.withValues(alpha: 0.08);  // e.g. FormFields
+  Color get initialFill => initial.withValues(alpha: 0.08);
+
   static const light = ValueHighlightColors(
     changed: Color(0xFFEF6C00), // orange 800
     initial: Color(0xFF2E7D32), // green 800

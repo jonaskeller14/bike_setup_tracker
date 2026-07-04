@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
+import '../../theme.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_step_adjustment.dart';
 import 'adjustment_page.dart';
@@ -241,7 +242,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               labelText: 'Adjustment Name',
                               hintText: 'Enter Adjustment Name',
                               border: const OutlineInputBorder(),
-                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                               filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                             ),
                             validator: validateAdjustmentName,
@@ -258,7 +259,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               hintText: 'Enter step value',
                               prefixIcon: const Icon(StepAdjustment.iconData),
                               border: const OutlineInputBorder(),
-                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                               filled: widget.mode == AdjustmentPageMode.edit && int.tryParse(_stepController.text.trim()) != widget.adjustment?.step,
                             ),
                             validator: _validateStep,
@@ -276,7 +277,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               hintText: 'Enter minimum value',
                               border: const OutlineInputBorder(),
                               prefixIcon: const Icon(Icons.vertical_align_bottom),
-                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                               filled: widget.mode == AdjustmentPageMode.edit && int.tryParse(_minController.text.trim()) != widget.adjustment?.min,
                             ),
                             validator: _validateMin,
@@ -294,7 +295,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                               hintText: 'Enter maximum value',
                               border: const OutlineInputBorder(),
                               prefixIcon: const Icon(Icons.vertical_align_top),
-                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                               filled: widget.mode == AdjustmentPageMode.edit && int.tryParse(_maxController.text.trim()) != widget.adjustment?.max,
                             ),
                             validator: _validateMax,
@@ -327,7 +328,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                     labelText: 'Visualization',
                                     border: const OutlineInputBorder(),
                                     hintText: "Choose a visualization for this adjustment",
-                                    fillColor: Colors.orange.withValues(alpha: 0.08),
+                                    fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                     filled: widget.mode == AdjustmentPageMode.edit && visualization != widget.adjustment?.visualization,
                                   ),
                                   items: StepAdjustmentVisualization.values.map((v) {
@@ -388,7 +389,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
                                     hintText: 'Enter measuring procedure/instrument/...',
                                     helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
                                     border: const OutlineInputBorder(),
-                                    fillColor: Colors.orange.withValues(alpha: 0.08),
+                                    fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                     filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
                                   ),
                                 ),

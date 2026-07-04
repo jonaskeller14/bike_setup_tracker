@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
+import '../../theme.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_numerical_adjustment.dart';
 import 'adjustment_page.dart';
@@ -217,7 +218,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                               labelText: 'Adjustment Name',
                               hintText: 'Enter Adjustment Name',
                               border: const OutlineInputBorder(),
-                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                               filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                             ),
                             validator: validateAdjustmentName,
@@ -254,7 +255,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                       },
                                     )
                                   : null,
-                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                               filled: widget.mode == AdjustmentPageMode.edit && _unitController.text.trim() != (widget.adjustment?.unit ?? ""),
                             ),
                             validator: (value) => (value != null && value.length > 10) ? "Too many characters" : null,
@@ -300,7 +301,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                             },
                                           )
                                         : null,
-                                    fillColor: Colors.orange.withValues(alpha: 0.08),
+                                    fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                     filled: widget.mode == AdjustmentPageMode.edit && (double.tryParse(_minController.text.trim()) ?? double.negativeInfinity) != widget.adjustment?.min,
                                   ),
                                   validator: _validateMin,
@@ -329,7 +330,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                             },
                                           )
                                         : null,
-                                    fillColor: Colors.orange.withValues(alpha: 0.08),
+                                    fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                     filled: widget.mode == AdjustmentPageMode.edit && (double.tryParse(_maxController.text.trim()) ?? double.infinity) != widget.adjustment?.max,
                                   ),
                                   validator: _validateMax,
@@ -347,7 +348,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                                     hintText: 'Enter measuring procedure/instrument/...',
                                     helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
                                     border: const OutlineInputBorder(),
-                                    fillColor: Colors.orange.withValues(alpha: 0.08),
+                                    fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                     filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
                                   ),
                                 ),

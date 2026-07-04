@@ -13,6 +13,7 @@ import '../models/task/task_rule.dart';
 import '../models/task/task_threshold.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
+import '../theme.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/sheets/app_settings_radio_group.dart';
 import '../widgets/sheets/set_task_rule_tags.dart';
@@ -542,7 +543,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
         labelText: 'Task Rule Name',
         border: const OutlineInputBorder(),
         hintText: 'Enter task name',
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == TaskRulePageMode.edit && _nameController.text.trim() != widget.taskRule?.name,
       ),
       validator: (v) => v == null || v.trim().isEmpty ? 'Name required' : null,
@@ -561,7 +562,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
         labelText: 'Notes (optional)',
         hintText: 'Add additional details or instructions...',
         border: const OutlineInputBorder(),
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == TaskRulePageMode.edit && _notesController.text.trim() != (widget.taskRule?.notes ?? ""),
       ),
     );
@@ -579,7 +580,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
           ActionChip(
             avatar: const Icon(Icons.traffic),
             label: Text(_priority.label),
-            backgroundColor: widget.mode == TaskRulePageMode.edit && _priority != widget.taskRule?.priority ? Colors.orange.withValues(alpha: 0.08) : null,
+            backgroundColor: widget.mode == TaskRulePageMode.edit && _priority != widget.taskRule?.priority ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
             onPressed: () => appSettingsRadioGroupSheet<TaskPriority>(
               context: context,
               title: "Task Priority",
@@ -611,7 +612,9 @@ class _TaskRulePageState extends State<TaskRulePage> {
             setState(() => _tags.remove(tag));
             _changeListener();
           },
-          backgroundColor: widget.mode == TaskRulePageMode.edit && !widget.taskRule!.tags.contains(tag) ? Colors.orange.withValues(alpha: 0.08) : null,
+          backgroundColor: widget.mode == TaskRulePageMode.edit && !widget.taskRule!.tags.contains(tag)
+              ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+              : null,
         )),
         if (enableTaskTags)
           ActionChip(
@@ -681,7 +684,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                           decoration: InputDecoration(
                             labelText: 'Linked To',
                             border: const OutlineInputBorder(),
-                            fillColor: Colors.orange.withValues(alpha: 0.08),
+                            fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                             filled: widget.mode == TaskRulePageMode.edit && _association != _initialAssociation,
                             helperText: (_association is ComponentTaskAssociation &&
                                     components[_association.componentId]?.isArchived == true)
@@ -759,7 +762,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                   decoration: InputDecoration(
                                     labelText: "Type",
                                     border: const OutlineInputBorder(),
-                                    fillColor: Colors.orange.withValues(alpha: 0.08),
+                                    fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                     filled: widget.mode == TaskRulePageMode.edit && _intervalType != _getThresholdType(widget.taskRule?.interval),
                                   ),
                                   items: _intervalTypeItems(hasStravaEntitlement),
@@ -799,7 +802,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                             border: const OutlineInputBorder(),
                                             suffixIcon: const Icon(Icons.calendar_today, size: 20),
                                             errorText: field.errorText,
-                                            fillColor: Colors.orange.withValues(alpha: 0.08),
+                                            fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                             filled: widget.mode == TaskRulePageMode.edit && _intervalDate != (widget.taskRule?.interval is DateTimeThreshold ? (widget.taskRule!.interval as DateTimeThreshold).deadline : null),
                                           ),
                                           child: Text(
@@ -841,7 +844,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                         _ => '',
                                       },
                                       border: const OutlineInputBorder(),
-                                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                                      fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                       filled: widget.mode == TaskRulePageMode.edit && _intervalValueController.text != _getThresholdValueString(widget.taskRule?.interval),
                                     ),
                                   ),
@@ -852,7 +855,9 @@ class _TaskRulePageState extends State<TaskRulePage> {
                           if (!hasStravaEntitlement) _stravaTriggerBanner(context),
                           if (_intervalType != _ThresholdType.none && _intervalType != _ThresholdType.dateTime) ...[
                             ListTile(
-                              tileColor: widget.mode == TaskRulePageMode.edit && _repeat != (widget.taskRule?.repeat ?? true) ? Colors.orange.withValues(alpha: 0.08) : null,
+                              tileColor: widget.mode == TaskRulePageMode.edit && _repeat != (widget.taskRule?.repeat ?? true)
+                                  ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                                  : null,
                               contentPadding: const EdgeInsets.all(12),
                               title: const Text("Repeat Interval"),
                               subtitle: const Text("Restart interval after each entry"),
@@ -880,7 +885,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                       decoration: InputDecoration(
                                         labelText: "Delay Type (Optional)",
                                         border: const OutlineInputBorder(),
-                                        fillColor: Colors.orange.withValues(alpha: 0.08),
+                                        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                         filled: widget.mode == TaskRulePageMode.edit && _delayType != _getThresholdType(widget.taskRule?.delay),
                                       ),
                                       items: [_ThresholdType.none, _ThresholdType.distance, _ThresholdType.elevation, _ThresholdType.movingTime, _ThresholdType.elapsedTime, _ThresholdType.duration, _ThresholdType.activityCount]
@@ -923,7 +928,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                                             _ => '',
                                           },
                                           border: const OutlineInputBorder(),
-                                          fillColor: Colors.orange.withValues(alpha: 0.08),
+                                          fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                           filled: widget.mode == TaskRulePageMode.edit && _delayValueController.text != _getThresholdValueString(widget.taskRule?.delay),
                                         ),
                                         onChanged: (value) => setState(() {}),

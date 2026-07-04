@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
+import '../../theme.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_text_adjustment.dart';
 import 'adjustment_page.dart';
@@ -150,7 +151,7 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                               labelText: 'Adjustment Name',
                               hintText: 'Enter Adjustment Name',
                               border: const OutlineInputBorder(),
-                              fillColor: Colors.orange.withValues(alpha: 0.08),
+                              fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                               filled: widget.mode == AdjustmentPageMode.edit && _nameController.text.trim() != widget.adjustment?.name,
                             ),
                             validator: validateAdjustmentName,
@@ -192,7 +193,7 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
                                     hintText: 'Enter measuring procedure/instrument/...',
                                     helperText: _notesController.text.trim().isEmpty ? null : "View these notes by tapping the ⓘ icon next to the name.",
                                     border: const OutlineInputBorder(),
-                                    fillColor: Colors.orange.withValues(alpha: 0.08),
+                                    fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                                     filled: widget.mode == AdjustmentPageMode.edit && _notesController.text.trim() != (widget.adjustment?.notes ?? ""),
                                   ),
                                 ),

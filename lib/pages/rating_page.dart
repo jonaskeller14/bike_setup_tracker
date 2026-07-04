@@ -10,6 +10,7 @@ import '../models/rating.dart';
 import '../models/rating_association.dart';
 import '../models/rating_metric.dart';
 import '../repositories/app_repository.dart';
+import '../theme.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/empty_state_placeholder2.dart';
 import '../widgets/lists/adjustment_edit_list.dart';
@@ -242,7 +243,7 @@ class _RatingPageState extends State<RatingPage> {
         labelText: 'Rating Name',
         border: const OutlineInputBorder(),
         hintText: 'Enter rating name',
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == RatingPageMode.edit && _nameController.text.trim() != widget.rating?.name,
       ),
       validator: (String? value) {
@@ -434,7 +435,7 @@ class _RatingPageState extends State<RatingPage> {
         labelText: 'Notes (optional)',
         hintText: 'Describe the rating procedure, guidelines, instructions, ...',
         border: const OutlineInputBorder(),
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == RatingPageMode.edit && _notesController.text.trim() != (widget.rating?.notes ?? ""),
       ),
     );
@@ -558,7 +559,7 @@ class _RatingPageState extends State<RatingPage> {
                             labelText: 'Filter',
                             border: const OutlineInputBorder(),
                             hintText: "Choose an object which the filter should be applied for",
-                            fillColor: Colors.orange.withValues(alpha: 0.08),
+                            fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                             filled: widget.mode == RatingPageMode.edit && _ratingAssociation.filter != widget.rating?.filter,
                           ),
                           validator: (RatingAssociation? newValue) {

@@ -88,7 +88,9 @@ class SetupTaskHint extends StatelessWidget {
                               const SnackBar(
                                 persist: false,
                                 showCloseIcon: true,
-                                content: Text('Task Management enabled'),
+                                content: Text(
+                                  'Tasks enabled — find it in the home bottom navigation bar',
+                                ),
                               ),
                             );
                           },

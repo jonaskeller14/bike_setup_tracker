@@ -8,6 +8,7 @@ import '../models/person.dart';
 import '../models/strava/strava_athlete.dart';
 import '../repositories/app_repository.dart';
 import '../services/subscription_service.dart';
+import '../theme.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/empty_state_placeholder2.dart';
 import '../widgets/lists/adjustment_edit_list.dart';
@@ -233,7 +234,7 @@ class _PersonPageState extends State<PersonPage> {
         labelText: 'Person Name',
         border: const OutlineInputBorder(),
         hintText: 'Enter Person name',
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == PersonPageMode.edit && _nameController.text.trim() != widget.person?.name,
       ),
       validator: (String? value) {
@@ -254,7 +255,7 @@ class _PersonPageState extends State<PersonPage> {
         labelText: 'Notes (optional)',
         hintText: 'Enter notes about the person...',
         border: const OutlineInputBorder(),
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == PersonPageMode.edit && _notesController.text.trim() != (widget.person?.notes ?? ""),
       ),
     );
@@ -272,7 +273,7 @@ class _PersonPageState extends State<PersonPage> {
         helperText: existingPersons.values.any((p) => p.id != widget.person?.id && p.stravaAthlete != null && p.stravaAthlete == _stravaAthlete)
           ? "WARNING: Strava Athlete already assigned to another Person"
           : null,
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == PersonPageMode.edit && _stravaAthlete != _initialStravaAthlete,
       ),
       validator: (int? newStravaAthlete) {

@@ -10,6 +10,7 @@ import '../models/task/task_association.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../repositories/app_repository.dart';
+import '../theme.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/task_rule_display_card.dart';
 
@@ -410,7 +411,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                       labelText: 'Task Entry Name',
                       border: const OutlineInputBorder(),
                       hintText: 'Enter task entry name',
-                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                       filled: widget.mode == TaskEntryPageMode.edit && _nameController.text.trim() != widget.taskEntry?.name,
                     ),
                     validator: _validateName,
@@ -426,7 +427,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                       labelText: 'Notes (optional)',
                       hintText: 'Add additional details...',
                       border: const OutlineInputBorder(),
-                      fillColor: Colors.orange.withValues(alpha: 0.08),
+                      fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                       filled: widget.mode == TaskEntryPageMode.edit && _notesController.text.trim() != (widget.taskEntry?.notes ?? ""),
                     ),
                   ),
@@ -439,7 +440,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                       decoration: InputDecoration(
                         labelText: 'Linked To',
                         border: const OutlineInputBorder(),
-                        fillColor: Colors.orange.withValues(alpha: 0.08),
+                        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                         filled: _association != _initialAssociation,
                         helperText: _selectionHelperText(bikes, components),
                         helperMaxLines: 3,
@@ -492,7 +493,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                         label: Text(
                           DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal),
                         ),
-                        backgroundColor: widget.mode == TaskEntryPageMode.edit && (_selectedDateTimeUtc.year != _initialDateTimeUtc.year || _selectedDateTimeUtc.month != _initialDateTimeUtc.month || _selectedDateTimeUtc.day != _initialDateTimeUtc.day) ? Colors.orange.withValues(alpha: 0.08) : null,
+                        backgroundColor: widget.mode == TaskEntryPageMode.edit && (_selectedDateTimeUtc.year != _initialDateTimeUtc.year || _selectedDateTimeUtc.month != _initialDateTimeUtc.month || _selectedDateTimeUtc.day != _initialDateTimeUtc.day) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
                         onPressed: _pickDate,
                       ),
                       ActionChip(
@@ -500,7 +501,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
                         label: Text(
                           DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal),
                         ),
-                        backgroundColor: widget.mode == TaskEntryPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute) ? Colors.orange.withValues(alpha: 0.08) : null,
+                        backgroundColor: widget.mode == TaskEntryPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute) ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
                         onPressed: _pickTime,
                       ),
                     ],

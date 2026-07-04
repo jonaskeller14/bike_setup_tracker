@@ -22,6 +22,7 @@ import '../services/image_storage_service.dart';
 import '../services/location_service.dart';
 import '../services/setup_resolution_service.dart';
 import '../services/weather_service.dart';
+import '../theme.dart';
 import '../widgets/dialogs/confirmation.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/image_strip.dart';
@@ -693,7 +694,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         labelText: 'Setup Name',
         border: const OutlineInputBorder(),
         hintText: 'Enter setup name',
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == SetupPageMode.edit && _nameController.text.trim() != (widget.setup?.name ?? ''),
       ),
     );
@@ -712,7 +713,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         labelText: 'Notes (optional)',
         border: const OutlineInputBorder(),
         hintText: 'Add notes (optional)',
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == SetupPageMode.edit && (_notesController.text.trim() != (widget.setup?.notes ?? '')),
       ),
     );
@@ -738,7 +739,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               label: Text(
                 DateFormat(appSettings.dateFormat).format(_selectedDateTimeLocal),
               ),
-              backgroundColor: widget.mode == SetupPageMode.edit && (_selectedDateTimeUtc.year != _initialDateTimeUtc.year || _selectedDateTimeUtc.month != _initialDateTimeUtc.month || _selectedDateTimeUtc.day != _initialDateTimeUtc.day) ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.mode == SetupPageMode.edit && (_selectedDateTimeUtc.year != _initialDateTimeUtc.year || _selectedDateTimeUtc.month != _initialDateTimeUtc.month || _selectedDateTimeUtc.day != _initialDateTimeUtc.day)
+                  ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                  : null,
               onPressed: _pickDate,
             ),
             ActionChip(
@@ -746,11 +749,15 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               label: Text(
                 DateFormat(appSettings.timeFormat).format(_selectedDateTimeLocal),
               ),
-              backgroundColor: widget.mode == SetupPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute) ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.mode == SetupPageMode.edit && (_selectedDateTimeUtc.hour != _initialDateTimeUtc.hour || _selectedDateTimeUtc.minute != _initialDateTimeUtc.minute)
+                  ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                  : null,
               onPressed: _pickTime,
             ),
             ActionChip(
-              backgroundColor: widget.mode == SetupPageMode.edit && (!ContextPosition.equal(_currentLocation.value, widget.setup?.position) || !ContextPlace.equal(_currentPlace.value, widget.setup?.place)) ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.mode == SetupPageMode.edit && (!ContextPosition.equal(_currentLocation.value, widget.setup?.position) || !ContextPlace.equal(_currentPlace.value, widget.setup?.place))
+                  ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                  : null,
               onPressed: _locationService.status == LocationStatus.searching || _addressService.status == AddressStatus.searching
                   ? null
                   : () async {
@@ -837,7 +844,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 WeatherSuccess() => Text(_currentWeather.value?.getWeatherCodeLabel() ?? "-"),
                 WeatherError() => const Text("Weather Error"),
               },
-              backgroundColor: widget.mode == SetupPageMode.edit && _currentWeather.value?.copyWith(condition: widget.setup?.weather?.condition) != widget.setup?.weather ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.mode == SetupPageMode.edit && _currentWeather.value?.copyWith(condition: widget.setup?.weather?.condition) != widget.setup?.weather
+                  ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                  : null,
               onPressed: _locationService.status == LocationStatus.searching || _weatherService.status is WeatherSearching
                   ? null
                   : () async {
@@ -860,7 +869,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
               label: _weatherService.status is WeatherSearching
                 ? _loadingIndicator()
                 : Text(_currentWeather.value?.condition?.value ?? "-"),
-              backgroundColor: widget.mode == SetupPageMode.edit && _currentWeather.value?.condition != widget.setup?.weather?.condition ? Colors.orange.withValues(alpha: 0.08) : null,
+              backgroundColor: widget.mode == SetupPageMode.edit && _currentWeather.value?.condition != widget.setup?.weather?.condition
+                  ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                  : null,
               onPressed: _locationService.status == LocationStatus.searching || _weatherService.status is WeatherSearching
                   ? null
                   : () => appSettingsRadioGroupSheet<Condition?>(
@@ -906,7 +917,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                   setState(() => _tags.remove(tag));
                   _changeListener();
                 },
-                backgroundColor: widget.mode == SetupPageMode.edit && !widget.setup!.tags.contains(tag) ? Colors.orange.withValues(alpha: 0.08) : null,
+                backgroundColor: widget.mode == SetupPageMode.edit && !widget.setup!.tags.contains(tag)
+                    ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill
+                    : null,
               )),
               ActionChip(
                 avatar: const Icon(Icons.add),
@@ -944,7 +957,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         labelText: 'Bike',
         border: const OutlineInputBorder(),
         hintText: "Choose a bike for this component",
-        fillColor: Colors.orange.withValues(alpha: 0.08),
+        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
         filled: widget.mode == SetupPageMode.edit && _bike != widget.setup?.bike,
       ),
       validator: (String? newBike) {

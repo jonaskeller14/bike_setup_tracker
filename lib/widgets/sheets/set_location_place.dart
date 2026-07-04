@@ -408,9 +408,7 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
                                 filled: !ContextPlace.equal(widget.currentPlace, _currentPlace),
                               ),
                               validator: null,
-                              onFieldSubmitted: (value) {
-                                () => _searchAddress();
-                              },
+                              onFieldSubmitted: (_) => _searchAddress(),
                             ),
                           ],
                         ),

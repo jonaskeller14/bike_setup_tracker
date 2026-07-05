@@ -3,6 +3,7 @@ import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/set_installation_timeline.dart';
 import 'package:bike_setup_tracker/widgets/sheets/installation_sheet.dart';
 import 'package:flutter/material.dart';
@@ -59,6 +60,7 @@ void main() {
         ChangeNotifierProvider<AppRepository>.value(value: mockRepository),
       ],
       child: MaterialApp(
+        theme: materialAppTheme,
         home: Scaffold(
           body: child,
         ),

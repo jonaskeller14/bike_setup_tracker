@@ -19,6 +19,8 @@ class NotesText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (notes.trim().isEmpty) return const SizedBox.shrink();
+
     final linkColor = Theme.of(context).colorScheme.primary;
     final toggleStyle = TextStyle(
       color: linkColor,

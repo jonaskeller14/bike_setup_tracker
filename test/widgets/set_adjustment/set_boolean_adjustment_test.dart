@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/set_adjustment/set_boolean_adjustment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   Widget buildWidget({required bool? initialValue, required bool? value, required Key formKey}) {
     return MaterialApp(
+      theme: materialAppTheme,
       home: Scaffold(
         body: Form(
           key: formKey,

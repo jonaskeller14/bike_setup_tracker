@@ -2,6 +2,7 @@ import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/pages/onboarding_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -42,6 +43,7 @@ void main() {
       child: Consumer<AppSettings>(
         builder: (context, settings, child) {
           return MaterialApp(
+            theme: materialAppTheme,
             home: settings.showOnboarding 
                 ? const OnboardingPage() 
                 : const Scaffold(body: Center(child: Text("Home Page Proxy"))),

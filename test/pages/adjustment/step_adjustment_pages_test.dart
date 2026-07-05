@@ -1,5 +1,6 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/pages/adjustment/step_adjustment_page.dart';
+import 'package:bike_setup_tracker/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -20,6 +21,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
@@ -51,6 +53,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
@@ -93,6 +96,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
@@ -144,6 +148,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
@@ -183,6 +188,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        theme: materialAppTheme,
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {

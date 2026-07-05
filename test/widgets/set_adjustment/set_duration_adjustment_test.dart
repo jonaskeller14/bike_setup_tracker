@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/set_adjustment/set_duration_adjustment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,6 +10,7 @@ void main() {
 
   Widget buildWidget({required Duration? initialValue, required Duration? value, required Key formKey}) {
     return MaterialApp(
+      theme: materialAppTheme,
       home: Scaffold(
         body: Form(
           key: formKey,

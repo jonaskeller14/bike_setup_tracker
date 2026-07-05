@@ -3,6 +3,7 @@ import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/set_installation_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -38,6 +39,7 @@ void main() {
         ChangeNotifierProvider.value(value: appSettings),
       ],
       child: MaterialApp(
+        theme: materialAppTheme,
         home: Scaffold(
           // Wrap in SingleChildScrollView to avoid layout overflows in test environment
           body: SingleChildScrollView(

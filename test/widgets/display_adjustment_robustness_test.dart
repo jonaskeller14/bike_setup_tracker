@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/display_adjustment/display_numerical_adjustment.dart';
 import 'package:bike_setup_tracker/widgets/display_adjustment/display_step_adjustment.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,7 @@ void main() {
 
       // Test with int
       await tester.pumpWidget(MaterialApp(
+        theme: materialAppTheme,
         home: Scaffold(
           body: DisplayStepAdjustmentWidget(
             key: const ValueKey('int'),
@@ -33,6 +35,7 @@ void main() {
 
       // Test with double (robustness check)
       await tester.pumpWidget(MaterialApp(
+        theme: materialAppTheme,
         home: Scaffold(
           body: DisplayStepAdjustmentWidget(
             key: const ValueKey('double'),
@@ -57,6 +60,7 @@ void main() {
 
       // Test with double
       await tester.pumpWidget(MaterialApp(
+        theme: materialAppTheme,
         home: Scaffold(
           body: DisplayNumericalAdjustmentWidget(
             key: const ValueKey('double'),
@@ -70,6 +74,7 @@ void main() {
 
       // Test with int (robustness check)
       await tester.pumpWidget(MaterialApp(
+        theme: materialAppTheme,
         home: Scaffold(
           body: DisplayNumericalAdjustmentWidget(
             key: const ValueKey('int'),

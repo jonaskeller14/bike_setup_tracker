@@ -190,4 +190,80 @@ void main() {
       expect(prefs.getString(_kLegacyBlobKey), isNull);
     });
   });
+
+  group('AppSettings — distance conversion', () {
+    test('null input returns null', () {
+      expect(AppSettings.convertDistanceFromMeters(null, 'km'), isNull);
+      expect(AppSettings.convertDistanceToMeters(null, 'mi'), isNull);
+    });
+
+    test('meters -> km', () {
+      expect(AppSettings.convertDistanceFromMeters(1000, 'km'), closeTo(1, 1e-9));
+      expect(AppSettings.convertDistanceFromMeters(0, 'km'), closeTo(0, 1e-9));
+    });
+
+    test('meters -> miles (exact 1609.344 m/mi)', () {
+      expect(
+        AppSettings.convertDistanceFromMeters(1609.344, 'mi'),
+        closeTo(1, 1e-9),
+      );
+    });
+
+    test('km -> meters and miles -> meters round-trip', () {
+      expect(AppSettings.convertDistanceToMeters(1, 'km'), closeTo(1000, 1e-9));
+      expect(
+        AppSettings.convertDistanceToMeters(1, 'mi'),
+        closeTo(1609.344, 1e-6),
+      );
+    });
+
+    test('round-trips through meters for both units', () {
+      for (final unit in ['km', 'mi']) {
+        final meters = AppSettings.convertDistanceToMeters(42.0, unit)!;
+        expect(
+          AppSettings.convertDistanceFromMeters(meters, unit),
+          closeTo(42.0, 1e-9),
+        );
+      }
+    });
+
+    test('unknown unit falls back to km (base display unit)', () {
+      expect(
+        AppSettings.convertDistanceFromMeters(1000, 'furlongs'),
+        closeTo(1, 1e-9),
+      );
+      expect(
+        AppSettings.convertDistanceToMeters(1, 'furlongs'),
+        closeTo(1000, 1e-9),
+      );
+    });
+  });
+
+  group('AppSettings — elevation conversion', () {
+    test('null input returns null', () {
+      expect(AppSettings.convertElevationFromMeters(null, 'm'), isNull);
+    });
+
+    test('meters -> meters is identity', () {
+      expect(AppSettings.convertElevationFromMeters(1234, 'm'), closeTo(1234, 1e-9));
+    });
+
+    test('meters -> feet (exact 0.3048 m/ft)', () {
+      expect(
+        AppSettings.convertElevationFromMeters(1, 'ft'),
+        closeTo(1 / 0.3048, 1e-6),
+      );
+    });
+
+    test('unknown unit falls back to meters', () {
+      expect(AppSettings.convertElevationFromMeters(500, 'cubits'), closeTo(500, 1e-9));
+    });
+  });
+
+  group('AppSettings — speedUnitForDistance', () {
+    test('maps distance unit to matching speed unit', () {
+      expect(AppSettings.speedUnitForDistance('mi'), 'mph');
+      expect(AppSettings.speedUnitForDistance('km'), 'km/h');
+    });
+  });
 }

@@ -1698,6 +1698,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.1"
+  units_converter:
+    dependency: "direct main"
+    description:
+      name: units_converter
+      sha256: da521c9df4994890b62b8faeaca0c9a580dcd3f1572fb02bf797f71b969eefe5
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.0"
   url_launcher:
     dependency: "direct main"
     description:

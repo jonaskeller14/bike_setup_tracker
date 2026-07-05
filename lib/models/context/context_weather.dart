@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:units_converter/units_converter.dart';
 import '../../icons/weather_icons.dart';
 
 enum Condition {
@@ -194,100 +195,55 @@ class ContextWeather {
     }
   }
 
+  static TEMPERATURE _temperatureUnitEnum(String unit) => switch (unit) {
+    '°C' => TEMPERATURE.celsius,
+    '°F' => TEMPERATURE.fahrenheit,
+    'K' => TEMPERATURE.kelvin,
+    _ => TEMPERATURE.celsius,
+  };
+
+  static SPEED _windSpeedUnitEnum(String unit) => switch (unit) {
+    'km/h' => SPEED.kilometersPerHour,
+    'm/s' => SPEED.metersPerSecond,
+    'mph' => SPEED.milesPerHour,
+    'kt' => SPEED.knots,
+    _ => SPEED.kilometersPerHour,
+  };
+
+  static LENGTH _precipitationUnitEnum(String unit) => switch (unit) {
+    'mm' => LENGTH.millimeters,
+    'in' => LENGTH.inches,
+    _ => LENGTH.millimeters,
+  };
+
   static double? convertTemperatureToCelsius(double? temp, String currentUnit) {
     if (temp == null) return null;
-    switch (currentUnit) {
-      case '°C':
-        return temp;
-      case '°F':
-        return (temp - 32) * 5 / 9;
-      case 'K':
-        return temp - 273.15;
-      default:
-        return temp;
-    }
+    return temp.convertFromTo(_temperatureUnitEnum(currentUnit), TEMPERATURE.celsius);
   }
 
   static double? convertTemperatureFromCelsius(double? tempC, String targetUnit) {
     if (tempC == null) return null;
-    switch (targetUnit) {
-      case '°C':
-        return tempC;
-      case '°F':
-        return (tempC * 9 / 5) + 32;
-      case 'K':
-        return tempC + 273.15;
-      default:
-        return tempC;
-    }
+    return tempC.convertFromTo(TEMPERATURE.celsius, _temperatureUnitEnum(targetUnit));
   }
 
   static double? convertWindSpeedToKmh(double? speed, String currentUnit) {
     if (speed == null) return null;
-    const double msToKmh = 3.6;          // m/s * 3.6 = km/h
-    const double mphToKmh = 1.60934;     // mph * 1.60934 = km/h
-    const double ktToKmh = 1.852;        // kt * 1.852 = km/h
-
-    switch (currentUnit) {
-      case 'km/h':
-        return speed;
-      case 'm/s':
-        return speed * msToKmh;
-      case 'mph':
-        return speed * mphToKmh;
-      case 'kt':
-        return speed * ktToKmh;
-      default:
-        return speed;
-    }
+    return speed.convertFromTo(_windSpeedUnitEnum(currentUnit), SPEED.kilometersPerHour);
   }
 
   static double? convertWindSpeedFromKmh(double? speedKmh, String targetUnit) {
     if (speedKmh == null) return null;
-    const double kmhToMs = 1 / 3.6;          // 1 km/h ≈ 0.27778 m/s
-    const double kmhToMph = 1 / 1.60934;     // 1 km/h ≈ 0.62137 mph
-    const double kmhToKt = 1 / 1.852;        // 1 km/h ≈ 0.53996 knots
-
-    switch (targetUnit) {
-      case 'km/h':
-        return speedKmh;
-      case 'm/s':
-        return speedKmh * kmhToMs;
-      case 'mph':
-        return speedKmh * kmhToMph;
-      case 'kt':
-        return speedKmh * kmhToKt;
-      default:
-        return speedKmh;
-    }
+    return speedKmh.convertFromTo(SPEED.kilometersPerHour, _windSpeedUnitEnum(targetUnit));
   }
 
   static double? convertPrecipitationToMm(double? precip, String currentUnit) {
     if (precip == null) return null;
-    const double inToMm = 1 / 0.0393701;
-
-    switch (currentUnit) {
-      case 'mm':
-        return precip;
-      case 'in':
-        return precip * inToMm;
-      default:
-        return precip;
-    }
+    return precip.convertFromTo(_precipitationUnitEnum(currentUnit), LENGTH.millimeters);
   }
 
   static double? convertPrecipitationFromMm(double? precipMm, String targetUnit) {
     if (precipMm == null) return null;
-    const double mmToIn = 0.0393701;
-
-    switch (targetUnit) {
-      case 'mm':
-        return precipMm;
-      case 'in':
-        return precipMm * mmToIn;
-      default:
-        return precipMm;
-    }
+    return precipMm.convertFromTo(LENGTH.millimeters, _precipitationUnitEnum(targetUnit));
   }
 
   IconData getIconData() {

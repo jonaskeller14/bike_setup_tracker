@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:units_converter/units_converter.dart';
 
 class AppSettings extends ChangeNotifier {
   static const String _kPrefix = 'app_settings.';
@@ -495,31 +496,31 @@ class AppSettings extends ChangeNotifier {
     'enableCalendar': false,
   };
 
+  static LENGTH _distanceLengthUnit(String unit) => switch (unit) {
+    'km' => LENGTH.kilometers,
+    'mi' => LENGTH.miles,
+    _ => LENGTH.kilometers,
+  };
+
+  static LENGTH _elevationLengthUnit(String unit) => switch (unit) {
+    'm' => LENGTH.meters,
+    'ft' => LENGTH.feet,
+    _ => LENGTH.meters,
+  };
+
   static double? convertDistanceFromMeters(double? meters, String targetUnit) {
     if (meters == null) return null;
-    switch (targetUnit) {
-      case 'km': return meters / 1000;
-      case 'mi': return meters / 1609.344;
-      default: return meters / 1000;
-    }
+    return meters.convertFromTo(LENGTH.meters, _distanceLengthUnit(targetUnit));
   }
 
   static double? convertDistanceToMeters(double? distance, String currentUnit) {
     if (distance == null) return null;
-    switch (currentUnit) {
-      case 'km': return distance * 1000;
-      case 'mi': return distance * 1609.344;
-      default: return distance * 1000;
-    }
+    return distance.convertFromTo(_distanceLengthUnit(currentUnit), LENGTH.meters);
   }
 
   static double? convertElevationFromMeters(double? meters, String targetUnit) {
     if (meters == null) return null;
-    switch (targetUnit) {
-      case 'm': return meters;
-      case 'ft': return meters * 3.28084;
-      default: return meters;
-    }
+    return meters.convertFromTo(LENGTH.meters, _elevationLengthUnit(targetUnit));
   }
 
   static String speedUnitForDistance(String distanceUnit) =>

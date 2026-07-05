@@ -38,6 +38,7 @@ class ContextWeather {
   final bool? currentIsDay;
 
   final Condition? condition;
+  final bool conditionManuallySet;
 
   static const IconData currentTemperatureIconData = Icons.thermostat;
   static const IconData currentHumidityIconData = Icons.opacity;
@@ -55,6 +56,7 @@ class ContextWeather {
     this.currentSoilMoisture0to7cm,
     this.dayAccumulatedPrecipitation,
     this.currentIsDay,
+    this.conditionManuallySet = false,
     Condition? condition,
   }) : condition = condition ?? getConditionFromSoilMoisture0to7cm(currentSoilMoisture0to7cm);
 
@@ -69,6 +71,7 @@ class ContextWeather {
     Object? dayAccumulatedPrecipitation = const _Sentinel(),
     Object? currentIsDay = const _Sentinel(),
     Object? condition = const _Sentinel(),
+    bool? conditionManuallySet,
   }) {
     return ContextWeather(
       currentDateTime: currentDateTime ?? this.currentDateTime,
@@ -96,9 +99,10 @@ class ContextWeather {
       currentIsDay: currentIsDay is _Sentinel 
           ? this.currentIsDay 
           : (currentIsDay as bool?),
-      condition: condition is _Sentinel 
-          ? this.condition 
+      condition: condition is _Sentinel
+          ? this.condition
           : (condition as Condition?),
+      conditionManuallySet: conditionManuallySet ?? this.conditionManuallySet,
     );
   }
 
@@ -115,7 +119,8 @@ class ContextWeather {
         other.currentSoilMoisture0to7cm == currentSoilMoisture0to7cm &&
         other.dayAccumulatedPrecipitation == dayAccumulatedPrecipitation &&
         other.currentIsDay == currentIsDay &&
-        other.condition == condition;
+        other.condition == condition &&
+        other.conditionManuallySet == conditionManuallySet;
   }
 
   @override
@@ -131,6 +136,7 @@ class ContextWeather {
       dayAccumulatedPrecipitation,
       currentIsDay,
       condition,
+      conditionManuallySet,
     );
   }
 
@@ -155,6 +161,7 @@ class ContextWeather {
   }
 
   Map<String, dynamic> toJson() => {
+    'version': 1,
     'currentDateTime': currentDateTime.toIso8601String(),
     'currentTemperature': currentTemperature,
     'currentWeatherCode': currentWeatherCode,
@@ -164,12 +171,13 @@ class ContextWeather {
     'currentSoilMoisture0to7cm': currentSoilMoisture0to7cm,
     'dayAccumulatedPrecipitation': dayAccumulatedPrecipitation,
     'condition': condition.toString(),
+    'conditionManuallySet': conditionManuallySet,
   };
 
   factory ContextWeather.fromJson(Map<String, dynamic> json) {
     final int? version = json["version"];
     switch (version) {
-      case null:
+      case null || 1:
         return ContextWeather(
           currentDateTime: DateTime.parse(json['currentDateTime']),
           currentTemperature: json['currentTemperature'],
@@ -180,6 +188,7 @@ class ContextWeather {
           currentSoilMoisture0to7cm: json['currentSoilMoisture0to7cm'],
           dayAccumulatedPrecipitation: json['dayAccumulatedPrecipitation'],
           condition: Condition.values.firstWhereOrNull((e) => e.toString() == json['condition']),
+          conditionManuallySet: json['conditionManuallySet'] ?? false,
         );
       default: throw Exception("Json Version $version of Weather incompatible.");
     }

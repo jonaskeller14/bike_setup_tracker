@@ -76,14 +76,12 @@ class _TaskListState extends State<TaskList> {
         // Open tasks section
         if (index <= numOpen) {
           if (openTaskRules.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 32.0),
-                child: Text(
-                  'No open tasks',
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
-                ),
-              ),
+            return EmptyStatePlaceholder(
+              icon: Icons.task_alt,
+              title: 'All caught up',
+              subtitle: 'No open tasks right now.',
+              actionLabel: 'Add a task',
+              onAction: () => TaskActions.addTaskRule(context),
             );
           }
           return TaskRuleListCard(taskRuleId: openTaskRules[index - 1].rule.id);

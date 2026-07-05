@@ -27,12 +27,11 @@ import '../widgets/dialogs/confirmation.dart';
 import '../widgets/dialogs/discard_changes.dart';
 import '../widgets/image_strip.dart';
 import '../widgets/setup_page_tabs.dart';
-import '../widgets/sheets/app_settings_radio_group.dart';
 import '../widgets/sheets/pick_image_source.dart';
+import '../widgets/sheets/set_condition.dart';
 import '../widgets/sheets/set_location_place.dart';
 import '../widgets/sheets/set_setup_tags.dart';
 import '../widgets/sheets/set_weather.dart';
-import '../widgets/soil_moisture_legend_table.dart';
 
 enum SetupPageMode {
   add,
@@ -874,31 +873,17 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                   : null,
               onPressed: _locationService.status == LocationStatus.searching || _weatherService.status is WeatherSearching
                   ? null
-                  : () => appSettingsRadioGroupSheet<Condition?>(
+                  : () => showSetConditionSheet(
                       context: context,
-                      title: "Select Trail Condition",
-                      infoText: "Conditions are automatically calculated based on soil moisture (see weather data). You can manually adjust the trail condition here:",
-                      contentWidget: const SoilMoistureLegendTable(),
-                      value: _currentWeather.value?.condition,
-                      optionWidgets: Map.fromEntries(Condition.values.map((condition) {
-                        return MapEntry(
-                          condition, 
-                          Row(
-                            spacing: 8, 
-                            children: [
-                              Icon(condition.iconData, color: condition.color), 
-                              Text(condition.value)
-                            ]
-                          ),
-                        );
-                      })),
-                      onChanged: (Condition? newValue) {
-                        if (newValue == null) return;
+                      currentCondition: _currentWeather.value?.condition,
+                      onSelected: (Condition newValue) {
                         setState(() {
                           _currentWeather.value ??= ContextWeather(currentDateTime: _selectedDateTimeLocal);
-                          _currentWeather.value = _currentWeather.value?.copyWith(condition: newValue);
+                          _currentWeather.value = _currentWeather.value?.copyWith(
+                            condition: newValue,
+                            conditionManuallySet: true,
+                          );
                         });
-                        Navigator.pop(context);
                         _changeListener();
                       },
               ),

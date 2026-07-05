@@ -10,6 +10,7 @@ import '../../pages/details/task_rule_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../theme.dart';
 import '../../utils/task_actions.dart';
+import '../notes_text.dart';
 
 class TaskRuleListCard extends StatelessWidget {
   final String taskRuleId;
@@ -109,14 +110,10 @@ class TaskRuleListCard extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: Text(
+          child: NotesText(
             taskRule.notes!,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-              fontSize: 13,
-            ),
+            fontSize: 13,
+            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
           ),
         ),
       ],

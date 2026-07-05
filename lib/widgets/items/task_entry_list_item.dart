@@ -8,6 +8,7 @@ import '../../models/component_stats.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/task_actions.dart';
+import '../notes_text.dart';
 
 class TaskEntryListItem extends StatefulWidget {
   final String taskEntryId;
@@ -181,12 +182,10 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
                 ),
                 const SizedBox(width: 2),
                 Expanded(
-                  child: Text(
+                  child: NotesText(
                     taskEntry.notes!,
-                    style: TextStyle(
-                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                      fontSize: 12,
-                    ),
+                    fontSize: 12,
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                   ),
                 ),
               ],

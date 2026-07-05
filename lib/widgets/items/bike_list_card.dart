@@ -8,6 +8,7 @@ import '../../pages/details/bike_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/bike_actions.dart';
+import '../notes_text.dart';
 
 class BikeListCard extends StatelessWidget{
   final Bike bike;
@@ -125,14 +126,10 @@ class BikeListCard extends StatelessWidget{
                             ),
                             const SizedBox(width: 2),
                             Expanded(
-                              child: Text(
+                              child: NotesText(
                                 bike.notes!,
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                  fontSize: 13,
-                                ),
+                                fontSize: 13,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                               ),
                             ),
                           ],

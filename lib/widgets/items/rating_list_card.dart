@@ -9,6 +9,7 @@ import '../../models/rating_association.dart';
 import '../../pages/details/rating_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/rating_actions.dart';
+import '../notes_text.dart';
 
 class RatingListCard extends StatelessWidget {
   final Rating rating;
@@ -165,12 +166,10 @@ class RatingListCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 2),
                         Expanded(
-                          child: Text(
+                          child: NotesText(
                             rating.notes!,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                              fontSize: 13,
-                            ),
+                            fontSize: 13,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                           ),
                         ),
                       ],

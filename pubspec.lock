@@ -1437,6 +1437,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.0"
+  see_more:
+    dependency: "direct main"
+    description:
+      name: see_more
+      sha256: "8c766694d179c6eeecdd6e8355f866243a29c895744ac38acc3a125721b3d635"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.0"
   share_plus:
     dependency: "direct main"
     description:

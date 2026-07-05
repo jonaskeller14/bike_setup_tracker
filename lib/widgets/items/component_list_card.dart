@@ -11,6 +11,7 @@ import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/component_actions.dart';
 import '../lists/adjustment_compact_display_list.dart';
+import '../notes_text.dart';
 
 class ComponentListCard extends StatelessWidget{
   final Component component;
@@ -130,14 +131,10 @@ class ComponentListCard extends StatelessWidget{
                         ),
                         const SizedBox(width: 2),
                         Expanded(
-                          child: Text(
+                          child: NotesText(
                             component.notes!,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                              fontSize: 13,
-                            ),
+                            fontSize: 13,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                           ),
                         ),
                       ],

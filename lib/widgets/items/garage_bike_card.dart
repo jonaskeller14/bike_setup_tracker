@@ -15,6 +15,7 @@ import '../../services/subscription_service.dart';
 import '../../utils/bike_actions.dart';
 import '../../utils/component_actions.dart';
 import '../dashed_border_painter.dart';
+import '../notes_text.dart';
 import 'component_list_card.dart';
 import 'garage_component_icon_card.dart';
 
@@ -263,12 +264,10 @@ class _GarageBikeCardState extends State<GarageBikeCard> with AutomaticKeepAlive
                                 ),
                                 const SizedBox(width: 2),
                                 Expanded(
-                                  child: Text(
+                                  child: NotesText(
                                     widget.bike.notes!,
-                                    style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                                      fontSize: 13,
-                                    ),
+                                    fontSize: 13,
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                                   ),
                                 ),
                               ],

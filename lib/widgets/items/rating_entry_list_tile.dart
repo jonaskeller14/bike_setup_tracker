@@ -6,6 +6,7 @@ import '../../models/bike.dart';
 import '../../models/rating_entry.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/rating_entry_actions.dart';
+import '../notes_text.dart';
 import '../sheets/rating_entry_details.dart';
 
 class RatingEntryListTile extends StatelessWidget {
@@ -158,12 +159,10 @@ class RatingEntryListTile extends StatelessWidget {
                 ),
                 const SizedBox(width: 2),
                 Expanded(
-                  child: Text(
+                  child: NotesText(
                     ratingEntry.notes!,
-                    style: TextStyle(
-                      color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                      fontSize: 12,
-                    ),
+                    fontSize: 12,
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                   ),
                 ),
               ],

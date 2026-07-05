@@ -10,6 +10,7 @@ import '../../repositories/app_repository.dart';
 import '../../services/dangling_adjustment_service.dart';
 import '../../utils/setup_actions.dart';
 import '../lists/adjustment_compact_display_list.dart';
+import '../notes_text.dart';
 
 class SetupListCard extends StatefulWidget {
   final String setupId;
@@ -96,12 +97,17 @@ class _SetupListCardState extends State<SetupListCard> {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 8,
-          children: [
-            Expanded(
+      child: Stack(
+        children: [
+          ConstrainedBox(
+            // Content must be at least as tall as the trailing buttons,
+            constraints: BoxConstraints(
+              minHeight: summary.collapsedHidesSomething
+                  ? 2 * kMinInteractiveDimension
+                  : kMinInteractiveDimension,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(right: kMinInteractiveDimension + 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -291,14 +297,10 @@ class _SetupListCardState extends State<SetupListCard> {
                         ),
                         const SizedBox(width: 2),
                         Expanded(
-                          child: Text(
+                          child: NotesText(
                             setup.notes!,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                              fontSize: 13,
-                            ),
+                            fontSize: 13,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                           ),
                         ),
                       ],
@@ -306,57 +308,60 @@ class _SetupListCardState extends State<SetupListCard> {
                 ],
               ),
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                PopupMenuButton<_SetupOptions>(
-                  onSelected: (_SetupOptions value) async {
-                    switch (value) {
-                      case _SetupOptions.edit:
-                        await SetupActions.editSetup(context, setup: setup);
-                      case _SetupOptions.share:
-                        await SetupActions.shareSetup(context, setup: setup);
-                      case _SetupOptions.restore:
-                        await SetupActions.duplicateSetup(context, setup: setup);
-                      case _SetupOptions.addRating:
-                        await SetupActions.addRatingEntryForSetup(context, setup: setup);
-                      case _SetupOptions.remove:
-                        await SetupActions.removeSetup(context, setup: setup);
-                    }
-                  },
-                  itemBuilder: (BuildContext context) {
-                    return _SetupOptions.values.where((option) {
-                      if (!appSettings.enableRating && (option == _SetupOptions.addRating)) return false;
-                      return true;
-                    }).map((option) {
-                      return PopupMenuItem<_SetupOptions>(
-                        value: option,
-                        child: Row(
-                          spacing: 10,
-                          children: [
-                            Icon(option.iconData, size: 20),
-                            Text(option.label),
-                          ],
-                        ),
-                      );
-                    }).toList();
-                  },
-                ),
-                if (summary.collapsedHidesSomething)
-                  ExpandIcon(
-                    isExpanded: !_displayOnlyChanges,
-                    color: PopupMenuTheme.of(context).iconColor ?? IconTheme.of(context).color,
-                    expandedColor: Theme.of(context).colorScheme.primary,
-                    onPressed: (bool expanded) {
-                      setState(() {
-                        _displayOnlyChanges = expanded;
-                      });
-                    },
-                  )
-              ],
+          ),
+          Positioned(
+            top: 0,
+            right: 0,
+            child: PopupMenuButton<_SetupOptions>(
+              onSelected: (_SetupOptions value) async {
+                switch (value) {
+                  case _SetupOptions.edit:
+                    await SetupActions.editSetup(context, setup: setup);
+                  case _SetupOptions.share:
+                    await SetupActions.shareSetup(context, setup: setup);
+                  case _SetupOptions.restore:
+                    await SetupActions.duplicateSetup(context, setup: setup);
+                  case _SetupOptions.addRating:
+                    await SetupActions.addRatingEntryForSetup(context, setup: setup);
+                  case _SetupOptions.remove:
+                    await SetupActions.removeSetup(context, setup: setup);
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                return _SetupOptions.values.where((option) {
+                  if (!appSettings.enableRating && (option == _SetupOptions.addRating)) return false;
+                  return true;
+                }).map((option) {
+                  return PopupMenuItem<_SetupOptions>(
+                    value: option,
+                    child: Row(
+                      spacing: 10,
+                      children: [
+                        Icon(option.iconData, size: 20),
+                        Text(option.label),
+                      ],
+                    ),
+                  );
+                }).toList();
+              },
             ),
-          ],
-        ),
+          ),
+          if (summary.collapsedHidesSomething)
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: ExpandIcon(
+                isExpanded: !_displayOnlyChanges,
+                color: PopupMenuTheme.of(context).iconColor ?? IconTheme.of(context).color,
+                expandedColor: Theme.of(context).colorScheme.primary,
+                onPressed: (bool expanded) {
+                  setState(() {
+                    _displayOnlyChanges = expanded;
+                  });
+                },
+              ),
+            ),
+        ],
       ),
     );
   }

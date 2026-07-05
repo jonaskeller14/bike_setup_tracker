@@ -213,26 +213,25 @@ class FeaturesPage extends StatelessWidget {
                   infoText: "Adds an optional trigger to tasks with a progress bar based on time or, with Strava connected, activity stats like distance, elevation and ride time.",
                 ),
               ),
-              if (kDebugMode)
-                ListTile(
-                  enabled: appSettings.enableTask && appSettings.enableGarage,
-                  leading: const Icon(Icons.adjust),
-                  title: const Text("Garage Task Indicator"),
-                  subtitle: _offOnOptionWidgets[appSettings.enableGarageTaskIndicator] ?? const Text("-"),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                  onTap: () => appSettingsRadioGroupSheet<bool>(
-                    context: context,
-                    title: "Garage Task Indicator",
-                    value: appSettings.enableGarageTaskIndicator,
-                    optionWidgets: _offOnOptionWidgets,
-                    onChanged: (bool? newValue) {
-                      if (newValue == null) return;
-                      appSettings.enableGarageTaskIndicator = newValue;
-                      Navigator.pop(context);
-                    },
-                    infoText: 'Shows a colored status dot on component icons in the Garage when they have open tasks.',
-                  ),
+              ListTile(
+                enabled: appSettings.enableTask && appSettings.enableGarage,
+                leading: const Icon(Icons.adjust),
+                title: const Text("Garage Task Indicator"),
+                subtitle: _offOnOptionWidgets[appSettings.enableGarageTaskIndicator] ?? const Text("-"),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                onTap: () => appSettingsRadioGroupSheet<bool>(
+                  context: context,
+                  title: "Garage Task Indicator",
+                  value: appSettings.enableGarageTaskIndicator,
+                  optionWidgets: _offOnOptionWidgets,
+                  onChanged: (bool? newValue) {
+                    if (newValue == null) return;
+                    appSettings.enableGarageTaskIndicator = newValue;
+                    Navigator.pop(context);
+                  },
+                  infoText: 'Shows a colored status dot on component icons in the Garage when they have open tasks.',
                 ),
+              ),
               if (kDebugMode)
                 ListTile(
                   enabled: appSettings.enableTask,

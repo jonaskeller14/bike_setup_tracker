@@ -1,0 +1,181 @@
+# FOX mountain-bike shocks — adjustment preset database
+#
+# Same design as fork/fox.yaml: click ranges belong to the DAMPER, defined once
+# under `dampers:` and referenced by key from each shock's trims. See SCHEMA.md.
+
+brand: FOX
+component_type: shock
+source: https://ridefox.com/pages/bike-shocks
+updated: 2026-07-05
+# Click ranges taken from the per-model spec tables on the official FOX
+# product pages (ridefox.com/pages/fox-<model>). Clicks counted from fully
+# closed (firmest); an adjuster with "16 clicks" has range 0..16.
+
+# --------------------------------------------------------------------------
+# Dampers
+# --------------------------------------------------------------------------
+dampers:
+  vvc2:
+    name: VVC2 (4-Way Adjust)
+    description: >
+      Shared gravity damper platform in FLOAT X2 and DHX2. Variable Valve
+      Control on both high-speed circuits. Optional 2-position independent
+      Firm Mode lever on Factory/Performance Elite.
+    adjusters:
+      high_speed_compression: { clicks: 8 }
+      low_speed_compression:  { clicks: 16 }
+      high_speed_rebound:     { clicks: 8 }
+      low_speed_rebound:      { clicks: 16 }
+    firm_mode: optional 2-position independent lever
+
+  float_x:
+    name: FLOAT X damper
+    description: All-mountain air shock damper. Tool-free 2-position lever (Open/Firm).
+    adjusters:
+      low_speed_compression: { clicks: 11 }
+      low_speed_rebound:     { clicks: 16 }
+    compression_positions: [Open, Firm]
+
+  float:
+    name: FLOAT damper
+    description: XC/Trail air shock damper. 2-position lever with 3-position micro-adjust in Open mode.
+    adjusters:
+      rebound: { clicks: 12 }
+    compression_positions: [Open, Firm]
+    open_mode_micro_adjust: 3-position
+
+  float_sl:
+    name: FLOAT SL damper
+    description: >
+      Lightest XC race damper. 3-position lever (Open/Medium/Firm) with
+      3-position micro-adjust in Open mode; remote variants available in
+      2-position or 3-position handlebar remote.
+    adjusters:
+      rebound: { clicks: 12 }
+    compression_positions: [Open, Medium, Firm]
+
+  dhx_coil:
+    name: DHX damper (coil)
+    description: Coil-sprung trail/enduro damper. Tool-free adjusters, 2-position Firm switch.
+    adjusters:
+      low_speed_compression: { clicks: 11 }
+      low_speed_rebound:     { clicks: 16 }
+    compression_positions: [Open, Firm]
+
+# --------------------------------------------------------------------------
+# Shocks — current (2025/2026) FOX lineup.
+# Shocks are sold by eye-to-eye/stroke length to match a given frame, not by a
+# fixed "travel" like forks — `stroke_mm` lists commonly offered strokes
+# rather than an exhaustive per-frame spec.
+# --------------------------------------------------------------------------
+shocks:
+  - model: "FLOAT SL"
+    category: XC
+    spring: Air
+    year_range: "2025-2026"
+    url: https://ridefox.com/pages/fox-float-sl
+    trims:
+      - trim: Factory
+        stanchion: Kashima
+        dampers: [float_sl]
+      - trim: Performance
+        stanchion: 7000-series alloy, black anodized
+        dampers: [float_sl]
+
+  - model: "FLOAT"
+    category: XC / Trail
+    spring: Air
+    year_range: "2025-2026"
+    url: https://ridefox.com/pages/fox-float
+    trims:
+      - trim: Factory
+        stanchion: Kashima
+        dampers: [float]
+      - trim: Performance Elite
+        stanchion: 7000-series alloy, black anodized
+        dampers: [float]
+      - trim: Performance
+        stanchion: 7000-series alloy, black anodized
+        dampers: [float]
+      - trim: Rhythm
+        stanchion: 6000-series alloy, black anodized
+        dampers: [float]
+        note: OEM complete bikes only
+
+  - model: "FLOAT X"
+    category: All-Mountain
+    spring: Air
+    year_range: "2025-2026"
+    url: https://ridefox.com/pages/fox-float-x
+    trims:
+      - trim: Factory
+        stanchion: Kashima
+        dampers: [float_x]
+      - trim: Performance Elite
+        stanchion: 7000-series alloy, black anodized
+        dampers: [float_x]
+      - trim: Performance
+        stanchion: 7000-series alloy, black anodized
+        dampers: [float_x]
+        note: simplified/fixed LSC on some builds; LSR remains 16 clicks
+
+  - model: "FLOAT X2"
+    category: Enduro / Gravity
+    spring: Air
+    year_range: "2025-2026"
+    url: https://ridefox.com/pages/fox-float-x2
+    trims:
+      - trim: Factory
+        stanchion: Kashima
+        dampers: [vvc2]
+      - trim: Performance Elite
+        stanchion: 7000-series alloy, black anodized
+        dampers: [vvc2]
+      - trim: Performance
+        stanchion: 7000-series alloy, black anodized
+        dampers: [vvc2]
+        note: OEM complete bikes only; simplified external adjustments
+
+  - model: "DHX"
+    category: Trail / Enduro
+    spring: Coil
+    year_range: "2025-2026"
+    url: https://ridefox.com/products/fox-dhx-factory
+    trims:
+      - trim: Factory
+        stanchion: Kashima
+        dampers: [dhx_coil]
+        mount: [Metric, Metric Trunnion]
+        stroke_mm: [55, 60, 62.5, 65]
+        note: "Coil spring sold separately. Common sizes: 210x55, 230x60, 230x65, 185x55, 205x60, 205x62.5"
+
+  - model: "DHX2"
+    category: Downhill / Enduro
+    spring: Coil
+    year_range: "2025-2026"
+    url: https://ridefox.com/pages/fox-dhx2
+    trims:
+      - trim: Factory
+        stanchion: Kashima
+        dampers: [vvc2]
+      - trim: Performance Elite
+        stanchion: 7000-series alloy, black anodized
+        dampers: [vvc2]
+      - trim: Performance
+        stanchion: 7000-series alloy, black anodized
+        dampers: [vvc2]
+        note: OEM complete bikes only; simplified external adjustments
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - Live Valve Neo variants (FLOAT X Live Valve Neo, FLOAT X2 Live Valve
+#     Neo, DHX Live Valve Neo) are electronically controlled — no manual
+#     click-based adjustment model. Would need a distinct schema shape
+#     (modes/profiles instead of click counts) if added.
+#   - Exact stroke/eye-to-eye options for FLOAT/FLOAT X/FLOAT X2/FLOAT SL are
+#     frame-dependent and not listed in per-model spec tables; only DHX's
+#     common sizes were published on its product page.
+#   - FLOAT X "Performance" trim's low-speed compression click count wasn't
+#     explicitly confirmed (page only confirmed it for Factory/Performance
+#     Elite) — verify before relying on it for that specific trim.
+# --------------------------------------------------------------------------

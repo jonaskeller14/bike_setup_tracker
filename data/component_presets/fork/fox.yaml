@@ -1,0 +1,263 @@
+# FOX mountain-bike forks — adjustment preset database
+#
+# Purpose: let a user pick their exact fork (brand › model › trim › damper) and
+# have the app auto-add the correct adjustment presets, including the real
+# rebound/compression click ranges.
+#
+# Design: click ranges are a property of the DAMPER, not the model. So dampers
+# are defined once under `dampers:` and each fork trim references a damper key.
+# This keeps the numbers correct in exactly one place.
+#
+# See SCHEMA.md in this folder for field definitions and how these entries map
+# to the app's Adjustment presets (lib/widgets/sheets/component_add_adjustment.dart).
+
+brand: FOX
+component_type: fork
+source: https://ridefox.com/pages/bike-forks
+updated: 2026-07-05
+# All click ranges below were taken from the per-model spec tables on the
+# official FOX product pages (ridefox.com/pages/fox-<model>). Clicks are counted
+# from fully closed (firmest); an adjuster with "18 clicks" has range 0..18.
+
+# --------------------------------------------------------------------------
+# Dampers — click ranges shared across every fork that ships with the damper.
+# --------------------------------------------------------------------------
+dampers:
+  grip_x2:
+    name: GRIP X2
+    description: Most tunable, descent-focused damper (enduro/DH). Four external adjusters.
+    adjusters:
+      high_speed_compression: { clicks: 8 }
+      low_speed_compression:  { clicks: 18 }
+      high_speed_rebound:     { clicks: 8 }
+      low_speed_rebound:      { clicks: 16 }
+    valves: 23
+
+  grip_x:
+    name: GRIP X
+    description: Trail-focused damper. HSC dial has a Firm detent at its final click (170° sweep).
+    adjusters:
+      high_speed_compression: { clicks: 15 }   # firm mode engaged at final click
+      low_speed_compression:  { clicks: 16 }
+      rebound:                { clicks: 17 }   # FOX labels this "low-speed rebound"; single rebound knob
+    firm_mode: at final HSC click
+
+  grip_sl:
+    name: GRIP SL
+    description: Lightweight XC damper. Three on-the-fly compression positions (Open/Medium/Firm), 2-position remote compatible.
+    adjusters:
+      rebound: { clicks: 17 }   # FOX labels "low-speed rebound"; single rebound knob
+    compression_positions: [Open, Medium, Firm]
+    remote: 2-position
+
+  grip:
+    name: GRIP
+    description: Updated GRIP cartridge (Performance/Rhythm trims). Three on-the-fly compression positions with micro-adjust detents.
+    adjusters:
+      rebound: { clicks: 10 }
+    compression_positions: [Open, Medium, Firm]
+
+  rail:
+    name: RAIL
+    description: Adventure/e-bike damper (AWL). Tool-free external adjusters.
+    adjusters:
+      rebound: { clicks: 9 }
+    compression_positions: [1, 2]   # 2-position "SWEEP ADJUST" compression
+
+# --------------------------------------------------------------------------
+# Forks — current (2025/2026) FOX lineup.
+# `trims` are the user-facing sub-models; the damper (and therefore the click
+# ranges) can differ per trim. Where a trim offers a choice of damper, list all.
+# --------------------------------------------------------------------------
+forks:
+  - model: "32 Taper-Cast"
+    category: Gravel
+    year_range: "2025-2026"
+    url: https://ridefox.com/pages/fox-32-taper-cast
+    wheel_size: [700c, 650b]
+    trims:
+      - trim: Factory
+        travel_mm: [40, 50]
+        stanchion: Kashima
+        dampers: [grip_sl]
+      - trim: Performance
+        travel_mm: [40]
+        stanchion: 7000-series alloy, black anodized
+        dampers: [grip]
+    note: 12x100 Kabolt thru-axle, integrated fender mounts
+
+  - model: "32 Step-Cast"
+    category: XC
+    year_range: "2025-2026"
+    url: https://ridefox.com/pages/fox-32-step-cast
+    wheel_size: [29]
+    trims:
+      - trim: Factory
+        travel_mm: [100]
+        stanchion: Kashima
+        dampers: [grip_sl]
+      - trim: Performance
+        travel_mm: [100]
+        stanchion: 7000-series alloy, black anodized
+        dampers: [grip]
+
+  - model: "34 SL"
+    category: Downcountry
+    year_range: "2025-2026"
+    url: https://ridefox.com/pages/fox-34-sl
+    wheel_size: [29]
+    trims:
+      - trim: Factory
+        travel_mm: [120, 130]
+        stanchion: Kashima
+        dampers: [grip_sl]
+      - trim: Performance Elite
+        travel_mm: [120]
+        stanchion: 7000-series alloy, black anodized
+        dampers: [grip_sl]
+      - trim: Performance
+        travel_mm: [120]
+        stanchion: 7000-series alloy, black anodized
+        dampers: [grip]
+
+  - model: "34"
+    category: Trail
+    year_range: "2025-2026"
+    url: https://ridefox.com/pages/fox-34
+    wheel_size: [29]
+    trims:
+      - trim: Factory
+        travel_mm: [130, 140]
+        stanchion: Kashima
+        dampers: [grip_x]
+      - trim: Performance Elite
+        travel_mm: [130]
+        stanchion: 7000-series alloy, black anodized
+        dampers: [grip_x]
+      - trim: Performance
+        travel_mm: [130]
+        stanchion: 7000-series alloy, black anodized
+        dampers: [grip]
+      - trim: Rhythm
+        travel_mm: [130, 150]
+        stanchion: 6000-series alloy, black anodized
+        dampers: [grip]
+        note: OEM complete bikes only
+
+  - model: "36 SL"
+    category: Trail
+    year_range: "2025-2026"
+    url: https://ridefox.com/pages/fox-36-sl
+    wheel_size: [29]
+    trims:
+      - trim: Factory
+        travel_mm: [130, 140]
+        stanchion: Kashima
+        dampers: [grip_x]
+      - trim: Performance Elite
+        travel_mm: [140]
+        stanchion: 7000-series alloy, black anodized
+        dampers: [grip_x]
+      - trim: Performance
+        travel_mm: [140]
+        stanchion: 7000-series alloy, black anodized
+        dampers: [grip]
+
+  - model: "36"
+    category: All-Mountain
+    year_range: "2025-2026"
+    url: https://ridefox.com/pages/fox-36
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Factory
+        travel_mm: [150, 160]
+        stanchion: Kashima
+        dampers: [grip_x2, grip_x]   # buyer-selectable damper
+      - trim: Performance Elite
+        travel_mm: [160]
+        stanchion: 7000-series alloy, black anodized
+        dampers: [grip_x]
+      - trim: Performance
+        travel_mm: [160]
+        stanchion: 7000-series alloy, black anodized
+        dampers: [grip]
+      - trim: Rhythm
+        travel_mm: [150, 160]
+        stanchion: 6000-series alloy, black anodized
+        dampers: [grip]
+        note: OEM complete bikes only
+
+  - model: "38"
+    category: Enduro
+    year_range: "2025-2026"
+    url: https://ridefox.com/pages/fox-38
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Factory
+        travel_mm: [160, 170, 180]
+        stanchion: Kashima
+        dampers: [grip_x2]
+      - trim: Performance Elite
+        travel_mm: [170]
+        stanchion: 7000-series alloy, black anodized
+        dampers: [grip_x2]
+      - trim: Rhythm
+        travel_mm: [160, 170, 180]
+        stanchion: 6000-series alloy, black anodized
+        dampers: [grip]
+        note: OEM complete bikes only
+
+  - model: "40"
+    category: Downhill
+    year_range: "2025-2026"
+    url: https://ridefox.com/pages/fox-40
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Factory
+        travel_mm: [203]
+        stanchion: Kashima
+        dampers: [grip_x2]
+
+  - model: "Podium"
+    category: Enduro
+    year_range: "2026"
+    url: https://ridefox.com/products/podium
+    wheel_size: [29]
+    trims:
+      - trim: Factory
+        travel_mm: [160, 170]
+        stanchion: Kashima
+        dampers: [grip_x2]
+        note: >
+          Inverted (USD) single-crown chassis. Crown heights 58HT/68HT,
+          44mm offset, custom steel 20mm axle, Float EVOL GlideCore air spring.
+          GRIP X2 internal tune revised for the USD layout; external click
+          counts match the standard GRIP X2 (confirmed by Flow MTB first-ride
+          review). First model year 2026.
+
+  - model: "AWL"
+    category: Adventure / eMTB
+    year_range: "2025-2026"
+    url: https://ridefox.com/pages/fox-awl
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Standard
+        travel_mm: [100, 120, 130, 140, 150, 160, 170, 180, 203]
+        stanchion: 34mm
+        dampers: [rail]
+        note: Rated to 169kg system weight; fender/rack/light/ABS mounts.
+      - trim: HD
+        travel_mm: [100, 120, 130, 140, 150, 160, 170, 180, 203]
+        stanchion: 36mm
+        dampers: [rail]
+        note: 29in only; higher-load chassis for e-bikes.
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - Older model years (pre-2025) used FIT4 and GRIP2 dampers with different
+#     click counts. Add a dated `dampers` entry + `year_range` per fork when
+#     pulling those from archived FOX spec sheets (tech.ridefox.com/bike/list/spec-sheets).
+#   - AWL travel_mm above is the full range advertised across the AWL line
+#     (spans the 32/34/36/38/40-equivalent chassis sizes); confirm exact
+#     per-chassis travel options once a per-model AWL spec table is found.
+# --------------------------------------------------------------------------

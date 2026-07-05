@@ -1,0 +1,169 @@
+# Öhlins mountain-bike forks — adjustment preset database
+#
+# Same design as fork/fox.yaml: click ranges belong to the DAMPER cartridge,
+# defined once under `dampers:` and referenced by key from each fork's trims.
+# See SCHEMA.md in this folder.
+#
+# Öhlins itself versions dampers/forks with "m.1"/"m.2"/"m.3" suffixes, and
+# those generations can have different click counts — so, unlike FOX, the
+# generation suffix is kept as part of the `model` name (e.g. "RXF36 m.3")
+# rather than folded away, since it IS the user-facing distinguishing name.
+
+brand: Öhlins
+component_type: fork
+source: https://www.ohlins.eu/de/products/mountainbike/mtb-forks/
+updated: 2026-07-05
+# Click ranges taken from the individual product pages at ohlins.eu (German
+# site). Clicks counted from fully closed (firmest).
+
+# --------------------------------------------------------------------------
+# Dampers
+# --------------------------------------------------------------------------
+dampers:
+  otx18:
+    name: OTX18
+    description: Trail/downcountry damper (RXF34). Separate spring and damping systems.
+    adjusters:
+      high_speed_compression: { clicks: 3 }
+      low_speed_compression:  { clicks: 15 }
+      rebound:                { clicks: 15 }
+
+  ttx18_m2:
+    name: TTX18 (m.2 generation)
+    description: Twin-tube trail/enduro damper, m.2 generation. HSC includes a Climb Mode detent.
+    adjusters:
+      high_speed_compression: { clicks: 3 }
+      low_speed_compression:  { clicks: 15 }
+      rebound:                { clicks: 15 }
+
+  ttx18_m3:
+    name: TTX18 (m.3 generation)
+    description: Twin-tube trail/enduro/DH damper, m.3 generation.
+    adjusters:
+      high_speed_compression: { clicks: 3 }
+      low_speed_compression:  { clicks: 16 }
+      rebound:                { clicks: 16 }
+
+  otx14_r:
+    name: OTX14 R
+    description: >
+      XC race damper (RXC34 m.1). Low-speed rebound, low-speed compression and
+      high-speed compression are all externally adjustable, plus a lockout
+      lever (7.5mm travel per click; 5.5mm-per-click adapter also available).
+      Exact click counts were not published on the product page — verify
+      before relying on them.
+    adjusters: {}
+    lockout: true
+
+# --------------------------------------------------------------------------
+# Forks — current Öhlins MTB lineup.
+# --------------------------------------------------------------------------
+forks:
+  - model: "RXC34 m.1"
+    category: XC
+    year_range: "2025-2026"
+    url: https://www.ohlins.eu/de/products/mountainbike/rxc34-m1-air-otx14-r--7692/
+    wheel_size: [29]
+    trims:
+      - trim: Aluminum (remote)
+        travel_mm: [100, 110, 120]
+        dampers: [otx14_r]
+      - trim: Carbon crown (remote)
+        travel_mm: [100, 110, 120]
+        dampers: [otx14_r]
+      - trim: Carbon crown (manual)
+        travel_mm: [100, 110, 120]
+        dampers: [otx14_r]
+
+  - model: "RXF34 m.2"
+    category: Downcountry / Trail
+    year_range: "2025-2026"
+    url: https://www.ohlins.eu/de/products/mountainbike/rxf34-m2-air-otx18-29--7685/
+    wheel_size: [29]
+    trims:
+      - trim: Air OTX18
+        travel_mm: [120, 130, 140]
+        offset_mm: [44]
+        dampers: [otx18]
+
+  - model: "RXF36 m.2"
+    category: Trail
+    year_range: "2025-2026"
+    url: https://www.ohlins.eu/de/products/mountainbike/rxf36-m2-air-ttx18-275--7698/
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Air TTX18
+        travel_mm: [140, 150, 160, 170]
+        offset_mm: [38, 44, 51]
+        dampers: [ttx18_m2]
+
+  - model: "RXF36 m.3"
+    category: Trail
+    year_range: "2025-2026"
+    url: https://www.ohlins.eu/de/products/mountainbike/rxf36-m3-air-ttx18-275--7696/
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Air TTX18
+        travel_mm: [140, 150, 160, 170]   # up to 170mm on 27.5", 140-160mm on 29"
+        offset_mm: [38, 44, 51]
+        dampers: [ttx18_m3]
+      - trim: Coil
+        url: https://www.ohlins.eu/de/products/mountainbike/rxf36-m3-coil--6430/
+        dampers: [ttx18_m3]
+
+  - model: "RXF38 m.3"
+    category: Enduro
+    year_range: "2025-2026"
+    url: https://www.ohlins.eu/de/products/mountainbike/rxf38-m3-air-coil-ttx18--7748/
+    wheel_size: [29]
+    trims:
+      - trim: Air
+        travel_mm: [160, 170, 180]
+        offset_mm: [44]
+        dampers: [ttx18_m3]
+      - trim: Coil
+        travel_mm: [170]
+        offset_mm: [44]
+        dampers: [ttx18_m3]
+    note: >
+      An RXF38 m.2 (Air TTX18) also exists in the current lineup
+      (ohlins.eu/de/products/mountainbike/rxf38-m2-air-ttx18-29--7694/) but its
+      click table wasn't independently confirmed — assumed to match m.3 until verified.
+
+  - model: "DH38 m.2"
+    category: Downhill
+    year_range: "2025-2026"
+    url: https://www.ohlins.eu/de/products/mountainbike/dh38-m2-air-coil-downhill--7747/
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Air
+        travel_mm: [200]
+        offset_mm: [46, 50, 54, 58]
+        dampers: [ttx18_m3]
+      - trim: Coil
+        travel_mm: [200]
+        offset_mm: [46, 50, 54, 58]
+        dampers: [ttx18_m3]
+    note: >
+      A DH38 m.1 (Air, universal) also exists
+      (ohlins.eu/de/products/mountainbike/dh38-m1-downhill-front-fork--7683/)
+      but its click table was not fetched/confirmed.
+
+  - model: "RXFDJ m.1"
+    category: Dirt Jump
+    year_range: "2025-2026"
+    url: https://www.ohlins.eu/de/products/mountainbike/rxfdj-m1-air-26-dirt--7687/
+    wheel_size: [26]
+    trims:
+      - trim: Air TTX18
+        travel_mm: [90]
+        dampers: [ttx18_m2]
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - OTX14 R exact click counts (RXC34) — product page didn't publish them,
+#     only lockout lever throw (7.5mm/click, or 5.5mm/click w/ adapter).
+#   - RXF38 m.2 and DH38 m.1 click tables — assumed to match their m.3/m.2
+#     siblings' TTX18 cartridge but not independently confirmed.
+#   - Legacy/older Öhlins fork generations (pre-m.1) not covered.
+# --------------------------------------------------------------------------

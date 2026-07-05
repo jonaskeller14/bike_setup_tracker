@@ -159,7 +159,7 @@ class TaskRuleListCard extends StatelessWidget {
     final component = taskRule.componentId != null ? appRepository.components[taskRule.componentId] : null;
     final bike = taskRule.bikeId != null ? appRepository.bikes[taskRule.bikeId] : (component?.bike != null ? appRepository.bikes[component!.bike] : null);
 
-    final statusColor = status.type.getStatusColor();
+    final statusColor = status.type.getStatusColor(context);
 
     return Opacity(
       opacity: isCompleted ? 0.5 : 1,

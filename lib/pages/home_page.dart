@@ -134,7 +134,7 @@ class _HomePageState extends State<HomePage> {
                 count: toDoTaskRulesCount,
                 maxCount: 99,
                 isLabelVisible: toDoTaskRulesCount > 0,
-                backgroundColor: appRepository.openTaskRulesStatusType.getStatusColor(),
+                backgroundColor: appRepository.openTaskRulesStatusType.getStatusColor(context),
                 child: const Icon(Icons.checklist),
               ),
               label: "Tasks",

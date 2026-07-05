@@ -6,12 +6,13 @@ enum TaskStatusType {
   overdue,
   completed;
 
-  Color getStatusColor() {
+  Color getStatusColor(BuildContext context) {
+    final colors = Theme.of(context).extension<TaskStatusColors>()!;
     return switch (this) {
-      TaskStatusType.overdue => Colors.red,
-      TaskStatusType.due => Colors.orange,
-      TaskStatusType.upcoming => Colors.blue,
-      TaskStatusType.completed => Colors.green,
+      TaskStatusType.overdue => colors.overdue,
+      TaskStatusType.due => colors.due,
+      TaskStatusType.upcoming => colors.upcoming,
+      TaskStatusType.completed => colors.completed,
     };
   }
 }

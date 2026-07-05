@@ -63,7 +63,7 @@ class GarageComponentIconCard extends StatelessWidget {
               width: 10,
               height: 10,
               decoration: BoxDecoration(
-                color: indicatorStatus.getStatusColor(),
+                color: indicatorStatus.getStatusColor(context),
                 shape: BoxShape.circle,
                 border: Border.all(color: colorScheme.surface, width: 1.5),
               ),

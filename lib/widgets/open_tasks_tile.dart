@@ -26,7 +26,7 @@ class OpenTasksTile extends StatelessWidget {
       leading: Badge.count(
         count: count,
         isLabelVisible: count > 0,
-        backgroundColor: aggregatedStatus.getStatusColor(),
+        backgroundColor: aggregatedStatus.getStatusColor(context),
         child: const Icon(Icons.checklist),
       ),
       title: Text(

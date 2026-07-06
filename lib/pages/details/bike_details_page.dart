@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../icons/simple_icons.dart';
@@ -10,6 +11,7 @@ import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/bike_actions.dart';
 import '../../widgets/component_stats_card.dart';
+import '../../widgets/installation_timeline_table.dart';
 import '../../widgets/items/component_list_card.dart';
 import '../../widgets/open_tasks_tile.dart';
 
@@ -17,6 +19,14 @@ class BikeDetailsPage extends StatelessWidget {
   final String bikeId;
 
   const BikeDetailsPage({super.key, required this.bikeId});
+
+  Widget _installationOverview(BuildContext context) {
+    final appRepository = context.watch<AppRepository>();
+    return InstallationTimelineTable(
+      bikeId: bikeId,
+      allComponents: appRepository.components.values.toList(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -131,6 +141,7 @@ class BikeDetailsPage extends StatelessWidget {
                 )).toList(),
               ),
               const Divider(height: 1),
+              if (kDebugMode) _installationOverview(context)
             ],
           ),
         )

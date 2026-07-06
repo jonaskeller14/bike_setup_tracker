@@ -173,13 +173,15 @@ void main() {
       final values = await db.select(db.setupAdjustmentValues).get();
       expect(values, hasLength(7)); // 6 (bike) + 1 (person)
 
+      // Values are stored JSON-encoded (via encodeAdjustmentValue), the same as
+      // the DAO write path — strings are quoted and durations are microseconds.
       final valueMap = {for (var v in values) v.adjustmentId: v.value};
       expect(valueMap['adj1'], '5.0');
       expect(valueMap['adj2'], 'true');
-      expect(valueMap['adj3'], 'Open');
+      expect(valueMap['adj3'], '"Open"');
       expect(valueMap['adj4'], '85.5');
-      expect(valueMap['adj5'], 'Some note');
-      expect(valueMap['adj6'], '1:30:00.000000');
+      expect(valueMap['adj5'], '"Some note"');
+      expect(valueMap['adj6'], '5400000000');
       expect(valueMap['adj_p1'], '75.0');
 
       sourceAppData.dispose();

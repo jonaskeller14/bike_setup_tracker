@@ -31,6 +31,23 @@ class ContextPlace {
     );
   }
 
+  static bool matches(geo.Placemark? place, String query) {
+    if (place == null) return false;
+    final fields = [
+      place.name,
+      place.thoroughfare,
+      place.subThoroughfare,
+      place.locality,
+      place.subLocality,
+      place.administrativeArea,
+      place.subAdministrativeArea,
+      place.postalCode,
+      place.country,
+      place.isoCountryCode,
+    ];
+    return fields.any((f) => f != null && f.toLowerCase().contains(query));
+  }
+
   static bool equal(geo.Placemark? a, geo.Placemark? b) {
     return identical(a, b) ||
         a != null &&

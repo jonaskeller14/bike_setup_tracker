@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
+import '../../models/context/context_place.dart';
 import '../../models/timeline_entry.dart';
 import '../../pages/details/setup_details_page.dart';
 import '../../repositories/app_repository.dart';
@@ -57,7 +58,8 @@ class SetupListSearch extends StatelessWidget {
           final setups = appRepository.filteredSetups.values;
           matchingEntries.addAll(setups.where((s) =>
             s.displayName.toLowerCase().contains(controllerText) ||
-            (s.notes ?? "").toLowerCase().contains(controllerText)
+            (s.notes ?? "").toLowerCase().contains(controllerText) ||
+            ContextPlace.matches(s.place, controllerText)
           ).map((s) => SetupEntry(s)));
         }
 
@@ -86,7 +88,8 @@ class SetupListSearch extends StatelessWidget {
           final ratingEntries = appRepository.filteredRatingEntries.values;
           matchingEntries.addAll(ratingEntries.where((re) =>
             re.displayName.toLowerCase().contains(controllerText) ||
-            (re.notes ?? "").toLowerCase().contains(controllerText)
+            (re.notes ?? "").toLowerCase().contains(controllerText) ||
+            ContextPlace.matches(re.place, controllerText)
           ).map((re) => RatingEntryTimelineEntry(re)));
         }
 

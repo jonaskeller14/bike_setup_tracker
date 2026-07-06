@@ -27,8 +27,8 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
     late Color? highlightColor;
     final highlights = Theme.of(context).extension<ValueHighlightColors>();
     if (highlighting) {
-      isChanged = !adjustmentValuesEqual(initialValue, value);
-      isInitial = initialValue == null || initialValue!.isEmpty;
+      isChanged = value != null && !adjustmentValuesEqual(initialValue, value);
+      isInitial = initialValue == null;
       highlightColor = isChanged ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange) : null;
     } else {
       isChanged = false;
@@ -84,16 +84,36 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
                     adjustment: adjustment,
                     selected: selected,
                     onChanged: (List<String> newSelection) {
-                      final List<String>? newValue = newSelection.isEmpty ? null : newSelection;
-                      field.didChange(newValue);
-                      onChanged(newValue);
+                      field.didChange(newSelection);
+                      onChanged(newSelection);
                     },
                   ),
                   child: InputDecorator(
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                       errorText: field.errorText,
-                      suffixIcon: Icon(Icons.arrow_drop_down, color: highlightColor),
+                      suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 48),
+                      suffixIcon: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(right: isChanged ? 0 : 8),
+                            child: Icon(Icons.arrow_drop_down, color: highlightColor),
+                          ),
+                          if (isChanged)
+                            IconButton(
+                              onPressed: () {
+                                field.didChange(initialValue);
+                                onChanged(initialValue);
+                              },
+                              icon: const Icon(Icons.replay),
+                              visualDensity: VisualDensity.compact,
+                              tooltip: 'Revert',
+                            ),
+                        ],
+                      ),
                     ),
                     child: Text(
                       hasValidValue ? validSelected.join(Adjustment.multiValueSeparator) : "Please select",

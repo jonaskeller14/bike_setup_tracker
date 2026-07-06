@@ -120,4 +120,108 @@ void main() {
       expect(formKey.currentState!.validate(), isFalse);
     });
   });
+
+  group("SetCategoricalAdjustmentWidget/revert & explicit empty", () {
+    Widget captureWidget({
+      List<String>? initialValue,
+      required List<String>? value,
+      required void Function(List<String>?) onChanged,
+    }) {
+      return MaterialApp(
+        theme: materialAppTheme,
+        home: Scaffold(
+          body: SetCategoricalAdjustmentWidget(
+            key: const ValueKey("cat"),
+            initialValue: initialValue,
+            value: value,
+            onChanged: onChanged,
+            adjustment: CategoricalAdjustment(
+              name: "CategoricalAdjustment #1",
+              notes: null,
+              unit: null,
+              options: options,
+              multiSelect: true,
+            ),
+          ),
+        ),
+      );
+    }
+
+    testWidgets('revert button restores the previous value', (WidgetTester tester) async {
+      List<String>? emitted = const ["sentinel"];
+      var calls = 0;
+      await tester.pumpWidget(captureWidget(
+        initialValue: const ["Option #2"],
+        value: const ["Option #1"],
+        onChanged: (v) {
+          calls++;
+          emitted = v;
+        },
+      ));
+
+      expect(find.byIcon(Icons.replay), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.replay));
+      await tester.pump();
+
+      expect(calls, 1);
+      expect(emitted, const ["Option #2"], reason: 'reverts to the inherited value');
+    });
+
+    testWidgets('revert with no previous value clears to unset (null)', (WidgetTester tester) async {
+      List<String>? emitted = const ["sentinel"];
+      await tester.pumpWidget(captureWidget(
+        initialValue: null,
+        value: [validOption],
+        onChanged: (v) => emitted = v,
+      ));
+
+      await tester.tap(find.byIcon(Icons.replay));
+      await tester.pump();
+
+      expect(emitted, isNull);
+    });
+
+    testWidgets('no revert button when the value already matches the previous value', (WidgetTester tester) async {
+      await tester.pumpWidget(captureWidget(
+        initialValue: [validOption],
+        value: [validOption],
+        onChanged: (_) {},
+      ));
+      expect(find.byIcon(Icons.replay), findsNothing);
+    });
+
+    testWidgets('no revert button when unset (value null)', (WidgetTester tester) async {
+      await tester.pumpWidget(captureWidget(initialValue: null, value: null, onChanged: (_) {}));
+      expect(find.byIcon(Icons.replay), findsNothing);
+      expect(find.text("Please select"), findsOneWidget);
+    });
+
+    testWidgets('explicit empty [] over a previous value offers a revert', (WidgetTester tester) async {
+      await tester.pumpWidget(captureWidget(
+        initialValue: [validOption],
+        value: const <String>[],
+        onChanged: (_) {},
+      ));
+      // Empty differs from the previous value, so a revert is offered.
+      expect(find.byIcon(Icons.replay), findsOneWidget);
+      expect(find.text("Please select"), findsOneWidget);
+    });
+
+    testWidgets('deselecting the last chip in the sheet emits [] (explicit none), not null', (WidgetTester tester) async {
+      List<String>? emitted = const ["sentinel"];
+      await tester.pumpWidget(captureWidget(
+        value: [validOption],
+        onChanged: (v) => emitted = v,
+      ));
+
+      // Open the sheet from the field, then toggle the only selected chip off.
+      await tester.tap(find.text(validOption));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilterChip, validOption));
+      await tester.pumpAndSettle();
+
+      expect(emitted, isNotNull, reason: 'deselect-all is an explicit empty, not unset');
+      expect(emitted, isEmpty);
+    });
+  });
 }

@@ -85,8 +85,17 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
       final entries = <MapEntry<Adjustment, dynamic>>[];
       for (final adjustment in item.adjustments) {
         final bool hasValue = adjustmentValues.containsKey(adjustment.id);
-        if (!hasValue && !missingValuesPlaceholder) continue;
-        entries.add(MapEntry(adjustment, adjustmentValues[adjustment.id] ?? '-'));
+        // Values carried over from earlier setups are shown for owners that are
+        // still present (currently-installed components / linked persons), never
+        // for dangling ones. They render unchanged (no highlight) as the inherited
+        // state; an explicit `[]` in the current setup overrides them as a change.
+        final bool hasPrevious =
+            !item.isError && previousAdjustmentValues.containsKey(adjustment.id);
+        if (!hasValue && !hasPrevious && !missingValuesPlaceholder) continue;
+        final dynamic value = hasValue
+            ? adjustmentValues[adjustment.id]
+            : (hasPrevious ? previousAdjustmentValues[adjustment.id] : null);
+        entries.add(MapEntry(adjustment, value ?? '-'));
       }
       if (entries.isEmpty) continue;
 

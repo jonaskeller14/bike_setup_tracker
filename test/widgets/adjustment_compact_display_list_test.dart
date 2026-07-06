@@ -324,4 +324,121 @@ void main() {
       expect(summary.collapsedHidesSomething, isTrue);
     });
   });
+
+  // --- Inherited values from earlier setups --------------------------------
+  // A setup that never set a value for an adjustment still shows the value
+  // carried over from an earlier setup, as long as the owning component/person
+  // is still present. Dangling (deinstalled) owners never surface such values.
+  group('inherited values from previous setups', () {
+    testWidgets('installed component: a value only in a previous setup is shown, unchanged colour', (tester) async {
+      final setup = makeSetup(
+        bikeValues: {pressure.id: '80'},
+        previousBikeValues: {pressure.id: '85', compression.id: '3'},
+      );
+      await tester.pumpWidget(compactFor(setup, displayOnlyChanges: false));
+
+      // The change on this setup is still highlighted...
+      expect(valueColor(tester, '80'), _highlights.changed, reason: 'current change');
+      // ...and compression, present only in the previous setup, is shown inherited.
+      expect(find.text('3'), findsOneWidget);
+      expect(valueColor(tester, '3'), isNull, reason: 'inherited -> no highlight');
+    });
+
+    testWidgets('inherited-only value is hidden when collapsed to changes', (tester) async {
+      final setup = makeSetup(
+        bikeValues: {pressure.id: '80'},
+        previousBikeValues: {pressure.id: '85', compression.id: '3'},
+      );
+      await tester.pumpWidget(compactFor(setup, displayOnlyChanges: true));
+
+      expect(find.text('80'), findsOneWidget, reason: 'changed stays');
+      expect(find.text('3'), findsNothing, reason: 'inherited unchanged is hidden');
+    });
+
+    testWidgets('a not-installed (dangling) component does not surface its previous value', (tester) async {
+      // sag belongs to shock, which is never installed on myBike. With only a
+      // previous value (no current), shock is not iterated at all -> nothing shown.
+      final setup = makeSetup(
+        bikeValues: {pressure.id: '80'},
+        previousBikeValues: {pressure.id: '80', sag.id: '30'},
+      );
+      await tester.pumpWidget(compactFor(setup, displayOnlyChanges: false));
+
+      expect(find.text('30'), findsNothing);
+    });
+  });
+
+  // --- Explicit empty categorical (deselect-all) ---------------------------
+  group('explicit empty categorical value', () {
+    late CategoricalAdjustment mode;
+    late Component controller;
+
+    setUp(() {
+      mode = CategoricalAdjustment(
+        id: 'adj_mode',
+        name: 'Mode',
+        notes: null,
+        unit: null,
+        options: {'Eco', 'Trail'},
+        multiSelect: true,
+      );
+      controller = Component(
+        id: 'comp_ctrl',
+        name: 'Controller',
+        componentType: ComponentType.fork,
+        adjustments: [mode],
+        installations: [Installation.sinceBeginning(parent: myBike.id)],
+      );
+    });
+
+    Widget compactWith({
+      required Map<String, dynamic> bikeValues,
+      required Map<String, dynamic> previous,
+      required bool onlyChanges,
+    }) {
+      final setup = makeSetup(bikeValues: bikeValues, previousBikeValues: previous);
+      final breakdown = DanglingAdjustmentService.analyzeSetup(
+        setup: setup,
+        components: [controller],
+        persons: [me],
+      );
+      return harness(AdjustmentCompactDisplayList(
+        components: breakdown.components,
+        danglingComponents: breakdown.danglingComponents,
+        adjustmentValues: setup.bikeAdjustmentValues,
+        previousAdjustmentValues: setup.previousBikeAdjustmentValues,
+        showRowIcons: true,
+        highlightInitialValues: true,
+        displayOnlyChanges: onlyChanges,
+        displayPersonAdjustmentValues: false,
+      ));
+    }
+
+    testWidgets('empty list over a previous value shows "-" in changed colour', (tester) async {
+      await tester.pumpWidget(compactWith(
+        bikeValues: {mode.id: <String>[]},
+        previous: {mode.id: ['Eco']},
+        onlyChanges: false,
+      ));
+      expect(valueColor(tester, '-'), _highlights.changed);
+    });
+
+    testWidgets('empty list over a previous value survives collapse (it is a change)', (tester) async {
+      await tester.pumpWidget(compactWith(
+        bikeValues: {mode.id: <String>[]},
+        previous: {mode.id: ['Eco']},
+        onlyChanges: true,
+      ));
+      expect(find.text('-'), findsOneWidget);
+    });
+
+    testWidgets('empty list with no previous value is green (a new explicit none)', (tester) async {
+      await tester.pumpWidget(compactWith(
+        bikeValues: {mode.id: <String>[]},
+        previous: const {},
+        onlyChanges: false,
+      ));
+      expect(valueColor(tester, '-'), _highlights.initial);
+    });
+  });
 }

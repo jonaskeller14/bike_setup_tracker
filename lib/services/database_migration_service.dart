@@ -1,3 +1,4 @@
+import '../database/adjustment_value_codec.dart';
 import '../database/app_database.dart';
 import '../database/mappers.dart';
 import '../models/adjustment/adjustment.dart';
@@ -137,7 +138,7 @@ class DatabaseMigrationService {
             SetupAdjustmentValuesCompanion.insert(
               setupId: setup.id,
               adjustmentId: entry.key,
-              value: entry.value.toString(),
+              value: encodeAdjustmentValue(entry.value),
             ),
           );
         }
@@ -147,7 +148,7 @@ class DatabaseMigrationService {
             SetupAdjustmentValuesCompanion.insert(
               setupId: setup.id,
               adjustmentId: entry.key,
-              value: entry.value.toString(),
+              value: encodeAdjustmentValue(entry.value),
             ),
           );
         }
@@ -164,7 +165,7 @@ class DatabaseMigrationService {
             RatingEntryValuesCompanion.insert(
               ratingEntryId: ratingEntry.id,
               ratingMetricId: entry.key,
-              value: entry.value.toString(),
+              value: encodeAdjustmentValue(entry.value),
             ),
           );
         }

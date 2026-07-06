@@ -133,7 +133,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
               value: categoricalValueAsList(_adjustmentValues[adjustment.id]),
               onChanged: (List<String>? newValue) {
                 setState(() => _adjustmentValues[adjustment.id] = newValue);
-                if (newValue == null || newValue.isEmpty) {
+                if (newValue == null) {
                   widget.removeFromAdjustmentValues(adjustment: adjustment);
                 } else {
                   widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);

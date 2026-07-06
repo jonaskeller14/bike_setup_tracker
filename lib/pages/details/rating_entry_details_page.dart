@@ -9,6 +9,7 @@ import '../../services/rating_score_service.dart';
 import '../../utils/rating_entry_actions.dart';
 import '../../widgets/items/context_location_card.dart';
 import '../../widgets/items/context_weather_card.dart';
+import '../../widgets/notes_text.dart';
 import '../../widgets/sheets/sheet.dart';
 
 class RatingEntryDetailsPage extends StatelessWidget {
@@ -286,7 +287,7 @@ class RatingEntryDetailsContent extends StatelessWidget {
           child: ListTile(
             leading: const Icon(Icons.notes),
             titleAlignment: ListTileTitleAlignment.titleHeight,
-            title: SelectableText(entry.notes!),
+            title: NotesText(entry.notes!, maxLines: 10),
             dense: true,
           ),
         ),

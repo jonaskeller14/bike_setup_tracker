@@ -19,6 +19,7 @@ import '../../widgets/initial_changed_value_legend.dart';
 import '../../widgets/items/card_header_tile.dart';
 import '../../widgets/items/context_location_card.dart';
 import '../../widgets/items/context_weather_card.dart';
+import '../../widgets/notes_text.dart';
 import '../../widgets/sheets/sheet.dart';
 import '../../widgets/text/section_title.dart';
 
@@ -239,7 +240,7 @@ class SetupDetailsPageContent extends StatelessWidget {
                       ListTile(
                         leading: const Icon(Icons.notes),
                         titleAlignment: ListTileTitleAlignment.titleHeight,
-                        title: SelectableText(setup.notes!),
+                        title: NotesText(setup.notes!, maxLines: 10),
                         dense: true,
                       ),
                     ...setup.tags.map((tag) {

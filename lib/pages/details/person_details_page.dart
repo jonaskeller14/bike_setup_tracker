@@ -7,6 +7,7 @@ import '../../models/person.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/person_actions.dart';
+import '../../widgets/notes_text.dart';
 
 class PersonDetailsPage extends StatelessWidget {
   final String personId;
@@ -52,7 +53,7 @@ class PersonDetailsPage extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.notes),
                   titleAlignment: ListTileTitleAlignment.titleHeight,
-                  title: SelectableText(person.notes!),
+                  title: NotesText(person.notes!, maxLines: 10),
                   dense: true,
                 ),
 

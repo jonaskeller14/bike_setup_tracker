@@ -7,6 +7,7 @@ import '../../models/rating.dart';
 import '../../models/rating_association.dart';
 import '../../repositories/app_repository.dart';
 import '../../utils/rating_actions.dart';
+import '../../widgets/notes_text.dart';
 
 class RatingDetailsPage extends StatelessWidget {
   final String ratingId;
@@ -88,7 +89,7 @@ class RatingDetailsPage extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.notes),
                   titleAlignment: ListTileTitleAlignment.titleHeight,
-                  title: SelectableText(rating.notes!),
+                  title: NotesText(rating.notes!, maxLines: 10),
                   dense: true,
                 ),
 

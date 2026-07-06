@@ -20,6 +20,7 @@ import '../../widgets/chips/filter_sheet_chip.dart';
 import '../../widgets/component_stats_card.dart';
 import '../../widgets/display_installation_timeline.dart';
 import '../../widgets/initial_changed_value_legend.dart';
+import '../../widgets/notes_text.dart';
 import '../../widgets/open_tasks_tile.dart';
 import '../../widgets/sheets/column_filter.dart';
 import '../../widgets/text/section_title.dart';
@@ -962,7 +963,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 ListTile(
                   leading: const Icon(Icons.notes),
                   titleAlignment: ListTileTitleAlignment.titleHeight,
-                  title: SelectableText(component.notes!),
+                  title: NotesText(component.notes!, maxLines: 10),
                   dense: true,
                 ),
                 const Divider(height: 1),

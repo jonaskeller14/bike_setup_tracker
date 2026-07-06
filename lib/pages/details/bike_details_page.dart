@@ -13,6 +13,7 @@ import '../../utils/bike_actions.dart';
 import '../../widgets/component_stats_card.dart';
 import '../../widgets/installation_timeline_table.dart';
 import '../../widgets/items/component_list_card.dart';
+import '../../widgets/notes_text.dart';
 import '../../widgets/open_tasks_tile.dart';
 
 class BikeDetailsPage extends StatelessWidget {
@@ -110,7 +111,7 @@ class BikeDetailsPage extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.notes),
                   titleAlignment: ListTileTitleAlignment.titleHeight,
-                  title: SelectableText(bike.notes!),
+                  title: NotesText(bike.notes!, maxLines: 10),
                   dense: true,
                 ),
 

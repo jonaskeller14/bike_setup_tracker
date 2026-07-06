@@ -1,7 +1,11 @@
 import 'dart:async';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:see_more/see_more.dart';
+import 'package:readmore/readmore.dart';
 import '../utils/url.dart';
+
+final RegExp _urlPattern = RegExp(r'https?://[^\s<>"]+', caseSensitive: false);
+final RegExp _urlTrailingTrim = RegExp(r'[.,;:!?)\]}>]+$');
 
 class NotesText extends StatelessWidget {
   final String notes;
@@ -27,27 +31,47 @@ class NotesText extends StatelessWidget {
       fontSize: fontSize,
       fontWeight: FontWeight.w600,
     );
-    return SeeMoreWidget(
+
+    return ReadMoreText(
       notes,
-      trimMode: TrimMode.line,
-      maxLines: maxLines,
-      linkify: true,
-      onLinkTap: (url) => unawaited(launchAppUrl(context, url: url)),
-      textStyle: TextStyle(
-        fontSize: fontSize,
-        color: color,
-      ),
-      linkStyle: TextStyle(
-        color: linkColor,
-        fontSize: fontSize,
-        decoration: TextDecoration.underline,
-        decorationColor: linkColor,
-        decorationThickness: 1.5,
-      ),
-      expandText: 'Show more',
-      collapseText: 'Show less',
-      expandTextStyle: toggleStyle,
-      collapseTextStyle: toggleStyle,
+      trimMode: TrimMode.Line,
+      trimLines: maxLines,
+      trimCollapsedText: 'Show more',
+      trimExpandedText: ' Show less',
+      moreStyle: toggleStyle,
+      lessStyle: toggleStyle,
+      style: TextStyle(fontSize: fontSize, color: color),
+      annotations: [
+        Annotation(
+          regExp: _urlPattern,
+          // Shows a shortened label (e.g. "example.com/…") while the tap
+          // target stays the full matched URL, stripped of any trailing
+          // sentence punctuation the regex greedily swallowed.
+          spanBuilder: ({required String text, TextStyle? textStyle}) {
+            var url = text;
+            var suffix = '';
+            final trailingMatch = _urlTrailingTrim.firstMatch(text);
+            if (trailingMatch != null && trailingMatch.start > 0) {
+              url = text.substring(0, trailingMatch.start);
+              suffix = text.substring(trailingMatch.start);
+            }
+            return TextSpan(children: [
+              TextSpan(
+                text: shortenUrlForDisplay(url),
+                style: (textStyle ?? const TextStyle()).copyWith(
+                  color: linkColor,
+                  decoration: TextDecoration.underline,
+                  decorationColor: linkColor,
+                  decorationThickness: 1.5,
+                ),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () => unawaited(launchAppUrl(context, url: url)),
+              ),
+              if (suffix.isNotEmpty) TextSpan(text: suffix, style: textStyle),
+            ]);
+          },
+        ),
+      ],
     );
   }
 }

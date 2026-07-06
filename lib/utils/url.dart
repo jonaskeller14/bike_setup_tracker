@@ -1,6 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+/// Returns a shortened, human-readable form of [url] for display purposes,
+/// e.g. "example.com/some/long/path/…" instead of the full
+/// "https://www.example.com/some/long/path?query=1".
+String shortenUrlForDisplay(String url, {int maxLength = 30}) {
+  var display = url.trim();
+  display = display.replaceFirst(RegExp(r'^https?://', caseSensitive: false), '');
+  display = display.replaceFirst(RegExp(r'^www\.', caseSensitive: false), '');
+  if (display.length > maxLength) {
+    display = '${display.substring(0, maxLength - 1)}…';
+  }
+  return display;
+}
+
 Future<void> launchAppUrl(BuildContext context, {
   required String url, 
   LaunchMode launchMode = LaunchMode.platformDefault,

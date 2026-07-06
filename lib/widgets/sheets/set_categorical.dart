@@ -60,7 +60,6 @@ void showSetCategoricalSheet({
                     ),
                     Wrap(
                       spacing: 8,
-                      runSpacing: 8,
                       children: [
                         for (final option in adjustment.options)
                           _OptionChip(

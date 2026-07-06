@@ -82,7 +82,6 @@ class _StravaDashboardSheetState extends State<StravaDashboardSheet> {
                     Wrap(
                       alignment: WrapAlignment.start,
                       spacing: 4,
-                      runSpacing: 4,
                       children: gears.map((g) {
                         final linkedBikes = appRepository.bikes.values.where((b) => b.stravaGear == g.id);
                         final unlinkedBikes = appRepository.bikes.values.where((b) => b.stravaGear == null).toList();

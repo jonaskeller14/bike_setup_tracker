@@ -394,7 +394,7 @@ extension SetupDbMapper on SetupDb {
     for (var typedValue in values) {
       final adj = typedValue.adjustment;
       final valStr = typedValue.value.value;
-      final dynamic parsedValue = _parseValue(valStr, adj.type, adj.jsonPayload);
+      final dynamic parsedValue = decodeAdjustmentValue(valStr, adj.type);
 
       if (adj.componentId != null) {
         bikeAdjustmentValues[adj.id] = parsedValue;
@@ -422,35 +422,6 @@ extension SetupDbMapper on SetupDb {
       weather: weather,
     );
   }
-
-  dynamic _parseValue(String valStr, AdjustmentType type, String? jsonPayload) {
-    switch (type) {
-      case AdjustmentType.boolean:
-        return valStr.toLowerCase() == 'true';
-      case AdjustmentType.numerical:
-        return double.tryParse(valStr);
-      case AdjustmentType.step:
-        return int.tryParse(valStr);
-      case AdjustmentType.categorical:
-        return decodeCategoricalValue(valStr, multiSelect: _payloadIsMultiSelect(jsonPayload));
-      case AdjustmentType.text:
-        return valStr;
-      case AdjustmentType.duration:
-        return DurationAdjustment.tryParseDurationString(valStr);
-    }
-  }
-}
-
-/// Reads the `multiSelect` flag from a categorical adjustment/metric's stored
-/// `jsonPayload`. Defaults to false for any other type or malformed payload.
-bool _payloadIsMultiSelect(String? jsonPayload) {
-  if (jsonPayload == null) return false;
-  try {
-    final decoded = jsonDecode(jsonPayload);
-    return decoded is Map && decoded['multiSelect'] == true;
-  } catch (_) {
-    return false;
-  }
 }
 
 extension RatingEntryDbMapper on RatingEntryDb {
@@ -458,7 +429,7 @@ extension RatingEntryDbMapper on RatingEntryDb {
     final metricValues = <String, dynamic>{};
     for (final typedValue in values) {
       metricValues[typedValue.metric.id] =
-          _parseTypedValue(typedValue.value.value, typedValue.metric.type, typedValue.metric.jsonPayload);
+          decodeAdjustmentValue(typedValue.value.value, typedValue.metric.type);
     }
 
     return RatingEntry(
@@ -495,23 +466,6 @@ extension RatingEntryMapper on RatingEntry {
       place: Value<geo.Placemark?>(place),
       weather: Value<ContextWeather?>(weather),
     );
-  }
-}
-
-dynamic _parseTypedValue(String valStr, AdjustmentType type, String? jsonPayload) {
-  switch (type) {
-    case AdjustmentType.boolean:
-      return valStr.toLowerCase() == 'true';
-    case AdjustmentType.numerical:
-      return double.tryParse(valStr);
-    case AdjustmentType.step:
-      return int.tryParse(valStr);
-    case AdjustmentType.categorical:
-      return decodeCategoricalValue(valStr, multiSelect: _payloadIsMultiSelect(jsonPayload));
-    case AdjustmentType.text:
-      return valStr;
-    case AdjustmentType.duration:
-      return DurationAdjustment.tryParseDurationString(valStr);
   }
 }
 

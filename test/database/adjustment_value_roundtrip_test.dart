@@ -4,12 +4,14 @@ import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// End-to-end DB round-trip for adjustment values: write via the setups DAO
-/// (`encodeAdjustmentValue`) and read back via the mapper (`_parseValue`).
+/// (`encodeAdjustmentValue`) and read back via the mapper (`decodeAdjustmentValue`).
 ///
-/// Guards the value-type invariants across the single stringly-typed value
-/// column — in particular that a *text* value which happens to be valid JSON is
-/// never decoded into a `List` (which would later crash a text field), while a
-/// categorical value round-trips as `List<String>`.
+/// Since schema v11 every value is stored JSON-encoded, so the stored shape is
+/// structural: a *text* value which happens to be valid JSON is never decoded
+/// into a `List` (which would later crash a text field), while a categorical
+/// value round-trips as `List<String>`. A non-JSON row (a legacy value that
+/// somehow escaped the v11 migration) degrades gracefully via the decoder's
+/// fallback rather than crashing the load.
 void main() {
   late AppDatabase db;
 
@@ -96,16 +98,29 @@ void main() {
     expect(restored.bikeAdjustmentValues['cat1'], ['Open']);
   });
 
-  test('legacy single-select value stored as a plain string reads back wrapped', () async {
+  test('a categorical value written as a scalar String reads back as a wrapped List', () async {
+    // Multi-select never shipped, so callers still pass a plain option String;
+    // it is JSON-encoded as a scalar and read back canonicalised to List<String>
+    // (the `type` column, not the storage shape, marks it as categorical).
+    await insertAdjustment('cat1', 'categorical', '{"version":1,"options":["Brand A","Brand B"]}');
+    final restored = await roundTrip({'cat1': 'Brand A'});
+    expect(restored.bikeAdjustmentValues['cat1'], isA<List<String>>());
+    expect(restored.bikeAdjustmentValues['cat1'], ['Brand A']);
+  });
+
+  test('a non-JSON categorical row (un-migrated legacy value) falls back to a wrapped list', () async {
+    // Every row is JSON after the v11 migration; this exercises the decoder's
+    // defensive fallback so a stray plain-string row degrades gracefully rather
+    // than crashing the whole setup load.
     await insertAdjustment('cat1', 'categorical', '{"version":1,"options":["Open","Firm"]}');
     final restored = await withLegacyValue('cat1', 'Open');
     expect(restored.bikeAdjustmentValues['cat1'], ['Open']);
   });
 
-  test('legacy single-select value whose text is JSON-like is preserved (not split)', () async {
-    await insertAdjustment('cat1', 'categorical', '{"version":1,"options":["[1,2]"]}');
-    // multiSelect=false ⇒ a multi-element array is a legacy value, kept whole.
-    final restored = await withLegacyValue('cat1', '[1,2]');
-    expect(restored.bikeAdjustmentValues['cat1'], ['[1,2]']);
+  test('a non-JSON text row (un-migrated legacy value) falls back to the raw string', () async {
+    await insertAdjustment('txt1', 'text', '{"version":1}');
+    final restored = await withLegacyValue('txt1', 'plain notes');
+    expect(restored.bikeAdjustmentValues['txt1'], isA<String>());
+    expect(restored.bikeAdjustmentValues['txt1'], 'plain notes');
   });
 }

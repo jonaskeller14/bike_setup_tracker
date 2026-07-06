@@ -98,7 +98,7 @@ void main() {
     });
   });
 
-  group('encodeAdjustmentValue', () {
+  group('encodeAdjustmentValue (every value is JSON since schema v11)', () {
     test('encodes a list as a JSON array', () {
       expect(encodeAdjustmentValue(['Open', 'Firm']), '["Open","Firm"]');
     });
@@ -107,38 +107,120 @@ void main() {
       expect(encodeAdjustmentValue(['Open']), '["Open"]');
     });
 
-    test('leaves non-list (scalar) values as their string form', () {
+    test('scalars are JSON-encoded (bool, int, double)', () {
       expect(encodeAdjustmentValue(true), 'true');
       expect(encodeAdjustmentValue(42), '42');
+      expect(encodeAdjustmentValue(1.5), '1.5');
+    });
+
+    test('a text value is a *quoted* JSON string (never confused with a list)', () {
+      expect(encodeAdjustmentValue('Open'), '"Open"');
+      // Text that happens to look like a JSON array stays a JSON string.
+      expect(encodeAdjustmentValue('["abc"]'), '"[\\"abc\\"]"');
+    });
+
+    test('a Duration is stored as integer microseconds', () {
+      expect(encodeAdjustmentValue(const Duration(seconds: 10)), '10000000');
+      expect(encodeAdjustmentValue(Duration.zero), '0');
     });
   });
 
-  group('decodeCategoricalValue', () {
-    test('multi: JSON array ⇒ list', () {
-      expect(decodeCategoricalValue('["Open","Firm"]', multiSelect: true), ['Open', 'Firm']);
+  group('decodeAdjustmentValue (read path, keyed by type)', () {
+    test('boolean', () {
+      expect(decodeAdjustmentValue('true', AdjustmentType.boolean), true);
+      expect(decodeAdjustmentValue('false', AdjustmentType.boolean), false);
     });
 
-    test('multi: defensive wrap of a non-array', () {
-      expect(decodeCategoricalValue('Open', multiSelect: true), ['Open']);
+    test('numerical always decodes to double (even integer-valued)', () {
+      expect(decodeAdjustmentValue('1.5', AdjustmentType.numerical), 1.5);
+      final v = decodeAdjustmentValue('2', AdjustmentType.numerical);
+      expect(v, isA<double>());
+      expect(v, 2.0);
     });
 
-    test('single: new one-element array ⇒ that element', () {
-      expect(decodeCategoricalValue('["Open"]', multiSelect: false), ['Open']);
+    test('step decodes to int', () {
+      expect(decodeAdjustmentValue('3', AdjustmentType.step), 3);
     });
 
-    test('single: legacy plain string ⇒ wrapped', () {
-      expect(decodeCategoricalValue('Open', multiSelect: false), ['Open']);
+    test('categorical decodes a JSON array to List<String>', () {
+      expect(decodeAdjustmentValue('["Front","Rear"]', AdjustmentType.categorical), ['Front', 'Rear']);
+      expect(decodeAdjustmentValue('["Open"]', AdjustmentType.categorical), ['Open']);
     });
 
-    test('single: legacy JSON-looking option name is preserved, not split', () {
-      // The pathological case: an option literally named "[1,2]". A multi-element
-      // array under a single-select adjustment can only be such a legacy value.
-      expect(decodeCategoricalValue('[1,2]', multiSelect: false), ['[1,2]']);
+    test('text decodes a quoted JSON string (JSON-looking text stays a String)', () {
+      expect(decodeAdjustmentValue('"Open"', AdjustmentType.text), 'Open');
+      final v = decodeAdjustmentValue('"[\\"abc\\"]"', AdjustmentType.text);
+      expect(v, isA<String>());
+      expect(v, '["abc"]');
     });
 
-    test('encode → decode round-trips for single and multi', () {
-      expect(decodeCategoricalValue(encodeAdjustmentValue(['Open']), multiSelect: false), ['Open']);
-      expect(decodeCategoricalValue(encodeAdjustmentValue(['Open', 'Firm']), multiSelect: true), ['Open', 'Firm']);
+    test('duration reconstructs from integer microseconds', () {
+      expect(decodeAdjustmentValue('10000000', AdjustmentType.duration), const Duration(seconds: 10));
+    });
+
+    test('encode → decode round-trips for every type', () {
+      expect(decodeAdjustmentValue(encodeAdjustmentValue(true), AdjustmentType.boolean), true);
+      expect(decodeAdjustmentValue(encodeAdjustmentValue(1.5), AdjustmentType.numerical), 1.5);
+      expect(decodeAdjustmentValue(encodeAdjustmentValue(3), AdjustmentType.step), 3);
+      expect(decodeAdjustmentValue(encodeAdjustmentValue(['a', 'b']), AdjustmentType.categorical), ['a', 'b']);
+      expect(decodeAdjustmentValue(encodeAdjustmentValue('hi'), AdjustmentType.text), 'hi');
+      expect(
+        decodeAdjustmentValue(encodeAdjustmentValue(const Duration(minutes: 3)), AdjustmentType.duration),
+        const Duration(minutes: 3),
+      );
+    });
+
+    group('defensive fallback for a non-JSON (un-migrated legacy) row', () {
+      test('categorical plain option string ⇒ wrapped', () {
+        expect(decodeAdjustmentValue('Open', AdjustmentType.categorical), ['Open']);
+      });
+      test('text plain string ⇒ itself', () {
+        expect(decodeAdjustmentValue('hello world', AdjustmentType.text), 'hello world');
+      });
+      test('duration legacy H:MM:SS string ⇒ parsed', () {
+        expect(decodeAdjustmentValue('0:00:10.000000', AdjustmentType.duration), const Duration(seconds: 10));
+      });
+    });
+  });
+
+  group('decodeLegacyAdjustmentValue (pre-v11 reparse, migration only)', () {
+    test('scalars reparse from their toString form', () {
+      expect(decodeLegacyAdjustmentValue('true', AdjustmentType.boolean), true);
+      expect(decodeLegacyAdjustmentValue('1.5', AdjustmentType.numerical), 1.5);
+      expect(decodeLegacyAdjustmentValue('3', AdjustmentType.step), 3);
+    });
+
+    test('a categorical value was a plain option string ⇒ one-element list', () {
+      expect(decodeLegacyAdjustmentValue('Open', AdjustmentType.categorical), ['Open']);
+    });
+
+    test('a JSON-looking option name is preserved whole (multi-select never shipped)', () {
+      expect(decodeLegacyAdjustmentValue('[1,2]', AdjustmentType.categorical), ['[1,2]']);
+    });
+
+    test('text is identity, duration parses the H:MM:SS form', () {
+      expect(decodeLegacyAdjustmentValue('some notes', AdjustmentType.text), 'some notes');
+      expect(decodeLegacyAdjustmentValue('0:00:10.000000', AdjustmentType.duration), const Duration(seconds: 10));
+    });
+
+    test('legacy → re-encode → new-decode round-trips (the migration path)', () {
+      for (final (raw, type) in <(String, AdjustmentType)>[
+        ('true', AdjustmentType.boolean),
+        ('1.5', AdjustmentType.numerical),
+        ('3', AdjustmentType.step),
+        ('Open', AdjustmentType.categorical),
+        ('[1,2]', AdjustmentType.categorical),
+        ('free text', AdjustmentType.text),
+        ('0:00:10.000000', AdjustmentType.duration),
+      ]) {
+        final migrated = encodeAdjustmentValue(decodeLegacyAdjustmentValue(raw, type));
+        // The migrated value is valid JSON and decodes to the same in-memory value.
+        expect(
+          decodeAdjustmentValue(migrated, type),
+          decodeLegacyAdjustmentValue(raw, type),
+          reason: 'round-trip failed for $raw ($type)',
+        );
+      }
     });
   });
 

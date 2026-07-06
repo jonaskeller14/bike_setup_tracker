@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
@@ -11,6 +12,7 @@ import '../models/installation.dart';
 import '../models/rating_association.dart';
 import '../models/strava/strava_activity.dart';
 import '../models/task/task_rule.dart';
+import 'adjustment_value_codec.dart';
 import 'converters/duration_converter.dart';
 import 'converters/local_floating_datetime_converter.dart';
 import 'converters/location_data_converter.dart';
@@ -87,7 +89,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration {
@@ -166,8 +168,60 @@ class AppDatabase extends _$AppDatabase {
           // e.g. Race/Workout for rides). Existing rows have no such data.
           await m.addColumn(stravaActivities, stravaActivities.workoutType);
         }
+        if (from < 11) {
+          // The single value column moves to a uniformly JSON-encoded format for
+          // every type. Reparse each existing row with the legacy decoder and
+          // re-encode with the new codec (data-only, no schema change).
+          await migrateAdjustmentValuesToJson(this);
+        }
       },
     );
+  }
+
+  @visibleForTesting
+  static Future<void> migrateAdjustmentValuesToJson(AppDatabase db) async {
+    await db._reencodeValueColumn(
+      valueTable: 'setup_adjustment_values',
+      keyColumns: ('setup_id', 'adjustment_id'),
+      defTable: 'adjustments',
+      defForeignKey: 'adjustment_id',
+    );
+    await db._reencodeValueColumn(
+      valueTable: 'rating_entry_values',
+      keyColumns: ('rating_entry_id', 'rating_metric_id'),
+      defTable: 'rating_metrics',
+      defForeignKey: 'rating_metric_id',
+    );
+  }
+ 
+  /// Reencoding: Rows already in JSON form (bool/num/step) are left untouched;
+  /// only reshaped rows (text, categorical, duration) are rewritten.
+  Future<void> _reencodeValueColumn({
+    required String valueTable,
+    required (String, String) keyColumns,
+    required String defTable,
+    required String defForeignKey,
+  }) async {
+    final (keyA, keyB) = keyColumns;
+    final rows = await customSelect(
+      'SELECT v.$keyA AS key_a, v.$keyB AS key_b, v.value AS value, d.type AS type '
+      'FROM $valueTable v JOIN $defTable d ON d.id = v.$defForeignKey',
+    ).get();
+
+    for (final row in rows) {
+      final raw = row.read<String>('value');
+      final typeName = row.read<String>('type');
+      final type = AdjustmentType.values.firstWhereOrNull((e) => e.name == typeName);
+      if (type == null) continue; // unknown type — leave the row untouched.
+
+      final newRaw = encodeAdjustmentValue(decodeLegacyAdjustmentValue(raw, type));
+      if (newRaw == raw) continue; // already JSON-shaped.
+
+      await customStatement(
+        'UPDATE $valueTable SET value = ? WHERE $keyA = ? AND $keyB = ?',
+        [newRaw, row.read<String>('key_a'), row.read<String>('key_b')],
+      );
+    }
   }
 
   Future<bool> _columnExists(String table, String column) async {

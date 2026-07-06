@@ -55,14 +55,17 @@ Allow a `CategoricalAdjustment` to hold **multiple** selected options instead of
 
 ## Next stage — TODO
 
-### 1. jsonEncode ALL values in the DB (deferred refactor) — biggest cleanup
-Move the single value column to a **uniformly JSON-encoded** format for every type, migrated via a **DB schema version bump**.
+### 1. jsonEncode ALL values in the DB (deferred refactor) — biggest cleanup ✅ DONE (schema v11)
+Moved the single value column to a **uniformly JSON-encoded** format for every type, migrated via a **DB schema version bump** (10 → 11).
 
-- **Why:** the root of every current hack (shape detection, multiSelect-aware decode, `textValueAsString`, `categoricalValueAsList`) is the "one stringly-typed column, re-parse by type" design. JSON storage makes types **structural** (a text `"[\"a\"]"` vs categorical `["a"]` can never be confused), so those hacks can be deleted and the DB format finally matches the backup JSON format.
-- **Migration:** low-risk "reparse old → re-encode new" — for each value row `newRaw = jsonEncode(parseOld(raw, type))`, reusing existing parse logic. Touches all `setup_adjustment_values` + `rating_entry_values` rows on a live, cloud-synced app, so the migration test must seed old-format rows and assert lossless upgrade.
-- **Special case:** `Duration` isn't JSON-native → store `inMicroseconds` (int); decode keeps a thin type switch (`num→double`, `num→int`, `int→Duration`, list-cast).
-- **Deletes afterwards:** `decodeCategoricalValue` cleverness + `multiSelect` plumbing (`_payloadIsMultiSelect`), most of `_parseValue`/`_parseTypedValue`, and possibly `textValueAsString`/`categoricalValueAsList` (kept only as defensive).
-- Do as its **own focused PR**, not folded into this feature.
+- **Why:** the root of every prior hack (shape detection, multiSelect-aware decode) was the "one stringly-typed column, re-parse by type" design. Decoding is now keyed on the adjustment `type`, and because every value is real JSON, a text `"[\"a\"]"` (quoted string) can never be confused with a multi-select categorical `["a"]` (JSON array).
+- **As built** (`lib/database/adjustment_value_codec.dart`):
+  - `encodeAdjustmentValue` → `jsonEncode` for every value; `Duration` → `inMicroseconds` (int).
+  - `decodeAdjustmentValue(raw, type)` → thin type switch (`num→double`, `num→int`, `int→Duration`, list-or-scalar → `List<String>`, JSON string → text). A `FormatException` branch degrades a stray non-JSON (un-migrated) row gracefully instead of crashing the load.
+  - **Categorical is still single-select in practice** (multi-select unshipped), so callers pass a plain option `String`. It is JSON-encoded as a *scalar* and read back canonicalised to a one-element `List<String>` — the `type` column, not the storage shape, marks it categorical. So the "always `List<String>` in storage" assumption from the top table is relaxed to "always `List<String>` **on read**".
+- **Migration** (`AppDatabase.migrateAdjustmentValuesToJson`, `from < 11`): lossless "reparse old → re-encode new" over all `setup_adjustment_values` + `rating_entry_values` rows via `decodeLegacyAdjustmentValue` (old format: scalars via `toString`, categoricals as a plain option string, durations via `Duration.toString()`). Rows already valid JSON (bool/num/step) are skipped.
+- **Deleted:** `decodeCategoricalValue` cleverness + `multiSelect` plumbing (`_payloadIsMultiSelect`), and `_parseValue`/`_parseTypedValue`. `textValueAsString`/`categoricalValueAsList` are **kept** — still used by the UI routing boundaries.
+- **Tests:** `test/database/adjustment_value_json_migration_test.dart` (real v10→v11 upgrade: text-that-looks-like-a-list, categorical, JSON-looking option name `[1,2]`, duration→micros, both value tables, mapper read-back), plus updated codec/round-trip tests. Full suite green (480).
 
 ### 2. Smaller follow-ups
 - **`Setup.==` / `hashCode`** still use identity-based `mapEquals` / `Object.hashAll` for the two adjustment maps → two equal-content multi-values compare unequal. Low impact (setups keyed by id), but switch to `DeepCollectionEquality` for correctness.

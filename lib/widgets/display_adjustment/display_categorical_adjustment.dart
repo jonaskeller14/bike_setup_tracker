@@ -5,8 +5,8 @@ import "../set_adjustment/set_adjustment.dart";
 
 class DisplayCategoricalAdjustmentWidget extends StatelessWidget {
   final CategoricalAdjustment adjustment;
-  final String? initialValue;
-  final String? value;
+  final List<String>? initialValue;
+  final List<String>? value;
   final bool highlighting;
   final bool isError;
   final VoidCallback? onRemove;
@@ -28,7 +28,7 @@ class DisplayCategoricalAdjustmentWidget extends StatelessWidget {
     Color? highlightColor;
     final highlights = Theme.of(context).extension<ValueHighlightColors>();
     if (highlighting) {
-      isChanged = value != null && initialValue != value;
+      isChanged = value != null && !adjustmentValuesEqual(initialValue, value);
       isInitial = initialValue == null;
       highlightColor = isChanged ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange) : null;
     }

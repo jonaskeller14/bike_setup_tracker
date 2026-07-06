@@ -93,7 +93,7 @@ class AdjustmentCompactDisplayList extends StatelessWidget {
       final visibleEntries = displayOnlyChanges
           ? entries.where((entry) {
               final previousValue = previousAdjustmentValues[entry.key.id];
-              return previousValue == null || entry.value != previousValue;
+              return previousValue == null || !adjustmentValuesEqual(entry.value, previousValue);
             }).toList()
           : entries;
       if (visibleEntries.isEmpty) continue;
@@ -469,7 +469,7 @@ class _AdjustmentTableCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool valueHasChanged = previousValue == null ? false : value != previousValue;
+    final bool valueHasChanged = previousValue == null ? false : !adjustmentValuesEqual(value, previousValue);
     final bool valueIsInitial = previousValue == null;
     final highlights = Theme.of(context).extension<ValueHighlightColors>();
     final Color? highlightColor = isError
@@ -478,6 +478,20 @@ class _AdjustmentTableCell extends StatelessWidget {
             ? (valueIsInitial
                 ? (highlights?.initial ?? Colors.green)
                 : (valueHasChanged ? (highlights?.changed ?? Colors.orange) : null))
+            : null);
+
+    // The tooltip renders on colorScheme.inverseSurface, which is the opposite
+    // brightness of the current theme, so it needs the highlight variant made
+    // for that opposite brightness rather than the current theme's.
+    final tooltipHighlights = Theme.of(context).brightness == Brightness.dark
+        ? ValueHighlightColors.light
+        : ValueHighlightColors.dark;
+    final Color? tooltipHighlightColor = isError
+        ? null
+        : (highlightInitialValues
+            ? (valueIsInitial
+                ? tooltipHighlights.initial
+                : (valueHasChanged ? tooltipHighlights.changed : null))
             : null);
 
     final String valueText = Adjustment.formatValue(value);
@@ -578,7 +592,7 @@ class _AdjustmentTableCell extends StatelessWidget {
 
     return _cellToolTip(
       context: context,
-      highlightColor: isError ? null : highlightColor,
+      highlightColor: tooltipHighlightColor,
       valueHasChanged: valueHasChanged,
       child: Container(
         constraints: BoxConstraints(maxWidth: maxWidth),

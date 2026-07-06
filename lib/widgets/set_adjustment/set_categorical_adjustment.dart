@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
+import '../sheets/set_categorical.dart';
 import "set_adjustment.dart";
 
 class SetCategoricalAdjustmentWidget extends StatelessWidget {
   final CategoricalAdjustment adjustment;
-  final String? initialValue;
-  final String? value;
-  final ValueChanged<String?> onChanged;
+  final List<String>? initialValue;
+  final List<String>? value;
+  final ValueChanged<List<String>?> onChanged;
   final bool highlighting;
 
   const SetCategoricalAdjustmentWidget({
@@ -26,15 +27,20 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
     late Color? highlightColor;
     final highlights = Theme.of(context).extension<ValueHighlightColors>();
     if (highlighting) {
-      isChanged = initialValue != value;
-      isInitial = initialValue == null;
+      isChanged = !adjustmentValuesEqual(initialValue, value);
+      isInitial = initialValue == null || initialValue!.isEmpty;
       highlightColor = isChanged ? (isInitial ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange) : null;
     } else {
       isChanged = false;
       isInitial = false;
       highlightColor = null;
     }
-    final Set<String> options = adjustment.options;
+
+    // Only options that still exist are shown in the field; any dangling values
+    // are surfaced (and removable) inside the sheet.
+    final List<String> selected = value ?? const [];
+    final List<String> validSelected = adjustment.options.where(selected.contains).toList();
+    final bool hasValidValue = validSelected.isNotEmpty;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -54,44 +60,51 @@ class SetCategoricalAdjustmentWidget extends StatelessWidget {
                 const SizedBox(width: 10),
                 nameNotesSetAdjustmentWidget(context: context, adjustment: adjustment, highlightColor: highlightColor),
               ],
-            )
+            ),
           ),
           Flexible(
             flex: 3,
-            child: DropdownButtonFormField<String>(
+            child: FormField<List<String>>(
+              initialValue: value,
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              isExpanded: true,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-              initialValue: options.contains(value) ? value : null,
-              hint: const Text("Please select"),
-              items: options.map<DropdownMenuItem<String>>((option) {
-                return DropdownMenuItem<String>(
-                  value: option,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(option, overflow: TextOverflow.ellipsis),
+              validator: (_) {
+                final selection = value ?? const <String>[];
+                if (selection.any((e) => !adjustment.options.contains(e))) {
+                  return 'Contains options that no longer exist';
+                }
+                if (!adjustment.multiSelect && selection.length > 1) {
+                  return 'Only one option can be selected';
+                }
+                return null;
+              },
+              builder: (FormFieldState<List<String>> field) {
+                return InkWell(
+                  onTap: () => showSetCategoricalSheet(
+                    context: context,
+                    adjustment: adjustment,
+                    selected: selected,
+                    onChanged: (List<String> newSelection) {
+                      final List<String>? newValue = newSelection.isEmpty ? null : newSelection;
+                      field.didChange(newValue);
+                      onChanged(newValue);
+                    },
+                  ),
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      errorText: field.errorText,
+                      suffixIcon: Icon(Icons.arrow_drop_down, color: highlightColor),
+                    ),
+                    child: Text(
+                      hasValidValue ? validSelected.join(Adjustment.multiValueSeparator) : "Please select",
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: hasValidValue ? highlightColor : Theme.of(context).hintColor,
                       ),
-                      Container(
-                        width: 12,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: highlighting && option != value
-                              ? (initialValue != option)
-                                  ? ((initialValue == null)
-                                      ? highlights?.initial ?? Colors.green : highlights?.changed ?? Colors.orange).withValues(alpha: 0.16)
-                                      : null
-                              : null,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 );
-              }).toList(),
-              onChanged: onChanged,
+              },
             ),
           ),
         ],

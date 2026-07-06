@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import '../adjustment_value_codec.dart';
 import '../app_database.dart';
 import '../tables/rating_entries.dart';
 import '../tables/rating_entry_values.dart';
@@ -85,7 +86,7 @@ class RatingEntriesDao extends DatabaseAccessor<AppDatabase> with _$RatingEntrie
       await into(ratingEntryValues).insertOnConflictUpdate(RatingEntryValuesCompanion(
         ratingEntryId: Value(entryId),
         ratingMetricId: Value(e.key),
-        value: Value(e.value.toString()),
+        value: Value(encodeAdjustmentValue(e.value)),
       ));
     }
   }

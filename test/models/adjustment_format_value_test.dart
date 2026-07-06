@@ -45,8 +45,11 @@ void main() {
       test('seconds only', () => expect(Adjustment.formatValue(const Duration(seconds: 9)), '00:00:09'));
     });
 
-    group('other types', () {
-      test('list falls back to toString', () => expect(Adjustment.formatValue([1, 2]), '[1, 2]'));
+    group('List (multi-select categorical)', () {
+      test('joins values with a comma', () => expect(Adjustment.formatValue(['Front', 'Rear']), 'Front, Rear'));
+      test('single-element list shows just the value', () => expect(Adjustment.formatValue(['Front']), 'Front'));
+      test('empty list returns dash', () => expect(Adjustment.formatValue(<String>[]), '-'));
+      test('formats elements individually', () => expect(Adjustment.formatValue([1, 2]), '1, 2'));
     });
   });
 }

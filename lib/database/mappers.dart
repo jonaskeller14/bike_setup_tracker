@@ -21,6 +21,7 @@ import '../models/strava/strava_gear.dart';
 import '../models/task/task_entry.dart';
 import '../models/task/task_rule.dart';
 import '../models/task/task_threshold.dart';
+import 'adjustment_value_codec.dart';
 import 'app_database.dart';
 import 'daos/rating_entries_dao.dart';
 import 'daos/setups_dao.dart';
@@ -393,7 +394,7 @@ extension SetupDbMapper on SetupDb {
     for (var typedValue in values) {
       final adj = typedValue.adjustment;
       final valStr = typedValue.value.value;
-      final dynamic parsedValue = _parseValue(valStr, adj.type);
+      final dynamic parsedValue = _parseValue(valStr, adj.type, adj.jsonPayload);
 
       if (adj.componentId != null) {
         bikeAdjustmentValues[adj.id] = parsedValue;
@@ -422,7 +423,7 @@ extension SetupDbMapper on SetupDb {
     );
   }
 
-  dynamic _parseValue(String valStr, AdjustmentType type) {
+  dynamic _parseValue(String valStr, AdjustmentType type, String? jsonPayload) {
     switch (type) {
       case AdjustmentType.boolean:
         return valStr.toLowerCase() == 'true';
@@ -431,6 +432,7 @@ extension SetupDbMapper on SetupDb {
       case AdjustmentType.step:
         return int.tryParse(valStr);
       case AdjustmentType.categorical:
+        return decodeCategoricalValue(valStr, multiSelect: _payloadIsMultiSelect(jsonPayload));
       case AdjustmentType.text:
         return valStr;
       case AdjustmentType.duration:
@@ -439,12 +441,24 @@ extension SetupDbMapper on SetupDb {
   }
 }
 
+/// Reads the `multiSelect` flag from a categorical adjustment/metric's stored
+/// `jsonPayload`. Defaults to false for any other type or malformed payload.
+bool _payloadIsMultiSelect(String? jsonPayload) {
+  if (jsonPayload == null) return false;
+  try {
+    final decoded = jsonDecode(jsonPayload);
+    return decoded is Map && decoded['multiSelect'] == true;
+  } catch (_) {
+    return false;
+  }
+}
+
 extension RatingEntryDbMapper on RatingEntryDb {
   RatingEntry toModel({List<TypedRatingEntryValue> values = const []}) {
     final metricValues = <String, dynamic>{};
     for (final typedValue in values) {
       metricValues[typedValue.metric.id] =
-          _parseTypedValue(typedValue.value.value, typedValue.metric.type);
+          _parseTypedValue(typedValue.value.value, typedValue.metric.type, typedValue.metric.jsonPayload);
     }
 
     return RatingEntry(
@@ -484,7 +498,7 @@ extension RatingEntryMapper on RatingEntry {
   }
 }
 
-dynamic _parseTypedValue(String valStr, AdjustmentType type) {
+dynamic _parseTypedValue(String valStr, AdjustmentType type, String? jsonPayload) {
   switch (type) {
     case AdjustmentType.boolean:
       return valStr.toLowerCase() == 'true';
@@ -493,6 +507,7 @@ dynamic _parseTypedValue(String valStr, AdjustmentType type) {
     case AdjustmentType.step:
       return int.tryParse(valStr);
     case AdjustmentType.categorical:
+      return decodeCategoricalValue(valStr, multiSelect: _payloadIsMultiSelect(jsonPayload));
     case AdjustmentType.text:
       return valStr;
     case AdjustmentType.duration:

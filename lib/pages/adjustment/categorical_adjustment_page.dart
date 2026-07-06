@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/adjustment/adjustment.dart';
+import '../../models/app_settings.dart';
 import '../../theme.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_categorical_adjustment.dart';
@@ -41,12 +43,14 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
   late List<TextEditingController> _optionControllers;
   late Set<String> _initialOptions;
 
-  String? _previewValue;
+  bool _multiSelect = false;
+  List<String>? _previewValues;
   late CategoricalAdjustment _previewAdjustment;
 
   @override
   void initState() {
     super.initState();
+    _multiSelect = widget.adjustment?.multiSelect ?? false;
     _nameController = TextEditingController(text: widget.adjustment?.name);
     _nameController.addListener(_changeListener);
     _notesController = TextEditingController(text: widget.adjustment?.notes);
@@ -61,13 +65,20 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
     }
     _initialOptions = widget.adjustment?.options.toSet() ?? {};
 
-    _previewAdjustment = widget.adjustment ?? CategoricalAdjustment(
-      name: '',
-      notes: null,
-      unit: null,
-      options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
-    );
+    _previewAdjustment = widget.adjustment ?? _composePreview();
     if (widget.mode != AdjustmentPageMode.add) _expanded = true;
+  }
+
+  /// Builds the live preview adjustment from the current form state.
+  CategoricalAdjustment _composePreview() {
+    final notes = _notesController.text.trim();
+    return CategoricalAdjustment(
+      name: _nameController.text.trim(),
+      notes: notes.isEmpty ? null : notes,
+      unit: widget.adjustment?.unit,
+      options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
+      multiSelect: _multiSelect,
+    );
   }
 
   void _changeListener() {
@@ -75,6 +86,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
 
     final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '') ||
         _notesController.text.trim() != (widget.adjustment?.notes ?? '') ||
+        _multiSelect != (widget.adjustment?.multiSelect ?? false) ||
         !setEquals(_initialOptions, options);
     if (_formHasChanges != hasChanges) {
       setState(() {
@@ -101,13 +113,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       final newController = TextEditingController();
       newController.addListener(_changeListener);
       _optionControllers.add(newController);
-      _previewValue = null;
-      _previewAdjustment = CategoricalAdjustment(
-        name: _nameController.text.trim(),
-        notes: _previewAdjustment.notes,
-        unit: null,
-        options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
-      );
+      _previewValues = null;
+      _previewAdjustment = _composePreview();
     });
   }
 
@@ -117,13 +124,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       _optionControllers[index].removeListener(_changeListener);
       _optionControllers[index].dispose();
       _optionControllers.removeAt(index);
-      _previewValue = null;
-      _previewAdjustment = CategoricalAdjustment(
-        name: _nameController.text.trim(),
-        notes: null,
-        unit: null,
-        options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
-      );
+      _previewValues = null;
+      _previewAdjustment = _composePreview();
     });
   }
 
@@ -173,6 +175,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
       notes: notes.isEmpty ? null : notes,
       unit: widget.adjustment?.unit,
       options: options,
+      multiSelect: _multiSelect,
     ));
   }
 
@@ -187,6 +190,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
 
   @override
   Widget build(BuildContext context) {
+    final appSettings = context.watch<AppSettings>();
     return PopScope(
       canPop: !_formHasChanges,
       onPopInvokedWithResult: _handlePopInvoked,
@@ -219,12 +223,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                             controller: _nameController,
                             onChanged: (String newValue) {
                               setState(() {
-                                _previewAdjustment = CategoricalAdjustment(
-                                  name: newValue,
-                                  notes: _previewAdjustment.notes,
-                                  unit: null,
-                                  options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
-                                );
+                                _previewAdjustment = _composePreview();
                               });
                             },
                             textInputAction: TextInputAction.next,
@@ -288,13 +287,8 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                         validator: _validateOption,
                                         onChanged: (String value) {
                                           setState(() {
-                                            _previewValue = null;
-                                            _previewAdjustment = CategoricalAdjustment(
-                                              name: _nameController.text.trim(),
-                                              notes: _previewAdjustment.notes,
-                                              unit: null,
-                                              options: _optionControllers.map((c) => c.text.trim()).where((s) => s.isNotEmpty).toSet(),
-                                            );
+                                            _previewValues = null;
+                                            _previewAdjustment = _composePreview();
                                           });
                                         },
                                       ),
@@ -311,6 +305,23 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                               );
                             }),
                           ),
+                          if (appSettings.enableMultiSelect || _multiSelect)
+                            CheckboxListTile(
+                              contentPadding: EdgeInsets.zero,
+                              controlAffinity: ListTileControlAffinity.leading,
+                              title: const Text('Multi Select'),
+                              subtitle: const Text('Allow more than one selection'),
+                              value: _multiSelect,
+                              onChanged: (bool? newValue) {
+                                if (newValue == null) return;
+                                setState(() {
+                                  _multiSelect = newValue;
+                                  _previewValues = null;
+                                  _previewAdjustment = _composePreview();
+                                });
+                                _changeListener();
+                              },
+                            ),
                           Center(
                             child: TextButton.icon(
                               onPressed: () => setState(() => _expanded = !_expanded),
@@ -335,12 +346,7 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                                   maxLines: null,
                                   onChanged: (String? value) {
                                     setState(() {
-                                      _previewAdjustment = CategoricalAdjustment(
-                                        name: _previewAdjustment.name,
-                                        notes: (value == null || value.isEmpty) ? null : value,
-                                        options: _previewAdjustment.options,
-                                        unit: null,
-                                      );
+                                      _previewAdjustment = _composePreview();
                                     });
                                   },
                                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -368,10 +374,10 @@ class _CategoricalAdjustmentPageState extends State<CategoricalAdjustmentPage> {
                     key: ValueKey(_previewAdjustment),
                     adjustment: _previewAdjustment,
                     initialValue: null,
-                    value: _previewValue,
-                    onChanged: (String? newValue) {
+                    value: _previewValues,
+                    onChanged: (List<String>? newValue) {
                       setState(() {
-                        _previewValue = newValue;
+                        _previewValues = newValue;
                       });
                     },
                     highlighting: false,

@@ -93,6 +93,24 @@ class FeaturesPage extends StatelessWidget {
                   infoText: 'Adds a Text Adjustment type that provides a free-form text field.',
                 ),
               ),
+              if (kDebugMode)
+                ListTile(
+                  leading: const Icon(Icons.checklist_rtl),
+                  title: const Text("Multi-select Categorical"),
+                  subtitle: _offOnOptionWidgets[appSettings.enableMultiSelect] ?? const Text("-"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => appSettingsRadioGroupSheet<bool>(
+                    context: context,
+                    title: "Multi-select Categorical",
+                    value: appSettings.enableMultiSelect,
+                    optionWidgets: _offOnOptionWidgets,
+                    onChanged: (bool? newValue) {
+                      if (newValue == null) return;
+                      appSettings.enableMultiSelect = newValue;
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
               ListTile(
                 leading: const Icon(Icons.tag),
                 title: const Text("Setup Tags"),

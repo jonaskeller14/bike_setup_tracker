@@ -2,6 +2,7 @@ part of 'adjustment.dart';
 
 class CategoricalAdjustment extends Adjustment {
   final Set<String> options;
+  final bool multiSelect;
 
   static const IconData iconData = Icons.category;
 
@@ -11,6 +12,7 @@ class CategoricalAdjustment extends Adjustment {
     required super.notes,
     required super.unit,
     required this.options,
+    this.multiSelect = false,
   });
 
   @override
@@ -20,35 +22,42 @@ class CategoricalAdjustment extends Adjustment {
       notes: notes,
       unit: unit,
       options: options,
+      multiSelect: multiSelect,
     );
   }
 
   @override
   bool isValidValue(dynamic value) {
-    return value is String && options.contains(value);
+    // Values are canonically List<String>; a legacy single String is tolerated.
+    final list = categoricalValueAsList(value);
+    if (list == null || list.isEmpty) return false;
+    if (!multiSelect && list.length > 1) return false;
+    return list.every(options.contains);
   }
 
   @override
   Map<String, dynamic> toJson() => {
-    'version': 1,
+    'version': multiSelect ? 2 : 1,
     'id': id,
     'name': name,
     'notes': notes,
     'type': AdjustmentType.categorical.name,
     'unit': unit,
     'options': options.toList(),
+    'multiSelect': multiSelect,
   };
 
   factory CategoricalAdjustment.fromJson(Map<String, dynamic> json) {
     final int? version = json["version"];
     switch (version) {
-      case null || 1:
+      case null || 1 || 2:
         return CategoricalAdjustment(
           id: json["id"],
           name: json['name'],
           notes: json['notes'],
           unit: json['unit'] as String?,
           options: Set<String>.from(json['options']),
+          multiSelect: json['multiSelect'] as bool? ?? false,
         );
       default: throw Exception("Json Version $version of CategoricalAdjustment incompatible.");
     }
@@ -66,11 +75,12 @@ class CategoricalAdjustment extends Adjustment {
         name == other.name &&
         notes == other.notes &&
         unit == other.unit &&
+        multiSelect == other.multiSelect &&
         setEquals(options, other.options);
   }
 
   @override
   int get hashCode {
-    return Object.hash(id, name, notes, unit, Object.hashAllUnordered(options));
+    return Object.hash(id, name, notes, unit, multiSelect, Object.hashAllUnordered(options));
   }
 }

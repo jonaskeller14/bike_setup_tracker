@@ -193,8 +193,8 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               ? setups.sort((a, b) => ((v(a) ?? double.negativeInfinity) as double).compareTo((v(b) ?? double.negativeInfinity) as double))
               : setups.sort((a, b) => ((v(b) ?? double.negativeInfinity) as double).compareTo((v(a) ?? double.negativeInfinity) as double));
           case CategoricalAdjustment(): _sortAscending
-              ? setups.sort((a, b) => ((v(a) ?? '') as String).compareTo((v(b) ?? '') as String))
-              : setups.sort((a, b) => ((v(b) ?? '') as String).compareTo((v(a) ?? '') as String));
+              ? setups.sort((a, b) => Adjustment.formatValue(v(a) ?? '').compareTo(Adjustment.formatValue(v(b) ?? '')))
+              : setups.sort((a, b) => Adjustment.formatValue(v(b) ?? '').compareTo(Adjustment.formatValue(v(a) ?? '')));
           case TextAdjustment(): _sortAscending
               ? setups.sort((a, b) => ((v(a) ?? '') as String).compareTo((v(b) ?? '') as String))
               : setups.sort((a, b) => ((v(b) ?? '') as String).compareTo((v(a) ?? '') as String));

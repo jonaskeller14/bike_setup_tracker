@@ -18,6 +18,7 @@ class AppSettings extends ChangeNotifier {
   String _distanceUnit = 'km';
   bool _enableGoogleDrive = false;  // False is default, can only be activated on Android (see AppSettingsPage)
   bool _enableTextAdjustment = false;
+  bool _enableMultiSelect = false;
   bool _enablePerson = false;
   bool _enableRating = false;
   bool _enableSetupTags = false;
@@ -62,6 +63,7 @@ class AppSettings extends ChangeNotifier {
   String get distanceUnit => _distanceUnit;
   bool get enableGoogleDrive => _enableGoogleDrive;
   bool get enableTextAdjustment => _enableTextAdjustment;
+  bool get enableMultiSelect => _enableMultiSelect;
   bool get enablePerson => _enablePerson;
   bool get enableRating => _enableRating;
   bool get enableSetupTags => _enableSetupTags;
@@ -170,6 +172,13 @@ class AppSettings extends ChangeNotifier {
     _enableTextAdjustment = newValue;
     notifyListeners();
     _persistBool('enableTextAdjustment', newValue);
+  }
+
+  set enableMultiSelect(bool newValue) {
+    if (newValue == _enableMultiSelect) return;
+    _enableMultiSelect = newValue;
+    notifyListeners();
+    _persistBool('enableMultiSelect', newValue);
   }
 
   set enablePerson(bool newValue) {
@@ -413,6 +422,7 @@ class AppSettings extends ChangeNotifier {
       _distanceUnit = prefs.getString('${_kPrefix}distanceUnit') ?? _distanceUnit;
       _enableGoogleDrive = prefs.getBool('${_kPrefix}enableGoogleDrive') ?? _enableGoogleDrive;
       _enableTextAdjustment = prefs.getBool('${_kPrefix}enableTextAdjustment') ?? _enableTextAdjustment;
+      _enableMultiSelect = prefs.getBool('${_kPrefix}enableMultiSelect') ?? _enableMultiSelect;
       _enablePerson = prefs.getBool('${_kPrefix}enablePerson') ?? _enablePerson;
       _enableRating = prefs.getBool('${_kPrefix}enableRating') ?? _enableRating;
       _enableSetupTags = prefs.getBool('${_kPrefix}enableSetupTags') ?? _enableSetupTags;

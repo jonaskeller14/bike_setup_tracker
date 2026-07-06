@@ -127,21 +127,25 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
             );
           case CategoricalAdjustment():
             return SetCategoricalAdjustmentWidget(
-              key: ValueKey(adjustment), 
-              adjustment: adjustment, 
-              initialValue: widget.initialAdjustmentValues[adjustment.id],
-              value: _adjustmentValues[adjustment.id], 
-              onChanged: (String? newValue) {
+              key: ValueKey(adjustment),
+              adjustment: adjustment,
+              initialValue: categoricalValueAsList(widget.initialAdjustmentValues[adjustment.id]),
+              value: categoricalValueAsList(_adjustmentValues[adjustment.id]),
+              onChanged: (List<String>? newValue) {
                 setState(() => _adjustmentValues[adjustment.id] = newValue);
-                widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
+                if (newValue == null || newValue.isEmpty) {
+                  widget.removeFromAdjustmentValues(adjustment: adjustment);
+                } else {
+                  widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: newValue);
+                }
               },
             );
           case TextAdjustment():
             return SetTextAdjustmentWidget(
-              key: ValueKey(adjustment), 
-              adjustment: adjustment, 
-              initialValue: widget.initialAdjustmentValues[adjustment.id],
-              value: _adjustmentValues[adjustment.id], 
+              key: ValueKey(adjustment),
+              adjustment: adjustment,
+              initialValue: textValueAsString(widget.initialAdjustmentValues[adjustment.id]),
+              value: textValueAsString(_adjustmentValues[adjustment.id]),
               onChanged: (String newValue) {
                 setState(() => _adjustmentValues[adjustment.id] = newValue);
                 if (newValue.isNotEmpty) {

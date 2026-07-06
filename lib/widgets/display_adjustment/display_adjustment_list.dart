@@ -64,8 +64,8 @@ class AdjustmentDisplayList extends StatelessWidget {
             return DisplayCategoricalAdjustmentWidget(
               key: ValueKey(adjustment),
               adjustment: adjustment,
-              initialValue: initialValue,
-              value: value,
+              initialValue: categoricalValueAsList(initialValue),
+              value: categoricalValueAsList(value),
               isError: isError,
               onRemove: onRemoveAdjustment,
             );
@@ -73,8 +73,8 @@ class AdjustmentDisplayList extends StatelessWidget {
             return DisplayTextAdjustmentWidget(
               key: ValueKey(adjustment),
               adjustment: adjustment,
-              initialValue: initialValue,
-              value: value,
+              initialValue: textValueAsString(initialValue),
+              value: textValueAsString(value),
               isError: isError,
               onRemove: onRemoveAdjustment,
             );

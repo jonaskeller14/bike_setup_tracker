@@ -126,6 +126,10 @@ class Setup {
           } else {
             return MapEntry(key, value);
           } // TextAdjustment --> String?, DurationAdjustment --> Duration
+        case List():
+          // Multi-select CategoricalAdjustment: JSON arrays decode to
+          // List<dynamic>; coerce to List<String>.
+          return MapEntry(key, value.map((e) => e.toString()).toList());
         default: return MapEntry(key, value);
       }
     });

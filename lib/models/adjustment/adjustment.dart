@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -41,6 +42,8 @@ sealed class Adjustment {
     return unit == null ? "" : " $unit";
   }
 
+  static const String multiValueSeparator = ', ';
+
   static String formatValue(dynamic value) {
     switch (value) {
       case null: return '-';
@@ -51,6 +54,7 @@ sealed class Adjustment {
       case Duration():
         String twoDigits(int n) => n.toString().padLeft(2, '0');
         return '${twoDigits(value.inHours)}:${twoDigits(value.inMinutes.remainder(60))}:${twoDigits(value.inSeconds.remainder(60))}';
+      case List(): return value.isEmpty ? '-' : value.map(formatValue).join(multiValueSeparator);
       default: return value.toString();
     }
   }
@@ -58,7 +62,7 @@ sealed class Adjustment {
   static Adjustment fromJson(Map<String, dynamic> json) {
     final int? version = json["version"];
     switch (version) {
-      case null || 1:
+      case null || 1 || 2:
         final typeString = json['type'];
         final type = AdjustmentType.values.firstWhere(
           (e) => e.name == typeString,
@@ -75,6 +79,26 @@ sealed class Adjustment {
       default: throw Exception("Json Version $version of Adjustment incompatible.");
     }
   }
+}
+
+bool adjustmentValuesEqual(dynamic a, dynamic b) =>
+    const DeepCollectionEquality().equals(a, b);
+
+List<String>? categoricalValueAsList(dynamic value) {
+  if (value == null) return null;
+  if (value is List) return value.cast<String>();
+  if (value is String) return [value];
+  return null;
+}
+
+/// Coerces a stored value to a plain `String` for a [TextAdjustment] field. A
+/// correctly-typed value is already a `String`; anything else (e.g. a stray
+/// `List` from a malformed/foreign backup) is formatted to text rather than
+/// being handed to a `TextEditingController`, which would crash on a non-String.
+String? textValueAsString(dynamic value) {
+  if (value == null) return null;
+  if (value is String) return value;
+  return Adjustment.formatValue(value);
 }
 
 class _Sentinel {

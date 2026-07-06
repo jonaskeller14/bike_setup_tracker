@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import '../adjustment_value_codec.dart';
 import '../app_database.dart';
 import '../tables/adjustments.dart';
 import '../tables/setup_adjustment_values.dart';
@@ -114,7 +115,7 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin, Sof
       await upsertSetupValue(SetupAdjustmentValuesCompanion(
         setupId: Value(setupId),
         adjustmentId: Value(entry.key),
-        value: Value(entry.value.toString()),
+        value: Value(encodeAdjustmentValue(entry.value)),
       ));
     }
   }

@@ -25,11 +25,18 @@ enum TaskRulePageMode { add, edit, duplicate }
 class TaskRulePage extends StatefulWidget {
   final TaskRule? taskRule;
   final TaskRulePageMode mode;
+  final TaskAssociation? initialAssociation;
 
-  const TaskRulePage._({super.key, this.taskRule, required this.mode});
+  const TaskRulePage._({super.key, this.taskRule, required this.mode, this.initialAssociation});
 
   factory TaskRulePage.add({Key? key}) =>
       TaskRulePage._(key: key, mode: TaskRulePageMode.add);
+
+  factory TaskRulePage.addForBike({Key? key, required String bikeId}) =>
+      TaskRulePage._(key: key, mode: TaskRulePageMode.add, initialAssociation: BikeTaskAssociation(bikeId));
+
+  factory TaskRulePage.addForComponent({Key? key, required String componentId}) =>
+      TaskRulePage._(key: key, mode: TaskRulePageMode.add, initialAssociation: ComponentTaskAssociation(componentId));
 
   factory TaskRulePage.edit({Key? key, required TaskRule taskRule}) =>
       TaskRulePage._(key: key, taskRule: taskRule, mode: TaskRulePageMode.edit);
@@ -89,8 +96,8 @@ class _TaskRulePageState extends State<TaskRulePage> {
     _notesController.addListener(_changeListener);
 
     _association = TaskAssociation.fromIds(
-      componentId: widget.taskRule?.componentId,
-      bikeId: widget.taskRule?.bikeId,
+      componentId: widget.taskRule?.componentId ?? widget.initialAssociation?.componentId,
+      bikeId: widget.taskRule?.bikeId ?? widget.initialAssociation?.bikeId,
     );
     _initialAssociation = _association;
 

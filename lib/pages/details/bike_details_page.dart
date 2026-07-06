@@ -108,7 +108,7 @@ class BikeDetailsPage extends StatelessWidget {
                 const Divider(height: 1),
 
               if (appSettings.enableTask) ...[
-                OpenTasksTile(openTasks: appRepository.openTaskRulesForBike(bikeId), appRepository: appRepository),
+                OpenTasksTile.bike(bikeId: bikeId),
                 const Divider(height: 1),
               ],
 

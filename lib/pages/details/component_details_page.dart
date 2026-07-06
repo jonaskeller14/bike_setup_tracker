@@ -988,7 +988,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
               ],
 
               if (appSettings.enableTask) ...[
-                OpenTasksTile(openTasks: appRepository.openTaskRulesForComponent(widget.componentId), appRepository: appRepository),
+                OpenTasksTile.component(componentId: widget.componentId),
                 const Divider(height: 1),
               ],
 

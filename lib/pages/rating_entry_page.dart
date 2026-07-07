@@ -25,6 +25,7 @@ import '../services/weather_service.dart';
 import '../theme.dart';
 import '../widgets/dialogs/confirmation.dart';
 import '../widgets/dialogs/discard_changes.dart';
+import '../widgets/items/card_header_tile.dart';
 import '../widgets/lists/adjustment_set_list.dart';
 import '../widgets/sheets/set_condition.dart';
 import '../widgets/sheets/set_location_place.dart';
@@ -644,7 +645,7 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
                 WeatherSuccess() => Text(_currentWeather.value?.getWeatherCodeLabel() ?? "-"),
                 WeatherError() => const Text("Weather Error"),
               },
-              backgroundColor: widget.mode == RatingEntryPageMode.edit && _currentWeather.value != widget.ratingEntry?.weather ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
+              backgroundColor: widget.mode == RatingEntryPageMode.edit && _currentWeather.value?.withoutCondition() != widget.ratingEntry?.weather?.withoutCondition() ? Theme.of(context).extension<ValueHighlightColors>()!.changedFill : null,
               onPressed: _locationService.status == LocationStatus.searching || _weatherService.status is WeatherSearching
                   ? null
                   : () async {
@@ -878,18 +879,20 @@ class _RatingEntryPageState extends State<RatingEntryPage> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            ListTile(
-                              leading: const Icon(Rating.iconData),
-                              title: Text(rating.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                              subtitle: Text(Intl.plural(
-                                ratingAdjustments.length,
-                                zero: "No metrics yet.",
-                                one: "1 metric",
-                                other: '${ratingAdjustments.length} metrics',
-                              )),
-                              trailing: _ratingFilterIcon(rating, components),
-                              enabled: ratingAdjustments.isNotEmpty,
-                              tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            CardHeaderTile(
+                              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                              child: ListTile(
+                                leading: const Icon(Rating.iconData),
+                                title: Text(rating.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                subtitle: Text(Intl.plural(
+                                  ratingAdjustments.length,
+                                  zero: "No metrics yet.",
+                                  one: "1 metric",
+                                  other: '${ratingAdjustments.length} metrics',
+                                )),
+                                trailing: _ratingFilterIcon(rating, components),
+                                enabled: ratingAdjustments.isNotEmpty,
+                              ),
                             ),
                             AdjustmentSetList(
                               key: ValueKey(Object.hash(rating.id, _bike)),

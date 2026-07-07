@@ -107,6 +107,8 @@ class ContextWeather {
     );
   }
 
+  ContextWeather withoutCondition() => copyWith(condition: Condition.dry, conditionManuallySet: false);
+
   @override
   bool operator ==(Object other) {
     return identical(this, other) || 

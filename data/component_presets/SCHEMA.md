@@ -20,10 +20,23 @@ in one place, every model that uses it gets it.
 |---|---|
 | `brand` | Manufacturer, e.g. `FOX` |
 | `component_type` | Maps to `ComponentType` enum (`fork`, `shock`, …) |
-| `source` (or `source1`/`source2`, …) | Landing URL(s) the data was collected from |
+| `sources` | List of URLs the data was collected from (landing page + individual product pages) |
 | `updated` | ISO date of last verification |
 | `dampers` | Map of `damper_key` → damper definition |
 | `forks` / `shocks` | List of models (key name matches `component_type`) |
+
+## Top-level example
+
+```yaml
+brand: FOX
+component_type: fork
+sources:
+  - https://ridefox.com/pages/bike-forks
+  - https://ridefox.com/pages/fox-36
+  - https://ridefox.com/pages/fox-38
+  # ... individual product pages
+updated: 2026-07-05
+```
 
 ## Damper definition
 
@@ -41,6 +54,11 @@ grip_x2:
   firm_mode: at final HSC click                  # optional note
   remote: 2-position                             # optional note
 ```
+
+**Click counting conventions vary by brand:**
+- **FOX**: clicks range from 0 (fully closed/firmest) to N (fully open/least damping)
+- **RockShox Charger 3/3.1**: HSC counted from middle (-2 to +2), LSC counted from middle (-7 to +7), Rebound counted from fully open (0-18)
+- **Öhlins**: clicks range from 0 (fully closed) to N (fully open); some dampers' generations (e.g. TTX18 m.2 vs m.3) have different ranges — give each generation its own damper key
 
 `adjusters` keys → adjustment name mapping:
 

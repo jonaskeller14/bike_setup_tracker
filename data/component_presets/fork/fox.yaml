@@ -13,7 +13,18 @@
 
 brand: FOX
 component_type: fork
-source: https://ridefox.com/pages/bike-forks
+sources:
+  - https://ridefox.com/pages/bike-forks
+  - https://ridefox.com/pages/fox-36
+  - https://ridefox.com/pages/fox-38
+  - https://ridefox.com/pages/fox-34
+  - https://ridefox.com/pages/fox-40
+  - https://ridefox.com/pages/fox-34-sl
+  - https://ridefox.com/pages/fox-36-sl
+  - https://ridefox.com/pages/fox-32-step-cast
+  - https://ridefox.com/pages/fox-32-taper-cast
+  - https://ridefox.com/products/podium
+  - https://ridefox.com/pages/fox-awl
 updated: 2026-07-05
 # All click ranges below were taken from the per-model spec tables on the
 # official FOX product pages (ridefox.com/pages/fox-<model>). Clicks are counted

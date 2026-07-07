@@ -11,7 +11,15 @@
 
 brand: Öhlins
 component_type: fork
-source: https://www.ohlins.eu/de/products/mountainbike/mtb-forks/
+sources:
+  - https://www.ohlins.eu/de/products/mountainbike/mtb-forks/
+  - https://www.ohlins.eu/de/products/mountainbike/rxc34-m1-air-otx14-r--7692/
+  - https://www.ohlins.eu/de/products/mountainbike/rxf34-m2-air-otx18-29--7685/
+  - https://www.ohlins.eu/de/products/mountainbike/rxf36-m2-air-ttx18-275--7698/
+  - https://www.ohlins.eu/de/products/mountainbike/rxf36-m3-air-ttx18-275--7696/
+  - https://www.ohlins.eu/de/products/mountainbike/rxf38-m3-air-coil-ttx18--7748/
+  - https://www.ohlins.eu/de/products/mountainbike/dh38-m2-air-coil-downhill--7747/
+  - https://www.ohlins.eu/de/products/mountainbike/rxfdj-m1-air-26-dirt--7687/
 updated: 2026-07-05
 # Click ranges taken from the individual product pages at ohlins.eu (German
 # site). Clicks counted from fully closed (firmest).

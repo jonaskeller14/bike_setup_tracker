@@ -1,0 +1,249 @@
+# RockShox mountain-bike forks — adjustment preset database
+#
+# Same design as fork/fox.yaml and fork/ohlins.yaml: click ranges belong to the
+# DAMPER cartridge, defined once under `dampers:` and referenced by key from
+# each fork's trims. See SCHEMA.md in this folder.
+
+brand: RockShox
+component_type: fork
+sources:
+  - https://www.sram.com/en/rockshox/products/forks
+  - https://www.sram.com/en/rockshox/learn/charger-3-setup
+  - https://flowmountainbike.com/tests/2025-rockshox-zeb-lyrik-pike-fork-review/
+  - https://enduro-mtb.com/en/rockshox-2025-fork-charger-review/
+  - https://support.rockshox.com/hc/en-us/articles/26413299077659-How-did-the-adjustment-range-of-Low-Speed-Compression-and-High-Speed-Compression-change-on-RockShox-Charger-3-1/
+updated: 2026-07-05
+# Click ranges from SRAM/RockShox support documentation and official product
+# pages (sram.com). Charger 3/3.1 clicks are counted from the middle position:
+# HSC: -2, -1, 0 (middle/neutral), +1, +2 = 5 clicks total
+# LSC: -7, -6, ..., 0 (middle), ..., +6, +7 = 15 clicks total
+# Rebound: 0-18 clicks, counted from fully OPEN (fastest rebound).
+
+# --------------------------------------------------------------------------
+# Dampers
+# --------------------------------------------------------------------------
+dampers:
+  charger_3_1:
+    name: Charger 3.1
+    description: >
+      Updated Charger damper for 2025 Pike, Lyrik, ZEB. Same click counts as
+      Charger 3 but improved damping curve, especially in LSC open positions
+      (68% more oil flow) and overall reduced damping baseline. RC2 variant
+      adds remote control.
+    adjusters:
+      high_speed_compression: { clicks: 5 }
+      low_speed_compression:  { clicks: 15 }
+      rebound:                { clicks: 18 }
+    note: >
+      HSC counted from middle (-2 to +2); LSC counted from middle (-7 to +7);
+      Rebound counted from fully OPEN (fastest). The +/- symbol on each dial
+      indicates direction relative to the white etched indicator line.
+
+  charger_3_2:
+    name: Charger 3.2
+    description: >
+      Charger for 2027+ Pike, Lyrik, ZEB, BoXXer. Likely same click counts as
+      Charger 3.1 but with further refinements; exact damping internals not
+      independently confirmed for 3.2 generation.
+    adjusters:
+      high_speed_compression: { clicks: 5 }
+      low_speed_compression:  { clicks: 15 }
+      rebound:                { clicks: 18 }
+    note: >
+      HSC counted from middle (-2 to +2); LSC counted from middle (-7 to +7);
+      Rebound counted from fully OPEN (fastest). Same counting method as
+      Charger 3.1.
+
+  charger_race_day_2:
+    name: Charger Race Day 2
+    description: >
+      Lightweight XC damper (SID SL, SID, Reba Ultimate, Rudy XPLR/XL).
+      Simpler tuning range than Charger 3.x aimed at marathon/XC racing.
+      Exact click counts not confirmed; flagged as follow-up.
+    adjusters: {}
+    note: "Click counts unconfirmed — verify against SRAM official docs"
+
+  motion_control:
+    name: Motion Control
+    description: Simplified trail damper (Reba, Psylo). Entry-level tuning.
+    adjusters: {}
+    note: "Click counts unconfirmed"
+
+  isolator_rl:
+    name: Isolator RL
+    description: Remote lockout trail damper. Click counts unconfirmed.
+    adjusters: {}
+    note: "Click counts unconfirmed"
+
+# --------------------------------------------------------------------------
+# Forks — current (2025/2026/2027) RockShox lineup.
+# --------------------------------------------------------------------------
+forks:
+  - model: "SID SL"
+    category: XC
+    year_range: "2025-2026"
+    url: https://www.sram.com/en/rockshox/series/sid-sl
+    wheel_size: [29]
+    trims:
+      - trim: Ultimate
+        travel_mm: [100, 110]
+        stanchion: 32mm
+        dampers: [charger_race_day_2]
+      - trim: Select+
+        travel_mm: [100, 110]
+        stanchion: 32mm
+        dampers: [charger_race_day_2]
+        note: OEM only
+
+  - model: "SID"
+    category: XC
+    year_range: "2025-2026"
+    url: https://www.sram.com/en/rockshox/series/sid
+    wheel_size: [29]
+    trims:
+      - trim: Ultimate
+        travel_mm: [110, 120]
+        stanchion: 35mm
+        dampers: [charger_race_day_2]
+      - trim: Select+
+        travel_mm: [110, 120]
+        stanchion: 35mm
+        dampers: [charger_race_day_2]
+        note: OEM only
+
+  - model: "Reba"
+    category: XC / Trail
+    year_range: "2025-2026"
+    url: https://www.sram.com/en/rockshox/series/reba
+    wheel_size: [29]
+    trims:
+      - trim: Ultimate
+        travel_mm: [100, 120, 130]
+        stanchion: 35mm
+        dampers: [charger_race_day_2, isolator_rl]
+      - trim: Select+
+        travel_mm: [100, 120, 130]
+        stanchion: 35mm
+        dampers: [charger_race_day_2]
+        note: OEM only
+
+  - model: "Pike"
+    category: Trail
+    year_range: "2025-2026"
+    url: https://www.sram.com/en/rockshox/series/pike
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Ultimate
+        travel_mm: [120, 130, 140]
+        stanchion: 35mm
+        dampers: [charger_3_1]
+      - trim: Ultimate Flight Attendant
+        travel_mm: [120, 130, 140]
+        stanchion: 35mm
+        dampers: [charger_3_1]
+        note: Electronic damper adjustment
+      - trim: Select+
+        travel_mm: [120, 130, 140]
+        stanchion: 35mm
+        dampers: [charger_3_1]
+      - trim: Select
+        travel_mm: [130]
+        stanchion: 35mm
+        dampers: [charger_3_1]
+        note: OEM only
+      - trim: Base
+        travel_mm: [130]
+        stanchion: 35mm
+        dampers: [charger_3_1]
+        note: OEM only
+
+  - model: "Lyrik"
+    category: Trail / All-Mountain
+    year_range: "2025-2026"
+    url: https://www.sram.com/en/rockshox/series/lyrik
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Ultimate
+        travel_mm: [140, 150, 160, 170]
+        stanchion: 35mm
+        dampers: [charger_3_1]
+      - trim: Select+
+        travel_mm: [140, 150, 160, 170]
+        stanchion: 35mm
+        dampers: [charger_3_1]
+      - trim: Select
+        travel_mm: [140, 160]
+        stanchion: 35mm
+        dampers: [charger_3_1]
+        note: OEM only
+
+  - model: "ZEB"
+    category: Enduro
+    year_range: "2025-2026"
+    url: https://www.sram.com/en/rockshox/series/zeb
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Ultimate
+        travel_mm: [150, 160, 170, 180]   # 10mm increments
+        stanchion: 38mm
+        dampers: [charger_3_1]
+      - trim: Select+
+        travel_mm: [160, 170, 180]
+        stanchion: 38mm
+        dampers: [charger_3_1]
+      - trim: Select
+        travel_mm: [160, 170]
+        stanchion: 38mm
+        dampers: [charger_3_1]
+        note: OEM only
+
+  - model: "BoXXer"
+    category: Downhill
+    year_range: "2025-2026"
+    url: https://www.sram.com/en/rockshox/series/boxxer
+    wheel_size: [29, 27.5]
+    trims:
+      - trim: Ultimate
+        stanchion: 38mm (dual-crown)
+        dampers: [charger_3_1]   # or RC2 variant
+      - trim: Select+
+        stanchion: 38mm (dual-crown)
+        dampers: [charger_3_1]
+        note: OEM only
+
+  - model: "Rudy XPLR"
+    category: Gravel / Bikepacking
+    year_range: "2025-2026"
+    url: https://www.sram.com/en/rockshox/series/rudy-xplr
+    wheel_size: ["700c"]
+    trims:
+      - trim: Ultimate
+        travel_mm: [40]
+        stanchion: 30mm
+        dampers: [charger_race_day_2]
+
+  - model: "Rudy XL"
+    category: Gravel / Bikepacking
+    year_range: "2025-2026"
+    url: https://www.sram.com/en/rockshox/series/rudy-xl
+    wheel_size: ["700c"]
+    trims:
+      - trim: Ultimate
+        travel_mm: [60]
+        stanchion: 30mm
+        dampers: [charger_race_day_2]
+    note: Fits 29x2.2" tires max
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - Charger Race Day 2 exact click counts (SID/Reba/Rudy) — not published
+#     on the official product pages fetched; verify against SRAM service
+#     manuals or TrailHead app before relying on them.
+#   - BoXXer travel/offset options and complete trim lineup — search results
+#     only mentioned "Ultimate" and "Select+" but didn't list specific specs.
+#   - Pike/Lyrik/ZEB 2027+ model year specs: assumed to inherit from 2025/26
+#     but Charger 3.2 internals and generation-specific click count changes
+#     weren't independently confirmed; verify against 2027 official docs when
+#     available.
+#   - Isolator/Motion Control damper click counts.
+# --------------------------------------------------------------------------

@@ -6,8 +6,14 @@
 
 brand: Öhlins
 component_type: shock
-source1: https://www.ohlins.eu/de/products/mountainbike/air-shocks/
-source2: https://www.ohlins.eu/de/products/mountainbike/coil-shocks/
+sources:
+  - https://www.ohlins.eu/de/products/mountainbike/air-shocks/
+  - https://www.ohlins.eu/de/products/mountainbike/coil-shocks/
+  - https://www.ohlins.eu/de/products/mountainbike/ttx1air-m2-universal--7749/
+  - https://www.ohlins.eu/de/products/mountainbike/ttx2air-m2-universal--7750/
+  - https://www.ohlins.eu/de/products/mountainbike/txc1air-universal--7691/
+  - https://www.ohlins.eu/de/products/mountainbike/txc2air-universal--7593/
+  - https://www.ohlins.eu/de/products/mountainbike/ttx22-m2-piggyback-105x35-267x89mm--5708/
 updated: 2026-07-05
 # Click ranges taken from the individual product pages at ohlins.eu (German
 # site). Clicks counted from fully closed (firmest).

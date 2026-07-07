@@ -5,7 +5,13 @@
 
 brand: FOX
 component_type: shock
-source: https://ridefox.com/pages/bike-shocks
+sources:
+  - https://ridefox.com/pages/bike-shocks
+  - https://ridefox.com/pages/fox-float-x2
+  - https://ridefox.com/pages/fox-dhx2
+  - https://ridefox.com/pages/fox-float-x
+  - https://ridefox.com/pages/fox-float
+  - https://ridefox.com/pages/fox-float-sl
 updated: 2026-07-05
 # Click ranges taken from the per-model spec tables on the official FOX
 # product pages (ridefox.com/pages/fox-<model>). Clicks counted from fully

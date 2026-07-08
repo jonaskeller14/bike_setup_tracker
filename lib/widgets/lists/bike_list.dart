@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
@@ -91,6 +93,7 @@ class BikeList extends StatelessWidget {
               ],
             ),
             proxyDecorator: proxyDecorator,
+            onReorderStart: (_) => unawaited(HapticFeedback.lightImpact()),
             onReorderItem: (int oldIndex, int newIndex) => BikeActions.onReorderBikes(context, oldIndex: oldIndex, newIndex: newIndex),
             itemBuilder: (context, index) {
               final bike = bikesList[index];

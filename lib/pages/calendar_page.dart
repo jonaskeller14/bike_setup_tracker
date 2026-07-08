@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -495,6 +496,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       ),
                     ),
                     onTap: (details) => _onTap(details, entries),
+                    onDragStart: (_) => unawaited(HapticFeedback.lightImpact()),
                     onDragEnd: _onDragEnd,
                     onViewChanged: (ViewChangedDetails details) {
                       _ensureStravaCoverage(details.visibleDates);

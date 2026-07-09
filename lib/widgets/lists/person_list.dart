@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../models/person.dart';
 import '../../repositories/app_repository.dart';
@@ -67,6 +69,7 @@ class PersonList extends StatelessWidget {
             padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 16+100),
             header: const PersonListFilterWidget(),
             proxyDecorator: proxyDecorator,
+            onReorderStart: (_) => unawaited(HapticFeedback.lightImpact()),
             onReorderItem: (int oldIndex, int newIndex) => PersonActions.onReorderPerson(context, oldIndex: oldIndex, newIndex: newIndex),
             itemBuilder: (context, index) {
               final person = personsList[index];

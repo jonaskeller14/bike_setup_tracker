@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/image_storage_service.dart';
 import 'image_viewer.dart';
@@ -251,6 +252,7 @@ class _ImageStripState extends State<ImageStrip> with TickerProviderStateMixin {
           scrollDirection: Axis.horizontal,
           buildDefaultDragHandles: false,
           proxyDecorator: proxyDecorator,
+          onReorderStart: (_) => unawaited(HapticFeedback.lightImpact()),
           onReorderItem: (oldIndex, newIndex) {
             widget.onReorder?.call(oldIndex, newIndex);
           },

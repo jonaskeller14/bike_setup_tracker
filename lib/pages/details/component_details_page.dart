@@ -418,7 +418,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                           final column = validColumns[barSpot.barIndex];
                           final adjustment = _findAdjustment(column, componentAdjustments, personAdjustments);
                           final columnName = _columnLabel(column, componentAdjustments, personAdjustments);
-                          final unit = adjustment?.unit ?? "";
+                          final unit = adjustment?.unit?.label ?? "";
                           final formattedY = Adjustment.formatValue(barSpot.y);
                           
                           final tooltipStyle = Theme.of(context).textTheme.bodySmall!.copyWith(
@@ -613,7 +613,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                 return (
                   column: column,
                   name: _columnLabel(column, componentAdjustments, personAdjustments),
-                  unit: adjustment?.unit ?? "",
+                  unit: adjustment?.unit?.label ?? "",
                   min: dataMin,
                   max: dataMax,
                 );

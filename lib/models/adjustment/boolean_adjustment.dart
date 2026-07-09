@@ -31,7 +31,7 @@ class BooleanAdjustment extends Adjustment {
     'name': name,
     'notes': notes,
     'type': AdjustmentType.boolean.name,
-    'unit': unit,
+    'unit': unit?.encode(),
   };
 
   factory BooleanAdjustment.fromJson(Map<String, dynamic> json) {
@@ -42,7 +42,7 @@ class BooleanAdjustment extends Adjustment {
           id: json["id"],
           name: json['name'],
           notes: json['notes'],
-          unit: json['unit'] as String?,
+          unit: AdjustmentUnit.decode(json['unit'] as String?),
         );
       default: throw Exception("Json Version $version of BooleanAdjustment incompatible.");
     }

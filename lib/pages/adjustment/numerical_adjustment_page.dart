@@ -4,6 +4,7 @@ import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_numerical_adjustment.dart';
+import '../../widgets/sheets/unit_picker_sheet.dart';
 import 'adjustment_page.dart';
 
 class NumericalAdjustmentPage extends StatefulWidget {
@@ -40,8 +41,8 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
   late TextEditingController _notesController;
   late TextEditingController _minController;
   late TextEditingController _maxController;
-  late TextEditingController _unitController;
-  late String? _initialUnit;
+  AdjustmentUnit? _unit;
+  late AdjustmentUnit? _initialUnit;
 
   String? _previewValue;
   late NumericalAdjustment _previewAdjustment;
@@ -57,8 +58,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     _minController.addListener(_changeListener);
     _maxController = TextEditingController(text: widget.adjustment?.max == double.infinity || widget.adjustment?.max == double.negativeInfinity ? null : widget.adjustment?.max.toString());
     _maxController.addListener(_changeListener);
-    _unitController = TextEditingController(text: widget.adjustment?.unit);
-    _unitController.addListener(_changeListener);
+    _unit = widget.adjustment?.unit;
     _initialUnit = widget.adjustment?.unit;
 
     _previewAdjustment = widget.adjustment ?? NumericalAdjustment(
@@ -72,7 +72,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != (widget.adjustment?.name ?? '') ||
         _notesController.text.trim() != (widget.adjustment?.notes ?? '') ||
-        _unitController.text.trim() != (widget.adjustment?.unit ?? '') ||
+        _unit != widget.adjustment?.unit ||
         (double.tryParse(_minController.text.trim()) ?? double.negativeInfinity) != (widget.adjustment?.min ?? double.negativeInfinity) ||
         (double.tryParse(_maxController.text.trim()) ?? double.infinity) != (widget.adjustment?.max ?? double.infinity);
     if (_formHasChanges != hasChanges) {
@@ -92,9 +92,21 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     _minController.dispose();
     _maxController.removeListener(_changeListener);
     _maxController.dispose();
-    _unitController.removeListener(_changeListener);
-    _unitController.dispose();
     super.dispose();
+  }
+
+  void _pickUnit() {
+    showUnitPickerSheet(
+      context: context,
+      current: _unit,
+      onSelected: (unit) {
+        setState(() {
+          _unit = unit;
+          _changeListener();
+          _updatePreview();
+        });
+      },
+    );
   }
 
   void _saveNumericalAdjustment() {
@@ -107,11 +119,9 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     final notes = _notesController.text.trim();
     final minText = _minController.text.trim();
     final maxText = _maxController.text.trim();
-    final unitText = _unitController.text.trim();
 
     final min = double.tryParse(minText) ?? double.negativeInfinity;
     final max = double.tryParse(maxText) ?? double.infinity;
-    final unit = unitText.isNotEmpty ? unitText : null;
     _formHasChanges = false;
     if (!mounted) return;
     Navigator.pop(context, NumericalAdjustment(
@@ -120,7 +130,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
       notes: notes.isEmpty ? null : notes,
       min: min,
       max: max,
-      unit: unit,
+      unit: _unit,
     ));
   }
 
@@ -159,12 +169,11 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
         : null;
 
     final notes = _notesController.text.trim();
-    final unit = _unitController.text.trim();
     return NumericalAdjustment(
       id: _previewAdjustment.id,
       name: _nameController.text.trim(),
       notes: notes.isEmpty ? null : notes,
-      unit: unit.isEmpty ? null : unit,
+      unit: _unit,
       min: min,
       max: max,
     );
@@ -224,7 +233,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             validator: validateAdjustmentName,
                           ),
                           const SizedBox(height: 12),
-                          if (widget.mode == AdjustmentPageMode.edit && _unitController.text.trim() != (_initialUnit ?? '')) ...[
+                          if (widget.mode == AdjustmentPageMode.edit && _unit != _initialUnit) ...[
                             ListTile(
                               leading: Icon(Icons.warning, color: Theme.of(context).colorScheme.error),
                               title: Text(
@@ -236,30 +245,32 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             ),
                             const SizedBox(height: 12),
                           ],
-                          TextFormField(
-                            controller: _unitController,
-                            maxLength: 10,
-                            onFieldSubmitted: (_) => _saveNumericalAdjustment(),
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
-                            decoration: InputDecoration(
-                              labelText: 'Unit (optional)',
-                              hintText: 'Enter unit (e.g., mm, psi)',
-                              border: const OutlineInputBorder(),
-                              prefixIcon: const Icon(Icons.straighten),
-                              suffixIcon: _unitController.text.isNotEmpty
-                                  ? IconButton(
-                                      icon: const Icon(Icons.clear),
-                                      onPressed: () {
-                                        _unitController.clear();
-                                        _updatePreview(resetValue: false);
-                                      },
-                                    )
-                                  : null,
-                              fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                              filled: widget.mode == AdjustmentPageMode.edit && _unitController.text.trim() != (widget.adjustment?.unit ?? ""),
+                          InkWell(
+                            key: const Key('unit_picker_field'),
+                            onTap: _pickUnit,
+                            child: InputDecorator(
+                              decoration: InputDecoration(
+                                labelText: 'Unit (optional)',
+                                hintText: 'Choose a unit',
+                                border: const OutlineInputBorder(),
+                                prefixIcon: const Icon(Icons.straighten),
+                                suffixIcon: _unit != null
+                                    ? IconButton(
+                                        icon: const Icon(Icons.clear),
+                                        onPressed: () {
+                                          setState(() {
+                                            _unit = null;
+                                            _changeListener();
+                                            _updatePreview();
+                                          });
+                                        },
+                                      )
+                                    : const Icon(Icons.arrow_drop_down),
+                                fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
+                                filled: widget.mode == AdjustmentPageMode.edit && _unit != widget.adjustment?.unit,
+                              ),
+                              child: Text(_unit?.label ?? 'None'),
                             ),
-                            validator: (value) => (value != null && value.length > 10) ? "Too many characters" : null,
-                            onChanged: (_) => _updatePreview(),
                           ),
                           Center(
                             child: TextButton.icon(

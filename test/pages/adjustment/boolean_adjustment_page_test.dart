@@ -10,7 +10,7 @@ void main() {
       id: 'test-id',
       name: 'Test Boolean',
       notes: 'Some notes',
-      unit: 'some unit',
+      unit: AdjustmentUnit.fromLegacy('some unit'),
     );
 
     BooleanAdjustment? result;

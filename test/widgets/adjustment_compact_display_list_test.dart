@@ -37,11 +37,11 @@ void main() {
   late Component shock; // installed on otherBike -> dangling for myBike
 
   setUp(() {
-    pressure = TextAdjustment(id: 'adj_pressure', name: 'Pressure', notes: null, unit: 'psi');
-    rebound = TextAdjustment(id: 'adj_rebound', name: 'Rebound', notes: null, unit: 'clicks');
-    compression = TextAdjustment(id: 'adj_compression', name: 'Compression', notes: null, unit: 'clicks');
-    sag = TextAdjustment(id: 'adj_sag', name: 'Sag', notes: null, unit: '%');
-    weight = TextAdjustment(id: 'adj_weight', name: 'Weight', notes: null, unit: 'kg');
+    pressure = TextAdjustment(id: 'adj_pressure', name: 'Pressure', notes: null, unit: AdjustmentUnit.fromLegacy('psi'));
+    rebound = TextAdjustment(id: 'adj_rebound', name: 'Rebound', notes: null, unit: AdjustmentUnit.fromLegacy('clicks'));
+    compression = TextAdjustment(id: 'adj_compression', name: 'Compression', notes: null, unit: AdjustmentUnit.fromLegacy('clicks'));
+    sag = TextAdjustment(id: 'adj_sag', name: 'Sag', notes: null, unit: AdjustmentUnit.fromLegacy('%'));
+    weight = TextAdjustment(id: 'adj_weight', name: 'Weight', notes: null, unit: AdjustmentUnit.fromLegacy('kg'));
 
     myBike = Bike(id: 'bike_1', name: 'Enduro', person: 'person_1');
     otherBike = Bike(id: 'bike_2', name: 'Trail', person: 'person_1');

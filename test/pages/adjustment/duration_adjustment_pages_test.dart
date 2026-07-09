@@ -10,7 +10,7 @@ void main() {
       id: 'test-id',
       name: 'Test Duration',
       notes: 'Some notes',
-      unit: 'some unit',
+      unit: AdjustmentUnit.fromLegacy('some unit'),
       min: const Duration(minutes: 1),
       max: const Duration(minutes: 10),
     );
@@ -214,7 +214,7 @@ void main() {
       id: 'test-id',
       name: 'Original',
       notes: null,
-      unit: 'hours',
+      unit: AdjustmentUnit.fromLegacy('hours'),
       min: const Duration(hours: 1),
       max: const Duration(hours: 5),
     );
@@ -250,6 +250,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(result, isNotNull);
-    expect(result!.unit, 'hours');
+    expect(result!.unit?.label, 'hours');
   });
 }

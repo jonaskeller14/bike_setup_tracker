@@ -13,37 +13,37 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
   ],
   ComponentType.fork: [
     BooleanAdjustment(name: "Lockout", unit: null, notes: "Is the lockout lever enabled?"),
-    NumericalAdjustment(name: "Pressure", unit: "psi", min: 0, notes: "Fork air pressure"),
-    NumericalAdjustment(name: "SAG", unit: "%", min: 0, max: 100, notes: "Sag is how much your fork compresses under your body weight (including riding gear) in a static riding position. SAG is a good metric for initial setup. Recommended ranges by discipline: XC: 15%, Trail: 15-20%, Enduro: 20%, Downhill: 20-25%."),
+    NumericalAdjustment(name: "Pressure", unit: AdjustmentUnit.fromLegacy("psi"), min: 0, notes: "Fork air pressure"),
+    NumericalAdjustment(name: "SAG", unit: AdjustmentUnit.fromLegacy("%"), min: 0, max: 100, notes: "Sag is how much your fork compresses under your body weight (including riding gear) in a static riding position. SAG is a good metric for initial setup. Recommended ranges by discipline: XC: 15%, Trail: 15-20%, Enduro: 20%, Downhill: 20-25%."),
     StepAdjustment(name: "Rebound", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Rebound clicks"),
     StepAdjustment(name: "Compression", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Compression clicks"),
     StepAdjustment(name: "Volume Spacers", unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.minusButtonValuePlusButton, notes: "Number of volume spacers installed in the air spring"),
   ],
   ComponentType.shock: [
     BooleanAdjustment(name: "Lockout", unit: null, notes: "Is the lockout lever enabled?"),
-    NumericalAdjustment(name: "Pressure", unit: "psi", min: 0, notes: "Shock air pressure"),
-    NumericalAdjustment(name: "Spring Rate", unit: "lbs", min: 0, notes: "Coil spring rate"),
-    NumericalAdjustment(name: "SAG", unit: "%", min: 0, max: 100, notes: "Sag is how much your shock compresses under your body weight (including riding gear) in a static riding position. SAG is a good metric for initial setup. Recommended ranges by discipline: XC: 20-25%, Trail: 25-30%, Enduro: 30%, Downhill: 30-35%."),
+    NumericalAdjustment(name: "Pressure", unit: AdjustmentUnit.fromLegacy("psi"), min: 0, notes: "Shock air pressure"),
+    NumericalAdjustment(name: "Spring Rate", unit: AdjustmentUnit.fromLegacy("lbs/in"), min: 0, notes: "Coil spring rate"),
+    NumericalAdjustment(name: "SAG", unit: AdjustmentUnit.fromLegacy("%"), min: 0, max: 100, notes: "Sag is how much your shock compresses under your body weight (including riding gear) in a static riding position. SAG is a good metric for initial setup. Recommended ranges by discipline: XC: 20-25%, Trail: 25-30%, Enduro: 30%, Downhill: 30-35%."),
     StepAdjustment(name: "Rebound", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Rebound clicks"),
     StepAdjustment(name: "Compression", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Compression clicks"),
     StepAdjustment(name: "Volume Spacers", unit: null, step: 1, min: 0, max: 10, visualization: StepAdjustmentVisualization.minusButtonValuePlusButton, notes: "Number of volume spacers installed in the air spring"),
   ],
   ComponentType.cockpit: [
-    NumericalAdjustment(name: "Bar Roll", unit: "°", notes: "Angle of handlebars in degrees"),
-    NumericalAdjustment(name: "Bar Width", unit: "mm", min: 0, notes: "Total width of handlebars"),
-    NumericalAdjustment(name: "Bar Rise", unit: "mm", min: 0, notes: "The vertical distance between the center of the clamp area and the center of the bar ends."),
+    NumericalAdjustment(name: "Bar Roll", unit: AdjustmentUnit.fromLegacy("°"), notes: "Angle of handlebars in degrees"),
+    NumericalAdjustment(name: "Bar Width", unit: AdjustmentUnit.fromLegacy("mm"), min: 0, notes: "Total width of handlebars"),
+    NumericalAdjustment(name: "Bar Rise", unit: AdjustmentUnit.fromLegacy("mm"), min: 0, notes: "The vertical distance between the center of the clamp area and the center of the bar ends."),
   ],
   ComponentType.stem: [
-    NumericalAdjustment(name: "Stem Length", unit: "mm", min: 0, notes: "Measured center-to-center from the fork steerer tube to the handlebar clamp."),
-    NumericalAdjustment(name: "Stem Angle", unit: "°", notes: "Angle of the stem relative to the steering column"),
+    NumericalAdjustment(name: "Stem Length", unit: AdjustmentUnit.fromLegacy("mm"), min: 0, notes: "Measured center-to-center from the fork steerer tube to the handlebar clamp."),
+    NumericalAdjustment(name: "Stem Angle", unit: AdjustmentUnit.fromLegacy("°"), notes: "Angle of the stem relative to the steering column"),
     StepAdjustment(name: "Stack Spacers", unit: null, step: 5, min: 0, max: 100, visualization: StepAdjustmentVisualization.minusButtonValuePlusButton, notes: "Height of spacers under the stem"),
   ],
   ComponentType.grip: [
-    NumericalAdjustment(name: "Rotation", unit: "°", notes: "Rotation angle for ergonomic or asymmetric grips"),
+    NumericalAdjustment(name: "Rotation", unit: AdjustmentUnit.fromLegacy("°"), notes: "Rotation angle for ergonomic or asymmetric grips"),
   ],
   ComponentType.shifter: [
-    NumericalAdjustment(name: "Lateral Position", unit: "mm", notes: "Distance from the grip to the shifter clamp"),
-    NumericalAdjustment(name: "Angle", unit: "°", notes: "Angle of the shifter relative to the horizontal"),
+    NumericalAdjustment(name: "Lateral Position", unit: AdjustmentUnit.fromLegacy("mm"), notes: "Distance from the grip to the shifter clamp"),
+    NumericalAdjustment(name: "Angle", unit: AdjustmentUnit.fromLegacy("°"), notes: "Angle of the shifter relative to the horizontal"),
   ],
   ComponentType.derailleur: [
     BooleanAdjustment(name: "Clutch", notes: "Is the derailleur clutch/stabilizer enabled?", unit: null),
@@ -52,39 +52,39 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
   ComponentType.pedal: [
     StepAdjustment(name: "Clipless Spring Tension", unit: null, step: 1, min: 0, max: 20, visualization: StepAdjustmentVisualization.sliderWithCounterclockwiseDial, notes: "Release tension setting for clipless pedals"),
     CategoricalAdjustment(name: "Pin Arrangement", options: {"Full", "Aggressive", "Balanced", "Minimum"}, notes: "Pattern and arrangement of pins on platform pedals", unit: null),
-    NumericalAdjustment(name: "Pin Height", unit: "mm", min: 0, notes: "Height of the pins above the pedal platform"),
+    NumericalAdjustment(name: "Pin Height", unit: AdjustmentUnit.fromLegacy("mm"), min: 0, notes: "Height of the pins above the pedal platform"),
   ],
   ComponentType.brakeLever: [
-    NumericalAdjustment(name: "Lever Reach", unit: "mm", notes: "Distance from the handlebar to the lever blade"),
-    NumericalAdjustment(name: "Lever Angle",  unit: "°",  notes: "Angle of brake levers relative to horizontal (pointing down)."),
-    NumericalAdjustment(name: "Lateral Position", unit: "mm", notes: "Distance from the grip to the lever clamp"),
-    NumericalAdjustment(name: "Bite Point", unit: "mm", notes: "The distance the lever moves before the pads engage"),
+    NumericalAdjustment(name: "Lever Reach", unit: AdjustmentUnit.fromLegacy("mm"), notes: "Distance from the handlebar to the lever blade"),
+    NumericalAdjustment(name: "Lever Angle",  unit: AdjustmentUnit.fromLegacy("°"),  notes: "Angle of brake levers relative to horizontal (pointing down)."),
+    NumericalAdjustment(name: "Lateral Position", unit: AdjustmentUnit.fromLegacy("mm"), notes: "Distance from the grip to the lever clamp"),
+    NumericalAdjustment(name: "Bite Point", unit: AdjustmentUnit.fromLegacy("mm"), notes: "The distance the lever moves before the pads engage"),
   ],
   ComponentType.wheelFront: [
-    NumericalAdjustment(name: "Pressure", unit: "bar", min: 0, notes: "Front tire pressure"),
+    NumericalAdjustment(name: "Pressure", unit: AdjustmentUnit.fromLegacy("bar"), min: 0, notes: "Front tire pressure"),
     BooleanAdjustment(name: "Insert", unit: null, notes: "Tire insert installed?"),
     CategoricalAdjustment(name: "Wear", options: {"New", "Used", "Worn Out"}, unit: null, notes: "Current state of the tire tread"),
   ],
   ComponentType.wheelRear: [
-    NumericalAdjustment(name: "Tire Pressure", unit: "bar", min: 0, notes: "Rear tire pressure"),
+    NumericalAdjustment(name: "Tire Pressure", unit: AdjustmentUnit.fromLegacy("bar"), min: 0, notes: "Rear tire pressure"),
     BooleanAdjustment(name: "Insert", unit: null, notes: "Tire insert installed?"),
     CategoricalAdjustment(name: "Tire Wear", options: {"New", "Used", "Worn Out"}, unit: null, notes: "Current state of the tire tread"),
   ],
   ComponentType.tire: [
-    NumericalAdjustment(name: "Pressure", unit: "bar", min: 0, notes: "Tire pressure"),
+    NumericalAdjustment(name: "Pressure", unit: AdjustmentUnit.fromLegacy("bar"), min: 0, notes: "Tire pressure"),
     CategoricalAdjustment(name: "Wear", options: {"New", "Used", "Worn Out"}, unit: null, notes: "Current state of the tire tread"),
   ],
   ComponentType.saddle: [
-    NumericalAdjustment(name: "Saddle Tilt", unit: "°", notes: "Angle of the saddle relative to horizontal"),
-    NumericalAdjustment(name: "Saddle Fore/Aft", unit: "mm", notes: "Position of the saddle on the rails"),
+    NumericalAdjustment(name: "Saddle Tilt", unit: AdjustmentUnit.fromLegacy("°"), notes: "Angle of the saddle relative to horizontal"),
+    NumericalAdjustment(name: "Saddle Fore/Aft", unit: AdjustmentUnit.fromLegacy("mm"), notes: "Position of the saddle on the rails"),
   ],
   ComponentType.seatpost: [
-    NumericalAdjustment(name: "Saddle Height", unit: "mm", min: 0, notes: "Distance from Bottom Bracket to top of saddle"),
-    NumericalAdjustment(name: "Dropper Pressure", unit: "psi", min: 0, notes: "Air pressure for the dropper post return"),
+    NumericalAdjustment(name: "Saddle Height", unit: AdjustmentUnit.fromLegacy("mm"), min: 0, notes: "Distance from Bottom Bracket to top of saddle"),
+    NumericalAdjustment(name: "Dropper Pressure", unit: AdjustmentUnit.fromLegacy("psi"), min: 0, notes: "Air pressure for the dropper post return"),
   ],
   ComponentType.motor: [
-    NumericalAdjustment(name: "Max Power", unit: "W", min: 0, notes: "Maximum motor power output"),
-    NumericalAdjustment(name: "Max Torque", unit: "Nm", min: 0, notes: "Maximum motor torque"),
+    NumericalAdjustment(name: "Max Power", unit: AdjustmentUnit.fromLegacy("W"), min: 0, notes: "Maximum motor power output"),
+    NumericalAdjustment(name: "Max Torque", unit: AdjustmentUnit.fromLegacy("Nm"), min: 0, notes: "Maximum motor torque"),
     CategoricalAdjustment(name: "Mode", notes: "Current assistance level", unit: null, options: {"Eco", "Trail", "Turbo", "Boost", "Auto"}),
   ],
   ComponentType.equipment: [
@@ -94,7 +94,7 @@ final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
     CategoricalAdjustment(name: "Cleat Position", notes: "Shoe cleat fore/aft or lateral position", unit: null, options: {"Forward", "Neutral", "Rearward"}),
   ],
   ComponentType.other: [
-    NumericalAdjustment(name: "Stack Height", unit: "mm", min: 0, notes: "Height of spacers under the stem"),
+    NumericalAdjustment(name: "Stack Height", unit: AdjustmentUnit.fromLegacy("mm"), min: 0, notes: "Height of spacers under the stem"),
   ],
 };
 

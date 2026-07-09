@@ -12,7 +12,7 @@ void main() {
       id: 'test-id',
       name: 'Test Categorical',
       notes: 'Some notes',
-      unit: 'some unit',
+      unit: AdjustmentUnit.fromLegacy('some unit'),
       options: {'Option 1', 'Option 2'},
     );
 

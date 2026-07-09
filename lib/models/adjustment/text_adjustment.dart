@@ -31,7 +31,7 @@ class TextAdjustment extends Adjustment {
     'name': name,
     'notes': notes,
     'type': AdjustmentType.text.name,
-    'unit': unit,
+    'unit': unit?.encode(),
   };
 
   factory TextAdjustment.fromJson(Map<String, dynamic> json) {
@@ -42,7 +42,7 @@ class TextAdjustment extends Adjustment {
           id: json["id"],
           name: json['name'],
           notes: json['notes'],
-          unit: json['unit'] as String?,
+          unit: AdjustmentUnit.decode(json['unit'] as String?),
         );
       default: throw Exception("Json Version $version of TextAdjustment incompatible.");
     }

@@ -39,7 +39,7 @@ class NumericalAdjustment extends Adjustment {
       id: id is _Sentinel ? this.id : (id as String),
       name: name is _Sentinel ? this.name : (name as String),
       notes: notes is _Sentinel ? this.notes : (notes as String?),
-      unit: unit is _Sentinel ? this.unit : (unit as String?),
+      unit: unit is _Sentinel ? this.unit : (unit as AdjustmentUnit?),
       min: min is _Sentinel ? this.min : (min as double?),
       max: max is _Sentinel ? this.max : (max as double?),
     );
@@ -57,7 +57,7 @@ class NumericalAdjustment extends Adjustment {
     'name': name,
     'notes': notes,
     'type': AdjustmentType.numerical.name,
-    'unit': unit,
+    'unit': unit?.encode(),
     'min': min.isFinite ? min : null,
     'max': max.isFinite ? max : null,
   };
@@ -70,7 +70,7 @@ class NumericalAdjustment extends Adjustment {
           id: json["id"],
           name: json['name'],
           notes: json['notes'],
-          unit: json['unit'] as String?,
+          unit: AdjustmentUnit.decode(json['unit'] as String?),
           min: (json['min'] as num?)?.toDouble(),
           max: (json['max'] as num?)?.toDouble(),
         );

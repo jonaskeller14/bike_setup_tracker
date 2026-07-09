@@ -6,6 +6,7 @@ import '../../theme.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/metric_weight_field.dart';
 import '../../widgets/set_adjustment/set_numerical_adjustment.dart';
+import '../../widgets/sheets/unit_picker_sheet.dart';
 import 'metric_page.dart';
 
 const double _defaultWeight = 1.0;
@@ -44,7 +45,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
   late TextEditingController _notesController;
   late TextEditingController _minController;
   late TextEditingController _maxController;
-  late TextEditingController _unitController;
+  AdjustmentUnit? _unit;
   late TextEditingController _weightController;
 
   late NumericalAdjustment? _initialAdj;
@@ -67,8 +68,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
     _minController.addListener(_changeListener);
     _maxController = TextEditingController(text: _initialAdj?.max == double.infinity || _initialAdj?.max == double.negativeInfinity ? null : _initialAdj?.max.toString());
     _maxController.addListener(_changeListener);
-    _unitController = TextEditingController(text: _initialAdj?.unit);
-    _unitController.addListener(_changeListener);
+    _unit = _initialAdj?.unit;
     _weightController = TextEditingController(text: MetricWeightField.formatWeight(_initialWeight));
     _weightController.addListener(_changeListener);
 
@@ -83,7 +83,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
   void _changeListener() {
     final hasChanges = _nameController.text.trim() != (_initialAdj?.name ?? '') ||
         _notesController.text.trim() != (_initialAdj?.notes ?? '') ||
-        _unitController.text.trim() != (_initialAdj?.unit ?? '') ||
+        _unit != _initialAdj?.unit ||
         (double.tryParse(_minController.text.trim()) ?? double.negativeInfinity) != (_initialAdj?.min ?? double.negativeInfinity) ||
         (double.tryParse(_maxController.text.trim()) ?? double.infinity) != (_initialAdj?.max ?? double.infinity) ||
         (double.tryParse(_weightController.text.trim()) ?? _initialWeight) != _initialWeight;
@@ -104,11 +104,23 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
     _minController.dispose();
     _maxController.removeListener(_changeListener);
     _maxController.dispose();
-    _unitController.removeListener(_changeListener);
-    _unitController.dispose();
     _weightController.removeListener(_changeListener);
     _weightController.dispose();
     super.dispose();
+  }
+
+  void _pickUnit() {
+    showUnitPickerSheet(
+      context: context,
+      current: _unit,
+      onSelected: (unit) {
+        setState(() {
+          _unit = unit;
+          _changeListener();
+          _updatePreview();
+        });
+      },
+    );
   }
 
   void _saveMetric() {
@@ -119,11 +131,9 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
 
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
-    final unitText = _unitController.text.trim();
 
     final min = double.parse(_minController.text.trim());
     final max = double.parse(_maxController.text.trim());
-    final unit = unitText.isNotEmpty ? unitText : null;
     final weight = double.parse(_weightController.text.trim());
     _formHasChanges = false;
     if (!mounted) return;
@@ -134,7 +144,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
         notes: notes.isEmpty ? null : notes,
         min: min,
         max: max,
-        unit: unit,
+        unit: _unit,
       ),
       weight: weight,
     ));
@@ -175,12 +185,11 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
         : null;
 
     final notes = _notesController.text.trim();
-    final unit = _unitController.text.trim();
     return NumericalAdjustment(
       id: _previewAdjustment.id,
       name: _nameController.text.trim(),
       notes: notes.isEmpty ? null : notes,
-      unit: unit.isEmpty ? null : unit,
+      unit: _unit,
       min: min,
       max: max,
     );
@@ -304,7 +313,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
                                 maintainState: true,
                                 child: Column(
                                   children: [
-                                    if (widget.mode == MetricPageMode.edit && _unitController.text.trim() != (_initialAdj?.unit ?? '')) ...[
+                                    if (widget.mode == MetricPageMode.edit && _unit != _initialAdj?.unit) ...[
                                       ListTile(
                                         leading: Icon(Icons.warning, color: Theme.of(context).colorScheme.error),
                                         title: Text(
@@ -316,20 +325,32 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
                                       ),
                                       const SizedBox(height: 12),
                                     ],
-                                    TextFormField(
-                                      controller: _unitController,
-                                      maxLength: 10,
-                                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                                      decoration: InputDecoration(
-                                        labelText: 'Unit (optional)',
-                                        hintText: 'Enter unit (e.g., mm, psi)',
-                                        border: const OutlineInputBorder(),
-                                        prefixIcon: const Icon(Icons.straighten),
-                                        fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
-                                        filled: widget.mode == MetricPageMode.edit && _unitController.text.trim() != (_initialAdj?.unit ?? ""),
+                                    InkWell(
+                                      key: const Key('unit_picker_field'),
+                                      onTap: _pickUnit,
+                                      child: InputDecorator(
+                                        decoration: InputDecoration(
+                                          labelText: 'Unit (optional)',
+                                          hintText: 'Choose a unit',
+                                          border: const OutlineInputBorder(),
+                                          prefixIcon: const Icon(Icons.straighten),
+                                          suffixIcon: _unit != null
+                                              ? IconButton(
+                                                  icon: const Icon(Icons.clear),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      _unit = null;
+                                                      _changeListener();
+                                                      _updatePreview();
+                                                    });
+                                                  },
+                                                )
+                                              : const Icon(Icons.arrow_drop_down),
+                                          fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
+                                          filled: widget.mode == MetricPageMode.edit && _unit != _initialAdj?.unit,
+                                        ),
+                                        child: Text(_unit?.label ?? 'None'),
                                       ),
-                                      validator: (value) => (value != null && value.length > 10) ? "Too many characters" : null,
-                                      onChanged: (_) => _updatePreview(),
                                     ),
                                     const SizedBox(height: 12),
                                     TextFormField(

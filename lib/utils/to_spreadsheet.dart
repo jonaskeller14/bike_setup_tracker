@@ -152,7 +152,7 @@ class SpreadsheetExport {
 
       for (final adj in person.adjustments) {
         row1.add('');
-        row2.add('${adj.name}${adj.unit != null ? ' [${adj.unit}]' : ''}');
+        row2.add('${adj.name}${adj.unit != null ? ' [${adj.unit!.label}]' : ''}');
         columnMap['p_adj_${adj.id}'] = colIndex++;
       }
       merges.add(_MergeInfo(personStart, colIndex - 1, 'Person'));
@@ -173,7 +173,7 @@ class SpreadsheetExport {
       }
 
       for (final adj in component.adjustments) {
-        row2.add('${adj.name}${adj.unit != null ? ' [${adj.unit}]' : ''}');
+        row2.add('${adj.name}${adj.unit != null ? ' [${adj.unit!.label}]' : ''}');
         columnMap['comp_${adj.id}'] = colIndex++;
       }
       

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 
-typedef _RangeParts = ({String? min, String? max, String? step, String? unit});
+typedef _RangeParts = ({String? min, String? max, String? step, AdjustmentUnit? unit});
 
 class AdjustmentProperties extends StatelessWidget {
   final Adjustment adjustment;
@@ -91,7 +91,7 @@ class AdjustmentProperties extends StatelessWidget {
         fgColor: fgColor,
         borderColor: borderColor,
         icon: Icons.straighten,
-        text: adjustment.unit!,
+        text: adjustment.unit!.label,
       ));
     }
 

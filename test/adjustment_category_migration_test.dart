@@ -100,7 +100,7 @@ void main() {
           'category': 'AdjustmentCategory.component',
         }) as NumericalAdjustment;
         expect(adj.name, 'Pressure');
-        expect(adj.unit, 'psi');
+        expect(adj.unit?.label, 'psi');
         expect(adj.min, 0.0);
         expect(adj.max, 200.0);
       });

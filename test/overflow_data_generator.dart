@@ -46,12 +46,12 @@ void main() async {
               NumericalAdjustment(
                 name: "Height: $loremIpsum",
                 notes: loremIpsum,
-                unit: "cm",
+                unit: AdjustmentUnit.fromLegacy("cm"),
               ),
               NumericalAdjustment(
                 name: "Weight",
                 notes: loremIpsum,
-                unit: "kg",
+                unit: AdjustmentUnit.fromLegacy("kg"),
               ),
             ]
           : [],
@@ -125,7 +125,7 @@ void main() async {
               NumericalAdjustment(
                 name: "NumericalAdjustment: $loremIpsum",
                 notes: loremIpsum,
-                unit: "mm",
+                unit: AdjustmentUnit.fromLegacy("mm"),
               ),
               DurationAdjustment(
                 name: "DurationAdjustment: $loremIpsum",

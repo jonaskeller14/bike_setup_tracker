@@ -6,8 +6,8 @@ import '../items/adjustment_properties.dart';
 import 'sheet_header.dart';
 
  final List<Adjustment> _adjustmentPresets = [
-  NumericalAdjustment(name: 'Riding weight', unit: 'kg', min: 0.0, notes: "Weight including all gear (helmet, shoes, hydration pack)."), 
-  NumericalAdjustment(name: 'Height', unit: 'cm', min: 0.0, notes: "Body height"),
+  NumericalAdjustment(name: 'Riding weight', unit: AdjustmentUnit.fromLegacy('kg'), min: 0.0, notes: "Weight including all gear (helmet, shoes, hydration pack)."),
+  NumericalAdjustment(name: 'Height', unit: AdjustmentUnit.fromLegacy('cm'), min: 0.0, notes: "Body height"),
   CategoricalAdjustment(name: 'Riding Style', unit: null, options: {'Plush/Comfort', 'Balanced', 'Aggressive/Race'}, notes: "Aggressive riders usually require higher support (more compression damping)."),
 ];
 

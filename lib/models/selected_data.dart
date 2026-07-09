@@ -1,3 +1,4 @@
+import 'adjustment/adjustment_unit.dart';
 import 'bike.dart';
 import 'component.dart';
 import 'person.dart';
@@ -35,7 +36,13 @@ class SelectedData {
         taskRules = taskRules ?? {},
         taskEntries = taskEntries ?? {};
 
-  factory SelectedData.fromJson(Map<String, dynamic> json) {
+  factory SelectedData.fromJson(Map<String, dynamic> rawJson) {
+    // Backup import (all legacy versions): normalize adjustment/rating-metric
+    // unit spellings ("psi", "KPH", ...) to the canonical AdjustmentUnit
+    // encoding before any model parsing happens, so old backups arrive
+    // structured. `"unit"` is only ever used by Adjustment/RatingMetric json.
+    final json = _normalizeLegacyUnits(rawJson) as Map<String, dynamic>;
+
     final loadedPersons = (json['persons'] as List<dynamic>? ?? [])
         .map((a) => Person.fromJson(a as Map<String, dynamic>));
     final loadedBikes = (json['bikes'] as List<dynamic>? ?? [])
@@ -64,4 +71,21 @@ class SelectedData {
       taskEntries: {for (var item in loadedTaskEntries) item.id: item},
     );
   }
+}
+
+/// Recursively rewrites every `"unit"` string value in [node] via
+/// [AdjustmentUnit.fromLegacy], leaving everything else untouched.
+dynamic _normalizeLegacyUnits(dynamic node) {
+  if (node is Map<String, dynamic>) {
+    return node.map((key, value) {
+      if (key == 'unit' && value is String) {
+        return MapEntry(key, AdjustmentUnit.fromLegacy(value)?.encode());
+      }
+      return MapEntry(key, _normalizeLegacyUnits(value));
+    });
+  }
+  if (node is List) {
+    return node.map(_normalizeLegacyUnits).toList();
+  }
+  return node;
 }

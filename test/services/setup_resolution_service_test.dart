@@ -22,14 +22,14 @@ void main() {
         id: 'adj_pressure',
         name: 'Pressure',
         notes: null,
-        unit: 'psi',
+        unit: AdjustmentUnit.fromLegacy('psi'),
       );
 
       reboundAdj = TextAdjustment(
         id: 'adj_rebound',
         name: 'Rebound',
         notes: null,
-        unit: 'clicks',
+        unit: AdjustmentUnit.fromLegacy('clicks'),
       );
 
       myBike = Bike(id: 'bike_1', name: 'My Enduro', person: 'person_1');

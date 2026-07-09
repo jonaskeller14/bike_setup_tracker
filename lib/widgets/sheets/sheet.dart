@@ -11,14 +11,14 @@ Text sheetTitle(BuildContext context, String title) {
 
 IconButton sheetCloseButton(BuildContext context) {
   return IconButton.filled(
-    iconSize: 20, 
+    iconSize: 20,
     style: IconButton.styleFrom(
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
       foregroundColor: Theme.of(context).colorScheme.onSurface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
     onPressed: () => Navigator.pop(context),
-    icon: const Icon(Icons.close), 
+    icon: const Icon(Icons.close),
   );
 }
 

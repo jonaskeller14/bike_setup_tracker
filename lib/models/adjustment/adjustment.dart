@@ -3,6 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
+import 'adjustment_unit.dart';
+
+export 'adjustment_unit.dart';
 
 part 'boolean_adjustment.dart';
 part 'categorical_adjustment.dart';
@@ -24,7 +27,7 @@ sealed class Adjustment {
   final String id;
   final String name;
   final String? notes;
-  final String? unit;
+  final AdjustmentUnit? unit;
 
   Adjustment({
     String? id,
@@ -39,7 +42,7 @@ sealed class Adjustment {
   IconData getIconData();
 
   String unitSuffix() {
-    return unit == null ? "" : " $unit";
+    return unit == null ? "" : " ${unit!.label}";
   }
 
   static const String multiValueSeparator = ', ';

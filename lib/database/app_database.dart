@@ -89,7 +89,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration {
@@ -174,8 +174,36 @@ class AppDatabase extends _$AppDatabase {
           // re-encode with the new codec (data-only, no schema change).
           await migrateAdjustmentValuesToJson(this);
         }
+        if (from < 12) {
+          // Adjustment/RatingMetric units move from free-spelled strings
+          // ("psi", "KPH", ...) to a structured `AdjustmentUnit` encoding
+          // ("pressure:psi"). Normalize every existing unit string via the
+          // alias table once; unmatched spellings become a `CustomUnit`
+          // (data-only, no schema change).
+          await migrateAdjustmentUnits(this);
+        }
       },
     );
+  }
+
+  @visibleForTesting
+  static Future<void> migrateAdjustmentUnits(AppDatabase db) async {
+    await db._reencodeUnitColumn('adjustments');
+    await db._reencodeUnitColumn('rating_metrics');
+  }
+
+  Future<void> _reencodeUnitColumn(String table) async {
+    final rows = await customSelect('SELECT id, unit FROM $table').get();
+    for (final row in rows) {
+      final raw = row.read<String?>('unit');
+      if (raw == null) continue;
+      final newRaw = AdjustmentUnit.fromLegacy(raw)?.encode();
+      if (newRaw == raw) continue;
+      await customStatement(
+        'UPDATE $table SET unit = ? WHERE id = ?',
+        [newRaw, row.read<String>('id')],
+      );
+    }
   }
 
   @visibleForTesting

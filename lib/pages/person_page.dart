@@ -74,8 +74,8 @@ class _PersonPageState extends State<PersonPage> {
 
     _adjustments = widget.person == null 
         ? [
-            NumericalAdjustment(name: 'Body weight', notes: null, unit: 'kg', min: 0.0),
-            NumericalAdjustment(name: 'Height', notes: null, unit: 'cm', min: 0.0),
+            NumericalAdjustment(name: 'Body weight', notes: null, unit: AdjustmentUnit.fromLegacy('kg'), min: 0.0),
+            NumericalAdjustment(name: 'Height', notes: null, unit: AdjustmentUnit.fromLegacy('cm'), min: 0.0),
           ] 
         : List.from(widget.person!.adjustments);
     _initialAdjustments = List.from(_adjustments);

@@ -10,7 +10,7 @@ void main() {
       id: 'test-id',
       name: 'Test Step',
       notes: 'Some notes',
-      unit: 'clicks',
+      unit: AdjustmentUnit.fromLegacy('clicks'),
       step: 1,
       min: 0,
       max: 10,

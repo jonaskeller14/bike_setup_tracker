@@ -569,7 +569,7 @@ class _AdjustmentTableCell extends StatelessWidget {
           ],
           if (adjustment.unit != null)
             Text(
-              adjustment.unit!,
+              adjustment.unit!.label,
               style: isError
                   ? TextStyle(color: Theme.of(context).colorScheme.error)
                   : null,

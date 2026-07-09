@@ -49,7 +49,7 @@ void main() {
         id: 'person1',
         name: 'Jonas',
         adjustments: [
-          NumericalAdjustment(id: 'adj1', name: 'Weight', notes: '', unit: 'kg'),
+          NumericalAdjustment(id: 'adj1', name: 'Weight', notes: '', unit: AdjustmentUnit.fromLegacy('kg')),
         ],
         isDeleted: false,
         lastModified: DateTime(2023, 1, 1).toUtc(),
@@ -69,7 +69,7 @@ void main() {
         orderIndex: 0,
       );
       final model = data.toModel(adjustments: [
-        NumericalAdjustment(id: 'adj1', name: 'Weight', notes: '', unit: 'kg'),
+        NumericalAdjustment(id: 'adj1', name: 'Weight', notes: '', unit: AdjustmentUnit.fromLegacy('kg')),
       ]);
       expect(model.id, 'person1');
       expect(model.name, 'Jonas');
@@ -83,7 +83,7 @@ void main() {
         componentType: ComponentType.fork,
         installations: [Installation.sinceBeginning(parent: 'bike1')],
         adjustments: [
-          StepAdjustment(id: 'adj2', name: 'Rebound', notes: '', unit: 'clicks', min: 0, max: 20, step: 1, visualization: StepAdjustmentVisualization.slider),
+          StepAdjustment(id: 'adj2', name: 'Rebound', notes: '', unit: AdjustmentUnit.fromLegacy('clicks'), min: 0, max: 20, step: 1, visualization: StepAdjustmentVisualization.slider),
         ],
         isDeleted: false,
         lastModified: DateTime(2023, 1, 1).toUtc(),
@@ -111,7 +111,7 @@ void main() {
       );
       final model = data.toModel(
         adjustments: [
-          StepAdjustment(id: 'adj2', name: 'Rebound', notes: '', unit: 'clicks', min: 0, max: 20, step: 1, visualization: StepAdjustmentVisualization.slider),
+          StepAdjustment(id: 'adj2', name: 'Rebound', notes: '', unit: AdjustmentUnit.fromLegacy('clicks'), min: 0, max: 20, step: 1, visualization: StepAdjustmentVisualization.slider),
         ],
         installations: [Installation.sinceBeginning(parent: 'bike1')],
       );
@@ -223,7 +223,7 @@ void main() {
         final model = data.toModel();
         expect(model, isA<NumericalAdjustment>());
         expect(model.name, 'Pressure');
-        expect(model.unit, 'psi');
+        expect(model.unit?.label, 'psi');
         expect((model as NumericalAdjustment).min, 0.0);
       });
     });

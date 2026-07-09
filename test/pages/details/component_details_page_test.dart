@@ -64,7 +64,7 @@ void main() {
           id: 'adj1',
           name: 'Rebound',
           notes: '',
-          unit: 'clicks',
+          unit: AdjustmentUnit.fromLegacy('clicks'),
           min: 0,
           max: 10,
           step: 1,
@@ -126,7 +126,7 @@ void main() {
   });
 
   testWidgets('show placeholder when no columns are selected', (WidgetTester tester) async {
-    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: 'clicks', min: 0, max: 10, step: 1, visualization: StepAdjustmentVisualization.slider);
+    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: AdjustmentUnit.fromLegacy('clicks'), min: 0, max: 10, step: 1, visualization: StepAdjustmentVisualization.slider);
     final component = Component(
       id: 'comp1',
       name: 'Test Fork',
@@ -189,7 +189,7 @@ void main() {
 
   testWidgets('sorting setups by name', (WidgetTester tester) async {
     // Component needs an adjustment for setups with that adjustment to be shown
-    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: 'clicks', min: 0, max: 10, step: 1, visualization: StepAdjustmentVisualization.slider);
+    final adjustment = StepAdjustment(id: 'adj1', name: 'Rebound', notes: '', unit: AdjustmentUnit.fromLegacy('clicks'), min: 0, max: 10, step: 1, visualization: StepAdjustmentVisualization.slider);
     final component = Component(
       id: 'comp1',
       name: 'Test Fork',

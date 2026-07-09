@@ -242,7 +242,7 @@ extension AdjustmentMapper on Adjustment {
       id: Value<String>(id),
       name: Value<String>(name),
       notes: Value<String?>(notes),
-      unit: Value<String?>(unit),
+      unit: Value<String?>(unit?.encode()),
       type: Value<AdjustmentType>(
         AdjustmentType.values.firstWhere((e) => e.name == typeString),
       ),
@@ -288,7 +288,7 @@ extension RatingMetricMapper on RatingMetric {
       weight: Value<double>(weight),
       name: Value<String>(adjustment.name),
       notes: Value<String?>(adjustment.notes),
-      unit: Value<String?>(adjustment.unit),
+      unit: Value<String?>(adjustment.unit?.encode()),
       type: Value<AdjustmentType>(
         AdjustmentType.values.firstWhere((e) => e.name == typeString),
       ),

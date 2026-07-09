@@ -12,7 +12,7 @@ void main() {
         id: 'step1',
         name: 'Step Adj',
         notes: '',
-        unit: 'clicks',
+        unit: AdjustmentUnit.fromLegacy('clicks'),
         step: 1,
         min: 0,
         max: 10,
@@ -53,7 +53,7 @@ void main() {
         id: 'num1',
         name: 'Num Adj',
         notes: '',
-        unit: 'mm',
+        unit: AdjustmentUnit.fromLegacy('mm'),
         min: 0,
         max: 100,
       );

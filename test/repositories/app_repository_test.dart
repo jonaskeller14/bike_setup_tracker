@@ -156,7 +156,7 @@ void main() {
       final adjustment = NumericalAdjustment(
         name: "Pressure",
         notes: "",
-        unit: "psi",
+        unit: AdjustmentUnit.fromLegacy("psi"),
       );
       final bikeWithAdj = bike1.copyWith(id: bike1.id);
       final component = Component(
@@ -274,7 +274,7 @@ void main() {
       final adjustment = NumericalAdjustment(
         name: "Weight",
         notes: "",
-        unit: "kg",
+        unit: AdjustmentUnit.fromLegacy("kg"),
       );
       final personWithAdj = person1.copyWith(id: person1.id, adjustments: [adjustment]);
 
@@ -326,7 +326,7 @@ void main() {
       final adjustment = NumericalAdjustment(
         name: "Difficulty",
         notes: "",
-        unit: "",
+        unit: null,
       );
       final ratingWithAdj = rating1.copyWith(id: rating1.id, metrics: [RatingMetric(adjustment: adjustment)]);
 

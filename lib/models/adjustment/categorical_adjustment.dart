@@ -42,7 +42,7 @@ class CategoricalAdjustment extends Adjustment {
     'name': name,
     'notes': notes,
     'type': AdjustmentType.categorical.name,
-    'unit': unit,
+    'unit': unit?.encode(),
     'options': options.toList(),
     'multiSelect': multiSelect,
   };
@@ -55,7 +55,7 @@ class CategoricalAdjustment extends Adjustment {
           id: json["id"],
           name: json['name'],
           notes: json['notes'],
-          unit: json['unit'] as String?,
+          unit: AdjustmentUnit.decode(json['unit'] as String?),
           options: Set<String>.from(json['options']),
           multiSelect: json['multiSelect'] as bool? ?? false,
         );

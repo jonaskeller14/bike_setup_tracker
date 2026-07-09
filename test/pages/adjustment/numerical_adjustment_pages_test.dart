@@ -10,7 +10,7 @@ void main() {
       id: 'test-id',
       name: 'Test Numerical',
       notes: 'Some notes',
-      unit: 'mm',
+      unit: AdjustmentUnit.fromLegacy('mm'),
       min: 0,
       max: 100,
     );
@@ -128,7 +128,7 @@ void main() {
       id: 'test-id',
       name: 'Original',
       notes: 'Some notes',
-      unit: 'psi',
+      unit: AdjustmentUnit.fromLegacy('psi'),
       min: 10.0,
       max: 100.0,
     );
@@ -199,19 +199,17 @@ void main() {
     await tester.enterText(find.byType(TextFormField).at(0), 'Weight');
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Show Additional Fields'));
+    await tester.tap(find.byKey(const Key('unit_picker_field')));
     await tester.pumpAndSettle();
 
-    final fields = find.byType(TextFormField);
-    // Unit field should be one of the early fields in additional
-    await tester.enterText(fields.at(1), 'kg');
+    await tester.tap(find.text('kg'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byIcon(Icons.check));
     await tester.pumpAndSettle();
 
     expect(result, isNotNull);
-    expect(result!.unit, 'kg');
+    expect(result!.unit, const KnownUnit(quantity: UnitQuantity.mass, unitId: 'kilograms'));
   });
 
   testWidgets('Preview equals input', (WidgetTester tester) async {

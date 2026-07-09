@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> {
     final appRepository = context.watch<AppRepository>();
     final toDoTaskRulesCount = appRepository.openTaskRules.length;
 
-    final defaultIndex = appRepository.bikes.isEmpty
+    final defaultIndex = appRepository.bikes.isEmpty  || appRepository.components.isEmpty
         ? 0
         : (appSettings.enableGarage ? 1 : 2);
     final pageIndex = (_currentPageIndex ?? defaultIndex)

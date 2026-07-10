@@ -243,6 +243,7 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
               ),
             ),
           ),
+          SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
         ],
       ),
     );

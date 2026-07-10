@@ -217,7 +217,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                 helperText: helperText,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 suffixIcon: _buildSuffix(context),
-                suffixIconConstraints: const BoxConstraints(minHeight: 0, minWidth: 0),
+                suffixIconConstraints: const BoxConstraints(minHeight: 48, minWidth: 0),
               ),
               validator: (String? newValue) {
                 if ((newValue == null || newValue.trim().isEmpty) && widget.initialValue != null) {

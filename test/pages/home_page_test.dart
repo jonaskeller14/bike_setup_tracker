@@ -106,11 +106,11 @@ void main() {
   });
 
   testWidgets('Default tab is Setup History when bikes exist', (WidgetTester tester) async {
-    // Seed a bike before creating the widget. The new AppRepository reads the
-    // same database, so the bike is present on first build.
-    // Note: only bikes.isEmpty controls the default; components are not required.
+    // Seed a bike and a component before creating the widget. The default page
+    // is Setups only when both bikes and components are non-empty.
     await tester.runAsync(() async {
       await appRepository.addBike(Bike(name: 'TestBike', person: null));
+      await appRepository.addComponent(Component(name: 'TestComponent', componentType: ComponentType.frame, adjustments: const [], installations: const []));
     });
 
     await tester.pumpWidget(createWidgetUnderTest());

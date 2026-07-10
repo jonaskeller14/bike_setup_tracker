@@ -69,12 +69,12 @@ extension InstallationDbMapper on InstallationDb {
   Installation toModel() {
     final utc = _toUtcSafe(dateTimeUTC, 'Installation.dateTimeUTC');
     return switch (parentType) {
-      // Defensive: a 'bike' row with no parent is treated as deinstalled.
+      // Defensive: a 'bike' row with no parent is treated as uninstalled.
       InstallationParentType.bike => parent == null
-          ? Deinstallation(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal)
+          ? Uninstallation(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal)
           : BikeInstallation(id: id, componentId: componentId, bikeId: parent!, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
       InstallationParentType.none =>
-        Deinstallation(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
+        Uninstallation(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
       InstallationParentType.archived =>
         Archival(id: id, componentId: componentId, dateTimeUTC: utc, dateTimeLocal: dateTimeLocal),
     };

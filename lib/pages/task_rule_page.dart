@@ -467,7 +467,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                   switch (component.latestInstallation) {
                     Archival() => Icons.inventory_2_outlined,
                     BikeInstallation() => Bike.iconData,
-                    Deinstallation() || null => Icons.shelves,
+                    Uninstallation() || null => Icons.shelves,
                   },
                   color: switch (component.latestInstallation) {
                     BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) => Theme.of(context).colorScheme.error,
@@ -479,7 +479,7 @@ class _TaskRulePageState extends State<TaskRulePage> {
                     switch (component.latestInstallation) {
                       Archival() => "Archived",
                       BikeInstallation(:final bikeId) => bikes[bikeId]?.name ?? "BIKE NOT FOUND",
-                      Deinstallation() || null => "Not installed",
+                      Uninstallation() || null => "Not installed",
                     },
                     style: switch (component.latestInstallation) {
                       BikeInstallation(:final bikeId) when !bikes.containsKey(bikeId) =>

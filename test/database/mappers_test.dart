@@ -248,7 +248,7 @@ void main() {
         expect(model.componentId, 'c1');
       });
 
-      test('parentType=none yields Deinstallation', () {
+      test('parentType=none yields Uninstallation', () {
         final db = InstallationDb(
           id: 'i2',
           componentId: 'c1',
@@ -257,7 +257,7 @@ void main() {
           dateTimeUTC: utc,
           dateTimeLocal: local,
         );
-        expect(db.toModel(), isA<Deinstallation>());
+        expect(db.toModel(), isA<Uninstallation>());
       });
 
       test('parentType=archived yields Archival', () {
@@ -272,7 +272,7 @@ void main() {
         expect(db.toModel(), isA<Archival>());
       });
 
-      test('parentType=bike with null parent falls back to Deinstallation', () {
+      test('parentType=bike with null parent falls back to Uninstallation', () {
         // Defensive: a corrupted row with parentType=bike but no parent id.
         final db = InstallationDb(
           id: 'i4',
@@ -282,7 +282,7 @@ void main() {
           dateTimeUTC: utc,
           dateTimeLocal: local,
         );
-        expect(db.toModel(), isA<Deinstallation>());
+        expect(db.toModel(), isA<Uninstallation>());
       });
     });
 
@@ -308,8 +308,8 @@ void main() {
         expect(restored.id, 'i1');
       });
 
-      test('Deinstallation round-trips', () {
-        final original = Deinstallation(
+      test('Uninstallation round-trips', () {
+        final original = Uninstallation(
           id: 'i2',
           componentId: 'c1',
           dateTimeUTC: utc,
@@ -320,7 +320,7 @@ void main() {
         expect(json['parent'], isNull);
 
         final restored = Installation.fromJson(json);
-        expect(restored, isA<Deinstallation>());
+        expect(restored, isA<Uninstallation>());
       });
 
       test('Archival round-trips', () {
@@ -353,7 +353,7 @@ void main() {
         expect((result as BikeInstallation).bikeId, 'b1');
       });
 
-      test('legacy JSON without type field: null parent → Deinstallation', () {
+      test('legacy JSON without type field: null parent → Uninstallation', () {
         final json = <String, dynamic>{
           'id': 'i5',
           'componentId': 'c1',
@@ -362,7 +362,7 @@ void main() {
           'dateTimeLocal': local.toIso8601String(),
         };
         final result = Installation.fromJson(json);
-        expect(result, isA<Deinstallation>());
+        expect(result, isA<Uninstallation>());
       });
     });
 

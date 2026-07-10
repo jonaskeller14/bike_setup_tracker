@@ -556,7 +556,7 @@ class _ComponentPageState extends State<ComponentPage> {
           );
         }),
         DropdownMenuItem<Installation?>(
-          value: lastInstallation is Deinstallation ? lastInstallation : Deinstallation(
+          value: lastInstallation is Uninstallation ? lastInstallation : Uninstallation(
             dateTimeUTC: DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
             dateTimeLocal: DateTime.fromMillisecondsSinceEpoch(0, isUtc: false),
           ),

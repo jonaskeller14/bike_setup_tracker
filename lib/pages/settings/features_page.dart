@@ -69,8 +69,8 @@ class FeaturesPage extends StatelessWidget {
                     Navigator.pop(context);
                   },
                   infoText: 'By default, Components are linked to a Bike. '
-                  'When this setting is enabled, you can track exactly when a component was installed and deinstalled. '
-                  'This allows you to deinstall components and move them between different bikes without losing track of their history, usage, or setups.',
+                  'When this setting is enabled, you can track exactly when a component was installed and uninstalled. '
+                  'This allows you to uninstall components and move them between different bikes without losing track of their history, usage, or setups.',
                 ),
               ),
               const Divider(),

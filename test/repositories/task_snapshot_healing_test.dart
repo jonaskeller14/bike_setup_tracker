@@ -163,11 +163,11 @@ void main() {
 
       // 3. Move to Archive (Jan 2nd) and Ride Bike A again
       // The component is NOT on Bike A anymore, so stats shouldn't increase from Bike A rides.
-      final deinstallDate = DateTime.utc(2024, 1, 2, 10);
+      final uninstallDate = DateTime.utc(2024, 1, 2, 10);
       final componentInArchive = component.copyWith(
         installations: [
           ...component.installations,
-          Installation(parent: null, dateTimeUTC: deinstallDate, dateTimeLocal: deinstallDate.toLocal()),
+          Installation(parent: null, dateTimeUTC: uninstallDate, dateTimeLocal: uninstallDate.toLocal()),
         ],
       );
       await repository.editComponent(componentInArchive);

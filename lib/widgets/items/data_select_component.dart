@@ -37,7 +37,7 @@ class DataSelectComponent extends StatelessWidget {
               switch (component.latestInstallation) {
                 Archival() => Icons.inventory_2_outlined,
                 BikeInstallation() => Bike.iconData,
-                Deinstallation() || null => Icons.shelves,
+                Uninstallation() || null => Icons.shelves,
               },
               size: 13,
               color: switch (component.latestInstallation) {
@@ -50,7 +50,7 @@ class DataSelectComponent extends StatelessWidget {
                 switch (component.latestInstallation) {
                   Archival() => "Archived",
                   BikeInstallation(:final bikeId) => bikes[bikeId]?.name ?? "BIKE NOT FOUND",
-                  Deinstallation() || null => "Not installed",
+                  Uninstallation() || null => "Not installed",
                 },
                 style: TextStyle(
                   color: switch (component.latestInstallation) {

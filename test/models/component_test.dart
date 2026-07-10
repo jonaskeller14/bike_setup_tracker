@@ -75,31 +75,31 @@ void main() {
         ],
       );
       expect(component.isArchived, isTrue);
-      expect(component.isDeinstalled, isFalse);
+      expect(component.isUninstalled, isFalse);
     });
 
-    test('isDeinstalled true when latest installation is Deinstallation', () {
+    test('isUninstalled true when latest installation is Uninstallation', () {
       final now = DateTime.now().toUtc();
       final component = Component(
         name: 'Test Component',
         componentType: ComponentType.other,
         installations: [
           Installation.sinceBeginning(parent: 'bike_1'),
-          Deinstallation(dateTimeUTC: now, dateTimeLocal: now.toLocal()),
+          Uninstallation(dateTimeUTC: now, dateTimeLocal: now.toLocal()),
         ],
       );
-      expect(component.isDeinstalled, isTrue);
+      expect(component.isUninstalled, isTrue);
       expect(component.isArchived, isFalse);
     });
 
-    test('isArchived and isDeinstalled false when currently installed', () {
+    test('isArchived and isUninstalled false when currently installed', () {
       final component = Component(
         name: 'Test Component',
         componentType: ComponentType.other,
         installations: [Installation.sinceBeginning(parent: 'bike_1')],
       );
       expect(component.isArchived, isFalse);
-      expect(component.isDeinstalled, isFalse);
+      expect(component.isUninstalled, isFalse);
     });
 
     test('bikeAt returns null after Archival event', () {

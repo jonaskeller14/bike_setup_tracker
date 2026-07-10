@@ -85,7 +85,7 @@ class DisplayInstallationTimeline extends StatelessWidget {
                 backgroundColor: colorScheme.surface,
                 child: switch (item.installation) {
                   BikeInstallation() => null,
-                  Deinstallation() => Icon(Icons.close, size: 10, color: colorScheme.secondary),
+                  Uninstallation() => Icon(Icons.close, size: 10, color: colorScheme.secondary),
                   Archival() => Icon(Icons.close, size: 10, color: colorScheme.secondary),
                 },
               ),
@@ -130,7 +130,7 @@ class _InstallationContents extends StatelessWidget {
     final bikes = context.read<AppRepository>().bikes;
     final bikeName = switch (installation) {
       BikeInstallation() => bikes[installation.parent]?.name ?? 'BIKE NOT FOUND',
-      Deinstallation() => 'Deinstalled',
+      Uninstallation() => 'Uninstalled',
       Archival() => 'Archived',
     };
     final dateStr = installation.dateTimeUTC.millisecondsSinceEpoch == 0
@@ -151,7 +151,7 @@ class _InstallationContents extends StatelessWidget {
                 BikeInstallation() => bikes[installation.parent]?.name == null
                     ? colorScheme.error
                     : colorScheme.onSurface,
-                Deinstallation() || Archival() => colorScheme.onSurfaceVariant,
+                Uninstallation() || Archival() => colorScheme.onSurfaceVariant,
               },
             ),
           ),

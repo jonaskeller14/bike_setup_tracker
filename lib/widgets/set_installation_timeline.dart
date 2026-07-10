@@ -54,7 +54,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
 
   void _addEntry() {
     setState(() {
-      _installations.add(Deinstallation(
+      _installations.add(Uninstallation(
         dateTimeUTC: DateTime.now().toUtc(),
         dateTimeLocal: DateTime.now(),
       ));
@@ -128,8 +128,8 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
               return 'Archival can only be the last entry in the timeline';
             }
             final next = _installations[i + 1];
-            if (current is Deinstallation && next is Deinstallation) {
-              return 'Cannot have consecutive deinstallations';
+            if (current is Uninstallation && next is Uninstallation) {
+              return 'Cannot have consecutive uninstallations';
             }
             if (current is BikeInstallation && next is BikeInstallation && current.bikeId == next.bikeId) {
               return 'Cannot have consecutive installations on the same bike';
@@ -313,7 +313,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                   ),
                                   items: [
                                     DropdownMenuItem<Installation>(
-                                      value: Deinstallation(
+                                      value: Uninstallation(
                                         id: installation.id,
                                         componentId: installation.componentId,
                                         dateTimeUTC: installation.dateTimeUTC,
@@ -323,7 +323,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                                         spacing: 8,
                                         children: [
                                           Icon(Icons.shelves, size: 20, color: !isEditable ? theme.disabledColor : null),
-                                          Expanded(child: Text('DEINSTALLED', overflow: TextOverflow.ellipsis, style: TextStyle(color: !isEditable ? theme.disabledColor : null))),
+                                          Expanded(child: Text('UNINSTALLED', overflow: TextOverflow.ellipsis, style: TextStyle(color: !isEditable ? theme.disabledColor : null))),
                                         ],
                                       ),
                                     ),
@@ -403,7 +403,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                               borderWidth: 2.5,
                               color: colorScheme.primary,
                             ),
-                          Deinstallation _ => OutlinedDotIndicator(
+                          Uninstallation _ => OutlinedDotIndicator(
                               borderWidth: 2.5,
                               color: colorScheme.outline,
                               child: Icon(Icons.close, size: 10, color: colorScheme.outline),
@@ -419,7 +419,7 @@ class _SetInstallationTimelineState extends State<SetInstallationTimeline> {
                         final installation = _installations[index];
                         return switch (installation) {
                           BikeInstallation() => SolidLineConnector(color: colorScheme.primary.withValues(alpha: 0.6)),
-                          Deinstallation() || Archival() => DashedLineConnector(color: colorScheme.outline),
+                          Uninstallation() || Archival() => DashedLineConnector(color: colorScheme.outline),
                         };
                       },
                     ),

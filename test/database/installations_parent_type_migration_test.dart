@@ -32,7 +32,7 @@ void main() {
 
       // Seed two rows:
       //   i1: installed on a bike (parent='b1') → keeps the column default 'bike'
-      //   i2: deinstalled (parent=NULL) → backfilled to 'none'
+      //   i2: uninstalled (parent=NULL) → backfilled to 'none'
       const epoch = 1700000000;
       await db.customStatement(
         "INSERT INTO installations "

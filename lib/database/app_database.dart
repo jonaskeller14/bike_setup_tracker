@@ -156,7 +156,7 @@ class AppDatabase extends _$AppDatabase {
         if (from < 9) {
           // Component archiving: installations gain a `parentType` discriminator
           // ('bike' | 'none' | 'archived'). Existing rows default to 'bike'; a
-          // null `parent` always meant deinstalled, so backfill those to 'none'.
+          // null `parent` always meant uninstalled, so backfill those to 'none'.
           // No rows are archived yet.
           await m.addColumn(installations, installations.parentType);
           await customStatement(

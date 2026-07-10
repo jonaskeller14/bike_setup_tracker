@@ -38,7 +38,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
   @override
   bool get wantKeepAlive => true;
 
-  Widget _releaseToDeinstallWidget(
+  Widget _releaseToUninstallWidget(
     BuildContext context, {
     required bool isUnarchiving,
   }) {
@@ -71,7 +71,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
               child: Text(
                 isUnarchiving
                     ? "Release to unarchive"
-                    : "Release to deinstall component",
+                    : "Release to uninstall component",
                 style: TextStyle(color: color, fontWeight: FontWeight.bold),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -82,7 +82,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
     );
   }
 
-  Widget _dragHereToDeinstall(BuildContext context) {
+  Widget _dragHereToUninstall(BuildContext context) {
     return InkWell(
       onTap: () => ComponentActions.addComponent(context, initialBike: null),
       borderRadius: BorderRadius.circular(12),
@@ -104,7 +104,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text("Drag components here to deinstall from bike"),
+              const Text("Drag components here to uninstall from bike"),
               Text(
                 "or tap to add new",
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -118,7 +118,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
     );
   }
 
-  Widget _dragHintToDeinstallWidget(BuildContext context) {
+  Widget _dragHintToUninstallWidget(BuildContext context) {
     final color = Theme.of(context).colorScheme.error;
     return CustomPaint(
       painter: DashedBorderPainter(
@@ -142,7 +142,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
             Icon(Icons.archive_outlined, size: 18, color: color.withValues(alpha: 0.6)),
             Flexible(
               child: Text(
-                "Drag here to deinstall",
+                "Drag here to uninstall",
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: color.withValues(alpha: 0.7),
                 ),
@@ -283,7 +283,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
     super.build(context);
     final appRepository = context.watch<AppRepository>();
 
-    final deinstalledComponents = Map.fromEntries(
+    final uninstalledComponents = Map.fromEntries(
       appRepository.components.entries.where(
         (ce) =>
             !appRepository.bikes.keys.contains(ce.value.bike) &&
@@ -292,7 +292,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
     );
     final archivedComponents = appRepository.archivedComponents;
 
-    final showUninstalledCompnoent = widget.componentToShowDetails != null && deinstalledComponents.keys.contains(widget.componentToShowDetails);
+    final showUninstalledCompnoent = widget.componentToShowDetails != null && uninstalledComponents.keys.contains(widget.componentToShowDetails);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
@@ -307,7 +307,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
               vertical: 8,
             ),
             title: Text(
-              "Deinstalled components",
+              "Uninstalled components",
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
@@ -335,7 +335,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                       candidateItems.isNotEmpty &&
                       draggedComp != null &&
                       draggedComp.isArchived;
-                  final bool isPassiveDeinstallZone =
+                  final bool isPassiveUninstallZone =
                       draggedComp != null &&
                       (draggedComp.bike != null || draggedComp.isArchived) &&
                       !showDropZone &&
@@ -346,28 +346,28 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                     child: Stack(
                       children: [
                         Opacity(
-                          opacity: (showDropZone || showUnarchiveZone || isPassiveDeinstallZone)
+                          opacity: (showDropZone || showUnarchiveZone || isPassiveUninstallZone)
                               ? 0.0
                               : 1.0,
                           child: IgnorePointer(
-                            ignoring: showDropZone || showUnarchiveZone || isPassiveDeinstallZone,
-                            child: deinstalledComponents.isEmpty
-                                ? _dragHereToDeinstall(context)
+                            ignoring: showDropZone || showUnarchiveZone || isPassiveUninstallZone,
+                            child: uninstalledComponents.isEmpty
+                                ? _dragHereToUninstall(context)
                                 : ReorderableWrap(
-                                    key: ValueKey(deinstalledComponents),
+                                    key: ValueKey(uninstalledComponents),
                                     scrollPhysics: const NeverScrollableScrollPhysics(),
                                     ignorePrimaryScrollController: true,
                                     onReorder: (int oldIndex, int newIndex) async {
                                       await context.read<AppRepository>().reorderComponent(
                                         oldIndex: oldIndex,
                                         newIndex: newIndex,
-                                        filteredComponentsList: deinstalledComponents.values.toList(),
+                                        filteredComponentsList: uninstalledComponents.values.toList(),
                                       );
                                       widget.setDraggedComponent(null);
                                     },  
                                     onReorderStarted: (index) =>
                                         widget.setDraggedComponent(
-                                          deinstalledComponents.values
+                                          uninstalledComponents.values
                                               .toList()[index],
                                         ),
                                     onNoReorder: (index) => widget.setDraggedComponent(null),
@@ -394,7 +394,7 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                                     ),
                                     spacing: 8,
                                     runSpacing: 8,
-                                    children: deinstalledComponents.values
+                                    children: uninstalledComponents.values
                                         .map(
                                           (component) => GestureDetector(
                                             onTap: () => widget.onPressedComponent(component),
@@ -417,13 +417,13 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
                                   ),
                           ),
                         ),
-                        if (isPassiveDeinstallZone)
-                          Positioned.fill(child: _dragHintToDeinstallWidget(context)),
+                        if (isPassiveUninstallZone)
+                          Positioned.fill(child: _dragHintToUninstallWidget(context)),
                         if (showDropZone)
-                          Positioned.fill(child: _releaseToDeinstallWidget(context, isUnarchiving: false)),
+                          Positioned.fill(child: _releaseToUninstallWidget(context, isUnarchiving: false)),
                         if (showUnarchiveZone)
                           Positioned.fill(
-                            child: _releaseToDeinstallWidget(context, isUnarchiving: true)),
+                            child: _releaseToUninstallWidget(context, isUnarchiving: true)),
                       ],
                     ),
                   );
@@ -432,22 +432,22 @@ class _GarageUninstalledCardState extends State<GarageUninstalledCard>
             },
           ),
 
-          // ── Detail card for selected deinstalled component ───────────
+          // ── Detail card for selected uninstalled component ───────────
           if (showUninstalledCompnoent)
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
               child: LongPressDraggable<Component>(
-                data: deinstalledComponents[widget.componentToShowDetails]!,
-                onDragStarted: () => widget.draggedComponentNotifier.value = deinstalledComponents[widget.componentToShowDetails],
+                data: uninstalledComponents[widget.componentToShowDetails]!,
+                onDragStarted: () => widget.draggedComponentNotifier.value = uninstalledComponents[widget.componentToShowDetails],
                 onDragEnd: (_) => widget.draggedComponentNotifier.value = null,
                 onDraggableCanceled: (_, _) => widget.draggedComponentNotifier.value = null,
                 dragAnchorStrategy: pointerDragAnchorStrategy,
                 feedback: GarageComponentIconCard(
-                  component: deinstalledComponents[widget.componentToShowDetails]!,
+                  component: uninstalledComponents[widget.componentToShowDetails]!,
                   componentToShowDetails: widget.componentToShowDetails,
                 ),
                 child: ComponentListCard(
-                  component: deinstalledComponents[widget.componentToShowDetails]!,
+                  component: uninstalledComponents[widget.componentToShowDetails]!,
                   index: null,
                   color: Theme.of(context).colorScheme.tertiaryContainer,
                   showCurrentAdjustmentValues: false,

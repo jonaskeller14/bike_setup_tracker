@@ -110,7 +110,7 @@ void main() {
       expect(tester.widget<IconButton>(deleteButton).onPressed, isNull);
     });
 
-    // testWidgets('validation: prevents deinstalled from beginning', (WidgetTester tester) async {
+    // testWidgets('validation: prevents uninstalled from beginning', (WidgetTester tester) async {
     //   final installations = [
     //     Installation.sinceBeginning(parent: null),
     //   ];

@@ -133,7 +133,7 @@ void main() {
       });
 
       testWidgets('archive origin: shows Archive label for origin', (WidgetTester tester) async {
-        // Component whose latest installation has parent=null (archived/deinstalled)
+        // Component whose latest installation has parent=null (archived/uninstalled)
         final now = DateTime.now();
         final archivedComponent = Component(
           id: 'c_arch',

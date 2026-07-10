@@ -328,7 +328,7 @@ void main() {
   // --- Inherited values from earlier setups --------------------------------
   // A setup that never set a value for an adjustment still shows the value
   // carried over from an earlier setup, as long as the owning component/person
-  // is still present. Dangling (deinstalled) owners never surface such values.
+  // is still present. Dangling (uninstalled) owners never surface such values.
   group('inherited values from previous setups', () {
     testWidgets('installed component: a value only in a previous setup is shown, unchanged colour', (tester) async {
       final setup = makeSetup(

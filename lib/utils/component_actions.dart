@@ -85,7 +85,7 @@ class ComponentActions {
     final result = await showReplaceComponentSheet(context, component: component);
     if (result == null) return;
 
-    final deinstallation = Installation(
+    final uninstallation = Installation(
       parent: null,
       dateTimeUTC: result.replacementDate.toUtc(),
       dateTimeLocal: result.replacementDate.toLocal(),
@@ -93,7 +93,7 @@ class ComponentActions {
 
     switch (result) {
       case ReplaceComponentExistingResult(:final existingComponent, :final replacementDate):
-        // Swap in an already deinstalled component: install it on the same bike and
+        // Swap in an already uninstalled component: install it on the same bike and
         // retire the current one, both at the replacement date.
         await appRepository.editComponent(existingComponent.copyWith(installations: [
           ...existingComponent.installations,
@@ -101,7 +101,7 @@ class ComponentActions {
         ]));
         await appRepository.editComponent(component.copyWith(installations: [
           ...component.installations,
-          deinstallation,
+          uninstallation,
         ]));
 
         messenger.showSnackBar(SnackBar(
@@ -128,7 +128,7 @@ class ComponentActions {
         await appRepository.addComponent(newComponent);
         await appRepository.editComponent(component.copyWith(installations: [
           ...component.installations,
-          deinstallation,
+          uninstallation,
         ]));
     }
   }

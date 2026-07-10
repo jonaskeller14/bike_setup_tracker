@@ -92,20 +92,20 @@ class _GarageListState extends State<GarageList> {
         );
 
         if (newBike == null) {
-          // → deinstalled
+          // → uninstalled
           if (isSimple) {
-            // Single-entry mode: swap the Archival for a Deinstallation.
+            // Single-entry mode: swap the Archival for a Uninstallation.
             final now = DateTime.now();
             await appRepository.editComponent(
               component.copyWith(installations: [
-                Deinstallation(dateTimeUTC: now.toUtc(), dateTimeLocal: now, componentId: component.id),
+                Uninstallation(dateTimeUTC: now.toUtc(), dateTimeLocal: now, componentId: component.id),
               ]),
             );
           } else if (unarchived.bike != null) {
-            // Timeline: was on a bike before archiving — open sheet to confirm deinstall date.
+            // Timeline: was on a bike before archiving — open sheet to confirm uninstall date.
             showAddInstallationSheet(context, component: unarchived, targetBikeId: null);
           } else {
-            // Timeline: was already deinstalled before archiving — just drop the Archival.
+            // Timeline: was already uninstalled before archiving — just drop the Archival.
             await appRepository.editComponent(unarchived);
           }
         } else {
@@ -124,7 +124,7 @@ class _GarageListState extends State<GarageList> {
         return;
       }
 
-      // Standard (non-archived) install / deinstall flow.
+      // Standard (non-archived) install / uninstall flow.
       final isComplexInstallation = component.installations.length > 1 ||
           (component.installations.isNotEmpty && component.installations.first.dateTimeUTC.millisecondsSinceEpoch > 0);
       if (appSettings.enableInstallationTimeline || isComplexInstallation) {

@@ -132,7 +132,7 @@ class _CompactBikeLabel extends StatelessWidget {
 
   String get _label => switch (parentType) {
         InstallationParentType.bike => bikeName,
-        InstallationParentType.none => 'Deinstalled',
+        InstallationParentType.none => 'Uninstalled',
         InstallationParentType.archived => 'Archive',
       };
 

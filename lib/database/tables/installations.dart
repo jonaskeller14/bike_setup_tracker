@@ -15,7 +15,7 @@ class Installations extends Table {
   // The entity it is installed on (bike id or null)
   TextColumn get parent => text().nullable()();
 
-  // Discriminates the event kind: installed on a bike, deinstalled (parts-bin),
+  // Discriminates the event kind: installed on a bike, uninstalled (parts-bin),
   // or archived (retired). Defaults to 'bike'; the v9 migration backfills
   // existing rows ('none' where parent is null).
   TextColumn get parentType => text()

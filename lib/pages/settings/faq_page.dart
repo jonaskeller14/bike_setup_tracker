@@ -36,9 +36,9 @@ class FAQPage extends StatelessWidget {
           'Long-press and drag a component icon to change its position within a bike or list.',
       'What is the "Uninstalled" section?':
           'This section at the bottom of the "Bikes" tab lists components that are currently not assigned to any bike. You can drag them from here onto a bike to install them.',
-      'What is the difference between "Deinstalled" and "Archived"?':
+      'What is the difference between "Uninstalled" and "Archived"?':
           'Both states mean a component is off the bike, but they serve different purposes.\n\n'
-          '"Deinstalled" means the component is off the bike but still usable. It stays visible in the Uninstalled section and can be reinstalled at any time — for example, a spare wheelset you swap in for race day, or a saddle you temporarily moved to another bike.\n\n'
+          '"Uninstalled" means the component is off the bike but still usable. It stays visible in the Uninstalled section and can be reinstalled at any time — for example, a spare wheelset you swap in for race day, or a saddle you temporarily moved to another bike.\n\n'
           '"Archived" means the component is retired and will never be used again. It is hidden from the main view to keep your garage clean, but all its history and statistics are preserved. Use this for worn-out brake pads or tires, broken or sold parts, or anything you no longer ride. You can still find archived components in the Archived section and restore them if needed.',
       'What is an "Adjustment"?':
           'An Adjustment defines a specific part of a component that can be modified (e.g., tire pressure or suspension rebound). It sets the rules, such as units and limits, while the actual values are recorded within a "Setup."',

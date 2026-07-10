@@ -65,7 +65,7 @@ void main() async {
   // Create 100 components, distributed across bikes with various statuses
   for (final idx in List.generate(100, (idx) => idx)) {
     final bikeIdx = idx % bikes.length;
-    final isDeinstalled = idx % 3 == 0;
+    final isUninstalled = idx % 3 == 0;
     final isArchived = idx % 5 == 0;
 
     final installations = <Installation>[
@@ -76,10 +76,10 @@ void main() async {
       ),
     ];
 
-    // Add deinstallation if needed
-    if (isDeinstalled) {
+    // Add uninstallation if needed
+    if (isUninstalled) {
       installations.add(
-        Deinstallation(
+        Uninstallation(
           dateTimeUTC: DateTime(2025).toUtc(),
           dateTimeLocal: DateTime(2025),
         ),

@@ -136,7 +136,7 @@ class _InstallationSheetState extends State<InstallationSheet> {
         : originInstallation?.parent;
 
     // Target is derived from the actual installation subtype being edited, so
-    // Deinstallation vs Archival are never confused.
+    // Uninstallation vs Archival are never confused.
     final targetParentType = _editableInstallation.parentType;
     final targetBikeId = _editableInstallation.parent;
 
@@ -255,7 +255,7 @@ class _BikePreview extends StatelessWidget {
 
   String get _label => switch (parentType) {
         InstallationParentType.bike => bikeName,
-        InstallationParentType.none => 'Deinstalled',
+        InstallationParentType.none => 'Uninstalled',
         InstallationParentType.archived => 'Archive',
       };
 

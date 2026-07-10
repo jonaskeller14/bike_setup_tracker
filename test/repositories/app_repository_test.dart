@@ -416,7 +416,7 @@ void main() {
       expect(repository.filteredInstallations.first.component.name, "C1");
     });
 
-    test("filteredInstallations includes deinstallations for selectedBike", () async {
+    test("filteredInstallations includes uninstallations for selectedBike", () async {
       final component = Component(
         name: "C1",
         installations: [

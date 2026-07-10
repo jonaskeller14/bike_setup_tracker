@@ -173,15 +173,15 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
     final subscriptionService = context.watch<SubscriptionService>();
     final showStrava = appSettings.enableStrava && subscriptionService.hasStravaEntitlement;
 
-    final deinstalledComponents = appRepository.components.values
+    final uninstalledComponents = appRepository.components.values
         .where((c) => c.id != widget.component.id && c.bike == null && !c.isArchived)
         .toList()
       ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
 
     // Keep the selected component in the list even if it stops being
-    // "deinstalled" (e.g. while the sheet animates away after the swap installed
+    // "uninstalled" (e.g. while the sheet animates away after the swap installed
     // it), so the dropdown always has exactly one item matching its value.
-    final menuComponents = [...deinstalledComponents];
+    final menuComponents = [...uninstalledComponents];
     final selected = appRepository.components[_selectedComponentId];
     if (selected != null && !menuComponents.any((c) => c.id == selected.id)) {
       menuComponents.add(selected);
@@ -230,7 +230,7 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                     const SizedBox(height: 16),
                     Text(
                       switch (_mode) {
-                        _ReplaceMode.existing =>  "Pick an already deinstalled component to install in place of this one, and set the replacement date. This is when the current component is retired and the selected one installed.",
+                        _ReplaceMode.existing =>  "Pick an already uninstalled component to install in place of this one, and set the replacement date. This is when the current component is retired and the selected one installed.",
                         _ReplaceMode.create => "Set the replacement date. This is when the current component will be retired and a new one installed. In the next step, you can configure the new component, which will be pre-filled with details from this one.",
                       },
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -247,8 +247,8 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
                           labelText: "Replacement Component",
                           border: const OutlineInputBorder(),
                           isDense: true,
-                          helperText: deinstalledComponents.isEmpty
-                              ? "No deinstalled components available"
+                          helperText: uninstalledComponents.isEmpty
+                              ? "No uninstalled components available"
                               : null,
                         ),
                         hint: const Text("Select a component"),

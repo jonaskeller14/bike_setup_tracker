@@ -39,7 +39,7 @@ void main() {
       installations: [Installation.sinceBeginning(parent: 'b1')],
       adjustments: [],
     );
-    // Never installed -> bike == null (deinstalled), same type as current.
+    // Never installed -> bike == null (uninstalled), same type as current.
     spareFork = Component(
       id: 'c2',
       name: 'Spare Fork',
@@ -47,7 +47,7 @@ void main() {
       installations: const [],
       adjustments: [],
     );
-    // Deinstalled, different type than current.
+    // Uninstalled, different type than current.
     spareChain = Component(
       id: 'c3',
       name: 'Spare Chain',
@@ -113,7 +113,7 @@ void main() {
       expect(result, isA<ReplaceComponentNewResult>());
     });
 
-    testWidgets('"Existing" mode returns the selected deinstalled component', (tester) async {
+    testWidgets('"Existing" mode returns the selected uninstalled component', (tester) async {
       ReplaceComponentResult? result;
       await tester.pumpWidget(harness(onResult: (r) => result = r));
       await openSheet(tester);
@@ -157,7 +157,7 @@ void main() {
       expect(result, isNull);
     });
 
-    testWidgets('groups deinstalled components into same-type and "Other" sections', (tester) async {
+    testWidgets('groups uninstalled components into same-type and "Other" sections', (tester) async {
       await tester.pumpWidget(harness(onResult: (_) {}));
       await openSheet(tester);
 
@@ -174,7 +174,7 @@ void main() {
     });
 
     testWidgets('omits section headers when only one component type is available', (tester) async {
-      // Only fork-type components remain deinstalled -> flat list, no headers.
+      // Only fork-type components remain uninstalled -> flat list, no headers.
       componentsMap = {
         currentComponent.id: currentComponent,
         spareFork.id: spareFork,
@@ -205,7 +205,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Mirror the repository state right after the swap installs the chosen
-      // component: it is no longer "deinstalled".
+      // component: it is no longer "uninstalled".
       final now = DateTime.now();
       componentsMap = {
         currentComponent.id: currentComponent,

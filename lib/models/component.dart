@@ -58,7 +58,7 @@ class Component {
   }
 
   bool get isArchived => latestInstallation is Archival;
-  bool get isDeinstalled => latestInstallation is Deinstallation;
+  bool get isUninstalled => latestInstallation is Uninstallation;
 
   static const IconData iconData = Icons.grid_view_sharp;
 

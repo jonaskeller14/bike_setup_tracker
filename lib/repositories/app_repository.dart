@@ -1421,7 +1421,7 @@ class ComponentInstallation {
         ? 'Added'
         : switch (installation.parentType) {
             InstallationParentType.bike => 'Installed',
-            InstallationParentType.none => 'Deinstalled',
+            InstallationParentType.none => 'Uninstalled',
             InstallationParentType.archived => 'Archived',
           };
     return "$verb ${component.name}";

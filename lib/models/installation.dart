@@ -24,7 +24,7 @@ sealed class Installation {
 
   InstallationParentType get parentType => switch (this) {
         BikeInstallation _ => InstallationParentType.bike,
-        Deinstallation _ => InstallationParentType.none,
+        Uninstallation _ => InstallationParentType.none,
         Archival _ => InstallationParentType.archived,
       };
 
@@ -38,7 +38,7 @@ sealed class Installation {
     required DateTime dateTimeLocal,
   }) {
     return parent == null
-        ? Deinstallation(
+        ? Uninstallation(
             id: id,
             componentId: componentId,
             dateTimeUTC: dateTimeUTC,
@@ -69,7 +69,7 @@ sealed class Installation {
 
   /// When [parent] is provided the event is *retargeted* (subtype chosen by
   /// null-ness — this intentionally drops [Archival], since giving it a target
-  /// means it is installed/deinstalled again). Otherwise the subtype is
+  /// means it is installed/uninstalled again). Otherwise the subtype is
   /// preserved and only id/componentId/dates change.
   Installation copyWith({
     Object? parent = const _Sentinel(),
@@ -107,7 +107,7 @@ sealed class Installation {
           dateTimeUTC: newDateUtc,
           dateTimeLocal: newDateLocal,
         ),
-      Deinstallation _ => Deinstallation(
+      Uninstallation _ => Uninstallation(
           id: newId,
           componentId: newComponentId,
           dateTimeUTC: newDateUtc,
@@ -145,7 +145,7 @@ sealed class Installation {
     final typeName = json['type'] as String?;
 
     if (typeName == null) {
-      // Legacy shape: only `parent` (bike id) or null (deinstalled).
+      // Legacy shape: only `parent` (bike id) or null (uninstalled).
       return Installation(
         parent: json['parent'] as String?,
         id: id,
@@ -167,7 +167,7 @@ sealed class Installation {
           dateTimeUTC: dateTimeUTC,
           dateTimeLocal: dateTimeLocal,
         ),
-      InstallationParentType.none => Deinstallation(
+      InstallationParentType.none => Uninstallation(
           id: id,
           componentId: cid,
           dateTimeUTC: dateTimeUTC,
@@ -210,8 +210,8 @@ class BikeInstallation extends Installation {
   }) : super._();
 }
 
-class Deinstallation extends Installation {
-  Deinstallation({
+class Uninstallation extends Installation {
+  Uninstallation({
     super.id,
     super.componentId,
     required super.dateTimeUTC,

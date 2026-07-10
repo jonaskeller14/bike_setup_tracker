@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:location/location.dart';
 import '../models/context/context_position.dart';
@@ -16,6 +16,7 @@ enum LocationStatus {
 class LocationService extends ChangeNotifier {
   final Location _location = Location();
   LocationStatus _status = LocationStatus.idle;
+  static const _timeoutDuration = kDebugMode ? Duration(seconds: 30) : Duration(seconds: 5);
 
   LocationStatus get status => _status;
 
@@ -48,11 +49,11 @@ class LocationService extends ChangeNotifier {
     try {
       location = await Future.any([
         _location.getLocation(),
-        Future.delayed(const Duration(seconds: 5), () => null),
+        Future.delayed(_timeoutDuration, () => null),
       ]);
 
       location ??= await _location.getLocation().timeout(
-        const Duration(seconds: 5),
+        _timeoutDuration,
         onTimeout: () {
           throw TimeoutException('Location retrieval timed out.');
         },

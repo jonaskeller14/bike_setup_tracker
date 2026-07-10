@@ -124,47 +124,46 @@ Top-level helpers (matches the existing actions-pattern style, no state needed):
 
 ---
 
-## Phase 2 — E2: convert values on unit edit
+## Phase 2 — E2: convert values on unit edit ✅ Implemented
 
-### 2.1 Edit-page flow
+### 2.1 Edit-page flow ✅
 
-In `NumericalAdjustmentPage._saveNumericalAdjustment` (and the metric page equivalent), when `mode == edit` and the unit changed:
+In `NumericalAdjustmentPage._saveNumericalAdjustment` (and `NumericalMetricPage._saveMetric`), when `mode == edit` and the unit changed:
 
-- **Both `KnownUnit`, same quantity** → show dialog:
-  > Unit changed from **psi** to **bar**. What should happen to existing setup values?
-  > **Convert values** — e.g. 65 psi → 4.48 bar *(recommended)*
+- **Both `KnownUnit`, same quantity** → show dialog ([unit_conversion_dialog.dart](../lib/widgets/dialogs/unit_conversion_dialog.dart)):
+  > Unit changed from **psi** to **bar**. What should happen to existing values?
+  > **Convert values** — e.g. 65 psi → 4.48 bar
   > **Keep numbers** — 65 psi becomes 65 bar (values were mislabeled)
-- If *Convert*: convert `min`/`max` on the returned adjustment immediately, and attach the conversion intent to the result.
-- Any other pair (custom involved, quantity change) → keep numbers; replace the current red warning tile with an inline note that values will be reinterpreted.
+- If *Convert*: attach the conversion intent to the result. **`min`/`max` are left exactly as typed** — silently rewriting the bounds during save is opaque (especially if the user just edited them), so only stored historical setup/rating values are converted. The user re-enters bounds in the new unit if desired. *(Deviation from the original plan, which converted min/max too.)*
+- Any other pair (custom involved, quantity change) → keep numbers; the red warning tile is replaced by an inline note. A compatible-unit change instead shows an info note that a convert prompt appears on save.
 
-The page's pop result becomes a small wrapper so the intent survives the staging step:
+The page's pop result is generalized to a small generic wrapper (`EditResult<T>` in [value_unit_conversion.dart](../lib/models/adjustment/value_unit_conversion.dart)) so the intent survives the staging step. `_editAdjustment`/`_editMetric` push `<Object>` and unwrap `EditResult<Adjustment>`/`EditResult<RatingMetric>` (other adjustment types still pop bare):
 
 ```dart
-class AdjustmentEditResult {
-  final Adjustment adjustment;
-  final ValueUnitConversion? conversion; // (adjustmentId, from: KnownUnit, to: KnownUnit)
+class EditResult<T> {
+  final T value;
+  final List<ValueUnitConversion> conversions; // (adjustmentId, from: KnownUnit, to: KnownUnit)
 }
 ```
 
-### 2.2 Staging in `component_page.dart` / `person_page.dart` / `rating_page.dart`
+### 2.2 Staging in `component_page.dart` / `person_page.dart` / `rating_page.dart` ✅
 
-- `_editAdjustment` stores `result.conversion` in a `Map<String, ValueUnitConversion> _pendingConversions` (keyed by adjustment id).
-- Two edits of the same adjustment before saving **compose**: existing `from` is kept, `to` is replaced (values are only rewritten once, on save).
-- Discarding the page drops the pending conversions — stored values untouched (staging keeps E2 transactional with the component save, matching today's semantics where nothing persists until `_saveComponent`).
+- `_editAdjustment`/`_editMetric` stage `result.conversions` into a `Map<String, ValueUnitConversion> _pendingConversions` (keyed by adjustment/metric id) via `_stageConversion`.
+- Two edits of the same adjustment before saving **compose** (`ValueUnitConversion.composeWith`): existing `from` is kept, `to` is replaced (values are only rewritten once, on save). A composed round-trip (psi→bar→psi) is a no-op and dropped.
+- Removing an adjustment drops its pending conversion; discarding the page drops all pending conversions — stored values untouched (staging keeps E2 transactional with the container save, matching today's semantics where nothing persists until save).
 
-### 2.3 Repository + DAO
+### 2.3 Repository + DAO ✅
 
-- `editComponent` / `editPerson` / `editRating` gain an optional `List<ValueUnitConversion> conversions` parameter and execute everything in **one Drift transaction**:
+- `editComponent` / `editPerson` / `editRating` gained an optional `List<ValueUnitConversion> conversions` parameter and execute everything in **one Drift transaction**:
   1. Persist the component/person/rating with its adjustments (as today).
-  2. For each conversion: select affected `SetupAdjustmentValues` (resp. `RatingEntryValues`) rows, `double.tryParse` each, convert, write back full-precision string. Unparseable values are left untouched.
+  2. For each conversion: select affected `SetupAdjustmentValues` (resp. `RatingEntryValues`) rows via the new `SetupsDao.convertAdjustmentValues` / `RatingEntriesDao.convertMetricValues`, decode each via `decodeNumericalValueOrNull` (safe — never throws on non-numeric), convert, write back full-precision string. Unparseable/null values are left untouched. *(Person adjustment values live in `setup_adjustment_values` too, so `editPerson` reuses `convertAdjustmentValues`.)*
   3. Bump `lastModified` on every touched `Setups` (resp. `RatingEntries`) row so Drive-backup merge propagates the converted values.
-- New DAO helpers, e.g. `SetupsDao.rewriteAdjustmentValues(String adjustmentId, String Function(String) transform)` (same pattern for rating entries).
 
-### 2.4 Tests
+### 2.4 Tests ✅
 
-- Repository test: unit edit with *Convert* rewrites setup + rating-entry values, min/max, bumps `lastModified`; with *Keep numbers* rewrites nothing.
-- Composition test: edit psi→bar→kPa before save converts once, psi→kPa.
-- Unparseable value rows survive untouched.
+- Repository tests: unit edit with *Convert* rewrites setup + rating-entry values and bumps `lastModified`; with *Keep numbers* (no conversions) rewrites nothing and leaves `lastModified` untouched; `editPerson` convert path covered.
+- Composition/no-op test on `ValueUnitConversion.composeWith`.
+- DAO test: unparseable value rows survive untouched while numeric rows convert.
 
 ---
 
@@ -196,17 +195,16 @@ class AdjustmentEditResult {
 
 ## Phase 4 — Polish (small, independent follow-ups)
 
-1. **Presets mapping** verification pass over all preset YAMLs (should be free via 1.6).
-2. **Release note**: "unit spellings were normalized; tap a unit while entering values to convert".
-3. *(Optional, decide later)* Settings default unit system (metric/imperial) controlling the first toggle target and default picker unit — mirrors the existing weather unit settings.
-4. *(Optional, decide later)* History table / charts rendering in a preferred display unit.
+1. **Release note**: "unit spellings were normalized; tap a unit while entering values to convert".
+2. *(Optional, decide later)* Settings default unit system (metric/imperial) controlling the first toggle target and default picker unit — mirrors the existing weather unit settings.
+3. *(Optional, decide later)* History table / charts rendering in a preferred display unit.
 
 ## Suggested commit slicing
 
 1. ✅ `feat(units): add AdjustmentUnit model, catalog, alias table, conversion helpers` (Phase 1.1–1.2 + tests)
 2. ✅ `refactor(units): structured unit on Adjustment/RatingMetric + DB migration + import normalization` (1.3–1.6)
 3. ✅ `feat(units): unit picker in numerical adjustment/metric pages` (1.5)
-4. ☐ `feat(units): convert stored values when editing an adjustment's unit` (Phase 2)
+4. ✅ `feat(units): convert stored values when editing an adjustment's unit` (Phase 2)
 5. ☐ `feat(units): tap-to-toggle input unit in SetNumericalAdjustment` (Phase 3)
 6. ☐ Phase 4 pieces as needed.
 

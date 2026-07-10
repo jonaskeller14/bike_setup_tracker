@@ -15,7 +15,7 @@ void main() {
       max: 100,
     );
 
-    NumericalAdjustment? result;
+    EditResult<Adjustment>? result;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -23,7 +23,7 @@ void main() {
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
-              result = await Navigator.push<NumericalAdjustment>(
+              result = await Navigator.push<EditResult<Adjustment>>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => NumericalAdjustmentPage.edit(adjustment: initial),
@@ -43,7 +43,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(result, isNotNull);
-    expect(result, equals(initial));
+    expect(result!.value, equals(initial));
+    expect(result!.conversions, isEmpty);
   });
 
   testWidgets('Can create numerical adjustment without bounds', (WidgetTester tester) async {
@@ -133,7 +134,7 @@ void main() {
       max: 100.0,
     );
 
-    NumericalAdjustment? result;
+    EditResult<Adjustment>? result;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -141,7 +142,7 @@ void main() {
         home: Builder(
           builder: (context) => ElevatedButton(
             onPressed: () async {
-              result = await Navigator.push<NumericalAdjustment>(
+              result = await Navigator.push<EditResult<Adjustment>>(
                 context,
                 MaterialPageRoute(
                   builder: (context) => NumericalAdjustmentPage.edit(adjustment: initial),
@@ -165,10 +166,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(result, isNotNull);
-    expect(result!.id, 'test-id');
-    expect(result!.name, 'Updated');
-    expect(result!.min, 10.0);
-    expect(result!.max, 100.0);
+    final adjustment = result!.value as NumericalAdjustment;
+    expect(adjustment.id, 'test-id');
+    expect(adjustment.name, 'Updated');
+    expect(adjustment.min, 10.0);
+    expect(adjustment.max, 100.0);
   });
 
   testWidgets('Unit field is preserved', (WidgetTester tester) async {

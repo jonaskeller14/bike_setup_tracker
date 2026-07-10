@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/adjustment/adjustment.dart';
 import '../models/rating.dart';
 import '../pages/rating_page.dart';
 import '../repositories/app_repository.dart';
@@ -22,15 +23,15 @@ class RatingActions {
   static Future<void> editRating(BuildContext context, {required Rating rating}) async {
     final appRepository = context.read<AppRepository>();
 
-    final editedRating = await Navigator.push<Rating>(
+    final result = await Navigator.push<EditResult<Rating>>(
       context,
       MaterialPageRoute(
         builder: (context) => RatingPage.edit(rating: rating),
       ),
     );
-    if (editedRating == null) return;
+    if (result == null) return;
 
-    await appRepository.editRating(editedRating);
+    await appRepository.editRating(result.value, conversions: result.conversions);
   }
 
   static Future<void> duplicateRating(BuildContext context, {required Rating rating}) async {

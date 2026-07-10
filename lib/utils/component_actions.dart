@@ -54,14 +54,14 @@ class ComponentActions {
   static Future<void> editComponent(BuildContext context, {required Component component}) async {
     final appRepository = context.read<AppRepository>();
 
-    final editedComponent = await Navigator.push<Component>(
+    final result = await Navigator.push<EditResult<Component>>(
       context,
       MaterialPageRoute(
         builder: (context) => ComponentPage.edit(component: component),
       ),
     );
-    if (editedComponent == null) return;
-    await appRepository.editComponent(editedComponent);
+    if (result == null) return;
+    await appRepository.editComponent(result.value, conversions: result.conversions);
   }
 
   static Future<void> duplicateComponent(BuildContext context, {required Component component}) async {

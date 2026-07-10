@@ -110,6 +110,36 @@ class SetupsDao extends DatabaseAccessor<AppDatabase> with _$SetupsDaoMixin, Sof
     });
   }
 
+  /// Rewrites every stored value of [adjustmentId] via [transform] (values are
+  /// numerical doubles) and bumps `lastModified` on each affected setup so
+  /// backup merges propagate the change. Unparseable/null values are left as-is.
+  Future<void> convertAdjustmentValues(
+    String adjustmentId,
+    double Function(double) transform,
+  ) async {
+    final rows = await (select(setupAdjustmentValues)
+          ..where((t) => t.adjustmentId.equals(adjustmentId)))
+        .get();
+    if (rows.isEmpty) return;
+
+    final now = DateTime.now().toUtc();
+    final touchedSetupIds = <String>{};
+    for (final row in rows) {
+      final decoded = decodeNumericalValueOrNull(row.value);
+      if (decoded == null) continue; // unparseable/null — leave untouched
+      final newValue = encodeAdjustmentValue(transform(decoded));
+      if (newValue == row.value) continue; // no material change
+      await (update(setupAdjustmentValues)
+            ..where((t) => t.setupId.equals(row.setupId) & t.adjustmentId.equals(adjustmentId)))
+          .write(SetupAdjustmentValuesCompanion(value: Value(newValue)));
+      touchedSetupIds.add(row.setupId);
+    }
+    for (final setupId in touchedSetupIds) {
+      await (update(setups)..where((t) => t.id.equals(setupId)))
+          .write(SetupsCompanion(lastModified: Value(now)));
+    }
+  }
+
   Future<void> _upsertValuesMap(String setupId, Map<String, dynamic> valuesMap) async {
     for (var entry in valuesMap.entries) {
       await upsertSetupValue(SetupAdjustmentValuesCompanion(

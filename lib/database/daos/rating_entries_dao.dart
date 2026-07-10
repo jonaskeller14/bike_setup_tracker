@@ -80,6 +80,36 @@ class RatingEntriesDao extends DatabaseAccessor<AppDatabase> with _$RatingEntrie
     });
   }
 
+  /// Rewrites every stored value of [metricId] via [transform] (values are
+  /// numerical doubles) and bumps `lastModified` on each affected rating entry so
+  /// backup merges propagate the change. Unparseable/null values are left as-is.
+  Future<void> convertMetricValues(
+    String metricId,
+    double Function(double) transform,
+  ) async {
+    final rows = await (select(ratingEntryValues)
+          ..where((t) => t.ratingMetricId.equals(metricId)))
+        .get();
+    if (rows.isEmpty) return;
+
+    final now = DateTime.now().toUtc();
+    final touchedEntryIds = <String>{};
+    for (final row in rows) {
+      final decoded = decodeNumericalValueOrNull(row.value);
+      if (decoded == null) continue; // unparseable/null — leave untouched
+      final newValue = encodeAdjustmentValue(transform(decoded));
+      if (newValue == row.value) continue; // no material change
+      await (update(ratingEntryValues)
+            ..where((t) => t.ratingEntryId.equals(row.ratingEntryId) & t.ratingMetricId.equals(metricId)))
+          .write(RatingEntryValuesCompanion(value: Value(newValue)));
+      touchedEntryIds.add(row.ratingEntryId);
+    }
+    for (final entryId in touchedEntryIds) {
+      await (update(ratingEntries)..where((t) => t.id.equals(entryId)))
+          .write(RatingEntriesCompanion(lastModified: Value(now)));
+    }
+  }
+
   Future<void> _upsertValues(String entryId, Map<String, dynamic> values) async {
     for (final e in values.entries) {
       if (e.value == null) continue;

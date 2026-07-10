@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/adjustment/adjustment.dart';
 import '../models/app_settings.dart';
 import '../models/person.dart';
 import '../models/rating_association.dart';
@@ -22,15 +23,15 @@ class PersonActions {
   static Future<void> editPerson(BuildContext context, {required Person person}) async {
     final appRepository = context.read<AppRepository>();
 
-    final editedPerson = await Navigator.push<Person>(
+    final result = await Navigator.push<EditResult<Person>>(
       context,
       MaterialPageRoute(
         builder: (context) => PersonPage.edit(person: person),
       ),
     );
-    if (editedPerson == null) return;
+    if (result == null) return;
 
-    await appRepository.editPerson(editedPerson);
+    await appRepository.editPerson(result.value, conversions: result.conversions);
   }
 
   static Future<void> duplicatePerson(BuildContext context, {required Person person}) async {

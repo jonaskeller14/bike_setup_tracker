@@ -4,6 +4,7 @@ import '../../models/adjustment/adjustment.dart';
 import '../../models/rating_metric.dart';
 import '../../theme.dart';
 import '../../widgets/dialogs/discard_changes.dart';
+import '../../widgets/dialogs/unit_conversion_dialog.dart';
 import '../../widgets/metric_weight_field.dart';
 import '../../widgets/set_adjustment/set_numerical_adjustment.dart';
 import '../../widgets/sheets/unit_picker_sheet.dart';
@@ -123,7 +124,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
     );
   }
 
-  void _saveMetric() {
+  Future<void> _saveMetric() async {
     if (!_formKey.currentState!.validate()) {
       setState(() => _expanded = true);
       return;
@@ -135,9 +136,28 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
     final min = double.parse(_minController.text.trim());
     final max = double.parse(_maxController.text.trim());
     final weight = double.parse(_weightController.text.trim());
+
+    // On an edit between two compatible units (same quantity), ask whether to
+    // convert existing stored rating-entry values. Min/max are left exactly as
+    // typed — only the historical values are rewritten, and only if opted in.
+    ValueUnitConversion? conversion;
+    final oldUnit = _initialAdj?.unit;
+    final newUnit = _unit;
+    if (widget.mode == MetricPageMode.edit &&
+        oldUnit is KnownUnit &&
+        newUnit is KnownUnit &&
+        oldUnit != newUnit &&
+        oldUnit.quantity == newUnit.quantity) {
+      final choice = await showUnitConversionDialog(context, from: oldUnit, to: newUnit);
+      if (choice == null) return; // dismissed — stay on the page
+      if (choice == UnitEditChoice.convert) {
+        conversion = ValueUnitConversion(adjustmentId: _initialAdj!.id, from: oldUnit, to: newUnit);
+      }
+    }
+
     _formHasChanges = false;
     if (!mounted) return;
-    Navigator.pop(context, RatingMetric(
+    final metric = RatingMetric(
       adjustment: NumericalAdjustment(
         id: widget.mode == MetricPageMode.edit ? _initialAdj!.id : null,
         name: name,
@@ -147,7 +167,13 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
         unit: _unit,
       ),
       weight: weight,
-    ));
+    );
+    Navigator.pop(
+      context,
+      widget.mode == MetricPageMode.edit
+          ? EditResult<RatingMetric>(metric, conversions: conversion == null ? const [] : [conversion])
+          : metric,
+    );
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {
@@ -174,6 +200,38 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
     final min = minText.isNotEmpty ? double.tryParse(minText) : null;
     if (min != null && v <= min) return 'Max must be greater than min';
     return null;
+  }
+
+  /// A note shown when the unit is edited: an info hint for compatible units
+  /// (values can be converted on save) or a warning for incompatible ones
+  /// (numbers are reinterpreted, not converted).
+  List<Widget> _unitChangeNotice() {
+    if (widget.mode != MetricPageMode.edit) return const [];
+    final oldUnit = _initialAdj?.unit;
+    final newUnit = _unit;
+    if (newUnit == oldUnit) return const [];
+
+    final scheme = Theme.of(context).colorScheme;
+    final convertible = oldUnit is KnownUnit &&
+        newUnit is KnownUnit &&
+        oldUnit.quantity == newUnit.quantity;
+    return [
+      ListTile(
+        leading: Icon(
+          convertible ? Icons.swap_horiz : Icons.warning,
+          color: convertible ? scheme.primary : scheme.error,
+        ),
+        title: Text(
+          convertible
+              ? "You'll be asked whether to convert existing values when saving."
+              : 'WARNING: existing values keep their numbers and are reinterpreted in the new unit.',
+          style: TextStyle(color: convertible ? scheme.primary : scheme.error),
+        ),
+        dense: true,
+        contentPadding: EdgeInsets.zero,
+      ),
+      const SizedBox(height: 12),
+    ];
   }
 
   NumericalAdjustment _composePreview() {
@@ -313,18 +371,7 @@ class _NumericalMetricPageState extends State<NumericalMetricPage> {
                                 maintainState: true,
                                 child: Column(
                                   children: [
-                                    if (widget.mode == MetricPageMode.edit && _unit != _initialAdj?.unit) ...[
-                                      ListTile(
-                                        leading: Icon(Icons.warning, color: Theme.of(context).colorScheme.error),
-                                        title: Text(
-                                          'WARNING: Editing Unit will not update existing values!',
-                                          style: TextStyle(color: Theme.of(context).colorScheme.error),
-                                        ),
-                                        dense: true,
-                                        contentPadding: EdgeInsets.zero,
-                                      ),
-                                      const SizedBox(height: 12),
-                                    ],
+                                    ..._unitChangeNotice(),
                                     InkWell(
                                       key: const Key('unit_picker_field'),
                                       onTap: _pickUnit,

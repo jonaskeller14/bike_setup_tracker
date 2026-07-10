@@ -58,6 +58,7 @@ class _PersonPageState extends State<PersonPage> {
 
   late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
+  final Map<String, ValueUnitConversion> _pendingConversions = {};
 
   @override
   void initState() {
@@ -140,7 +141,7 @@ class _PersonPageState extends State<PersonPage> {
   }
 
   Future<void> _editAdjustment(Adjustment adjustment, {VoidCallback? onChanged}) async {
-    final editedAdjustment = await Navigator.push<Adjustment>(
+    final result = await Navigator.push<Object>(
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment) {
         final BooleanAdjustment a     => BooleanAdjustmentPage.edit(adjustment: a),
@@ -151,7 +152,16 @@ class _PersonPageState extends State<PersonPage> {
         final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a),
       }),
     );
-    if (editedAdjustment == null) return;
+    if (result == null) return;
+    final Adjustment editedAdjustment;
+    if (result is EditResult<Adjustment>) {
+      editedAdjustment = result.value;
+      for (final conversion in result.conversions) {
+        _stageConversion(conversion);
+      }
+    } else {
+      editedAdjustment = result as Adjustment;
+    }
     setState(() {
       final index = _adjustments.indexOf(adjustment);
       if (index != -1) {
@@ -160,6 +170,16 @@ class _PersonPageState extends State<PersonPage> {
     });
     _changeListener();
     onChanged?.call();
+  }
+
+  void _stageConversion(ValueUnitConversion conversion) {
+    final existing = _pendingConversions[conversion.adjustmentId];
+    final composed = existing == null ? conversion : existing.composeWith(conversion);
+    if (composed.isNoOp) {
+      _pendingConversions.remove(conversion.adjustmentId);
+    } else {
+      _pendingConversions[conversion.adjustmentId] = composed;
+    }
   }
 
   Future<void> _duplicateAdjustment(Adjustment adjustment, {VoidCallback? onChanged}) async {
@@ -182,6 +202,7 @@ class _PersonPageState extends State<PersonPage> {
 
   Future<void> removeAdjustment(Adjustment adjustment, {VoidCallback? onChanged}) async {
     setState(() => _adjustments.remove(adjustment));
+    _pendingConversions.remove(adjustment.id);
     _changeListener();
     onChanged?.call();
   }
@@ -191,18 +212,24 @@ class _PersonPageState extends State<PersonPage> {
       setState(() => _expanded = true);
       return;
     }
-    
+
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();
     _formHasChanges = false;
-    Navigator.pop(context, Person(
-      id: widget.mode == PersonPageMode.edit ? widget.person?.id : null, 
-      name: name, 
+    final person = Person(
+      id: widget.mode == PersonPageMode.edit ? widget.person?.id : null,
+      name: name,
       notes: notes.isEmpty ? null : notes,
       stravaAthlete: _stravaAthlete,
       adjustments: _adjustments,
       orderIndex: widget.person?.orderIndex ?? 0,
-    ));
+    );
+    Navigator.pop(
+      context,
+      widget.mode == PersonPageMode.edit
+          ? EditResult<Person>(person, conversions: _pendingConversions.values.toList())
+          : person,
+    );
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {

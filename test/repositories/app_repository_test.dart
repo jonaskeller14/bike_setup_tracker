@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/database/adjustment_value_codec.dart';
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
@@ -6,12 +7,15 @@ import 'package:bike_setup_tracker/models/installation.dart';
 import 'package:bike_setup_tracker/models/person.dart';
 import 'package:bike_setup_tracker/models/rating.dart';
 import 'package:bike_setup_tracker/models/rating_association.dart';
+import 'package:bike_setup_tracker/models/rating_entry.dart';
 import 'package:bike_setup_tracker/models/rating_metric.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/utils/unit_conversion.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_test/flutter_test.dart';
 
 /// Allow Drift streams to propagate through subscriptions.
@@ -351,6 +355,188 @@ void main() {
       expect(repository.ratings[ratingWithAdj.id]?.metrics.length, 1);
     });
   });
+  group("AppRepository - Unit Conversions", () {
+    late AppDatabase database;
+    late AppRepository repository;
+
+    const psi = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'psi');
+    const bar = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'bar');
+    const kg = KnownUnit(quantity: UnitQuantity.mass, unitId: 'kilograms');
+    const lb = KnownUnit(quantity: UnitQuantity.mass, unitId: 'pounds');
+
+    setUp(() async {
+      database = AppDatabase.memory();
+      repository = AppRepository(database);
+      await pumpEventQueue();
+    });
+
+    tearDown(() async {
+      await database.close();
+    });
+
+    Setup buildSetup(String bikeId, {String? personId, Map<String, dynamic>? bikeValues, Map<String, dynamic>? personValues}) => Setup(
+      name: "Setup",
+      tags: {},
+      datetime: DateTime(2020).toUtc(),
+      datetimeLocal: DateTime(2020),
+      bike: bikeId,
+      person: personId,
+      bikeAdjustmentValues: bikeValues ?? {},
+      personAdjustmentValues: personValues ?? {},
+    );
+
+    test("editComponent with Convert rewrites setup values and bumps lastModified", () async {
+      final bike = Bike(name: "B", person: null);
+      final adj = NumericalAdjustment(name: "Pressure", notes: null, unit: psi, min: 0, max: 300);
+      final component = Component(
+        name: "Fork",
+        componentType: ComponentType.fork,
+        adjustments: [adj],
+        installations: [Installation.sinceBeginning(parent: bike.id)],
+      );
+      final setup = buildSetup(bike.id, bikeValues: {adj.id: 65.0});
+
+      await repository.addBike(bike);
+      await repository.addComponent(component);
+      await repository.addSetup(setup);
+      await pumpEventQueue();
+
+      // Age the setup so the lastModified bump is unambiguous despite
+      // second-resolution timestamps (add + edit fall in the same second).
+      await (database.update(database.setups)..where((t) => t.id.equals(setup.id)))
+          .write(SetupsCompanion(lastModified: Value(DateTime(2000).toUtc())));
+      await pumpEventQueue();
+      final before = repository.setups[setup.id]!.lastModified;
+
+      // Bounds are left as typed; only stored setup values convert.
+      final convertedComponent = component.copyWith(adjustments: [adj.copyWith(unit: bar)]);
+      await repository.editComponent(
+        convertedComponent,
+        conversions: [ValueUnitConversion(adjustmentId: adj.id, from: psi, to: bar)],
+      );
+      await pumpEventQueue();
+
+      final value = repository.setups[setup.id]!.bikeAdjustmentValues[adj.id] as double;
+      expect(value, closeTo(convertUnit(65.0, psi, bar), 1e-9));
+      expect(repository.setups[setup.id]!.lastModified.isAfter(before), isTrue);
+    });
+
+    test("editComponent without conversions leaves setup values and lastModified untouched", () async {
+      final bike = Bike(name: "B", person: null);
+      final adj = NumericalAdjustment(name: "Pressure", notes: null, unit: psi);
+      final component = Component(
+        name: "Fork",
+        componentType: ComponentType.fork,
+        adjustments: [adj],
+        installations: [Installation.sinceBeginning(parent: bike.id)],
+      );
+      final setup = buildSetup(bike.id, bikeValues: {adj.id: 65.0});
+
+      await repository.addBike(bike);
+      await repository.addComponent(component);
+      await repository.addSetup(setup);
+      await pumpEventQueue();
+
+      final before = repository.setups[setup.id]!.lastModified;
+
+      // "Keep numbers": unit changes but no conversion staged.
+      await repository.editComponent(component.copyWith(adjustments: [adj.copyWith(unit: bar)]));
+      await pumpEventQueue();
+
+      expect(repository.setups[setup.id]!.bikeAdjustmentValues[adj.id], 65.0);
+      expect(repository.setups[setup.id]!.lastModified, before);
+    });
+
+    test("editPerson with Convert rewrites person adjustment values in setups", () async {
+      final bike = Bike(name: "B", person: null);
+      final padj = NumericalAdjustment(name: "Weight", notes: null, unit: kg, min: 0);
+      final person = Person(name: "P", adjustments: [padj]);
+      final setup = buildSetup(bike.id, personId: person.id, personValues: {padj.id: 70.0});
+
+      await repository.addBike(bike);
+      await repository.addPerson(person);
+      await repository.addSetup(setup);
+      await pumpEventQueue();
+
+      await repository.editPerson(
+        person.copyWith(adjustments: [padj.copyWith(unit: lb)]),
+        conversions: [ValueUnitConversion(adjustmentId: padj.id, from: kg, to: lb)],
+      );
+      await pumpEventQueue();
+
+      final value = repository.setups[setup.id]!.personAdjustmentValues[padj.id] as double;
+      expect(value, closeTo(convertUnit(70.0, kg, lb), 1e-9));
+    });
+
+    test("editRating with Convert rewrites rating-entry values and bumps lastModified", () async {
+      final metricAdj = NumericalAdjustment(name: "Pressure", notes: null, unit: psi, min: 0, max: 300);
+      final rating = Rating(
+        name: "R",
+        filterType: FilterType.global,
+        filter: null,
+        metrics: [RatingMetric(adjustment: metricAdj)],
+      );
+      final entry = RatingEntry(
+        bike: "b",
+        setupId: "s",
+        dateTimeUTC: DateTime(2020).toUtc(),
+        dateTimeLocal: DateTime(2020),
+        metricValues: {metricAdj.id: 65.0},
+      );
+
+      await repository.addRating(rating);
+      await repository.addRatingEntry(entry);
+      await pumpEventQueue();
+
+      // Age the entry so the lastModified bump is unambiguous despite
+      // second-resolution timestamps (add + edit fall in the same second).
+      await (database.update(database.ratingEntries)..where((t) => t.id.equals(entry.id)))
+          .write(RatingEntriesCompanion(lastModified: Value(DateTime(2000).toUtc())));
+      await pumpEventQueue();
+      final before = repository.ratingEntries[entry.id]!.lastModified;
+
+      final convertedRating = rating.copyWith(metrics: [
+        RatingMetric(adjustment: metricAdj.copyWith(unit: bar)),
+      ]);
+      await repository.editRating(
+        convertedRating,
+        conversions: [ValueUnitConversion(adjustmentId: metricAdj.id, from: psi, to: bar)],
+      );
+      await pumpEventQueue();
+
+      final value = repository.ratingEntries[entry.id]!.metricValues[metricAdj.id] as double;
+      expect(value, closeTo(convertUnit(65.0, psi, bar), 1e-9));
+      expect(repository.ratingEntries[entry.id]!.lastModified.isAfter(before), isTrue);
+    });
+
+    test("convertAdjustmentValues converts numeric rows and leaves unparseable rows untouched", () async {
+      const adjId = 'adj-x';
+      await database.into(database.setupAdjustmentValues).insert(
+        SetupAdjustmentValuesCompanion.insert(setupId: 's1', adjustmentId: adjId, value: encodeAdjustmentValue(10.0)));
+      await database.into(database.setupAdjustmentValues).insert(
+        SetupAdjustmentValuesCompanion.insert(setupId: 's2', adjustmentId: adjId, value: '"n/a"'));
+
+      await database.setupsDao.convertAdjustmentValues(adjId, (v) => v * 2);
+
+      final rows = await database.select(database.setupAdjustmentValues).get();
+      final byId = {for (final r in rows) r.setupId: r.value};
+      expect(byId['s1'], encodeAdjustmentValue(20.0));
+      expect(byId['s2'], '"n/a"'); // unparseable — left untouched
+    });
+
+    test("ValueUnitConversion composes to a single from->to and detects no-ops", () {
+      const kpa = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'kiloPascal');
+      const first = ValueUnitConversion(adjustmentId: 'a', from: psi, to: bar);
+      final composed = first.composeWith(const ValueUnitConversion(adjustmentId: 'a', from: bar, to: kpa));
+      expect(composed.from, psi);
+      expect(composed.to, kpa);
+      expect(composed.isNoOp, isFalse);
+
+      final roundTrip = first.composeWith(const ValueUnitConversion(adjustmentId: 'a', from: bar, to: psi));
+      expect(roundTrip.isNoOp, isTrue);
+    });
+  });
+
   group("AppRepository - Installations", () {
     late AppDatabase database;
     late AppRepository repository;

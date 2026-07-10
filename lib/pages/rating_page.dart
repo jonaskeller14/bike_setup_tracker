@@ -58,6 +58,7 @@ class _RatingPageState extends State<RatingPage> {
 
   late List<RatingMetric> _metrics;
   late List<RatingMetric> _initialMetrics;
+  final Map<String, ValueUnitConversion> _pendingConversions = {};
   late RatingAssociation _ratingAssociation;
   late RatingAssociation _initialRatingAssociation;
 
@@ -146,7 +147,7 @@ class _RatingPageState extends State<RatingPage> {
   }
 
   Future<void> _editMetric(RatingMetric metric, {VoidCallback? onChanged}) async {
-    final editedMetric = await Navigator.push<RatingMetric>(
+    final result = await Navigator.push<Object>(
       context,
       MaterialPageRoute(builder: (context) => switch (metric.adjustment) {
         BooleanAdjustment()     => BooleanMetricPage.edit(metric: metric),
@@ -157,7 +158,16 @@ class _RatingPageState extends State<RatingPage> {
         DurationAdjustment()    => DurationMetricPage.edit(metric: metric),
       }),
     );
-    if (editedMetric == null) return;
+    if (result == null) return;
+    final RatingMetric editedMetric;
+    if (result is EditResult<RatingMetric>) {
+      editedMetric = result.value;
+      for (final conversion in result.conversions) {
+        _stageConversion(conversion);
+      }
+    } else {
+      editedMetric = result as RatingMetric;
+    }
     setState(() {
       final index = _metrics.indexOf(metric);
       if (index != -1) {
@@ -166,6 +176,16 @@ class _RatingPageState extends State<RatingPage> {
     });
     _changeListener();
     onChanged?.call();
+  }
+
+  void _stageConversion(ValueUnitConversion conversion) {
+    final existing = _pendingConversions[conversion.adjustmentId];
+    final composed = existing == null ? conversion : existing.composeWith(conversion);
+    if (composed.isNoOp) {
+      _pendingConversions.remove(conversion.adjustmentId);
+    } else {
+      _pendingConversions[conversion.adjustmentId] = composed;
+    }
   }
 
   Future<void> _duplicateMetric(RatingMetric metric, {VoidCallback? onChanged}) async {
@@ -189,6 +209,7 @@ class _RatingPageState extends State<RatingPage> {
 
   Future<void> removeMetric(RatingMetric metric, {VoidCallback? onChanged}) async {
     setState(() => _metrics.remove(metric));
+    _pendingConversions.remove(metric.id);
     _changeListener();
     onChanged?.call();
   }
@@ -203,7 +224,7 @@ class _RatingPageState extends State<RatingPage> {
     final notes = _notesController.text.trim();
     _formHasChanges = false;
 
-    Navigator.pop(context, Rating(
+    final rating = Rating(
       id: widget.mode == RatingPageMode.edit ? widget.rating?.id : null,
       name: name,
       notes: notes.isEmpty ? null : notes,
@@ -211,7 +232,13 @@ class _RatingPageState extends State<RatingPage> {
       filterType: _ratingAssociation.filterType,
       metrics: List.from(_metrics),
       orderIndex: widget.rating?.orderIndex ?? 0,
-    ));
+    );
+    Navigator.pop(
+      context,
+      widget.mode == RatingPageMode.edit
+          ? EditResult<Rating>(rating, conversions: _pendingConversions.values.toList())
+          : rating,
+    );
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {

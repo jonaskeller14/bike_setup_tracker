@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../database/app_database.dart';
 import '../database/mappers.dart';
+import '../models/adjustment/adjustment.dart';
 import '../models/bike.dart';
 import '../models/component.dart';
 import '../models/component_stats.dart';
@@ -25,6 +26,7 @@ import '../models/task/task_rule.dart';
 import '../services/backup_service.dart';
 import '../services/rating_score_service.dart';
 import '../services/setup_resolution_service.dart';
+import '../utils/unit_conversion.dart';
 
 class AppRepository extends ChangeNotifier {
   final AppDatabase database;
@@ -1159,14 +1161,22 @@ class AppRepository extends ChangeNotifier {
     );
   }
 
-  Future<void> editPerson(Person person) async {
+  Future<void> editPerson(Person person, {List<ValueUnitConversion> conversions = const []}) async {
     final updated = person.copyWith(lastModified: DateTime.now().toUtc());
-    await database.personsDao.updatePersonWithData(
-      person: updated.toCompanion(),
-      adjustmentsList: updated.adjustments.asMap().entries.map((entry) => 
-        entry.value.toCompanion(personId: updated.id, orderIndex: entry.key)
-      ).toList(),
-    );
+    await database.transaction(() async {
+      await database.personsDao.updatePersonWithData(
+        person: updated.toCompanion(),
+        adjustmentsList: updated.adjustments.asMap().entries.map((entry) =>
+          entry.value.toCompanion(personId: updated.id, orderIndex: entry.key)
+        ).toList(),
+      );
+      for (final c in conversions) {
+        await database.setupsDao.convertAdjustmentValues(
+          c.adjustmentId,
+          (v) => convertUnit(v, c.from, c.to),
+        );
+      }
+    });
   }
 
   Future<void> editBike(Bike bike) async {
@@ -1178,7 +1188,7 @@ class AppRepository extends ChangeNotifier {
     if (gearChanged) await refreshTaskEntrySnapshots();
   }
 
-  Future<void> editComponent(Component component) async {
+  Future<void> editComponent(Component component, {List<ValueUnitConversion> conversions = const []}) async {
     // Installation history (which bike, when) and the component's initial stats
     // both feed into its computed stats, and therefore into the snapshots of any
     // task entries linked to it. Live component stats recompute via SQL joins,
@@ -1191,19 +1201,27 @@ class AppRepository extends ChangeNotifier {
         old.initialMovingTime != component.initialMovingTime ||
         old.initialElapsedTime != component.initialElapsedTime ||
         old.initialActivityCount != component.initialActivityCount;
-    
+
     final updated = component.copyWith(lastModified: DateTime.now().toUtc());
-    await database.componentsDao.updateComponentWithData(
-      component: updated.toCompanion(),
-      adjustmentsList: updated.adjustments.asMap().entries.map((entry) =>
-        entry.value.toCompanion(componentId: updated.id, orderIndex: entry.key)
-      ).toList(),
-      installationsList: updated.installations.map((inst) =>
-        // Preserve the stable installation ids across edits; only normalise the
-        // owning componentId.
-        inst.copyWith(componentId: updated.id).toCompanion()
-      ).toList(),
-    );
+    await database.transaction(() async {
+      await database.componentsDao.updateComponentWithData(
+        component: updated.toCompanion(),
+        adjustmentsList: updated.adjustments.asMap().entries.map((entry) =>
+          entry.value.toCompanion(componentId: updated.id, orderIndex: entry.key)
+        ).toList(),
+        installationsList: updated.installations.map((inst) =>
+          // Preserve the stable installation ids across edits; only normalise the
+          // owning componentId.
+          inst.copyWith(componentId: updated.id).toCompanion()
+        ).toList(),
+      );
+      for (final c in conversions) {
+        await database.setupsDao.convertAdjustmentValues(
+          c.adjustmentId,
+          (v) => convertUnit(v, c.from, c.to),
+        );
+      }
+    });
 
     if (statsInputsChanged) await refreshTaskEntrySnapshots();
   }
@@ -1228,14 +1246,22 @@ class AppRepository extends ChangeNotifier {
     await editComponent(component.copyWith(installations: updated));
   }
 
-  Future<void> editRating(Rating rating) async {
+  Future<void> editRating(Rating rating, {List<ValueUnitConversion> conversions = const []}) async {
     final updated = rating.copyWith(lastModified: DateTime.now().toUtc());
-    await database.ratingsDao.updateRatingWithData(
-      rating: updated.toCompanion(),
-      metricsList: updated.metrics.asMap().entries.map((entry) =>
-        entry.value.toCompanion(ratingId: updated.id, orderIndex: entry.key)
-      ).toList(),
-    );
+    await database.transaction(() async {
+      await database.ratingsDao.updateRatingWithData(
+        rating: updated.toCompanion(),
+        metricsList: updated.metrics.asMap().entries.map((entry) =>
+          entry.value.toCompanion(ratingId: updated.id, orderIndex: entry.key)
+        ).toList(),
+      );
+      for (final c in conversions) {
+        await database.ratingEntriesDao.convertMetricValues(
+          c.adjustmentId,
+          (v) => convertUnit(v, c.from, c.to),
+        );
+      }
+    });
   }
 
   Future<void> addSetup(Setup setup) async {

@@ -68,6 +68,7 @@ class _ComponentPageState extends State<ComponentPage> {
   late TextEditingController _initialElapsedTimeController;
   late List<Adjustment> _adjustments;
   late List<Adjustment> _initialAdjustments;
+  final Map<String, ValueUnitConversion> _pendingConversions = {};
   late List<Installation> _installations;
   late ComponentType? _componentType;
   late ComponentType? _initialComponentType;
@@ -190,7 +191,7 @@ class _ComponentPageState extends State<ComponentPage> {
   }
 
   Future<void> _editAdjustment(Adjustment adjustment, {VoidCallback? onChanged}) async {
-    final editedAdjustment = await Navigator.push<Adjustment>(
+    final result = await Navigator.push<Object>(
       context,
       MaterialPageRoute(builder: (context) => switch (adjustment) {
         final BooleanAdjustment a     => BooleanAdjustmentPage.edit(adjustment: a),
@@ -201,7 +202,16 @@ class _ComponentPageState extends State<ComponentPage> {
         final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a),
       }),
     );
-    if (editedAdjustment == null) return;
+    if (result == null) return;
+    final Adjustment editedAdjustment;
+    if (result is EditResult<Adjustment>) {
+      editedAdjustment = result.value;
+      for (final conversion in result.conversions) {
+        _stageConversion(conversion);
+      }
+    } else {
+      editedAdjustment = result as Adjustment;
+    }
     setState(() {
       final index = _adjustments.indexOf(adjustment);
       if (index != -1) {
@@ -210,6 +220,16 @@ class _ComponentPageState extends State<ComponentPage> {
     });
     _changeListener();
     onChanged?.call();
+  }
+
+  void _stageConversion(ValueUnitConversion conversion) {
+    final existing = _pendingConversions[conversion.adjustmentId];
+    final composed = existing == null ? conversion : existing.composeWith(conversion);
+    if (composed.isNoOp) {
+      _pendingConversions.remove(conversion.adjustmentId);
+    } else {
+      _pendingConversions[conversion.adjustmentId] = composed;
+    }
   }
 
   Future<void> _duplicateAdjustment(Adjustment adjustment, {VoidCallback? onChanged}) async {
@@ -232,6 +252,7 @@ class _ComponentPageState extends State<ComponentPage> {
 
   Future<void> removeAdjustment(Adjustment adjustment, {VoidCallback? onChanged}) async {
     setState(() => _adjustments.remove(adjustment));
+    _pendingConversions.remove(adjustment.id);
     _changeListener();
     onChanged?.call();
   }
@@ -253,8 +274,8 @@ class _ComponentPageState extends State<ComponentPage> {
     final initialMovingTime = int.parse(_initialMovingTimeController.text.trim());
     _formHasChanges = false;
 
-    Navigator.pop(context, Component(
-      id: widget.mode == ComponentPageMode.edit ? widget.component?.id : null, 
+    final component = Component(
+      id: widget.mode == ComponentPageMode.edit ? widget.component?.id : null,
       name: name,
       componentType: _componentType!,
       installations: _installations,
@@ -265,7 +286,13 @@ class _ComponentPageState extends State<ComponentPage> {
       initialElapsedTime: Duration(hours: initialElapsedTime),
       initialMovingTime: Duration(hours: initialMovingTime),
       orderIndex: widget.component?.orderIndex ?? 0,
-    ));
+    );
+    Navigator.pop(
+      context,
+      widget.mode == ComponentPageMode.edit
+          ? EditResult<Component>(component, conversions: _pendingConversions.values.toList())
+          : component,
+    );
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {

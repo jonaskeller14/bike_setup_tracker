@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../widgets/dialogs/discard_changes.dart';
+import '../../widgets/dialogs/unit_conversion_dialog.dart';
 import '../../widgets/set_adjustment/set_numerical_adjustment.dart';
 import '../../widgets/sheets/unit_picker_sheet.dart';
 import 'adjustment_page.dart';
@@ -109,7 +110,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     );
   }
 
-  void _saveNumericalAdjustment() {
+  Future<void> _saveNumericalAdjustment() async {
     if (!_formKey.currentState!.validate()) {
       setState(() => _expanded = true);
       return;
@@ -122,16 +123,41 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
 
     final min = double.tryParse(minText) ?? double.negativeInfinity;
     final max = double.tryParse(maxText) ?? double.infinity;
+
+    // On an edit between two compatible units (same quantity), ask whether to
+    // convert existing stored setup values. Min/max are left exactly as typed —
+    // only the historical values are rewritten, and only if the user opts in.
+    ValueUnitConversion? conversion;
+    final oldUnit = widget.adjustment?.unit;
+    final newUnit = _unit;
+    if (widget.mode == AdjustmentPageMode.edit &&
+        oldUnit is KnownUnit &&
+        newUnit is KnownUnit &&
+        oldUnit != newUnit &&
+        oldUnit.quantity == newUnit.quantity) {
+      final choice = await showUnitConversionDialog(context, from: oldUnit, to: newUnit);
+      if (choice == null) return; // dismissed — stay on the page
+      if (choice == UnitEditChoice.convert) {
+        conversion = ValueUnitConversion(adjustmentId: widget.adjustment!.id, from: oldUnit, to: newUnit);
+      }
+    }
+
     _formHasChanges = false;
     if (!mounted) return;
-    Navigator.pop(context, NumericalAdjustment(
+    final adjustment = NumericalAdjustment(
       id: widget.mode == AdjustmentPageMode.edit ? widget.adjustment!.id : null,
       name: name,
       notes: notes.isEmpty ? null : notes,
       min: min,
       max: max,
       unit: _unit,
-    ));
+    );
+    Navigator.pop(
+      context,
+      widget.mode == AdjustmentPageMode.edit
+          ? EditResult<Adjustment>(adjustment, conversions: conversion == null ? const [] : [conversion])
+          : adjustment,
+    );
   }
 
   void _handlePopInvoked(bool didPop, dynamic result) async {
@@ -158,6 +184,35 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     if (v == null) return 'Valid number required';
     if (min != null && v < min) return 'Max must be greater than min';
     return null;
+  }
+
+  List<Widget> _unitChangeNotice() {
+    if (widget.mode != AdjustmentPageMode.edit) return const [];
+    final oldUnit = _initialUnit;
+    final newUnit = _unit;
+    if (newUnit == oldUnit) return const [];
+
+    final scheme = Theme.of(context).colorScheme;
+    final convertible = oldUnit is KnownUnit &&
+        newUnit is KnownUnit &&
+        oldUnit.quantity == newUnit.quantity;
+    return [
+      ListTile(
+        leading: Icon(
+          convertible ? Icons.swap_horiz : Icons.warning,
+          color: convertible ? scheme.primary : scheme.error,
+        ),
+        title: Text(
+          convertible
+              ? "You'll be asked whether to convert existing values when saving."
+              : 'WARNING: existing values keep their numbers and are reinterpreted in the new unit.',
+          style: TextStyle(color: convertible ? scheme.primary : scheme.error),
+        ),
+        dense: true,
+        contentPadding: EdgeInsets.zero,
+      ),
+      const SizedBox(height: 12),
+    ];
   }
 
   NumericalAdjustment _composePreview() {
@@ -233,18 +288,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                             validator: validateAdjustmentName,
                           ),
                           const SizedBox(height: 12),
-                          if (widget.mode == AdjustmentPageMode.edit && _unit != _initialUnit) ...[
-                            ListTile(
-                              leading: Icon(Icons.warning, color: Theme.of(context).colorScheme.error),
-                              title: Text(
-                                'WARNING: Editing Unit will not update existing setup values!',
-                                style: TextStyle(color: Theme.of(context).colorScheme.error),
-                              ),
-                              dense: true,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                            const SizedBox(height: 12),
-                          ],
+                          ..._unitChangeNotice(),
                           InkWell(
                             key: const Key('unit_picker_field'),
                             onTap: _pickUnit,

@@ -6,6 +6,20 @@ String encodeAdjustmentValue(dynamic value) {
   return jsonEncode(value);
 }
 
+/// Safely extracts a numerical (double) value from a stored [raw] string,
+/// returning null for non-numeric/unparseable rows (which callers leave
+/// untouched). Handles both the JSON encoding and legacy plain-number strings,
+/// and never throws on a type mismatch (unlike [decodeAdjustmentValue]).
+double? decodeNumericalValueOrNull(String raw) {
+  try {
+    final decoded = jsonDecode(raw);
+    if (decoded is num) return decoded.toDouble();
+  } on FormatException {
+    // Non-JSON legacy value — fall through to a plain parse.
+  }
+  return double.tryParse(raw);
+}
+
 /// Inverse of [encodeAdjustmentValue]. The adjustment [type] is required because
 /// JSON alone cannot distinguish a step (`int`) from a numerical (`double`), nor
 /// a duration (stored as integer microseconds) from a plain number.

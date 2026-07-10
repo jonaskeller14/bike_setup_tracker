@@ -27,8 +27,8 @@ Decode rule: split on the first `:`; if the prefix is a valid `UnitQuantity` **a
 
 Consequences:
 
-- Legacy plain strings (pre-migration DB rows, old backup JSON) decode naturally as `CustomUnit` — **no JSON version bump required**. Alias normalization ("psi" → `pressure:psi`) happens only in the migration and the backup-import path, not in the runtime decoder, so post-migration exactly one format exists.
-- Old app versions importing a *new* backup show `pressure:psi` as a raw label — cosmetic only (values are stored in the adjustment's unit, so numbers stay correct). Preferred over a version bump, which would hard-reject the import.
+- **Forward-compat (old → new):** Legacy plain strings (pre-migration DB rows, old backup JSON) decode naturally as `CustomUnit`, and alias normalization ("psi" → `pressure:psi`) happens in the migration and backup-import path — so a *new* app reads an *old* backup fine with no version handling in the runtime decoder.
+- **Backward-compat (new → old):** the reverse direction *does* get a guard. `NumericalAdjustment.toJson` bumped to `version: 2` (§1.3), so an *old* app importing a *new* backup hard-rejects rather than silently importing `pressure:psi` as a raw label. See the risk table. *(Chosen after the fact — the original plan accepted the cosmetic mislabel; a flat version bump is cheap and consistent with every other model.)*
 
 ## Unit catalog
 
@@ -89,6 +89,7 @@ Top-level helpers (matches the existing actions-pattern style, no state needed):
 ### 1.3 Domain model change: `Adjustment.unit` becomes `AdjustmentUnit?` ✅
 
 - [adjustment.dart](../lib/models/adjustment/adjustment.dart): field type change; `unitSuffix()` → `" ${unit!.label}"`. `toJson` in each subclass writes `unit.encode()`; `fromJson` uses `AdjustmentUnit.decode` (runtime) — the backup-import path pre-normalizes via `fromLegacy` (see 1.6).
+- **Backward-compat guard:** [numerical_adjustment.dart](../lib/models/adjustment/numerical_adjustment.dart) `toJson` `version` bumped **1 → 2** (`fromJson` accepts `null | 1 | 2`). `KnownUnit` only ever appears on numerical adjustments (and rating metrics, which nest one), so this single bump covers the whole risk surface; older builds hard-reject a v2 backup instead of mislabeling the structured unit. Covered by [numerical_adjustment_unit_version_test.dart](../test/models/numerical_adjustment_unit_version_test.dart).
 - Compiler-driven sweep of all `unit` consumers (pages, `set_adjustment` widgets, list widgets, details pages, history table, charts): mechanical `unit` → `unit?.label` where a display string is needed.
 - `RatingMetric` model gets the same treatment (it mirrors the adjustment fields — it wraps `Adjustment`, so no separate unit field needed there).
 
@@ -167,37 +168,35 @@ class EditResult<T> {
 
 ---
 
-## Phase 3 — D1: input unit toggle in `SetNumericalAdjustmentWidget`
+## Phase 3 — D1: input unit toggle in `SetNumericalAdjustmentWidget` ✅ Implemented
 
 [set_numerical_adjustment.dart](../lib/widgets/set_adjustment/set_numerical_adjustment.dart) — used by setup entry, rating entry (`adjustment_set_list.dart`), and the adjustment-page preview, so all surfaces get the toggle for free.
 
-### 3.1 Behavior
+### 3.1 Behavior ✅
 
-- Only active when `adjustment.unit is KnownUnit` (else the field is unchanged).
-- New state `KnownUnit _activeUnit` (init = storage unit; ephemeral, resets on dispose).
-- The suffix becomes tappable: tap advances through `toggleCycle(quantity)` (starting from the storage unit) with light haptic feedback (project convention). Visual affordance: small `swap_horiz` glyph next to the suffix text so the tap target is discoverable.
-- On toggle: parse controller text (in the previous active unit) → convert → reformat via `formatConverted` → cursor to end.
-- **Contract with the parent stays unchanged**: `onChanged` always reports the value converted to the *storage* unit. Keep a `_lastReported` guard so `didUpdateWidget`'s echo comparison works while the controller displays alternate-unit text.
-- While `_activeUnit != storage unit`, show helper text with the stored equivalent: `= 4.48 bar` — the user always sees what will be saved.
-- Reset (replay) button: sets `initialValue` converted into the active unit.
-- Validator: converts `min`/`max` into the active unit for both the bounds check and the message text.
+- ✅ Only active when `adjustment.unit is KnownUnit` (else the field is unchanged).
+- ✅ New state `KnownUnit? _activeUnit` (init = storage unit; ephemeral, resets on dispose).
+- ✅ The suffix becomes tappable: tap advances through `toggleCycle(quantity)` (starting from the storage unit) with light haptic feedback (project convention). *(Deviation: no `swap_horiz` glyph was added — the tappable unit label alone is the affordance. Revisit under Phase 4 polish if discoverability testing warrants it.)*
+- ✅ On toggle: parse controller text (in the previous active unit) → convert → reformat via `formatConverted` → cursor to end.
+- ✅ **Contract with the parent stays unchanged**: `onChanged` always reports the value converted to the *storage* unit. A `_lastReported` guard keeps `didUpdateWidget`'s echo comparison working while the controller displays alternate-unit text.
+- ✅ While `_activeUnit != storage unit`, helper text shows the stored equivalent: `= 4.48 bar` — the user always sees what will be saved.
+- ✅ Reset (replay) button: sets `initialValue` converted into the active unit (reports the exact stored value, un-round-tripped, to avoid float drift).
+- ✅ Validator: converts `min`/`max` into the active unit for both the bounds check and the message text.
 
-### 3.2 Edge cases
+### 3.2 Edge cases ✅
 
-- Empty/invalid text on toggle: just switch the suffix, don't touch the text.
-- Highlight logic (`isChanged`/`isInitial`) already compares parsed storage-unit values via `widget.value` — unaffected.
+- ✅ Empty/invalid text on toggle: just switch the suffix, don't touch the text.
+- ✅ Highlight logic (`isChanged`/`isInitial`) already compares parsed storage-unit values via `widget.value` — unaffected.
 
-### 3.3 Tests
+### 3.3 Tests ✅
 
-- Widget test: toggle psi→bar converts displayed text and reports storage-unit value; validation messages show converted bounds; reset shows converted initial value; custom-unit adjustment shows no toggle.
+- ✅ Widget test: toggle psi→bar converts displayed text and reports storage-unit value; validation messages show converted bounds; reset shows converted initial value; custom-unit adjustment shows no toggle.
 
 ---
 
 ## Phase 4 — Polish (small, independent follow-ups)
 
 1. **Release note**: "unit spellings were normalized; tap a unit while entering values to convert".
-2. *(Optional, decide later)* Settings default unit system (metric/imperial) controlling the first toggle target and default picker unit — mirrors the existing weather unit settings.
-3. *(Optional, decide later)* History table / charts rendering in a preferred display unit.
 
 ## Suggested commit slicing
 
@@ -205,7 +204,7 @@ class EditResult<T> {
 2. ✅ `refactor(units): structured unit on Adjustment/RatingMetric + DB migration + import normalization` (1.3–1.6)
 3. ✅ `feat(units): unit picker in numerical adjustment/metric pages` (1.5)
 4. ✅ `feat(units): convert stored values when editing an adjustment's unit` (Phase 2)
-5. ☐ `feat(units): tap-to-toggle input unit in SetNumericalAdjustment` (Phase 3)
+5. ✅ `feat(units): tap-to-toggle input unit in SetNumericalAdjustment` (Phase 3)
 6. ☐ Phase 4 pieces as needed.
 
 ## Risks & mitigations
@@ -216,4 +215,4 @@ class EditResult<T> {
 | Float drift from repeated convert-edits | Store full precision, round only for display; round-trip tests |
 | Missed `unit`-as-string consumer after the type change | Type change makes it a compile error — sweep is compiler-driven |
 | Backup restore resurrecting pre-conversion values | `lastModified` bump on converted rows (decided) |
-| Old app importing new backup | Shows canonical string as label, cosmetic only — accepted trade-off vs. hard version bump |
+| Old app importing new backup | ✅ `NumericalAdjustment` JSON `version` bumped 1→2 (see §1.3). An old build hits its `default:` case and **hard-rejects** the import (`"Json Version 2 … incompatible"`) instead of silently importing `pressure:psi` as a raw label. Flat bump (not data-conditional): matches every other model's guard; user just updates the app. |

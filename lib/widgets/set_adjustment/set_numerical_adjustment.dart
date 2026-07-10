@@ -37,7 +37,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
   }
 
   bool get _toggleEnabled => _storageUnit != null;
-  bool get _showEquivalent => _toggleEnabled && _activeUnit != _storageUnit;
+  bool get _isConverting => _toggleEnabled && _activeUnit != _storageUnit;
 
   @override
   void initState() {
@@ -55,14 +55,10 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
     // the controller may be displaying it in a different (active) unit.
     if (widget.value == _lastReported) return;
     // Externally-driven update (e.g. reset from elsewhere): show it in the
-    // active unit.
+    // active unit, cursor at end.
     final newText = _displayTextForStorage(widget.value);
     if (newText == _controller.text) return;
-    _controller.value = _controller.value.copyWith(
-      text: newText,
-      // Place the cursor at the end for externally-driven updates (e.g. reset).
-      selection: TextSelection.collapsed(offset: newText.length),
-    );
+    _setText(newText);
   }
 
   @override
@@ -71,33 +67,31 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
     super.dispose();
   }
 
+  double _toDisplay(double storageValue) =>
+      _isConverting ? convertUnit(storageValue, _storageUnit!, _activeUnit!) : storageValue;
+
+  double _toStorage(double displayValue) =>
+      _isConverting ? convertUnit(displayValue, _activeUnit!, _storageUnit!) : displayValue;
+
   String _displayTextForStorage(String? storageValue) {
-    final active = _activeUnit;
-    final storage = _storageUnit;
-    if (active == null || storage == null || active == storage) return storageValue ?? '';
+    if (!_isConverting) return storageValue ?? '';
     final parsed = double.tryParse(storageValue ?? '');
-    if (parsed == null) return storageValue ?? '';
-    return formatConverted(convertUnit(parsed, storage, active));
+    return parsed == null ? storageValue ?? '' : formatConverted(_toDisplay(parsed));
   }
 
-  /// Converts active-unit display text back into a storage-unit string. Empty
-  /// or unparseable text is passed through unchanged so the parent treats it as
-  /// a removal / invalid entry, exactly as before.
   String _storageTextForDisplay(String displayText) {
-    final active = _activeUnit;
-    final storage = _storageUnit;
-    if (active == null || storage == null || active == storage) return displayText;
+    if (!_isConverting) return displayText;
     final parsed = double.tryParse(displayText.trim());
-    if (parsed == null) return displayText;
-    return convertUnit(parsed, active, storage).toString();
+    return parsed == null ? displayText : _toStorage(parsed).toString();
   }
 
-  /// Converts a stored min/max bound into the active unit for validation.
-  double _boundInActiveUnit(double bound) {
-    final active = _activeUnit;
-    final storage = _storageUnit;
-    if (!bound.isFinite || active == null || storage == null || active == storage) return bound;
-    return convertUnit(bound, storage, active);
+  double _boundInActiveUnit(double bound) => bound.isFinite ? _toDisplay(bound) : bound;
+
+  void _setText(String text) {
+    _controller.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
   }
 
   void _report(String storageText) {
@@ -111,11 +105,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
 
   void _reset() {
     final storageInit = widget.initialValue;
-    final display = storageInit == null ? '' : _displayTextForStorage(storageInit.toString());
-    _controller.value = TextEditingValue(
-      text: display,
-      selection: TextSelection.collapsed(offset: display.length),
-    );
+    _setText(storageInit == null ? '' : _displayTextForStorage(storageInit.toString()));
     // Report the exact stored initial value (not a round-tripped conversion) to
     // avoid float drift.
     _report(storageInit?.toString() ?? '');
@@ -126,58 +116,42 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
     final active = _activeUnit;
     if (storage == null || active == null) return;
     final cycle = toggleCycle(storage.quantity);
-    final idx = cycle.indexWhere((unit) => unit == active);
-    final next = cycle[(idx + 1) % cycle.length];
+    final next = cycle[(cycle.indexOf(active) + 1) % cycle.length];
     unawaited(HapticFeedback.selectionClick());
     final parsed = double.tryParse(_controller.text.trim());
     setState(() {
       _activeUnit = next;
-      if (parsed != null) {
-        final newText = formatConverted(convertUnit(parsed, active, next));
-        _controller.value = TextEditingValue(
-          text: newText,
-          selection: TextSelection.collapsed(offset: newText.length),
-        );
-      }
+      if (parsed != null) _setText(formatConverted(convertUnit(parsed, active, next)));
     });
   }
 
   Widget _buildSuffix(BuildContext context) {
     final unit = widget.adjustment.unit;
     final suffixColor = Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8);
-    final children = <Widget>[];
-    if (unit != null) {
-      if (_toggleEnabled) {
-        children.add(
-          InkWell(
-            borderRadius: BorderRadius.circular(4),
-            onTap: _cycleUnit,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-              child: Text(_activeUnit!.label, style: TextStyle(color: suffixColor)),
-            ),
-          ),
-        );
-      } else {
-        children.add(
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Text(unit.label, style: TextStyle(color: suffixColor)),
-          ),
-        );
-      }
-    }
-    children.add(
-      IconButton(
-        onPressed: _reset,
-        icon: const Icon(Icons.replay),
-        visualDensity: VisualDensity.compact,
-      ),
-    );
     return Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.end,
-      children: children,
+      children: [
+        if (unit != null)
+          _toggleEnabled
+              ? InkWell(
+                  borderRadius: BorderRadius.circular(4),
+                  onTap: _cycleUnit,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                    child: Text(_activeUnit!.label, style: TextStyle(color: suffixColor)),
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(unit.label, style: TextStyle(color: suffixColor)),
+                ),
+        IconButton(
+          onPressed: _reset,
+          icon: const Icon(Icons.replay),
+          visualDensity: VisualDensity.compact,
+        ),
+      ],
     );
   }
 
@@ -199,7 +173,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
     }
 
     String? helperText;
-    if (_showEquivalent) {
+    if (_isConverting) {
       final storageVal = double.tryParse(widget.value ?? '');
       if (storageVal != null) {
         helperText = '= ${formatConverted(storageVal)} ${_storageUnit!.label}';

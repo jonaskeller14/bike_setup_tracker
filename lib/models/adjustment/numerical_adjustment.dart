@@ -52,7 +52,11 @@ class NumericalAdjustment extends Adjustment {
 
   @override
   Map<String, dynamic> toJson() => {
-    'version': 1,
+    // v2: `unit` switched from a plain label ("psi") to the structured
+    // AdjustmentUnit encoding ("pressure:psi"). Bumped so an older app hard-
+    // rejects a newer backup instead of silently importing the canonical
+    // string as a raw custom label.
+    'version': 2,
     'id': id,
     'name': name,
     'notes': notes,
@@ -65,7 +69,7 @@ class NumericalAdjustment extends Adjustment {
   factory NumericalAdjustment.fromJson(Map<String, dynamic> json) {
     final int? version = json["version"];
     switch (version) {
-      case null || 1:
+      case null || 1 || 2:
         return NumericalAdjustment(
           id: json["id"],
           name: json['name'],

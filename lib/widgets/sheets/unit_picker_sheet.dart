@@ -194,7 +194,7 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
           const SizedBox(height: 8),
           Flexible(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -203,6 +203,24 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
                   _customRow(),
                   if (_showCustomTextField) ...[
                     const SizedBox(height: 8),
+                    if (suggestion != null) ...[
+                      InkWell(
+                        onTap: () => _select(suggestion),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
+                          ),
+                          child: Text(
+                            'Did you mean "${suggestion.label}" (${suggestion.quantity.label})?',
+                            style: TextStyle(color: colorScheme.primary, fontSize: 12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
                     TextField(
                       controller: _customController,
                       autofocus: true,
@@ -226,19 +244,7 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
                         ),
                       ),
                     ),
-                    if (suggestion != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 6),
-                        child: InkWell(
-                          onTap: () => _select(suggestion),
-                          child: Text(
-                            'Did you mean "${suggestion.label}" (${suggestion.quantity.label})?',
-                            style: TextStyle(color: colorScheme.primary, fontSize: 12),
-                          ),
-                        ),
-                      ),
                   ],
-                  const SizedBox(height: 8),
                 ],
               ),
             ),

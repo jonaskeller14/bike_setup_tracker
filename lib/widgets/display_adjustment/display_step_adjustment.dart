@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import "../set_adjustment/set_adjustment.dart";
+import 'toggleable_unit_value.dart';
 
 class DisplayStepAdjustmentWidget extends StatelessWidget {
   final StepAdjustment adjustment;
@@ -55,44 +56,14 @@ class DisplayStepAdjustmentWidget extends StatelessWidget {
             )
           ),
           Flexible(
-            child: Column(
+            child: ToggleableUnitValue(
+              value: value,
+              initialValue: initialValue,
+              unit: adjustment.unit,
+              highlightColor: highlightColor,
+              showPreviousValue: !isInitial && isChanged,
               crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                SelectableText.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: Adjustment.formatValue(value),
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontFamily: 'monospace',
-                          fontWeight: FontWeight.bold,
-                          color: highlightColor,
-                          fontFeatures: [const FontFeature.tabularFigures()],
-                        ),
-                      ),
-                      TextSpan(
-                        text: adjustment.unitSuffix(),
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: highlightColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (!isInitial && isChanged)
-                  Opacity(
-                    opacity: 0.7,
-                    child: Text(
-                      Adjustment.formatValue(initialValue) + adjustment.unitSuffix(),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontFamily: 'monospace',
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.lineThrough,
-                        decorationThickness: 2,
-                        fontFeatures: [const FontFeature.tabularFigures()],
-                      ),
-                    ),
-                  ),
+              trailing: [
                 Text(
                   "[${Adjustment.formatValue(adjustment.min)}..${Adjustment.formatValue(adjustment.max)}]",
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(

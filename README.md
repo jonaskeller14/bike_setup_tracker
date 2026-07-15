@@ -43,7 +43,7 @@ Here are the current development goals and their status:
 - [ ] **Rating procedure** to distinguish good setups from bad ➡️ **In development**
 - [ ] **Marketing** push to grow the user base ➡️ **Next up**
 - [ ] Add a **rider profile** (track body weight, ...) ➡️ **Planned**
-- [ ] Add **URLs to bikes and components** ➡️ **Planned**
+- [x] Add **URL support for bike/components** ➡️ **URLs are recognized in notes**
 
 I am open for feedback, suggestions, and bug reports—please feel free to open a new issue for any of these.
 

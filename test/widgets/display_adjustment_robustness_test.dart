@@ -5,6 +5,10 @@ import 'package:bike_setup_tracker/widgets/display_adjustment/display_step_adjus
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+/// These widgets render the value and its unit as separate widgets (see
+/// ToggleableUnitValue, whose unit label is tappable when convertible), so the
+/// value is asserted on its own. The point of these tests is the formatting: an
+/// int 6 and a double 6.0 must both read "6", never "6.0".
 void main() {
   group('Display Widgets Robustness Tests', () {
     testWidgets('DisplayStepAdjustmentWidget handles int and double values', (WidgetTester tester) async {
@@ -31,7 +35,8 @@ void main() {
           ),
         ),
       ));
-      expect(find.text('6 clicks'), findsOneWidget);
+      expect(find.text('6'), findsOneWidget);
+      expect(find.textContaining('clicks'), findsWidgets);
 
       // Test with double (robustness check)
       await tester.pumpWidget(MaterialApp(
@@ -45,7 +50,9 @@ void main() {
           ),
         ),
       ));
-      expect(find.text('6 clicks'), findsOneWidget);
+      expect(find.text('6'), findsOneWidget);
+      expect(find.text('6.0'), findsNothing);
+      expect(find.textContaining('clicks'), findsWidgets);
     });
 
     testWidgets('DisplayNumericalAdjustmentWidget handles int and double values', (WidgetTester tester) async {
@@ -70,7 +77,9 @@ void main() {
           ),
         ),
       ));
-      expect(find.text('12 mm'), findsOneWidget);
+      expect(find.text('12'), findsOneWidget);
+      expect(find.text('12.0'), findsNothing);
+      expect(find.text('mm'), findsOneWidget);
 
       // Test with int (robustness check)
       await tester.pumpWidget(MaterialApp(
@@ -84,7 +93,8 @@ void main() {
           ),
         ),
       ));
-      expect(find.text('12 mm'), findsOneWidget);
+      expect(find.text('12'), findsOneWidget);
+      expect(find.text('mm'), findsOneWidget);
     });
   });
 }

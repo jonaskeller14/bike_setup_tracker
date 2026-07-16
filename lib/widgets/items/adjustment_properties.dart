@@ -95,6 +95,17 @@ class AdjustmentProperties extends StatelessWidget {
       ));
     }
 
+    final self = adjustment;
+    final travel = self is SagAdjustment ? self.referenceTravelMm : null;
+    if (travel != null) {
+      items.add(_iconChip(
+        fgColor: fgColor,
+        borderColor: borderColor,
+        icon: SagAdjustment.iconData,
+        text: '${Adjustment.formatValue(travel)} mm',
+      ));
+    }
+
     return items;
   }
 

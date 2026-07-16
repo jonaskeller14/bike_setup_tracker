@@ -6,6 +6,7 @@ import '../set_adjustment/set_boolean_adjustment.dart';
 import '../set_adjustment/set_categorical_adjustment.dart';
 import '../set_adjustment/set_duration_adjustment.dart';
 import '../set_adjustment/set_numerical_adjustment.dart';
+import '../set_adjustment/set_sag_adjustment.dart';
 import '../set_adjustment/set_step_adjustment.dart';
 import '../set_adjustment/set_text_adjustment.dart';
 
@@ -89,6 +90,22 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
                 }
               },
             );
+          case SagAdjustment():
+            return SetSagAdjustmentWidget(
+              key: ValueKey(adjustment),
+              adjustment: adjustment,
+              initialValue: widget.initialAdjustmentValues[adjustment.id],
+              value: _adjustmentValues[adjustment.id]?.toString(),
+              onChanged: (String newValue) {
+                setState(() => _adjustmentValues[adjustment.id] = newValue);
+                final parsedValue = double.tryParse(newValue);
+                if (parsedValue == null) {
+                  widget.removeFromAdjustmentValues(adjustment: adjustment);
+                } else {
+                  widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: parsedValue);
+                }
+              },
+            );
           case NumericalAdjustment():
             return SetNumericalAdjustmentWidget(
               key: ValueKey(adjustment),
@@ -98,7 +115,7 @@ class _AdjustmentSetListState extends State<AdjustmentSetList> {
               onChanged: (String newValue) {
                 setState(() => _adjustmentValues[adjustment.id] = newValue);
                 final parsedValue = double.tryParse(newValue);
-                if (parsedValue == null) {                
+                if (parsedValue == null) {
                   widget.removeFromAdjustmentValues(adjustment: adjustment);
                 } else {
                   widget.onAdjustmentValueChanged(adjustment: adjustment, newValue: parsedValue);

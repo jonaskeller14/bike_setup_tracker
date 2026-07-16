@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:units_converter/units_converter.dart';
-import '../models/adjustment/adjustment_unit.dart';
+import '../models/adjustment/adjustment.dart';
 
 final double _lbsInToNmm =
     1.0.convertFromTo(FORCE.poundForce, FORCE.newton)! /
@@ -57,5 +57,61 @@ List<KnownUnit> toggleCycle(UnitQuantity quantity) {
       .map((entry) => KnownUnit(quantity: quantity, unitId: entry.unitId))
       .toList();
 }
+
+/// One stop in a value's tap-to-toggle unit cycle: a label plus the mapping to
+/// and from the *stored* value.
+///
+/// Entry 0 is always the storage unit, so an active index of 0 means "no
+/// conversion". A cycle of length < 2 means there is nothing to toggle to.
+typedef UnitCycleEntry = ({
+  String label,
+  double Function(double storageValue) fromStorage,
+  double Function(double displayValue) toStorage,
+});
+
+/// The catalog-driven cycle for a value stored in [storage], rotated so the
+/// storage unit leads. Rotation preserves the catalog's cyclic order, so the
+/// sequence a user taps through is unchanged.
+///
+/// Empty when [storage] is not a convertible [KnownUnit].
+List<UnitCycleEntry> knownUnitCycle(AdjustmentUnit? storage) {
+  if (storage is! KnownUnit) return const [];
+  final units = toggleCycle(storage.quantity);
+  final index = units.indexWhere((u) => u.unitId == storage.unitId);
+  if (index < 0) return const []; // storage unit outside its own catalog
+  final ordered = [...units.sublist(index), ...units.sublist(0, index)];
+  return ordered
+      .map((unit) => (
+            label: unit.label,
+            fromStorage: (double v) => convertUnit(v, storage, unit),
+            toStorage: (double v) => convertUnit(v, unit, storage),
+          ))
+      .toList();
+}
+
+/// Sag's cycle: the stored percentage, plus the absolute mm reading derived
+/// from the adjustment's reference travel.
+///
+/// Degrades to percent-only (no toggle) when the travel is unknown, since there
+/// is nothing to compute mm against.
+List<UnitCycleEntry> sagUnitCycle(SagAdjustment adjustment) {
+  const percent = (
+    label: '%',
+    fromStorage: _identity,
+    toStorage: _identity,
+  );
+  final travel = adjustment.referenceTravelMm;
+  if (travel == null || travel <= 0) return const [percent];
+  return [
+    percent,
+    (
+      label: 'mm',
+      fromStorage: (double pct) => pct / 100 * travel,
+      toStorage: (double mm) => mm / travel * 100,
+    ),
+  ];
+}
+
+double _identity(double value) => value;
 
 String formatConverted(double value) => NumberFormat('0.#####', 'en_US').format(value);

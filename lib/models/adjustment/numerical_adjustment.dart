@@ -69,7 +69,8 @@ class NumericalAdjustment extends Adjustment {
   factory NumericalAdjustment.fromJson(Map<String, dynamic> json) {
     final int? version = json["version"];
     switch (version) {
-      case null || 1 || 2:
+      case null || 1 || 2:  // also bump version in SagAdjustment
+        if (json[adjustmentSubtypeKey] == _sagSubtype) return SagAdjustment.fromJson(json);
         return NumericalAdjustment(
           id: json["id"],
           name: json['name'],

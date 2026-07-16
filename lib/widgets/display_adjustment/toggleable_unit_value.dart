@@ -11,6 +11,11 @@ class ToggleableUnitValue extends StatefulWidget {
   final Color? highlightColor;
   final bool showPreviousValue;
 
+  /// Overrides the unit-catalog cycle derived from [unit] — e.g. sag's % ↔ mm,
+  /// where mm comes from the adjustment's reference travel rather than a
+  /// catalog conversion. Entry 0 must be the storage unit.
+  final List<UnitCycleEntry>? cycle;
+
   final CrossAxisAlignment crossAxisAlignment;
 
   /// Extra widgets appended after the value block (e.g. a step's `[min..max]`
@@ -22,6 +27,7 @@ class ToggleableUnitValue extends StatefulWidget {
     required this.value,
     required this.initialValue,
     required this.unit,
+    this.cycle,
     this.highlightColor,
     this.showPreviousValue = false,
     this.crossAxisAlignment = CrossAxisAlignment.center,
@@ -33,71 +39,62 @@ class ToggleableUnitValue extends StatefulWidget {
 }
 
 class _ToggleableUnitValueState extends State<ToggleableUnitValue> {
-  KnownUnit? _activeUnit;
+  int _index = 0;
 
-  KnownUnit? get _storageUnit {
-    final unit = widget.unit;
-    return unit is KnownUnit ? unit : null;
-  }
+  // Recomputed rather than cached: the cycle's conversions close over widget
+  // state (e.g. a sag adjustment's travel), so a stale copy would convert with
+  // outdated inputs.
+  List<UnitCycleEntry> get _cycle => widget.cycle ?? knownUnitCycle(widget.unit);
 
-  bool get _toggleEnabled => _storageUnit != null;
-  bool get _isConverting => _toggleEnabled && _activeUnit != _storageUnit;
+  /// Guards against a cycle that shrank under a stale index (e.g. sag's travel
+  /// was cleared while mm was active).
+  int get _activeIndex => _index < _cycle.length ? _index : 0;
 
-  @override
-  void initState() {
-    super.initState();
-    _activeUnit = _storageUnit;
-  }
+  bool get _toggleEnabled => _cycle.length > 1;
+  bool get _isConverting => _activeIndex != 0;
+
+  String? get _storageLabel => _cycle.isNotEmpty ? _cycle.first.label : widget.unit?.label;
+  String? get _activeLabel => _cycle.isNotEmpty ? _cycle[_activeIndex].label : widget.unit?.label;
 
   @override
   void didUpdateWidget(ToggleableUnitValue oldWidget) {
     super.didUpdateWidget(oldWidget);
     // If the underlying unit changed identity, reset back to storage unit.
-    if (widget.unit != oldWidget.unit) _activeUnit = _storageUnit;
+    if (widget.unit != oldWidget.unit) _index = 0;
   }
-
-  double _toActive(num storageValue) => _isConverting
-      ? convertUnit(storageValue.toDouble(), _storageUnit!, _activeUnit!)
-      : storageValue.toDouble();
 
   String _formatInActive(num? storageValue) {
     if (storageValue == null) return Adjustment.formatValue(null);
     if (!_isConverting) return Adjustment.formatValue(storageValue);
-    return formatConverted(_toActive(storageValue));
+    return formatConverted(_cycle[_activeIndex].fromStorage(storageValue.toDouble()));
   }
 
   String get _activeSuffix {
-    final active = _activeUnit;
-    if (active != null) return ' ${active.label}';
-    final unit = widget.unit;
-    return unit == null ? '' : ' ${unit.label}';
+    final label = _activeLabel;
+    return label == null ? '' : ' $label';
   }
 
   void _cycleUnit() {
-    final storage = _storageUnit;
-    final active = _activeUnit;
-    if (storage == null || active == null) return;
-    final cycle = toggleCycle(storage.quantity);
-    final next = cycle[(cycle.indexOf(active) + 1) % cycle.length];
+    if (!_toggleEnabled) return;
     unawaited(HapticFeedback.selectionClick());
-    setState(() => _activeUnit = next);
+    setState(() => _index = (_activeIndex + 1) % _cycle.length);
   }
 
   Widget _unitLabel(BuildContext context) {
-    final unit = widget.unit;
-    if (unit == null) return const SizedBox.shrink();
+    final label = _activeLabel;
+    if (label == null) return const SizedBox.shrink();
     final style = Theme.of(context).textTheme.bodyLarge?.copyWith(
       color: widget.highlightColor,
     );
     if (!_toggleEnabled) {
-      return Text(' ${unit.label}', style: style);
+      return Text(' $label', style: style);
     }
     return InkWell(
       borderRadius: BorderRadius.circular(4),
       onTap: _cycleUnit,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6),
-        child: Text(_activeUnit!.label, style: style),
+        child: Text(label, style: style),
       ),
     );
   }
@@ -132,7 +129,7 @@ class _ToggleableUnitValueState extends State<ToggleableUnitValue> {
         ),
         if (_isConverting && widget.value != null)
           Text(
-            '= ${Adjustment.formatValue(widget.value)} ${_storageUnit!.label}',
+            '= ${Adjustment.formatValue(widget.value)} $_storageLabel',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
             ),

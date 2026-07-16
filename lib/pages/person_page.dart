@@ -18,6 +18,7 @@ import 'adjustment/boolean_adjustment_page.dart';
 import 'adjustment/categorical_adjustment_page.dart';
 import 'adjustment/duration_adjustment_page.dart';
 import 'adjustment/numerical_adjustment_page.dart';
+import 'adjustment/sag_adjustment_page.dart';
 import 'adjustment/step_adjustment_page.dart';
 import 'adjustment/text_adjustment_page.dart';
 
@@ -129,6 +130,7 @@ class _PersonPageState extends State<PersonPage> {
         final BooleanAdjustment a     => BooleanAdjustmentPage.template(adjustment: a),
         final CategoricalAdjustment a => CategoricalAdjustmentPage.template(adjustment: a),
         final StepAdjustment a        => StepAdjustmentPage.template(adjustment: a),
+        final SagAdjustment a         => SagAdjustmentPage.template(adjustment: a),
         final NumericalAdjustment a   => NumericalAdjustmentPage.template(adjustment: a),
         final TextAdjustment a        => TextAdjustmentPage.template(adjustment: a),
         final DurationAdjustment a    => DurationAdjustmentPage.template(adjustment: a),
@@ -147,6 +149,7 @@ class _PersonPageState extends State<PersonPage> {
         final BooleanAdjustment a     => BooleanAdjustmentPage.edit(adjustment: a),
         final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a),
         final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a),
+        final SagAdjustment a         => SagAdjustmentPage.edit(adjustment: a),
         final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a),
         final TextAdjustment a        => TextAdjustmentPage.edit(adjustment: a),
         final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a),
@@ -189,6 +192,7 @@ class _PersonPageState extends State<PersonPage> {
         final BooleanAdjustment a     => BooleanAdjustmentPage.duplicate(adjustment: a),
         final CategoricalAdjustment a => CategoricalAdjustmentPage.duplicate(adjustment: a),
         final StepAdjustment a        => StepAdjustmentPage.duplicate(adjustment: a),
+        final SagAdjustment a         => SagAdjustmentPage.duplicate(adjustment: a),
         final NumericalAdjustment a   => NumericalAdjustmentPage.duplicate(adjustment: a),
         final TextAdjustment a        => TextAdjustmentPage.duplicate(adjustment: a),
         final DurationAdjustment a    => DurationAdjustmentPage.duplicate(adjustment: a),

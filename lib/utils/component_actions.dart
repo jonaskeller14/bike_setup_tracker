@@ -7,6 +7,7 @@ import '../pages/adjustment/boolean_adjustment_page.dart';
 import '../pages/adjustment/categorical_adjustment_page.dart';
 import '../pages/adjustment/duration_adjustment_page.dart';
 import '../pages/adjustment/numerical_adjustment_page.dart';
+import '../pages/adjustment/sag_adjustment_page.dart';
 import '../pages/adjustment/step_adjustment_page.dart';
 import '../pages/adjustment/text_adjustment_page.dart';
 import '../pages/component_page.dart';
@@ -187,6 +188,7 @@ class ComponentActions {
             final BooleanAdjustment a     => BooleanAdjustmentPage.template(adjustment: a),
             final CategoricalAdjustment a => CategoricalAdjustmentPage.template(adjustment: a),
             final StepAdjustment a        => StepAdjustmentPage.template(adjustment: a),
+            final SagAdjustment a         => SagAdjustmentPage.template(adjustment: a, componentType: component.componentType),
             final NumericalAdjustment a   => NumericalAdjustmentPage.template(adjustment: a),
             final TextAdjustment a        => TextAdjustmentPage.template(adjustment: a),
             final DurationAdjustment a    => DurationAdjustmentPage.template(adjustment: a),

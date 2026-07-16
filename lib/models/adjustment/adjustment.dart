@@ -12,6 +12,7 @@ part 'boolean_adjustment.dart';
 part 'categorical_adjustment.dart';
 part 'duration_adjustment.dart';
 part 'numerical_adjustment.dart';
+part 'sag_adjustment.dart';
 part 'step_adjustment.dart';
 part 'text_adjustment.dart';
 

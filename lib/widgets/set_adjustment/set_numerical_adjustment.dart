@@ -13,6 +13,9 @@ class SetNumericalAdjustmentWidget extends StatefulWidget {
   final ValueChanged<String> onChanged;
   final bool highlighting;
 
+  final List<UnitCycleEntry>? cycle;
+  final IconData icon;
+
   const SetNumericalAdjustmentWidget({
     required super.key,
     required this.adjustment,
@@ -20,6 +23,8 @@ class SetNumericalAdjustmentWidget extends StatefulWidget {
     required this.value,
     required this.onChanged,
     this.highlighting = true,
+    this.cycle,
+    this.icon = NumericalAdjustment.iconData,
   });
 
   @override
@@ -28,22 +33,27 @@ class SetNumericalAdjustmentWidget extends StatefulWidget {
 
 class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWidget> {
   late final TextEditingController _controller;
-  KnownUnit? _activeUnit;
+  int _index = 0;
   String? _lastReported;
 
-  KnownUnit? get _storageUnit {
-    final unit = widget.adjustment.unit;
-    return unit is KnownUnit ? unit : null;
-  }
+  // Recomputed, not cached: a cycle's conversions close over widget state (e.g.
+  // a sag adjustment's travel), so a stale copy would convert with old inputs.
+  List<UnitCycleEntry> get _cycle => widget.cycle ?? knownUnitCycle(widget.adjustment.unit);
 
-  bool get _toggleEnabled => _storageUnit != null;
-  bool get _isConverting => _toggleEnabled && _activeUnit != _storageUnit;
+  // Guards a cycle that shrank under a stale index (sag travel cleared while mm
+  // was active).
+  int get _activeIndex => _index < _cycle.length ? _index : 0;
+
+  bool get _toggleEnabled => _cycle.length > 1;
+  bool get _isConverting => _activeIndex != 0;
+
+  String? get _storageLabel => _cycle.isNotEmpty ? _cycle.first.label : widget.adjustment.unit?.label;
+  String? get _activeLabel => _cycle.isNotEmpty ? _cycle[_activeIndex].label : widget.adjustment.unit?.label;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.value ?? '');
-    _activeUnit = _storageUnit;
     _lastReported = widget.value;
   }
 
@@ -68,10 +78,10 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
   }
 
   double _toDisplay(double storageValue) =>
-      _isConverting ? convertUnit(storageValue, _storageUnit!, _activeUnit!) : storageValue;
+      _isConverting ? _cycle[_activeIndex].fromStorage(storageValue) : storageValue;
 
   double _toStorage(double displayValue) =>
-      _isConverting ? convertUnit(displayValue, _activeUnit!, _storageUnit!) : displayValue;
+      _isConverting ? _cycle[_activeIndex].toStorage(displayValue) : displayValue;
 
   String _displayTextForStorage(String? storageValue) {
     if (!_isConverting) return storageValue ?? '';
@@ -112,39 +122,38 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
   }
 
   void _cycleUnit() {
-    final storage = _storageUnit;
-    final active = _activeUnit;
-    if (storage == null || active == null) return;
-    final cycle = toggleCycle(storage.quantity);
-    final next = cycle[(cycle.indexOf(active) + 1) % cycle.length];
+    if (!_toggleEnabled) return;
+    final active = _cycle[_activeIndex];
+    final nextIndex = (_activeIndex + 1) % _cycle.length;
+    final next = _cycle[nextIndex];
     unawaited(HapticFeedback.selectionClick());
     final parsed = double.tryParse(_controller.text.trim());
     setState(() {
-      _activeUnit = next;
-      if (parsed != null) _setText(formatConverted(convertUnit(parsed, active, next)));
+      _index = nextIndex;
+      if (parsed != null) _setText(formatConverted(next.fromStorage(active.toStorage(parsed))));
     });
   }
 
   Widget _buildSuffix(BuildContext context) {
-    final unit = widget.adjustment.unit;
+    final label = _activeLabel;
     final suffixColor = Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8);
     return Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        if (unit != null)
+        if (label != null)
           _toggleEnabled
               ? InkWell(
                   borderRadius: BorderRadius.circular(4),
                   onTap: _cycleUnit,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                    child: Text(_activeUnit!.label, style: TextStyle(color: suffixColor)),
+                    child: Text(label, style: TextStyle(color: suffixColor)),
                   ),
                 )
               : Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Text(unit.label, style: TextStyle(color: suffixColor)),
+                  child: Text(label, style: TextStyle(color: suffixColor)),
                 ),
         IconButton(
           onPressed: _reset,
@@ -176,7 +185,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
     if (_isConverting) {
       final storageVal = double.tryParse(widget.value ?? '');
       if (storageVal != null) {
-        helperText = '= ${formatConverted(storageVal)} ${_storageUnit!.label}';
+        helperText = '= ${formatConverted(storageVal)} $_storageLabel';
       }
     }
 
@@ -194,7 +203,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
             child: Row(
               mainAxisSize: MainAxisSize.max,
               children: [
-                Icon(NumericalAdjustment.iconData, color: highlightColor),
+                Icon(widget.icon, color: highlightColor),
                 const SizedBox(width: 10),
                 nameNotesSetAdjustmentWidget(context: context, adjustment: widget.adjustment, highlightColor: highlightColor),
               ],
@@ -226,7 +235,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
                 if (newValue != null && newValue.trim().isNotEmpty) {
                   final parsedValue = double.tryParse(newValue);
                   if (parsedValue == null) return "Please enter valid number";
-                  final unitLabel = _activeUnit?.label ?? widget.adjustment.unit?.label;
+                  final unitLabel = _activeLabel;
                   final unitSuffix = unitLabel == null ? "" : " $unitLabel";
                   final max = _boundInActiveUnit(widget.adjustment.max);
                   if (parsedValue > max) return "Max ${formatConverted(max)}$unitSuffix";

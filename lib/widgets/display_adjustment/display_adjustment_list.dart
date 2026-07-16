@@ -4,6 +4,7 @@ import 'display_boolean_adjustment.dart';
 import 'display_categorical_adjustment.dart';
 import 'display_duration_adjustment.dart';
 import 'display_numerical_adjustment.dart';
+import 'display_sag_adjustment.dart';
 import 'display_step_adjustment.dart';
 import 'display_text_adjustment.dart';
 
@@ -35,6 +36,15 @@ class AdjustmentDisplayList extends StatelessWidget {
         switch (adjustment) {
           case BooleanAdjustment():
             return DisplayBooleanAdjustmentWidget(
+              key: ValueKey(adjustment),
+              adjustment: adjustment,
+              initialValue: initialValue,
+              value: value,
+              isError: isError,
+              onRemove: onRemoveAdjustment,
+            );
+          case SagAdjustment():
+            return DisplaySagAdjustmentWidget(
               key: ValueKey(adjustment),
               adjustment: adjustment,
               initialValue: initialValue,

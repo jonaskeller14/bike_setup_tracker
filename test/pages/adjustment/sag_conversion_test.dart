@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/models/component.dart';
 import 'package:bike_setup_tracker/pages/adjustment/numerical_adjustment_page.dart';
 import 'package:bike_setup_tracker/pages/adjustment/sag_adjustment_page.dart';
 import 'package:bike_setup_tracker/theme.dart';
@@ -99,6 +100,7 @@ void main() {
                   builder: (context) => NumericalAdjustmentPage.edit(
                     adjustment: percentSag(),
                     enableSagConversion: true,
+                    componentType: ComponentType.fork,
                   ),
                 ),
               );

@@ -1,4 +1,4 @@
-import 'package:bike_setup_tracker/models/adjustment/adjustment_unit.dart';
+import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/utils/unit_conversion.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -116,6 +116,37 @@ void main() {
     test('rounds to 5 decimals, strips trailing zeros', () {
       expect(formatConverted(4.480519), '4.48052');
       expect(formatConverted(1.0), '1');
+    });
+  });
+
+  group('sagUnitCycle', () {
+    test('with known travel, cycles % -> mm -> in', () {
+      final cycle = sagUnitCycle(SagAdjustment(name: 'SAG', notes: null, referenceTravelMm: 160));
+      expect(cycle.map((e) => e.label), ['%', 'mm', 'in']);
+    });
+
+    test('% is the storage unit and passes through unchanged', () {
+      final percent = sagUnitCycle(SagAdjustment(name: 'SAG', notes: null, referenceTravelMm: 160)).first;
+      expect(percent.fromStorage(25), 25);
+      expect(percent.toStorage(25), 25);
+    });
+
+    test('mm entry derives the absolute travel from the percentage', () {
+      final mm = sagUnitCycle(SagAdjustment(name: 'SAG', notes: null, referenceTravelMm: 160))[1];
+      expect(mm.fromStorage(25), closeTo(40, _epsilon)); // 25% of 160mm
+      expect(mm.toStorage(40), closeTo(25, _epsilon));
+    });
+
+    test('in entry converts the derived mm travel to inches', () {
+      final inch = sagUnitCycle(SagAdjustment(name: 'SAG', notes: null, referenceTravelMm: 160))[2];
+      // 25% of 160mm = 40mm = 40/25.4 in ≈ 1.5748 in
+      expect(inch.fromStorage(25), closeTo(1.574803, 1e-4));
+      expect(inch.toStorage(1.574803), closeTo(25, 1e-3));
+    });
+
+    test('degrades to percent-only (no toggle) when travel is unknown', () {
+      final cycle = sagUnitCycle(SagAdjustment(name: 'SAG', notes: null));
+      expect(cycle.map((e) => e.label), ['%']);
     });
   });
 }

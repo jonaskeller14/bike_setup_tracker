@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../notes_text.dart';
 import 'adjustment_properties.dart';
+import 'adjustment_type_icon.dart';
 
 class AdjustmentListCard extends StatelessWidget {
   final Adjustment adjustment;
@@ -75,7 +76,7 @@ class AdjustmentListCard extends StatelessWidget {
           : null,
       child: ListTile(
         titleAlignment: ListTileTitleAlignment.titleHeight,
-        leading: Icon(adjustment.getIconData()),
+        leading: AdjustmentTypeIcon(adjustment),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 8,

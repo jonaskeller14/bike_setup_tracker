@@ -293,7 +293,7 @@ Note: the Travel/Stroke field must **not** use `Icons.straighten` — that glyph
 app-wide "unit" marker (unit chips, the unit picker). It uses `Icons.unfold_more` (a
 full-extent arrow) so the reference-travel field reads distinctly. ✅ done.
 
-### 6.4 Type icon — badge vs. dedicated glyph — ⬜ open (evaluated)
+### 6.4 Type icon — badge vs. dedicated glyph — ✅ implemented (option C)
 
 **Question raised:** phase 1 gave `SagAdjustment` its own icon (`Icons.height`). Would it be
 clearer to reuse the **numerical** icon (`Icons.speed`) with a small **badge**, so the icon
@@ -376,8 +376,8 @@ Consequences:
 - ✅ The **"Custom Adjustment" section stays at 5–6 entries** — no new tile. `switch(T)` in the
   custom-add path matches type literals exactly, so `SagAdjustment` is unreachable there by
   construction. The §7 upgrade path (phase 2) is the escape hatch for unusual components.
-- ✅ Icon: `SagAdjustment.iconData = Icons.height`, everything else visually identical to
-  numerical rows.
+- ✅ Icon: the numerical base with a small travel badge (§6.4, `AdjustmentTypeIcon`);
+  everything else visually identical to numerical rows.
 
 ## 10. Does this break the "5–6 fundamental types" idea?
 
@@ -426,10 +426,13 @@ slot for the latter that doesn't multiply the fundament.
 7. ⬜ Type-icon badge (§6.4 option C) — numerical base + small badge via a new
    `AdjustmentTypeIcon` widget. Pending the badge-glyph decision.
 
-**Phase 3 — Type-icon badge (§6.4 option C, decided):**
-8. ⬜ `AdjustmentTypeIcon` widget: `Icons.speed` base + mini `Icons.height` corner badge for
-   sag; set `SagAdjustment.iconData = NumericalAdjustment.iconData` as the flat fallback; swap
-   the four sag-facing render sites listed in §6.4.
+**Phase 3 — Type-icon badge (§6.4 option C, decided):** ✅ **done**
+8. ✅ [`AdjustmentTypeIcon`](lib/widgets/items/adjustment_type_icon.dart) widget: numerical
+   base (`Icons.speed`) + mini `Icons.height` corner badge for sag. `SagAdjustment.iconData`
+   is now `NumericalAdjustment.iconData` (flat fallback); named `badgeIconData` /
+   `travelIconData` constants added. Swapped the sag-facing sites (set row, display row,
+   `adjustment_list_card`, component preset sheet); travel chip + edit-page travel field use
+   `travelIconData`. Tests in [adjustment_type_icon_test.dart](test/widgets/adjustment_type_icon_test.dart).
 
 **Phase 4 — Preset DB auto-fill:**
 9. ⬜ Once the component preset DB ([[project-component-preset-db]], `data/component_presets/`)

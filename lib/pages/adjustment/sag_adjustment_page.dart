@@ -55,6 +55,12 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
         _ => 'Travel / Stroke',
       };
 
+  String get _travelHint => switch (widget.componentType) {
+        ComponentType.fork => 'e.g. 160',
+        ComponentType.shock => 'e.g. 65 (stroke, not rear travel)',
+        _ => 'e.g. 160 fork, 65 shock stroke',
+      };
+
   @override
   void initState() {
     super.initState();
@@ -234,7 +240,6 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: _travelController,
-                            textInputAction: TextInputAction.next,
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
                             inputFormatters: [
@@ -242,13 +247,13 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
                             ],
                             decoration: InputDecoration(
                               labelText: '$_travelLabel (optional)',
-                              hintText: 'e.g. 160',
+                              hintText: _travelHint,
                               helperText: _travel() == null
                                   ? 'Add it to enter and read sag in mm as well as %.'
                                   : null,
                               suffixText: 'mm',
                               border: const OutlineInputBorder(),
-                              prefixIcon: const Icon(Icons.unfold_more),
+                              prefixIcon: const Icon(SagAdjustment.travelIconData),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                               filled: widget.mode == AdjustmentPageMode.edit && _travel() != widget.adjustment?.referenceTravelMm,
                             ),

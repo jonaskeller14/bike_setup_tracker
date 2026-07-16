@@ -32,7 +32,6 @@ class SetSagAdjustmentWidget extends StatelessWidget {
       onChanged: onChanged,
       highlighting: highlighting,
       cycle: sagUnitCycle(adjustment),
-      icon: SagAdjustment.iconData,
     );
   }
 }

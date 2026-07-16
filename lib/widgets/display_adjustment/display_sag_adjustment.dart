@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/unit_conversion.dart';
+import '../items/adjustment_type_icon.dart';
 import "../set_adjustment/set_adjustment.dart";
 import 'toggleable_unit_value.dart';
 
@@ -54,7 +55,7 @@ class DisplaySagAdjustmentWidget extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               spacing: 10,
               children: [
-                Icon(SagAdjustment.iconData, color: highlightColor),
+                AdjustmentTypeIcon(adjustment, color: highlightColor),
                 nameNotesSetAdjustmentWidget(context: context, adjustment: adjustment, highlightColor: highlightColor),
               ],
             )

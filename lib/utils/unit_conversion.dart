@@ -89,11 +89,11 @@ List<UnitCycleEntry> knownUnitCycle(AdjustmentUnit? storage) {
       .toList();
 }
 
-/// Sag's cycle: the stored percentage, plus the absolute mm reading derived
-/// from the adjustment's reference travel.
+/// Sag's cycle: the stored percentage, plus the absolute travel reading in
+/// metric (mm) and imperial (in), derived from the adjustment's reference travel.
 ///
 /// Degrades to percent-only (no toggle) when the travel is unknown, since there
-/// is nothing to compute mm against.
+/// is nothing to compute an absolute length against.
 List<UnitCycleEntry> sagUnitCycle(SagAdjustment adjustment) {
   const percent = (
     label: '%',
@@ -102,12 +102,21 @@ List<UnitCycleEntry> sagUnitCycle(SagAdjustment adjustment) {
   );
   final travel = adjustment.referenceTravelMm;
   if (travel == null || travel <= 0) return const [percent];
+
+  final mm = KnownUnit(quantity: UnitQuantity.length, unitId: LENGTH.millimeters.name);
+  final inch = KnownUnit(quantity: UnitQuantity.length, unitId: LENGTH.inches.name);
+
   return [
     percent,
     (
       label: 'mm',
       fromStorage: (double pct) => pct / 100 * travel,
-      toStorage: (double mm) => mm / travel * 100,
+      toStorage: (double v) => v / travel * 100,
+    ),
+    (
+      label: 'in',
+      fromStorage: (double pct) => convertUnit(pct / 100 * travel, mm, inch),
+      toStorage: (double v) => convertUnit(v, inch, mm) / travel * 100,
     ),
   ];
 }

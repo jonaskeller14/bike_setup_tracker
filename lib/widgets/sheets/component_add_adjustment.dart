@@ -4,6 +4,7 @@ import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../models/component.dart';
 import '../items/adjustment_properties.dart';
+import '../items/adjustment_type_icon.dart';
 import 'sheet_header.dart';
 
 final Map<ComponentType, List<Adjustment>> _adjustmentPresets = {
@@ -144,7 +145,7 @@ void showComponentAddAdjustmentBottomSheet({
                     else
                       if (_adjustmentPresets[componentType] != null && _adjustmentPresets[componentType]!.isNotEmpty)
                         ..._adjustmentPresets[componentType]!.map((adjustmentPreset) => ListTile(
-                          leading: Icon(adjustmentPreset.getIconData()),
+                          leading: AdjustmentTypeIcon(adjustmentPreset),
                           title: Text(adjustmentPreset.name),
                           subtitle: AdjustmentProperties(adjustmentPreset, singleLine: true, compact: true),
                           trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),

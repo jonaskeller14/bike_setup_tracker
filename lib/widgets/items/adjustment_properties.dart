@@ -101,7 +101,7 @@ class AdjustmentProperties extends StatelessWidget {
       items.add(_iconChip(
         fgColor: fgColor,
         borderColor: borderColor,
-        icon: SagAdjustment.iconData,
+        icon: SagAdjustment.travelIconData,
         text: '${Adjustment.formatValue(travel)} mm',
       ));
     }

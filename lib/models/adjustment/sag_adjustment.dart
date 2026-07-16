@@ -6,7 +6,10 @@ const String _sagSubtype = 'sag';
 class SagAdjustment extends NumericalAdjustment {
   final double? referenceTravelMm;
 
-  static const IconData iconData = Icons.height;
+  static const IconData iconData = NumericalAdjustment.iconData;
+  static const IconData badgeIconData = Icons.height;
+  static const IconData travelIconData = Icons.unfold_more;
+
   static const AdjustmentUnit percentUnit = CustomUnit('%');
   static const double minPercent = 0;
   static const double maxPercent = 100;

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../theme.dart';
 import '../../utils/unit_conversion.dart';
+import '../items/adjustment_type_icon.dart';
 import "set_adjustment.dart";
 
 class SetNumericalAdjustmentWidget extends StatefulWidget {
@@ -14,7 +15,6 @@ class SetNumericalAdjustmentWidget extends StatefulWidget {
   final bool highlighting;
 
   final List<UnitCycleEntry>? cycle;
-  final IconData icon;
 
   const SetNumericalAdjustmentWidget({
     required super.key,
@@ -24,7 +24,6 @@ class SetNumericalAdjustmentWidget extends StatefulWidget {
     required this.onChanged,
     this.highlighting = true,
     this.cycle,
-    this.icon = NumericalAdjustment.iconData,
   });
 
   @override
@@ -203,7 +202,7 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
             child: Row(
               mainAxisSize: MainAxisSize.max,
               children: [
-                Icon(widget.icon, color: highlightColor),
+                AdjustmentTypeIcon(widget.adjustment, color: highlightColor),
                 const SizedBox(width: 10),
                 nameNotesSetAdjustmentWidget(context: context, adjustment: widget.adjustment, highlightColor: highlightColor),
               ],

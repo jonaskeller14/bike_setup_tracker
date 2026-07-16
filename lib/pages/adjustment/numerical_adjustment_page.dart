@@ -1,28 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/adjustment/adjustment.dart';
+import '../../models/component.dart';
 import '../../theme.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/dialogs/unit_conversion_dialog.dart';
 import '../../widgets/set_adjustment/set_numerical_adjustment.dart';
 import '../../widgets/sheets/unit_picker_sheet.dart';
 import 'adjustment_page.dart';
+import 'sag_adjustment_page.dart';
 
 class NumericalAdjustmentPage extends StatefulWidget {
   final NumericalAdjustment? adjustment;
   final AdjustmentPageMode mode;
 
+  final ComponentType? componentType;
+  final bool enableSagConversion;
+
   const NumericalAdjustmentPage._({
     super.key,
     this.adjustment,
     required this.mode,
+    this.componentType,
+    this.enableSagConversion = false,
   });
 
   factory NumericalAdjustmentPage.add({Key? key}) =>
       NumericalAdjustmentPage._(key: key, mode: AdjustmentPageMode.add);
 
-  factory NumericalAdjustmentPage.edit({Key? key, required NumericalAdjustment adjustment}) =>
-      NumericalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.edit);
+  factory NumericalAdjustmentPage.edit({
+    Key? key,
+    required NumericalAdjustment adjustment,
+    ComponentType? componentType,
+    bool enableSagConversion = false,
+  }) =>
+      NumericalAdjustmentPage._(
+        key: key,
+        adjustment: adjustment,
+        mode: AdjustmentPageMode.edit,
+        componentType: componentType,
+        enableSagConversion: enableSagConversion,
+      );
 
   factory NumericalAdjustmentPage.duplicate({Key? key, required NumericalAdjustment adjustment}) =>
       NumericalAdjustmentPage._(key: key, adjustment: adjustment, mode: AdjustmentPageMode.duplicate);
@@ -94,6 +112,80 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
     _maxController.removeListener(_changeListener);
     _maxController.dispose();
     super.dispose();
+  }
+
+  bool get _isSagCandidate {
+    if (!widget.enableSagConversion || widget.mode != AdjustmentPageMode.edit) return false;
+    if (_unit?.label != SagAdjustment.percentUnit.label) return false;
+    return _nameController.text.toLowerCase().contains('sag');
+  }
+
+  /// Upgrades this plain numerical to its SAG subtype, keeping the same `id` so
+  /// stored setup values and history stay attached. The SAG page (pushed on top)
+  /// is where the user supplies the reference travel; its result is forwarded to
+  /// this page's own caller so the swap reads as a single edit. Backing out of
+  /// the SAG page leaves the numerical untouched.
+  Future<void> _convertToSag() async {
+    final name = _nameController.text.trim();
+    final notes = _notesController.text.trim();
+    final sag = SagAdjustment(
+      id: widget.adjustment!.id,
+      name: name,
+      notes: notes.isEmpty ? null : notes,
+    );
+    final result = await Navigator.push<Object>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SagAdjustmentPage.edit(
+          adjustment: sag,
+          componentType: widget.componentType,
+        ),
+      ),
+    );
+    if (result == null || !mounted) return;
+    Navigator.pop(context, result);
+  }
+
+  Widget _buildSagConversionBanner(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Material(
+        color: scheme.primaryContainer.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(8),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: _convertToSag,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: [
+                Icon(SagAdjustment.iconData, color: scheme.primary, size: 20),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Convert to SAG adjustment',
+                        style: TextStyle(color: scheme.primary, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'Unlocks entering and reading sag in mm as well as %.',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.arrow_forward_ios, size: 14, color: scheme.primary),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _pickUnit() {
@@ -316,6 +408,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
                               child: Text(_unit?.label ?? 'None'),
                             ),
                           ),
+                          if (_isSagCandidate) _buildSagConversionBanner(context),
                           Center(
                             child: TextButton.icon(
                               onPressed: () => setState(() => _expanded = !_expanded),

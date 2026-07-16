@@ -6,6 +6,7 @@ import '../../theme.dart';
 import '../../widgets/dialogs/discard_changes.dart';
 import '../../widgets/set_adjustment/set_sag_adjustment.dart';
 import 'adjustment_page.dart';
+import 'numerical_adjustment_page.dart';
 
 /// Sag is a numerical fixed to 0..100 %, so this page drops the unit picker and
 /// the min/max fields and asks for the reference travel instead.
@@ -123,6 +124,28 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
     Navigator.pop(context, adjustment);
   }
 
+  Future<void> _convertToNumerical() async {
+    if (!mounted) return;
+    final name = _nameController.text.trim();
+    final notes = _notesController.text.trim();
+    final numerical = NumericalAdjustment(
+      id: widget.adjustment!.id,
+      name: name,
+      notes: notes.isEmpty ? null : notes,
+      unit: SagAdjustment.percentUnit,
+      min: SagAdjustment.minPercent,
+      max: SagAdjustment.maxPercent,
+    );
+    final result = await Navigator.push<Object>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => NumericalAdjustmentPage.edit(adjustment: numerical),
+      ),
+    );
+    if (result == null || !mounted) return;
+    Navigator.pop(context, result);
+  }
+
   void _handlePopInvoked(bool didPop, dynamic result) async {
     if (didPop) return;
     if (!_formHasChanges) return;
@@ -163,6 +186,20 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
             AdjustmentPageMode.edit => const Text('Edit SAG Adjustment'),
           },
           actions: [
+            if (widget.mode == AdjustmentPageMode.edit)
+              PopupMenuButton<void>(
+                itemBuilder: (context) => [
+                  PopupMenuItem<void>(
+                    onTap: () => WidgetsBinding.instance
+                        .addPostFrameCallback((_) => _convertToNumerical()),
+                    child: const ListTile(
+                      leading: Icon(NumericalAdjustment.iconData),
+                      title: Text('Convert to plain numerical'),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                ],
+              ),
             IconButton(icon: const Icon(Icons.check), onPressed: _saveSagAdjustment),
           ],
         ),
@@ -211,7 +248,7 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
                                   : null,
                               suffixText: 'mm',
                               border: const OutlineInputBorder(),
-                              prefixIcon: const Icon(Icons.straighten),
+                              prefixIcon: const Icon(Icons.unfold_more),
                               fillColor: Theme.of(context).extension<ValueHighlightColors>()!.changedFill,
                               filled: widget.mode == AdjustmentPageMode.edit && _travel() != widget.adjustment?.referenceTravelMm,
                             ),

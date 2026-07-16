@@ -200,7 +200,7 @@ class _ComponentPageState extends State<ComponentPage> {
         final CategoricalAdjustment a => CategoricalAdjustmentPage.edit(adjustment: a),
         final StepAdjustment a        => StepAdjustmentPage.edit(adjustment: a),
         final SagAdjustment a         => SagAdjustmentPage.edit(adjustment: a, componentType: _componentType),
-        final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a),
+        final NumericalAdjustment a   => NumericalAdjustmentPage.edit(adjustment: a, componentType: _componentType, enableSagConversion: true),
         final TextAdjustment a        => TextAdjustmentPage.edit(adjustment: a),
         final DurationAdjustment a    => DurationAdjustmentPage.edit(adjustment: a),
       }),

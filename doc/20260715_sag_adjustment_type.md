@@ -271,24 +271,15 @@ tall rows break list rhythm. Use vertical visualization for *display*, not input
 **Option D1 — Text with both units ⭐ (phase 1) — ✅ implemented.** Extend the `ToggleableUnitValue`
 idea: value shows `28 %`, tap toggles to `42 mm` (computed). Minimal, consistent.
 
-**Option D2 — Inline mini-gauge (phase 2).** Give sag a compact visual read of *how deep
-into the travel* the value sits, so a number like "28 %" also lands as a picture.
-
-Concretely: a thin bar (vertical reads most like a fork leg; horizontal packs into the row
-more easily) drawn as a `CustomPaint`, where the filled fraction = sag ÷ 100. 0 % is empty
-(topped-out), 100 % is full (bottomed-out). It replaces nothing — it sits beside the
-existing `ToggleableUnitValue` text in the `flex: 3` value column, so tapping still toggles
-% ↔ mm and the gauge just mirrors the same stored percentage. A subtle tick or fill-height
-label can mark the current value; the point is a glanceable "roughly a quarter in" without
-reading digits. Because sag is bounded 0–100 by construction, the fraction is always well-
-defined with no extra config — this is why it survives dropping recommended ranges: the bar
-needs only the value, not a target band. Keep it small and low-contrast (the list row must
-not shout); it is decoration on top of the authoritative number, not a replacement for it.
+**Option D2 — Inline mini-gauge.** ❌ **Dropped for now.** A small travel-depth bar beside the
+value (filled fraction = sag ÷ 100) would need only the stored percentage, so it stays
+architecturally cheap and could be revived later — but it is not planned work. The toggleable
+%/mm text (D1) is the visualization.
 
 **Option D3 — Full fork/shock illustration with o-ring indicator.** Charming but a lot of
 asset/paint work for one row; consider only for a dedicated suspension-setup screen later.
 
-**Recommendation:** D1 in phase 1 (done), D2 as the phase-2 visualization, D3 not planned.
+**Recommendation:** D1 (done) is the visualization; D2 dropped; D3 not planned.
 
 ### 6.3 Edit page — ✅ implemented
 
@@ -297,6 +288,48 @@ Since min/max/unit are fixed for SAG (0–100 %), the page is actually *simpler*
 numerical one — hide the unit picker and min/max inputs. Route it in
 [component_actions.dart](lib/utils/component_actions.dart#L184)
 with a `SagAdjustment` case above the numerical one.
+
+Note: the Travel/Stroke field must **not** use `Icons.straighten` — that glyph is the
+app-wide "unit" marker (unit chips, the unit picker). It uses `Icons.unfold_more` (a
+full-extent arrow) so the reference-travel field reads distinctly. ✅ done.
+
+### 6.4 Type icon — badge vs. dedicated glyph — ⬜ open (evaluated)
+
+**Question raised:** phase 1 gave `SagAdjustment` its own icon (`Icons.height`). Would it be
+clearer to reuse the **numerical** icon (`Icons.speed`) with a small **badge**, so the icon
+itself signals "this is a numerical adjustment, specialized" — reinforcing that sag values are
+continuous exactly like a numerical's?
+
+**Viability: yes, but it is a widget-level change, not a model change.** The blocker is the
+`Adjustment` contract: `getIconData()` returns a single `IconData`, and every list renders it
+as `Icon(a.getIconData())`. A base-plus-badge cannot be one `IconData` — it is a `Stack` of two
+layers, i.e. a `Widget`. So a badge needs a small reusable widget, and the model's
+`getIconData()` stays a plain-`IconData` fallback (returning the numerical base for sag).
+
+Options:
+
+| Option | What | Assessment |
+|---|---|---|
+| **A. Dedicated glyph** (current) | `SagAdjustment.iconData = Icons.height` | Distinct at a glance, zero extra widgets. But visually unrelated to numerical — hides the "same value shape" kinship the subtype model is built on. |
+| **B. Numerical icon, no badge** | `SagAdjustment.iconData = Icons.speed` | Trivial. But sag becomes indistinguishable from a plain numerical in every list — loses recognizability. |
+| **C. Numerical base + badge** ⭐ **chosen** | new `AdjustmentTypeIcon` widget: `Icons.speed` with a small corner badge; `getIconData()` returns `Icons.speed` as the flat fallback | Conveys "specialized numerical" and stays recognizable. Costs one small widget + swapping the handful of sag-facing render sites. |
+
+**Decision: option C, with a mini `Icons.height` badge** (the travel mark, not a `%` glyph) —
+scheduled as a later phase, not built yet. The badge is the honest picture of Approach C's
+thesis — sag *is* a numerical with extra meaning — and satisfies both goals in the request
+(kinship + identity).
+
+**Scope of C** (small, contained, for when it's picked up): a new
+`AdjustmentTypeIcon(adjustment, {size, color})` widget rendering `Icons.speed` with a mini
+`Icons.height` corner badge for `SagAdjustment`; swap the sag-facing render sites to use it —
+the set row ([set_numerical_adjustment.dart:206](lib/widgets/set_adjustment/set_numerical_adjustment.dart#L206),
+already takes an icon param), the display row
+([display_sag_adjustment.dart:57](lib/widgets/display_adjustment/display_sag_adjustment.dart#L57)),
+the generic list card ([adjustment_list_card.dart:78](lib/widgets/items/adjustment_list_card.dart#L78)),
+and the preset sheet ([component_add_adjustment.dart:147](lib/widgets/sheets/component_add_adjustment.dart#L147));
+set `SagAdjustment.iconData = NumericalAdjustment.iconData` as the flat fallback. Dense/compact
+lists that need a bare `IconData` keep showing the plain numerical icon — acceptable graceful
+degradation.
 
 ## 7. Converting existing adjustments (existing users) — ⬜ phase 2
 
@@ -308,7 +341,7 @@ Under Approach C this is metadata-only — no value migration, no ID change:
 - **Upgrade:** in `NumericalAdjustmentPage` (edit mode), when the adjustment looks like a
   SAG candidate — unit is `%` **and** name contains "sag" (case-insensitive), optionally
   gated to fork/shock components — show a low-key affordance (an outlined banner or an
-  overflow-menu item): *"Convert to SAG adjustment — unlocks mm entry and gauge"*.
+  overflow-menu item): *"Convert to SAG adjustment — unlocks mm entry"*.
   Tapping asks for travel/stroke, then saves the same adjustment `id` re-serialized with
   `subtype: "sag"`. One-tap, reversible.
 - **Downgrade:** "Convert to plain numerical" in `SagAdjustmentPage`'s menu — drops the
@@ -385,13 +418,21 @@ slot for the latter that doesn't multiply the fundament.
 4. ✅ Display case (D1: toggleable %/mm) in `display_adjustment_list.dart`.
 5. ✅ Upgrade fork/shock presets in `component_add_adjustment.dart`.
 
-**Phase 2 — Existing users + visualization:**
-6. ⬜ Convert-to-SAG affordance in `NumericalAdjustmentPage` (+ reverse conversion).
-7. ⬜ Inline mini-gauge (D2) in the set/display widgets — a small travel-depth bar beside
-   the value. Needs only the stored percentage, no extra config.
+**Phase 2 — Existing users:**
+6. ✅ Convert-to-SAG affordance in `NumericalAdjustmentPage` (+ reverse "Convert to plain
+   numerical" in `SagAdjustmentPage`). Implemented via push-then-forward navigation so the
+   converted adjustment (same `id`) returns to the original caller; tests in
+   [sag_conversion_test.dart](test/pages/adjustment/sag_conversion_test.dart).
+7. ⬜ Type-icon badge (§6.4 option C) — numerical base + small badge via a new
+   `AdjustmentTypeIcon` widget. Pending the badge-glyph decision.
 
-**Phase 3 — Preset DB auto-fill:**
-8. ⬜ Once the component preset DB ([[project-component-preset-db]], `data/component_presets/`)
+**Phase 3 — Type-icon badge (§6.4 option C, decided):**
+8. ⬜ `AdjustmentTypeIcon` widget: `Icons.speed` base + mini `Icons.height` corner badge for
+   sag; set `SagAdjustment.iconData = NumericalAdjustment.iconData` as the flat fallback; swap
+   the four sag-facing render sites listed in §6.4.
+
+**Phase 4 — Preset DB auto-fill:**
+9. ⬜ Once the component preset DB ([[project-component-preset-db]], `data/component_presets/`)
    is wired into component creation, pre-fill `referenceTravelMm` from the selected fork/shock
    trim (`travel_mm` for forks, `stroke_mm` for shocks). Those specs are lists of offered
    options, so: auto-fill when a trim lists a single value, otherwise pre-select from the

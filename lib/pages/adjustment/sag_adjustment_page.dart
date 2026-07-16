@@ -50,8 +50,8 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
   late SagAdjustment _previewAdjustment;
 
   String get _travelLabel => switch (widget.componentType) {
-        ComponentType.fork => 'Travel',
-        ComponentType.shock => 'Stroke',
+        ComponentType.fork => 'Fork Travel',
+        ComponentType.shock => 'Shock Stroke',
         _ => 'Travel / Stroke',
       };
 
